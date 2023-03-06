@@ -1,9 +1,11 @@
 #include "mainwindow.h"
 
 #include <QBoxLayout>
+#include <QSettings>
 
 #include "messagedispatcher.h"
 #include "elementslogowidget.h"
+#include "errormanager.h"
 #include "globaldefines.h"
 
 MainWindow::MainWindow(QWidget * parent) :
@@ -60,81 +62,89 @@ MainWindow::MainWindow(QWidget * parent) :
     connectBtn->setEnabled(false);
     connectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     connectBtn->setCheckable(true);
-//    connect(connectBtn, &QPushButton::clicked, this, &MainWindow::onConnect);
     deviceDetectorHl->addWidget(connectBtn);
 
     deviceDetectorHl->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
-
-    /*! Set up device detector */
-    deviceDetector = new DeviceDetector;
-    deviceDetector->moveToThread(&deviceDetectorThread);
-
-    connect(this, &MainWindow::startDetecting, deviceDetector, &DeviceDetector::onStartDetecting);
-    connect(this, &MainWindow::stopDetecting, deviceDetector, &DeviceDetector::onStopDetecting);
-
-    connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainWindow::onDevicesListChanged);
-
-    deviceDetectorThread.start();
-
-    emit startDetecting();
 }
 
 MainWindow::~MainWindow() {
-    deviceDetectorThread.quit();
-    deviceDetectorThread.wait();
 
-    if (deviceDetector != nullptr) {
-        delete deviceDetector;
-        deviceDetector = nullptr;
-    }
+}
 
-    if (deviceConnected) {
-//        this->destroyGuiControls();
+void MainWindow::setModelDevice(ModelDevice * modelDevice) {
+    mDev = modelDevice;
+}
 
-        messageDispatcher->disconnectDevice();
-        messageDispatcher->deinit();
-    }
+QPushButton * MainWindow::getConnectButton() {
+    return connectBtn;
+}
+
+QString MainWindow::getSelectedSerialNumber() {
+    return devicesComboBox->itemText(devicesComboBox->currentIndex());
 }
 
 void MainWindow::onDevicesListChanged(vector <string> devicesList) {
     if (devicesList.size() > 0) {
-        if (!deviceConnected) {
-            devicesComboBox->clear();
+        devicesComboBox->clear();
 
-            for (unsigned int idx = 0; idx < devicesList.size(); idx++) {
-                QString deviceName = QString::fromStdString(devicesList[idx]);
-                devicesComboBox->addItem(deviceName);
-            }
-            devicesComboBox->setEnabled(true);
-            connectBtn->setEnabled(true);
+        for (unsigned int idx = 0; idx < devicesList.size(); idx++) {
+            QString deviceName = QString::fromStdString(devicesList[idx]);
+            devicesComboBox->addItem(deviceName);
+        }
+        devicesComboBox->setEnabled(true);
+        connectBtn->setEnabled(true);
+
+    } else {
+        devicesComboBox->clear();
+
+        devicesComboBox->setEnabled(false);
+        connectBtn->setEnabled(false);
+    }
+}
+
+void MainWindow::onSetConnectedDeviceIdx(int idx) {
+    devicesComboBox->setCurrentIndex(idx);
+}
+
+void MainWindow::onConnect(bool flag, e384cl::ErrorCodes_t err) {
+    QString serial = devicesComboBox->itemText(devicesComboBox->currentIndex());
+
+    if (flag) {
+        if (err == e384cl::Success) {
+            connectBtn->setText("Disconnect");
+
+            devicesComboBox->setEnabled(false);
+            this->createGuiControls();
+            connectBtn->setChecked(true);
 
         } else {
-            QString connectedDeviceName = devicesComboBox->itemText(devicesComboBox->currentIndex());
-            devicesComboBox->clear();
-
-            int connectedDeviceIdx = -1;
-            for (unsigned int idx = 0; idx < devicesList.size(); idx++) {
-                QString deviceName = QString::fromStdString(devicesList[idx]);
-                devicesComboBox->addItem(deviceName);
-                if (connectedDeviceName == deviceName) {
-                    connectedDeviceIdx = (int)idx;
-                }
-            }
-            if (connectedDeviceIdx >= 0) {
-                devicesComboBox->setCurrentIndex(connectedDeviceIdx);
-
-            } else {
-//                this->onConnect(false);
-                connectBtn->setChecked(false);
-            }
+            ErrorManager e(err);
+            connectBtn->setChecked(false);
         }
 
     } else {
-        if (!deviceConnected) {
-            devicesComboBox->clear();
+        connectBtn->setText(QString::fromStdString("Connect"));
+        connectBtn->setChecked(false);
 
-            devicesComboBox->setEnabled(false);
-            connectBtn->setEnabled(false);
-        }
+        //            this->destroyGuiControls();
+        devicesComboBox->setEnabled(true);
     }
+}
+
+void MainWindow::createGuiControls() {
+    QSettings settings;
+
+    this->setStyleSheet("QSplitter::handle{image: url(:/imgs/splitter handle.png)}");
+
+    mDev->messageDispatcher->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+
+    dockWidgets.clear();
+
+
+
+
+
+
+
+    emit widgetsCreated();
 }

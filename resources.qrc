@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>imgs/logo_with_name.png</file>
+        <file>imgs/splitter handle.png</file>
     </qresource>
 </RCC>
