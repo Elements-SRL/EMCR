@@ -18,9 +18,6 @@ class ModelDevice {
 public:
     ModelDevice();
 
-    e384cl::ErrorCodes_t getChannelsNumber(int &voltageChannelNum, int &CurrentChannelNum);
-    e384cl::ErrorCodes_t getVcCurrentRanges(vector <e384cl::RangedMeasurement_t> &ranges);
-
     MessageDispatcher * getMessageDispatcher();
     QString getSerialNumber();
     bool isConnected();
@@ -54,6 +51,25 @@ public:
     void fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
     void fillChannelList(uint16_t numOfChannels);
 
+    // wrappers for MessageDispatcher get features
+    e384cl::ErrorCodes_t getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures);
+    e384cl::ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
+    e384cl::ErrorCodes_t getCalibVcCurrentOffsetFeatures(vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
+    e384cl::ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
+    e384cl::ErrorCodes_t getCalibCcVoltageOffsetFeatures(vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
+    e384cl::ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
+    e384cl::ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
+    e384cl::ErrorCodes_t getChannelsNumberFeatures(int &voltageChannelNum, int &CurrentChannelNum);
+
+    e384cl::ErrorCodes_t getVcCurrentRangesFeatures(vector <e384cl::RangedMeasurement_t> &vcCurrentRangesFeatures);
+    e384cl::ErrorCodes_t getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures);
+    e384cl::ErrorCodes_t getCcCurrentRangesFeatures(vector <RangedMeasurement_t> &ccCurrentRangesFeatures);
+    e384cl::ErrorCodes_t getCcVoltageRangesFeatures(vector <RangedMeasurement_t> &ccVoltageRangesFeatures);
+
+    e384cl::ErrorCodes_t getVoltageStimulusLpfsFeatures(vector <string> &filterOptions);
+    e384cl::ErrorCodes_t getCurrentStimulusLpfsFeatures(vector <string> &filterOptions);
+    //---------------------------------------------/
+
 private:
     MessageDispatcher * messageDispatcher = nullptr;
     QString serialNumber = "";
@@ -62,14 +78,14 @@ private:
     vector<ModelBoard> myBoards;
     vector<ModelChannel> myChannels;
     Measurement_t samplingRate = {0.0, UnitPfxNone, "Hz"};
-    RangedMeasurement_t vCcurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
-    RangedMeasurement_t vCvoltageRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
-    RangedMeasurement_t cCcurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
-    RangedMeasurement_t cCvoltageRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
-    Measurement_t vCcurrentFilter = {0.0, UnitPfxNone, "Hz"};
-    Measurement_t vCvoltageFilter = {0.0, UnitPfxNone, "Hz"};;
-    Measurement_t cCcurrentFilter = {0.0, UnitPfxNone, "Hz"};;
-    Measurement_t cCvoltageFilter = {0.0, UnitPfxNone, "Hz"};;
+    RangedMeasurement_t vcCurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
+    RangedMeasurement_t vcVoltageRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
+    RangedMeasurement_t ccCurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
+    RangedMeasurement_t ccVoltageRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
+    Measurement_t vcCurrentFilter = {0.0, UnitPfxNone, "Hz"};
+    Measurement_t vcVoltageFilter = {0.0, UnitPfxNone, "Hz"};;
+    Measurement_t ccCurrentFilter = {0.0, UnitPfxNone, "Hz"};;
+    Measurement_t ccVoltageFilter = {0.0, UnitPfxNone, "Hz"};;
 
 };
 
