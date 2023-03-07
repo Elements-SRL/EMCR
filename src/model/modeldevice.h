@@ -59,7 +59,8 @@ public:
     e384cl::ErrorCodes_t getCalibCcVoltageOffsetFeatures(vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
     e384cl::ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
     e384cl::ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
-    e384cl::ErrorCodes_t getChannelsNumberFeatures(int &voltageChannelNum, int &CurrentChannelNum);
+    e384cl::ErrorCodes_t getChannelsNumberFeatures(int &voltageChannelNum, int &currentChannelNum);
+    e384cl::ErrorCodes_t getBoardsNumberFeatures(int &boardNum);
 
     e384cl::ErrorCodes_t getVcCurrentRangesFeatures(vector <e384cl::RangedMeasurement_t> &vcCurrentRangesFeatures);
     e384cl::ErrorCodes_t getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures);

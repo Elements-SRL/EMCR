@@ -17,6 +17,8 @@ SOURCES += \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
+    src/view/chessboard.cpp \
+    src/view/stampplot.cpp \
     src/controller/maincontroller.cpp \
     src/controller/device/devicedetector.cpp \
     src/model/modeldevice.cpp \
@@ -28,6 +30,8 @@ HEADERS += \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
+    src/view/chessboard.h \
+    src/view/stampplot.h \
     src/controller/maincontroller.h \
     src/controller/device/devicedetector.h \
     src/model/modeldevice.h \
@@ -50,6 +54,7 @@ DEPENDPATH += \
 
 include(../e384commLib/frontPanel/includefrontpanel.pri)
 include(../e384commLib/includecommlib.pri)
+include(../qwt-6.1.4/includeqwt.pri)
 
 RESOURCES += \
     resources.qrc

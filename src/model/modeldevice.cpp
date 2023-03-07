@@ -177,6 +177,15 @@ e384cl::ErrorCodes_t ModelDevice::getChannelsNumberFeatures(int &voltageChannels
     return ret;
 }
 
+e384cl::ErrorCodes_t ModelDevice::getBoardsNumberFeatures(int &boardNum) {
+    uint16_t bNum;
+    e384cl::ErrorCodes_t ret = this->messageDispatcher->getBoardsNumberFeatures(bNum);
+    if (ret == e384cl::Success) {
+        boardNum = (int)bNum;
+    }
+    return ret;
+}
+
 e384cl::ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <e384cl::RangedMeasurement_t> &vcCurrentRangesFeatures) {
     return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures);
 }

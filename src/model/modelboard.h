@@ -10,8 +10,7 @@
 using namespace e384CommLib;
 using namespace std;
 
-class ModelBoard
-{
+class ModelBoard {
 public:
     ModelBoard();
 
