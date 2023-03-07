@@ -13,7 +13,6 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/controllerchannel.cpp \
     src/main.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
@@ -21,13 +20,13 @@ SOURCES += \
     src/view/chessboard.cpp \
     src/view/stampplot.cpp \
     src/controller/maincontroller.cpp \
+    src/controller/controllerchannel.cpp \
     src/controller/device/devicedetector.cpp \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp
 
 HEADERS += \
-    src/controller/controllerchannel.h \
     src/globaldefines.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
@@ -35,6 +34,7 @@ HEADERS += \
     src/view/chessboard.h \
     src/view/stampplot.h \
     src/controller/maincontroller.h \
+    src/controller/controllerchannel.h \
     src/controller/device/devicedetector.h \
     src/model/modeldevice.h \
     src/model/modelboard.h \

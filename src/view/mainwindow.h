@@ -9,6 +9,7 @@
 #include <QPushButton>
 
 #include "modeldevice.h"
+#include "chessboard.h"
 #include "e384commlib_errorcodes.h"
 
 namespace e384cl = e384CommLib;
@@ -33,6 +34,9 @@ public slots:
 
 private:
     void createGuiControls();
+    void destroyGuiControls();
+    void restoreUISettings();
+    void saveUISettings();
 
     ModelDevice * mDev = nullptr;
     QMenu * menuView = nullptr;
@@ -49,11 +53,13 @@ private:
     int totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
     QVector <QDockWidget *> dockWidgets;
+    QVector <QDockWidget *> analysisWidgets;
 
-//    PlotTab * plotTab = nullptr;
+    Chessboard * chessboard = nullptr;
 
 signals:
     void widgetsCreated();
+    void widgetsDestroyed();
 
 };
 #endif // MAINWINDOW_H

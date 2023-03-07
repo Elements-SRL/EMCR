@@ -103,3 +103,6 @@ void MainController::onMainWindowCreated() {
     /*! tante connect */
 }
 
+void MainController::onMainWindowDestroyed() {
+    emit startDetecting();
+}

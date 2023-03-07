@@ -4,16 +4,18 @@
 
 Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     QWidget(parent) {
+
     int voltageChannelsNum;
     int currentChannelsNum;
     int boardsNum;
-    int channelsPerBoard = currentChannelsNum/boardsNum;
 
     mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
     mDev->getBoardsNumberFeatures(boardsNum);
+    int channelsPerBoard = currentChannelsNum/boardsNum;
 
     QGridLayout * mainGl = new QGridLayout;
     mainGl->setMargin(0);
+    mainGl->setSpacing(1);
     this->setLayout(mainGl);
 
     allChannelsSelector = new QPushButton("ALL");
@@ -34,7 +36,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
             emit oneBoardClicked(boardIdx, selected);
         });
 
-        mainGl->addWidget(btn, 0, boardIdx);
+        mainGl->addWidget(btn, 0, boardIdx+1);
         boardSelectors[boardIdx] = btn;
     }
 
@@ -48,7 +50,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
             emit oneRowClicked(rowIdx, selected);
         });
 
-        mainGl->addWidget(btn, rowIdx, 0);
+        mainGl->addWidget(btn, rowIdx+1, 0);
         rowSelectors[rowIdx] = btn;
     }
 
@@ -62,12 +64,12 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
             emit singleChannelsClicked(channelIdx, selected);
         });
 
+        mainGl->addWidget(plot, rowIdx+1, boardIdx+1);
         rowIdx++;
         if (rowIdx == channelsPerBoard) {
             rowIdx = 0;
             boardIdx++;
         }
-        mainGl->addWidget(plot, rowIdx+1, boardIdx+1);
         plots[channelIdx] = plot;
     }
 }

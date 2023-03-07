@@ -7,6 +7,7 @@ StampPlot::StampPlot(QWidget * parent) :
 
     for (int axis = 0; axis < axisCnt; axis++) {
         this->axisWidget(axis)->setMargin(0);
+        this->enableAxis(axis, false);
     }
 
     QwtPlotCanvas * canvas = new QwtPlotCanvas();

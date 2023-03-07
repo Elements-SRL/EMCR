@@ -2,6 +2,7 @@
 
 #include <QBoxLayout>
 #include <QSettings>
+#include <QTimer>
 
 #include "messagedispatcher.h"
 #include "elementslogowidget.h"
@@ -140,11 +141,149 @@ void MainWindow::createGuiControls() {
 
     dockWidgets.clear();
 
+    /*********\
+     * plots *
+    \*********/
 
+    chessboard = new Chessboard(mDev);
+    chessboard->setObjectName("chessboard");
+    delete this->takeCentralWidget();
+    this->setCentralWidget(chessboard);
+    this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-
-
-
+    this->restoreUISettings();
 
     emit widgetsCreated();
+}
+
+void MainWindow::destroyGuiControls() {
+    QSettings settings;
+    this->saveUISettings();
+
+//    if (plotPreferencesDlg != nullptr) {
+//        delete plotPreferencesDlg;
+//        plotPreferencesDlg = nullptr;
+//    }
+//    actionPlotPreferences->setEnabled(false);
+
+//    if (menuFrontEndResetDenoiser->isEnabled()) {
+//        settings.setValue("Preferences/frontEndResetDenoiser", actionFrontEndResetDenoiserEnable->isChecked());
+//        menuFrontEndResetDenoiser->setEnabled(false);
+//    }
+
+//    if (actionDigitalOffsetCompensationAutostop->isEnabled()) {
+//        settings.setValue("Preferences/digitalOffsetCompensationAutostop", actionDigitalOffsetCompensationAutostop->isChecked());
+//        actionDigitalOffsetCompensationAutostop->setEnabled(false);
+//    }
+
+//    menuReset->setEnabled(false);
+//    this->removeViewActions();
+
+    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+        if (dockWidgets[dockIdx] != nullptr) {
+            delete dockWidgets[dockIdx];
+            dockWidgets[dockIdx] = nullptr;
+        }
+    }
+    dockWidgets.clear();
+
+    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
+        if (analysisWidgets[dockIdx] != nullptr) {
+            delete analysisWidgets[dockIdx];
+            analysisWidgets[dockIdx] = nullptr;
+        }
+    }
+    analysisWidgets.clear();
+
+//    if (deviceDataProducer!= nullptr) {
+//        deviceDataProducer->onStopProducing();
+//    }
+
+//    for (int consumerIdx = 0; consumerIdx < consumers.size(); consumerIdx++) {
+//        if (consumers[consumerIdx] != nullptr) {
+//            consumers[consumerIdx]->onStopConsuming();
+//            delete consumers[consumerIdx];
+//            consumers[consumerIdx] = nullptr;
+//        }
+//    }
+
+//    if (deviceDataProducer != nullptr) {
+//        delete deviceDataProducer; /*! The destructor also stops the producer thread */
+//        deviceDataProducer = nullptr;
+//    }
+
+    if (chessboard != nullptr) {
+        this->takeCentralWidget();
+        delete chessboard;
+        chessboard = nullptr;
+    }
+
+//    for (int shortcutIdx = 0; shortcutIdx < shortcuts.size(); shortcutIdx++) {
+//        if (shortcuts[shortcutIdx] != nullptr) {
+//            delete shortcuts[shortcutIdx];
+//        }
+//    }
+//    shortcuts.clear();
+
+    this->setCentralWidget(new ElementsLogoWidget);
+
+    emit widgetsDestroyed();
+}
+
+void MainWindow::restoreUISettings() {
+    QTimer * timer = new QTimer;
+    timer->setInterval(10);
+    timer->setSingleShot(true);
+
+    connect(timer, &QTimer::timeout, this, [=] () {
+        QSettings settings;
+        QString settingsRoot = "Preferences/UI/";
+        QString tag;
+
+        for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+            tag = settingsRoot + dockWidgets[dockIdx]->objectName() + "/geometry";
+            if (settings.contains(tag)) {
+                dockWidgets[dockIdx]->setGeometry(settings.value(tag).value <QRect> ());
+            }
+        }
+
+        for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
+            tag = settingsRoot + analysisWidgets[dockIdx]->objectName() + "/geometry";
+            if (settings.contains(tag)) {
+                analysisWidgets[dockIdx]->setGeometry(settings.value(tag).value <QRect> ());
+            }
+        }
+
+        tag = settingsRoot + chessboard->objectName() + "/geometry";
+        if (settings.contains(tag)) {
+            chessboard->setGeometry(settings.value(tag).value <QRect> ());
+        }
+
+        tag = settingsRoot + this->objectName() + "/state";
+        this->restoreState(settings.value(tag).toByteArray());
+    });
+
+    timer->start();
+}
+
+void MainWindow::saveUISettings() {
+    QSettings settings;
+    QString settingsRoot = "Preferences/UI/";
+    QString tag;
+
+    tag = settingsRoot + chessboard->objectName() + "/geometry";
+    settings.setValue(tag, QVariant(chessboard->geometry()));
+
+    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+        tag = settingsRoot + dockWidgets[dockIdx]->objectName() + "/geometry";
+        settings.setValue(tag, QVariant(dockWidgets[dockIdx]->geometry()));
+    }
+
+    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
+        tag = settingsRoot + analysisWidgets[dockIdx]->objectName() + "/geometry";
+        settings.setValue(tag, QVariant(analysisWidgets[dockIdx]->geometry()));
+    }
+
+    tag = settingsRoot + this->objectName() + "/state";
+    settings.setValue(tag, this->saveState());
 }

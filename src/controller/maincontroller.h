@@ -29,6 +29,7 @@ public slots:
     void onDevicesListChanged(vector <string> devicesList);
     void onConnect(bool flag);
     void onMainWindowCreated();
+    void onMainWindowDestroyed();
 
 signals:
     void startDetecting();
