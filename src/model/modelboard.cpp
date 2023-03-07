@@ -9,7 +9,7 @@ uint16_t ModelBoard::getId(){
     return this->id;
 }
 
-vector<ModelChannel> ModelBoard::getChannelsOnBoard(){
+vector<ModelChannel*> ModelBoard::getChannelsOnBoard(){
     return this->channelsOnBoard;
 }
 
@@ -26,7 +26,7 @@ void ModelBoard::setId(uint16_t id){
     this->id = id;
 }
 
-void ModelBoard::setChannelsOnBoard (vector<ModelChannel> channelsOnBoard){
+void ModelBoard::setChannelsOnBoard (vector<ModelChannel*> channelsOnBoard){
     this->channelsOnBoard = channelsOnBoard;
 }
 
@@ -41,9 +41,10 @@ void ModelBoard::setSourceVoltage(Measurement_t sourceVoltage){
 
 void ModelBoard::fillChannelList(uint16_t numChannelsOnBoard){
     this->channelsOnBoard.resize(numChannelsOnBoard);
-    for(uint16_t i = 0; i< numChannelsOnBoard; i++ ){
-        ModelChannel channel;
-        channel.setId(i);
+    for(uint16_t i =0; i< numChannelsOnBoard; i++ ){
+        uint16_t newChannelId = numChannelsOnBoard*this->getId() + i; // board_0: ch_0 -> ch_15; board_1: ch_16 -> ch_31; ...
+        ModelChannel* channel = new ModelChannel;
+        channel->setId(newChannelId);
         this->channelsOnBoard[i] = channel;
     }
 }

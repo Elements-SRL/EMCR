@@ -13,6 +13,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/controllerchannel.cpp \
     src/main.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
     src/model/modelchannel.cpp
 
 HEADERS += \
+    src/controller/controllerchannel.h \
     src/globaldefines.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \

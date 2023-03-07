@@ -24,11 +24,11 @@ void ModelDevice::setConnected(bool flag) {
     this->connected = flag;
 }
 
-vector<ModelBoard> ModelDevice::getBoards(){
+vector<ModelBoard*> ModelDevice::getBoards(){
     return this->myBoards;
 }
 
-vector<ModelChannel> ModelDevice::getChannels(){
+vector<ModelChannel*> ModelDevice::getChannels(){
     return this->myChannels;
 }
 
@@ -73,11 +73,11 @@ void ModelDevice::setMessageDispatcher(MessageDispatcher * messageDispatcher) {
     this->messageDispatcher = messageDispatcher;
 }
 
-void ModelDevice::setBoards(vector<ModelBoard> boards){
+void ModelDevice::setBoards(vector<ModelBoard*> boards){
     this->myBoards = boards;
 }
 
-void ModelDevice::setChannels(vector<ModelChannel> channels){
+void ModelDevice::setChannels(vector<ModelChannel*> channels){
     this->myChannels = channels;
 }
 
@@ -121,19 +121,23 @@ void ModelDevice::setCcVoltageFilter(Measurement_t ccVoltageFilter){
 void ModelDevice::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
     this->myBoards.resize(numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
-        ModelBoard board;
-        board.setId(i);
-        board.fillChannelList(numOfChannelsOnBoard);
+        ModelBoard* board = new ModelBoard;
+        board->setId(i);
+        board->fillChannelList(numOfChannelsOnBoard);
         this->myBoards[i] = board;
     }
 }
 
-void ModelDevice::fillChannelList(uint16_t numOfChannels){
-    this->myChannels.resize(numOfChannels);
-    for(uint16_t i = 0; i< numOfChannels; i++ ){
-        ModelChannel channel;
-        channel.setId(i);
-        this->myChannels[i] = channel;
+void ModelDevice::fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
+    if(this->myBoards.size() == 0){
+        this->fillBoardList(numOfBoards, numOfChannelsOnBoard);
+    }
+    uint16_t newChannelId = 0;
+    for(uint16_t i = 0; i< numOfBoards; i++ ){
+        for(uint16_t j = 0; i< numOfChannelsOnBoard; i++ ){
+            this->myChannels[newChannelId] = this->myBoards[i]->getChannelsOnBoard()[j];
+            newChannelId++;
+        }
     }
 }
 

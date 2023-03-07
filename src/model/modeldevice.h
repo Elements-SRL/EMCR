@@ -21,8 +21,8 @@ public:
     MessageDispatcher * getMessageDispatcher();
     QString getSerialNumber();
     bool isConnected();
-    vector<ModelBoard> getBoards();
-    vector<ModelChannel> getChannels();
+    vector<ModelBoard*> getBoards();
+    vector<ModelChannel*> getChannels();
     Measurement_t getSamplingRate();
     RangedMeasurement_t getVcCurrentRange();
     RangedMeasurement_t getVcVoltageRange();
@@ -36,8 +36,8 @@ public:
     void setMessageDispatcher(MessageDispatcher * messageDispatcher);
     void setSerialNumber(QString serial);
     void setConnected(bool flag);
-    void setBoards(vector<ModelBoard> boards);
-    void setChannels(vector<ModelChannel> channels);
+    void setBoards(vector<ModelBoard*> boards);
+    void setChannels(vector<ModelChannel*> channels);
     void setSamplingRate(Measurement_t samplingRate);
     void setVcCurrentRange(RangedMeasurement_t vCcurrentRange);
     void setVcVoltageRange(RangedMeasurement_t vCvoltageRange);
@@ -49,7 +49,7 @@ public:
     void setCcVoltageFilter(Measurement_t cCvoltageFilter);
 
     void fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
-    void fillChannelList(uint16_t numOfChannels);
+    void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannels);
 
     // wrappers for MessageDispatcher get features
     e384cl::ErrorCodes_t getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures);
@@ -75,8 +75,8 @@ private:
     QString serialNumber = "";
 
     bool connected = false;
-    vector<ModelBoard> myBoards;
-    vector<ModelChannel> myChannels;
+    vector<ModelBoard*> myBoards;
+    vector<ModelChannel*> myChannels;
     Measurement_t samplingRate = {0.0, UnitPfxNone, "Hz"};
     RangedMeasurement_t vcCurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
     RangedMeasurement_t vcVoltageRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
