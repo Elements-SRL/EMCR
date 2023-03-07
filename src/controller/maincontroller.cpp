@@ -42,7 +42,7 @@ MainController::~MainController() {
     if (mDev->isConnected()) {
         //        this->destroyGuiControls();
 
-        mDev->messageDispatcher->disconnectDevice();
+        mDev->getMessageDispatcher()->disconnectDevice();
     }
 }
 
@@ -75,7 +75,9 @@ void MainController::onConnect(bool flag) {
     mDev->setSerialNumber(serial);
 
     if (flag) {
-        e384cl::ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), mDev->messageDispatcher);
+        MessageDispatcher * messageDispatcher;
+        e384cl::ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
+        mDev->setMessageDispatcher(messageDispatcher);
 
         bool connectionSuccessful = ret == e384cl::Success;
         emit connectDevice(connectionSuccessful, ret);
@@ -89,10 +91,10 @@ void MainController::onConnect(bool flag) {
         emit connectDevice(false, e384cl::Success);
         mDev->setConnected(false);
 
-        if (mDev->messageDispatcher != nullptr) {
-            mDev->messageDispatcher->disconnect();
-            delete mDev->messageDispatcher;
-            mDev->messageDispatcher = nullptr;
+        if (mDev->getMessageDispatcher() != nullptr) {
+            mDev->getMessageDispatcher()->disconnect();
+            delete mDev->getMessageDispatcher();
+            mDev->setMessageDispatcher(nullptr);
         }
     }
 }

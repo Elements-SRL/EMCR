@@ -5,9 +5,14 @@
 
 #include "messagedispatcher.h"
 
+namespace e384cl = e384CommLib;
+
 class ModelDevice {
 public:
     ModelDevice();
+
+    MessageDispatcher * getMessageDispatcher();
+    void setMessageDispatcher(MessageDispatcher * messageDispatcher);
 
     QString getSerialNumber();
     bool isConnected();
@@ -15,13 +20,13 @@ public:
     void setSerialNumber(QString serial);
     void setConnected(bool flag);
 
-    /*! This is public just to avoid reproducing all the get methods of the messageDispatcher in the ModelDevice class */
-    MessageDispatcher * messageDispatcher = nullptr;
+    e384cl::ErrorCodes_t getChannelsNumber(int &voltageChannelNum, int &CurrentChannelNum);
 
 private:
+    MessageDispatcher * messageDispatcher = nullptr;
+
     QString serialNumber;
     bool connected = false;
-
 };
 
 #endif // MODELDEVICE_H

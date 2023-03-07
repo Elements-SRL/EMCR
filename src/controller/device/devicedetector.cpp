@@ -33,10 +33,6 @@ void DeviceDetector::detectDevices() {
     if (detectFlag) {
         e384cl::ErrorCodes_t ret = MessageDispatcher::detectDevices(detectedList);
 
-#ifndef GLB_HIDE_DEBUG_CTRLS
-        detectedList.push_back("e16 Demo");
-#endif
-
         if ((ret == e384cl::Success) || (ret == e384cl::ErrorNoDeviceFound)) {
             devicesList = detectedList;
             emit devicesListChanged(devicesList);

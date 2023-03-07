@@ -44,9 +44,9 @@ private:
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
 
-    uint16_t voltageChannelsNum = 1;
-    uint16_t currentChannelsNum = 1;
-    uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+    int voltageChannelsNum = 1;
+    int currentChannelsNum = 1;
+    int totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
     QVector <QDockWidget *> dockWidgets;
 
