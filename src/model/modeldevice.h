@@ -20,7 +20,7 @@ public:
 
 private:
     QString serialNumber;
-    bool connected;
+    bool connected = false;
 
 };
 

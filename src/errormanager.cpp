@@ -77,7 +77,7 @@ QString commLibCode2error(e384cl::ErrorCodes_t errorCode) {
         error = "Value out of range for the device";
         break;
 
-    case e384cl::WarningNoDataAvailable:
+    case e384cl::ErrorNoDataAvailable:
         error = "No data available";
         break;
 
@@ -178,7 +178,7 @@ QString commLibCode2info(e384cl::ErrorCodes_t errorCode) {
         info = "";
         break;
 
-    case e384cl::WarningNoDataAvailable:
+    case e384cl::ErrorNoDataAvailable:
         info = "";
         break;
 
