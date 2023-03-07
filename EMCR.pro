@@ -13,37 +13,39 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/maincontroller.cpp \
-    src/model/modeldevice.cpp \
-    src\main.cpp \
-    src\mainwindow.cpp \
-    src\errormanager.cpp \
-    src\device\devicedetector.cpp \
-    src\customwidget\elementslogowidget.cpp
+    src/main.cpp \
+    src/view/mainwindow.cpp \
+    src/view/errormanager.cpp \
+    src/view/elementslogowidget.cpp \
+    src/controller/maincontroller.cpp \
+    src/controller/device/devicedetector.cpp \
+    src/model/modeldevice.cpp
 
 HEADERS += \
-    src/maincontroller.h \
-    src/model/modeldevice.h \
-    src\globaldefines.h \
-    src\mainwindow.h \
-    src\errormanager.h \
-    src\device\devicedetector.h \
-    src\customwidget\elementslogowidget.h
+    src/globaldefines.h \
+    src/view/mainwindow.h \
+    src/view/errormanager.h \
+    src/view/elementslogowidget.h \
+    src/controller/maincontroller.h \
+    src/controller/device/devicedetector.h \
+    src/model/modeldevice.h
 
 INCLUDEPATH += \
-    .\src \
-    .\src\device \
-    .\src\customwidget \
-    .\src\model
+    ./src \
+    ./src/view \
+    ./src/controller \
+    ./src/controller/device \
+    ./src/model
 
 DEPENDPATH += \
-    .\src \
-    .\src\device \
-    .\src\customwidget \
-    .\src\model
+    ./src \
+    ./src/view \
+    ./src/controller \
+    ./src/controller/device \
+    ./src/model
 
-include(..\e384commLib\frontPanel\includefrontpanel.pri)
-include(..\e384commLib\includecommlib.pri)
+include(../e384commLib/frontPanel/includefrontpanel.pri)
+include(../e384commLib/includecommlib.pri)
 
 RESOURCES += \
     resources.qrc
