@@ -19,7 +19,9 @@ SOURCES += \
     src/view/elementslogowidget.cpp \
     src/controller/maincontroller.cpp \
     src/controller/device/devicedetector.cpp \
-    src/model/modeldevice.cpp
+    src/model/modeldevice.cpp \
+    src/model/modelboard.cpp \
+    src/model/modelchannel.cpp
 
 HEADERS += \
     src/globaldefines.h \
@@ -28,7 +30,9 @@ HEADERS += \
     src/view/elementslogowidget.h \
     src/controller/maincontroller.h \
     src/controller/device/devicedetector.h \
-    src/model/modeldevice.h
+    src/model/modeldevice.h \
+    src/model/modelboard.h \
+    src/model/modelchannel.h
 
 INCLUDEPATH += \
     ./src \
