@@ -136,7 +136,7 @@ void MainWindow::createGuiControls() {
 
     this->setStyleSheet("QSplitter::handle{image: url(:/imgs/splitter handle.png)}");
 
-    mDev->getChannelsNumber(voltageChannelsNum, currentChannelsNum);
+    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     dockWidgets.clear();
 
