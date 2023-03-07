@@ -5,6 +5,10 @@ ModelChannel::ModelChannel()
 
 }
 
+ModelChannel::~ModelChannel(){
+
+}
+
 uint16_t ModelChannel::getId(){
     return this->id;
 }

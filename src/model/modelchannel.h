@@ -10,6 +10,7 @@ class ModelChannel
 {
 public:
     ModelChannel();
+    ~ModelChannel();
 
     uint16_t getId();
     bool isOn();
