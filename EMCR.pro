@@ -14,6 +14,8 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/maincontroller.cpp \
+    src/model/modelboard.cpp \
+    src/model/modelchannel.cpp \
     src/model/modeldevice.cpp \
     src\main.cpp \
     src\mainwindow.cpp \
@@ -23,6 +25,8 @@ SOURCES += \
 
 HEADERS += \
     src/maincontroller.h \
+    src/model/modelboard.h \
+    src/model/modelchannel.h \
     src/model/modeldevice.h \
     src\globaldefines.h \
     src\mainwindow.h \
