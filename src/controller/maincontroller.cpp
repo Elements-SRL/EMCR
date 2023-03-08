@@ -77,7 +77,9 @@ void MainController::onConnect(bool flag) {
     if (flag) {
         MessageDispatcher * messageDispatcher;
         e384cl::ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
+
         mDev->setMessageDispatcher(messageDispatcher);
+        /*! \todo MPAX fillare i model */
 
         bool connectionSuccessful = ret == e384cl::Success;
         emit connectDevice(connectionSuccessful, ret);
