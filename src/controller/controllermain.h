@@ -1,5 +1,5 @@
-#ifndef MAINCONTROLLER_H
-#define MAINCONTROLLER_H
+#ifndef CONTROLLERMAIN_H
+#define CONTROLLERMAIN_H
 
 #include <QObject>
 #include <QThread>
@@ -9,12 +9,12 @@
 #include "devicedetector.h"
 #include "controllerchannel.h"
 
-class MainController : public QObject {
+class ControllerMain : public QObject {
     Q_OBJECT
 
 public:
-    MainController();
-    ~MainController();
+    ControllerMain();
+    ~ControllerMain();
 
     void setMainWindow(MainWindow * mainWindow);
 
@@ -42,4 +42,4 @@ signals:
     void connectDevice(bool flag, e384cl::ErrorCodes_t err);
 };
 
-#endif // MAINCONTROLLER_H
+#endif // CONTROLLERMAIN_H

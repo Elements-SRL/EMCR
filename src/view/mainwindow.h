@@ -10,6 +10,7 @@
 
 #include "modeldevice.h"
 #include "chessboard.h"
+#include "devicecontroldockwidget.h"
 #include "e384commlib_errorcodes.h"
 
 namespace e384cl = e384CommLib;
@@ -27,6 +28,7 @@ public:
     QPushButton * getConnectButton();
     QString getSelectedSerialNumber();
     Chessboard * getChessaboard();
+    DeviceControlDockWidget * getControlsDockWidget();
 
 public slots:
     void onDevicesListChanged(vector <string> devicesList);
@@ -43,6 +45,7 @@ private:
     QMenu * menuView = nullptr;
 
     QDockWidget * deviceDetectorDw = nullptr;
+    DeviceControlDockWidget * controlsDw = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;
 

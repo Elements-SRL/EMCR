@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "maincontroller.h"
+#include "controllermain.h"
 #include "mainwindow.h"
 
 int main(int argc, char *argv[]) {
@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType <vector <string>> ("vector <string>");
     qRegisterMetaType <e384cl::ErrorCodes_t> ("e384cl::ErrorCodes_t");
 
-    MainController c;
+    ControllerMain c;
     MainWindow w;
     c.setMainWindow(&w);
     w.show();

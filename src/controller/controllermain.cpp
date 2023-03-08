@@ -1,36 +1,36 @@
-#include "maincontroller.h"
+#include "controllermain.h"
 
-MainController::MainController() {
+ControllerMain::ControllerMain() {
     mDev = new ModelDevice();
 
     /*! Set up device detector */
     deviceDetector = new DeviceDetector;
     deviceDetector->moveToThread(&deviceDetectorThread);
 
-    connect(this, &MainController::startDetecting, deviceDetector, &DeviceDetector::onStartDetecting);
-    connect(this, &MainController::stopDetecting, deviceDetector, &DeviceDetector::onStopDetecting);
+    connect(this, &ControllerMain::startDetecting, deviceDetector, &DeviceDetector::onStartDetecting);
+    connect(this, &ControllerMain::stopDetecting, deviceDetector, &DeviceDetector::onStopDetecting);
 
     deviceDetectorThread.start();
 
 }
 
-void MainController::setMainWindow(MainWindow * mainWindow) {
+void ControllerMain::setMainWindow(MainWindow * mainWindow) {
     this->mainWindow = mainWindow;
 
     mainWindow->setModelDevice(mDev);
 
-    connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
-    connect(this, &MainController::devicesListChanged, mainWindow, &MainWindow::onDevicesListChanged);
-    connect(this, &MainController::setConnectedDeviceIdx, mainWindow, &MainWindow::onSetConnectedDeviceIdx);
-    connect(this, &MainController::connectDevice, mainWindow, &MainWindow::onConnect);
-    connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
+    connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &ControllerMain::onDevicesListChanged);
+    connect(this, &ControllerMain::devicesListChanged, mainWindow, &MainWindow::onDevicesListChanged);
+    connect(this, &ControllerMain::setConnectedDeviceIdx, mainWindow, &MainWindow::onSetConnectedDeviceIdx);
+    connect(this, &ControllerMain::connectDevice, mainWindow, &MainWindow::onConnect);
+    connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &ControllerMain::onConnect);
 
-    connect(mainWindow, &MainWindow::widgetsCreated, this, &MainController::onMainWindowCreated);
+    connect(mainWindow, &MainWindow::widgetsCreated, this, &ControllerMain::onMainWindowCreated);
 
     emit startDetecting();
 }
 
-MainController::~MainController() {
+ControllerMain::~ControllerMain() {
     deviceDetectorThread.quit();
     deviceDetectorThread.wait();
 
@@ -46,7 +46,7 @@ MainController::~MainController() {
     }
 }
 
-void MainController::onDevicesListChanged(vector <string> devicesList) {
+void ControllerMain::onDevicesListChanged(vector <string> devicesList) {
     emit devicesListChanged(devicesList);
     if (devicesList.size() > 0) {
         if (mDev->isConnected()) {
@@ -70,7 +70,7 @@ void MainController::onDevicesListChanged(vector <string> devicesList) {
     }
 }
 
-void MainController::onConnect(bool flag) {
+void ControllerMain::onConnect(bool flag) {
     QString serial = mainWindow->getSelectedSerialNumber();
     mDev->setSerialNumber(serial);
 
@@ -106,7 +106,7 @@ void MainController::onConnect(bool flag) {
     }
 }
 
-void MainController::onMainWindowCreated() {
+void ControllerMain::onMainWindowCreated() {
     controllerChannel = new ControllerChannel(mDev);
 
     connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked, controllerChannel, &ControllerChannel::onAllChannelsClicked);
@@ -116,7 +116,7 @@ void MainController::onMainWindowCreated() {
     /*! tante connect */
 }
 
-void MainController::onMainWindowDestroyed() {
+void ControllerMain::onMainWindowDestroyed() {
     if (controllerChannel != nullptr) {
         delete controllerChannel;
         controllerChannel = nullptr;

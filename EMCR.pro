@@ -14,15 +14,16 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/main.cpp \
-    src/view/bigplot.cpp \
-#    src/view/bigplotdockwidget.cpp \
-    src/view/curve.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
+    src/view/bigplot.cpp \
+#    src/view/bigplotdockwidget.cpp \
+    src/view/curve.cpp \
     src/view/chessboard.cpp \
     src/view/stampplot.cpp \
-    src/controller/maincontroller.cpp \
+    src/view/devicecontroldockwidget.cpp \
+    src/controller/controllermain.cpp \
     src/controller/controllerchannel.cpp \
     src/controller/device/devicedetector.cpp \
     src/model/modeldevice.cpp \
@@ -31,15 +32,16 @@ SOURCES += \
 
 HEADERS += \
     src/globaldefines.h \
-    src/view/bigplot.h \
-#    src/view/bigplotdockwidget.h \
-    src/view/curve.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
+    src/view/bigplot.h \
+#    src/view/bigplotdockwidget.h \
+    src/view/curve.h \
     src/view/chessboard.h \
     src/view/stampplot.h \
-    src/controller/maincontroller.h \
+    src/view/devicecontroldockwidget.h \
+    src/controller/controllermain.h \
     src/controller/controllerchannel.h \
     src/controller/device/devicedetector.h \
     src/model/modeldevice.h \

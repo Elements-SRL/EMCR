@@ -88,6 +88,10 @@ Chessboard * MainWindow::getChessaboard() {
     return chessboard;
 }
 
+DeviceControlDockWidget * MainWindow::getControlsDockWidget() {
+    return controlsDw;
+}
+
 void MainWindow::onDevicesListChanged(vector <string> devicesList) {
     if (devicesList.size() > 0) {
         devicesComboBox->clear();
@@ -144,6 +148,16 @@ void MainWindow::createGuiControls() {
     mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     dockWidgets.clear();
+
+    /*****************\
+     * controls dock *
+    \*****************/
+
+    controlsDw = new DeviceControlDockWidget(mDev);
+
+    controlsDw->setObjectName("controlsDw");
+    this->addDockWidget(Qt::RightDockWidgetArea, controlsDw);
+    dockWidgets.append(controlsDw);
 
     /*********\
      * plots *
