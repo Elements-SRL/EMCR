@@ -11,7 +11,7 @@ class ControllerChannel : public QObject {
     Q_OBJECT
 
 public:
-    ControllerChannel();
+    ControllerChannel(ModelDevice * mDev);
 
     void setModelDevice(ModelDevice * mDev);
 
@@ -20,7 +20,7 @@ private:
 
 public slots:
     // To do on actions done on the chessboard
-    void onSingleChannelsClicked(uint16_t changedChannelIndexes, bool newChannelState);
+    void onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState);
     void onOneBoardClicked(uint16_t changedBoardIndex, bool newChannelState);
     void onOneRowClicked(uint16_t changedRowIndexes, bool newChannelState);
     void onAllChannelsClicked(bool newChannelState);

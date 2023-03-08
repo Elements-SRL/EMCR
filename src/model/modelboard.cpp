@@ -5,6 +5,16 @@ ModelBoard::ModelBoard()
 
 }
 
+ModelBoard::~ModelBoard()
+{
+    int numOfChannels = this->channelsOnBoard.size();
+    for(uint16_t i = 0; i< numOfChannels; i++ ){
+        if (this->channelsOnBoard[i] != nullptr) {
+            delete this->channelsOnBoard[i];
+        }
+    }
+}
+
 uint16_t ModelBoard::getId(){
     return this->id;
 }

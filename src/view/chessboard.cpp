@@ -61,7 +61,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
         StampPlot * plot = new StampPlot();
         plot->setFixedSize(30, 30);
         connect(plot, &StampPlot::selected, this, [=] (bool selected) {
-            emit singleChannelsClicked(channelIdx, selected);
+            emit singleChannelClicked(channelIdx, selected);
         });
 
         mainGl->addWidget(plot, rowIdx+1, boardIdx+1);

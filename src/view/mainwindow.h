@@ -26,6 +26,7 @@ public:
     void setModelDevice(ModelDevice * modelDevice);
     QPushButton * getConnectButton();
     QString getSelectedSerialNumber();
+    Chessboard * getChessaboard();
 
 public slots:
     void onDevicesListChanged(vector <string> devicesList);

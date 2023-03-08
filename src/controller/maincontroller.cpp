@@ -79,14 +79,12 @@ void MainController::onConnect(bool flag) {
         e384cl::ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
 
         mDev->setMessageDispatcher(messageDispatcher);
-        /*! \todo MPAX fillare i model */
         uint16_t voltageChannelsNumber;
         uint16_t currentChannelsNumber;
         uint16_t boardsNumber; // da estrarre da MessageDispatcher
         mDev->getMessageDispatcher()->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
         mDev->getMessageDispatcher()->getBoardsNumberFeatures(boardsNumber);
-        mDev->fillChannelList(boardsNumber, currentChannelsNumber);
-
+        mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
 
         bool connectionSuccessful = ret == e384cl::Success;
         emit connectDevice(connectionSuccessful, ret);
@@ -109,9 +107,22 @@ void MainController::onConnect(bool flag) {
 }
 
 void MainController::onMainWindowCreated() {
+    controllerChannel = new ControllerChannel(mDev);
+
+    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked, controllerChannel, &ControllerChannel::onAllChannelsClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked, controllerChannel, &ControllerChannel::onOneRowClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked, controllerChannel, &ControllerChannel::onOneBoardClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked, controllerChannel, &ControllerChannel::onSingleChannelClicked);
     /*! tante connect */
 }
 
 void MainController::onMainWindowDestroyed() {
+    if (controllerChannel != nullptr) {
+        delete controllerChannel;
+        controllerChannel = nullptr;
+    }
+
+    mDev->flushBoardList();
+
     emit startDetecting();
 }

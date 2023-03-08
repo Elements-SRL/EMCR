@@ -13,6 +13,7 @@ using namespace std;
 class ModelBoard {
 public:
     ModelBoard();
+    ~ModelBoard();
 
     uint16_t getId();
     vector<ModelChannel*> getChannelsOnBoard();

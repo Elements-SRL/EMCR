@@ -22,8 +22,8 @@ private:
 signals:
     void allChannelsClicked(bool newChannelState);
     void oneBoardClicked(uint16_t changedBoardIndex, bool newChannelState);
-    void oneRowClicked(uint16_t changedRowIndexes, bool newChannelState);
-    void singleChannelsClicked(uint16_t changedChannelIndexes, bool newChannelState);
+    void oneRowClicked(uint16_t changedRowIndex, bool newChannelState);
+    void singleChannelClicked(uint16_t changedChannelIndex, bool newChannelState);
 };
 
 #endif // CHESSBOARD_H

@@ -84,6 +84,10 @@ QString MainWindow::getSelectedSerialNumber() {
     return devicesComboBox->itemText(devicesComboBox->currentIndex());
 }
 
+Chessboard * MainWindow::getChessaboard() {
+    return chessboard;
+}
+
 void MainWindow::onDevicesListChanged(vector <string> devicesList) {
     if (devicesList.size() > 0) {
         devicesComboBox->clear();

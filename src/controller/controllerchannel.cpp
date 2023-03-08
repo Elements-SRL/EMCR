@@ -1,6 +1,7 @@
 #include "controllerchannel.h"
 
-ControllerChannel::ControllerChannel()
+ControllerChannel::ControllerChannel(ModelDevice * mDev) :
+    mDev(mDev)
 {
 
 }
@@ -9,7 +10,7 @@ void ControllerChannel::setModelDevice(ModelDevice * mDev){
     this->mDev = mDev;
 }
 
-void ControllerChannel::onSingleChannelsClicked(uint16_t changedChannelIndexes, bool newChannelState){
+void ControllerChannel::onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState){
     this->mDev->getChannels()[changedChannelIndexes]->setSelected(newChannelState);
     emit sigUpdateChannelControlDockWidget();
 }

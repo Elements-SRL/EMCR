@@ -4,6 +4,10 @@ ModelDevice::ModelDevice() {
 
 }
 
+ModelDevice::~ModelDevice() {
+
+}
+
 MessageDispatcher * ModelDevice::getMessageDispatcher() {
     return messageDispatcher;
 }
@@ -133,12 +137,24 @@ void ModelDevice::fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOn
         this->fillBoardList(numOfBoards, numOfChannelsOnBoard);
     }
     uint16_t newChannelId = 0;
+    myChannels.resize(numOfChannelsOnBoard*numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
-        for(uint16_t j = 0; i< numOfChannelsOnBoard; i++ ){
+        for(uint16_t j = 0; j< numOfChannelsOnBoard; j++ ){
             this->myChannels[newChannelId] = this->myBoards[i]->getChannelsOnBoard()[j];
             newChannelId++;
         }
     }
+}
+
+void ModelDevice::flushBoardList() {
+    int numOfBoards = this->myBoards.size();
+    for(uint16_t i = 0; i< numOfBoards; i++ ){
+        if (this->myBoards[i] != nullptr) {
+            delete this->myBoards[i];
+        }
+    }
+    myBoards.clear();
+    myChannels.clear();
 }
 
 // wrappers for MessageDispatcher get features

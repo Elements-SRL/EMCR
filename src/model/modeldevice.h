@@ -17,6 +17,7 @@ namespace e384cl = e384CommLib;
 class ModelDevice {
 public:
     ModelDevice();
+    ~ModelDevice();
 
     MessageDispatcher * getMessageDispatcher();
     QString getSerialNumber();
@@ -50,6 +51,8 @@ public:
 
     void fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannels);
+
+    void flushBoardList();
 
     // wrappers for MessageDispatcher get features
     e384cl::ErrorCodes_t getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures);

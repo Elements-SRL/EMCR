@@ -27,7 +27,7 @@ StampPlot::StampPlot(QWidget * parent) :
     deselectPicker->setStateMachine(new QwtPickerClickPointMachine());
     deselectPicker->setTrackerMode(QwtPlotPicker::AlwaysOff);
     deselectPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::RightButton);
-    connect(selectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onDeselected);
+    connect(deselectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onDeselected);
 }
 
 void StampPlot::onSelected() {
