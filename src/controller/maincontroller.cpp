@@ -80,6 +80,13 @@ void MainController::onConnect(bool flag) {
 
         mDev->setMessageDispatcher(messageDispatcher);
         /*! \todo MPAX fillare i model */
+        uint16_t voltageChannelsNumber;
+        uint16_t currentChannelsNumber;
+        uint16_t boardsNumber; // da estrarre da MessageDispatcher
+        mDev->getMessageDispatcher()->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
+        mDev->getMessageDispatcher()->getBoardsNumberFeatures(boardsNumber);
+        mDev->fillChannelList(boardsNumber, currentChannelsNumber);
+
 
         bool connectionSuccessful = ret == e384cl::Success;
         emit connectDevice(connectionSuccessful, ret);
