@@ -40,14 +40,14 @@ void ControllerChannel::onAllChannelsClicked(bool newChannelState){
     emit sigUpdateChannelControlDockWidget();
 }
 
-void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
-    this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, applyFlag);
+void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
 }
 
-void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
-    this->mDev->getMessageDispatcher()->digitalOffsetCompensation(channelIndexes, onValues, applyFlag);
+void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->digitalOffsetCompensation(channelIndexes, onValues, true);
 }
 
-void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages, bool applyFlag){
-    this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
+void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages){
+    this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, voltages, true);
 }

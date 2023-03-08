@@ -32,7 +32,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
         vLayout->addWidget(qrb);
         connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
-                emit vcCurrentRangeSelected(idx);
+                emit sigVcCurrentRangeSelected(idx);
             }
         });
     }
