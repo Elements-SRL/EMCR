@@ -12,9 +12,6 @@ class DeviceControlDockWidget : public QDockWidget{
 public:
     DeviceControlDockWidget(ModelDevice * modelDevice);
 
-/*public slots:
-    void onUpdate();*/
-
 private:
     ModelDevice * modelDevice;
     QGroupBox * vcCurrentRangesGroupBox;

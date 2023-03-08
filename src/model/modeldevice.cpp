@@ -72,6 +72,13 @@ Measurement_t ModelDevice::getCcVoltageFilter(){
     return this->ccVoltageFilter;
 }
 
+QVector <bool> ModelDevice::getSelectedChannelsIdxs() {
+    QVector <bool> ret(this->myChannels.size());
+    for (int idx = 0; idx < this->myChannels.size(); idx++) {
+        ret[idx] = this->myChannels[idx]->isSelected();
+    }
+    return ret;
+}
 
 void ModelDevice::setMessageDispatcher(MessageDispatcher * messageDispatcher) {
     this->messageDispatcher = messageDispatcher;

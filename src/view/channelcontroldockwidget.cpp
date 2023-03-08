@@ -1,6 +1,8 @@
 #include "channelcontroldockwidget.h"
 
 #include <QBoxLayout>
+#include <QScrollBar>
+#include <QScrollArea>
 
 ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget * parent) :
     QDockWidget(parent),
@@ -33,7 +35,10 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
 }
 
 void ChannelControlDockWidget::onUpdate() {
-    mDev->get
+    QVector <bool> selectedChannels = mDev->getSelectedChannelsIdxs();
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        turnChannelsOnOffBtns[idx]->setVisible(selectedChannels[idx]);
+    }
 }
 
 QWidget * ChannelControlDockWidget::createTurnChannelsOnOffWidget() {
@@ -44,11 +49,27 @@ QWidget * ChannelControlDockWidget::createTurnChannelsOnOffWidget() {
     vl->setSpacing(1);
     turnChannelsOnOffWidget->setLayout(vl);
 
+    QScrollArea * scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    vl->addWidget(scrollArea);
+
+    QWidget * scrollWg = new QWidget;
+    scrollArea->setWidget(scrollWg);
+
+    QVBoxLayout * scrollVl = new QVBoxLayout;
+    scrollVl->setContentsMargins(0, 0, 0, 0);
+    scrollVl->setSpacing(1);
+    scrollWg->setLayout(scrollVl);
+
     turnChannelsOnOffBtns.resize(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        QCheckBox * btn = new QCheckBox(QString("Ch%1 On").arg(idx+1));
+        QCheckBox * btn = new QCheckBox(QString("Ch %1 On").arg(idx+1));
         btn->setChecked(true);
-        vl->addWidget(btn);
+        scrollVl->addWidget(btn);
         turnChannelsOnOffBtns[idx] = btn;
     }
+    return turnChannelsOnOffWidget;
 }

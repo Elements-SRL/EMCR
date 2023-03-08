@@ -44,7 +44,3 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
     vLayout->addWidget(spacer);
 }
-
-void DeviceControlDockWidget::onUpdate() {
-
-}

@@ -2,6 +2,7 @@
 #define MODELDEVICE_H
 
 #include <QString>
+#include <QVector>
 #include <vector>
 
 #include "messagedispatcher.h"
@@ -33,6 +34,7 @@ public:
     Measurement_t getVcVoltageFilter();
     Measurement_t getCcCurrentFilter();
     Measurement_t getCcVoltageFilter();
+    QVector <bool> getSelectedChannelsIdxs();
 
     void setMessageDispatcher(MessageDispatcher * messageDispatcher);
     void setSerialNumber(QString serial);
