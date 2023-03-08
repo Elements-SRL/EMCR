@@ -84,9 +84,9 @@ protected:
 protected slots:
     virtual void onZoomInPickerAppended(const QPointF &p);
     virtual void onZoomInPickerMoved(const QPointF &p);
-    virtual void onZoomInPickerSelected(const QRectF &r) = 0;
-    virtual void onZoomOutPickerSelected(const QPointF &p) = 0;
-    virtual void onZoomResetPickerSelected(const QPointF &p) = 0;
+    virtual void onZoomInPickerSelected(const QRectF &r);
+    virtual void onZoomOutPickerSelected(const QPointF &p);
+    virtual void onZoomResetPickerSelected(const QPointF &p);
 
 private:
     QVector <Rect4> zoomStack;

@@ -18,7 +18,7 @@ SOURCES += \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
     src/view/bigplot.cpp \
-#    src/view/bigplotdockwidget.cpp \
+    src/view/bigplotdockwidget.cpp \
     src/view/curve.cpp \
     src/view/chessboard.cpp \
     src/view/stampplot.cpp \
@@ -36,7 +36,7 @@ HEADERS += \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
     src/view/bigplot.h \
-#    src/view/bigplotdockwidget.h \
+    src/view/bigplotdockwidget.h \
     src/view/curve.h \
     src/view/chessboard.h \
     src/view/stampplot.h \

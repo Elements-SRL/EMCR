@@ -6,8 +6,7 @@
 #include "devicecontroldockwidget.h"
 #include <QVBoxLayout>
 
-DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDockWidget()
-{
+DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDockWidget() {
     this->modelDevice = modelDevice;
 
     vector <RangedMeasurement_t> vcCurrentRanges;
@@ -40,5 +39,12 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
         this->vcCurrentRangesRadioButtons[0]->setChecked(true);
     }
     this->vcCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
+
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    vLayout->addWidget(spacer);
+}
+
+void DeviceControlDockWidget::onUpdate() {
 
 }

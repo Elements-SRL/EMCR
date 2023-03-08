@@ -149,12 +149,13 @@ void MainWindow::createGuiControls() {
 
     dockWidgets.clear();
 
+    this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
     /*****************\
      * controls dock *
     \*****************/
 
     controlsDw = new DeviceControlDockWidget(mDev);
-
     controlsDw->setObjectName("controlsDw");
     this->addDockWidget(Qt::RightDockWidgetArea, controlsDw);
     dockWidgets.append(controlsDw);
@@ -168,6 +169,11 @@ void MainWindow::createGuiControls() {
     delete this->takeCentralWidget();
     this->setCentralWidget(chessboard);
     this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+    bigPlotDw = new BigPlotDockWidget();
+    bigPlotDw->setObjectName("bigPlotDw");
+    this->addDockWidget(Qt::BottomDockWidgetArea, bigPlotDw);
+    dockWidgets.append(bigPlotDw);
 
     this->restoreUISettings();
 

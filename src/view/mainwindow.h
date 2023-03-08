@@ -11,6 +11,7 @@
 #include "modeldevice.h"
 #include "chessboard.h"
 #include "devicecontroldockwidget.h"
+#include "bigplotdockwidget.h"
 #include "e384commlib_errorcodes.h"
 
 namespace e384cl = e384CommLib;
@@ -46,6 +47,7 @@ private:
 
     QDockWidget * deviceDetectorDw = nullptr;
     DeviceControlDockWidget * controlsDw = nullptr;
+    BigPlotDockWidget * bigPlotDw = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;
 
