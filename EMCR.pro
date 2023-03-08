@@ -14,6 +14,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/main.cpp \
+    src/view/channelcontroldockwidget.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
@@ -32,6 +33,7 @@ SOURCES += \
 
 HEADERS += \
     src/globaldefines.h \
+    src/view/channelcontroldockwidget.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \

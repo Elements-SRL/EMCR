@@ -11,6 +11,7 @@
 #include "modeldevice.h"
 #include "chessboard.h"
 #include "devicecontroldockwidget.h"
+#include "channelcontroldockwidget.h"
 #include "bigplotdockwidget.h"
 #include "e384commlib_errorcodes.h"
 
@@ -29,7 +30,8 @@ public:
     QPushButton * getConnectButton();
     QString getSelectedSerialNumber();
     Chessboard * getChessaboard();
-    DeviceControlDockWidget * getControlsDockWidget();
+    DeviceControlDockWidget * getDeviceControlsDockWidget();
+    ChannelControlDockWidget * getChannelControlsDockWidget();
 
 public slots:
     void onDevicesListChanged(vector <string> devicesList);
@@ -46,7 +48,8 @@ private:
     QMenu * menuView = nullptr;
 
     QDockWidget * deviceDetectorDw = nullptr;
-    DeviceControlDockWidget * controlsDw = nullptr;
+    DeviceControlDockWidget * deviceControlsDw = nullptr;
+    ChannelControlDockWidget * channelControlsDw = nullptr;
     BigPlotDockWidget * bigPlotDw = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;

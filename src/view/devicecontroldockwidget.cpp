@@ -1,4 +1,4 @@
-#define TITLE "Controls"
+#define TITLE "Device controls"
 
 #define CURRENT_RANGE "Current Ranges"
 #define STIMULUS_FILTER "Readout Filters"

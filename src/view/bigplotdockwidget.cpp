@@ -2,8 +2,8 @@
 
 #include <QBoxLayout>
 
-BigPlotDockWidget::BigPlotDockWidget() :
-    QDockWidget() {
+BigPlotDockWidget::BigPlotDockWidget(QWidget * parent) :
+    QDockWidget(parent) {
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);

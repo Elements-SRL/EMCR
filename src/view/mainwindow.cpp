@@ -88,8 +88,12 @@ Chessboard * MainWindow::getChessaboard() {
     return chessboard;
 }
 
-DeviceControlDockWidget * MainWindow::getControlsDockWidget() {
-    return controlsDw;
+DeviceControlDockWidget * MainWindow::getDeviceControlsDockWidget() {
+    return deviceControlsDw;
+}
+
+ChannelControlDockWidget * MainWindow::getChannelControlsDockWidget() {
+    return channelControlsDw;
 }
 
 void MainWindow::onDevicesListChanged(vector <string> devicesList) {
@@ -155,10 +159,15 @@ void MainWindow::createGuiControls() {
      * controls dock *
     \*****************/
 
-    controlsDw = new DeviceControlDockWidget(mDev);
-    controlsDw->setObjectName("controlsDw");
-    this->addDockWidget(Qt::RightDockWidgetArea, controlsDw);
-    dockWidgets.append(controlsDw);
+    deviceControlsDw = new DeviceControlDockWidget(mDev);
+    deviceControlsDw->setObjectName("deviceControlsDw");
+    this->addDockWidget(Qt::RightDockWidgetArea, deviceControlsDw);
+    dockWidgets.append(deviceControlsDw);
+
+    channelControlsDw = new ChannelControlDockWidget(mDev);
+    channelControlsDw->setObjectName("channelControlsDw");
+    this->addDockWidget(Qt::RightDockWidgetArea, channelControlsDw);
+    dockWidgets.append(channelControlsDw);
 
     /*********\
      * plots *

@@ -9,7 +9,7 @@ class BigPlotDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    BigPlotDockWidget();
+    BigPlotDockWidget(QWidget * parent = nullptr);
 
 private:
     BigPlot * plot = nullptr;
