@@ -12,8 +12,8 @@ class DeviceControlDockWidget : public QDockWidget{
 public:
     DeviceControlDockWidget(ModelDevice * modelDevice);
 
-public slots:
-    void onUpdate();
+/*public slots:
+    void onUpdate();*/
 
 private:
     ModelDevice * modelDevice;
@@ -21,7 +21,7 @@ private:
     vector<QRadioButton *> vcCurrentRangesRadioButtons;
 
 signals:
-    void vcCurrentRangeSelected(int idx);
+    void sigVcCurrentRangeSelected(int idx);
 };
 
 #endif // DEVICECONTROLDOCKWIDGET_H

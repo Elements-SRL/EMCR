@@ -108,11 +108,13 @@ void ControllerMain::onConnect(bool flag) {
 
 void ControllerMain::onMainWindowCreated() {
     controllerChannel = new ControllerChannel(mDev);
+    controllerDevice = new ControllerDevice(mDev);
 
     connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked, controllerChannel, &ControllerChannel::onAllChannelsClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked, controllerChannel, &ControllerChannel::onOneRowClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked, controllerChannel, &ControllerChannel::onOneBoardClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked, controllerChannel, &ControllerChannel::onSingleChannelClicked);
+    connect(mainWindow->getControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
     /*! tante connect */
 }
 

@@ -13,6 +13,8 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/controllerboard.cpp \
+    src/controller/controllerdevice.cpp \
     src/main.cpp \
     src/view/channelcontroldockwidget.cpp \
     src/view/mainwindow.cpp \
@@ -32,6 +34,8 @@ SOURCES += \
     src/model/modelchannel.cpp
 
 HEADERS += \
+    src/controller/controllerboard.h \
+    src/controller/controllerdevice.h \
     src/globaldefines.h \
     src/view/channelcontroldockwidget.h \
     src/view/mainwindow.h \
