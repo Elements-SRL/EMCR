@@ -11,7 +11,7 @@ void ControllerChannel::setModelDevice(ModelDevice * mDev){
 
 void ControllerChannel::onSingleChannelsClicked(uint16_t changedChannelIndexes, bool newChannelState){
     this->mDev->getChannels()[changedChannelIndexes]->setSelected(newChannelState);
-    emit updateChannelControlDockWidget();
+    emit sigUpdateChannelControlDockWidget();
 }
 
 void ControllerChannel::onOneBoardClicked(uint16_t changedBoardIndex, bool newChannelState){
@@ -20,7 +20,7 @@ void ControllerChannel::onOneBoardClicked(uint16_t changedBoardIndex, bool newCh
     for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
         boardToUpdate->getChannelsOnBoard()[i]->setSelected(newChannelState);
     }
-    emit updateChannelControlDockWidget();
+    emit sigUpdateChannelControlDockWidget();
 }
 
 void ControllerChannel::onOneRowClicked(uint16_t changedRowIndex, bool newChannelState){
@@ -28,7 +28,7 @@ void ControllerChannel::onOneRowClicked(uint16_t changedRowIndex, bool newChanne
     for(uint16_t i = 0; i < numOfBoardsToUpadate; i++){
         this->mDev->getBoards()[i]->getChannelsOnBoard()[changedRowIndex]->setSelected(newChannelState);
     }
-    emit updateChannelControlDockWidget();
+    emit sigUpdateChannelControlDockWidget();
 }
 
 void ControllerChannel::onAllChannelsClicked(bool newChannelState){
@@ -36,5 +36,17 @@ void ControllerChannel::onAllChannelsClicked(bool newChannelState){
     for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
         this->mDev->getChannels()[i]->setSelected(newChannelState);
     }
-    emit updateChannelControlDockWidget();
+    emit sigUpdateChannelControlDockWidget();
+}
+
+void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
+    this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, applyFlag);
+}
+
+void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
+    this->mDev->getMessageDispatcher()->digitalOffsetCompensation(channelIndexes, onValues, applyFlag);
+}
+
+void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages, bool applyFlag){
+    this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
 }
