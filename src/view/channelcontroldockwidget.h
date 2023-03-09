@@ -31,6 +31,7 @@ private:
     } Operations_t;
 
     QVector <QString> operationTitles;
+    QVector <QString> operationString;
 
     QWidget * createOperationWidget(int idx);
     QVBoxLayout * getLayoutWithScrollBar(QWidget * widget);

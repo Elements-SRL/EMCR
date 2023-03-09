@@ -1,7 +1,6 @@
 #include "boardcontroldockwidget.h"
 
 #include <vector>
-#include <QHBoxLayout>
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QLabel>
@@ -11,7 +10,8 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     QDockWidget(parent),
     mDev(mDev) {
 
-    int localNumOfBoards = 24;
+    int localNumOfBoards;
+    mDev->getBoardsNumberFeatures(localNumOfBoards);
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -19,9 +19,7 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
 
     this->setWidget(mainWg);
 
-    QGridLayout * mainGridLayout = new QGridLayout();
-    mainGridLayout->setContentsMargins(0, 0, 0, 0);
-    mainGridLayout->setSpacing(1);
+    QGridLayout * mainGridLayout = this->getLayoutWithScrollBar(mainWg);
     mainWg->setLayout(mainGridLayout);
 
     // Column captions
@@ -54,8 +52,31 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
         mainGridLayout->addWidget(sourceSpinBox,i, 2);
 
     }
+
     QPushButton* applyButton = new QPushButton("Apply");
-    mainGridLayout->addWidget(applyButton, 25, 0, 25, 3);
+    mainGridLayout->addWidget(applyButton, localNumOfBoards+1, 0, 1, 3);
+}
 
+QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
+    QVBoxLayout * vl = new QVBoxLayout;
+    vl->setContentsMargins(0, 0, 0, 0);
+    vl->setSpacing(1);
+    widget->setLayout(vl);
 
+    QScrollArea * scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    vl->addWidget(scrollArea);
+
+    QWidget * scrollWg = new QWidget;
+    scrollArea->setWidget(scrollWg);
+
+    QGridLayout * scrollHl = new QGridLayout;
+    scrollHl->setContentsMargins(0, 0, 0, 0);
+    scrollHl->setSpacing(1);
+    scrollWg->setLayout(scrollHl);
+
+    return scrollHl;
 }

@@ -3,7 +3,7 @@
 
 #include <QDockWidget>
 #include <QSpinBox>
-
+#include <QHBoxLayout>
 
 #include "modeldevice.h"
 
@@ -14,6 +14,8 @@ public:
     BoardControlDockWidget(ModelDevice * mDev, QWidget * parent = nullptr);
 
 private:
+    QGridLayout * getLayoutWithScrollBar(QWidget * widget);
+
     ModelDevice * mDev;
 };
 

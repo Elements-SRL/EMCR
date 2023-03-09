@@ -2,6 +2,7 @@
 
 #include <QScrollBar>
 #include <QScrollArea>
+#include <QPushButton>
 
 ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget * parent) :
     QDockWidget(parent),
@@ -26,6 +27,12 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationTitles[OperationStartStopDigitalOffsetCompensation] = "Start/stop digital offset compensation";
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
 
+    operationString.resize(OperationsNum);
+    operationString[OperationTurnChannelsOnOff] = "Ch %1: On";
+    operationString[OperationTurnStimulusOnOff] = "Ch %1: Stimulus on";
+    operationString[OperationStartStopDigitalOffsetCompensation] = "Ch %1: Compensation active";
+    operationString[OperationHoldingStimulus] = "NOT USED";
+
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
 
@@ -37,6 +44,9 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
         operationWidgets[idx]->setVisible(idx == 0);
         mainVl->addWidget(operationWidgets[idx]);
     }
+
+    QPushButton * applyBtn = new QPushButton("APPLY");
+    mainVl->addWidget(applyBtn);
 
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
@@ -64,7 +74,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     case OperationTurnStimulusOnOff:
     case OperationStartStopDigitalOffsetCompensation:
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            QCheckBox * btn = new QCheckBox(QString("Ch %1 On").arg(channelIdx+1));
+            QCheckBox * btn = new QCheckBox(QString(operationString[idx]).arg(channelIdx+1));
             btn->setChecked(true);
             scrollVl->addWidget(btn);
             operationEdits[idx][channelIdx] = btn;
@@ -87,6 +97,11 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         break;
     }
     }
+
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    scrollVl->addWidget(spacer);
+
     return operationWidgets[idx];
 }
 
@@ -116,8 +131,9 @@ QVBoxLayout * ChannelControlDockWidget::getLayoutWithScrollBar(QWidget * widget)
 
 void ChannelControlDockWidget::onOperationSelected(int operationIdx) {
     for (int idx = 0; idx < OperationsNum; idx++) {
-        operationWidgets[idx]->setVisible(idx == operationIdx);
+        operationWidgets[idx]->setVisible(false);
     }
+    operationWidgets[operationIdx]->setVisible(true);
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, QDoubleSpinBox * sbx) :
