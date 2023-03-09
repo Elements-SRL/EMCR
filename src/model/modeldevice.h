@@ -10,7 +10,6 @@
 #include "e384commlib_global_addendum.h"
 #include "modelboard.h"
 
-using namespace e384CommLib;
 using namespace std;
 
 namespace e384cl = e384CommLib;

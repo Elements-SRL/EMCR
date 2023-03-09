@@ -13,11 +13,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/controllerboard.cpp \
-    src/controller/controllerdevice.cpp \
     src/main.cpp \
-    src/view/boardcontroldockwidget.cpp \
-    src/view/channelcontroldockwidget.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
@@ -26,20 +22,21 @@ SOURCES += \
     src/view/curve.cpp \
     src/view/chessboard.cpp \
     src/view/stampplot.cpp \
+    src/view/channelcontroldockwidget.cpp \
+    src/view/boardcontroldockwidget.cpp \
     src/view/devicecontroldockwidget.cpp \
     src/controller/controllermain.cpp \
     src/controller/controllerchannel.cpp \
+    src/controller/controllerboard.cpp \
+    src/controller/controllerdevice.cpp \
     src/controller/device/devicedetector.cpp \
+    src/controller/device/devicedataproducer.cpp \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp
 
 HEADERS += \
-    src/controller/controllerboard.h \
-    src/controller/controllerdevice.h \
     src/globaldefines.h \
-    src/view/boardcontroldockwidget.h \
-    src/view/channelcontroldockwidget.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
@@ -48,10 +45,15 @@ HEADERS += \
     src/view/curve.h \
     src/view/chessboard.h \
     src/view/stampplot.h \
+    src/view/channelcontroldockwidget.h \
+    src/view/boardcontroldockwidget.h \
     src/view/devicecontroldockwidget.h \
     src/controller/controllermain.h \
     src/controller/controllerchannel.h \
+    src/controller/controllerboard.h \
+    src/controller/controllerdevice.h \
     src/controller/device/devicedetector.h \
+    src/controller/device/devicedataproducer.h \
     src/model/modeldevice.h \
     src/model/modelboard.h \
     src/model/modelchannel.h

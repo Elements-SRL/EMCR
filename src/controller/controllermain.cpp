@@ -116,13 +116,21 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked, controllerChannel, &ControllerChannel::onSingleChannelClicked);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
     connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget, mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
-    /*! tante connect */
+
+    deviceDataProducer = new DeviceDataProducer(mDev);
+
+    deviceDataProducer->start();
 }
 
 void ControllerMain::onMainWindowDestroyed() {
     if (controllerChannel != nullptr) {
         delete controllerChannel;
         controllerChannel = nullptr;
+    }
+
+    if (controllerDevice != nullptr) {
+        delete controllerDevice;
+        controllerDevice = nullptr;
     }
 
     mDev->flushBoardList();
