@@ -31,6 +31,7 @@ SOURCES += \
     src/controller/controllerdevice.cpp \
     src/controller/device/devicedetector.cpp \
     src/controller/device/devicedataproducer.cpp \
+    src/controller/device/devicedataconsumer.cpp \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp
@@ -54,6 +55,7 @@ HEADERS += \
     src/controller/controllerdevice.h \
     src/controller/device/devicedetector.h \
     src/controller/device/devicedataproducer.h \
+    src/controller/device/devicedataconsumer.h \
     src/model/modeldevice.h \
     src/model/modelboard.h \
     src/model/modelchannel.h
