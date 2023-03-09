@@ -29,18 +29,13 @@ public slots:
     void onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
     void onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
     void onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
+    void onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     /*! \todo void onApplyKawaiiPlotSettings(Boh);*/
 
 
     signals:
     // signals sent to Channel Control Dock Widget (I've already done my stuff)
     void sigUpdateChannelControlDockWidget();
-
-    // signals received from Channel Control Dock Widget (I still have to do my stuff)
-    void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-    void sigAppliedTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-    void sigAppliedVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
-    /*! \todo sigAppliedKawaiiPlotSettings(BOH)*/
 };
 
 #endif // CONTROLLERCHANNEL_H

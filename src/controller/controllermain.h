@@ -8,6 +8,7 @@
 #include "mainwindow.h"
 #include "devicedetector.h"
 #include "controllerchannel.h"
+#include "controllerboard.h"
 #include "controllerdevice.h"
 
 class ControllerMain : public QObject {
@@ -28,6 +29,7 @@ private:
     QThread deviceDetectorThread;
 
     ControllerChannel * controllerChannel = nullptr;
+    ControllerBoard * controllerBoard = nullptr;
     ControllerDevice * controllerDevice = nullptr;
 
 public slots:
