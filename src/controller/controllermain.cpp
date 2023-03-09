@@ -117,6 +117,16 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
     connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget, mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
 
+    connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
+        mDev->getMessageDispatcher()->setDebugBit(word, bit, flag);
+    });
+    connect(mainWindow, &MainWindow::setDebugWord, this, [=] (int word, int value) {
+        mDev->getMessageDispatcher()->setDebugWord(word, value);
+    });
+    connect(mainWindow, &MainWindow::debugInitialization, this, [=] () {
+        mDev->getMessageDispatcher()->initializeDevice();
+    });
+
     deviceDataProducer = new DeviceDataProducer(mDev);
 
     deviceDataProducer->start();

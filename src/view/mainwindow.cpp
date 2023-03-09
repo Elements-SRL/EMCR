@@ -193,6 +193,74 @@ void MainWindow::createGuiControls() {
     this->addDockWidget(Qt::BottomDockWidgetArea, bigPlotDw);
     dockWidgets.append(bigPlotDw);
 
+    /**************\
+     * debug dock *
+    \**************/
+
+#ifndef GLB_HIDE_DEBUG_CTRLS
+    QDockWidget * debugDw = new QDockWidget();
+    debugDw->setObjectName("debugDw");
+    debugDw->setWindowTitle("Debug");
+    this->addDockWidget(Qt::RightDockWidgetArea, debugDw);
+    dockWidgets.append(debugDw);
+
+    debugDw->setFloating(true);
+
+    QWidget * debugWid = new QWidget;
+    debugDw->setWidget(debugWid);
+
+    QVBoxLayout * debugVl = new QVBoxLayout;
+    debugWid->setLayout(debugVl);
+
+    debugVl->addWidget(new QLabel("Word"));
+    QSpinBox * debugWordSbx = new QSpinBox;
+    debugWordSbx->setRange(0, 32767);
+    debugWordSbx->setValue(0);
+    debugVl->addWidget(debugWordSbx);
+
+    debugVl->addWidget(new QLabel("Bit"));
+    QSpinBox * debugBitSbx = new QSpinBox;
+    debugBitSbx->setRange(0, 15);
+    debugBitSbx->setValue(0);
+    debugVl->addWidget(debugBitSbx);
+
+    QCheckBox * debugStatusChx = new QCheckBox("Status");
+    debugVl->addWidget(debugStatusChx);
+
+    QPushButton * debugApplyBtn = new QPushButton("Apply bit");
+    debugApplyBtn->setCheckable(false);
+    debugVl->addWidget(debugApplyBtn);
+
+    connect(debugApplyBtn, &QPushButton::clicked, this, [=] () {
+        emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), debugStatusChx->isChecked());
+    });
+
+    debugVl->addWidget(new QLabel("Value"));
+    QSpinBox * debugValueSbx = new QSpinBox;
+    debugValueSbx->setRange(0, 65535);
+    debugValueSbx->setValue(0);
+    debugVl->addWidget(debugValueSbx);
+
+    QLabel * debugValueHexLbl = new QLabel;
+    debugVl->addWidget(debugValueHexLbl);
+    connect(debugValueSbx, QOverload <int> ::of (&QSpinBox::valueChanged), this, [=] (int value) {
+        debugValueHexLbl->setText(QString("0x%1").arg(value, 4, 16, QLatin1Char('0')));
+    });
+
+    QPushButton * debugApplyValueBtn = new QPushButton("Apply value");
+    debugApplyValueBtn->setCheckable(false);
+    debugVl->addWidget(debugApplyValueBtn);
+
+    connect(debugApplyValueBtn, &QPushButton::clicked, this, [=] () {
+        emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
+    });
+
+    QPushButton * degugInitializeBtn = new QPushButton("Initialize");
+    debugVl->addWidget(degugInitializeBtn);
+    connect(degugInitializeBtn, &QPushButton::clicked, this, &MainWindow::debugInitialization);
+
+#endif
+
     this->restoreUISettings();
 
     emit widgetsCreated();

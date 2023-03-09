@@ -2,6 +2,14 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+CONFIG(debug, debug|release) {
+    DEFINES += GLB_SHOW_DEBUG_CTRLS
+}
+
+CONFIG(release, debug|release) {
+
+}
+
 CONFIG += c++11
 
 include(version.pri)
