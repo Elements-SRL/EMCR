@@ -8,6 +8,7 @@
 #include "mainwindow.h"
 #include "devicedetector.h"
 #include "controllerchannel.h"
+#include "controllerboard.h"
 #include "controllerdevice.h"
 #include "devicedataproducer.h"
 
@@ -31,6 +32,7 @@ private:
     DeviceDataProducer * deviceDataProducer = nullptr;
 
     ControllerChannel * controllerChannel = nullptr;
+    ControllerBoard * controllerBoard = nullptr;
     ControllerDevice * controllerDevice = nullptr;
 
 

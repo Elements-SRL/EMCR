@@ -108,6 +108,7 @@ void ControllerMain::onConnect(bool flag) {
 
 void ControllerMain::onMainWindowCreated() {
     controllerChannel = new ControllerChannel(mDev);
+    controllerBoard = new ControllerBoard(mDev);
     controllerDevice = new ControllerDevice(mDev);
 
     connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked, controllerChannel, &ControllerChannel::onAllChannelsClicked);
@@ -116,6 +117,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked, controllerChannel, &ControllerChannel::onSingleChannelClicked);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
     connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget, mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
+    connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied, controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);
 
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
         mDev->getMessageDispatcher()->setDebugBit(word, bit, flag);

@@ -2,6 +2,7 @@
 #define CONTROLLERBOARD_H
 
 #include <QObject>
+#include<QDebug>
 
 #include "modeldevice.h"
 
@@ -20,8 +21,8 @@ public slots:
     void onGateSourceVoltagesApplied(vector<uint16_t> gateVoltageBoardIndexes, vector<Measurement_t> gateVoltages, vector<uint16_t> sourceVoltageBoardIndexes, vector<Measurement_t> sourceVoltages);
 
 
-    signals:
-    void sigGateSourceVoltagesApplied(vector<uint16_t> gateVoltageBoardIndexes, vector<Measurement_t> gateVoltages, vector<uint16_t> sourceVoltageBoardIndexes, vector<Measurement_t> sourceVoltages);
+//    signals:
+//    void sigGateSourceVoltagesApplied(vector<uint16_t> gateVoltageBoardIndexes, vector<Measurement_t> gateVoltages, vector<uint16_t> sourceVoltageBoardIndexes, vector<Measurement_t> sourceVoltages);
 
 
 };

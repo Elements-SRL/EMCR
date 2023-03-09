@@ -51,3 +51,7 @@ void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vec
 void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages){
     this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, voltages, true);
 }
+
+void ControllerChannel::onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
+}

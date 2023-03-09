@@ -29,6 +29,7 @@ SOURCES += \
     src/view/bigplotdockwidget.cpp \
     src/view/curve.cpp \
     src/view/chessboard.cpp \
+    src/view/myspinbox.cpp \
     src/view/stampplot.cpp \
     src/view/channelcontroldockwidget.cpp \
     src/view/boardcontroldockwidget.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     src/view/bigplotdockwidget.h \
     src/view/curve.h \
     src/view/chessboard.h \
+    src/view/myspinbox.h \
     src/view/stampplot.h \
     src/view/channelcontroldockwidget.h \
     src/view/boardcontroldockwidget.h \
