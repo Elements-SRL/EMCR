@@ -3,6 +3,7 @@
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QPushButton>
+#include <iostream>
 
 ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget * parent) :
     QDockWidget(parent),
@@ -46,6 +47,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     }
 
     QPushButton * applyBtn = new QPushButton("APPLY");
+    connect(applyBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onApplyButtonClicked);
     mainVl->addWidget(applyBtn);
 
     QWidget * spacer = new QWidget;
@@ -53,6 +55,52 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     mainVl->addWidget(spacer);
 
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &ChannelControlDockWidget::onOperationSelected);
+}
+
+void ChannelControlDockWidget::onApplyButtonClicked() {
+    int idx = operationCbx->currentIndex();
+    switch (idx) {
+    case OperationTurnChannelsOnOff: {
+        cout<< "turnChannelsOnOff" << endl;
+        QCheckBox * cb;
+        vector<bool> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+//        for (auto oe: operationEdits[idx]){
+//            cb = static_cast<QCheckBox *>(oe);
+//            if(cb->isChecked()){
+//                values.push_back(cb->isChecked());
+//                indexes.push_back(operationEdits[idx].indexOf(oe));
+//            }
+//        }
+//        cout <<indexes[0] << endl;
+
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            cb = static_cast<QCheckBox *>(operationEdits[idx][i]);
+            if (selectedIndexes.at(i)) {
+                values.push_back(cb->isChecked());
+                indexes.push_back(i);
+            }
+        }
+        cout << indexes.size() << "  " <<values.size() <<endl;
+        break;
+    }
+    case OperationTurnStimulusOnOff:
+        cout<< "OperationTurnStimulusOnOff" << endl;
+//        TODO
+        break;
+    case OperationStartStopDigitalOffsetCompensation:
+        cout<< "OperationStartStopDigitalOffsetCompensation" << endl;
+//        TODO
+        break;
+    case OperationHoldingStimulus:
+        cout<< "OperationHoldingStimulus" << endl;
+//        TODO
+        break;
+
+    }
 }
 
 void ChannelControlDockWidget::onUpdate() {
@@ -76,6 +124,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             QCheckBox * btn = new QCheckBox(QString(operationString[idx]).arg(channelIdx+1));
             btn->setChecked(true);
+            btn->setVisible(mDev->getSelectedChannelsIdxs()[channelIdx]);
             scrollVl->addWidget(btn);
             operationEdits[idx][channelIdx] = btn;
         }
@@ -91,8 +140,8 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
             sbx->setRange(range.min, range.max);
             sbx->setValue(0.0);
             sbx->setDecimals(range.decimals());
-
             SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
+            widget->setVisible(mDev->getSelectedChannelsIdxs()[channelIdx]);
 
             scrollVl->addWidget(widget);
             operationEdits[idx][channelIdx] = widget;
