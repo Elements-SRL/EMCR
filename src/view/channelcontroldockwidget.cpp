@@ -88,6 +88,9 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             QDoubleSpinBox * sbx = new QDoubleSpinBox;
             sbx->setSuffix(unit);
+            sbx->setRange(range.min, range.max);
+            sbx->setValue(0.0);
+            sbx->setDecimals(range.decimals());
 
             SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
 
