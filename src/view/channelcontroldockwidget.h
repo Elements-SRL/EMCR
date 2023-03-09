@@ -48,6 +48,7 @@ private:
 
 private slots:
     void onOperationSelected(int operationIdx);
+    void onApplyButtonClicked();
 };
 
 class SpinBoxWithChannel : public QWidget {
