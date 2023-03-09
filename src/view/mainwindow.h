@@ -12,6 +12,7 @@
 #include "chessboard.h"
 #include "devicecontroldockwidget.h"
 #include "channelcontroldockwidget.h"
+#include "boardcontroldockwidget.h"
 #include "bigplotdockwidget.h"
 #include "e384commlib_errorcodes.h"
 
@@ -32,6 +33,7 @@ public:
     Chessboard * getChessaboard();
     DeviceControlDockWidget * getDeviceControlsDockWidget();
     ChannelControlDockWidget * getChannelControlsDockWidget();
+    BoardControlDockWidget * getBoardControlsDockWidget();
 
 public slots:
     void onDevicesListChanged(vector <string> devicesList);
@@ -50,6 +52,7 @@ private:
     QDockWidget * deviceDetectorDw = nullptr;
     DeviceControlDockWidget * deviceControlsDw = nullptr;
     ChannelControlDockWidget * channelControlsDw = nullptr;
+    BoardControlDockWidget * boardControlsDw = nullptr;
     BigPlotDockWidget * bigPlotDw = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;

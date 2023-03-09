@@ -16,6 +16,7 @@ SOURCES += \
     src/controller/controllerboard.cpp \
     src/controller/controllerdevice.cpp \
     src/main.cpp \
+    src/view/boardcontroldockwidget.cpp \
     src/view/channelcontroldockwidget.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     src/controller/controllerboard.h \
     src/controller/controllerdevice.h \
     src/globaldefines.h \
+    src/view/boardcontroldockwidget.h \
     src/view/channelcontroldockwidget.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
