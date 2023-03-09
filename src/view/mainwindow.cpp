@@ -96,6 +96,10 @@ ChannelControlDockWidget * MainWindow::getChannelControlsDockWidget() {
     return channelControlsDw;
 }
 
+BoardControlDockWidget * MainWindow::getBoardControlsDockWidget() {
+    return boardControlsDw;
+}
+
 void MainWindow::onDevicesListChanged(vector <string> devicesList) {
     if (devicesList.size() > 0) {
         devicesComboBox->clear();
@@ -163,6 +167,11 @@ void MainWindow::createGuiControls() {
     deviceControlsDw->setObjectName("deviceControlsDw");
     this->addDockWidget(Qt::RightDockWidgetArea, deviceControlsDw);
     dockWidgets.append(deviceControlsDw);
+
+    boardControlsDw = new BoardControlDockWidget(mDev);
+    boardControlsDw->setObjectName("boardControlsDw");
+    this->addDockWidget(Qt::RightDockWidgetArea, boardControlsDw);
+    dockWidgets.append(boardControlsDw);
 
     channelControlsDw = new ChannelControlDockWidget(mDev);
     channelControlsDw->setObjectName("channelControlsDw");
