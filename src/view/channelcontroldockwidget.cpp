@@ -135,7 +135,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         mDev->getVoltageHoldTunerFeatures(range);
         QString unit = QString().fromStdString(range.getFullUnit());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            QDoubleSpinBox * sbx = new QDoubleSpinBox;
+            MySpinBox * sbx = new MySpinBox;
             sbx->setSuffix(unit);
             sbx->setRange(range.min, range.max);
             sbx->setValue(0.0);
@@ -188,7 +188,7 @@ void ChannelControlDockWidget::onOperationSelected(int operationIdx) {
     operationWidgets[operationIdx]->setVisible(true);
 }
 
-SpinBoxWithChannel::SpinBoxWithChannel(int idx, QDoubleSpinBox * sbx) :
+SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
     valueSbx(sbx) {
 
     QHBoxLayout * hl = new QHBoxLayout;

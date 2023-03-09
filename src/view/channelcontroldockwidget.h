@@ -4,11 +4,11 @@
 #include <QDockWidget>
 #include <QComboBox>
 #include <QCheckBox>
-#include <QDoubleSpinBox>
 #include <QBoxLayout>
 #include <QLabel>
 
 #include "modeldevice.h"
+#include "myspinbox.h"
 
 class SpinBoxWithChannel;
 
@@ -55,13 +55,13 @@ class SpinBoxWithChannel : public QWidget {
     Q_OBJECT
 
 public:
-    SpinBoxWithChannel(int idx, QDoubleSpinBox * sbx);
+    SpinBoxWithChannel(int idx, MySpinBox * sbx);
 
     double value();
 
 private:
     QLabel * channelLbl;
-    QDoubleSpinBox * valueSbx;
+    MySpinBox * valueSbx;
 };
 
 #endif // CHANNELCONTROLDOCKWIDGET_H
