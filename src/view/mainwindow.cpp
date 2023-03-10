@@ -143,7 +143,7 @@ void MainWindow::onConnect(bool flag, ErrorCodes_t err) {
         connectBtn->setText(QString::fromStdString("Connect"));
         connectBtn->setChecked(false);
 
-        //            this->destroyGuiControls();
+        this->destroyGuiControls();
         devicesComboBox->setEnabled(true);
     }
 }

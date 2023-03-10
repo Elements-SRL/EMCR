@@ -14,6 +14,9 @@
 
 /*! Utility defines */
 
+/*! Global defines */
+#define STAMP_PLOT_SIZE 35
+
 /*! Utility to debug by printf */
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }
 

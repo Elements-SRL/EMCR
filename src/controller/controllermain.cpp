@@ -11,7 +11,6 @@ ControllerMain::ControllerMain() {
     connect(this, &ControllerMain::stopDetecting, deviceDetector, &DeviceDetector::onStopDetecting);
 
     deviceDetectorThread.start();
-
 }
 
 void ControllerMain::setMainWindow(MainWindow * mainWindow) {
@@ -34,14 +33,14 @@ ControllerMain::~ControllerMain() {
     deviceDetectorThread.quit();
     deviceDetectorThread.wait();
 
+    this->onMainWindowDestroyed();
+
     if (deviceDetector != nullptr) {
         delete deviceDetector;
         deviceDetector = nullptr;
     }
 
     if (mDev->isConnected()) {
-        //        this->destroyGuiControls();
-
         mDev->getMessageDispatcher()->disconnectDevice();
     }
 }
@@ -164,7 +163,7 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->onDurationChanged({2.0, UnitPfxNone, "s"});
     stampPlotConsumer->forceAxisUpdate();
 
-    mainWindow->getChessaboard()->onRangeUpdated(vcCurrentRanges[0]);
+    mainWindow->getChessaboard()->initializeRange(vcCurrentRanges[0]);
     mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});
 
     deviceDataProducer->start();
@@ -172,12 +171,14 @@ void ControllerMain::onMainWindowCreated() {
 }
 
 void ControllerMain::onMainWindowDestroyed() {
-    if (deviceDataProducer!= nullptr) {
-        deviceDataProducer->onStopProducing();
-    }
-
     if (stampPlotConsumer!= nullptr) {
         stampPlotConsumer->onStopConsuming();
+        delete stampPlotConsumer;
+    }
+
+    if (deviceDataProducer!= nullptr) {
+        deviceDataProducer->onStopProducing();
+        delete deviceDataProducer;
     }
 
     if (controllerChannel != nullptr) {

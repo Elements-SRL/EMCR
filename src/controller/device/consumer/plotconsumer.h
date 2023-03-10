@@ -5,6 +5,7 @@
 #include "devicedataconsumer.h"
 
 #define PCS_MAX_SAMPLES_PER_PLOT 0x100
+#define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.05) /*!< 0.05s */
 
 class PlotConsumer : public DeviceDataConsumer {
@@ -75,8 +76,6 @@ protected:
 
     int subSamplingRatio = 1;
     int subSamplingIdx = 0;
-
-    bool endOfSweepFlag = false;
 
 signals:
     void voltageRangeUpdated(RangedMeasurement_t range);

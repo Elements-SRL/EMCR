@@ -1,5 +1,7 @@
 #include "plotconsumer.h"
 
+#include <QTime>
+
 PlotConsumer::PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
     DeviceDataConsumer(mDev, producer) {
 
@@ -8,8 +10,6 @@ PlotConsumer::PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
 
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
     buffer.reserve(DDP_DATA_PACKETS_BUFFER_LEN*totalChannelsNum);
-
-    endOfSweepFlag = false;
 }
 
 PlotConsumer::~PlotConsumer() {
@@ -31,11 +31,10 @@ void PlotConsumer::onStartConsuming() {
 
 void PlotConsumer::onStopConsuming() {
     if (this->isRunning()) {
-        /*! \todo FCON verificare se bisogna gestire altre cose durante l'uccisione del thread precedente */
         QMutexLocker consumptionLock(&consumptionMtx);
         consumptionStopped = true;
         while (!exitedDataConsumingLoop) {
-            exitedDataConsumingLoopCv.wait(&consumptionMtx);
+            exitedDataConsumingLoopCv.wait(&consumptionMtx, 100);
         }
         consumptionLock.unlock();
     }
@@ -175,6 +174,12 @@ void GapFreePlotConsumer::run() {
     int voltageChannelIdx;
     int currentChannelIdx;
 
+    QTime updateDataTimer = QTime::currentTime();
+    updateDataTimer.start();
+
+    int lastUpdateTimeMs = updateDataTimer.elapsed();
+    int currentTimeMs;
+
     QMutexLocker consumptionLock(&consumptionMtx);
     consumptionLock.unlock();
 
@@ -204,16 +209,15 @@ void GapFreePlotConsumer::run() {
 
                 gapFreeTimeIdx++;
                 if (gapFreeTimeIdx >= dataSize) {
-                    endOfSweepFlag = true;
                     gapFreeTimeIdx = 0;
                 }
             }
 
-            if (endOfSweepFlag) {
+            currentTimeMs = updateDataTimer.elapsed();
+            if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
                 emit plotDataUpdated();
+                lastUpdateTimeMs = currentTimeMs;
             }
-            endOfSweepFlag = false;
-
 
         } else {
             /*! \todo FCON al momento questa cosa non accade mai, getDataChunk ritorna sempre true */

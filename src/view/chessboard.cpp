@@ -2,6 +2,8 @@
 
 #include <QBoxLayout>
 
+#include "globaldefines.h"
+
 Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     QWidget(parent) {
 
@@ -19,7 +21,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     allChannelsSelector = new QPushButton("ALL");
     allChannelsSelector->setCheckable(true);
     allChannelsSelector->setChecked(false);
-    allChannelsSelector->setFixedSize(30, 30);
+    allChannelsSelector->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
     connect(allChannelsSelector, &QPushButton::clicked, this, &Chessboard::allChannelsClicked);
 
     mainGl->addWidget(allChannelsSelector, 0, 0);
@@ -29,7 +31,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
         QPushButton * btn = new QPushButton(QString("%1").arg(boardIdx+1));
         btn->setCheckable(true);
         btn->setChecked(false);
-        btn->setFixedSize(30, 30);
+        btn->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
         connect(btn, &QPushButton::clicked, this, [=] (bool selected) {
             emit oneBoardClicked(boardIdx, selected);
         });
@@ -43,7 +45,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
         QPushButton * btn = new QPushButton(QString("%1").arg(rowIdx+1));
         btn->setCheckable(true);
         btn->setChecked(false);
-        btn->setFixedSize(30, 30);
+        btn->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
         connect(btn, &QPushButton::clicked, this, [=] (bool selected) {
             emit oneRowClicked(rowIdx, selected);
         });
@@ -58,7 +60,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     currentCurves.resize(currentChannelsNum);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         StampPlot * plot = new StampPlot();
-        plot->setFixedSize(30, 30);
+        plot->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
         connect(plot, &StampPlot::selected, this, [=] (bool selected) {
             emit singleChannelClicked(channelIdx, selected);
         });
@@ -74,6 +76,12 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
         Curve * curve = new Curve(CurveType_t::CurveTypeStampPlotSolid);
         curve->attach(plot);
         currentCurves[channelIdx] = curve;
+    }
+}
+
+void Chessboard::initializeRange(RangedMeasurement_t newRange) {
+    for (auto plot : plots) {
+        plot->initializeRange(newRange);
     }
 }
 

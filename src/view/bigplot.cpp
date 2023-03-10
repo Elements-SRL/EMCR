@@ -93,6 +93,19 @@ void BigPlot::drawCanvas(QPainter * p) {
     this->resizeEvent(nullptr);
 }
 
+void BigPlot::initializeRange(RangedMeasurement_t newRange, Axis axisIdx) {
+    currentRange[axisIdx] = newRange;
+    this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
+    if (axisIdx == yLeft) {
+        yScale = 0.5*currentRange[axisIdx].delta();
+        this->setYUnitText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+
+    } else {
+        /*! If both y-axis are defined the second unit goes into title */
+        this->setTitleText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+    }
+}
+
 QwtText BigPlot::getPlotTitle() {
     return plotTitle->text();
 }

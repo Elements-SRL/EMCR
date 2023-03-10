@@ -1,9 +1,14 @@
 #include "stampplot.h"
 
+#include "qwt_plot_layout.h"
 #include "qwt_plot_canvas.h"
+
+#include "globaldefines.h"
 
 StampPlot::StampPlot(QWidget * parent) :
     QwtPlot(parent) {
+
+    this->plotLayout()->setAlignCanvasToScales(true);
 
     for (int axis = 0; axis < axisCnt; axis++) {
         this->axisWidget(axis)->setMargin(0);
@@ -39,11 +44,16 @@ void StampPlot::onDeselected() {
 }
 
 QSize StampPlot::sizeHint() const {
-    return QSize(30, 30);
+    return QSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
 }
 
 QSize StampPlot::minimumSizeHint() const {
-    return QSize(30, 30);
+    return QSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+}
+
+void StampPlot::initializeRange(RangedMeasurement_t newRange, Axis axisIdx) {
+    currentRange[axisIdx] = newRange;
+    this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
 }
 
 void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {

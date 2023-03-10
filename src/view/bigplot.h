@@ -27,6 +27,7 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
     void drawCanvas(QPainter * p) override;
+    void initializeRange(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
 
     QwtText getPlotTitle();
     void setPlotTitle(QwtText text);

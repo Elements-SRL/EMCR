@@ -14,6 +14,7 @@ class Chessboard : public QWidget {
 public:
     Chessboard(ModelDevice * mDev, QWidget * parent = nullptr);
 
+    void initializeRange(RangedMeasurement_t newRange);
     void clearCurves();
 
 public slots:
