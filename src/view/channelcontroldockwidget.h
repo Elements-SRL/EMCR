@@ -6,6 +6,7 @@
 #include <QCheckBox>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QPushButton>
 
 #include "modeldevice.h"
 #include "myspinbox.h"
@@ -42,6 +43,11 @@ private:
     int currentChannelsNum;
     QComboBox * operationCbx = nullptr;
 
+    //-------------------------//
+    QPushButton * checkAllBtn = nullptr;
+    QPushButton * uncheckAllBtn = nullptr;
+    //-------------------------//
+
     QVector <QWidget *> operationWidgets;
 
     QVector <QVector <QWidget *>> operationEdits;
@@ -49,6 +55,14 @@ private:
 private slots:
     void onOperationSelected(int operationIdx);
     void onApplyButtonClicked();
+    void onCheckAllButtonClicked();
+    void onUncheckAllButtonClicked();
+
+signals:
+        void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
+        void sigAppliedTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
+        void sigAppliedVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
+        void sigAppliedTurnStimulsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
 };
 
 class SpinBoxWithChannel : public QWidget {
@@ -62,6 +76,7 @@ public:
 private:
     QLabel * channelLbl;
     MySpinBox * valueSbx;
+
 };
 
 #endif // CHANNELCONTROLDOCKWIDGET_H

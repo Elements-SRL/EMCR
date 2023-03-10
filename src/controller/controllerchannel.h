@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QDebug>
 
 #include "modeldevice.h"
 
@@ -26,10 +27,11 @@ public slots:
     void onAllChannelsClicked(bool newChannelState);
 
     // To do on apply pushed on the Channel Control Dock Widget
-    void onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-    void onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-    void onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
+    void onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues);
+
     /*! \todo void onApplyKawaiiPlotSettings(Boh);*/
 
 

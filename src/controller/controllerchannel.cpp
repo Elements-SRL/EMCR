@@ -42,16 +42,30 @@ void ControllerChannel::onAllChannelsClicked(bool newChannelState){
 
 void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
-}
-
-void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->digitalOffsetCompensation(channelIndexes, onValues, true);
-}
-
-void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages){
-    this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, voltages, true);
+    for (int i = 0; i < channelIndexes.size(); i++){
+        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
+    }
 }
 
 void ControllerChannel::onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
+    for (int i = 0; i < channelIndexes.size(); i++){
+        qDebug() << "[Channel " << channelIndexes[i] << "]: stimulus on/off status:" << onValues[i] << "\n";
+    }
 }
+
+void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->digitalOffsetCompensation(channelIndexes, onValues, true);
+    for (int i = 0; i < channelIndexes.size(); i++){
+        qDebug() << "[Channel " << channelIndexes[i] << "]: DOC on/off status:" << onValues[i] << "\n";
+    }
+}
+
+void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues){
+    this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, vHoldValues, true);
+    for (int i = 0; i < channelIndexes.size(); i++){
+        qDebug() << "[Channel " << channelIndexes[i] << "]: vHold set:" << vHoldValues[i].value << "\n";
+    }
+}
+
+

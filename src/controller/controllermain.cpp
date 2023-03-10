@@ -119,6 +119,11 @@ void ControllerMain::onMainWindowCreated() {
     connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget, mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
     connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied, controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);
 
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnChannelOnOff, controllerChannel, &ControllerChannel::onApplyTurnChannelOnOff);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff, controllerChannel, &ControllerChannel::onApplyTurnStimulusOnOff);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnDocOnOff, controllerChannel, &ControllerChannel::onApplyTurnDocOnOff);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedVoltageHoldValues, controllerChannel, &ControllerChannel::onApplyVoltageHoldValues);
+
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
         mDev->getMessageDispatcher()->setDebugBit(word, bit, flag);
     });

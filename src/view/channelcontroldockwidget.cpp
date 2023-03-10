@@ -48,11 +48,25 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
 
     QPushButton * applyBtn = new QPushButton("APPLY");
     connect(applyBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onApplyButtonClicked);
-    mainVl->addWidget(applyBtn);
+//    mainVl->addWidget(applyBtn);
 
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    mainVl->addWidget(spacer);
+//    QWidget * spacer = new QWidget;
+//    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+//    mainVl->addWidget(spacer);
+
+    //----------------------------------------/
+    QGridLayout * testGridLayout = new QGridLayout;
+    checkAllBtn = new QPushButton("Check all");
+    uncheckAllBtn = new QPushButton("Uncheck all");
+    connect(checkAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onCheckAllButtonClicked);
+    connect(uncheckAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onUncheckAllButtonClicked);
+
+    testGridLayout->addWidget(checkAllBtn, 0, 0);
+    testGridLayout->addWidget(uncheckAllBtn, 0, 1);
+    testGridLayout->addWidget(applyBtn, 1, 0, 1, 2);
+    mainVl->addLayout(testGridLayout);
+
+    //---------------------------------/
 
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &ChannelControlDockWidget::onOperationSelected);
 }
@@ -68,14 +82,24 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
 
         QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
-//        for (auto oe: operationEdits[idx]){
-//            cb = static_cast<QCheckBox *>(oe);
-//            if(cb->isChecked()){
-//                values.push_back(cb->isChecked());
-//                indexes.push_back(operationEdits[idx].indexOf(oe));
-//            }
-//        }
-//        cout <<indexes[0] << endl;
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            cb = static_cast<QCheckBox *>(operationEdits[idx][i]);
+            if (selectedIndexes.at(i)) {
+                values.push_back(cb->isChecked());
+                indexes.push_back(i);
+            }
+        }
+
+        emit sigAppliedTurnChannelOnOff(indexes, values);
+        break;
+    }
+    case OperationTurnStimulusOnOff:{
+        cout<< "OperationTurnStimulusOnOff" << endl;
+        QCheckBox * cb;
+        vector<bool> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
         for (int i = 0; i<selectedIndexes.size(); i++) {
             cb = static_cast<QCheckBox *>(operationEdits[idx][i]);
@@ -84,23 +108,81 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
                 indexes.push_back(i);
             }
         }
-        cout << indexes.size() << "  " <<values.size() <<endl;
-        break;
-    }
-    case OperationTurnStimulusOnOff:
-        cout<< "OperationTurnStimulusOnOff" << endl;
-//        TODO
-        break;
-    case OperationStartStopDigitalOffsetCompensation:
-        cout<< "OperationStartStopDigitalOffsetCompensation" << endl;
-//        TODO
-        break;
-    case OperationHoldingStimulus:
-        cout<< "OperationHoldingStimulus" << endl;
-//        TODO
-        break;
 
+        emit sigAppliedTurnStimulsOnOff(indexes, values);
+        break;
     }
+    case OperationStartStopDigitalOffsetCompensation:{
+        cout<< "OperationStartStopDigitalOffsetCompensation" << endl;
+        QCheckBox * cb;
+        vector<bool> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            cb = static_cast<QCheckBox *>(operationEdits[idx][i]);
+            if (selectedIndexes.at(i)) {
+                values.push_back(cb->isChecked());
+                indexes.push_back(i);
+            }
+        }
+
+        emit sigAppliedTurnDocOnOff(indexes, values);
+        break;
+    }
+    case OperationHoldingStimulus:{
+        cout<< "OperationHoldingStimulus" << endl;
+        SpinBoxWithChannel * vHoldSpinBox;
+        vector<Measurement_t> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            vHoldSpinBox = static_cast<SpinBoxWithChannel *>(operationEdits[idx][i]);
+            if (selectedIndexes.at(i)) {
+                Measurement_t myMeasurementValue = {vHoldSpinBox->value(), UnitPfxMilli, "V"};
+                values.push_back(myMeasurementValue);
+                indexes.push_back(i);
+            }
+        }
+
+        emit sigAppliedVoltageHoldValues(indexes, values);
+        break;
+    }
+    }
+}
+
+
+void ChannelControlDockWidget::onCheckAllButtonClicked() {
+        QCheckBox * cb;
+        vector<bool> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
+            if (selectedIndexes.at(i)) {
+                cb->setChecked(true);
+            }
+        }
+}
+
+void ChannelControlDockWidget::onUncheckAllButtonClicked() {
+        QCheckBox * cb;
+        vector<bool> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
+            if (selectedIndexes.at(i)) {
+                cb->setChecked(false);
+            }
+        }
 }
 
 void ChannelControlDockWidget::onUpdate() {
@@ -136,7 +218,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         QString unit = QString().fromStdString(range.getFullUnit());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             MySpinBox * sbx = new MySpinBox;
-            sbx->setSuffix(unit);
+            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(range.min, range.max);
             sbx->setValue(0.0);
             sbx->setDecimals(range.decimals());
@@ -186,6 +268,16 @@ void ChannelControlDockWidget::onOperationSelected(int operationIdx) {
         operationWidgets[idx]->setVisible(false);
     }
     operationWidgets[operationIdx]->setVisible(true);
+
+    //-------------------------//
+    if(operationIdx==OperationHoldingStimulus){
+        checkAllBtn->setEnabled(false);
+        uncheckAllBtn->setEnabled(false);
+    } else{
+        checkAllBtn->setEnabled(true);
+        uncheckAllBtn->setEnabled(true);
+    }
+    //-------------------------//
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
@@ -205,3 +297,5 @@ SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
 double SpinBoxWithChannel::value() {
     return valueSbx->value();
 }
+
+
