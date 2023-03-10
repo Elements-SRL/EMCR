@@ -10,6 +10,9 @@ PlotConsumer::PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
 
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
     buffer.reserve(DDP_DATA_PACKETS_BUFFER_LEN*totalChannelsNum);
+
+    selectedChannels.resize(currentChannelsNum);
+    selectedChannels.fill(true);
 }
 
 PlotConsumer::~PlotConsumer() {
@@ -20,6 +23,22 @@ void PlotConsumer::forceAxisUpdate() {
     /*! This function is to be used only during class initialization, not when a consuming process is already running */
     this->updateTimeAxis();
     this->updateRangeAxis();
+}
+
+void PlotConsumer::setMaxSamplesPerPlot(int samples) {
+    if (!this->isRunning()) {
+        this->clearData();
+        maxSamples = samples;
+        this->allocateData();
+    }
+}
+
+void PlotConsumer::selectChannels(QVector <bool> channels) {
+    if (!this->isRunning()) {
+        this->clearData();
+        selectedChannels = channels;
+        this->allocateData();
+    }
 }
 
 void PlotConsumer::onStartConsuming() {
@@ -94,7 +113,7 @@ void PlotConsumer::computeTimeAxis() {
     dataSize = qRound(sweepSamplingRate*sweepDuration);
     minDataBatchSize = qRound(sweepSamplingRate*PCS_MIN_DATA_BATCH_DURATION_S);
 
-    subSamplingRatio = (dataSize-1)/PCS_MAX_SAMPLES_PER_PLOT+1;
+    subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;
 
     subSamplingIdx = 0;
@@ -116,9 +135,13 @@ void PlotConsumer::updateRangeAxis() {
         voltageRange.max = 1.0;
         voltageRange.convertValues(pushedVoltageRange.prefix);
         double coeff = voltageRange.max;
-        for (int voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-            for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-                voltageValues[voltageChannelIdx][sampleIdx] *= coeff;
+        int counter;
+        for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
+            counter = 0;
+            for (int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+                if (selectedChannels[channelIdx]) {
+                    voltageValues[counter++][sampleIdx] *= coeff;
+                }
             }
         }
         voltageRange = pushedVoltageRange;
@@ -132,9 +155,11 @@ void PlotConsumer::updateRangeAxis() {
         currentRange.max = 1.0;
         currentRange.convertValues(pushedCurrentRange.prefix);
         coeff = currentRange.max;
-        for (int currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-            for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-                currentValues[currentChannelIdx][sampleIdx] *= coeff;
+        int counter;
+        for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
+            counter = 0;
+            for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                currentValues[counter++][sampleIdx] *= coeff;
             }
         }
         currentRange = pushedCurrentRange;
@@ -146,16 +171,7 @@ void PlotConsumer::updateRangeAxis() {
 GapFreePlotConsumer::GapFreePlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
     PlotConsumer(mDev, producer) {
 
-    for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
-        voltageValues.append(new double[PCS_MAX_SAMPLES_PER_PLOT]());
-    }
-
-    for (int idx = 0; idx < this->currentChannelsNum; idx++) {
-        currentValues.append(new double[PCS_MAX_SAMPLES_PER_PLOT]());
-    }
-
-    timeValues = new double[PCS_MAX_SAMPLES_PER_PLOT];
-
+    this->allocateData();
     this->updateTimeAxis();
 }
 
@@ -171,8 +187,8 @@ void GapFreePlotConsumer::run() {
 
     int bufferIdx;
     int bufferLen = 0;
-    int voltageChannelIdx;
-    int currentChannelIdx;
+    int channelIdx;
+    int counter;
 
     QTime updateDataTimer = QTime::currentTime();
     updateDataTimer.start();
@@ -199,12 +215,20 @@ void GapFreePlotConsumer::run() {
 
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
-                for (voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                    voltageValues[voltageChannelIdx][gapFreeTimeIdx] = buffer[bufferIdx++];
+                counter = 0;
+                for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+                    if (selectedChannels[channelIdx]) {
+                        voltageValues[counter++][gapFreeTimeIdx] = buffer[bufferIdx];
+                    }
+                    bufferIdx++;
                 }
 
-                for (currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                    currentValues[currentChannelIdx][gapFreeTimeIdx] = buffer[bufferIdx++];
+                counter = 0;
+                for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                    if (selectedChannels[channelIdx]) {
+                        currentValues[counter++][gapFreeTimeIdx] = buffer[bufferIdx];
+                    }
+                    bufferIdx++;
                 }
 
                 gapFreeTimeIdx++;
@@ -231,14 +255,38 @@ void GapFreePlotConsumer::run() {
     exitedDataConsumingLoopCv.wakeAll();
 }
 
-void GapFreePlotConsumer::clearData() {
-    for (int idx = 0; idx < voltageChannelsNum; idx++) {
-        delete [] voltageValues[idx];
+void GapFreePlotConsumer::allocateData() {
+    for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
+        if (selectedChannels[idx]) {
+            voltageValues.append(new double[maxSamples]());
+        }
     }
 
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        delete [] currentValues[idx];
+    for (int idx = 0; idx < this->currentChannelsNum; idx++) {
+        if (selectedChannels[idx]) {
+            currentValues.append(new double[maxSamples]());
+        }
     }
+
+    timeValues = new double[maxSamples];
+}
+
+void GapFreePlotConsumer::clearData() {
+    int counter = 0;
+    for (int idx = 0; idx < voltageChannelsNum; idx++) {
+        if (selectedChannels[idx]) {
+            delete [] voltageValues[counter++];
+        }
+    }
+    voltageValues.clear();
+
+    counter = 0;
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        if (selectedChannels[idx]) {
+            delete [] currentValues[counter++];
+        }
+    }
+    currentValues.clear();
 
     if (timeValues != nullptr) {
         delete [] timeValues;

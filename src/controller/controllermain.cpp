@@ -141,15 +141,18 @@ void ControllerMain::onMainWindowCreated() {
 
     deviceDataProducer = new DeviceDataProducer(mDev);
     stampPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+//    bigPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
 
     connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
     connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getChessaboard(), &Chessboard::onReplot);
+//    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onSetGapFreePlotData);
+//    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onReplot);
 
+    /*! \todo FCON carico come valori di default i primi disponibili per le varie feature, meglio allineare prima il model e prendere i valori da lì */
     vector <RangedMeasurement_t> vcCurrentRanges;
     vector <RangedMeasurement_t> vcVoltageRanges;
     vector <Measurement_t> samplingRates;
 
-    /*! \todo FCON carico come valori di default i primi disponibili per le varie feature, meglio allineare prima il model e prendere i valori da lì */
     mDev->getVcCurrentRangesFeatures(vcCurrentRanges);
     mDev->getVcVoltageRangesFeatures(vcVoltageRanges);
     mDev->getSamplingRatesFeatures(samplingRates);
@@ -159,6 +162,18 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->onSamplingRateChanged(samplingRates[0]);
     stampPlotConsumer->onDurationChanged({2.0, UnitPfxNone, "s"});
     stampPlotConsumer->forceAxisUpdate();
+    stampPlotConsumer->setMaxSamplesPerPlot(256);
+    QVector <bool> selectedChannels(currentChannelsNumber, true);
+    stampPlotConsumer->selectChannels(selectedChannels);
+
+//    bigPlotConsumer->onCurrentRangeChanged(vcCurrentRanges[0]);
+//    bigPlotConsumer->onVoltageRangeChanged(vcVoltageRanges[0]);
+//    bigPlotConsumer->onSamplingRateChanged(samplingRates[0]);
+//    bigPlotConsumer->onDurationChanged({2.0, UnitPfxNone, "s"});
+//    bigPlotConsumer->forceAxisUpdate();
+//    bigPlotConsumer->setMaxSamplesPerPlot(256);
+//    selectedChannels.fill(false);
+//    bigPlotConsumer->selectChannels(selectedChannels);
 
     mainWindow->getChessaboard()->initializeRange(vcCurrentRanges[0]);
     mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});

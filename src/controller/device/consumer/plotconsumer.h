@@ -4,7 +4,6 @@
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
 
-#define PCS_MAX_SAMPLES_PER_PLOT 0x100
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.05) /*!< 0.05s */
 
@@ -16,6 +15,8 @@ public:
     virtual ~PlotConsumer();
 
     void forceAxisUpdate();
+    void setMaxSamplesPerPlot(int samples);
+    void selectChannels(QVector <bool> channels);
 
 public slots:
     virtual void onStartConsuming() override;
@@ -35,6 +36,7 @@ protected:
         Triggered
     } TriggerStatus_t;
 
+    virtual void allocateData() = 0;
     virtual void clearData() = 0;
     virtual void emitPlotData() = 0;
     void updateTimeAxis();
@@ -67,6 +69,8 @@ protected:
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
 
+    QVector <bool> selectedChannels;
+    int maxSamples = 256;
     int dataSize = 0;
     /*! Having gapFreeTimeIdx as a property of the class ensures that when a new protocol starts the plot does not reset the x axis */
     int gapFreeTimeIdx = 0;
@@ -94,6 +98,7 @@ public:
 protected:
     void run() override;
 
+    void allocateData() override;
     void clearData() override;
     void emitPlotData() override;
 
