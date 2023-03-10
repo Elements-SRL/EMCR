@@ -31,9 +31,9 @@ void DeviceDetector::onStopDetecting() {
 
 void DeviceDetector::detectDevices() {
     if (detectFlag) {
-        e384cl::ErrorCodes_t ret = MessageDispatcher::detectDevices(detectedList);
+        ErrorCodes_t ret = MessageDispatcher::detectDevices(detectedList);
 
-        if ((ret == e384cl::Success) || (ret == e384cl::ErrorNoDeviceFound)) {
+        if ((ret == Success) || (ret == ErrorNoDeviceFound)) {
             devicesList = detectedList;
             emit devicesListChanged(devicesList);
         }

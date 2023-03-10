@@ -5,6 +5,7 @@
 
 typedef enum {
     CurveTypePlotSolid,
+    CurveTypeStampPlotSolid,
     CurveTypeAnalysisDashed,
     CurveTypeProtocolPreviewSolid,
     CurveTypeProtocolPreviewDotted,

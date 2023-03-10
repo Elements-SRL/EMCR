@@ -9,7 +9,6 @@
 #include "messagedispatcher.h"
 
 using namespace std;
-namespace e384cl = e384CommLib;
 
 class DeviceDetector : public QObject {
     Q_OBJECT

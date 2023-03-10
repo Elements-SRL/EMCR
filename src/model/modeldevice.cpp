@@ -165,75 +165,79 @@ void ModelDevice::flushBoardList() {
 }
 
 // wrappers for MessageDispatcher get features
-e384cl::ErrorCodes_t ModelDevice::getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures){
+ErrorCodes_t ModelDevice::getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures){
     return this->messageDispatcher->getVoltageHoldTunerFeatures(voltageHoldTunerFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
+ErrorCodes_t ModelDevice::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
     return this->messageDispatcher->getCalibVcCurrentGainFeatures(calibVcCurrentGainFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getCalibVcCurrentOffsetFeatures(vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
+ErrorCodes_t ModelDevice::getCalibVcCurrentOffsetFeatures(vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
     return this->messageDispatcher->getCalibVcCurrentOffsetFeatures(calibVcCurrentOffsetFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures){
+ErrorCodes_t ModelDevice::getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures){
     return this->messageDispatcher->getCalibCcVoltageGainFeatures(calibCcVoltageGainFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getCalibCcVoltageOffsetFeatures(vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
+ErrorCodes_t ModelDevice::getCalibCcVoltageOffsetFeatures(vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
     return this->messageDispatcher->getCalibCcVoltageOffsetFeatures(calibCcVoltageOffsetFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures){
+ErrorCodes_t ModelDevice::getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures){
     return this->messageDispatcher->getGateVoltagesTunerFeatures(gateVoltagesTunerFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures){
+ErrorCodes_t ModelDevice::getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures){
     return this->messageDispatcher->getSourceVoltagesTunerFeatures(sourceVoltagesTunerFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getChannelsNumberFeatures(int &voltageChannelsNum, int &currentChannelsNum) {
+ErrorCodes_t ModelDevice::getChannelsNumberFeatures(int &voltageChannelsNum, int &currentChannelsNum) {
     uint16_t vNum;
     uint16_t cNum;
-    e384cl::ErrorCodes_t ret = this->messageDispatcher->getChannelNumberFeatures(vNum, cNum);
-    if (ret == e384cl::Success) {
+    ErrorCodes_t ret = this->messageDispatcher->getChannelNumberFeatures(vNum, cNum);
+    if (ret == Success) {
         voltageChannelsNum = (int)vNum;
         currentChannelsNum = (int)cNum;
     }
     return ret;
 }
 
-e384cl::ErrorCodes_t ModelDevice::getBoardsNumberFeatures(int &boardNum) {
+ErrorCodes_t ModelDevice::getBoardsNumberFeatures(int &boardNum) {
     uint16_t bNum;
-    e384cl::ErrorCodes_t ret = this->messageDispatcher->getBoardsNumberFeatures(bNum);
-    if (ret == e384cl::Success) {
+    ErrorCodes_t ret = this->messageDispatcher->getBoardsNumberFeatures(bNum);
+    if (ret == Success) {
         boardNum = (int)bNum;
     }
     return ret;
 }
 
-e384cl::ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <e384cl::RangedMeasurement_t> &vcCurrentRangesFeatures) {
+ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures) {
     return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures){
+ErrorCodes_t ModelDevice::getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures){
     return this->messageDispatcher->getVCVoltageRanges(vcVoltageRangesFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getCcCurrentRangesFeatures(vector <RangedMeasurement_t> &ccCurrentRangesFeatures){
+ErrorCodes_t ModelDevice::getCcCurrentRangesFeatures(vector <RangedMeasurement_t> &ccCurrentRangesFeatures){
     return this->messageDispatcher->getCCCurrentRanges(ccCurrentRangesFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getCcVoltageRangesFeatures(vector <RangedMeasurement_t> &ccVoltageRangesFeatures){
+ErrorCodes_t ModelDevice::getCcVoltageRangesFeatures(vector <RangedMeasurement_t> &ccVoltageRangesFeatures){
     return this->messageDispatcher->getCCVoltageRanges(ccVoltageRangesFeatures);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(vector <string> &voltageFilterOptions){
+ErrorCodes_t ModelDevice::getSamplingRatesFeatures(vector <Measurement_t> &samplingRatesFeatures) {
+    return this->messageDispatcher->getSamplingRatesFeatures(samplingRatesFeatures);
+}
+
+ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(vector <string> &voltageFilterOptions){
     return this->messageDispatcher->getVoltageStimulusLpfs(voltageFilterOptions);
 }
 
-e384cl::ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <string> &currentFilterOptions){
+ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <string> &currentFilterOptions){
     return this->messageDispatcher->getCurrentStimulusLpfs(currentFilterOptions);
 }
 //---------------------------------------------/

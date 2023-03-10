@@ -4,8 +4,9 @@
 #include <QWidget>
 #include <QPushButton>
 
-#include "stampplot.h"
 #include "modeldevice.h"
+#include "stampplot.h"
+#include "curve.h"
 
 class Chessboard : public QWidget {
     Q_OBJECT
@@ -13,11 +14,23 @@ class Chessboard : public QWidget {
 public:
     Chessboard(ModelDevice * mDev, QWidget * parent = nullptr);
 
+    void clearCurves();
+
+public slots:
+    void onRangeUpdated(RangedMeasurement_t newRange);
+    void onDurationUpdated(Measurement_t duration);
+    void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
+    void onReplot();
+
 private:
     QPushButton * allChannelsSelector = nullptr;
     QVector <QPushButton *> boardSelectors;
     QVector <QPushButton *> rowSelectors;
     QVector <StampPlot *> plots;
+    QVector <Curve *> currentCurves;
+
+    int voltageChannelsNum;
+    int currentChannelsNum;
 
 signals:
     void allChannelsClicked(bool newChannelState);

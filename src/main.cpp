@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     qRegisterMetaType <vector <string>> ("vector <string>");
-    qRegisterMetaType <e384cl::ErrorCodes_t> ("e384cl::ErrorCodes_t");
+    qRegisterMetaType <ErrorCodes_t> ("ErrorCodes_t");
 
     ControllerMain c;
     MainWindow w;

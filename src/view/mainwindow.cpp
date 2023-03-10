@@ -123,11 +123,11 @@ void MainWindow::onSetConnectedDeviceIdx(int idx) {
     devicesComboBox->setCurrentIndex(idx);
 }
 
-void MainWindow::onConnect(bool flag, e384cl::ErrorCodes_t err) {
+void MainWindow::onConnect(bool flag, ErrorCodes_t err) {
     QString serial = devicesComboBox->itemText(devicesComboBox->currentIndex());
 
     if (flag) {
-        if (err == e384cl::Success) {
+        if (err == Success) {
             connectBtn->setText("Disconnect");
 
             devicesComboBox->setEnabled(false);

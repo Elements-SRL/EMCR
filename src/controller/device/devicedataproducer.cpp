@@ -69,13 +69,11 @@ void DeviceDataProducer::run() {
     deviceConnected = true;
     exitedDataProducingLoop = false;
 
-    e384cl::ErrorCodes_t ret;
+    ErrorCodes_t ret;
     ret = messageDispather->allocateRxDataBuffer(datain);
     /*! \todo what to do if the memory is not initialized? */
 
-    unsigned int packetsRead = 0;
-    unsigned int dataRead;
-    unsigned int chIdx;
+    int chIdx;
 
     connectionLock.unlock();
 
@@ -96,9 +94,8 @@ void DeviceDataProducer::run() {
 
         ret = messageDispather->getNextMessage(dataHeader, datain);
 
-        if (ret == e384cl::Success) {
-            dataRead = packetsRead*totalChannelsNum;
-            for (unsigned long wordsIdx = 0; wordsIdx < dataRead; wordsIdx += totalChannelsNum) {
+        if (ret == Success) {
+            for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
                 for (chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
                     dataSamplesBuffer[dataPacketsIdx][chIdx] = datain[wordsIdx+chIdx];
                     messageDispather->convertVoltageValue(datain[wordsIdx+chIdx], floatDataSamplesBuffer[dataPacketsIdx][chIdx]);
@@ -116,7 +113,7 @@ void DeviceDataProducer::run() {
             dataLock.unlock();
 
             bitRateLock.relock();
-            samplesReceived += dataRead;
+            samplesReceived += dataHeader.dataLen;
             bitRateLock.unlock();
 
         } else {

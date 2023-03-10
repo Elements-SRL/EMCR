@@ -7,8 +7,6 @@
 #include "devicedataproducer.h"
 #include "e384commlib_global.h"
 
-namespace e384cl = e384CommLib;
-
 class DeviceDataConsumer : public QThread {
     Q_OBJECT
 
@@ -21,9 +19,9 @@ public slots:
     virtual void onStopConsuming() = 0;
     virtual void onResetConsuming();
 
-    virtual void onSamplingRateChanged(e384cl::Measurement_t samplingRate) = 0;
-    virtual void onVoltageRangeChanged(e384cl::RangedMeasurement_t range) = 0;
-    virtual void onCurrentRangeChanged(e384cl::RangedMeasurement_t range) = 0;
+    virtual void onSamplingRateChanged(Measurement_t samplingRate) = 0;
+    virtual void onVoltageRangeChanged(RangedMeasurement_t range) = 0;
+    virtual void onCurrentRangeChanged(RangedMeasurement_t range) = 0;
 
 protected:
     ModelDevice * mDev = nullptr;
@@ -42,11 +40,11 @@ protected:
     double pushedSamplingRate = 1.0;
     double sweepSamplingRate = 1.0;
 
-    e384cl::RangedMeasurement_t pushedVoltageRange;
-    e384cl::RangedMeasurement_t voltageRange = {0.0, 1.0, 1.0, e384cl::UnitPfxNone, "V"};
+    RangedMeasurement_t pushedVoltageRange;
+    RangedMeasurement_t voltageRange = {0.0, 1.0, 1.0, UnitPfxNone, "V"};
 
-    e384cl::RangedMeasurement_t pushedCurrentRange;
-    e384cl::RangedMeasurement_t currentRange = {0.0, 1.0, 1.0, e384cl::UnitPfxNone, "A"};
+    RangedMeasurement_t pushedCurrentRange;
+    RangedMeasurement_t currentRange = {0.0, 1.0, 1.0, UnitPfxNone, "A"};
 
     QMutex itemsMtx;
 };

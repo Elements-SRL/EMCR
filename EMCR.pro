@@ -41,6 +41,7 @@ SOURCES += \
     src/controller/device/devicedetector.cpp \
     src/controller/device/devicedataproducer.cpp \
     src/controller/device/devicedataconsumer.cpp \
+    src/controller/device/consumer/plotconsumer.cpp \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp
@@ -66,6 +67,7 @@ HEADERS += \
     src/controller/device/devicedetector.h \
     src/controller/device/devicedataproducer.h \
     src/controller/device/devicedataconsumer.h \
+    src/controller/device/consumer/plotconsumer.h \
     src/model/modeldevice.h \
     src/model/modelboard.h \
     src/model/modelchannel.h
@@ -75,6 +77,7 @@ INCLUDEPATH += \
     ./src/view \
     ./src/controller \
     ./src/controller/device \
+    ./src/controller/device/consumer \
     ./src/model
 
 DEPENDPATH += \
@@ -82,6 +85,7 @@ DEPENDPATH += \
     ./src/view \
     ./src/controller \
     ./src/controller/device \
+    ./src/controller/device/consumer \
     ./src/model
 
 include(../e384commLib/frontPanel/includefrontpanel.pri)

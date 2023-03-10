@@ -5,8 +5,6 @@
 Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     QWidget(parent) {
 
-    int voltageChannelsNum;
-    int currentChannelsNum;
     int boardsNum;
 
     mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
@@ -57,6 +55,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     int boardIdx = 0;
     int rowIdx = 0;
     plots.resize(currentChannelsNum);
+    currentCurves.resize(currentChannelsNum);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         StampPlot * plot = new StampPlot();
         plot->setFixedSize(30, 30);
@@ -71,5 +70,42 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
             boardIdx++;
         }
         plots[channelIdx] = plot;
+
+        Curve * curve = new Curve(CurveType_t::CurveTypeStampPlotSolid);
+        curve->attach(plot);
+        currentCurves[channelIdx] = curve;
+    }
+}
+
+void Chessboard::clearCurves() {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentCurves[idx]->detach();
+        delete currentCurves[idx];
+        delete [] currentCurves[idx];
+    }
+    currentCurves.clear();
+}
+
+void Chessboard::onRangeUpdated(RangedMeasurement_t newRange) {
+    for (auto plot : plots) {
+        plot->onRangeUpdated(newRange);
+    }
+}
+
+void Chessboard::onDurationUpdated(Measurement_t duration) {
+    for (auto plot : plots) {
+        plot->onDurationUpdated(duration);
+    }
+}
+
+void Chessboard::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize) {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
+    }
+}
+
+void Chessboard::onReplot() {
+    for (auto plot : plots) {
+        plot->replot();
     }
 }

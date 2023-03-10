@@ -16,8 +16,6 @@
 #include "bigplotdockwidget.h"
 #include "e384commlib_errorcodes.h"
 
-namespace e384cl = e384CommLib;
-
 using namespace std;
 
 class MainWindow : public QMainWindow {
@@ -38,7 +36,7 @@ public:
 public slots:
     void onDevicesListChanged(vector <string> devicesList);
     void onSetConnectedDeviceIdx(int idx);
-    void onConnect(bool flag, e384cl::ErrorCodes_t err);
+    void onConnect(bool flag, ErrorCodes_t err);
 
 private:
     void createGuiControls();

@@ -1,200 +1,200 @@
 #include "errormanager.h"
 #include "globaldefines.h"
 
-QString commLibCode2error(e384cl::ErrorCodes_t errorCode) {
+QString commLibCode2error(ErrorCodes_t errorCode) {
     QString error;
 
     switch (errorCode) {
-    case e384cl::Success:
+    case Success:
         error = "NONE";
         break;
 
-    case e384cl::ErrorNoDeviceFound:
+    case ErrorNoDeviceFound:
         error = "No devices detected";
         break;
 
-    case e384cl::ErrorListDeviceFailed:
+    case ErrorListDeviceFailed:
         error = "Devices detection failed";
         break;
 
-    case e384cl::ErrorEepromAlreadyConnected:
+    case ErrorEepromAlreadyConnected:
         error = "Connection to device EEPROM failed";
         break;
 
-    case e384cl::ErrorEepromConnectionFailed:
+    case ErrorEepromConnectionFailed:
         error = "Connection to device EEPROM failed";
         break;
 
-    case e384cl::ErrorEepromDisconnectionFailed:
+    case ErrorEepromDisconnectionFailed:
         error = "Disconnection from device EEPROM failed";
         break;
 
-    case e384cl::ErrorEepromNotConnected:
+    case ErrorEepromNotConnected:
         error = "Not connected to device EEPROM";
         break;
 
-    case e384cl::ErrorEepromReadFailed:
+    case ErrorEepromReadFailed:
         error = "Read from device EEPROM failed";
         break;
 
-    case e384cl::ErrorEepromNotRecognized:
+    case ErrorEepromNotRecognized:
         error = "Device EEPROM not recognized";
         break;
 
-    case e384cl::ErrorDeviceTypeNotRecognized:
+    case ErrorDeviceTypeNotRecognized:
         error = "Device type not controllable with EDR4";
         break;
 
-    case e384cl::ErrorDeviceAlreadyConnected:
+    case ErrorDeviceAlreadyConnected:
         error = "Device already connected";
         break;
 
-    case e384cl::ErrorDeviceNotConnected:
+    case ErrorDeviceNotConnected:
         error = "Device not connected";
         break;
 
-    case e384cl::ErrorDeviceConnectionFailed:
+    case ErrorDeviceConnectionFailed:
         error = "Connection to device failed";
         break;
 
-    case e384cl::ErrorFtdiConfigurationFailed:
+    case ErrorFtdiConfigurationFailed:
         error = "Ftdi configuration failed";
         break;
 
-    case e384cl::ErrorDeviceDisconnectionFailed:
+    case ErrorDeviceDisconnectionFailed:
         error = "Disconnection from device failed";
         break;
 
-    case e384cl::ErrorSendMessageFailed:
+    case ErrorSendMessageFailed:
         error = "Failed to send message to the device";
         break;
 
-    case e384cl::ErrorCommandNotImplemented:
+    case ErrorCommandNotImplemented:
         error = "Command not implemented";
         break;
 
-    case e384cl::ErrorValueOutOfRange:
+    case ErrorValueOutOfRange:
         error = "Value out of range for the device";
         break;
 
-    case e384cl::ErrorNoDataAvailable:
+    case ErrorNoDataAvailable:
         error = "No data available";
         break;
 
-    case e384cl::ErrorFeatureNotImplemented:
+    case ErrorFeatureNotImplemented:
         error = "This feature is not implemented for the current device";
         break;
 
-    case e384cl::ErrorUpgradesNotAvailable:
+    case ErrorUpgradesNotAvailable:
         error = "No upgrades available for the current device";
         break;
 
-    case e384cl::ErrorExpiredDevice:
+    case ErrorExpiredDevice:
         error = "Expired device";
         break;
 
-    case e384cl::ErrorUnknown:
+    case ErrorUnknown:
         error = "Unknown error";
         break;
     }
     return error;
 }
 
-QString commLibCode2info(e384cl::ErrorCodes_t errorCode) {
+QString commLibCode2info(ErrorCodes_t errorCode) {
     QString info;
 
     switch (errorCode) {
-    case e384cl::Success:
+    case Success:
         info = "";
         break;
 
-    case e384cl::ErrorNoDeviceFound:
+    case ErrorNoDeviceFound:
         info = "";
         break;
 
-    case e384cl::ErrorListDeviceFailed:
+    case ErrorListDeviceFailed:
         info = "If any device is connected try restarting EDR4.";
         break;
 
-    case e384cl::ErrorEepromAlreadyConnected:
+    case ErrorEepromAlreadyConnected:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorEepromConnectionFailed:
+    case ErrorEepromConnectionFailed:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorEepromDisconnectionFailed:
+    case ErrorEepromDisconnectionFailed:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorEepromNotConnected:
+    case ErrorEepromNotConnected:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorEepromReadFailed:
+    case ErrorEepromReadFailed:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorEepromNotRecognized:
+    case ErrorEepromNotRecognized:
         info = "This device probably is not usable with EDR4.";
         break;
 
-    case e384cl::ErrorDeviceTypeNotRecognized:
+    case ErrorDeviceTypeNotRecognized:
         info = "Check the device info in \"?\" menu and\n"
                "contact support@elements-ic.com to know\n"
                "which software you should use with your device.";
         break;
 
-    case e384cl::ErrorDeviceAlreadyConnected:
+    case ErrorDeviceAlreadyConnected:
         info = "";
         break;
 
-    case e384cl::ErrorDeviceNotConnected:
+    case ErrorDeviceNotConnected:
         info = "";
         break;
 
-    case e384cl::ErrorDeviceConnectionFailed:
+    case ErrorDeviceConnectionFailed:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorFtdiConfigurationFailed:
+    case ErrorFtdiConfigurationFailed:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorDeviceDisconnectionFailed:
+    case ErrorDeviceDisconnectionFailed:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorSendMessageFailed:
+    case ErrorSendMessageFailed:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
 
-    case e384cl::ErrorCommandNotImplemented:
+    case ErrorCommandNotImplemented:
         info = "";
         break;
 
-    case e384cl::ErrorValueOutOfRange:
+    case ErrorValueOutOfRange:
         info = "";
         break;
 
-    case e384cl::ErrorNoDataAvailable:
+    case ErrorNoDataAvailable:
         info = "";
         break;
 
-    case e384cl::ErrorFeatureNotImplemented:
+    case ErrorFeatureNotImplemented:
         info = "";
         break;
 
-    case e384cl::ErrorUpgradesNotAvailable:
+    case ErrorUpgradesNotAvailable:
         info = "";
         break;
 
-    case e384cl::ErrorExpiredDevice:
+    case ErrorExpiredDevice:
         info = "Contact support@elements-ic.com to renew your device.";
         break;
 
-    case e384cl::ErrorUnknown:
+    case ErrorUnknown:
         info = "Try to unplug and replug the device and restart EDR4.";
         break;
     }
@@ -217,12 +217,12 @@ ErrorManager::ErrorManager(QString error, QString info) {
     }
 }
 
-ErrorManager::ErrorManager(e384cl::ErrorCodes_t errorCode, QString info) :
+ErrorManager::ErrorManager(ErrorCodes_t errorCode, QString info) :
     ErrorManager(commLibCode2error(errorCode), info) {
 
 }
 
-ErrorManager::ErrorManager(e384cl::ErrorCodes_t errorCode) :
+ErrorManager::ErrorManager(ErrorCodes_t errorCode) :
     ErrorManager(errorCode, commLibCode2info(errorCode)) {
 
 }

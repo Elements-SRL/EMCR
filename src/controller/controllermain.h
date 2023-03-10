@@ -11,6 +11,7 @@
 #include "controllerboard.h"
 #include "controllerdevice.h"
 #include "devicedataproducer.h"
+#include "plotconsumer.h"
 
 class ControllerMain : public QObject {
     Q_OBJECT
@@ -30,6 +31,7 @@ private:
     QThread deviceDetectorThread;
 
     DeviceDataProducer * deviceDataProducer = nullptr;
+    GapFreePlotConsumer * stampPlotConsumer = nullptr;
 
     ControllerChannel * controllerChannel = nullptr;
     ControllerBoard * controllerBoard = nullptr;
@@ -47,7 +49,7 @@ signals:
     void stopDetecting();
     void devicesListChanged(vector <string> devicesList);
     void setConnectedDeviceIdx(int connectedDeviceIdx);
-    void connectDevice(bool flag, e384cl::ErrorCodes_t err);
+    void connectDevice(bool flag, ErrorCodes_t err);
 };
 
 #endif // CONTROLLERMAIN_H

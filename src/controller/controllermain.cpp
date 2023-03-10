@@ -64,7 +64,7 @@ void ControllerMain::onDevicesListChanged(vector <string> devicesList) {
                 emit setConnectedDeviceIdx(connectedDeviceIdx);
 
             } else {
-                emit connectDevice(false, e384cl::Success);
+                emit connectDevice(false, Success);
             }
         }
     }
@@ -76,7 +76,7 @@ void ControllerMain::onConnect(bool flag) {
 
     if (flag) {
         MessageDispatcher * messageDispatcher;
-        e384cl::ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
+        ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
 
         mDev->setMessageDispatcher(messageDispatcher);
         uint16_t voltageChannelsNumber;
@@ -86,7 +86,7 @@ void ControllerMain::onConnect(bool flag) {
         mDev->getMessageDispatcher()->getBoardsNumberFeatures(boardsNumber);
         mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
 
-        bool connectionSuccessful = ret == e384cl::Success;
+        bool connectionSuccessful = ret == Success;
         emit connectDevice(connectionSuccessful, ret);
         mDev->setConnected(connectionSuccessful);
 
@@ -95,7 +95,7 @@ void ControllerMain::onConnect(bool flag) {
         }
 
     } else {
-        emit connectDevice(false, e384cl::Success);
+        emit connectDevice(false, Success);
         mDev->setConnected(false);
 
         if (mDev->getMessageDispatcher() != nullptr) {
@@ -107,6 +107,11 @@ void ControllerMain::onConnect(bool flag) {
 }
 
 void ControllerMain::onMainWindowCreated() {
+
+    /***************\
+     * Controllers *
+    \***************/
+
     controllerChannel = new ControllerChannel(mDev);
     controllerBoard = new ControllerBoard(mDev);
     controllerDevice = new ControllerDevice(mDev);
@@ -129,15 +134,55 @@ void ControllerMain::onMainWindowCreated() {
         mDev->getMessageDispatcher()->initializeDevice();
     });
 
+    /**************************\
+     * Producer and Consumers *
+    \**************************/
+
     deviceDataProducer = new DeviceDataProducer(mDev);
+    stampPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+
+    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
+    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getChessaboard(), &Chessboard::onReplot);
+
+    vector <RangedMeasurement_t> vcCurrentRanges;
+    vector <RangedMeasurement_t> vcVoltageRanges;
+    vector <Measurement_t> samplingRates;
+
+    /*! \todo FCON carico come valori di default i primi disponibili per le varie feature, meglio allineare prima il model e prendere i valori da lì */
+    mDev->getVcCurrentRangesFeatures(vcCurrentRanges);
+    mDev->getVcVoltageRangesFeatures(vcVoltageRanges);
+    mDev->getSamplingRatesFeatures(samplingRates);
+
+    stampPlotConsumer->onCurrentRangeChanged(vcCurrentRanges[0]);
+    stampPlotConsumer->onVoltageRangeChanged(vcVoltageRanges[0]);
+    stampPlotConsumer->onSamplingRateChanged(samplingRates[0]);
+    stampPlotConsumer->onDurationChanged({2.0, UnitPfxNone, "s"});
+    stampPlotConsumer->forceAxisUpdate();
+
+    mainWindow->getChessaboard()->onRangeUpdated(vcCurrentRanges[0]);
+    mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});
 
     deviceDataProducer->start();
+    stampPlotConsumer->onStartConsuming();
 }
 
 void ControllerMain::onMainWindowDestroyed() {
+    if (deviceDataProducer!= nullptr) {
+        deviceDataProducer->onStopProducing();
+    }
+
+    if (stampPlotConsumer!= nullptr) {
+        stampPlotConsumer->onStopConsuming();
+    }
+
     if (controllerChannel != nullptr) {
         delete controllerChannel;
         controllerChannel = nullptr;
+    }
+
+    if (controllerBoard != nullptr) {
+        delete controllerBoard;
+        controllerBoard = nullptr;
     }
 
     if (controllerDevice != nullptr) {

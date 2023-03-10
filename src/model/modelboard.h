@@ -7,7 +7,6 @@
 #include "e384commlib_global_addendum.h"
 #include "modelchannel.h"
 
-using namespace e384CommLib;
 using namespace std;
 
 class ModelBoard {

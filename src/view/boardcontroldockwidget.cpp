@@ -20,7 +20,6 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     this->setWidget(mainWg);
 
     QGridLayout * mainGridLayout = this->getLayoutWithScrollBar(mainWg);
-    mainWg->setLayout(mainGridLayout);
 
     // Column captions
     mainGridLayout->addWidget(new QLabel(" Channel"), 0, 0);
@@ -30,7 +29,6 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     for(int i = 1; i <= localNumOfBoards; i++){
         QString channelLabel= QString("    %1").arg(i);
         mainGridLayout->addWidget(new QLabel(channelLabel),i, 0);
-
     }
 
     MySpinBox* gateSpinBox;

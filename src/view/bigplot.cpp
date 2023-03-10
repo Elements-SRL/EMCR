@@ -300,6 +300,38 @@ void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
     this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
 }
 
+void BigPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
+    if (newRange != currentRange[axisIdx]) {
+        currentRange[axisIdx].max = 1.0;
+        currentRange[axisIdx].convertValues(newRange.prefix);
+        double coeff = currentRange[axisIdx].max;
+        currentRange[axisIdx].max = newRange.max;
+        currentRange[axisIdx].min = newRange.min;
+
+        double min = coeff*this->axisInterval(axisIdx).minValue();
+        double max = coeff*this->axisInterval(axisIdx).maxValue();
+
+        this->setAxisScale(axisIdx, min, max);
+        if (axisIdx == yLeft) {
+            yScale = 0.5*coeff*this->axisInterval(axisIdx).width();
+            this->setYUnitText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+
+        } else {
+            this->setTitleText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+        }
+    }
+    this->replot();
+}
+
+void BigPlot::onDurationUpdated(Measurement_t duration) {
+    sweepDuration = duration;
+    sweepDuration.convertValue(UnitPfxNone);
+    this->setAxisScale(xBottom, 0.0, sweepDuration.value);
+    this->recomputeXAxisFactor(sweepDuration.value);
+
+    this->replot();
+}
+
 void BigPlot::resizeEvent(QResizeEvent * e) {
     if (e != nullptr) {
         QwtPlot::resizeEvent(e);
@@ -340,9 +372,16 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
     this->shiftVertAxis(vertAxis, we->delta() < 0 ? p : -p);
 }
 
-void BigPlot::recomputeXAxisFactor(double) {
-    /*! Implemented only for some derived classes */
-    return;
+void BigPlot::recomputeXAxisFactor(double duration) {
+    sweepDuration.value = duration;
+    sweepDuration.prefix = UnitPfxNone;
+    sweepDuration.nice();
+
+    if (xAxisPrefix != sweepDuration.prefix) {
+        xAxisPrefix = sweepDuration.prefix;
+        xBottomScaleDraw->setConversionFactor(1.0/sweepDuration.multiplier());
+        this->setXUnitText(QString::fromStdString(sweepDuration.getFullUnit()));
+    }
 }
 
 void BigPlot::onZoomInPickerAppended(const QPointF &p) {

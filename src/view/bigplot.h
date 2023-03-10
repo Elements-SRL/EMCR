@@ -11,6 +11,10 @@
 #include "qwt_plot_grid.h"
 #include "qwt_text_label.h"
 
+#include "e384commlib_global.h"
+
+using namespace e384CommLib;
+
 class Rect4;
 class ConversionScaleDraw;
 
@@ -50,6 +54,8 @@ public slots:
     void onZoomOutRequest();
     void onZoomResetRequest();
     void onUpdateBaseline(Axis axisIdx, double baseline);
+    void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
+    void onDurationUpdated(Measurement_t duration);
 
 protected:
     typedef enum {
@@ -80,6 +86,10 @@ protected:
     QPointF pickerFirstCornerPos;
 
     ConversionScaleDraw * xBottomScaleDraw;
+
+    RangedMeasurement_t currentRange[axisCnt];
+    Measurement_t sweepDuration = {1.0, UnitPfxNone, "s"};
+    UnitPfx_t xAxisPrefix = UnitPfxNone;
 
 protected slots:
     virtual void onZoomInPickerAppended(const QPointF &p);
