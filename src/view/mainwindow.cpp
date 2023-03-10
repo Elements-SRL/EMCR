@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget * parent) :
 }
 
 MainWindow::~MainWindow() {
-
+    this->destroyGuiControls();
 }
 
 void MainWindow::setModelDevice(ModelDevice * modelDevice) {

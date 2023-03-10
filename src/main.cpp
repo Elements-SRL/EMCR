@@ -2,12 +2,17 @@
 
 #include "controllermain.h"
 #include "mainwindow.h"
+#include "globaldefines.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     qRegisterMetaType <vector <string>> ("vector <string>");
     qRegisterMetaType <ErrorCodes_t> ("ErrorCodes_t");
+
+    QCoreApplication::setOrganizationName("Elements S.R.L.");
+    QCoreApplication::setOrganizationDomain("elements-ic.com");
+    QCoreApplication::setApplicationName(GLB_SOFTWARE_NAME);
 
     ControllerMain c;
     MainWindow w;
