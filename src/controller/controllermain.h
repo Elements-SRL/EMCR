@@ -32,11 +32,15 @@ private:
 
     DeviceDataProducer * deviceDataProducer = nullptr;
     GapFreePlotConsumer * stampPlotConsumer = nullptr;
+    GapFreePlotConsumer * bigPlotConsumer = nullptr;
 
     ControllerChannel * controllerChannel = nullptr;
     ControllerBoard * controllerBoard = nullptr;
     ControllerDevice * controllerDevice = nullptr;
 
+    int voltageChannelsNumber;
+    int currentChannelsNumber;
+    int boardsNumber;
 
 public slots:
     void onDevicesListChanged(vector <string> devicesList);

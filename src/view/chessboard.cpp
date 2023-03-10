@@ -18,21 +18,36 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     mainGl->setSpacing(1);
     this->setLayout(mainGl);
 
-    allChannelsSelector = new QPushButton("ALL");
-    allChannelsSelector->setCheckable(true);
-    allChannelsSelector->setChecked(false);
+    allChannelsSelector = new MyLeftRightMousePushButton();
+    allChannelsSelector->setText("ALL");
     allChannelsSelector->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
-    connect(allChannelsSelector, &QPushButton::clicked, this, &Chessboard::allChannelsClicked);
+    connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &Chessboard::allChannelsClicked);
+    connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, [=](bool selected) {
+        for(int ii = 0; ii < currentChannelsNum; ii++){
+            if(selected){
+                plots[ii]->setStyleSheet("StampPlot { border: 3px solid green; }");
+            } else {
+                plots[ii]->setStyleSheet("StampPlot { border: 3px solid black; }");
+            }
+        }
+    });
+
 
     mainGl->addWidget(allChannelsSelector, 0, 0);
 
     boardSelectors.resize(boardsNum);
     for (int boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
-        QPushButton * btn = new QPushButton(QString("%1").arg(boardIdx+1));
-        btn->setCheckable(true);
-        btn->setChecked(false);
+        MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
+        btn->setText(QString("%1").arg(boardIdx+1));
         btn->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
-        connect(btn, &QPushButton::clicked, this, [=] (bool selected) {
+        connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
+            for(int ii = boardIdx*channelsPerBoard; ii < boardIdx*channelsPerBoard + channelsPerBoard; ii++){
+                if(selected){
+                    plots[ii]->setStyleSheet("StampPlot { border: 3px solid green; }");
+                } else {
+                    plots[ii]->setStyleSheet("StampPlot { border: 3px solid black; }");
+                }
+            }
             emit oneBoardClicked(boardIdx, selected);
         });
 
@@ -42,11 +57,17 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
 
     rowSelectors.resize(channelsPerBoard);
     for (int rowIdx = 0; rowIdx < channelsPerBoard; rowIdx++) {
-        QPushButton * btn = new QPushButton(QString("%1").arg(rowIdx+1));
-        btn->setCheckable(true);
-        btn->setChecked(false);
+        MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
+        btn->setText(QString("%1").arg(rowIdx+1));
         btn->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
-        connect(btn, &QPushButton::clicked, this, [=] (bool selected) {
+        connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
+            for(int ii = rowIdx; ii < rowIdx+channelsPerBoard*(boardsNum); ii = ii+channelsPerBoard){
+                if(selected){
+                    plots[ii]->setStyleSheet("StampPlot { border: 3px solid green; }");
+                } else {
+                    plots[ii]->setStyleSheet("StampPlot { border: 3px solid black; }");
+                }
+            }
             emit oneRowClicked(rowIdx, selected);
         });
 
@@ -61,7 +82,14 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         StampPlot * plot = new StampPlot();
         plot->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+        plot->setToolTip(QString("Ch %1\nRight click: select\nLeft click: deselect").arg(channelIdx+1));
         connect(plot, &StampPlot::selected, this, [=] (bool selected) {
+            if(selected){
+                plot->setStyleSheet("StampPlot { border: 3px solid green; }");
+            } else {
+                plot->setStyleSheet("StampPlot { border: 3px solid black; }");
+            }
+
             emit singleChannelClicked(channelIdx, selected);
         });
 

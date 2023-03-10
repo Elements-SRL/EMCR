@@ -88,6 +88,10 @@ Chessboard * MainWindow::getChessaboard() {
     return chessboard;
 }
 
+BigPlotDockWidget * MainWindow::getBigPlotWidget() {
+    return bigPlotDw;
+}
+
 DeviceControlDockWidget * MainWindow::getDeviceControlsDockWidget() {
     return deviceControlsDw;
 }

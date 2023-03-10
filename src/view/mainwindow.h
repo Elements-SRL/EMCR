@@ -29,6 +29,7 @@ public:
     QPushButton * getConnectButton();
     QString getSelectedSerialNumber();
     Chessboard * getChessaboard();
+    BigPlotDockWidget * getBigPlotWidget();
     DeviceControlDockWidget * getDeviceControlsDockWidget();
     ChannelControlDockWidget * getChannelControlsDockWidget();
     BoardControlDockWidget * getBoardControlsDockWidget();

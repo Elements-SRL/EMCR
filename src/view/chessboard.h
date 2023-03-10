@@ -7,6 +7,7 @@
 #include "modeldevice.h"
 #include "stampplot.h"
 #include "curve.h"
+#include "myleftrightmousepushbutton.h"
 
 class Chessboard : public QWidget {
     Q_OBJECT
@@ -24,9 +25,9 @@ public slots:
     void onReplot();
 
 private:
-    QPushButton * allChannelsSelector = nullptr;
-    QVector <QPushButton *> boardSelectors;
-    QVector <QPushButton *> rowSelectors;
+    MyLeftRightMousePushButton * allChannelsSelector = nullptr;
+    QVector <MyLeftRightMousePushButton *> boardSelectors;
+    QVector <MyLeftRightMousePushButton *> rowSelectors;
     QVector <StampPlot *> plots;
     QVector <Curve *> currentCurves;
 

@@ -49,7 +49,7 @@ public:
     void setCcVoltageFilter(Measurement_t cCvoltageFilter);
 
     void fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
-    void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannels);
+    void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
 

@@ -78,11 +78,8 @@ void ControllerMain::onConnect(bool flag) {
         ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
 
         mDev->setMessageDispatcher(messageDispatcher);
-        uint16_t voltageChannelsNumber;
-        uint16_t currentChannelsNumber;
-        uint16_t boardsNumber; // da estrarre da MessageDispatcher
-        mDev->getMessageDispatcher()->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
-        mDev->getMessageDispatcher()->getBoardsNumberFeatures(boardsNumber);
+        mDev->getChannelsNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
+        mDev->getBoardsNumberFeatures(boardsNumber);
         mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
 
         bool connectionSuccessful = ret == Success;
