@@ -27,46 +27,37 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationTitles[OperationTurnStimulusOnOff] = "Turn stimulus on/off";
     operationTitles[OperationStartStopDigitalOffsetCompensation] = "Start/stop digital offset compensation";
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
+    operationTitles[OperationRecordToFile] = "Record to file";
 
     operationString.resize(OperationsNum);
     operationString[OperationTurnChannelsOnOff] = "Ch %1: On";
     operationString[OperationTurnStimulusOnOff] = "Ch %1: Stimulus on";
     operationString[OperationStartStopDigitalOffsetCompensation] = "Ch %1: Compensation active";
     operationString[OperationHoldingStimulus] = "NOT USED";
+    operationString[OperationRecordToFile] = "NOT USED";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
 
     operationWidgets.resize(OperationsNum);
+    operationButtonWidgets.resize(OperationsNum);
     operationEdits.resize(OperationsNum);
     for (int idx = 0; idx < OperationsNum; idx++) {
         operationCbx->addItem(operationTitles[idx]);
         operationWidgets[idx] = this->createOperationWidget(idx);
         operationWidgets[idx]->setVisible(idx == 0);
         mainVl->addWidget(operationWidgets[idx]);
+        operationButtonWidgets[idx] = this->createOperationButtonWidget(idx);
+        operationButtonWidgets[idx]->setVisible(idx == 0);
+        mainVl->addWidget(operationButtonWidgets[idx]);
     }
 
     QPushButton * applyBtn = new QPushButton("APPLY");
     connect(applyBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onApplyButtonClicked);
-//    mainVl->addWidget(applyBtn);
 
-//    QWidget * spacer = new QWidget;
-//    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-//    mainVl->addWidget(spacer);
-
-    //----------------------------------------/
-    QGridLayout * testGridLayout = new QGridLayout;
-    checkAllBtn = new QPushButton("Check all");
-    uncheckAllBtn = new QPushButton("Uncheck all");
-    connect(checkAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onCheckAllButtonClicked);
-    connect(uncheckAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onUncheckAllButtonClicked);
-
-    testGridLayout->addWidget(checkAllBtn, 0, 0);
-    testGridLayout->addWidget(uncheckAllBtn, 0, 1);
-    testGridLayout->addWidget(applyBtn, 1, 0, 1, 2);
-    mainVl->addLayout(testGridLayout);
-
-    //---------------------------------/
+    QGridLayout * applyBtnGridLayout = new QGridLayout;
+    applyBtnGridLayout->addWidget(applyBtn, 0, 0, 1, 2);
+    mainVl->addLayout(applyBtnGridLayout);
 
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &ChannelControlDockWidget::onOperationSelected);
 }
@@ -151,6 +142,10 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
         emit sigAppliedVoltageHoldValues(indexes, values);
         break;
     }
+    case OperationRecordToFile:{
+/*! \todo still to be done*/
+        break;
+    }
     }
 }
 
@@ -183,6 +178,29 @@ void ChannelControlDockWidget::onUncheckAllButtonClicked() {
                 cb->setChecked(false);
             }
         }
+}
+
+void ChannelControlDockWidget::onSetAllButtonClicked() {
+        SpinBoxWithChannel * spinBox;
+        vector<bool> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            spinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationCbx->currentIndex()][i]);
+            if (selectedIndexes.at(i)) {
+                spinBox->setValue(this->setAllVholdSpinBox->value());
+            }
+        }
+}
+
+void ChannelControlDockWidget::onStartRecordingButtonClicked() {
+        /*! \todo still to be done*/
+}
+
+void ChannelControlDockWidget::onStopRecordingButtonClicked() {
+        /*! \todo still to be done*/
 }
 
 void ChannelControlDockWidget::onUpdate() {
@@ -239,6 +257,74 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     return operationWidgets[idx];
 }
 
+
+
+QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
+    operationButtonWidgets[idx] = new QWidget;
+
+    switch (idx) {
+    case OperationTurnChannelsOnOff:
+    case OperationTurnStimulusOnOff:
+    case OperationStartStopDigitalOffsetCompensation:{
+        // mettere bottoni check/uncheck all
+        QGridLayout* operationButtonGridLayout = new QGridLayout;
+        operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
+        QPushButton* checkAllBtn = new QPushButton("Check all");
+        QPushButton* uncheckAllBtn = new QPushButton("Uncheck all");
+        connect(checkAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onCheckAllButtonClicked);
+        connect(uncheckAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onUncheckAllButtonClicked);
+
+        operationButtonGridLayout->addWidget(checkAllBtn, 0, 0);
+        operationButtonGridLayout->addWidget(uncheckAllBtn, 0, 1);
+        break;
+    }
+    case OperationHoldingStimulus:{
+        QGridLayout* operationButtonGridLayout = new QGridLayout;
+        operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
+        RangedMeasurement_t range;
+        mDev->getVoltageHoldTunerFeatures(range);
+        QString unit = QString().fromStdString(range.getFullUnit());
+        MySpinBox * sbx = new MySpinBox;
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(range.min, range.max);
+        sbx->setValue(0.0);
+        sbx->setDecimals(range.decimals());
+        setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), sbx);
+        QPushButton* setAllBtn = new QPushButton("Set all channels");
+        connect(setAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onSetAllButtonClicked);
+        operationButtonGridLayout->addWidget(setAllVholdSpinBox, 0, 1);
+        operationButtonGridLayout->addWidget(setAllBtn, 0, 0);
+        break;
+    }
+    case OperationRecordToFile:{
+        QGridLayout* operationButtonGridLayout = new QGridLayout;
+        operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
+        QPushButton* checkAllBtn = new QPushButton("Check all");
+        QPushButton* uncheckAllBtn = new QPushButton("Uncheck all");
+        QPushButton* startRecordingBtn = new QPushButton("Start");
+        QPushButton* stopRecordingBtn = new QPushButton("Stop");
+        QPixmap pixmapRecors("://imgs/record protocol.png");
+        QIcon ButtonRecord(pixmapRecors);
+        startRecordingBtn->setIcon(ButtonRecord);
+        QPixmap pixmapStop("://imgs/stop protocol.png");
+        QIcon ButtonIconStop(pixmapStop);
+        stopRecordingBtn->setIcon(ButtonIconStop);
+        connect(checkAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onCheckAllButtonClicked);
+        connect(uncheckAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onUncheckAllButtonClicked);
+        connect(startRecordingBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onStartRecordingButtonClicked);
+        connect(stopRecordingBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onStopRecordingButtonClicked);
+
+        operationButtonGridLayout->addWidget(checkAllBtn, 0, 0);
+        operationButtonGridLayout->addWidget(uncheckAllBtn, 0, 1);
+        operationButtonGridLayout->addWidget(startRecordingBtn, 1, 0);
+        operationButtonGridLayout->addWidget(stopRecordingBtn, 1, 1);
+        break;
+    }
+    }
+
+    return operationButtonWidgets[idx];
+}
+
 QVBoxLayout * ChannelControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
     QVBoxLayout * vl = new QVBoxLayout;
     vl->setContentsMargins(0, 0, 0, 0);
@@ -266,21 +352,18 @@ QVBoxLayout * ChannelControlDockWidget::getLayoutWithScrollBar(QWidget * widget)
 void ChannelControlDockWidget::onOperationSelected(int operationIdx) {
     for (int idx = 0; idx < OperationsNum; idx++) {
         operationWidgets[idx]->setVisible(false);
+        operationButtonWidgets[idx]->setVisible(false);
     }
     operationWidgets[operationIdx]->setVisible(true);
-
-    //-------------------------//
-    if(operationIdx==OperationHoldingStimulus){
-        checkAllBtn->setEnabled(false);
-        uncheckAllBtn->setEnabled(false);
-    } else{
-        checkAllBtn->setEnabled(true);
-        uncheckAllBtn->setEnabled(true);
-    }
-    //-------------------------//
+    operationButtonWidgets[operationIdx]->setVisible(true);
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
+    SpinBoxWithChannel(QString().fromStdString("Ch %1").arg(idx+1), sbx) {
+
+}
+
+SpinBoxWithChannel::SpinBoxWithChannel(QString title, MySpinBox * sbx) :
     valueSbx(sbx) {
 
     QHBoxLayout * hl = new QHBoxLayout;
@@ -288,7 +371,7 @@ SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
     hl->setSpacing(1);
     this->setLayout(hl);
 
-    channelLbl = new QLabel(QString().fromStdString("Ch %1").arg(idx+1));
+    channelLbl = new QLabel(title);
     hl->addWidget(channelLbl);
 
     hl->addWidget(sbx);
@@ -296,6 +379,10 @@ SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
 
 double SpinBoxWithChannel::value() {
     return valueSbx->value();
+}
+
+void SpinBoxWithChannel::setValue(double value) {
+    return valueSbx->setValue(value);
 }
 
 
