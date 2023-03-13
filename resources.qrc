@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>imgs/logo_with_name.png</file>
         <file>imgs/splitter handle.png</file>
+        <file>imgs/record protocol.png</file>
+        <file>imgs/stop protocol.png</file>
     </qresource>
 </RCC>

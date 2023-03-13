@@ -28,6 +28,7 @@ private:
         OperationTurnStimulusOnOff,
         OperationStartStopDigitalOffsetCompensation,
         OperationHoldingStimulus,
+        OperationRecordToFile,
         OperationsNum
     } Operations_t;
 
@@ -35,6 +36,7 @@ private:
     QVector <QString> operationString;
 
     QWidget * createOperationWidget(int idx);
+    QWidget * createOperationButtonWidget(int idx);
     QVBoxLayout * getLayoutWithScrollBar(QWidget * widget);
 
     ModelDevice * mDev = nullptr;
@@ -42,21 +44,27 @@ private:
     int voltageChannelsNum;
     int currentChannelsNum;
     QComboBox * operationCbx = nullptr;
+    SpinBoxWithChannel * setAllVholdSpinBox = nullptr;
 
     //-------------------------//
-    QPushButton * checkAllBtn = nullptr;
-    QPushButton * uncheckAllBtn = nullptr;
+//    QPushButton * checkAllBtn = nullptr;
+//    QPushButton * uncheckAllBtn = nullptr;
     //-------------------------//
 
     QVector <QWidget *> operationWidgets;
 
     QVector <QVector <QWidget *>> operationEdits;
 
+    QVector <QWidget *> operationButtonWidgets;
+
 private slots:
     void onOperationSelected(int operationIdx);
     void onApplyButtonClicked();
     void onCheckAllButtonClicked();
     void onUncheckAllButtonClicked();
+    void onSetAllButtonClicked();
+    void onStartRecordingButtonClicked();
+    void onStopRecordingButtonClicked();
 
 signals:
         void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
@@ -70,8 +78,10 @@ class SpinBoxWithChannel : public QWidget {
 
 public:
     SpinBoxWithChannel(int idx, MySpinBox * sbx);
+    SpinBoxWithChannel(QString title, MySpinBox * sbx);
 
     double value();
+    void setValue(double value);
 
 private:
     QLabel * channelLbl;
