@@ -35,9 +35,7 @@ void PlotConsumer::setMaxSamplesPerPlot(int samples) {
 
 void PlotConsumer::selectChannels(QVector <bool> channels) {
     if (!this->isRunning()) {
-        this->clearData();
         selectedChannels = channels;
-        this->allocateData();
     }
 }
 
@@ -135,13 +133,13 @@ void PlotConsumer::updateRangeAxis() {
         voltageRange.max = 1.0;
         voltageRange.convertValues(pushedVoltageRange.prefix);
         double coeff = voltageRange.max;
-        int counter;
-        for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-            counter = 0;
-            for (int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-                if (selectedChannels[channelIdx]) {
-                    voltageValues[counter++][sampleIdx] *= coeff;
+        int counter = 0;
+        for (int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+            if (selectedChannels[channelIdx]) {
+                for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
+                    voltageValues[counter][sampleIdx] *= coeff;
                 }
+                counter++;
             }
         }
         voltageRange = pushedVoltageRange;
@@ -155,11 +153,13 @@ void PlotConsumer::updateRangeAxis() {
         currentRange.max = 1.0;
         currentRange.convertValues(pushedCurrentRange.prefix);
         coeff = currentRange.max;
-        int counter;
-        for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-            counter = 0;
-            for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                currentValues[counter++][sampleIdx] *= coeff;
+        int counter = 0;
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            if (selectedChannels[channelIdx]) {
+                for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
+                    currentValues[counter][sampleIdx] *= coeff;
+                }
+                counter++;
             }
         }
         currentRange = pushedCurrentRange;
@@ -257,15 +257,11 @@ void GapFreePlotConsumer::run() {
 
 void GapFreePlotConsumer::allocateData() {
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
-        if (selectedChannels[idx]) {
-            voltageValues.append(new double[maxSamples]());
-        }
+        voltageValues.append(new double[maxSamples]());
     }
 
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
-        if (selectedChannels[idx]) {
-            currentValues.append(new double[maxSamples]());
-        }
+        currentValues.append(new double[maxSamples]());
     }
 
     timeValues = new double[maxSamples];
@@ -274,17 +270,13 @@ void GapFreePlotConsumer::allocateData() {
 void GapFreePlotConsumer::clearData() {
     int counter = 0;
     for (int idx = 0; idx < voltageChannelsNum; idx++) {
-        if (selectedChannels[idx]) {
-            delete [] voltageValues[counter++];
-        }
+        delete [] voltageValues[counter++];
     }
     voltageValues.clear();
 
     counter = 0;
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        if (selectedChannels[idx]) {
-            delete [] currentValues[counter++];
-        }
+        delete [] currentValues[counter++];
     }
     currentValues.clear();
 

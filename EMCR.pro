@@ -7,7 +7,7 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
-
+#    DEFINES += GLB_SHOW_DEBUG_CTRLS
 }
 
 CONFIG += c++11
