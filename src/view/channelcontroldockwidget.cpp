@@ -34,7 +34,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationString[OperationTurnStimulusOnOff] = "Ch %1: Stimulus on";
     operationString[OperationStartStopDigitalOffsetCompensation] = "Ch %1: Compensation active";
     operationString[OperationHoldingStimulus] = "NOT USED";
-    operationString[OperationRecordToFile] = "NOT USED";
+    operationString[OperationRecordToFile] = "Ch %1: Record this channel";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
@@ -221,6 +221,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     case OperationTurnChannelsOnOff:
     case OperationTurnStimulusOnOff:
     case OperationStartStopDigitalOffsetCompensation:
+    case OperationRecordToFile:
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             QCheckBox * btn = new QCheckBox(QString(operationString[idx]).arg(channelIdx+1));
             btn->setChecked(true);
@@ -250,9 +251,9 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     }
     }
 
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    scrollVl->addWidget(spacer);
+//    QWidget * spacer = new QWidget;
+//    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+//    scrollVl->addWidget(spacer);
 
     return operationWidgets[idx];
 }
@@ -335,7 +336,7 @@ QVBoxLayout * ChannelControlDockWidget::getLayoutWithScrollBar(QWidget * widget)
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     vl->addWidget(scrollArea);
 
     QWidget * scrollWg = new QWidget;
