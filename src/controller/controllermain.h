@@ -52,6 +52,8 @@ public slots:
     void onMainWindowCreated();
     void onMainWindowDestroyed();
     void onVcCurrentRangeSelected(int idx);
+    void onVcVoltageRangeSelected(int idx);
+    void onSamplingRateSelected(int idx);
 
 signals:
     void startDetecting();

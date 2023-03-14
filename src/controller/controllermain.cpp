@@ -142,14 +142,18 @@ void ControllerMain::onMainWindowCreated() {
 
     deviceDataProducer = new DeviceDataProducer(mDev);
     stampPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+    abfDataWriterConsumer = new AbfDataWriterConsumer(mDev, deviceDataProducer);
 
     consumers.append(stampPlotConsumer);
-//    bigPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
-
     connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
     connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getChessaboard(), &Chessboard::onReplot);
+
+//    bigPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
 //    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onSetGapFreePlotData);
 //    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onReplot);
+
+    consumers.append(abfDataWriterConsumer);
+    connect(mainWindow->getRecordSettingDialog(), &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 
     /*! \todo FCON carico come valori di default i primi disponibili per le varie feature, meglio allineare prima il model e prendere i valori da lì */
     vector <RangedMeasurement_t> vcCurrentRanges;
@@ -222,9 +226,30 @@ void ControllerMain::onMainWindowDestroyed() {
 
 void ControllerMain::onVcCurrentRangeSelected(int idx) {
     vector <RangedMeasurement_t> ranges;
+    mDev->getVcCurrentRangesFeatures(ranges);
     mDev->setVcCurrentRange(ranges[idx]);
 
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
+    }
+}
+
+void ControllerMain::onVcVoltageRangeSelected(int idx) {
+    vector <RangedMeasurement_t> ranges;
+    mDev->getVcVoltageRangesFeatures(ranges);
+    mDev->setVcVoltageRange(ranges[idx]);
+
+    for (auto consumer : consumers) {
+        consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
+    }
+}
+
+void ControllerMain::onSamplingRateSelected(int idx) {
+    vector <Measurement_t> samplingRates;
+    mDev->getSamplingRatesFeatures(samplingRates);
+    mDev->setSamplingRate(samplingRates[idx]);
+
+    for (auto consumer : consumers) {
+        consumer->onSamplingRateChanged(mDev->getSamplingRate());
     }
 }

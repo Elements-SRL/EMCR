@@ -119,6 +119,10 @@ BoardControlDockWidget * MainWindow::getBoardControlsDockWidget() {
     return boardControlsDw;
 }
 
+RecordSettingsDialog * MainWindow::getRecordSettingDialog() {
+    return recordSettingsDialog;
+}
+
 void MainWindow::onDevicesListChanged(vector <string> devicesList) {
     if (devicesList.size() > 0) {
         devicesComboBox->clear();

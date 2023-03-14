@@ -202,7 +202,7 @@ void RecordSettingsDialog::onAccept() {
     settings.fileFormat = this->getRecordFileFormat();
     settings.recordDurationS = recordDurationEdit->value();
     settings.chunkDurationS = chunkDurationEdit->value();
-    sigSettingsSet(settings);
+    emit sigSettingsSet(settings);
 
     this->accept();
 }

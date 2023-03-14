@@ -65,7 +65,7 @@ void PlotConsumer::onStopConsuming() {
 void PlotConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     QMutexLocker locker(&timeAxisMtx);
     samplingRate.convertValue(UnitPfxNone);
-    pushedSamplingRate = samplingRate.value;
+    pushedSamplingRateHz = samplingRate.value;
     pushedSamplingRateFlag = true;
 }
 
@@ -98,7 +98,7 @@ void PlotConsumer::updateTimeAxis() {
 
         if (pushedSamplingRateFlag) {
             pushedSamplingRateFlag = false;
-            sweepSamplingRate = pushedSamplingRate;
+            sweepSamplingRateHz = pushedSamplingRateHz;
         }
 
         locker.unlock();
@@ -108,15 +108,15 @@ void PlotConsumer::updateTimeAxis() {
 }
 
 void PlotConsumer::computeTimeAxis() {
-    dataSize = qRound(sweepSamplingRate*sweepDuration);
-    minDataBatchSize = qRound(sweepSamplingRate*PCS_MIN_DATA_BATCH_DURATION_S);
+    dataSize = qRound(sweepSamplingRateHz*sweepDuration);
+    minDataBatchSize = qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S);
 
     subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;
 
     subSamplingIdx = 0;
 
-    double dt = ((double)subSamplingRatio)/sweepSamplingRate;
+    double dt = ((double)subSamplingRatio)/sweepSamplingRateHz;
     for (int idx = 0; idx < dataSize; idx++) {
         timeValues[idx] = dt*(double)idx;
     }
