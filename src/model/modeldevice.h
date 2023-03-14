@@ -63,6 +63,7 @@ public:
     ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
     ErrorCodes_t getChannelsNumberFeatures(int &voltageChannelNum, int &currentChannelNum);
     ErrorCodes_t getBoardsNumberFeatures(int &boardNum);
+    ErrorCodes_t getClampingModalitiesFeatures(vector<int> &clampingModalitiesFeatures);
 
     ErrorCodes_t getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures);
     ErrorCodes_t getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures);
@@ -91,6 +92,7 @@ private:
     Measurement_t vcVoltageFilter = {0.0, UnitPfxNone, "Hz"};;
     Measurement_t ccCurrentFilter = {0.0, UnitPfxNone, "Hz"};;
     Measurement_t ccVoltageFilter = {0.0, UnitPfxNone, "Hz"};;
+    int ongoingClampingModality = E384CL_VOLTAGE_CLAMP_MODE;
 
 };
 
