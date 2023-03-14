@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
 
     qRegisterMetaType <vector <string>> ("vector <string>");
     qRegisterMetaType <ErrorCodes_t> ("ErrorCodes_t");
+    qRegisterMetaType <RecordSettingsDialog::RecordSettings_t> ("RecordSettingsDialog::RecordSettings_t");
 
     QCoreApplication::setOrganizationName("Elements S.R.L.");
     QCoreApplication::setOrganizationDomain("elements-ic.com");

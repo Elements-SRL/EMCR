@@ -14,6 +14,7 @@
 #include "channelcontroldockwidget.h"
 #include "boardcontroldockwidget.h"
 #include "bigplotdockwidget.h"
+#include "recordsettingsdialog.h"
 #include "e384commlib_errorcodes.h"
 
 using namespace std;
@@ -42,17 +43,23 @@ public slots:
 private:
     void createGuiControls();
     void destroyGuiControls();
+    void addViewActions();
+    void removeViewActions();
     void restoreUISettings();
     void saveUISettings();
 
     ModelDevice * mDev = nullptr;
     QMenu * menuView = nullptr;
+    QMenu * menuRecordings = nullptr;
+
+    QAction * actionRecordingSettings = nullptr;
 
     QDockWidget * deviceDetectorDw = nullptr;
     DeviceControlDockWidget * deviceControlsDw = nullptr;
     ChannelControlDockWidget * channelControlsDw = nullptr;
     BoardControlDockWidget * boardControlsDw = nullptr;
     BigPlotDockWidget * bigPlotDw = nullptr;
+    RecordSettingsDialog * recordSettingsDialog = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;
 

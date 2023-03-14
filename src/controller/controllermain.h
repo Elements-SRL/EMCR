@@ -11,6 +11,7 @@
 #include "controllerboard.h"
 #include "controllerdevice.h"
 #include "devicedataproducer.h"
+#include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
 
 class ControllerMain : public QObject {
@@ -33,6 +34,9 @@ private:
     DeviceDataProducer * deviceDataProducer = nullptr;
     GapFreePlotConsumer * stampPlotConsumer = nullptr;
     GapFreePlotConsumer * bigPlotConsumer = nullptr;
+    AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
+
+    QVector <DeviceDataConsumer*> consumers;
 
     ControllerChannel * controllerChannel = nullptr;
     ControllerBoard * controllerBoard = nullptr;
@@ -47,6 +51,7 @@ public slots:
     void onConnect(bool flag);
     void onMainWindowCreated();
     void onMainWindowDestroyed();
+    void onVcCurrentRangeSelected(int idx);
 
 signals:
     void startDetecting();

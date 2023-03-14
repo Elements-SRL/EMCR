@@ -37,8 +37,8 @@ protected:
     bool pushedCurrentRangeFlag = false;
 
     unsigned int minDataBatchSize = 0;
-    double pushedSamplingRate = 1.0;
-    double sweepSamplingRate = 1.0;
+    double pushedSamplingRateHz = 1.0;
+    double sweepSamplingRateHz = 1.0;
 
     RangedMeasurement_t pushedVoltageRange;
     RangedMeasurement_t voltageRange = {0.0, 1.0, 1.0, UnitPfxNone, "V"};

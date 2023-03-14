@@ -7,7 +7,7 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
-#    DEFINES += GLB_SHOW_DEBUG_CTRLS
+    DEFINES += GLB_SHOW_DEBUG_CTRLS
 }
 
 CONFIG += c++11
@@ -31,6 +31,7 @@ SOURCES += \
     src/view/chessboard.cpp \
     src/view/myleftrightmousepushbutton.cpp \
     src/view/myspinbox.cpp \
+    src/view/recordsettingsdialog.cpp \
     src/view/stampplot.cpp \
     src/view/channelcontroldockwidget.cpp \
     src/view/boardcontroldockwidget.cpp \
@@ -43,9 +44,12 @@ SOURCES += \
     src/controller/device/devicedataproducer.cpp \
     src/controller/device/devicedataconsumer.cpp \
     src/controller/device/consumer/plotconsumer.cpp \
+    src/controller/device/consumer/datawriterconsumer.cpp \
+    src/controller/device/consumer/abfdatawriterconsumer.cpp \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
-    src/model/modelchannel.cpp
+    src/model/modelchannel.cpp \
+    src/abf/axon.cpp
 
 HEADERS += \
     src/globaldefines.h \
@@ -58,6 +62,7 @@ HEADERS += \
     src/view/chessboard.h \
     src/view/myleftrightmousepushbutton.h \
     src/view/myspinbox.h \
+    src/view/recordsettingsdialog.h \
     src/view/stampplot.h \
     src/view/channelcontroldockwidget.h \
     src/view/boardcontroldockwidget.h \
@@ -70,9 +75,14 @@ HEADERS += \
     src/controller/device/devicedataproducer.h \
     src/controller/device/devicedataconsumer.h \
     src/controller/device/consumer/plotconsumer.h \
+    src/controller/device/consumer/datawriterconsumer.h \
+    src/controller/device/consumer/abfdatawriterconsumer.h \
     src/model/modeldevice.h \
     src/model/modelboard.h \
-    src/model/modelchannel.h
+    src/model/modelchannel.h \
+    src/abf/axon.h \
+    src/abf/axon_defs.h \
+    src/abf/axon_structs.h
 
 INCLUDEPATH += \
     ./src \
@@ -80,7 +90,8 @@ INCLUDEPATH += \
     ./src/controller \
     ./src/controller/device \
     ./src/controller/device/consumer \
-    ./src/model
+    ./src/model \
+    ./src/abf
 
 DEPENDPATH += \
     ./src \
@@ -88,7 +99,8 @@ DEPENDPATH += \
     ./src/controller \
     ./src/controller/device \
     ./src/controller/device/consumer \
-    ./src/model
+    ./src/model \
+    ./src/abf
 
 include(../e384commLib/frontPanel/includefrontpanel.pri)
 include(../e384commLib/includecommlib.pri)

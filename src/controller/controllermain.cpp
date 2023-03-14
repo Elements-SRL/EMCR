@@ -103,6 +103,7 @@ void ControllerMain::onConnect(bool flag) {
 }
 
 void ControllerMain::onMainWindowCreated() {
+    consumers.clear();
 
     /***************\
      * Controllers *
@@ -141,6 +142,8 @@ void ControllerMain::onMainWindowCreated() {
 
     deviceDataProducer = new DeviceDataProducer(mDev);
     stampPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+
+    consumers.append(stampPlotConsumer);
 //    bigPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
 
     connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
@@ -161,10 +164,10 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->onVoltageRangeChanged(vcVoltageRanges[0]);
     stampPlotConsumer->onSamplingRateChanged(samplingRates[0]);
     stampPlotConsumer->onDurationChanged({2.0, UnitPfxNone, "s"});
-    stampPlotConsumer->forceAxisUpdate();
     stampPlotConsumer->setMaxSamplesPerPlot(256);
     QVector <bool> selectedChannels(currentChannelsNumber, true);
     stampPlotConsumer->selectChannels(selectedChannels);
+    stampPlotConsumer->forceAxisUpdate();
 
 //    bigPlotConsumer->onCurrentRangeChanged(vcCurrentRanges[0]);
 //    bigPlotConsumer->onVoltageRangeChanged(vcVoltageRanges[0]);
@@ -175,8 +178,12 @@ void ControllerMain::onMainWindowCreated() {
 //    selectedChannels.fill(false);
 //    bigPlotConsumer->selectChannels(selectedChannels);
 
+//    abfDataWriterConsumer->
+
     mainWindow->getChessaboard()->initializeRange(vcCurrentRanges[0]);
     mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});
+
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, this, &ControllerMain::onVcCurrentRangeSelected);
 
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();
@@ -211,4 +218,13 @@ void ControllerMain::onMainWindowDestroyed() {
     mDev->flushBoardList();
 
     emit startDetecting();
+}
+
+void ControllerMain::onVcCurrentRangeSelected(int idx) {
+    vector <RangedMeasurement_t> ranges;
+    mDev->setVcCurrentRange(ranges[idx]);
+
+    for (auto consumer : consumers) {
+        consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
+    }
 }

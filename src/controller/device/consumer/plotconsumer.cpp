@@ -257,26 +257,24 @@ void GapFreePlotConsumer::run() {
 
 void GapFreePlotConsumer::allocateData() {
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
-        voltageValues.append(new double[maxSamples]());
+        voltageValues.append(new double[maxSamples]);
     }
 
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
-        currentValues.append(new double[maxSamples]());
+        currentValues.append(new double[maxSamples]);
     }
 
     timeValues = new double[maxSamples];
 }
 
 void GapFreePlotConsumer::clearData() {
-    int counter = 0;
     for (int idx = 0; idx < voltageChannelsNum; idx++) {
-        delete [] voltageValues[counter++];
+        delete [] voltageValues[idx];
     }
     voltageValues.clear();
 
-    counter = 0;
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        delete [] currentValues[counter++];
+        delete [] currentValues[idx];
     }
     currentValues.clear();
 

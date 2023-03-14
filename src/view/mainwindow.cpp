@@ -32,6 +32,21 @@ MainWindow::MainWindow(QWidget * parent) :
     menuView = new QMenu("View");
     menuBar->addMenu(menuView);
 
+    menuRecordings = new QMenu("Recordings");
+    menuBar->addMenu(menuRecordings);
+
+    actionRecordingSettings = new QAction("Settings");
+    menuRecordings->addAction(actionRecordingSettings);
+    actionRecordingSettings->setEnabled(false);
+
+    /************\
+     * settings *
+    \************/
+
+    recordSettingsDialog = new RecordSettingsDialog;
+
+    connect(actionRecordingSettings, &QAction::triggered, recordSettingsDialog, &RecordSettingsDialog::exec);
+
     /************************\
      * device detector dock *
     \************************/
@@ -265,6 +280,9 @@ void MainWindow::createGuiControls() {
 
 #endif
 
+    actionRecordingSettings->setEnabled(true);
+    this->addViewActions();
+
     this->restoreUISettings();
 
     emit widgetsCreated();
@@ -273,6 +291,9 @@ void MainWindow::createGuiControls() {
 void MainWindow::destroyGuiControls() {
     QSettings settings;
     this->saveUISettings();
+
+    this->removeViewActions();
+    actionRecordingSettings->setEnabled(false);
 
 //    if (plotPreferencesDlg != nullptr) {
 //        delete plotPreferencesDlg;
@@ -342,6 +363,27 @@ void MainWindow::destroyGuiControls() {
     this->setCentralWidget(new ElementsLogoWidget);
 
     emit widgetsDestroyed();
+}
+
+void MainWindow::addViewActions() {
+    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+        menuView->addAction(dockWidgets[dockIdx]->toggleViewAction());
+    }
+
+//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
+//        analysisMenus[dockIdx]->addAction(analysisWidgets[dockIdx]->toggleViewAction());
+//        analysisMenus[dockIdx]->actions().at(analysisMenus[dockIdx]->actions().size()-1)->setText(analysisActionNames[dockIdx]);
+//    }
+}
+
+void MainWindow::removeViewActions() {
+    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+        menuView->removeAction(dockWidgets[dockIdx]->toggleViewAction());
+    }
+
+//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
+//        menuAnalysis->removeAction(analysisWidgets[dockIdx]->toggleViewAction());
+//    }
 }
 
 void MainWindow::restoreUISettings() {
