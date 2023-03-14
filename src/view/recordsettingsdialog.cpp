@@ -127,6 +127,10 @@ RecordSettingsDialog::RecordSettingsDialog() :
     this->onLoadSettings();
 }
 
+void RecordSettingsDialog::onFileSizeComputed(QString message) {
+    recordSizeLbl->setText(message);
+}
+
 RecordSettingsDialog::RecordFileFormat_t RecordSettingsDialog::getRecordFileFormat() {
     RecordFileFormat_t format = (RecordFileFormat_t)PSD_DEFAULT_RECORD_FORMAT;
 

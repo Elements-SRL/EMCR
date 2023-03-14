@@ -119,7 +119,7 @@ BoardControlDockWidget * MainWindow::getBoardControlsDockWidget() {
     return boardControlsDw;
 }
 
-RecordSettingsDialog * MainWindow::getRecordSettingDialog() {
+RecordSettingsDialog * MainWindow::getRecordSettingsDialog() {
     return recordSettingsDialog;
 }
 

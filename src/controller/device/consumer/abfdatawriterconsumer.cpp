@@ -7,6 +7,7 @@ AbfDataWriterConsumer::AbfDataWriterConsumer(ModelDevice * mDev, DeviceDataProdu
     dataFormat = RecordSettingsDialog::RecordFileAbf;
     fileNameExtension = ".abf";
     channelIdxSuffix = "_CH%1";
+    bytesPerChannel = 2;
 
     rawBuffers = new unsigned short* [currentChannelsNum];
     rawBuffers[0] = new unsigned short [DWC_ABF_RAW_BUFFER_LEN*DWC_ABF_CHANNEL_PER_FILE*currentChannelsNum];
@@ -127,7 +128,7 @@ void AbfDataWriterConsumer::run() {
                 while (rawBufferIdx < rawBufferLen) {
                     voltage = buffer[bufferIdx++];
                     for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                        if (pushedActiveChannels[channelIdx]) {
+                        if (activeChannels[channelIdx]) {
                             rawBuffers[channelIdx][rawBufferIdx] = buffer[bufferIdx+channelIdx];
                             rawBuffers[channelIdx][rawBufferIdx+1] = voltage;
                         }
@@ -138,7 +139,7 @@ void AbfDataWriterConsumer::run() {
                     bufferIdx += currentChannelsNum;
                 }
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                    if (pushedActiveChannels[channelIdx]) {
+                    if (activeChannels[channelIdx]) {
                         abfs[channelIdx]->WriteRawData(rawBuffers[channelIdx], sizeof(unsigned short), rawBufferLen);
                     }
                 }
@@ -179,7 +180,7 @@ void AbfDataWriterConsumer::run() {
                     while (rawBufferIdx < rawBufferLen) {
                         voltage = buffer[bufferIdx++];
                         for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                            if (pushedActiveChannels[channelIdx]) {
+                            if (activeChannels[channelIdx]) {
                                 rawBuffers[channelIdx][rawBufferIdx] = buffer[bufferIdx+channelIdx];
                                 rawBuffers[channelIdx][rawBufferIdx+1] = voltage;
                             }
@@ -190,7 +191,7 @@ void AbfDataWriterConsumer::run() {
                         bufferIdx += currentChannelsNum;
                     }
                     for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                        if (pushedActiveChannels[channelIdx]) {
+                        if (activeChannels[channelIdx]) {
                             abfs[channelIdx]->WriteRawData(rawBuffers[channelIdx], sizeof(unsigned short), rawBufferLen);
                         }
                     }
@@ -213,7 +214,7 @@ void AbfDataWriterConsumer::run() {
 
 void AbfDataWriterConsumer::initAbfSections() {
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        if (pushedActiveChannels[channelIdx]) {
+        if (activeChannels[channelIdx]) {
             ABF * abf = abfs[channelIdx];
             abf->InitFileInfo();
             abf->InitStrings();
@@ -398,12 +399,11 @@ bool AbfDataWriterConsumer::openFile() {
     recordingInitialized = true;
 
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        if (pushedActiveChannels[channelIdx]) {
+        if (activeChannels[channelIdx]) {
             ABF * abf = new ABF();
 
-            QString path = settings.recordPath;
-            if (!QDir(path).exists()) {
-                QDir().mkdir(path);
+            if (!QDir(validFilePath).exists()) {
+                QDir().mkdir(validFilePath);
             }
 
             int openOk = abf->Open(const_cast <char *> (validFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString().c_str()), QFile::WriteOnly | QFile::Truncate);

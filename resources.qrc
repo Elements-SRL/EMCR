@@ -4,5 +4,6 @@
         <file>imgs/splitter handle.png</file>
         <file>imgs/record protocol.png</file>
         <file>imgs/stop protocol.png</file>
+        <file>imgs/recording protocol.png</file>
     </qresource>
 </RCC>

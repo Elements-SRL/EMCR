@@ -11,11 +11,11 @@ DataWriterConsumer::DataWriterConsumer(ModelDevice * mDev, DeviceDataProducer * 
 
     activeChannels.resize(currentChannelsNum);
     activeChannels.fill(true);
-    activeChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channel */
+    activeChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channels */
 
     pushedActiveChannels.resize(currentChannelsNum);
     pushedActiveChannels.fill(true);
-    pushedActiveChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channel */
+    pushedActiveChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channels */
 
     connect(this, &QThread::started, this, [=] () {
         emit sigRecording(true);
@@ -36,8 +36,8 @@ void DataWriterConsumer::onStartConsuming() {
     /*! During the recording the number of saved channels cannot change
      *  so when the recording starts freeze the active channels and use
      *  throughout the recording */
-    pushedActiveChannels = activeChannels;
-    pushedActiveChannelsNum = activeChannelsNum;
+    activeChannels = pushedActiveChannels;
+    activeChannelsNum = pushedActiveChannelsNum;
     if (dataFormat == settings.fileFormat) {
         recordingInitialized = false;
         if (!(this->openFile())) {
@@ -79,6 +79,20 @@ void DataWriterConsumer::onRecordingSettingsSet(RecordSettingsDialog::RecordSett
     this->computeSamples();
 }
 
+void DataWriterConsumer::onRecordSelectedChannels(vector<uint16_t> channelIndexes, vector<bool> onValues) {
+    this->onStopConsuming();
+    pushedActiveChannels.fill(false);
+    pushedActiveChannelsNum = 0;
+
+    for (int idx = 0; idx < channelIndexes.size(); idx++) {
+        if (onValues[idx]) {
+            pushedActiveChannels[channelIndexes[idx]] = true;
+            pushedActiveChannelsNum++;
+        }
+    }
+    this->onStartConsuming();
+}
+
 void DataWriterConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     pushedSamplingRateHz = samplingRate.getNoPrefixValue();
 }
@@ -94,14 +108,14 @@ void DataWriterConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
 void DataWriterConsumer::manageConsumptionBegin() {
     recordStartTime = QDateTime::currentDateTime();
     savedValues = 0;
-    if (settings.chunkDurationS > 0.0) {
+    if (chunkFlag) {
         if (totalValuesToBeSaved > valuesPerChunk) {
             /*! this means "we have to split a definite amount of data... " */
             splitFlag = true;
             valuesToBeSaved = valuesPerChunk;
             totalValuesToBeSaved -= valuesPerChunk;
 
-        } else if (settings.recordDurationS == 0.0) {
+        } else if (unlimitedFlag) {
             /*! this means "we have to split an indefinite amount of data... " */
             splitFlag = true;
             valuesToBeSaved = valuesPerChunk;
@@ -182,17 +196,116 @@ void DataWriterConsumer::manageConsumptionEnd() {
 //}
 
 void DataWriterConsumer::computeSamples() {
-    if (settings.recordDurationS == 0.0) {
+    double totalMB;
+    double chunkMB;
+    QString recordSizeStr;
+    QString chunkSizeStr;
+
+    /*! First samples computation, might not be the final one because of specific behaviorus when durations are 0 */
+    samplesToBeSaved = (long long)qRound(settings.recordDurationS*sweepSamplingRateHz);
+    samplesPerChunk = (long long)qRound(settings.chunkDurationS*sweepSamplingRateHz);
+
+    bool unlimitedFlag = settings.recordDurationS == 0.0;
+    bool chunkFlag = settings.chunkDurationS > 0.0;
+
+    if (unlimitedFlag && chunkFlag) {
+        totalMB = (bytesPerChannel*totalChannelsNum*sweepSamplingRateHz)/1048576.0;
+        if (totalMB < 0.1) {
+            recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
+
+        } else {
+            recordSizeStr = QString("Recording size on disk = %1 MB/s").arg(totalMB, 0, 'f', 1);
+        }
+
+        chunkMB = (bytesPerChannel*totalChannelsNum*samplesPerChunk)/1048576.0;
+        if (chunkMB > PSD_MAX_MB_PER_FILE) {
+            samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+            chunkMB = PSD_MAX_MB_PER_FILE;
+        }
+
+        if (chunkMB < 0.1) {
+            chunkSizeStr = QString(" (< 0.1 MB per chunk)");
+
+        } else {
+            chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
+        }
+
+    } else if (unlimitedFlag && !chunkFlag) {
+        totalMB = (bytesPerChannel*totalChannelsNum*sweepSamplingRateHz)/1048576.0;
+        if (totalMB < 0.1) {
+            recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
+
+        } else {
+            recordSizeStr = QString("Recording size on disk = %1 MB/s").arg(totalMB, 0, 'f', 1);
+        }
+
+        chunkFlag = true;
+        samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+        chunkMB = PSD_MAX_MB_PER_FILE;
+        chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
+
+    } else if (!unlimitedFlag && chunkFlag) {
+        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/1048576.0;
+        if (totalMB < 0.1) {
+            recordSizeStr = QString("Recording size on disk < 0.1 MB");
+
+        } else {
+            recordSizeStr = QString("Recording size on disk = %1 MB").arg(totalMB, 0, 'f', 1);
+        }
+
+        chunkMB = (bytesPerChannel*totalChannelsNum*samplesPerChunk)/1048576.0;
+
+        if (chunkMB > PSD_MAX_MB_PER_FILE) {
+            samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+            chunkMB = PSD_MAX_MB_PER_FILE;
+        }
+
+        if (chunkMB >= totalMB) {
+            chunkFlag = false;
+            samplesPerChunk = -1.0;
+            chunkMB = -1.0;
+        }
+        if (chunkMB < 0.0) {
+            chunkSizeStr = QString(" (chunks disabled)");
+
+        } else if (chunkMB < 0.1) {
+            chunkSizeStr = QString(" (< 0.1 MB per chunk)");
+
+        } else {
+            chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
+        }
+
+    } else if (!unlimitedFlag && !chunkFlag) {
+        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/1048576.0;
+        if (totalMB < 0.1) {
+            recordSizeStr = QString("Recording size on disk < 0.1 MB");
+
+        } else {
+            recordSizeStr = QString("Recording size on disk = %1 MB").arg(totalMB, 0, 'f', 1);
+        }
+
+        if (totalMB > PSD_MAX_MB_PER_FILE) {
+            chunkFlag = true;
+            samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+            chunkMB = PSD_MAX_MB_PER_FILE;
+            chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
+
+        } else {
+            chunkSizeStr = QString(" (chunks disabled)");
+        }
+    }
+
+    emit sigFileSizeComputed(recordSizeStr + chunkSizeStr);
+
+    if (unlimitedFlag) {
         samplesToBeSaved = -1;
         totalValuesToBeSaved = -1;
 
     } else {
-        samplesToBeSaved = (long long)qRound(settings.recordDurationS*sweepSamplingRateHz);
         totalValuesToBeSaved = samplesToBeSaved*(long long)totalChannelsNum;
     }
 
-    if (settings.chunkDurationS > 0.0) {
-        samplesPerChunk = (long long)qRound(settings.chunkDurationS*sweepSamplingRateHz);
+    if (chunkFlag) {
         valuesPerChunk = samplesPerChunk*(long long)totalChannelsNum;
 
     } else {
@@ -245,6 +358,8 @@ void DataWriterConsumer::findValidPathName() {
             suffix = channelIdxSuffix + QString("_%1").arg(chunkIdx++, 3, 10, QLatin1Char('0'));
             newFullFileName = filePath + baseFileName + suffix;
         }
+
+        validFilePath = filePath;
     }
 
     if (channelIdxSuffix != "") {

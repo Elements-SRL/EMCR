@@ -45,6 +45,9 @@ public:
 
     RecordSettingsDialog();
 
+public slots:
+    void onFileSizeComputed(QString message);
+
 private:
     RecordFileFormat_t getRecordFileFormat();
 

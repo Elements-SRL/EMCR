@@ -46,10 +46,8 @@ private:
     QComboBox * operationCbx = nullptr;
     SpinBoxWithChannel * setAllVholdSpinBox = nullptr;
 
-    //-------------------------//
-//    QPushButton * checkAllBtn = nullptr;
-//    QPushButton * uncheckAllBtn = nullptr;
-    //-------------------------//
+    QPushButton* startRecordingBtn = nullptr;
+    QPushButton* stopRecordingBtn = nullptr;
 
     QVector <QWidget *> operationWidgets;
 
@@ -67,10 +65,12 @@ private slots:
     void onStopRecordingButtonClicked();
 
 signals:
-        void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-        void sigAppliedTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-        void sigAppliedVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
-        void sigAppliedTurnStimulsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
+    void sigAppliedTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
+    void sigAppliedVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
+    void sigAppliedTurnStimulsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void sigStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void sigStopRecording();
 };
 
 class SpinBoxWithChannel : public QWidget {

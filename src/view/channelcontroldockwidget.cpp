@@ -66,7 +66,6 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
     int idx = operationCbx->currentIndex();
     switch (idx) {
     case OperationTurnChannelsOnOff: {
-        cout<< "turnChannelsOnOff" << endl;
         QCheckBox * cb;
         vector<bool> values;
         vector<uint16_t> indexes;
@@ -85,7 +84,6 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
         break;
     }
     case OperationTurnStimulusOnOff:{
-        cout<< "OperationTurnStimulusOnOff" << endl;
         QCheckBox * cb;
         vector<bool> values;
         vector<uint16_t> indexes;
@@ -104,7 +102,6 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
         break;
     }
     case OperationStartStopDigitalOffsetCompensation:{
-        cout<< "OperationStartStopDigitalOffsetCompensation" << endl;
         QCheckBox * cb;
         vector<bool> values;
         vector<uint16_t> indexes;
@@ -123,7 +120,6 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
         break;
     }
     case OperationHoldingStimulus:{
-        cout<< "OperationHoldingStimulus" << endl;
         SpinBoxWithChannel * vHoldSpinBox;
         vector<Measurement_t> values;
         vector<uint16_t> indexes;
@@ -142,65 +138,84 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
         emit sigAppliedVoltageHoldValues(indexes, values);
         break;
     }
-    case OperationRecordToFile:{
-/*! \todo still to be done*/
+    case OperationRecordToFile:
+        /*! Nothing to be done, Apply replaced by start and stop recording */
         break;
-    }
     }
 }
 
 
 void ChannelControlDockWidget::onCheckAllButtonClicked() {
-        QCheckBox * cb;
-        vector<bool> values;
-        vector<uint16_t> indexes;
+    QCheckBox * cb;
+    vector<bool> values;
+    vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
-        for (int i = 0; i<selectedIndexes.size(); i++) {
-            cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
-            if (selectedIndexes.at(i)) {
-                cb->setChecked(true);
-            }
+    for (int i = 0; i<selectedIndexes.size(); i++) {
+        cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
+        if (selectedIndexes.at(i)) {
+            cb->setChecked(true);
         }
+    }
 }
 
 void ChannelControlDockWidget::onUncheckAllButtonClicked() {
-        QCheckBox * cb;
-        vector<bool> values;
-        vector<uint16_t> indexes;
+    QCheckBox * cb;
+    vector<bool> values;
+    vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
-        for (int i = 0; i<selectedIndexes.size(); i++) {
-            cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
-            if (selectedIndexes.at(i)) {
-                cb->setChecked(false);
-            }
+    for (int i = 0; i<selectedIndexes.size(); i++) {
+        cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
+        if (selectedIndexes.at(i)) {
+            cb->setChecked(false);
         }
+    }
 }
 
 void ChannelControlDockWidget::onSetAllButtonClicked() {
-        SpinBoxWithChannel * spinBox;
-        vector<bool> values;
-        vector<uint16_t> indexes;
+    SpinBoxWithChannel * spinBox;
+    vector<bool> values;
+    vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
-        for (int i = 0; i<selectedIndexes.size(); i++) {
-            spinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationCbx->currentIndex()][i]);
-            if (selectedIndexes.at(i)) {
-                spinBox->setValue(this->setAllVholdSpinBox->value());
-            }
+    for (int i = 0; i<selectedIndexes.size(); i++) {
+        spinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationCbx->currentIndex()][i]);
+        if (selectedIndexes.at(i)) {
+            spinBox->setValue(this->setAllVholdSpinBox->value());
         }
+    }
 }
 
 void ChannelControlDockWidget::onStartRecordingButtonClicked() {
-        /*! \todo still to be done*/
+    QCheckBox * cb;
+    vector<bool> values;
+    vector<uint16_t> indexes;
+
+    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+    for (int i = 0; i<selectedIndexes.size(); i++) {
+        cb = static_cast<QCheckBox *>(operationEdits[OperationRecordToFile][i]);
+        if (selectedIndexes.at(i)) {
+            values.push_back(cb->isChecked());
+            indexes.push_back(i);
+        }
+    }
+
+    QPixmap pixmapRecors("://imgs/recording protocol.png");
+    QIcon recordIcon(pixmapRecors);
+    startRecordingBtn->setIcon(recordIcon);
+    emit sigStartRecording(indexes, values);
 }
 
 void ChannelControlDockWidget::onStopRecordingButtonClicked() {
-        /*! \todo still to be done*/
+    QPixmap pixmapRecors("://imgs/record protocol.png");
+    QIcon recordIcon(pixmapRecors);
+    startRecordingBtn->setIcon(recordIcon);
+    emit sigStopRecording();
 }
 
 void ChannelControlDockWidget::onUpdate() {
@@ -251,14 +266,8 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     }
     }
 
-//    QWidget * spacer = new QWidget;
-//    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-//    scrollVl->addWidget(spacer);
-
     return operationWidgets[idx];
 }
-
-
 
 QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx] = new QWidget;
@@ -302,14 +311,14 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
         QPushButton* checkAllBtn = new QPushButton("Check all");
         QPushButton* uncheckAllBtn = new QPushButton("Uncheck all");
-        QPushButton* startRecordingBtn = new QPushButton("Start");
-        QPushButton* stopRecordingBtn = new QPushButton("Stop");
+        startRecordingBtn = new QPushButton("Start");
+        stopRecordingBtn = new QPushButton("Stop");
         QPixmap pixmapRecors("://imgs/record protocol.png");
-        QIcon ButtonRecord(pixmapRecors);
-        startRecordingBtn->setIcon(ButtonRecord);
+        QIcon recordIcon(pixmapRecors);
+        startRecordingBtn->setIcon(recordIcon);
         QPixmap pixmapStop("://imgs/stop protocol.png");
-        QIcon ButtonIconStop(pixmapStop);
-        stopRecordingBtn->setIcon(ButtonIconStop);
+        QIcon stopRecordIcon(pixmapStop);
+        stopRecordingBtn->setIcon(stopRecordIcon);
         connect(checkAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onCheckAllButtonClicked);
         connect(uncheckAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onUncheckAllButtonClicked);
         connect(startRecordingBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onStartRecordingButtonClicked);
@@ -385,5 +394,3 @@ double SpinBoxWithChannel::value() {
 void SpinBoxWithChannel::setValue(double value) {
     return valueSbx->setValue(value);
 }
-
-

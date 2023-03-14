@@ -15,6 +15,8 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationDomain("elements-ic.com");
     QCoreApplication::setApplicationName(GLB_SOFTWARE_NAME);
 
+    QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
+
     ControllerMain c;
     MainWindow w;
     c.setMainWindow(&w);

@@ -153,7 +153,9 @@ void ControllerMain::onMainWindowCreated() {
 //    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onReplot);
 
     consumers.append(abfDataWriterConsumer);
-    connect(mainWindow->getRecordSettingDialog(), &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
+    connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording, abfDataWriterConsumer, &AbfDataWriterConsumer::onRecordSelectedChannels);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording, abfDataWriterConsumer, &AbfDataWriterConsumer::onStopConsuming);
 
     /*! \todo FCON carico come valori di default i primi disponibili per le varie feature, meglio allineare prima il model e prendere i valori da lì */
     vector <RangedMeasurement_t> vcCurrentRanges;
@@ -188,6 +190,8 @@ void ControllerMain::onMainWindowCreated() {
     mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});
 
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, this, &ControllerMain::onVcCurrentRangeSelected);
+
+    connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed, mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed)
 
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();

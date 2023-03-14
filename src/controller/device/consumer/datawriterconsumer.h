@@ -23,6 +23,7 @@ public slots:
     virtual void onStopConsuming() override;
 
     void onRecordingSettingsSet(RecordSettingsDialog::RecordSettings_t settings);
+    void onRecordSelectedChannels(vector<uint16_t> channelIndexes, vector<bool> onValues);
 
     virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
@@ -54,6 +55,7 @@ protected:
     int activeChannelsNum;
     RecordSettingsDialog::RecordSettings_t settings;
     QString validFullFileName;
+    QString validFilePath;
 
     QDateTime recordStartTime;
     QDateTime lastRecordingInterruptionTime;
@@ -65,9 +67,11 @@ protected:
     long long totalValuesToBeSaved;
     long long valuesToBeSaved;
     long long valuesPerChunk;
-    long long valuesPerSweep;
     bool splittingFlag = false;
     bool splitFlag = false;
+    bool unlimitedFlag;
+    bool chunkFlag;
+
     int chunkIdx;
 
     bool consumptionStopped = false;
@@ -78,6 +82,7 @@ protected:
 signals:
     void sigRecording(bool on);
     void sigError(QString message);
+    void sigFileSizeComputed(QString fileSizeDescription);
 };
 
 #endif // DATAWRITERCONSUMER_H

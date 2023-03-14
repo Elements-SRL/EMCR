@@ -34,7 +34,7 @@ public:
     DeviceControlDockWidget * getDeviceControlsDockWidget();
     ChannelControlDockWidget * getChannelControlsDockWidget();
     BoardControlDockWidget * getBoardControlsDockWidget();
-    RecordSettingsDialog * getRecordSettingDialog();
+    RecordSettingsDialog * getRecordSettingsDialog();
 
 public slots:
     void onDevicesListChanged(vector <string> devicesList);

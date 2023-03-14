@@ -32,6 +32,8 @@ protected:
     int currentChannelsNum = 0;
     int totalChannelsNum = 0;
 
+    int bytesPerChannel = 1;
+
     bool pushedSamplingRateFlag = false;
     bool pushedVoltageRangeFlag = false;
     bool pushedCurrentRangeFlag = false;
