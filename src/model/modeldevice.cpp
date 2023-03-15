@@ -213,6 +213,18 @@ ErrorCodes_t ModelDevice::getBoardsNumberFeatures(int &boardNum) {
     return ret;
 }
 
+ErrorCodes_t ModelDevice::getClampingModalitiesFeatures(vector<int> &clampingModalitiesFeatures){
+    vector<uint16_t> tempVector;
+    ErrorCodes_t ret = this->messageDispatcher->getClampingModalitiesFeatures(tempVector);
+    if (ret == Success) {
+        clampingModalitiesFeatures.resize(tempVector.size());
+        for(int i = 0; i< tempVector.size(); i++){
+            clampingModalitiesFeatures[i] = (int)tempVector[i];
+        }
+    }
+    return ret;
+}
+
 ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures) {
     return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures);
 }
