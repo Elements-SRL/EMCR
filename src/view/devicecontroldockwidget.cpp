@@ -38,49 +38,51 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
 
     this->vcCurrentRangesGroupBox = new QGroupBox(CURRENT_RANGE);
 
-//    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-
-//    vLayout->addWidget(this->vcCurrentRangesGroupBox);
-//    for (int idx = 0; idx < vcCurrentRanges.size(); idx++){
-//        auto rm = vcCurrentRanges[idx];
-//        QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
-//        radioButtonsBoxLayout->addWidget(qrb);
-//        this->vcCurrentRangesRadioButtons.push_back(qrb);
-//        connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-//            if (flag) {
-//                emit sigVcCurrentRangeSelected(idx);
-//            }
-//        });
-//    }
-//    if (this->vcCurrentRangesRadioButtons.size() > 0) {
-//        this->vcCurrentRangesRadioButtons[0]->setChecked(true);
-//    }
-//    this->vcCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
-
-    DeviceControlDockWidget::testFunction(vLayout, this->vcCurrentRangesGroupBox, vcCurrentRanges, this->vcCurrentRangesRadioButtons);
-
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    vLayout->addWidget(spacer);
-}
-
-void DeviceControlDockWidget::testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons){
     QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
 
-    vLayout->addWidget(qGroupBox);
-    for (int idx = 0; idx < myRanges.size(); idx++){
-        auto rm = myRanges[idx];
+    vLayout->addWidget(this->vcCurrentRangesGroupBox);
+    for (int idx = 0; idx < vcCurrentRanges.size(); idx++){
+        auto rm = vcCurrentRanges[idx];
         QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
         radioButtonsBoxLayout->addWidget(qrb);
-        qRadioButtons.push_back(qrb);
+        this->vcCurrentRangesRadioButtons.push_back(qrb);
         connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigVcCurrentRangeSelected(idx);
             }
         });
     }
-    if (qRadioButtons.size() > 0) {
-        qRadioButtons[0]->setChecked(true);
+    if (this->vcCurrentRangesRadioButtons.size() > 0) {
+        this->vcCurrentRangesRadioButtons[0]->setChecked(true);
     }
-    qGroupBox->setLayout(radioButtonsBoxLayout);
+    this->vcCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
+
+    /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
+//    DeviceControlDockWidget::testFunction(vLayout, this->vcCurrentRangesGroupBox, vcCurrentRanges, this->vcCurrentRangesRadioButtons);
+
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    vLayout->addWidget(spacer);
 }
+
+/*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
+//void DeviceControlDockWidget::testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons){
+//    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+
+//    vLayout->addWidget(qGroupBox);
+//    for (int idx = 0; idx < myRanges.size(); idx++){
+//        auto rm = myRanges[idx];
+//        QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
+//        radioButtonsBoxLayout->addWidget(qrb);
+//        qRadioButtons.push_back(qrb);
+//        connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+//            if (flag) {
+//                emit sigVcCurrentRangeSelected(idx);
+//            }
+//        });
+//    }
+//    if (qRadioButtons.size() > 0) {
+//        qRadioButtons[0]->setChecked(true);
+//    }
+//    qGroupBox->setLayout(radioButtonsBoxLayout);
+//}
