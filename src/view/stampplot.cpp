@@ -51,23 +51,24 @@ QSize StampPlot::minimumSizeHint() const {
     return QSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
 }
 
-void StampPlot::initializeRange(RangedMeasurement_t newRange, Axis axisIdx) {
-    currentRange[axisIdx] = newRange;
-    this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
-}
-
 void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
-    if (newRange != currentRange[axisIdx]) {
-        currentRange[axisIdx].max = 1.0;
-        currentRange[axisIdx].convertValues(newRange.prefix);
-        double coeff = currentRange[axisIdx].max;
-        currentRange[axisIdx].max = newRange.max;
-        currentRange[axisIdx].min = newRange.min;
+    if (rangeInitialized) {
+        if (newRange != currentRange[axisIdx]) {
+            currentRange[axisIdx].max = 1.0;
+            currentRange[axisIdx].convertValues(newRange.prefix);
+            double coeff = currentRange[axisIdx].max;
+            currentRange[axisIdx].max = newRange.max;
+            currentRange[axisIdx].min = newRange.min;
 
-        double min = coeff*this->axisInterval(axisIdx).minValue();
-        double max = coeff*this->axisInterval(axisIdx).maxValue();
+            double min = coeff*this->axisInterval(axisIdx).minValue();
+            double max = coeff*this->axisInterval(axisIdx).maxValue();
 
-        this->setAxisScale(axisIdx, min, max);
+            this->setAxisScale(axisIdx, min, max);
+        }
+
+    } else {
+        currentRange[axisIdx] = newRange;
+        this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
     }
     this->replot();
 }

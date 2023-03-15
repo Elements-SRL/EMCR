@@ -19,7 +19,6 @@ public:
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
-    void initializeRange(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
 
 public slots:
     void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
@@ -34,6 +33,8 @@ private:
     RangedMeasurement_t currentRange[axisCnt];
     Measurement_t sweepDuration = {1.0, UnitPfxNone, "s"};
     UnitPfx_t xAxisPrefix = UnitPfxNone;
+
+    bool rangeInitialized = false;
 
 public slots:
     void onSelected();

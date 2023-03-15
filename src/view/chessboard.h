@@ -15,11 +15,10 @@ class Chessboard : public QWidget {
 public:
     Chessboard(ModelDevice * mDev, QWidget * parent = nullptr);
 
-    void initializeRange(RangedMeasurement_t newRange);
     void clearCurves();
 
 public slots:
-    void onRangeUpdated(RangedMeasurement_t newRange);
+    void onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx = QwtPlot::yLeft);
     void onDurationUpdated(Measurement_t duration);
     void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
     void onReplot();

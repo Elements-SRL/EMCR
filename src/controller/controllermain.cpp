@@ -104,6 +104,7 @@ void ControllerMain::onConnect(bool flag) {
 
 void ControllerMain::onMainWindowCreated() {
     consumers.clear();
+    dataWriterConsumers.clear();
 
     /***************\
      * Controllers *
@@ -113,22 +114,57 @@ void ControllerMain::onMainWindowCreated() {
     controllerBoard = new ControllerBoard(mDev);
     controllerDevice = new ControllerDevice(mDev);
 
-    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked, controllerChannel, &ControllerChannel::onAllChannelsClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked, controllerChannel, &ControllerChannel::onOneRowClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked, controllerChannel, &ControllerChannel::onOneBoardClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked, controllerChannel, &ControllerChannel::onSingleChannelClicked);
+    /************\
+     * Producer *
+    \************/
 
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected, controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected, controllerDevice, &ControllerDevice::onSamplingRateSelected);
+    deviceDataProducer = new DeviceDataProducer(mDev);
 
-    connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget, mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
-    connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied, controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);
+    /*************\
+     * Consumers *
+    \*************/
 
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnChannelOnOff, controllerChannel, &ControllerChannel::onApplyTurnChannelOnOff);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff, controllerChannel, &ControllerChannel::onApplyTurnStimulusOnOff);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnDocOnOff, controllerChannel, &ControllerChannel::onApplyTurnDocOnOff);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedVoltageHoldValues, controllerChannel, &ControllerChannel::onApplyVoltageHoldValues);
+    stampPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+    consumers.append(stampPlotConsumer);
+
+    bigPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+    consumers.append(bigPlotConsumer);
+
+    abfDataWriterConsumer = new AbfDataWriterConsumer(mDev, deviceDataProducer);
+    consumers.append(abfDataWriterConsumer);
+    dataWriterConsumers.append(abfDataWriterConsumer);
+
+    /***********\
+     * Connect *
+    \***********/
+
+    connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget,   mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
+
+    /*! No signals from controllerBoard */
+
+    connect(controllerDevice, &ControllerDevice::sigVcCurrentRangeSelected,     this, &ControllerMain::onVcCurrentRangeSelected);
+    connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected,     this, &ControllerMain::onVcVoltageRangeSelected);
+    connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected,       this, &ControllerMain::onSamplingRateSelected);
+
+    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,      controllerChannel, &ControllerChannel::onAllChannelsClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,           controllerChannel, &ControllerChannel::onOneRowClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,         controllerChannel, &ControllerChannel::onOneBoardClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked,    controllerChannel, &ControllerChannel::onSingleChannelClicked);
+
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnChannelOnOff,      controllerChannel, &ControllerChannel::onApplyTurnChannelOnOff);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff,      controllerChannel, &ControllerChannel::onApplyTurnStimulusOnOff);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnDocOnOff,          controllerChannel, &ControllerChannel::onApplyTurnDocOnOff);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedVoltageHoldValues,     controllerChannel, &ControllerChannel::onApplyVoltageHoldValues);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &ControllerMain::onStartRecording);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &ControllerMain::onStopRecording);
+
+    connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied,    controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);
+
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected,       controllerDevice, &ControllerDevice::onSamplingRateSelected);
+
+    connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
         mDev->getMessageDispatcher()->setDebugBit(word, bit, flag);
@@ -140,83 +176,46 @@ void ControllerMain::onMainWindowCreated() {
         mDev->getMessageDispatcher()->initializeDevice();
     });
 
-    /**************************\
-     * Producer and Consumers *
-    \**************************/
+    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
+    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   mainWindow->getChessaboard(), &Chessboard::onReplot);
 
-    deviceDataProducer = new DeviceDataProducer(mDev);
-    stampPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
-    abfDataWriterConsumer = new AbfDataWriterConsumer(mDev, deviceDataProducer);
+    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onSetGapFreePlotData);
+    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onReplot);
 
-    consumers.append(stampPlotConsumer);
-    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
-    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getChessaboard(), &Chessboard::onReplot);
+    connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
 
-//    bigPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
-//    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData, mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onSetGapFreePlotData);
-//    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated, mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onReplot);
+    /*! Plots durations */
+    /*! \todo FCON Capire come gestire le durate dei plot */
+    Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
-    consumers.append(abfDataWriterConsumer);
-    connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording, abfDataWriterConsumer, &AbfDataWriterConsumer::onRecordSelectedChannels);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording, abfDataWriterConsumer, &AbfDataWriterConsumer::onStopConsuming);
+    stampPlotConsumer->onDurationChanged(defaultPlotDuration);
+    bigPlotConsumer->onDurationChanged(defaultPlotDuration);
 
-    /*! \todo FCON carico come valori di default i primi disponibili per le varie feature, meglio allineare prima il model e prendere i valori da lì */
-    vector <RangedMeasurement_t> vcCurrentRanges;
-    vector <RangedMeasurement_t> vcVoltageRanges;
-    vector <Measurement_t> samplingRates;
+    mainWindow->getChessaboard()->onDurationUpdated(defaultPlotDuration);
+    mainWindow->getBigPlotWidget()->onDurationUpdated(defaultPlotDuration);
 
-    mDev->getVcCurrentRangesFeatures(vcCurrentRanges);
-    mDev->getVcVoltageRangesFeatures(vcVoltageRanges);
-    mDev->getSamplingRatesFeatures(samplingRates);
+    /*! Forced initialization at start */
+    mainWindow->getDeviceControlsDockWidget()->forceEmit();
+    mainWindow->getRecordSettingsDialog()->forceSettingsEmit();
+    stampPlotConsumer->forceAxisUpdate();
+    bigPlotConsumer->forceAxisUpdate();
 
-    stampPlotConsumer->onCurrentRangeChanged(vcCurrentRanges[0]);
-    stampPlotConsumer->onVoltageRangeChanged(vcVoltageRanges[0]);
-    stampPlotConsumer->onSamplingRateChanged(samplingRates[0]);
-    stampPlotConsumer->onDurationChanged({2.0, UnitPfxNone, "s"});
+    /*! \todo FCON questo potrebbe essere parametrizzato */
     stampPlotConsumer->setMaxSamplesPerPlot(256);
     QVector <bool> selectedChannels(currentChannelsNumber, true);
     stampPlotConsumer->selectChannels(selectedChannels);
-    stampPlotConsumer->forceAxisUpdate();
 
-//    bigPlotConsumer->onCurrentRangeChanged(vcCurrentRanges[0]);
-//    bigPlotConsumer->onVoltageRangeChanged(vcVoltageRanges[0]);
-//    bigPlotConsumer->onSamplingRateChanged(samplingRates[0]);
-//    bigPlotConsumer->onDurationChanged({2.0, UnitPfxNone, "s"});
-//    bigPlotConsumer->forceAxisUpdate();
-//    bigPlotConsumer->setMaxSamplesPerPlot(256);
-//    selectedChannels.fill(false);
-//    bigPlotConsumer->selectChannels(selectedChannels);
+    bigPlotConsumer->setMaxSamplesPerPlot(4096);
+    selectedChannels.fill(false);
+    bigPlotConsumer->selectChannels(selectedChannels);
 
-//    abfDataWriterConsumer->
 
-    mainWindow->getChessaboard()->initializeRange(vcCurrentRanges[0]);
-    mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});
-
-    connect(controllerDevice, &ControllerDevice::sigVcCurrentRangeSelected, this, &ControllerMain::onVcCurrentRangeSelected);
-    connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected, this, &ControllerMain::onVcVoltageRangeSelected);
-    connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected, this, &ControllerMain::onSamplingRateSelected);
-
-    connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed, mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
-
-    mainWindow->getRecordSettingsDialog()->forceSettingsEmit();
-    mainWindow->getDeviceControlsDockWidget()->forceEmit();
-
+    /*! Start threads */
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();
 }
 
 void ControllerMain::onMainWindowDestroyed() {
-    if (stampPlotConsumer!= nullptr) {
-        stampPlotConsumer->onStopConsuming();
-        delete stampPlotConsumer;
-    }
-
-    if (deviceDataProducer!= nullptr) {
-        deviceDataProducer->onStopProducing();
-        delete deviceDataProducer;
-    }
-
     if (controllerChannel != nullptr) {
         delete controllerChannel;
         controllerChannel = nullptr;
@@ -232,10 +231,32 @@ void ControllerMain::onMainWindowDestroyed() {
         controllerDevice = nullptr;
     }
 
+    if (stampPlotConsumer!= nullptr) {
+        stampPlotConsumer->onStopConsuming();
+        delete stampPlotConsumer;
+    }
+
+    if (bigPlotConsumer!= nullptr) {
+        bigPlotConsumer->onStopConsuming();
+        delete bigPlotConsumer;
+    }
+
+    if (abfDataWriterConsumer!= nullptr) {
+        abfDataWriterConsumer->onStopConsuming();
+        delete abfDataWriterConsumer;
+    }
+
+    if (deviceDataProducer!= nullptr) {
+        deviceDataProducer->onStopProducing();
+        delete deviceDataProducer;
+    }
+
     mDev->flushBoardList();
 
     emit startDetecting();
 }
+
+/*! Message forward from ControllerMain to other consumers */
 
 void ControllerMain::onVcCurrentRangeSelected(int idx) {
     vector <RangedMeasurement_t> ranges;
@@ -245,6 +266,9 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
     }
+
+    /*! \todo FCON Questi metodi protebbero cambiare di significato se si lavora in CC: l'asse da cambiare sarebbe quello destro probabilmente */
+    mainWindow->getChessaboard()->onRangeUpdated(mDev->getVcCurrentRange(), QwtPlot::yLeft);
 }
 
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
@@ -255,6 +279,8 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
     }
+
+    /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
 }
 
 void ControllerMain::onSamplingRateSelected(int idx) {
@@ -266,3 +292,16 @@ void ControllerMain::onSamplingRateSelected(int idx) {
         consumer->onSamplingRateChanged(mDev->getSamplingRate());
     }
 }
+
+void ControllerMain::onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues) {
+    for (auto consumer : dataWriterConsumers) {
+        consumer->onRecordSelectedChannels(channelIndexes, onValues);
+    }
+}
+
+void ControllerMain::onStopRecording() {
+    for (auto consumer : dataWriterConsumers) {
+        consumer->onStopConsuming();
+    }
+}
+

@@ -107,12 +107,6 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     }
 }
 
-void Chessboard::initializeRange(RangedMeasurement_t newRange) {
-    for (auto plot : plots) {
-        plot->initializeRange(newRange);
-    }
-}
-
 void Chessboard::clearCurves() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->detach();
@@ -122,9 +116,9 @@ void Chessboard::clearCurves() {
     currentCurves.clear();
 }
 
-void Chessboard::onRangeUpdated(RangedMeasurement_t newRange) {
+void Chessboard::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
     for (auto plot : plots) {
-        plot->onRangeUpdated(newRange);
+        plot->onRangeUpdated(newRange, axisIdx);
     }
 }
 

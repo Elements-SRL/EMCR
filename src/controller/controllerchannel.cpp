@@ -43,6 +43,7 @@ void ControllerChannel::onAllChannelsClicked(bool newChannelState){
 void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
+        this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
     }
 }
@@ -50,6 +51,7 @@ void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes,
 void ControllerChannel::onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
+        this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: stimulus on/off status:" << onValues[i] << "\n";
     }
 }
@@ -57,6 +59,7 @@ void ControllerChannel::onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes
 void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
     this->mDev->getMessageDispatcher()->digitalOffsetCompensation(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
+        this->mDev->getChannels()[channelIndexes[i]]->setCompensating(onValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: DOC on/off status:" << onValues[i] << "\n";
     }
 }
@@ -64,6 +67,7 @@ void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vec
 void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues){
     this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, vHoldValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
+        this->mDev->getChannels()[channelIndexes[i]]->setVhold(vHoldValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: vHold set:" << vHoldValues[i].value << "\n";
     }
 }

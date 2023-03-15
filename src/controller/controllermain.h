@@ -23,6 +23,17 @@ public:
 
     void setMainWindow(MainWindow * mainWindow);
 
+public slots:
+    void onDevicesListChanged(vector <string> devicesList);
+    void onConnect(bool flag);
+    void onMainWindowCreated();
+    void onMainWindowDestroyed();
+    void onVcCurrentRangeSelected(int idx);
+    void onVcVoltageRangeSelected(int idx);
+    void onSamplingRateSelected(int idx);
+    void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onStopRecording();
+
 private:
     ModelDevice * mDev = nullptr;
 
@@ -37,6 +48,7 @@ private:
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;
+    QVector <DataWriterConsumer*> dataWriterConsumers;
 
     ControllerChannel * controllerChannel = nullptr;
     ControllerBoard * controllerBoard = nullptr;
@@ -45,15 +57,6 @@ private:
     int voltageChannelsNumber;
     int currentChannelsNumber;
     int boardsNumber;
-
-public slots:
-    void onDevicesListChanged(vector <string> devicesList);
-    void onConnect(bool flag);
-    void onMainWindowCreated();
-    void onMainWindowDestroyed();
-    void onVcCurrentRangeSelected(int idx);
-    void onVcVoltageRangeSelected(int idx);
-    void onSamplingRateSelected(int idx);
 
 signals:
     void startDetecting();
