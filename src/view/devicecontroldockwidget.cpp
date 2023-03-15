@@ -1,8 +1,5 @@
 #define TITLE "Device controls"
 
-#define CURRENT_RANGE "Current Ranges"
-#define STIMULUS_FILTER "Readout Filters"
-
 #include "devicecontroldockwidget.h"
 #include <QVBoxLayout>
 
@@ -36,26 +33,86 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
     /*! \todo add button for Current clamp and voltage clamp and set the ongoingClampingMOdality in modelDevice and in cascade in the real device through the messageDispatcher*/
 
 
-    this->vcCurrentRangesGroupBox = new QGroupBox(CURRENT_RANGE);
+    /*! VC Current range */
+    if (vcCurrentRanges.size() > 0) {
+        this->vcCurrentRangesGroupBox = new QGroupBox(DCW_CURRENT_RANGE_TITLE);
 
-    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
 
-    vLayout->addWidget(this->vcCurrentRangesGroupBox);
-    for (int idx = 0; idx < vcCurrentRanges.size(); idx++){
-        auto rm = vcCurrentRanges[idx];
-        QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
-        radioButtonsBoxLayout->addWidget(qrb);
-        this->vcCurrentRangesRadioButtons.push_back(qrb);
-        connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-            if (flag) {
-                emit sigVcCurrentRangeSelected(idx);
-            }
-        });
+        vLayout->addWidget(this->vcCurrentRangesGroupBox);
+        for (int idx = 0; idx < vcCurrentRanges.size(); idx++){
+            auto rm = vcCurrentRanges[idx];
+            QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
+            radioButtonsBoxLayout->addWidget(qrb);
+            this->vcCurrentRangesRadioButtons.push_back(qrb);
+            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigVcCurrentRangeSelected(idx);
+                }
+            });
+        }
+        if (this->vcCurrentRangesRadioButtons.size() > 0) {
+            this->vcCurrentRangesRadioButtons[0]->setChecked(true);
+        }
+        this->vcCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
+        if (vcCurrentRanges.size() == 1) {
+            vcCurrentRangesGroupBox->setEnabled(false);
+        }
     }
-    if (this->vcCurrentRangesRadioButtons.size() > 0) {
-        this->vcCurrentRangesRadioButtons[0]->setChecked(true);
+
+    /*! VC Voltage range */
+    if (vcVoltageRanges.size() > 0) {
+        this->vcVoltageRangesGroupBox = new QGroupBox(DCW_VOLTAGE_RANGE_TITLE);
+
+        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+
+        vLayout->addWidget(this->vcVoltageRangesGroupBox);
+        for (int idx = 0; idx < vcVoltageRanges.size(); idx++){
+            auto rm = vcVoltageRanges[idx];
+            QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
+            radioButtonsBoxLayout->addWidget(qrb);
+            this->vcVoltageRangesRadioButtons.push_back(qrb);
+            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigVcVoltageRangeSelected(idx);
+                }
+            });
+        }
+        if (this->vcVoltageRangesRadioButtons.size() > 0) {
+            this->vcVoltageRangesRadioButtons[0]->setChecked(true);
+        }
+        this->vcVoltageRangesGroupBox->setLayout(radioButtonsBoxLayout);
+        if (vcVoltageRanges.size() == 1) {
+            vcVoltageRangesGroupBox->setEnabled(false);
+        }
     }
-    this->vcCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
+
+    /*! Sampling rate */
+    if (samplingRates.size() > 0) {
+        this->samplingRatesGroupBox = new QGroupBox(DCW_SAMPLING_RATE_TITLE);
+
+        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+
+        vLayout->addWidget(this->samplingRatesGroupBox);
+        for (int idx = 0; idx < samplingRates.size(); idx++){
+            auto m = samplingRates[idx];
+            QRadioButton * qrb = new QRadioButton(QString().fromStdString(m.niceLabel()));
+            radioButtonsBoxLayout->addWidget(qrb);
+            this->samplingRatesRadioButtons.push_back(qrb);
+            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigSamplingRateSelected(idx);
+                }
+            });
+        }
+        if (this->samplingRatesRadioButtons.size() > 0) {
+            this->samplingRatesRadioButtons[0]->setChecked(true);
+        }
+        this->samplingRatesGroupBox->setLayout(radioButtonsBoxLayout);
+        if (samplingRates.size() == 1) {
+            samplingRatesGroupBox->setEnabled(false);
+        }
+    }
 
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    DeviceControlDockWidget::testFunction(vLayout, this->vcCurrentRangesGroupBox, vcCurrentRanges, this->vcCurrentRangesRadioButtons);

@@ -190,8 +190,10 @@ void ControllerMain::onMainWindowCreated() {
     mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});
 
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, this, &ControllerMain::onVcCurrentRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected, this, &ControllerMain::onVcVoltageRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected, this, &ControllerMain::onSamplingRateSelected);
 
-    connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed, mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed)
+    connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed, mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
 
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();

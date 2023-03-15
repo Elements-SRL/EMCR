@@ -7,6 +7,11 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 
+#define DCW_CURRENT_RANGE_TITLE "Current Ranges"
+#define DCW_VOLTAGE_RANGE_TITLE "Voltage Ranges"
+#define DCW_SAMPLING_RATE_TITLE "Sampling Rates"
+#define DCW_STIMULUS_FILTER_TITLE "Readout Filters"
+
 class DeviceControlDockWidget : public QDockWidget{
     Q_OBJECT
 
@@ -23,8 +28,8 @@ private:
     vector<QRadioButton *> ccCurrentRangesRadioButtons;
     QGroupBox * ccVoltageRangesGroupBox;
     vector<QRadioButton *> ccVoltageRangesRadioButtons;
-    QGroupBox * samplingRateGroupBox;
-    vector<QRadioButton *> SamplingRateRadioButtons;
+    QGroupBox * samplingRatesGroupBox;
+    vector<QRadioButton *> samplingRatesRadioButtons;
 
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons);
