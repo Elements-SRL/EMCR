@@ -12,8 +12,21 @@ void ControllerBoard::setModelDevice(ModelDevice * mDev){
 }
 
 void ControllerBoard::onGateSourceVoltagesApplied(vector<uint16_t> gateVoltageBoardIndexes, vector<Measurement_t> gateVoltages, vector<uint16_t> sourceVoltageBoardIndexes, vector<Measurement_t> sourceVoltages){
+    /*Set gate and source voltages in messageDispatcher*/
     this->mDev->getMessageDispatcher()->setGateVoltagesTuner(gateVoltageBoardIndexes, gateVoltages, true);
     this->mDev->getMessageDispatcher()->setSourceVoltagesTuner(sourceVoltageBoardIndexes, sourceVoltages, true);
+
+    /*Set gate and source voltages in the model*/
+    vector<ModelBoard*> myBoards = this->mDev->getBoards();
+    for(int i = 0; i<gateVoltageBoardIndexes.size(); i++){
+        myBoards[gateVoltageBoardIndexes[i]]->setGateVoltage(gateVoltages[i]);
+    }
+
+    for(int i = 0; i<sourceVoltageBoardIndexes.size(); i++){
+        myBoards[sourceVoltageBoardIndexes[i]]->setSourceVoltage(sourceVoltages[i]);
+    }
+
+    emit sigGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);
 
     qDebug() << "numero di gate voltage cambiati: " << gateVoltageBoardIndexes.size() << "";
     for(int i = 0; i < gateVoltageBoardIndexes.size(); i++){

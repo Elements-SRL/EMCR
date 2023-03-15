@@ -13,11 +13,16 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     int localNumOfBoards;
     mDev->getBoardsNumberFeatures(localNumOfBoards);
 
-    QWidget * mainWg = new QWidget();
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    QWidget * bigMainWg = new QWidget();
+    bigMainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     this->setWindowTitle("Board controls");
 
-    this->setWidget(mainWg);
+    QWidget * mainWg = new QWidget();
+
+    this->setWidget(bigMainWg);
+    QVBoxLayout * vLayout = new QVBoxLayout(bigMainWg);
+    vLayout->setContentsMargins(0, 0, 0, 0);
+    vLayout->addWidget(mainWg);
 
     QGridLayout * mainGridLayout = this->getLayoutWithScrollBar(mainWg);
 
@@ -37,7 +42,6 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     QString gateUnit = QString().fromStdString(gateRange.getFullUnit());
     for(int i = 1; i <= localNumOfBoards; i++){
         gateSpinBox = new MySpinBox();
-//        gateSpinBox->setFocusPolicy( Qt::StrongFocus );
         gateSpinBox->setSuffix(QString(" ") + gateUnit);
         gateSpinBox->setRange(gateRange.min, gateRange.max);
         gateSpinBox->setValue(0.0);
@@ -55,11 +59,9 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     QString sourceUnit = QString().fromStdString(sourceRange.getFullUnit());
     for(int i = 1; i <= localNumOfBoards; i++){
         sourceSpinBox = new MySpinBox();
-//        sourceSpinBox->setFocusPolicy( Qt::StrongFocus );
         sourceSpinBox->setSuffix(QString(" ") + sourceUnit);
         sourceSpinBox->setRange(sourceRange.min, sourceRange.max);
         sourceSpinBox->setValue(0.0);
-//        sourceSpinBox->setGroupSeparatorShown(true);
         this->previousSourceSpinBoxValues.push_back(sourceSpinBox->value());
         sourceSpinBox->setDecimals(sourceRange.decimals());
         this->sourceSpinBoxes.push_back(sourceSpinBox);
@@ -68,12 +70,12 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     }
 
     QPushButton* applyButton = new QPushButton("Apply");
-    mainGridLayout->addWidget(applyButton, localNumOfBoards+1, 0, 1, 3);
+    vLayout->addWidget(applyButton);
     connect(applyButton, &QPushButton::clicked, this, &BoardControlDockWidget::onApplyButtonClicked);
 
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    mainGridLayout->addWidget(spacer, localNumOfBoards+2,0);
+    vLayout->addWidget(spacer);
 }
 
 QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
@@ -86,7 +88,8 @@ QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+//    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     vl->addWidget(scrollArea);
 
     QWidget * scrollWg = new QWidget;
