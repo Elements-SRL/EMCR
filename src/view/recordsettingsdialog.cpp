@@ -127,6 +127,10 @@ RecordSettingsDialog::RecordSettingsDialog() :
     this->onLoadSettings();
 }
 
+void RecordSettingsDialog::forceSettingsEmit() {
+    this->onAccept();
+}
+
 void RecordSettingsDialog::onFileSizeComputed(QString message) {
     recordSizeLbl->setText(message);
 }

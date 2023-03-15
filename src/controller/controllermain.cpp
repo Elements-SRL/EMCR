@@ -117,7 +117,11 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked, controllerChannel, &ControllerChannel::onOneRowClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked, controllerChannel, &ControllerChannel::onOneBoardClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked, controllerChannel, &ControllerChannel::onSingleChannelClicked);
+
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected, controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected, controllerDevice, &ControllerDevice::onSamplingRateSelected);
+
     connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget, mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
     connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied, controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);
 
@@ -189,11 +193,14 @@ void ControllerMain::onMainWindowCreated() {
     mainWindow->getChessaboard()->initializeRange(vcCurrentRanges[0]);
     mainWindow->getChessaboard()->onDurationUpdated({2.0, UnitPfxNone, "s"});
 
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected, this, &ControllerMain::onVcCurrentRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected, this, &ControllerMain::onVcVoltageRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected, this, &ControllerMain::onSamplingRateSelected);
+    connect(controllerDevice, &ControllerDevice::sigVcCurrentRangeSelected, this, &ControllerMain::onVcCurrentRangeSelected);
+    connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected, this, &ControllerMain::onVcVoltageRangeSelected);
+    connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected, this, &ControllerMain::onSamplingRateSelected);
 
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed, mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
+
+    mainWindow->getRecordSettingsDialog()->forceSettingsEmit();
+    mainWindow->getDeviceControlsDockWidget()->forceEmit();
 
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();

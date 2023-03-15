@@ -72,8 +72,8 @@ public:
 
     ErrorCodes_t getSamplingRatesFeatures(vector <Measurement_t> &samplingRatesFeatures);
 
-    ErrorCodes_t getVoltageStimulusLpfsFeatures(vector <string> &filterOptions);
-    ErrorCodes_t getCurrentStimulusLpfsFeatures(vector <string> &filterOptions);
+    ErrorCodes_t getVoltageStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
+    ErrorCodes_t getCurrentStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
     //---------------------------------------------/
 
 private:

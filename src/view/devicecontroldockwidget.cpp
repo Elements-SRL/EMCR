@@ -122,6 +122,29 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
     vLayout->addWidget(spacer);
 }
 
+void DeviceControlDockWidget::forceEmit() {
+    for (int idx = 0; idx < vcCurrentRangesRadioButtons.size(); idx++) {
+        QRadioButton* btn = vcCurrentRangesRadioButtons[idx];
+        if (btn->isChecked()) {
+            emit sigVcCurrentRangeSelected(idx);
+        }
+    }
+
+    for (int idx = 0; idx < vcVoltageRangesRadioButtons.size(); idx++) {
+        QRadioButton* btn = vcVoltageRangesRadioButtons[idx];
+        if (btn->isChecked()) {
+            emit sigVcVoltageRangeSelected(idx);
+        }
+    }
+
+    for (int idx = 0; idx < samplingRatesRadioButtons.size(); idx++) {
+        QRadioButton* btn = samplingRatesRadioButtons[idx];
+        if (btn->isChecked()) {
+            emit sigSamplingRateSelected(idx);
+        }
+    }
+}
+
 /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //void DeviceControlDockWidget::testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons){
 //    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();

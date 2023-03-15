@@ -18,6 +18,8 @@ class DeviceControlDockWidget : public QDockWidget{
 public:
     DeviceControlDockWidget(ModelDevice * modelDevice);
 
+    void forceEmit();
+
 private:
     ModelDevice * modelDevice;
     QGroupBox * vcCurrentRangesGroupBox;

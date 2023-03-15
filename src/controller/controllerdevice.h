@@ -14,14 +14,25 @@ public:
 
     void setModelDevice(ModelDevice * mDev);
 
+public slots:
+    void onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex);
+    void onVcVoltageRangeSelected(uint16_t selectedVcCurrentRangeIndex);
+    void onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex);
+    void onCcCurrentRangeSelected(uint16_t selectedCcVoltageRangeIndex);
+    void onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex);
+    void onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex);
+    void onSamplingRateSelected(uint16_t selectedCcCurrentFilterIndex);
+
 private:
     ModelDevice * mDev = nullptr;
 
-public slots:
-    void onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex);
-    void onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex);
-    void onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex);
-    void onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex);
-
+signals:
+    void sigVcCurrentRangeSelected(int idx);
+    void sigVcVoltageRangeSelected(int idx);
+    void sigCcCurrentRangeSelected(int idx);
+    void sigCcVoltageRangeSelected(int idx);
+    void sigVcVoltageFilterSelected(int idx);
+    void sigCcCurrentFilterSelected(int idx);
+    void sigSamplingRateSelected(int idx);
 };
 #endif // CONTROLLERDEVICE_H

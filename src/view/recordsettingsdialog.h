@@ -44,6 +44,7 @@ public:
     } RecordSettings_t;
 
     RecordSettingsDialog();
+    void forceSettingsEmit();
 
 public slots:
     void onFileSizeComputed(QString message);

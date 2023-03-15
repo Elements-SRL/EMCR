@@ -245,11 +245,11 @@ ErrorCodes_t ModelDevice::getSamplingRatesFeatures(vector <Measurement_t> &sampl
     return this->messageDispatcher->getSamplingRatesFeatures(samplingRatesFeatures);
 }
 
-ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(vector <string> &voltageFilterOptions){
+ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(vector <Measurement_t> &voltageFilterOptions){
     return this->messageDispatcher->getVoltageStimulusLpfs(voltageFilterOptions);
 }
 
-ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <string> &currentFilterOptions){
+ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <Measurement_t> &currentFilterOptions){
     return this->messageDispatcher->getCurrentStimulusLpfs(currentFilterOptions);
 }
 //---------------------------------------------/
