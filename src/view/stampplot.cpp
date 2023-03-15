@@ -33,6 +33,9 @@ StampPlot::StampPlot(QWidget * parent) :
     deselectPicker->setTrackerMode(QwtPlotPicker::AlwaysOff);
     deselectPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::RightButton);
     connect(deselectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onDeselected);
+
+    rangeInitialized.resize(axisCnt);
+    rangeInitialized.fill(false);
 }
 
 void StampPlot::onSelected() {
@@ -52,7 +55,7 @@ QSize StampPlot::minimumSizeHint() const {
 }
 
 void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
-    if (rangeInitialized) {
+    if (rangeInitialized[axisIdx]) {
         if (newRange != currentRange[axisIdx]) {
             currentRange[axisIdx].max = 1.0;
             currentRange[axisIdx].convertValues(newRange.prefix);
@@ -69,6 +72,7 @@ void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
     } else {
         currentRange[axisIdx] = newRange;
         this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
+        rangeInitialized[axisIdx] = true;
     }
     this->replot();
 }

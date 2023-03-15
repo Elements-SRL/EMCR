@@ -2,8 +2,11 @@
 
 #include <QBoxLayout>
 
-BigPlotDockWidget::BigPlotDockWidget(QWidget * parent) :
+
+BigPlotDockWidget::BigPlotDockWidget(ModelDevice * mDev, QWidget * parent) :
     QDockWidget(parent) {
+
+    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -17,29 +20,59 @@ BigPlotDockWidget::BigPlotDockWidget(QWidget * parent) :
     mainWg->setLayout(mainVl);
 
     plot = new BigPlot("", "s", "", this);
+    plot->enableAxis(QwtPlot::yRight);
     mainVl->addWidget(plot);
+
+    for(int i = 0; i < currentChannelsNum; i++){
+        currentCurves.append(new Curve(CurveType_t::CurveTypePlotSolid));
+    }
+
+    for(int i = 0; i < voltageChannelsNum; i++){
+        voltageCurves.append(new Curve(CurveType_t::CurveTypePlotSolid));
+        voltageCurves[i]->setYAxis(QwtPlot::yRight);
+    }
 }
 
-void BigPlotDockWidget::onRangeUpdated(RangedMeasurement_t newRange) {
-//    for (auto plot : plots) {
-//        plot->onRangeUpdated(newRange);
-//    }
+void BigPlotDockWidget::clearCurves() {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentCurves[idx]->detach();
+        delete currentCurves[idx];
+        delete [] currentCurves[idx];
+    }
+
+    for (int idx = 0; idx < voltageChannelsNum; idx++) {
+        voltageCurves[idx]->detach();
+        delete voltageCurves[idx];
+        delete [] voltageCurves[idx];
+    }
+
+    currentCurves.clear();
+    voltageCurves.clear();
+}
+
+void BigPlotDockWidget::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
+    plot->onRangeUpdated(newRange, axisIdx);
 }
 
 void BigPlotDockWidget::onDurationUpdated(Measurement_t duration) {
-//    for (auto plot : plots) {
-//        plot->onDurationUpdated(duration);
-//    }
+    plot->onDurationUpdated(duration);
 }
 
-void BigPlotDockWidget::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize) {
-//    for (int idx = 0; idx < currentChannelsNum; idx++) {
-//        currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
-//    }
+void BigPlotDockWidget::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
+    for (int idx = 0; idx < channelsToPlotNumber; idx++) {
+        currentCurves.at(idx)->attach(plot);
+        currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
+
+        voltageCurves.at(idx)->attach(plot);
+        voltageCurves.at(idx)->setRawSamples(timeValues, voltageValues->at(idx), dataSize);
+    }
+
+    for (int idx = channelsToPlotNumber; idx < currentChannelsNum; idx++) {
+        currentCurves.at(idx)->detach();
+        voltageCurves.at(idx)->detach();
+    }
 }
 
 void BigPlotDockWidget::onReplot() {
-//    for (auto plot : plots) {
-//        plot->replot();
-//    }
+    plot->replot();
 }

@@ -20,23 +20,27 @@ PlotConsumer::~PlotConsumer() {
 }
 
 void PlotConsumer::forceAxisUpdate() {
-    /*! This function is to be used only during class initialization, not when a consuming process is already running */
+    pushedDurationFlag = true;
+    pushedVoltageRangeFlag = true;
+    pushedCurrentRangeFlag = true;
     this->updateTimeAxis();
     this->updateRangeAxis();
 }
 
 void PlotConsumer::setMaxSamplesPerPlot(int samples) {
-    if (!this->isRunning()) {
-        this->clearData();
-        maxSamples = samples;
-        this->allocateData();
+    bool wasThisRunning = this->isRunning();
+    if(wasThisRunning){
+        this->onStopConsuming();
     }
-}
 
-void PlotConsumer::selectChannels(QVector <bool> channels) {
-    if (!this->isRunning()) {
-        selectedChannels = channels;
+    this->clearData();
+    maxSamples = samples;
+    this->allocateData();
+
+    if(wasThisRunning){
+        this->onStartConsuming();
     }
+
 }
 
 void PlotConsumer::onStartConsuming() {
@@ -53,7 +57,6 @@ void PlotConsumer::onStopConsuming() {
         while (!exitedDataConsumingLoop) {
             exitedDataConsumingLoopCv.wait(&consumptionMtx, 100);
         }
-        consumptionLock.unlock();
     }
 
     if (hook != nullptr) {
@@ -86,6 +89,26 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
     duration.convertValue(UnitPfxNone);
     pushedDuration = duration.value;
     pushedDurationFlag = true;
+}
+
+void PlotConsumer::onSelectChannels(vector<uint16_t> channelIndexes, vector <bool> channels) {
+    bool wasThisRunning = this->isRunning();
+    if(wasThisRunning){
+        this->onStopConsuming();
+    }
+
+    selectedChannels.fill(false);
+    this->channelsAtTrue = 0;
+    for (int i = 0; i<channels.size(); i++){
+        if(channels[i]){
+            selectedChannels[channelIndexes[i]] = true;
+            channelsAtTrue++;
+        }
+    }
+    forceAxisUpdate();
+    if(wasThisRunning){
+        this->onStartConsuming();
+    }
 }
 
 void PlotConsumer::updateTimeAxis() {
@@ -265,6 +288,7 @@ void GapFreePlotConsumer::allocateData() {
     }
 
     timeValues = new double[maxSamples];
+    forceAxisUpdate();
 }
 
 void GapFreePlotConsumer::clearData() {
@@ -285,5 +309,5 @@ void GapFreePlotConsumer::clearData() {
 }
 
 void GapFreePlotConsumer::emitPlotData() {
-    emit setPlotData(timeValues, &voltageValues, &currentValues, dataSize);
+    emit setPlotData(timeValues, &voltageValues, &currentValues, dataSize, this->channelsAtTrue);
 }

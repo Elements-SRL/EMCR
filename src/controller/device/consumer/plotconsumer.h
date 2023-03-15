@@ -16,7 +16,6 @@ public:
 
     void forceAxisUpdate();
     void setMaxSamplesPerPlot(int samples);
-    void selectChannels(QVector <bool> channels);
 
 public slots:
     virtual void onStartConsuming() override;
@@ -27,6 +26,7 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
     void onDurationChanged(Measurement_t duration);
+    void onSelectChannels(vector<uint16_t> channelIndexes, vector <bool> channels);
 
 protected:
     typedef enum {
@@ -70,6 +70,8 @@ protected:
     QMutex rangeAxisMtx;
 
     QVector <bool> selectedChannels;
+    int channelsAtTrue = 0;
+
     int maxSamples = 256;
     int dataSize = 0;
     /*! Having gapFreeTimeIdx as a property of the class ensures that when a new protocol starts the plot does not reset the x axis */
@@ -103,7 +105,7 @@ protected:
     void emitPlotData() override;
 
 signals:
-    void setPlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
+    void setPlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber);
 };
 
 #endif // PLOTCONSUMER_H

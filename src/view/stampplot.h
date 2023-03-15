@@ -34,7 +34,7 @@ private:
     Measurement_t sweepDuration = {1.0, UnitPfxNone, "s"};
     UnitPfx_t xAxisPrefix = UnitPfxNone;
 
-    bool rangeInitialized = false;
+    QVector <bool> rangeInitialized;
 
 public slots:
     void onSelected();

@@ -27,7 +27,6 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
     void drawCanvas(QPainter * p) override;
-    void initializeRange(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
 
     QwtText getPlotTitle();
     void setPlotTitle(QwtText text);
@@ -101,6 +100,7 @@ protected slots:
 
 private:
     QVector <Rect4> zoomStack;
+    QVector <bool> rangeInitialized;
 
 signals:
     void zoomInRequest(Rect4 * rect);

@@ -211,7 +211,7 @@ void MainWindow::createGuiControls() {
     this->setCentralWidget(chessboard);
     this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    bigPlotDw = new BigPlotDockWidget();
+    bigPlotDw = new BigPlotDockWidget(mDev);
     bigPlotDw->setObjectName("bigPlotDw");
     this->addDockWidget(Qt::BottomDockWidgetArea, bigPlotDw);
     dockWidgets.append(bigPlotDw);

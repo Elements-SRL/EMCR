@@ -157,6 +157,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedVoltageHoldValues,     controllerChannel, &ControllerChannel::onApplyVoltageHoldValues);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &ControllerMain::onStartRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &ControllerMain::onStopRecording);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedPlotToBigPlot,         bigPlotConsumer, &PlotConsumer::onSelectChannels);
 
     connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied,    controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);
 
@@ -201,18 +202,24 @@ void ControllerMain::onMainWindowCreated() {
     bigPlotConsumer->forceAxisUpdate();
 
     /*! \todo FCON questo potrebbe essere parametrizzato */
+
+    vector<uint16_t> channelIndexes(currentChannelsNumber);
+    for(int i = 0; i < currentChannelsNumber; i++){
+        channelIndexes[i] = i;
+    }
+
     stampPlotConsumer->setMaxSamplesPerPlot(256);
-    QVector <bool> selectedChannels(currentChannelsNumber, true);
-    stampPlotConsumer->selectChannels(selectedChannels);
+    vector<bool> onValues(currentChannelsNumber, true);
+    stampPlotConsumer->onSelectChannels(channelIndexes, onValues);
 
     bigPlotConsumer->setMaxSamplesPerPlot(4096);
-    selectedChannels.fill(false);
-    bigPlotConsumer->selectChannels(selectedChannels);
-
+    vector<bool> offValues(currentChannelsNumber, false);
+    bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
 
     /*! Start threads */
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();
+    bigPlotConsumer->onStartConsuming();
 }
 
 void ControllerMain::onMainWindowDestroyed() {
@@ -269,6 +276,7 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
 
     /*! \todo FCON Questi metodi protebbero cambiare di significato se si lavora in CC: l'asse da cambiare sarebbe quello destro probabilmente */
     mainWindow->getChessaboard()->onRangeUpdated(mDev->getVcCurrentRange(), QwtPlot::yLeft);
+    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcCurrentRange(), QwtPlot::yLeft);
 }
 
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
@@ -279,6 +287,7 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
     }
+    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
 
     /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
 }

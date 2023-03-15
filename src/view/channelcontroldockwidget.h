@@ -29,6 +29,7 @@ private:
         OperationStartStopDigitalOffsetCompensation,
         OperationHoldingStimulus,
         OperationRecordToFile,
+        OperationPlotToBigPlot,
         OperationsNum
     } Operations_t;
 
@@ -71,6 +72,7 @@ signals:
     void sigAppliedTurnStimulsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void sigStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void sigStopRecording();
+    void sigAppliedPlotToBigPlot(vector<uint16_t> channelIndexes, vector<bool> onValues);
 };
 
 class SpinBoxWithChannel : public QWidget {

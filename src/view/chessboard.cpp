@@ -128,7 +128,8 @@ void Chessboard::onDurationUpdated(Measurement_t duration) {
     }
 }
 
-void Chessboard::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize) {
+/*! channelsToPlotNumber is ignored by the chessBoard*/
+void Chessboard::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
     }

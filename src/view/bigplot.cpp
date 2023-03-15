@@ -78,6 +78,9 @@ BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, 
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
 
     yScale = 0.5*this->axisInterval(yLeft).width();
+
+    rangeInitialized.resize(axisCnt);
+    rangeInitialized.fill(false);
 }
 
 QSize BigPlot::sizeHint() const {
@@ -91,19 +94,6 @@ QSize BigPlot::minimumSizeHint() const {
 void BigPlot::drawCanvas(QPainter * p) {
     QwtPlot::drawCanvas(p);
     this->resizeEvent(nullptr);
-}
-
-void BigPlot::initializeRange(RangedMeasurement_t newRange, Axis axisIdx) {
-    currentRange[axisIdx] = newRange;
-    this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
-    if (axisIdx == yLeft) {
-        yScale = 0.5*currentRange[axisIdx].delta();
-        this->setYUnitText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
-
-    } else {
-        /*! If both y-axis are defined the second unit goes into title */
-        this->setTitleText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
-    }
 }
 
 QwtText BigPlot::getPlotTitle() {
@@ -314,24 +304,39 @@ void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
 }
 
 void BigPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
-    if (newRange != currentRange[axisIdx]) {
-        currentRange[axisIdx].max = 1.0;
-        currentRange[axisIdx].convertValues(newRange.prefix);
-        double coeff = currentRange[axisIdx].max;
-        currentRange[axisIdx].max = newRange.max;
-        currentRange[axisIdx].min = newRange.min;
+    if (rangeInitialized[axisIdx]) {
+        if (newRange != currentRange[axisIdx]) {
+            currentRange[axisIdx].max = 1.0;
+            currentRange[axisIdx].convertValues(newRange.prefix);
+            double coeff = currentRange[axisIdx].max;
+            currentRange[axisIdx].max = newRange.max;
+            currentRange[axisIdx].min = newRange.min;
 
-        double min = coeff*this->axisInterval(axisIdx).minValue();
-        double max = coeff*this->axisInterval(axisIdx).maxValue();
+            double min = coeff*this->axisInterval(axisIdx).minValue();
+            double max = coeff*this->axisInterval(axisIdx).maxValue();
 
-        this->setAxisScale(axisIdx, min, max);
+            this->setAxisScale(axisIdx, min, max);
+            if (axisIdx == yLeft) {
+                yScale = 0.5*coeff*this->axisInterval(axisIdx).width();
+                this->setYUnitText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+
+            } else {
+                this->setTitleText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+            }
+        }
+
+    } else {
+        currentRange[axisIdx] = newRange;
+        this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
         if (axisIdx == yLeft) {
-            yScale = 0.5*coeff*this->axisInterval(axisIdx).width();
+            yScale = 0.5*currentRange[axisIdx].delta();
             this->setYUnitText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
 
         } else {
+            /*! If both y-axis are defined the second unit goes into title */
             this->setTitleText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
         }
+        rangeInitialized[axisIdx] = true;
     }
     this->replot();
 }

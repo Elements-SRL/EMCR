@@ -27,6 +27,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationTitles[OperationTurnStimulusOnOff] = "Turn stimulus on/off";
     operationTitles[OperationStartStopDigitalOffsetCompensation] = "Start/stop digital offset compensation";
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
+    operationTitles[OperationPlotToBigPlot] = "Selected traces plot";
     operationTitles[OperationRecordToFile] = "Record to file";
 
     operationString.resize(OperationsNum);
@@ -34,6 +35,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationString[OperationTurnStimulusOnOff] = "Ch %1: Stimulus on";
     operationString[OperationStartStopDigitalOffsetCompensation] = "Ch %1: Compensation active";
     operationString[OperationHoldingStimulus] = "NOT USED";
+    operationString[OperationPlotToBigPlot] = "Ch %1: Plot";
     operationString[OperationRecordToFile] = "Ch %1: Record this channel";
 
     operationCbx = new QComboBox;
@@ -138,10 +140,30 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
         emit sigAppliedVoltageHoldValues(indexes, values);
         break;
     }
-    case OperationRecordToFile:
+    case OperationRecordToFile:{
         /*! Nothing to be done, Apply replaced by start and stop recording */
         break;
     }
+    case OperationPlotToBigPlot:{
+        QCheckBox * cb;
+        vector<bool> values;
+        vector<uint16_t> indexes;
+
+        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+        for (int i = 0; i<selectedIndexes.size(); i++) {
+            cb = static_cast<QCheckBox *>(operationEdits[idx][i]);
+            if (selectedIndexes.at(i)) {
+                values.push_back(cb->isChecked());
+                indexes.push_back(i);
+            }
+        }
+
+        emit sigAppliedPlotToBigPlot(indexes, values);
+        break;
+    }
+    }
+
 }
 
 
@@ -237,6 +259,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     case OperationTurnStimulusOnOff:
     case OperationStartStopDigitalOffsetCompensation:
     case OperationRecordToFile:
+    case OperationPlotToBigPlot:
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             QCheckBox * btn = new QCheckBox(QString(operationString[idx]).arg(channelIdx+1));
             btn->setChecked(true);
@@ -275,7 +298,8 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
     switch (idx) {
     case OperationTurnChannelsOnOff:
     case OperationTurnStimulusOnOff:
-    case OperationStartStopDigitalOffsetCompensation:{
+    case OperationStartStopDigitalOffsetCompensation:
+    case OperationPlotToBigPlot:{
         // mettere bottoni check/uncheck all
         QGridLayout* operationButtonGridLayout = new QGridLayout;
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
