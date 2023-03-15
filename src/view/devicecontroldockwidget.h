@@ -26,7 +26,8 @@ private:
     QGroupBox * samplingRateGroupBox;
     vector<QRadioButton *> SamplingRateRadioButtons;
 
-    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons);
+    /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
+//    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons);
 
 signals:
     void sigVcCurrentRangeSelected(int idx);
