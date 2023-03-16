@@ -27,6 +27,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
     QWidget *window = new QWidget;
     this->setWidget(window);
     QVBoxLayout * vLayout = new QVBoxLayout(window);
+    vLayout->setContentsMargins(0, 0, 0, 1);
+    vLayout->setSpacing(1);
 
     this->setWindowTitle(TITLE);
 
@@ -38,6 +40,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
         this->vcCurrentRangesGroupBox = new QGroupBox(DCW_CURRENT_RANGE_TITLE);
 
         QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+        radioButtonsBoxLayout->setSpacing(2);
 
         vLayout->addWidget(this->vcCurrentRangesGroupBox);
         for (int idx = 0; idx < vcCurrentRanges.size(); idx++){
@@ -65,6 +69,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
         this->vcVoltageRangesGroupBox = new QGroupBox(DCW_VOLTAGE_RANGE_TITLE);
 
         QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+        radioButtonsBoxLayout->setSpacing(2);
 
         vLayout->addWidget(this->vcVoltageRangesGroupBox);
         for (int idx = 0; idx < vcVoltageRanges.size(); idx++){
@@ -92,6 +98,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
         this->samplingRatesGroupBox = new QGroupBox(DCW_SAMPLING_RATE_TITLE);
 
         QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+        radioButtonsBoxLayout->setSpacing(2);
 
         vLayout->addWidget(this->samplingRatesGroupBox);
         for (int idx = 0; idx < samplingRates.size(); idx++){

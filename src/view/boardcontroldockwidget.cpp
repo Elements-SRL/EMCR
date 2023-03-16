@@ -73,10 +73,6 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     QPushButton* applyButton = new QPushButton("Apply");
     vLayout->addWidget(applyButton);
     connect(applyButton, &QPushButton::clicked, this, &BoardControlDockWidget::onApplyButtonClicked);
-
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    vLayout->addWidget(spacer);
 }
 
 QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
@@ -89,7 +85,6 @@ QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-//    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     vl->addWidget(scrollArea);
 

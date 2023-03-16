@@ -29,6 +29,7 @@ BigPlotDockWidget::BigPlotDockWidget(ModelDevice * mDev, QWidget * parent) :
 
     for(int i = 0; i < voltageChannelsNum; i++){
         voltageCurves.append(new Curve(CurveType_t::CurveTypePlotSolid));
+        voltageCurves[i]->setColor(QColor(Qt::red));
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
 }
