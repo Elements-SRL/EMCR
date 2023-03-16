@@ -205,8 +205,8 @@ void DataWriterConsumer::computeSamples() {
     samplesToBeSaved = (long long)qRound(settings.recordDurationS*sweepSamplingRateHz);
     samplesPerChunk = (long long)qRound(settings.chunkDurationS*sweepSamplingRateHz);
 
-    bool unlimitedFlag = settings.recordDurationS == 0.0;
-    bool chunkFlag = settings.chunkDurationS > 0.0;
+    unlimitedFlag = settings.recordDurationS == 0.0;
+    chunkFlag = settings.chunkDurationS > 0.0;
 
     if (unlimitedFlag && chunkFlag) {
         totalMB = (bytesPerChannel*totalChannelsNum*sweepSamplingRateHz)/1048576.0;
@@ -319,14 +319,14 @@ void DataWriterConsumer::findValidPathName() {
     int pathIndex;
     QString newFullFileName;
     QString suffix;
-    QString baseFileName = settings.filename;
 
     if (recordingInitialized) {
         suffix = channelIdxSuffix + QString("_%1").arg(chunkIdx++, 3, 10, QLatin1Char('0'));
-        newFullFileName = settings.recordPath + baseFileName + suffix;
+        newFullFileName = validFilePath + baseFileName + suffix;
 
     } else {
-        QString filePath = settings.recordPath;
+        baseFileName = settings.filename;
+        validFilePath = settings.recordPath;
 
         /*! Add date and time if required */
         QString dateTime = "";
@@ -336,30 +336,28 @@ void DataWriterConsumer::findValidPathName() {
         baseFileName += dateTime;
 
         /*! Create subfolder for the recording */
-        filePath += baseFileName;
+        validFilePath += baseFileName;
 
         suffix = "";
-        newFullPathName = filePath + suffix;
+        newFullPathName = validFilePath + suffix;
         pathIndex = 1;
 
         while (QDir().exists(newFullPathName)) {
             suffix.sprintf("_%d", pathIndex++);
-            newFullPathName = filePath + suffix;
+            newFullPathName = validFilePath + suffix;
         }
-        filePath = newFullPathName + "/";
+        validFilePath = newFullPathName + "/";
         QString subFolder = baseFileName + suffix + "/";
 
         /*! Add suffix for chunk index (\todo FCON not really needed to look for available index if we put everything in subfolder) */
         suffix = channelIdxSuffix + "_000";
-        newFullFileName = filePath + baseFileName + suffix;
+        newFullFileName = validFilePath + baseFileName + suffix;
         chunkIdx = 1;
 
         while (QDir().exists(newFullFileName + fileNameExtension)) {
             suffix = channelIdxSuffix + QString("_%1").arg(chunkIdx++, 3, 10, QLatin1Char('0'));
-            newFullFileName = filePath + baseFileName + suffix;
+            newFullFileName = validFilePath + baseFileName + suffix;
         }
-
-        validFilePath = filePath;
     }
 
     if (channelIdxSuffix != "") {
