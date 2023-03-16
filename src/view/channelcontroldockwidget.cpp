@@ -28,7 +28,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationTitles[OperationStartStopDigitalOffsetCompensation] = "Start/stop digital offset compensation";
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
     operationTitles[OperationRecordToFile] = "Record to file";
-    operationTitles[OperationPlotToBigPlot] = "Select traces to enlarge";
+    operationTitles[OperationPlotToBigPlot] = "Expand selected traces";
 
     operationString.resize(OperationsNum);
     operationString[OperationTurnChannelsOnOff] = "Ch %1: On";
@@ -36,7 +36,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationString[OperationStartStopDigitalOffsetCompensation] = "Ch %1: Compensation active";
     operationString[OperationHoldingStimulus] = "NOT USED";
     operationString[OperationRecordToFile] = "Ch %1: Record this channel";
-    operationString[OperationPlotToBigPlot] = "Ch %1: Enlarge trace";
+    operationString[OperationPlotToBigPlot] = "Ch %1: Expand trace";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
