@@ -10,12 +10,12 @@ BigPlotDockWidget::BigPlotDockWidget(ModelDevice * mDev, QWidget * parent) :
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    this->setWindowTitle("Kawaii");
+    this->setWindowTitle("Enlarged traces");
 
     this->setWidget(mainWg);
 
     QVBoxLayout * mainVl = new QVBoxLayout();
-    mainVl->setContentsMargins(0, 0, 0, 0);
+    mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
     mainWg->setLayout(mainVl);
 

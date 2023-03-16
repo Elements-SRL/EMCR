@@ -1,6 +1,9 @@
 #ifndef STAMPPLOT_H
 #define STAMPPLOT_H
 
+#define STP_STYLE_PLOT_ACTIVE "StampPlot { border: 3px solid green; }"
+#define STP_STYLE_PLOT_INACTIVE "StampPlot { border: 2px solid black; }"
+
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_widget.h"
@@ -20,6 +23,8 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
+    void setSelected(bool flag);
+
 public slots:
     void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
     void onDurationUpdated(Measurement_t duration);
@@ -35,13 +40,14 @@ private:
     UnitPfx_t xAxisPrefix = UnitPfxNone;
 
     QVector <bool> rangeInitialized;
+    bool selected = false;
 
 public slots:
-    void onSelected();
-    void onDeselected();
+    void onClicked();
+    void onUnclicked();
 
 signals:
-    void selected(bool flag);
+    void clicked(bool flag);
 };
 
 #endif // STAMPPLOT_H

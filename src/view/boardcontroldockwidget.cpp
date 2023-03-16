@@ -21,7 +21,8 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
 
     this->setWidget(bigMainWg);
     QVBoxLayout * vLayout = new QVBoxLayout(bigMainWg);
-    vLayout->setContentsMargins(0, 0, 0, 0);
+    vLayout->setContentsMargins(0, 0, 0, 2);
+    vLayout->setSpacing(1);
     vLayout->addWidget(mainWg);
 
     QGridLayout * mainGridLayout = this->getLayoutWithScrollBar(mainWg);

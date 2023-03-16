@@ -22,8 +22,11 @@ public slots:
     void onDurationUpdated(Measurement_t duration);
     void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber);
     void onReplot();
+    void onSelectedPlotsUdpated();
 
 private:
+    ModelDevice * mDev = nullptr;
+
     MyLeftRightMousePushButton * allChannelsSelector = nullptr;
     QVector <MyLeftRightMousePushButton *> boardSelectors;
     QVector <MyLeftRightMousePushButton *> rowSelectors;

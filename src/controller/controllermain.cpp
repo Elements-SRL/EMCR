@@ -138,7 +138,8 @@ void ControllerMain::onMainWindowCreated() {
      * Connect *
     \***********/
 
-    connect(controllerChannel, &ControllerChannel::sigUpdateChannelControlDockWidget,   mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
+    connect(controllerChannel, &ControllerChannel::sigSelectedChannelsUpdated,   mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onUpdate);
+    connect(controllerChannel, &ControllerChannel::sigSelectedChannelsUpdated,   mainWindow->getChessaboard(), &Chessboard::onSelectedPlotsUdpated);
 
     /*! No signals from controllerBoard */
 

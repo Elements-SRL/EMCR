@@ -37,7 +37,7 @@ public slots:
 
     signals:
     // signals sent to Channel Control Dock Widget (I've already done my stuff)
-    void sigUpdateChannelControlDockWidget();
+    void sigSelectedChannelsUpdated();
 };
 
 #endif // CONTROLLERCHANNEL_H

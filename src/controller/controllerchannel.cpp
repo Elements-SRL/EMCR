@@ -12,7 +12,7 @@ void ControllerChannel::setModelDevice(ModelDevice * mDev){
 
 void ControllerChannel::onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState){
     this->mDev->getChannels()[changedChannelIndexes]->setSelected(newChannelState);
-    emit sigUpdateChannelControlDockWidget();
+    emit sigSelectedChannelsUpdated();
 }
 
 void ControllerChannel::onOneBoardClicked(uint16_t changedBoardIndex, bool newChannelState){
@@ -21,7 +21,7 @@ void ControllerChannel::onOneBoardClicked(uint16_t changedBoardIndex, bool newCh
     for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
         boardToUpdate->getChannelsOnBoard()[i]->setSelected(newChannelState);
     }
-    emit sigUpdateChannelControlDockWidget();
+    emit sigSelectedChannelsUpdated();
 }
 
 void ControllerChannel::onOneRowClicked(uint16_t changedRowIndex, bool newChannelState){
@@ -29,7 +29,7 @@ void ControllerChannel::onOneRowClicked(uint16_t changedRowIndex, bool newChanne
     for(uint16_t i = 0; i < numOfBoardsToUpadate; i++){
         this->mDev->getBoards()[i]->getChannelsOnBoard()[changedRowIndex]->setSelected(newChannelState);
     }
-    emit sigUpdateChannelControlDockWidget();
+    emit sigSelectedChannelsUpdated();
 }
 
 void ControllerChannel::onAllChannelsClicked(bool newChannelState){
@@ -37,7 +37,7 @@ void ControllerChannel::onAllChannelsClicked(bool newChannelState){
     for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
         this->mDev->getChannels()[i]->setSelected(newChannelState);
     }
-    emit sigUpdateChannelControlDockWidget();
+    emit sigSelectedChannelsUpdated();
 }
 
 void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){

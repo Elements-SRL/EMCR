@@ -25,25 +25,28 @@ StampPlot::StampPlot(QWidget * parent) :
     selectPicker->setStateMachine(new QwtPickerClickPointMachine());
     selectPicker->setTrackerMode(QwtPlotPicker::AlwaysOff);
     selectPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::LeftButton);
-    connect(selectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onSelected);
+    connect(selectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onClicked);
 
     /*! deselect picker */
     deselectPicker = new QwtPlotPicker(this->canvas());
     deselectPicker->setStateMachine(new QwtPickerClickPointMachine());
     deselectPicker->setTrackerMode(QwtPlotPicker::AlwaysOff);
     deselectPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::RightButton);
-    connect(deselectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onDeselected);
+    connect(deselectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onUnclicked);
 
     rangeInitialized.resize(axisCnt);
     rangeInitialized.fill(false);
+
+    selected = false;
+    this->setStyleSheet(STP_STYLE_PLOT_INACTIVE);
 }
 
-void StampPlot::onSelected() {
-    emit selected(true);
+void StampPlot::onClicked() {
+    emit clicked(true);
 }
 
-void StampPlot::onDeselected() {
-    emit selected(false);
+void StampPlot::onUnclicked() {
+    emit clicked(false);
 }
 
 QSize StampPlot::sizeHint() const {
@@ -52,6 +55,18 @@ QSize StampPlot::sizeHint() const {
 
 QSize StampPlot::minimumSizeHint() const {
     return QSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+}
+
+void StampPlot::setSelected(bool flag) {
+    if (flag != selected) {
+        selected = flag;
+        if (selected) {
+            this->setStyleSheet(STP_STYLE_PLOT_ACTIVE);
+
+        } else {
+            this->setStyleSheet(STP_STYLE_PLOT_INACTIVE);
+        }
+    }
 }
 
 void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {

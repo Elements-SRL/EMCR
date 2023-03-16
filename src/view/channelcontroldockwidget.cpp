@@ -27,16 +27,16 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     operationTitles[OperationTurnStimulusOnOff] = "Turn stimulus on/off";
     operationTitles[OperationStartStopDigitalOffsetCompensation] = "Start/stop digital offset compensation";
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
-    operationTitles[OperationPlotToBigPlot] = "Selected traces plot";
     operationTitles[OperationRecordToFile] = "Record to file";
+    operationTitles[OperationPlotToBigPlot] = "Select traces to enlarge";
 
     operationString.resize(OperationsNum);
     operationString[OperationTurnChannelsOnOff] = "Ch %1: On";
     operationString[OperationTurnStimulusOnOff] = "Ch %1: Stimulus on";
     operationString[OperationStartStopDigitalOffsetCompensation] = "Ch %1: Compensation active";
     operationString[OperationHoldingStimulus] = "NOT USED";
-    operationString[OperationPlotToBigPlot] = "Ch %1: Plot";
     operationString[OperationRecordToFile] = "Ch %1: Record this channel";
+    operationString[OperationPlotToBigPlot] = "Ch %1: Enlarge trace";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
@@ -54,7 +54,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
         mainVl->addWidget(operationButtonWidgets[idx]);
     }
 
-    QPushButton * applyBtn = new QPushButton("APPLY");
+    QPushButton * applyBtn = new QPushButton("Apply");
     connect(applyBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onApplyButtonClicked);
 
     QGridLayout * applyBtnGridLayout = new QGridLayout;
@@ -289,6 +289,10 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     }
     }
 
+    QWidget* spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    scrollVl->addWidget(spacer);
+
     return operationWidgets[idx];
 }
 
@@ -302,6 +306,8 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
     case OperationPlotToBigPlot:{
         // mettere bottoni check/uncheck all
         QGridLayout* operationButtonGridLayout = new QGridLayout;
+        operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
+        operationButtonGridLayout->setSpacing(0);
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
         QPushButton* checkAllBtn = new QPushButton("Check all");
         QPushButton* uncheckAllBtn = new QPushButton("Uncheck all");
@@ -314,6 +320,8 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
     }
     case OperationHoldingStimulus:{
         QGridLayout* operationButtonGridLayout = new QGridLayout;
+        operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
+        operationButtonGridLayout->setSpacing(0);
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
         RangedMeasurement_t range;
         mDev->getVoltageHoldTunerFeatures(range);
@@ -332,6 +340,8 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
     }
     case OperationRecordToFile:{
         QGridLayout* operationButtonGridLayout = new QGridLayout;
+        operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
+        operationButtonGridLayout->setSpacing(0);
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
         QPushButton* checkAllBtn = new QPushButton("Check all");
         QPushButton* uncheckAllBtn = new QPushButton("Uncheck all");
