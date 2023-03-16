@@ -54,6 +54,7 @@ protected:
     QVector <bool> activeChannels;
     int activeChannelsNum;
     RecordSettingsDialog::RecordSettings_t settings;
+    QString baseFileName;
     QString validFullFileName;
     QString validFilePath;
 

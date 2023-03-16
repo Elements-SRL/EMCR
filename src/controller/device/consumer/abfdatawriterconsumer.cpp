@@ -81,7 +81,6 @@ void AbfDataWriterConsumer::run() {
     int maxDataSizeWritten = (DWC_ABF_RAW_BUFFER_LEN/DWC_ABF_CHANNEL_PER_FILE)*DWC_ABF_CHANNEL_PER_FILE;
     int rawBufferIdx;
     int truncatedSamples = 0;
-    unsigned short voltage;
 
     short channelIdx;
 
@@ -126,17 +125,16 @@ void AbfDataWriterConsumer::run() {
                 bufferLen -= rawBufferLen*totalChannelsNum/DWC_ABF_CHANNEL_PER_FILE;
 
                 while (rawBufferIdx < rawBufferLen) {
-                    voltage = buffer[bufferIdx++];
                     for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                         if (activeChannels[channelIdx]) {
-                            rawBuffers[channelIdx][rawBufferIdx] = buffer[bufferIdx+channelIdx];
-                            rawBuffers[channelIdx][rawBufferIdx+1] = voltage;
+                            rawBuffers[channelIdx][rawBufferIdx] = buffer[bufferIdx+voltageChannelsNum+channelIdx];
+                            rawBuffers[channelIdx][rawBufferIdx+1] = buffer[bufferIdx+channelIdx];
                         }
                     }
                     rawBufferIdx += DWC_ABF_CHANNEL_PER_FILE;
 
                     samplesFromTheBeginning++;
-                    bufferIdx += currentChannelsNum;
+                    bufferIdx += totalChannelsNum;
                 }
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (activeChannels[channelIdx]) {
@@ -178,17 +176,16 @@ void AbfDataWriterConsumer::run() {
                     bufferLen -= rawBufferLen*totalChannelsNum/DWC_ABF_CHANNEL_PER_FILE;
 
                     while (rawBufferIdx < rawBufferLen) {
-                        voltage = buffer[bufferIdx++];
                         for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                             if (activeChannels[channelIdx]) {
-                                rawBuffers[channelIdx][rawBufferIdx] = buffer[bufferIdx+channelIdx];
-                                rawBuffers[channelIdx][rawBufferIdx+1] = voltage;
+                                rawBuffers[channelIdx][rawBufferIdx] = buffer[bufferIdx+voltageChannelsNum+channelIdx];
+                                rawBuffers[channelIdx][rawBufferIdx+1] = buffer[bufferIdx+channelIdx];
                             }
                         }
                         rawBufferIdx += DWC_ABF_CHANNEL_PER_FILE;
 
                         samplesFromTheBeginning++;
-                        bufferIdx += currentChannelsNum;
+                        bufferIdx += totalChannelsNum;
                     }
                     for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                         if (activeChannels[channelIdx]) {

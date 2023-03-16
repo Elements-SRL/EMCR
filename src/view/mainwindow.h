@@ -53,6 +53,8 @@ private:
     QMenu * menuView = nullptr;
     QMenu * menuRecordings = nullptr;
 
+    bool interfaceCreated = false;
+
     QAction * actionRecordingSettings = nullptr;
 
     QDockWidget * deviceDetectorDw = nullptr;

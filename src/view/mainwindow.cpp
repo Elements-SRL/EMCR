@@ -288,11 +288,16 @@ void MainWindow::createGuiControls() {
     this->addViewActions();
 
     this->restoreUISettings();
+    interfaceCreated = true;
 
     emit widgetsCreated();
 }
 
 void MainWindow::destroyGuiControls() {
+    if (!interfaceCreated) {
+        return;
+    }
+
     QSettings settings;
     this->saveUISettings();
 
@@ -365,6 +370,7 @@ void MainWindow::destroyGuiControls() {
 //    shortcuts.clear();
 
     this->setCentralWidget(new ElementsLogoWidget);
+    interfaceCreated = false;
 
     emit widgetsDestroyed();
 }
