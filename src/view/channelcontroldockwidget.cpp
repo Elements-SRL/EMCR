@@ -65,6 +65,15 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &ChannelControlDockWidget::onOperationSelected);
 }
 
+void ChannelControlDockWidget::onUpdate() {
+    QVector <bool> selectedChannels = mDev->getSelectedChannelsIdxs();
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        for (int idx = 0; idx < OperationsNum; idx++) {
+            operationEdits[idx][channelIdx]->setVisible(selectedChannels[channelIdx]);
+        }
+    }
+}
+
 void ChannelControlDockWidget::onApplyButtonClicked() {
     int idx = operationCbx->currentIndex();
     switch (idx) {
@@ -237,7 +246,6 @@ void ChannelControlDockWidget::onStartRecordingButtonClicked() {
 }
 
 void ChannelControlDockWidget::onStopRecordingButtonClicked() {
-    QCheckBox * cb;
     QPixmap pixmapRecors("://imgs/record protocol.png");
     QIcon recordIcon(pixmapRecors);
     startRecordingBtn->setIcon(recordIcon);
@@ -247,15 +255,6 @@ void ChannelControlDockWidget::onStopRecordingButtonClicked() {
     operationWidgets[OperationRecordToFile]->setEnabled(true);
 
     emit sigStopRecording();
-}
-
-void ChannelControlDockWidget::onUpdate() {
-    QVector <bool> selectedChannels = mDev->getSelectedChannelsIdxs();
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        for (int idx = 0; idx < OperationsNum; idx++) {
-            operationEdits[idx][channelIdx]->setVisible(selectedChannels[channelIdx]);
-        }
-    }
 }
 
 QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
