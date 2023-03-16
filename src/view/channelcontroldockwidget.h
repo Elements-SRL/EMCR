@@ -21,6 +21,7 @@ public:
 
 public slots:
     void onUpdate();
+    void onSigRecording(bool state);
 
 private:
     typedef enum Operations {
@@ -65,6 +66,7 @@ private slots:
     void onSetAllButtonClicked();
     void onStartRecordingButtonClicked();
     void onStopRecordingButtonClicked();
+
 
 signals:
     void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);

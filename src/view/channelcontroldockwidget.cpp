@@ -258,6 +258,12 @@ void ChannelControlDockWidget::onUpdate() {
     }
 }
 
+void ChannelControlDockWidget::onSigRecording(bool state){
+    if(state == false){
+        this->stopRecordingBtn->click();
+    }
+}
+
 QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     operationWidgets[idx] = new QWidget;
     QVBoxLayout * scrollVl = getLayoutWithScrollBar(operationWidgets[idx]);
