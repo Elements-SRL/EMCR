@@ -10,6 +10,7 @@
 
 #include "modeldevice.h"
 #include "myspinbox.h"
+#include "errormanager.h"
 
 class SpinBoxWithChannel;
 
