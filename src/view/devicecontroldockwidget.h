@@ -22,26 +22,35 @@ public:
 
 private:
     ModelDevice * modelDevice;
-    QGroupBox * vcCurrentRangesGroupBox;
+    QGroupBox * vcCurrentRangesGroupBox = nullptr;
     vector<QRadioButton *> vcCurrentRangesRadioButtons;
-    QGroupBox * vcVoltageRangesGroupBox;
+    bool vcCurrentRangesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * vcVoltageRangesGroupBox = nullptr;
     vector<QRadioButton *> vcVoltageRangesRadioButtons;
-    QGroupBox * ccCurrentRangesGroupBox;
+    bool vcVoltageRangesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * ccCurrentRangesGroupBox = nullptr;
     vector<QRadioButton *> ccCurrentRangesRadioButtons;
-    QGroupBox * ccVoltageRangesGroupBox;
+    bool ccCurrentRangesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * ccVoltageRangesGroupBox = nullptr;
     vector<QRadioButton *> ccVoltageRangesRadioButtons;
-    QGroupBox * samplingRatesGroupBox;
+    bool ccVoltageRangesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * samplingRatesGroupBox = nullptr;
     vector<QRadioButton *> samplingRatesRadioButtons;
+    bool samplingRatesPrevioueEnableStateBeforeRecording = false;
 
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons);
 
-signals:
+    signals:
     void sigVcCurrentRangeSelected(int idx);
     void sigVcVoltageRangeSelected(int idx);
     void sigCcCurrentRangeSelected(int idx);
     void sigCcVoltageRangeSelected(int idx);
     void sigSamplingRateSelected(int idx);
+
+public slots:
+    void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onStopRecording();
 };
 
 #endif // DEVICECONTROLDOCKWIDGET_H

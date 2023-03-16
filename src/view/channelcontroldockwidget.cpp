@@ -54,7 +54,8 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
         mainVl->addWidget(operationButtonWidgets[idx]);
     }
 
-    QPushButton * applyBtn = new QPushButton("Apply");
+//    QPushButton * applyBtn = new QPushButton("Apply");
+    this->applyBtn = new QPushButton("Apply");
     connect(applyBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onApplyButtonClicked);
 
     QGridLayout * applyBtnGridLayout = new QGridLayout;
@@ -227,6 +228,8 @@ void ChannelControlDockWidget::onStartRecordingButtonClicked() {
         }
     }
 
+    operationWidgets[OperationRecordToFile]->setEnabled(false);
+
     QPixmap pixmapRecors("://imgs/recording protocol.png");
     QIcon recordIcon(pixmapRecors);
     startRecordingBtn->setIcon(recordIcon);
@@ -234,9 +237,15 @@ void ChannelControlDockWidget::onStartRecordingButtonClicked() {
 }
 
 void ChannelControlDockWidget::onStopRecordingButtonClicked() {
+    QCheckBox * cb;
     QPixmap pixmapRecors("://imgs/record protocol.png");
     QIcon recordIcon(pixmapRecors);
     startRecordingBtn->setIcon(recordIcon);
+
+    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
+
+    operationWidgets[OperationRecordToFile]->setEnabled(true);
+
     emit sigStopRecording();
 }
 
@@ -262,7 +271,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     case OperationPlotToBigPlot:
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             QCheckBox * btn = new QCheckBox(QString(operationString[idx]).arg(channelIdx+1));
-            btn->setChecked(true);
+            btn->setChecked(false);
             btn->setVisible(mDev->getSelectedChannelsIdxs()[channelIdx]);
             scrollVl->addWidget(btn);
             operationEdits[idx][channelIdx] = btn;
@@ -400,6 +409,12 @@ void ChannelControlDockWidget::onOperationSelected(int operationIdx) {
     }
     operationWidgets[operationIdx]->setVisible(true);
     operationButtonWidgets[operationIdx]->setVisible(true);
+
+    if (operationIdx == OperationRecordToFile){
+        this->applyBtn->setEnabled(false);
+    } else {
+        this->applyBtn->setEnabled(true);
+    }
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :

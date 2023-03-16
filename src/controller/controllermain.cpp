@@ -158,6 +158,8 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedVoltageHoldValues,     controllerChannel, &ControllerChannel::onApplyVoltageHoldValues);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &ControllerMain::onStartRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &ControllerMain::onStopRecording);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::onStartRecording);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::onStopRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedPlotToBigPlot,         bigPlotConsumer, &PlotConsumer::onSelectChannels);
 
     connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied,    controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);

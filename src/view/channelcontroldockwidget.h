@@ -49,6 +49,7 @@ private:
 
     QPushButton* startRecordingBtn = nullptr;
     QPushButton* stopRecordingBtn = nullptr;
+    QPushButton* applyBtn = nullptr;
 
     QVector <QWidget *> operationWidgets;
 

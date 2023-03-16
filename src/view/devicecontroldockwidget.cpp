@@ -174,3 +174,54 @@ void DeviceControlDockWidget::forceEmit() {
 //    }
 //    qGroupBox->setLayout(radioButtonsBoxLayout);
 //}
+
+
+void DeviceControlDockWidget::onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues){
+    /*! \todo MPAC at the moment miccing ccCurrent and ccVoltage*/
+    if(this->vcCurrentRangesGroupBox != nullptr){
+        vcCurrentRangesPrevioueEnableStateBeforeRecording = this->vcCurrentRangesGroupBox->isEnabled();
+        this->vcCurrentRangesGroupBox->setEnabled(false);
+    }
+
+    if(this->vcVoltageRangesGroupBox != nullptr){
+        vcVoltageRangesPrevioueEnableStateBeforeRecording = this->vcVoltageRangesGroupBox->isEnabled();
+        this->vcVoltageRangesGroupBox->setEnabled(false);
+    }
+
+    if(this->ccCurrentRangesGroupBox != nullptr){
+        ccCurrentRangesPrevioueEnableStateBeforeRecording = this->ccCurrentRangesGroupBox->isEnabled();
+        this->ccCurrentRangesGroupBox->setEnabled(false);
+    }
+
+    if(this->ccVoltageRangesGroupBox != nullptr){
+        ccVoltageRangesPrevioueEnableStateBeforeRecording = this->ccVoltageRangesGroupBox->isEnabled();
+        this->ccVoltageRangesGroupBox->setEnabled(false);
+    }
+
+    if(this->samplingRatesGroupBox != nullptr){
+        samplingRatesPrevioueEnableStateBeforeRecording = this->samplingRatesGroupBox->isEnabled();
+        this->samplingRatesGroupBox->setEnabled(false);
+    }
+}
+
+void DeviceControlDockWidget::onStopRecording(){
+    if(this->vcCurrentRangesGroupBox != nullptr){
+        this->vcCurrentRangesGroupBox->setEnabled(vcCurrentRangesPrevioueEnableStateBeforeRecording);
+    }
+
+    if(this->vcVoltageRangesGroupBox != nullptr){
+        this->vcVoltageRangesGroupBox->setEnabled(vcVoltageRangesPrevioueEnableStateBeforeRecording);
+    }
+
+    if(this->ccCurrentRangesGroupBox != nullptr){
+        this->ccCurrentRangesGroupBox->setEnabled(ccCurrentRangesPrevioueEnableStateBeforeRecording);
+    }
+
+    if(this->ccVoltageRangesGroupBox != nullptr){
+        this->ccVoltageRangesGroupBox->setEnabled(ccVoltageRangesPrevioueEnableStateBeforeRecording);
+    }
+
+    if(this->samplingRatesGroupBox != nullptr){
+        this->samplingRatesGroupBox->setEnabled(samplingRatesPrevioueEnableStateBeforeRecording);
+    }
+}

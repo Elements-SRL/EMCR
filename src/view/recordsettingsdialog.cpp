@@ -100,6 +100,8 @@ RecordSettingsDialog::RecordSettingsDialog() :
     chunkSelectionHl->addWidget(chunkDurationUnitLbl);
 
     recordSizeLbl = new QLabel("Recording size on disk: 0 MB (0 MB per chunk)");
+    /*! \todo al momento non la facciamo vedere*/
+    recordSizeLbl ->setVisible(false);
     recordSizeVl->addWidget(recordSizeLbl);
 
 //    connect(recordFormatDatRb, &QRadioButton::clicked, this, &RecordSettingsDialog::onDataFormatSelected);
