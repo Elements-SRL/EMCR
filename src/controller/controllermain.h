@@ -35,6 +35,9 @@ public slots:
     void onStopRecording();
 
 private:
+    void startProducerConsumers();
+    void stopAndDestroyProducerConsumers();
+
     ModelDevice * mDev = nullptr;
 
     MainWindow * mainWindow = nullptr;

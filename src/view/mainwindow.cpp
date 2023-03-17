@@ -370,6 +370,9 @@ void MainWindow::destroyGuiControls() {
 //    shortcuts.clear();
 
     this->setCentralWidget(new ElementsLogoWidget);
+    this->removeDockWidget(deviceDetectorDw);
+    this->addDockWidget(Qt::TopDockWidgetArea, deviceDetectorDw);
+    deviceDetectorDw->setVisible(true);
     interfaceCreated = false;
 
     emit widgetsDestroyed();

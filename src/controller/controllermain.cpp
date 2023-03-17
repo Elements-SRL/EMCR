@@ -91,6 +91,8 @@ void ControllerMain::onConnect(bool flag) {
         }
 
     } else {
+        this->stopAndDestroyProducerConsumers();
+
         emit connectDevice(false, Success);
         mDev->setConnected(false);
 
@@ -221,9 +223,7 @@ void ControllerMain::onMainWindowCreated() {
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
 
     /*! Start threads */
-    deviceDataProducer->start();
-    stampPlotConsumer->onStartConsuming();
-    bigPlotConsumer->onStartConsuming();
+    this->startProducerConsumers();
 }
 
 void ControllerMain::onMainWindowDestroyed() {
@@ -242,25 +242,7 @@ void ControllerMain::onMainWindowDestroyed() {
         controllerDevice = nullptr;
     }
 
-    if (stampPlotConsumer!= nullptr) {
-        stampPlotConsumer->onStopConsuming();
-        delete stampPlotConsumer;
-    }
-
-    if (bigPlotConsumer!= nullptr) {
-        bigPlotConsumer->onStopConsuming();
-        delete bigPlotConsumer;
-    }
-
-    if (abfDataWriterConsumer!= nullptr) {
-        abfDataWriterConsumer->onStopConsuming();
-        delete abfDataWriterConsumer;
-    }
-
-    if (deviceDataProducer!= nullptr) {
-        deviceDataProducer->onStopProducing();
-        delete deviceDataProducer;
-    }
+    this->stopAndDestroyProducerConsumers();
 
     mDev->flushBoardList();
 
@@ -318,3 +300,34 @@ void ControllerMain::onStopRecording() {
     }
 }
 
+void ControllerMain::startProducerConsumers() {
+    deviceDataProducer->start();
+    stampPlotConsumer->onStartConsuming();
+    bigPlotConsumer->onStartConsuming();
+}
+
+void ControllerMain::stopAndDestroyProducerConsumers() {
+    if (stampPlotConsumer!= nullptr) {
+        stampPlotConsumer->onStopConsuming();
+        delete stampPlotConsumer;
+        stampPlotConsumer = nullptr;
+    }
+
+    if (bigPlotConsumer!= nullptr) {
+        bigPlotConsumer->onStopConsuming();
+        delete bigPlotConsumer;
+        bigPlotConsumer = nullptr;
+    }
+
+    if (abfDataWriterConsumer!= nullptr) {
+        abfDataWriterConsumer->onStopConsuming();
+        delete abfDataWriterConsumer;
+        abfDataWriterConsumer = nullptr;
+    }
+
+    if (deviceDataProducer!= nullptr) {
+        deviceDataProducer->onStopProducing();
+        delete deviceDataProducer;
+        deviceDataProducer = nullptr;
+    }
+}
