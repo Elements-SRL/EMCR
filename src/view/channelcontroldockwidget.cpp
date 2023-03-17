@@ -226,6 +226,7 @@ void ChannelControlDockWidget::onStartRecordingButtonClicked() {
     QCheckBox * cb;
     vector<bool> values;
     vector<uint16_t> indexes;
+    bool isAtLeastOneChannelChecked = false;
 
     QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -234,15 +235,23 @@ void ChannelControlDockWidget::onStartRecordingButtonClicked() {
         if (selectedIndexes.at(i)) {
             values.push_back(cb->isChecked());
             indexes.push_back(i);
+            if(cb->isChecked()){
+                isAtLeastOneChannelChecked = true;
+            }
         }
     }
 
-    operationWidgets[OperationRecordToFile]->setEnabled(false);
-
-    QPixmap pixmapRecors("://imgs/recording protocol.png");
-    QIcon recordIcon(pixmapRecors);
-    startRecordingBtn->setIcon(recordIcon);
-    emit sigStartRecording(indexes, values);
+    if(isAtLeastOneChannelChecked){
+        operationWidgets[OperationRecordToFile]->setEnabled(false);
+        QPixmap pixmapRecors("://imgs/recording protocol.png");
+        QIcon recordIcon(pixmapRecors);
+        startRecordingBtn->setIcon(recordIcon);
+        emit sigStartRecording(indexes, values);
+    } else{
+        QString err = "Recording to file not possible";
+        QString info = "No channel checked for recording";
+        ErrorManager e(err, info);
+    }
 }
 
 void ChannelControlDockWidget::onStopRecordingButtonClicked() {
@@ -255,6 +264,12 @@ void ChannelControlDockWidget::onStopRecordingButtonClicked() {
     operationWidgets[OperationRecordToFile]->setEnabled(true);
 
     emit sigStopRecording();
+}
+
+void ChannelControlDockWidget::onSigRecording(bool state){
+    if(state == false){
+        this->stopRecordingBtn->click();
+    }
 }
 
 QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {

@@ -187,6 +187,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onReplot);
 
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
+    connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording,     mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onSigRecording);
 
     /*! Plots durations */
     /*! \todo FCON Capire come gestire le durate dei plot */
