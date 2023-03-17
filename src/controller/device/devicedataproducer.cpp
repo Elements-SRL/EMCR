@@ -59,6 +59,7 @@ void DeviceDataProducer::onStopProducing() {
             exitedDataProducingLoopCv.wait(&connectionMtx);
         }
     }
+    mDev->getMessageDispatcher()->deallocateRxDataBuffer(datain);
 }
 
 void DeviceDataProducer::run() {
