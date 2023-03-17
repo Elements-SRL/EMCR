@@ -102,6 +102,9 @@ DEPENDPATH += \
     ./src/model \
     ./src/abf
 
+RC_ICONS = imgs/Elements.ico
+ICON = imgs/Elements.ico.icns
+
 include(../e384commLib/frontPanel/includefrontpanel.pri)
 include(../e384commLib/includecommlib.pri)
 include(../qwt-6.1.4/includeqwt.pri)
