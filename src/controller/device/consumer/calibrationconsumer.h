@@ -13,6 +13,12 @@ public:
 public slots:
     void onStartConsuming() override;
     void onStopConsuming() override;
+    void onPerformCalibration(vector<uint16_t> channelsToCalibrateIdxs);
+
+    /*! \todo not really needed */
+    void onSamplingRateChanged(Measurement_t samplingRate) override;
+    void onVoltageRangeChanged(RangedMeasurement_t range) override;
+    void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
 private:
     bool consumptionStopped = false;
@@ -25,13 +31,23 @@ private:
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
     std::vector <Measurement_t> calibrationVoltStep;
     std::vector <Measurement_t> calibratonResistances;
-    std::vector<std::vector<double_t>> gainADC;
-    std::vector<std::vector<double_t>> offsetADC;
-    std::vector <double_t> offsetDAC;
-
-
+    std::vector<std::vector<double_t>> gainADC; // vettore di 2 vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> offsetADC; // vettore di 2 vettori_di_offset (Uno per range)
+    std::vector <double_t> offsetDAC; // vettore di offset (questo non dipende dal range)
+    vector<uint16_t> channelToCalibIdxs; /*! \todo se vogliamo calibrare solo una scheda e non tutti i canali insieme. Calibrazione per schedda ancora da gestire */
+    QVector <double> buffer;
+    int samplesToremove;
+    QVector <double> currentSum;
+    QVector <double> currentMean;
+    int currentIdx;
+    int timeSamples;
 
     void run() override;
+
+    void selectSelectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
+    void turnAllChannelsOnOff(bool onValue);
+    void selectSelectChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
+    void turnChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
 };
 
 #endif // CALIBRATIONCONSUMER_H

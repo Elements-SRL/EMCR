@@ -136,6 +136,9 @@ void ControllerMain::onMainWindowCreated() {
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
+    calibratorConsumer = new CalibrationConsumer(mDev, deviceDataProducer);
+    consumers.append(calibratorConsumer);
+
     /***********\
      * Connect *
     \***********/
@@ -190,6 +193,10 @@ void ControllerMain::onMainWindowCreated() {
 
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording,     mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onSigRecording);
+
+    /*! \todo at the moment only for debug mode*/
+    connect(mainWindow, &MainWindow::sigPerformCalibration,              calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
+
 
     /*! Plots durations */
     /*! \todo FCON Capire come gestire le durate dei plot */
@@ -323,6 +330,12 @@ void ControllerMain::stopAndDestroyProducerConsumers() {
         abfDataWriterConsumer->onStopConsuming();
         delete abfDataWriterConsumer;
         abfDataWriterConsumer = nullptr;
+    }
+
+    if (calibratorConsumer!= nullptr) {
+        calibratorConsumer->onStopConsuming();
+        delete calibratorConsumer;
+        calibratorConsumer = nullptr;
     }
 
     if (deviceDataProducer!= nullptr) {

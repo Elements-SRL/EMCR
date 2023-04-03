@@ -13,6 +13,7 @@
 #include "devicedataproducer.h"
 #include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
+#include "calibrationconsumer.h"
 
 class ControllerMain : public QObject {
     Q_OBJECT
@@ -49,6 +50,7 @@ private:
     GapFreePlotConsumer * stampPlotConsumer = nullptr;
     GapFreePlotConsumer * bigPlotConsumer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
+    CalibrationConsumer * calibratorConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;
     QVector <DataWriterConsumer*> dataWriterConsumers;
