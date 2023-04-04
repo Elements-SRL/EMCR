@@ -11,32 +11,33 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     DeviceTypes_t ccc;
 
     mDev->getSamplingRatesFeatures(aaa);
-    this->calibrationSamplingRate = aaa[0];
+    calibrationSamplingRate = aaa[0];
 
     mDev->getVcCurrentRangesFeatures(bbb);
-    this->vcCurrentRangesArray = bbb;
+    vcCurrentRangesArray = bbb;
 
     deviceUnderCalibrationType = mDev->getMessageDispatcher()->getDeviceType(mDev->getSerialNumber().toStdString(), ccc);
+
     if(ccc == Device384Nanopores || ccc == 2){ /*! \todo 2 means deviceFake in debug */
         /*! \todo should be put in nanopore-specific md */
         calibrationVoltStep.resize(5);
-        this->calibrationVoltStep[0] = {-400.0, UnitPfxMilli, "V"};
-        this->calibrationVoltStep[1] = {-200.0, UnitPfxMilli, "V"};
-        this->calibrationVoltStep[2] = {0.0, UnitPfxMilli, "V"};
-        this->calibrationVoltStep[3] = {200.0, UnitPfxMilli, "V"};
-        this->calibrationVoltStep[4] = {400.0, UnitPfxMilli, "V"};
+        calibrationVoltStep[0] = {-400.0, UnitPfxMilli, "V"};
+        calibrationVoltStep[1] = {-200.0, UnitPfxMilli, "V"};
+        calibrationVoltStep[2] = {0.0, UnitPfxMilli, "V"};
+        calibrationVoltStep[3] = {200.0, UnitPfxMilli, "V"};
+        calibrationVoltStep[4] = {400.0, UnitPfxMilli, "V"};
 
-        calibratonResistances.resize(this->vcCurrentRangesArray.size());
+        calibratonResistances.resize(vcCurrentRangesArray.size());
 
         /*! \todo questo è brutale, dobbiamo prendere le info dal md device specific. */
-        this->calibratonResistances[0] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
-        this->calibratonResistances[1] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
+        calibratonResistances[0] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
+        calibratonResistances[1] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
     } else {
         /*! \todo add settings for PatchClamp in case we use this same class  */
     }
 
-    this->gainADC.resize(this->vcCurrentRangesArray.size());
-    this->offsetADC.resize(this->vcCurrentRangesArray.size());
+    gainADC.resize(vcCurrentRangesArray.size());
+    offsetADC.resize(vcCurrentRangesArray.size());
 
 }
 
@@ -48,8 +49,13 @@ void CalibrationConsumer::run(){
     consumptionStopped = false;
     exitedDataConsumingLoop = false;
 
-    this->currentSum.resize(channelToCalibIdxs.size());
-    this->currentMeans.resize(calibrationVoltStep.size());
+    currentSum.resize(channelToCalibIdxs.size());
+    currentMeans.resize(calibrationVoltStep.size());
+
+    for(int i = 0; i < channelToCalibIdxs.size(); i++){
+        someTrue.push_back(true);
+        someFalse.push_back(false);
+    }
 
     QMutexLocker consumptionLock(&consumptionMtx);
     consumptionLock.unlock();
@@ -61,133 +67,48 @@ void CalibrationConsumer::run(){
         }
         consumptionLock.unlock();
 
-        /*! \todo Representation of voltage steps without any prefix, ...*/
-        vector<double> x; /*! \todo  voltage steps*/
-        x.resize(calibrationVoltStep.size());
-        for(int i = 0; i< calibrationVoltStep.size(); i++){
-            x[i] = calibrationVoltStep[i].getNoPrefixValue();
-        }
-
         /*! \todo FOR: START ciclo sui range*/
-        for(int rangeIdx = 0; rangeIdx < this->vcCurrentRangesArray.size(); rangeIdx++){
+        for(rangeIdx = 0; rangeIdx <vcCurrentRangesArray.size(); rangeIdx++){
 
         /*! \todo  seleziona tutti i canali */
-            this->selectSelectAllChannels(true);
+//            selectAllChannels(true);
 
-        /*! \todo  spegne tutti i canali*/
-            this->turnAllChannelsOnOff(false);
-            this->selectSelectAllChannels(false); // prima deseleziono tutto e poi seleziono i canali che mi interessa calibrare
+        /*! \todo  spegne lo stimolo e stacco il carico su tutti i canali */
+            turnAllStimulaOnOff(false);
+            turnAllChannelsOnOff(false);
+
+//            selectAllChannels(false); // prima deseleziono tutto e poi seleziono i canali che mi interessa calibrare
 
             /*! \todo  seleziona la più bassa sampling rate possibile*/
             vector <Measurement_t> samplingRates;
             mDev->getSamplingRatesFeatures(samplingRates);
-            this->mDev->getMessageDispatcher()->setSamplingRate(0, true);
-            this->mDev->setSamplingRate(samplingRates[0]);
+            mDev->getMessageDispatcher()->setSamplingRate(0, true);
+            mDev->setSamplingRate(samplingRates[0]);
 
              /*! \todo START CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-
-            /*! \todo  seleziona tutti i canali  o quelli della scheda selezionata*/
-            vector<bool> someTrue;
-            vector<bool> someFalse;
-            for(int i = 0; i < channelToCalibIdxs.size(); i++){
-                someTrue.push_back(true);
-                someFalse.push_back(false);
-            }
-            this->selectSelectChannels(channelToCalibIdxs, someTrue);
-
-            /*! \todo  accende tutti i canali  o quelli della scheda selezionata*/
-            this->turnChannelsOnOff(channelToCalibIdxs, someTrue);
-
-            /*! \todo FOR: START ciclo sugli step di tensione*/
-            for(int voltStepIdx = 0; voltStepIdx < this->calibrationVoltStep.size(); voltStepIdx++){
-                currentMeans[voltStepIdx].resize(channelToCalibIdxs.size());
-
-                /*! \todo  setta la Vhold per i canali selezionati e applica lo stimolo a tutti i canali selezionati*/
-                vector<Measurement_t> someVoltSteps;
-                for(int i = 0; i < channelToCalibIdxs.size(); i++){
-                    someVoltSteps.push_back(this->calibrationVoltStep[voltStepIdx]);
-                    this->mDev->getChannels()[channelToCalibIdxs[i]]->setVhold(this->calibrationVoltStep[voltStepIdx]);
-                }
-                this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
-
-                /*! \todo  prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
-                la cui struttura è ancora da definire */
-                sweepSamplingRateHz = this->mDev->getSamplingRate().getNoPrefixValue();
-                minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-                samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
-                hook->getDataChunk(buffer, 1, minDataBatchSize);
-
-                /*! \todo  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-                buffer.remove(0, samplesToremove);
-                int actualBufferSize = buffer.size();
-                buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
-
-                int timeSamples = actualBufferSize/totalChannelsNum;
-
-                 /*! \todo  faccio media delle sole correnti */
-                int channelIdx;
-                for (int bufferIdx = 0; bufferIdx < buffer.size(); bufferIdx += totalChannelsNum) {
-                    for (int currentIdx = 0; currentIdx < channelToCalibIdxs.size(); currentIdx++) {
-                        channelIdx = bufferIdx+voltageChannelsNum+currentIdx;
-                        this->currentSum[currentIdx] += buffer[channelIdx];
-                    }
-                }
-
-                for(int i = 0; i < this->currentSum.size(); i++){
-                    this->currentMeans[voltStepIdx][i] = this->currentSum[i]/((double)timeSamples);
-                }
-
-                buffer.clear(); /*! \todo is resized in getDataChunk()*/
-                currentSum.clear();
-                currentSum.resize(channelToCalibIdxs.size());
-            }
-            /*! \todo FOR: END ciclo sugli step di tensione*/
-
-            /*! \todo UNA VOLTA CHE HO TUTTE CORRENTI MEDIE PER CIACUN Vstep PER CIASCN CANALE, FACCIO MINIMI QUADRATI */
-            /*! \todo FOR: START ciclo sui canali*/
-
-            vector<double> y; /*! \todo  average currents*/
-            y.resize(calibrationVoltStep.size());
-            vector<double> usefulAdcGain;
-            usefulAdcGain.resize(channelToCalibIdxs.size());
-            double usefulSlope;
-            double uselessOffset;
-
-            for(int chIdx = 0; chIdx < channelToCalibIdxs.size(); chIdx++){
-                for(int i = 0; i< calibrationVoltStep.size(); i++){
-                    y[i] = currentMeans[i][chIdx];
-                }
-                /*! \todo calcolo slope con minimi quadrati che sarebbe 1/Rest*/
-                leastSquareSimple(x, y, usefulSlope, uselessOffset);
-
-                /*! \todo il gain sarebbe Rest/Rcalib, i.e. 1(Rcalib * slope)*/
-                usefulAdcGain[chIdx] = 1/(usefulSlope * this->calibratonResistances[rangeIdx].getNoPrefixValue());
-                y.clear();
-                y.resize(calibrationVoltStep.size());
-            }
-            /*! \todo FOR: END ciclo sui canali*/
-            this->gainADC[rangeIdx] = usefulAdcGain;
-
+            calibrateAdcGain();
             /*! \todo END CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
-            /*! \todo spengo e deselezionio i canali e settola Vhold a 0V */
-            this->turnChannelsOnOff(channelToCalibIdxs, someFalse);
-            this->selectSelectChannels(channelToCalibIdxs, someFalse);
+            /*! \todo a questo punto tutti i canali hanno carico staccato  e stimolo spento*/
 
+            /*! \todo START CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    qui il carico deve essere staccato*/
 
+            /*! \todo  applico gli 0V precedentemente selezionati  ai canali selezionati*/
+            vector<Measurement_t> someVoltSteps;
+            for(int i = 0; i < channelToCalibIdxs.size(); i++){
+                someVoltSteps.push_back({0.0, UnitPfxMilli, "V"});
+               mDev->getChannels()[channelToCalibIdxs[i]]->setVhold({0.0, UnitPfxMilli, "V"});
+            }
+            mDev->getMessageDispatcher()->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
 
+            /*! \todo  seleziona tutti i canali  o quelli della scheda selezionata*/
+//            selectSomeChannels(channelToCalibIdxs, someTrue);
 
+            /*! \todo  accende lo stimolo su tutti i canali  o su quelli della scheda selezionata*/
+            turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
-            /*! \todo START CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-                /*! \todo  seleziona tutti i canali  o quelli della scheda selezionata*/
-            this->selectSelectChannels(channelToCalibIdxs, someTrue);
-
-                /*! \todo  accende tutti i canali  o quelli della scheda selezionata*/
-            this->turnChannelsOnOff(channelToCalibIdxs, someTrue);
-
-                /*! \todo  applico gli 0V precedentemente selezionati  ai canali selezionati*/
-
-                /*! \todo   apro tutti gli switch per i canali selezionati (input_SW per EL06  e CAL_SW + VC_SWper EL07)*/
+                /*! ------------------> \todo   apro tutti gli switch per i canali selezionati (input_SW per EL06  e CAL_SW + VC_SWper EL07)*/
 
                 /*! \todo  prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
                 la cui struttura è ancora da definire, e.g. ogni riga contiene un istante temporale e ogni colonna rappresenta un canale */
@@ -279,6 +200,98 @@ void CalibrationConsumer::onStopConsuming() {
     }
 }
 
+void CalibrationConsumer::calibrateAdcGain(){
+    /*! \todo Representation of voltage steps without any prefix, ...*/
+    vector<double> x; /*! \todo  voltage steps*/
+    x.resize(calibrationVoltStep.size());
+    for(int i = 0; i< calibrationVoltStep.size(); i++){
+        x[i] = calibrationVoltStep[i].getNoPrefixValue();
+    }
+
+    /*! \todo  seleziona tutti i canali  o quelli della scheda selezionata*/
+//    selectSomeChannels(channelToCalibIdxs, someTrue);
+
+    /*! \todo  attacca il carico  e accende lo stimolo su tutti i canali  o quelli della scheda selezionata*/
+    turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
+    turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
+
+    /*! \todo FOR: START ciclo sugli step di tensione*/
+    for(int voltStepIdx = 0; voltStepIdx <calibrationVoltStep.size(); voltStepIdx++){
+        currentMeans[voltStepIdx].resize(channelToCalibIdxs.size());
+
+        /*! \todo  setta la Vhold per i canali selezionati e applica lo stimolo a tutti i canali selezionati*/
+        vector<Measurement_t> someVoltSteps;
+        for(int i = 0; i < channelToCalibIdxs.size(); i++){
+            someVoltSteps.push_back(calibrationVoltStep[voltStepIdx]);
+           mDev->getChannels()[channelToCalibIdxs[i]]->setVhold(calibrationVoltStep[voltStepIdx]);
+        }
+        mDev->getMessageDispatcher()->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
+
+        /*! \todo  prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
+        la cui struttura è ancora da definire */
+        sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
+        minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        hook->getDataChunk(buffer, 1, minDataBatchSize);
+
+        /*! \todo  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
+        buffer.remove(0, samplesToremove);
+        int actualBufferSize = buffer.size();
+        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+
+        int timeSamples = actualBufferSize/totalChannelsNum;
+
+         /*! \todo  faccio media delle sole correnti */
+        int channelIdx;
+        for (int bufferIdx = 0; bufferIdx < buffer.size(); bufferIdx += totalChannelsNum) {
+            for (int currentIdx = 0; currentIdx < channelToCalibIdxs.size(); currentIdx++) {
+                channelIdx = bufferIdx+voltageChannelsNum+currentIdx;
+                currentSum[currentIdx] += buffer[channelIdx];
+            }
+        }
+
+        for(int i = 0; i < currentSum.size(); i++){
+            currentMeans[voltStepIdx][i] = currentSum[i]/((double)timeSamples);
+        }
+
+        buffer.clear(); /*! \todo is resized in getDataChunk()*/
+        currentSum.clear();
+        currentSum.resize(channelToCalibIdxs.size());
+    }
+    /*! \todo FOR: END ciclo sugli step di tensione*/
+
+    /*! \todo UNA VOLTA CHE HO TUTTE CORRENTI MEDIE PER CIACUN Vstep PER CIASCN CANALE, FACCIO MINIMI QUADRATI */
+    /*! \todo FOR: START ciclo sui canali*/
+
+    vector<double> y; /*! \todo  average currents*/
+    y.resize(calibrationVoltStep.size());
+    vector<double> usefulAdcGain;
+    usefulAdcGain.resize(channelToCalibIdxs.size());
+    double usefulSlope;
+    double uselessOffset;
+
+    for(int chIdx = 0; chIdx < channelToCalibIdxs.size(); chIdx++){
+        for(int i = 0; i< calibrationVoltStep.size(); i++){
+            y[i] = currentMeans[i][chIdx];
+        }
+        /*! \todo calcolo slope con minimi quadrati che sarebbe 1/Rest*/
+        leastSquareSimple(x, y, usefulSlope, uselessOffset);
+
+        /*! \todo il gain sarebbe Rest/Rcalib, i.e. 1(Rcalib * slope)*/
+        usefulAdcGain[chIdx] = 1/(usefulSlope * calibratonResistances[rangeIdx].getNoPrefixValue());
+        y.clear();
+        y.resize(calibrationVoltStep.size());
+    }
+    /*! \todo FOR: END ciclo sui canali*/
+    gainADC[rangeIdx] = usefulAdcGain;
+
+    /*! \todo  spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
+    turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
+    turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
+//            selectSomeChannels(channelToCalibIdxs, someFalse);
+
+}
+
 /*! \todo RECHECK: this can be used to pass specific params from the calibration GUI to the calibration thread, e.g. calibrate only one board
 More functions will be needed, e.g. to load calibration from  a csv file
 */
@@ -293,7 +306,7 @@ void CalibrationConsumer::onSamplingRateChanged(Measurement_t samplingRate){};
 void CalibrationConsumer::onVoltageRangeChanged(RangedMeasurement_t range){};
 void CalibrationConsumer::onCurrentRangeChanged(RangedMeasurement_t range){};
 
-void CalibrationConsumer::selectSelectAllChannels(bool selectValue){
+void CalibrationConsumer::selectAllChannels(bool selectValue){
     uint16_t numOfChannelsToUpadate = this->mDev->getChannels().size();
     for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
         this->mDev->getChannels()[i]->setSelected(selectValue);
@@ -301,12 +314,11 @@ void CalibrationConsumer::selectSelectAllChannels(bool selectValue){
 }
 
 void CalibrationConsumer::turnAllChannelsOnOff(bool onValue){
-    uint16_t numOfChannelsToUpadate = this->mDev->getChannels().size();
     vector<uint16_t> channelIndexes;
     vector<bool> onValues;
-    channelIndexes.resize(numOfChannelsToUpadate);
-    onValues.resize(numOfChannelsToUpadate);
-    for (int i = 0; i < numOfChannelsToUpadate; i++){
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    for (int i = 0; i < currentChannelsNum; i++){
         this->mDev->getChannels()[i]->setOn(onValue);
         channelIndexes[i] = i;
         onValues[i] = onValue;
@@ -315,17 +327,39 @@ void CalibrationConsumer::turnAllChannelsOnOff(bool onValue){
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
 }
 
-void CalibrationConsumer::selectSelectChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues){
+void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
+    vector<uint16_t> channelIndexes;
+    vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    for (int i = 0; i < currentChannelsNum; i++){
+        this->mDev->getChannels()[i]->setInStimActive(onValue);
+        channelIndexes[i] = i;
+        onValues[i] = onValue;
+        qDebug() << "[Channel " << i << "]: on/off status:" << onValue << "\n";
+    }
+    this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
+}
+
+void CalibrationConsumer::selectSomeChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues){
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setSelected(selectValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: selected status:" << selectValues[i] << "\n";
     }
 }
 
-void CalibrationConsumer::turnChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+void CalibrationConsumer::turnSomeChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
+        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
+    }
+}
+
+void CalibrationConsumer::turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
+    for (int i = 0; i < channelIndexes.size(); i++){
+        this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
     }
 }

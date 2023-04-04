@@ -42,18 +42,23 @@ private:
     int samplesToremove;
     QVector <double> currentSum;
     QVector<QVector <double>> currentMeans;
+    int rangeIdx;
+    vector<bool> someTrue;
+    vector<bool> someFalse;
 
 
 
     void run() override;
 
-    void selectSelectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
+    void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
     void turnAllChannelsOnOff(bool onValue);
-    void selectSelectChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
-    void turnChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void turnAllStimulaOnOff(bool onValue);
+    void selectSomeChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
+    void turnSomeChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
 
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
-//    void calibrateAdcGain();
+    void calibrateAdcGain();
 };
 
 #endif // CALIBRATIONCONSUMER_H
