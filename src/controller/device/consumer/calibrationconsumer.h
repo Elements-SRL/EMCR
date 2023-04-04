@@ -1,6 +1,9 @@
 #ifndef CALIBRATIONCONSUMER_H
 #define CALIBRATIONCONSUMER_H
 
+#define CCS_CALIB_INTERVAL_IN_S 1
+#define CCS_CALIB_INTERVAL_TO_REMOVE_IN_S 0.1
+
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
 
@@ -38,9 +41,9 @@ private:
     QVector <double> buffer;
     int samplesToremove;
     QVector <double> currentSum;
-    QVector <double> currentMean;
-    int currentIdx;
-    int timeSamples;
+    QVector<QVector <double>> currentMeans;
+
+
 
     void run() override;
 
@@ -48,6 +51,9 @@ private:
     void turnAllChannelsOnOff(bool onValue);
     void selectSelectChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
     void turnChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+
+    void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
+//    void calibrateAdcGain();
 };
 
 #endif // CALIBRATIONCONSUMER_H
