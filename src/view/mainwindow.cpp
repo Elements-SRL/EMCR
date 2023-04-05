@@ -299,26 +299,15 @@ void MainWindow::createGuiControls() {
     QVBoxLayout * calibrationVl = new QVBoxLayout;
     calibrationWid->setLayout(calibrationVl);
 
-//    debugVl->addWidget(new QLabel("Word"));
-//    QSpinBox * debugWordSbx = new QSpinBox;
-//    debugWordSbx->setRange(0, 32767);
-//    debugWordSbx->setValue(0);
-//    debugVl->addWidget(debugWordSbx);
+    QPushButton * calibrationAllApplyBtn = new QPushButton("Calibrate");
+    calibrationAllApplyBtn->setCheckable(false);
+    calibrationVl->addWidget(calibrationAllApplyBtn);
 
-//    debugVl->addWidget(new QLabel("Bit"));
-//    QSpinBox * debugBitSbx = new QSpinBox;
-//    debugBitSbx->setRange(0, 15);
-//    debugBitSbx->setValue(0);
-//    debugVl->addWidget(debugBitSbx);
+    QPushButton * calibrationBoardApplyBtn = new QPushButton("Calibrate board 2");
+    calibrationBoardApplyBtn->setCheckable(false);
+    calibrationVl->addWidget(calibrationBoardApplyBtn);
 
-//    QCheckBox * debugStatusChx = new QCheckBox("Status");
-//    debugVl->addWidget(debugStatusChx);
-
-    QPushButton * calibrationApplyBtn = new QPushButton("Calibrate");
-    calibrationApplyBtn->setCheckable(false);
-    calibrationVl->addWidget(calibrationApplyBtn);
-
-    connect(calibrationApplyBtn, &QPushButton::clicked, this, [=] () {
+    connect(calibrationAllApplyBtn, &QPushButton::clicked, this, [=] () {
         vector<uint16_t> channelsToCalibrateIdxs;
         for(int i = 0; i < currentChannelsNum; i++){
             channelsToCalibrateIdxs.push_back(i);
@@ -326,29 +315,15 @@ void MainWindow::createGuiControls() {
         emit sigPerformCalibration(channelsToCalibrateIdxs);
     });
 
-//    debugVl->addWidget(new QLabel("Value"));
-//    QSpinBox * debugValueSbx = new QSpinBox;
-//    debugValueSbx->setRange(0, 65535);
-//    debugValueSbx->setValue(0);
-//    debugVl->addWidget(debugValueSbx);
 
-//    QLabel * debugValueHexLbl = new QLabel;
-//    debugVl->addWidget(debugValueHexLbl);
-//    connect(debugValueSbx, QOverload <int> ::of (&QSpinBox::valueChanged), this, [=] (int value) {
-//        debugValueHexLbl->setText(QString("0x%1").arg(value, 4, 16, QLatin1Char('0')));
-//    });
+    connect(calibrationBoardApplyBtn, &QPushButton::clicked, this, [=] () {
+        vector<uint16_t> channelsToCalibrateIdxs;
+        for(int i = 16; i < 32; i++){
+            channelsToCalibrateIdxs.push_back(i);
+        }
+        emit sigPerformCalibration(channelsToCalibrateIdxs);
+    });
 
-//    QPushButton * debugApplyValueBtn = new QPushButton("Apply value");
-//    debugApplyValueBtn->setCheckable(false);
-//    debugVl->addWidget(debugApplyValueBtn);
-
-//    connect(debugApplyValueBtn, &QPushButton::clicked, this, [=] () {
-//        emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
-//    });
-
-//    QPushButton * degugInitializeBtn = new QPushButton("Initialize");
-//    debugVl->addWidget(degugInitializeBtn);
-//    connect(degugInitializeBtn, &QPushButton::clicked, this, &MainWindow::debugInitialization);
     /*! ------------------------------------------------------------ */
 
 #endif

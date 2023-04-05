@@ -3,6 +3,7 @@
 
 #define CCS_CALIB_INTERVAL_IN_S 1
 #define CCS_CALIB_INTERVAL_TO_REMOVE_IN_S 0.1
+#define CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY 3
 
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
@@ -38,6 +39,7 @@ private:
     std::vector<std::vector<double_t>> offsetADC; // vettore di 2 vettori_di_offset (Uno per range)
     std::vector <double_t> offsetDAC; // vettore di offset (questo non dipende dal range)
     vector<uint16_t> channelToCalibIdxs; /*! \todo se vogliamo calibrare solo una scheda e non tutti i canali insieme. Calibrazione per schedda ancora da gestire */
+    int totalChannelsUnderCalibNum;
     QVector <double> buffer;
     int samplesToremove;
     QVector <double> currentSum;
@@ -45,6 +47,7 @@ private:
     int rangeIdx;
     vector<bool> someTrue;
     vector<bool> someFalse;
+    double multiplierCurrent = 1.0;
 
 
 
@@ -59,6 +62,8 @@ private:
 
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
     void calibrateAdcGain();
+    void calibrateAdcOffset();
+    void calibrateDacOffset();
 };
 
 #endif // CALIBRATIONCONSUMER_H
