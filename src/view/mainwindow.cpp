@@ -299,30 +299,48 @@ void MainWindow::createGuiControls() {
     QVBoxLayout * calibrationVl = new QVBoxLayout;
     calibrationWid->setLayout(calibrationVl);
 
+    calibrationVl->addWidget(new QLabel("Board (0 all)"));
+    QSpinBox * boardCalibSbx = new QSpinBox;
+    boardCalibSbx->setRange(0, 24);
+    boardCalibSbx->setValue(0);
+    calibrationVl->addWidget(boardCalibSbx);
+
     QPushButton * calibrationAllApplyBtn = new QPushButton("Calibrate");
     calibrationAllApplyBtn->setCheckable(false);
     calibrationVl->addWidget(calibrationAllApplyBtn);
 
-    QPushButton * calibrationBoardApplyBtn = new QPushButton("Calibrate board 2");
-    calibrationBoardApplyBtn->setCheckable(false);
-    calibrationVl->addWidget(calibrationBoardApplyBtn);
+//    QPushButton * calibrationBoardApplyBtn = new QPushButton("Calibrate board 2");
+//    calibrationBoardApplyBtn->setCheckable(false);
+//    calibrationVl->addWidget(calibrationBoardApplyBtn);
 
     connect(calibrationAllApplyBtn, &QPushButton::clicked, this, [=] () {
         vector<uint16_t> channelsToCalibrateIdxs;
-        for(int i = 0; i < currentChannelsNum; i++){
-            channelsToCalibrateIdxs.push_back(i);
+        //------------------------
+        if(boardCalibSbx->value() == 0){
+            for(int i = 0; i < currentChannelsNum; i++){
+                channelsToCalibrateIdxs.push_back(i);
+            }
+        } else {
+            for(int i = 16*(boardCalibSbx->value()-1); i < 16*(boardCalibSbx->value()-1) + 16; i++){
+                channelsToCalibrateIdxs.push_back(i);
+            }
+
         }
+        //------------------------
+//        for(int i = 0; i < currentChannelsNum; i++){
+//            channelsToCalibrateIdxs.push_back(i);
+//        }
         emit sigPerformCalibration(channelsToCalibrateIdxs);
     });
 
 
-    connect(calibrationBoardApplyBtn, &QPushButton::clicked, this, [=] () {
-        vector<uint16_t> channelsToCalibrateIdxs;
-        for(int i = 16; i < 32; i++){
-            channelsToCalibrateIdxs.push_back(i);
-        }
-        emit sigPerformCalibration(channelsToCalibrateIdxs);
-    });
+//    connect(calibrationBoardApplyBtn, &QPushButton::clicked, this, [=] () {
+//        vector<uint16_t> channelsToCalibrateIdxs;
+//        for(int i = 16; i < 32; i++){
+//            channelsToCalibrateIdxs.push_back(i);
+//        }
+//        emit sigPerformCalibration(channelsToCalibrateIdxs);
+//    });
 
     /*! ------------------------------------------------------------ */
 
