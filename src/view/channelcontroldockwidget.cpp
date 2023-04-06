@@ -293,15 +293,15 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         break;
 
     case OperationHoldingStimulus: {
-        RangedMeasurement_t range;
-        mDev->getVoltageHoldTunerFeatures(range);
-        QString unit = QString().fromStdString(range.getFullUnit());
+        vector <RangedMeasurement_t> ranges;
+        mDev->getVoltageHoldTunerFeatures(ranges);
+        QString unit = QString().fromStdString(ranges[0].getFullUnit());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             MySpinBox * sbx = new MySpinBox;
             sbx->setSuffix(QString(" ") + unit);
-            sbx->setRange(range.min, range.max);
+            sbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
             sbx->setValue(0.0);
-            sbx->setDecimals(range.decimals());
+            sbx->setDecimals(ranges[0].decimals());
             SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
             widget->setVisible(mDev->getSelectedChannelsIdxs()[channelIdx]);
 
@@ -346,14 +346,14 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
         operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
         operationButtonGridLayout->setSpacing(0);
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
-        RangedMeasurement_t range;
-        mDev->getVoltageHoldTunerFeatures(range);
-        QString unit = QString().fromStdString(range.getFullUnit());
+        vector <RangedMeasurement_t> ranges;
+        mDev->getVoltageHoldTunerFeatures(ranges);
+        QString unit = QString().fromStdString(ranges[0].getFullUnit());
         MySpinBox * sbx = new MySpinBox;
         sbx->setSuffix(QString(" ") + unit);
-        sbx->setRange(range.min, range.max);
+        sbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
         sbx->setValue(0.0);
-        sbx->setDecimals(range.decimals());
+        sbx->setDecimals(ranges[0].decimals());
         setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), sbx);
         QPushButton* setAllBtn = new QPushButton("Set all channels");
         connect(setAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onSetAllButtonClicked);

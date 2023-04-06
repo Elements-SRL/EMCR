@@ -165,7 +165,7 @@ void ModelDevice::flushBoardList() {
 }
 
 // wrappers for MessageDispatcher get features
-ErrorCodes_t ModelDevice::getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures){
+ErrorCodes_t ModelDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
     return this->messageDispatcher->getVoltageHoldTunerFeatures(voltageHoldTunerFeatures);
 }
 
