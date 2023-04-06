@@ -1,4 +1,5 @@
 #include "calibrationconsumer.h"
+#include "messagedispatcher.h"
 
 #include <QTime>
 #include <QDebug>
@@ -19,19 +20,8 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     deviceUnderCalibrationType = mDev->getMessageDispatcher()->getDeviceType(mDev->getSerialNumber().toStdString(), ccc);
 
     if(ccc == Device384Nanopores || ccc == 2){ /*! \todo 2 means deviceFake in debug */
-        /*! \todo should be put in nanopore-specific md */
-        calibrationVoltStep.resize(5);
-        calibrationVoltStep[0] = {-400.0, UnitPfxMilli, "V"};
-        calibrationVoltStep[1] = {-200.0, UnitPfxMilli, "V"};
-        calibrationVoltStep[2] = {0.0, UnitPfxMilli, "V"};
-        calibrationVoltStep[3] = {200.0, UnitPfxMilli, "V"};
-        calibrationVoltStep[4] = {400.0, UnitPfxMilli, "V"};
-
-        calibratonResistances.resize(vcCurrentRangesArray.size());
-
-        /*! \todo questo è brutale, dobbiamo prendere le info dal md device specific. */
-        calibratonResistances[0] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
-        calibratonResistances[1] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
+        mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);
+        mDev->getCalibVcResFeatures(calibratonResistances);
     } else {
         /*! \todo add settings for PatchClamp in case we use this same class  */
     }
@@ -114,6 +104,7 @@ void CalibrationConsumer::run(){
         someTrue.clear();
 
         /*! \todo salvo queste info su CSV la cui struttura deve essere ancora decisa. Forse un file per ciascuna scheda*/
+        prepareStuffToSaveOnCsv();
 
         /*! \todo FCON questa cosa va gestita un po' meglio */
         consumptionLock.relock();
@@ -489,5 +480,51 @@ void CalibrationConsumer::leastSquareSimple(vector<double> x, vector<double> y, 
     }
     slope=(n*xysum-xsum*ysum)/(n*x2sum-xsum*xsum);            //calculate slope
     offset=(x2sum*ysum-xsum*xysum)/(x2sum*n-xsum*xsum);            //calculate intercept
+
+}
+
+void CalibrationConsumer::prepareStuffToSaveOnCsv(){
+
+
+    QString path = "C:/schifo/";
+    QTextStream stream;
+    QFile outFile(path + "bah.csv");
+
+    if (QDir().exists(path)) {
+        outFile.open(QFile::WriteOnly);
+        if (outFile.isOpen()) {
+                stream.setDevice(&outFile);
+                this->saveCsv(stream);
+        }
+        outFile.close();
+
+    } else {
+        if (QDir().mkpath(path)) {
+            if (outFile.open(QFile::WriteOnly )) {
+                stream.setDevice(&outFile);
+                this->saveCsv(stream);
+                outFile.close();
+            }
+
+        }
+    }
+}
+
+void CalibrationConsumer::saveCsv(QTextStream &stream){
+    stream << this->getCsvData();
+}
+
+QString CalibrationConsumer::getCsvData(){
+    QString ret;
+    QTextStream stream(&ret);
+    QString myCsvSeparator = ",";
+    stream << "Range" << myCsvSeparator << QString("%1").arg(vcCurrentRangesArray[0].max) << "\n";
+    for(int i = 0; i<gainADC[0].size(); i++){
+        stream << QString("%1").arg(gainADC[0][i], 0, 'f', 10) << myCsvSeparator;
+    }
+    stream << "\n";
+//    stream << "Ciao:" << csvSeparator << QString("%1").arg(currentChannelIdx+1) << "\n";
+    return ret;
+
 
 }

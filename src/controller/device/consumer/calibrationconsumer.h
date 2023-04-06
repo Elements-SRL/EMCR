@@ -7,6 +7,10 @@
 
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
+#include <QTextStream>
+#include <QFile>
+#include <QDir>
+#include <QString>
 
 class CalibrationConsumer : public DeviceDataConsumer {
     Q_OBJECT
@@ -64,6 +68,12 @@ private:
     void calibrateAdcGain();
     void calibrateAdcOffset();
     void calibrateDacOffset();
+
+
+    /*! \todo primo tentativo di salvataggio su csv*/
+    void prepareStuffToSaveOnCsv();
+    void saveCsv(QTextStream &stream);
+    QString getCsvData();
 };
 
 #endif // CALIBRATIONCONSUMER_H

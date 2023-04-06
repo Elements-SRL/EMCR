@@ -74,6 +74,9 @@ public:
 
     ErrorCodes_t getVoltageStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
     ErrorCodes_t getCurrentStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
+
+    ErrorCodes_t getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures);
+    ErrorCodes_t getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures);
     //---------------------------------------------/
 
 private:

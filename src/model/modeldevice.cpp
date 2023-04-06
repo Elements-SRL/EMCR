@@ -252,4 +252,12 @@ ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(vector <Measurement_t> 
 ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <Measurement_t> &currentFilterOptions){
     return this->messageDispatcher->getCurrentStimulusLpfs(currentFilterOptions);
 }
+
+ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures){
+    return this->messageDispatcher->getVcCalibVoltStepsFeatures(calibVcVoltStepsFeatures);
+}
+
+ErrorCodes_t ModelDevice::getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures){
+    return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
+}
 //---------------------------------------------/
