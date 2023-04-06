@@ -35,8 +35,11 @@ private:
     QWaitCondition exitedDataConsumingLoopCv;
 
     int deviceUnderCalibrationType; /*! \todo NOT SURE IF NEEDED */
+    int numOfBoards;
+    int numOfChannelsOnBoard;
     Measurement_t calibrationSamplingRate;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
+    std::vector <RangedMeasurement_t> vcVoltageRangesArray;
     std::vector <Measurement_t> calibrationVoltStep;
     std::vector <Measurement_t> calibratonResistances;
     std::vector<std::vector<double_t>> gainADC; // vettore di 2 vettori_di_gain (Uno per range)
@@ -52,6 +55,8 @@ private:
     vector<bool> someTrue;
     vector<bool> someFalse;
     double multiplierCurrent = 1.0;
+
+    vector<QString> boardSerialNums; /*! \todo da spostare in un posto migliore*/
 
 
 
@@ -71,9 +76,10 @@ private:
 
 
     /*! \todo primo tentativo di salvataggio su csv*/
-    void prepareStuffToSaveOnCsv();
-    void saveCsv(QTextStream &stream);
-    QString getCsvData();
+    void mainSaveOnCsv();
+    void prepareStuffToSaveOnCsv(QString path, QString fileName, vector<uint16_t> chanSubset);
+    void saveCsv(vector<uint16_t> chanSubset, QTextStream &stream);
+    QString getCsvData(vector<uint16_t> chanSubset);
 };
 
 #endif // CALIBRATIONCONSUMER_H

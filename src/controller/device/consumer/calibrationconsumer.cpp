@@ -8,16 +8,17 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     DeviceDataConsumer(mDev, producer){
 
     std::vector <Measurement_t> aaa;
-    std::vector <RangedMeasurement_t> bbb;
     DeviceTypes_t ccc;
 
     mDev->getSamplingRatesFeatures(aaa);
     calibrationSamplingRate = aaa[0];
 
-    mDev->getVcCurrentRangesFeatures(bbb);
-    vcCurrentRangesArray = bbb;
+    mDev->getVcCurrentRangesFeatures(vcCurrentRangesArray);
+    mDev->getVcVoltageRangesFeatures(vcVoltageRangesArray);
 
     deviceUnderCalibrationType = mDev->getMessageDispatcher()->getDeviceType(mDev->getSerialNumber().toStdString(), ccc);
+    mDev->getBoardsNumberFeatures(numOfBoards);
+    numOfChannelsOnBoard = currentChannelsNum/numOfBoards;
 
     if(ccc == Device384Nanopores || ccc == 2){ /*! \todo 2 means deviceFake in debug */
         mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);
@@ -28,6 +29,12 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
 
     gainADC.resize(vcCurrentRangesArray.size());
     offsetADC.resize(vcCurrentRangesArray.size());
+
+    boardSerialNums.resize(numOfBoards);
+    for(int i = 0; i < numOfBoards; i++){
+        boardSerialNums[i] = QString("serial_%1").arg(i);
+    }
+
 
 }
 
@@ -104,7 +111,7 @@ void CalibrationConsumer::run(){
         someTrue.clear();
 
         /*! \todo salvo queste info su CSV la cui struttura deve essere ancora decisa. Forse un file per ciascuna scheda*/
-        prepareStuffToSaveOnCsv();
+        mainSaveOnCsv();
 
         /*! \todo FCON questa cosa va gestita un po' meglio */
         consumptionLock.relock();
@@ -378,7 +385,7 @@ void CalibrationConsumer::calibrateDacOffset(){
                 double bubbi = someVoltSteps[i].getNoPrefixValue() - adcCompensatedCurrent[i]/poffi; // A
                 someVoltSteps[i].value = bubbi/someVoltSteps[i].multiplier(); //mV perchè divido V per 1e-3
            }
-           offsetDAC[i] = someVoltSteps[i].value; //mV
+           offsetDAC[i] = someVoltSteps[i].getNoPrefixValue(); //V
         }
 
         /*! \todo mandi via messageDispatcher i valori aggiornati di voltage step per vedere se la lettura sui canali mi diventa finalmetne 0 */
@@ -483,47 +490,96 @@ void CalibrationConsumer::leastSquareSimple(vector<double> x, vector<double> y, 
 
 }
 
-void CalibrationConsumer::prepareStuffToSaveOnCsv(){
-
-
+void CalibrationConsumer::mainSaveOnCsv(){
     QString path = "C:/schifo/";
-    QTextStream stream;
-    QFile outFile(path + "bah.csv");
-
-    if (QDir().exists(path)) {
-        outFile.open(QFile::WriteOnly);
-        if (outFile.isOpen()) {
-                stream.setDevice(&outFile);
-                this->saveCsv(stream);
+    QString fileName;
+    if(channelToCalibIdxs.size() == currentChannelsNum){
+        for(int i = 0; i < numOfBoards; i++){
+            vector<uint16_t>::iterator first = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i; // incluso
+            vector<uint16_t>::iterator last = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i + (numOfChannelsOnBoard); // escluso
+            vector<uint16_t> chanSubsetToCalibIdxs(first, last);
+            fileName = boardSerialNums[i] + QString(".csv");
+            prepareStuffToSaveOnCsv(path, fileName, chanSubsetToCalibIdxs);
         }
-        outFile.close();
-
     } else {
-        if (QDir().mkpath(path)) {
-            if (outFile.open(QFile::WriteOnly )) {
-                stream.setDevice(&outFile);
-                this->saveCsv(stream);
-                outFile.close();
-            }
+        /*! \todo ancora da fare nel caso si calibri una singola board*/
+        fileName = boardSerialNums[channelToCalibIdxs[0]/numOfChannelsOnBoard] + QString(".csv");
+        prepareStuffToSaveOnCsv(path, fileName, channelToCalibIdxs);
 
-        }
     }
+
 }
 
-void CalibrationConsumer::saveCsv(QTextStream &stream){
-    stream << this->getCsvData();
+void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName, vector<uint16_t> chanSubset){
+    QFile outFile(path + fileName);
+    QTextStream stream;
+
+        if (QDir().exists(path)) {
+            outFile.open(QFile::WriteOnly);
+            if (outFile.isOpen()) {
+                stream.setDevice(&outFile);
+                this->saveCsv(chanSubset, stream);
+            }
+            outFile.close();
+
+        } else {
+            if (QDir().mkpath(path)) {
+                if (outFile.open(QFile::WriteOnly )) {
+                    stream.setDevice(&outFile);
+                    this->saveCsv(chanSubset, stream);
+                    outFile.close();
+                }
+
+            }
+        }
 }
 
-QString CalibrationConsumer::getCsvData(){
+void CalibrationConsumer::saveCsv(vector<uint16_t> chanSubset, QTextStream &stream){
+    stream << this->getCsvData(chanSubset);
+}
+
+QString CalibrationConsumer::getCsvData(vector<uint16_t> chanSubset){
     QString ret;
     QTextStream stream(&ret);
     QString myCsvSeparator = ",";
-    stream << "Range" << myCsvSeparator << QString("%1").arg(vcCurrentRangesArray[0].max) << "\n";
-    for(int i = 0; i<gainADC[0].size(); i++){
-        stream << QString("%1").arg(gainADC[0][i], 0, 'f', 10) << myCsvSeparator;
+    stream << QString("%1").arg(boardSerialNums[chanSubset[0]/numOfChannelsOnBoard]) << "\n";
+    /*! loop on VC current ranges*/
+    for(int i = 0; i < vcCurrentRangesArray.size(); i++){
+        stream << QString("%1").arg(vcCurrentRangesArray[i].max) << "\n";
+        for(int j = 0; j < chanSubset.size(); j++){
+            if(gainADC[i].size()==currentChannelsNum){
+                /*! All channels calibration*/
+                stream << QString("%1").arg(gainADC[i][chanSubset[j]], 0, 'f', 10) << myCsvSeparator;
+            } else {
+                /*! One board channels calibration*/
+                stream << QString("%1").arg(gainADC[i][j], 0, 'f', 10) << myCsvSeparator;
+            }
+        }
+        stream << "\n";
+        for(int j = 0; j < chanSubset.size(); j++){
+            if(offsetADC[i].size()==currentChannelsNum){
+                /*! All channels calibration*/
+                stream << QString("%1").arg(offsetADC[i][chanSubset[j]], 0, 'f', 10) << myCsvSeparator;
+            } else {
+                /*! One board channels calibration*/
+                stream << QString("%1").arg(offsetADC[i][j], 0, 'f', 10) << myCsvSeparator;
+            }
+        }
+        stream << "\n";
     }
-    stream << "\n";
-//    stream << "Ciao:" << csvSeparator << QString("%1").arg(currentChannelIdx+1) << "\n";
+    /*! \todo bisogna adattare questa funzione e la calibrazione del DAC offset in caso ci siano più VC voltage ranges*/
+//    for(int i = 0; i < vcVoltageRangesArray.size(); i++){
+        stream << QString("%1").arg(vcVoltageRangesArray[0].max) << "\n";
+        for(int j = 0; j < chanSubset.size(); j++){
+            /*! \todo 30 decimali, solo per vedere qualcosa, questo numero sarà da ridurre*/
+            if(offsetDAC.size()==currentChannelsNum){
+                stream << QString("%1").arg(offsetDAC[chanSubset[j]], 0, 'f', 30) << myCsvSeparator;
+            } else {
+                stream << QString("%1").arg(offsetDAC[j], 0, 'f', 30) << myCsvSeparator;
+            }
+        }
+        stream << "\n";
+//    }
     return ret;
 
 
