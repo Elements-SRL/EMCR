@@ -18,6 +18,8 @@ public:
     CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer * producer);
     ~CalibrationConsumer();
 
+    void loadInitialCalibParams(QString path, QString mappingFileName);
+
 public slots:
     void onStartConsuming() override;
     void onStopConsuming() override;
@@ -45,7 +47,7 @@ private:
     std::vector<std::vector<double_t>> gainADC; // vettore di 2 vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> offsetADC; // vettore di 2 vettori_di_offset (Uno per range)
     std::vector <double_t> offsetDAC; // vettore di offset (questo non dipende dal range)
-    vector<uint16_t> channelToCalibIdxs; /*! \todo se vogliamo calibrare solo una scheda e non tutti i canali insieme. Calibrazione per schedda ancora da gestire */
+    vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
     int totalChannelsUnderCalibNum;
     QVector <double> buffer;
     int samplesToremove;
@@ -56,12 +58,19 @@ private:
     vector<bool> someFalse;
     double multiplierCurrent = 1.0;
 
-    vector<QString> boardSerialNums; /*! \todo da spostare in un posto migliore*/
+    /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
+    Measurement_t defaultAdcGainValue;
+    Measurement_t defaultAdcOffsetValue;
+    Measurement_t defaultDacOffsetValue;
 
+    vector<QString> boardSerialNums;
+    QString calibrationFilesFolder = "C:/EMCR_calib_folder/";
+    QString myCsvSeparator = ",";
 
 
     void run() override;
 
+    /*! SOME UTILITY FUNCTIONS*/
     void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
     void turnAllChannelsOnOff(bool onValue);
     void turnAllStimulaOnOff(bool onValue);
@@ -69,17 +78,22 @@ private:
     void turnSomeChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
 
+    /*! REAL CALIBRATION FUNCITIONS*/
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
     void calibrateAdcGain();
     void calibrateAdcOffset();
     void calibrateDacOffset();
 
-
-    /*! \todo primo tentativo di salvataggio su csv*/
+    /*! Interactions with CSV files*/
     void mainSaveOnCsv();
     void prepareStuffToSaveOnCsv(QString path, QString fileName, vector<uint16_t> chanSubset);
     void saveCsv(vector<uint16_t> chanSubset, QTextStream &stream);
+    void loadDefaultCalibParams(int channelsNum);
+    void extractBoardCalibDataFromCsv(QTextStream &boardStream);
     QString getCsvData(vector<uint16_t> chanSubset);
+
+signals:
+    void sigCalibLoadingMsg(QString calibLoadMsg);
 };
 
 #endif // CALIBRATIONCONSUMER_H

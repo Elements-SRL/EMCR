@@ -196,6 +196,7 @@ void ControllerMain::onMainWindowCreated() {
 
     /*! \todo at the moment only for debug mode*/
     connect(mainWindow, &MainWindow::sigPerformCalibration,              calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
+    connect(calibratorConsumer, &CalibrationConsumer::sigCalibLoadingMsg,   mainWindow, &MainWindow::onCalibLoadingMsg);
 
 
     /*! Plots durations */
@@ -214,6 +215,8 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->forceAxisUpdate();
     bigPlotConsumer->forceAxisUpdate();
 
+
+
     /*! \todo FCON questo potrebbe essere parametrizzato */
 
     vector<uint16_t> channelIndexes(currentChannelsNumber);
@@ -228,6 +231,8 @@ void ControllerMain::onMainWindowCreated() {
     bigPlotConsumer->setMaxSamplesPerPlot(4096);
     vector<bool> offValues(currentChannelsNumber, false);
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
+
+    calibratorConsumer->loadInitialCalibParams("C:/EMCR_calib_folder/", "boardMapping.csv");
 
     /*! Start threads */
     this->startProducerConsumers();

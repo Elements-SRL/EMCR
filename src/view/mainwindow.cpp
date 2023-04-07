@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include <QBoxLayout>
+#include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
 
@@ -517,4 +518,9 @@ void MainWindow::saveUISettings() {
 
     tag = settingsRoot + this->objectName() + "/state";
     settings.setValue(tag, this->saveState());
+}
+
+void MainWindow::onCalibLoadingMsg(QString msg){
+    QMessageBox msgBox;
+    msgBox.about(this, "Calibration info", msg);
 }

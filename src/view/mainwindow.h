@@ -40,6 +40,7 @@ public slots:
     void onDevicesListChanged(vector <string> devicesList);
     void onSetConnectedDeviceIdx(int idx);
     void onConnect(bool flag, ErrorCodes_t err);
+    void onCalibLoadingMsg(QString msg);
 
 private:
     void createGuiControls();
