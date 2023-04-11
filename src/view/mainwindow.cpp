@@ -303,7 +303,8 @@ void MainWindow::createGuiControls() {
     calibrationVl->addWidget(new QLabel("Board (0 all)"));
     QSpinBox * boardCalibSbx = new QSpinBox;
     boardCalibSbx->setRange(0, 24);
-    boardCalibSbx->setValue(0);
+//    boardCalibSbx->setValue(0);
+    boardCalibSbx->setSpecialValueText(tr("ALL BOARDS"));
     calibrationVl->addWidget(boardCalibSbx);
 
     QPushButton * calibrationAllApplyBtn = new QPushButton("Calibrate");
@@ -521,6 +522,11 @@ void MainWindow::saveUISettings() {
 }
 
 void MainWindow::onCalibLoadingMsg(QString msg){
+    QMessageBox msgBox;
+    msgBox.about(this, "Calibration info", msg);
+}
+
+void MainWindow::onManualCalibDoneMsg(QString msg){
     QMessageBox msgBox;
     msgBox.about(this, "Calibration info", msg);
 }

@@ -92,8 +92,11 @@ private:
     void extractBoardCalibDataFromCsv(QTextStream &boardStream);
     QString getCsvData(vector<uint16_t> chanSubset);
 
+    void convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas, vector<vector<Measurement_t>> &offsetAdcMeas, vector<Measurement_t> &offsetDacMeas);
+
 signals:
     void sigCalibLoadingMsg(QString calibLoadMsg);
+    void sigManualCalibDoneMsg(QString manualCalibDoneMsg);
 };
 
 #endif // CALIBRATIONCONSUMER_H

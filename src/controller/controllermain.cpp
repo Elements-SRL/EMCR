@@ -197,6 +197,7 @@ void ControllerMain::onMainWindowCreated() {
     /*! \todo at the moment only for debug mode*/
     connect(mainWindow, &MainWindow::sigPerformCalibration,              calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
     connect(calibratorConsumer, &CalibrationConsumer::sigCalibLoadingMsg,   mainWindow, &MainWindow::onCalibLoadingMsg);
+    connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,   mainWindow, &MainWindow::onManualCalibDoneMsg);
 
 
     /*! Plots durations */

@@ -41,6 +41,7 @@ public slots:
     void onSetConnectedDeviceIdx(int idx);
     void onConnect(bool flag, ErrorCodes_t err);
     void onCalibLoadingMsg(QString msg);
+    void onManualCalibDoneMsg(QString msg);
 
 private:
     void createGuiControls();

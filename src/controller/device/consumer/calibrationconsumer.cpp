@@ -144,6 +144,12 @@ void CalibrationConsumer::run(){
         mainSaveOnCsv();
 
         /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT*/
+        vector<vector<Measurement_t>> gainAdcMeas;
+        vector<vector<Measurement_t>> offsetAdcMeas;
+        vector<Measurement_t> offsetDacMeas;
+        gainAdcMeas.resize(vcCurrentRangesArray.size());
+        offsetAdcMeas.resize(vcCurrentRangesArray.size());
+        CalibrationConsumer::convertToMeasurement(gainAdcMeas, offsetAdcMeas, offsetDacMeas);
 
         /*! \todo FCON questa cosa va gestita un po' meglio */
         consumptionLock.relock();
@@ -518,10 +524,14 @@ void CalibrationConsumer::mainSaveOnCsv(){
             fileName = boardSerialNums[i] + QString(".csv");
             prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, chanSubsetToCalibIdxs);
         }
+        QString msg = "All boards manual calibration successfull!";
+        emit sigManualCalibDoneMsg(msg);
     } else {
         /*! calibro solo una board*/
         fileName = boardSerialNums[channelToCalibIdxs[0]/numOfChannelsOnBoard] + QString(".csv");
         prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, channelToCalibIdxs);
+        QString msg = "Board " + QString("%1").arg(1+channelToCalibIdxs[0]/numOfChannelsOnBoard) +" manual calibration successfull!";
+        emit sigManualCalibDoneMsg(msg);
 
     }
 
@@ -617,6 +627,12 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
     QStringList boardStringList;
     vector<bool> calibratedWithDefaultParams;
 
+    /*! all'inizio devo caricare i valori di calibrazione per tutti i canali (o dai file se li trovo o dai valori di defalut)*/
+    channelToCalibIdxs.resize(currentChannelsNum);
+    for(int i = 0; i< currentChannelsNum; i++){
+        channelToCalibIdxs[i] = i;
+    }
+
     if (!QDir().exists(path)) {
         QString msg = "Calibration directory " + path + " not found.\nDefault calibration parameters were loaded.";
         emit sigCalibLoadingMsg(msg);
@@ -686,6 +702,14 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
             }
         }
     }
+    /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT*/
+    vector<vector<Measurement_t>> gainAdcMeas;
+    vector<vector<Measurement_t>> offsetAdcMeas;
+    vector<Measurement_t> offsetDacMeas;
+    gainAdcMeas.resize(vcCurrentRangesArray.size());
+    offsetAdcMeas.resize(vcCurrentRangesArray.size());
+    CalibrationConsumer::convertToMeasurement(gainAdcMeas, offsetAdcMeas, offsetDacMeas);
+    channelToCalibIdxs.clear();
 }
 
 void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream){
@@ -737,5 +761,21 @@ void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream)
 
     tempVector.clear();
     tempList.clear();
+}
+
+/*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
+gainADC, offsetADC anf offsetDAC contain only the parameters corresponding to channelToCalibIdxs (i.e. all the 384 channels or the 16 channels
+belonging to the board under calibration) */
+void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas, vector<vector<Measurement_t>> &offsetAdcMeas, vector<Measurement_t> &offsetDacMeas){
+    /*! loop over ranges */
+    for(int iii = 0; iii < vcCurrentRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < channelToCalibIdxs.size(); jjj++){
+            gainAdcMeas[iii].push_back({gainADC[iii][jjj], UnitPfxNone, ""});
+            offsetAdcMeas[iii].push_back({offsetADC[iii][jjj], UnitPfxNone, "A"});
+        }
+    }
+    for(int jjj = 0; jjj < channelToCalibIdxs.size(); jjj++){
+        offsetDacMeas.push_back({offsetDAC[jjj], UnitPfxNone, "V"});
+    }
 }
 
