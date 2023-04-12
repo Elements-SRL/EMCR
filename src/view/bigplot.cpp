@@ -251,12 +251,10 @@ void BigPlot::onVertZoomFullRequest() {
 
 void BigPlot::onZoomOutRequest() {
     if (this->isEmptyZoomStack()) {
-        this->setAxisAutoScale(xBottom);
-        this->setAxisAutoScale(yLeft);
+        this->setAxisScale(yLeft, currentRange[yLeft].min, currentRange[yLeft].max);
         if (this->axisEnabled(yRight)) {
-            this->setAxisAutoScale(yRight);
+            this->setAxisScale(yRight, currentRange[yRight].min, currentRange[yRight].max);
         }
-        this->replot();
 
     } else {
         Rect4 r = this->popZoomStack();
@@ -276,12 +274,10 @@ void BigPlot::onZoomOutRequest() {
 
 void BigPlot::onZoomResetRequest() {
     if (this->isEmptyZoomStack()) {
-        this->setAxisAutoScale(xBottom);
-        this->setAxisAutoScale(yLeft);
+        this->setAxisScale(yLeft, currentRange[yLeft].min, currentRange[yLeft].max);
         if (this->axisEnabled(yRight)) {
-            this->setAxisAutoScale(yRight);
+            this->setAxisScale(yRight, currentRange[yRight].min, currentRange[yRight].max);
         }
-        this->replot();
 
     } else {
         Rect4 r = this->resetZoomStack();

@@ -32,6 +32,10 @@ BigPlotDockWidget::BigPlotDockWidget(ModelDevice * mDev, QWidget * parent) :
         voltageCurves[i]->setColor(QColor(Qt::red));
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
+
+    connect(plot, &BigPlot::zoomInRequest, plot, &BigPlot::onZoomInRequest);
+    connect(plot, &BigPlot::zoomOutRequest, plot, &BigPlot::onZoomOutRequest);
+    connect(plot, &BigPlot::zoomResetRequest, plot, &BigPlot::onZoomResetRequest);
 }
 
 void BigPlotDockWidget::clearCurves() {
