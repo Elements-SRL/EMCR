@@ -266,8 +266,12 @@ void ControllerMain::onMainWindowDestroyed() {
 
 void ControllerMain::onVcCurrentRangeSelected(int idx) {
     vector <RangedMeasurement_t> ranges;
-    mDev->getVcCurrentRangesFeatures(ranges);
-    mDev->setVcCurrentRange(ranges[idx]);
+    uint16_t notUsedDefaultVcCurrRangeIdx;
+    mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
+//    mDev->setVcCurrentRange(ranges[idx]);
+
+    /*! Invio dati a FPGA con massageDispatcher*/
+    calibratorConsumer->updateCalibParams();
 
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
@@ -281,7 +285,7 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
     vector <RangedMeasurement_t> ranges;
     mDev->getVcVoltageRangesFeatures(ranges);
-    mDev->setVcVoltageRange(ranges[idx]);
+//    mDev->setVcVoltageRange(ranges[idx]);
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
@@ -294,7 +298,7 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
 void ControllerMain::onSamplingRateSelected(int idx) {
     vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
-    mDev->setSamplingRate(samplingRates[idx]);
+//    mDev->setSamplingRate(samplingRates[idx]);
 
     for (auto consumer : consumers) {
         consumer->onSamplingRateChanged(mDev->getSamplingRate());

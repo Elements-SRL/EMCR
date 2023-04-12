@@ -225,8 +225,8 @@ ErrorCodes_t ModelDevice::getClampingModalitiesFeatures(vector<int> &clampingMod
     return ret;
 }
 
-ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures) {
-    return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures);
+ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures, uint16_t &defaultVcCurrRangeIdx) {
+    return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures, defaultVcCurrRangeIdx);
 }
 
 ErrorCodes_t ModelDevice::getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures){

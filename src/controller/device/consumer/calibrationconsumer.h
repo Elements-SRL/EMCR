@@ -19,6 +19,7 @@ public:
     ~CalibrationConsumer();
 
     void loadInitialCalibParams(QString path, QString mappingFileName);
+    void updateCalibParams();
 
 public slots:
     void onStartConsuming() override;
@@ -47,6 +48,11 @@ private:
     std::vector<std::vector<double_t>> gainADC; // vettore di 2 vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> offsetADC; // vettore di 2 vettori_di_offset (Uno per range)
     std::vector <double_t> offsetDAC; // vettore di offset (questo non dipende dal range)
+
+    std::vector<std::vector<double_t>> allGainADC; // vettore di 2 vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> allOffsetADC; // vettore di 2 vettori_di_offset (Uno per range)
+    std::vector <double_t> allOffsetDAC; // vettore di offset (questo non dipende dal range)
+
     vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
     int totalChannelsUnderCalibNum;
     QVector <double> buffer;
@@ -57,6 +63,7 @@ private:
     vector<bool> someTrue;
     vector<bool> someFalse;
     double multiplierCurrent = 1.0;
+    uint16_t defaultVcCurrRangeIdx;
 
     /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
     Measurement_t defaultAdcGainValue;

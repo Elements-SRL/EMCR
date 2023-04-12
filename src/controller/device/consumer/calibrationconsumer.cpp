@@ -13,7 +13,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     mDev->getSamplingRatesFeatures(aaa);
     calibrationSamplingRate = aaa[0];
 
-    mDev->getVcCurrentRangesFeatures(vcCurrentRangesArray);
+    mDev->getVcCurrentRangesFeatures(vcCurrentRangesArray, defaultVcCurrRangeIdx);
     mDev->getVcVoltageRangesFeatures(vcVoltageRangesArray);
 
     deviceUnderCalibrationType = mDev->getMessageDispatcher()->getDeviceType(mDev->getSerialNumber().toStdString(), ccc);
@@ -33,6 +33,15 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
 
     gainADC.resize(vcCurrentRangesArray.size());
     offsetADC.resize(vcCurrentRangesArray.size());
+
+    allGainADC.resize(vcCurrentRangesArray.size());
+    allOffsetADC.resize(vcCurrentRangesArray.size());
+
+    for(int i = 0; i< vcCurrentRangesArray.size(); i++){
+        allGainADC[i].resize(currentChannelsNum);
+        allOffsetADC[i].resize(currentChannelsNum);
+    }
+    allOffsetDAC.resize(currentChannelsNum);
 
     boardSerialNums.resize(numOfBoards);
 //    for(int i = 0; i < numOfBoards; i++){
@@ -105,13 +114,15 @@ void CalibrationConsumer::run(){
         mDev->getMessageDispatcher()->setSamplingRate(0, true);
         mDev->setSamplingRate(samplingRates[0]);
 
+        uint16_t bbb; //useless
+
         /*! FOR: START ciclo sui range*/
         for(int jjj = 0; jjj <vcCurrentRangesArray.size(); jjj++){
             rangeIdx = jjj;
 
             /*! setto il range di corrente per Voltage Clamp*/
             vector <RangedMeasurement_t> rangeInfo;
-            mDev->getVcCurrentRangesFeatures(rangeInfo);
+            mDev->getVcCurrentRangesFeatures(rangeInfo, bbb);
             mDev->getMessageDispatcher()->setVCCurrentRange(rangeIdx, true);
             multiplierCurrent = rangeInfo[rangeIdx].multiplier();
 
@@ -143,13 +154,22 @@ void CalibrationConsumer::run(){
         /*! salvo queste info su CSV la cui struttura deve essere ancora decisa. Forse un file per ciascuna scheda*/
         mainSaveOnCsv();
 
-        /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT*/
-        vector<vector<Measurement_t>> gainAdcMeas;
-        vector<vector<Measurement_t>> offsetAdcMeas;
-        vector<Measurement_t> offsetDacMeas;
-        gainAdcMeas.resize(vcCurrentRangesArray.size());
-        offsetAdcMeas.resize(vcCurrentRangesArray.size());
-        CalibrationConsumer::convertToMeasurement(gainAdcMeas, offsetAdcMeas, offsetDacMeas);
+        /*! AGGIORNO LE STRUTTURA IN CUI TENGO TUTTI I VALORI DI CALIBRAZIONE, allGainADC, allOffsetADc, allOffsetDAC*/
+        for(int zzz = 0; zzz < vcCurrentRangesArray.size(); zzz++){
+            for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
+                allGainADC[zzz][channelToCalibIdxs[xxx]] = gainADC[zzz][xxx];
+                allOffsetADC[zzz][channelToCalibIdxs[xxx]] = offsetADC[zzz][xxx];
+            }
+        }
+        for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
+            allOffsetDAC[channelToCalibIdxs[xxx]] = offsetDAC[xxx];
+        }
+
+        /*! ALLA FINE DI TUTTO SETTO IL VC CURRENT RANGE DI DEFAULT*/
+        mDev->getMessageDispatcher()->setVCCurrentRange(defaultVcCurrRangeIdx, true);
+
+        /*! Invio dati a FPGA con massageDispatcher*/
+        updateCalibParams();
 
         /*! \todo FCON questa cosa va gestita un po' meglio */
         consumptionLock.relock();
@@ -695,6 +715,14 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
                     }
                 }
 //                msg = msg + "calibrated with default parameters";
+
+                allGainADC = gainADC;
+                allOffsetADC = offsetADC;
+                allOffsetDAC = offsetDAC;
+
+
+                /*! Invio dati a FPGA con massageDispatcher*/
+                updateCalibParams();
                 emit sigCalibLoadingMsg(msg);
             } else {
                 QString msg = "Cannot open calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
@@ -702,14 +730,9 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
             }
         }
     }
-    /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT*/
-    vector<vector<Measurement_t>> gainAdcMeas;
-    vector<vector<Measurement_t>> offsetAdcMeas;
-    vector<Measurement_t> offsetDacMeas;
-    gainAdcMeas.resize(vcCurrentRangesArray.size());
-    offsetAdcMeas.resize(vcCurrentRangesArray.size());
-    CalibrationConsumer::convertToMeasurement(gainAdcMeas, offsetAdcMeas, offsetDacMeas);
-    channelToCalibIdxs.clear();
+
+    /*! tolto per problemi 12/04/2023 */
+    // channelToCalibIdxs.clear();
 }
 
 void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream){
@@ -769,13 +792,49 @@ belonging to the board under calibration) */
 void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas, vector<vector<Measurement_t>> &offsetAdcMeas, vector<Measurement_t> &offsetDacMeas){
     /*! loop over ranges */
     for(int iii = 0; iii < vcCurrentRangesArray.size(); iii++){
-        for(int jjj = 0; jjj < channelToCalibIdxs.size(); jjj++){
-            gainAdcMeas[iii].push_back({gainADC[iii][jjj], UnitPfxNone, ""});
-            offsetAdcMeas[iii].push_back({offsetADC[iii][jjj], UnitPfxNone, "A"});
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            gainAdcMeas[iii].push_back({allGainADC[iii][jjj], UnitPfxNone, ""});
+            offsetAdcMeas[iii].push_back({allOffsetADC[iii][jjj], UnitPfxNone, "A"});
         }
     }
-    for(int jjj = 0; jjj < channelToCalibIdxs.size(); jjj++){
-        offsetDacMeas.push_back({offsetDAC[jjj], UnitPfxNone, "V"});
+    for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+        offsetDacMeas.push_back({allOffsetDAC[jjj], UnitPfxNone, "V"});
     }
 }
 
+/*! \todo FCON recheck insieme a controllermain che updata calibration params quando si cambia range. Al momento funzion a perchè dopo la calibrazione di startup, non channelToCalibIdxs è mai vuoto
+Ricontrollare se ci sono problemi alla prima chiamata controllerMain in onVcCurrentRangeSelected
+*/
+void CalibrationConsumer::updateCalibParams(){
+    /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT PER TUTTI I CANALI*/
+    if(channelToCalibIdxs.size()==0){
+        return;
+    } else {
+        vector<vector<Measurement_t>> gainAdcMeas;
+        vector<vector<Measurement_t>> offsetAdcMeas;
+        vector<Measurement_t> offsetDacMeas;
+        vector<uint16_t> channelIndexes;
+
+        gainAdcMeas.resize(vcCurrentRangesArray.size());
+        offsetAdcMeas.resize(vcCurrentRangesArray.size());
+        convertToMeasurement(gainAdcMeas, offsetAdcMeas, offsetDacMeas);
+
+        for(int i = 0; i< currentChannelsNum; i++){
+            channelIndexes.push_back(i);
+        }
+
+        RangedMeasurement_t thisVcCurrentRange = mDev->getVcCurrentRange();
+        uint16_t thisVcCurrentRangeIdx;
+        for (int j = 0; j < vcCurrentRangesArray.size(); j++){
+            if(thisVcCurrentRange.max==vcCurrentRangesArray[j].max){
+                thisVcCurrentRangeIdx = j;
+            }
+        }
+
+            mDev->getMessageDispatcher()->setCalibVcCurrentGain(channelIndexes, gainAdcMeas[thisVcCurrentRangeIdx], true);
+            mDev->getMessageDispatcher()->setCalibVcCurrentOffset(channelIndexes, offsetAdcMeas[thisVcCurrentRangeIdx], true);
+    }
+
+
+
+}
