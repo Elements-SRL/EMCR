@@ -8,7 +8,7 @@
 
 #include "modeldevice.h"
 
-#define DDP_DATA_PACKETS_BUFFER_LEN 0x10000 // 64k
+#define DDP_DATA_PACKETS_BUFFER_LEN 0x100000 // 1M
 #define DDP_DATA_PACKETS_BUFFER_MASK (DDP_DATA_PACKETS_BUFFER_LEN-1)
 
 class DataHook;
