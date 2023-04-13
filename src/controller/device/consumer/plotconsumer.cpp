@@ -132,7 +132,7 @@ void PlotConsumer::updateTimeAxis() {
 
 void PlotConsumer::computeTimeAxis() {
     dataSize = qRound(sweepSamplingRateHz*sweepDuration);
-    minDataBatchSize = qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S);
+    minDataBatchSize = qMax(qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), DDP_DATA_PACKETS_BUFFER_LEN/4);
 
     subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;

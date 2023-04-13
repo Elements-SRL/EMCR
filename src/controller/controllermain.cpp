@@ -76,13 +76,15 @@ void ControllerMain::onConnect(bool flag) {
     if (flag) {
         MessageDispatcher * messageDispatcher;
         ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
-
-        mDev->setMessageDispatcher(messageDispatcher);
-        mDev->getChannelsNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
-        mDev->getBoardsNumberFeatures(boardsNumber);
-        mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
-
         bool connectionSuccessful = ret == Success;
+
+        if (connectionSuccessful) {
+            mDev->setMessageDispatcher(messageDispatcher);
+            mDev->getChannelsNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
+            mDev->getBoardsNumberFeatures(boardsNumber);
+            mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
+        }
+
         emit connectDevice(connectionSuccessful, ret);
         mDev->setConnected(connectionSuccessful);
 

@@ -5,7 +5,7 @@
 #include "devicedataconsumer.h"
 
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
-#define PCS_MIN_DATA_BATCH_DURATION_S (0.05) /*!< 0.05s */
+#define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
 
 class PlotConsumer : public DeviceDataConsumer {
     Q_OBJECT
