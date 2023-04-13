@@ -13,6 +13,8 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     int localNumOfBoards;
     mDev->getBoardsNumberFeatures(localNumOfBoards);
 
+    bool anyControlFlag = false;
+
     QWidget * bigMainWg = new QWidget();
     bigMainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     this->setWindowTitle("Board controls");
@@ -37,42 +39,53 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
         mainGridLayout->addWidget(new QLabel(channelLabel),i, 0);
     }
 
-    MySpinBox* gateSpinBox;
     RangedMeasurement_t gateRange;
-    mDev->getGateVoltagesTunerFeatures(gateRange);
-    QString gateUnit = QString().fromStdString(gateRange.getFullUnit());
-    for(int i = 1; i <= localNumOfBoards; i++){
-        gateSpinBox = new MySpinBox();
-        gateSpinBox->setSuffix(QString(" ") + gateUnit);
-        gateSpinBox->setRange(gateRange.min, gateRange.max);
-        gateSpinBox->setValue(0.0);
-        this->previousGateSpinBoxValues.push_back(gateSpinBox->value());
-        gateSpinBox->setDecimals(gateRange.decimals());
-        this->gateSpinBoxes.push_back(gateSpinBox);
-        mainGridLayout->addWidget(gateSpinBox,i, 1);
+    if (mDev->getGateVoltagesTunerFeatures(gateRange) == Success) {
+        anyControlFlag = true;
 
+        MySpinBox* gateSpinBox;
+        QString gateUnit = QString().fromStdString(gateRange.getFullUnit());
+        for(int i = 1; i <= localNumOfBoards; i++){
+            gateSpinBox = new MySpinBox();
+            gateSpinBox->setSuffix(QString(" ") + gateUnit);
+            gateSpinBox->setRange(gateRange.min, gateRange.max);
+            gateSpinBox->setValue(0.0);
+            this->previousGateSpinBoxValues.push_back(gateSpinBox->value());
+            gateSpinBox->setDecimals(gateRange.decimals());
+            this->gateSpinBoxes.push_back(gateSpinBox);
+            mainGridLayout->addWidget(gateSpinBox,i, 1);
+
+        }
     }
 
 
-    MySpinBox* sourceSpinBox;
     RangedMeasurement_t sourceRange;
-    mDev->getSourceVoltagesTunerFeatures(sourceRange);
-    QString sourceUnit = QString().fromStdString(sourceRange.getFullUnit());
-    for(int i = 1; i <= localNumOfBoards; i++){
-        sourceSpinBox = new MySpinBox();
-        sourceSpinBox->setSuffix(QString(" ") + sourceUnit);
-        sourceSpinBox->setRange(sourceRange.min, sourceRange.max);
-        sourceSpinBox->setValue(0.0);
-        this->previousSourceSpinBoxValues.push_back(sourceSpinBox->value());
-        sourceSpinBox->setDecimals(sourceRange.decimals());
-        this->sourceSpinBoxes.push_back(sourceSpinBox);
-        mainGridLayout->addWidget(sourceSpinBox,i, 2);
+    if (mDev->getSourceVoltagesTunerFeatures(sourceRange) == Success) {
+        anyControlFlag = true;
 
+        MySpinBox* sourceSpinBox;
+        QString sourceUnit = QString().fromStdString(sourceRange.getFullUnit());
+        for(int i = 1; i <= localNumOfBoards; i++){
+            sourceSpinBox = new MySpinBox();
+            sourceSpinBox->setSuffix(QString(" ") + sourceUnit);
+            sourceSpinBox->setRange(sourceRange.min, sourceRange.max);
+            sourceSpinBox->setValue(0.0);
+            this->previousSourceSpinBoxValues.push_back(sourceSpinBox->value());
+            sourceSpinBox->setDecimals(sourceRange.decimals());
+            this->sourceSpinBoxes.push_back(sourceSpinBox);
+            mainGridLayout->addWidget(sourceSpinBox,i, 2);
+
+        }
     }
 
     QPushButton* applyButton = new QPushButton("Apply");
     vLayout->addWidget(applyButton);
     connect(applyButton, &QPushButton::clicked, this, &BoardControlDockWidget::onApplyButtonClicked);
+
+    if (!anyControlFlag) {
+        this->setEnabled(false);
+        this->setVisible(false);
+    }
 }
 
 QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
