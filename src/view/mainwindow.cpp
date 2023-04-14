@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
+#include <QPushButton>
 
 #include "messagedispatcher.h"
 #include "elementslogowidget.h"
@@ -529,4 +530,19 @@ void MainWindow::onCalibLoadingMsg(QString msg){
 void MainWindow::onManualCalibDoneMsg(QString msg){
     QMessageBox msgBox;
     msgBox.about(this, "Calibration info", msg);
+}
+
+void MainWindow::onNeedToChangeModelCellMsg(QString msg){
+    QMessageBox msgBox;
+//    msgBox.about(this, "Calibration info", msg);
+//    QAbstractButton* btn =  msgBox.button(QMessageBox::Ok);
+
+//    connect((msgBox.button(QMessageBox::Ok), &QPushButton::clicked, this, [=] () {
+//        emit sigModelCellChanged(true);
+//    });
+    msgBox.setText(msg);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    if(msgBox.exec() == QMessageBox::Ok){
+        emit sigModelCellChanged(true);
+    }
 }

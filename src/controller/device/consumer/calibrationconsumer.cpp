@@ -1,5 +1,6 @@
 #include "calibrationconsumer.h"
 #include "messagedispatcher.h"
+#include "errormanager.h"
 
 #include <QTime>
 #include <QDebug>
@@ -140,6 +141,16 @@ void CalibrationConsumer::run(){
                     qui il carico deve essere staccato, staccato al  punto precedente, lo si può fare anche in maniera esplicita qui */
             calibrateAdcOffset();
             /*! END CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+            if(rangeIdx < vcCurrentRangesArray.size()-1){
+                QString msg = "Need to mount the model cell for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
+                emit sigNeedToChangeModelCellMsg(msg);
+                waitForModelCellChanged = true;
+                qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
+                while(waitForModelCellChanged){
+                    QThread::msleep(10);
+                }
+            }
+            qDebug() << "[CALIBRATIONCONSUMER] RIPARTO\n";
 
         /*! FOR: END ciclo sui range*/
         }
@@ -837,4 +848,10 @@ void CalibrationConsumer::updateCalibParams(){
 
 
 
+}
+
+void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
+    if(modelCellChanged){
+        waitForModelCellChanged = false;
+    }
 }

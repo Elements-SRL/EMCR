@@ -25,6 +25,7 @@ public slots:
     void onStartConsuming() override;
     void onStopConsuming() override;
     void onPerformCalibration(vector<uint16_t> channelsToCalibrateIdxs);
+    void onModelCellChanged(bool modelCellChanged);
 
     /*! \todo not really needed */
     void onSamplingRateChanged(Measurement_t samplingRate) override;
@@ -64,6 +65,7 @@ private:
     vector<bool> someFalse;
     double multiplierCurrent = 1.0;
     uint16_t defaultVcCurrRangeIdx;
+    bool waitForModelCellChanged = false;
 
     /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
     Measurement_t defaultAdcGainValue;
@@ -104,6 +106,7 @@ private:
 signals:
     void sigCalibLoadingMsg(QString calibLoadMsg);
     void sigManualCalibDoneMsg(QString manualCalibDoneMsg);
+    void sigNeedToChangeModelCellMsg(QString needToChangeModelCellMsg);
 };
 
 #endif // CALIBRATIONCONSUMER_H

@@ -198,6 +198,8 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow, &MainWindow::sigPerformCalibration,              calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
     connect(calibratorConsumer, &CalibrationConsumer::sigCalibLoadingMsg,   mainWindow, &MainWindow::onCalibLoadingMsg);
     connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,   mainWindow, &MainWindow::onManualCalibDoneMsg);
+    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,   mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
+    connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
 
 
     /*! Plots durations */

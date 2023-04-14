@@ -42,6 +42,7 @@ public slots:
     void onConnect(bool flag, ErrorCodes_t err);
     void onCalibLoadingMsg(QString msg);
     void onManualCalibDoneMsg(QString msg);
+    void onNeedToChangeModelCellMsg(QString msg);
 
 private:
     void createGuiControls();
@@ -87,5 +88,6 @@ signals:
     void setDebugWord(int word, int value);
     void debugInitialization();
     void sigPerformCalibration(vector<uint16_t> channelsToCalibrateIdxs);
+    void sigModelCellChanged(bool modelCellChanged);
 };
 #endif // MAINWINDOW_H
