@@ -276,6 +276,7 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
     }
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
+    mainWindow->getChannelControlsDockWidget()->onVcVoltageRangeSelected(idx);
 
     /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
 }

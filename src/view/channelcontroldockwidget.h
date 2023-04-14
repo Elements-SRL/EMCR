@@ -23,6 +23,7 @@ public:
 public slots:
     void onUpdate();
     void onSigRecording(bool state);
+    void onVcVoltageRangeSelected(int idx);
 
 private:
     typedef enum Operations {
@@ -62,6 +63,7 @@ private:
 private slots:
     void onOperationSelected(int operationIdx);
     void onApplyButtonClicked();
+    void onApplyButtonClicked(int idx, bool applyAll);
     void onCheckAllButtonClicked();
     void onUncheckAllButtonClicked();
     void onSetAllButtonClicked();
