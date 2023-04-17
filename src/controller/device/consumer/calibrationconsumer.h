@@ -11,6 +11,8 @@
 #include <QFile>
 #include <QDir>
 #include <QString>
+#include <QMutex>
+#include <QMutexLocker>
 
 class CalibrationConsumer : public DeviceDataConsumer {
     Q_OBJECT
@@ -68,6 +70,7 @@ private:
     uint16_t defaultVcCurrRangeIdx;
     bool waitForModelCellChanged = false;
     bool waitForFirstModelCellChecked = false;
+    QMutex popUpWindowMtx;
 
     /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
     Measurement_t defaultAdcGainValue;

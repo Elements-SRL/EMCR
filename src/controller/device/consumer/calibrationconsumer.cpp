@@ -125,7 +125,12 @@ void CalibrationConsumer::run(){
         waitForFirstModelCellChecked = true;
         emit sigNeedToCheckFirstModelCellMsg(msg);
         qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
-        while(waitForFirstModelCellChecked){
+        while(true){
+            QMutexLocker myLock(&popUpWindowMtx);
+            if(!waitForFirstModelCellChecked){
+                break;
+            }
+            myLock.unlock();
             QThread::msleep(10);
         }
 
@@ -158,7 +163,12 @@ void CalibrationConsumer::run(){
                 waitForModelCellChanged = true;
                 emit sigNeedToChangeModelCellMsg(msg);
                 qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
-                while(waitForModelCellChanged){
+                while(true){
+                    QMutexLocker myLock(&popUpWindowMtx);
+                    if(!waitForModelCellChanged){
+                        break;
+                    }
+                    myLock.unlock();
                     QThread::msleep(10);
                 }
             }
@@ -864,12 +874,14 @@ void CalibrationConsumer::updateCalibParams(){
 
 void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
     if(modelCellChanged){
+        QMutexLocker myLock(&popUpWindowMtx);
         waitForModelCellChanged = false;
     }
 }
 
 void CalibrationConsumer::onFirstModelMounted(bool firstModelCellMounted){
     if(firstModelCellMounted){
+        QMutexLocker myLock(&popUpWindowMtx);
         waitForFirstModelCellChecked = false;
     }
 }
