@@ -265,3 +265,8 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
     }
     return true;
 }
+
+void DataHook::flush() {
+    QMutexLocker locker(&dataMtx);
+    dataIdx = dataPacketsIdx;
+}

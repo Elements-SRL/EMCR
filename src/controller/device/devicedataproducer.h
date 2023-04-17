@@ -66,6 +66,7 @@ public:
     void setInitialOffset(unsigned int offset);
     bool getDataChunk(QVector <unsigned short> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
     bool getDataChunk(QVector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    void flush();
 
 protected:
     int voltageChannelsNum;
