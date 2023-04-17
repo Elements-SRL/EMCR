@@ -8,6 +8,8 @@
 #include "stampplot.h"
 #include "curve.h"
 #include "myleftrightmousepushbutton.h"
+#include "channeloverviewwidget.h"
+#include "livenoiseconsumer.h"
 
 class Chessboard : public QWidget {
     Q_OBJECT
@@ -23,6 +25,7 @@ public slots:
     void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber);
     void onReplot();
     void onSelectedPlotsUdpated();
+    void onNoiseValueUpdated(LiveNoiseConsumer::Result_t result);
 
 private:
     ModelDevice * mDev = nullptr;
@@ -32,6 +35,7 @@ private:
     QVector <MyLeftRightMousePushButton *> rowSelectors;
     QVector <StampPlot *> plots;
     QVector <Curve *> currentCurves;
+    QVector <ChannelOverviewWidget *> overviewWidgets;
 
     int voltageChannelsNum;
     int currentChannelsNum;

@@ -138,6 +138,9 @@ void ControllerMain::onMainWindowCreated() {
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
+    liveNoiseConsumer = new LiveNoiseConsumer(mDev, deviceDataProducer);
+    consumers.append(liveNoiseConsumer);
+
     /***********\
      * Connect *
     \***********/
@@ -184,6 +187,15 @@ void ControllerMain::onMainWindowCreated() {
         mDev->getMessageDispatcher()->initializeDevice();
     });
 
+    connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, this, [=] (double value) {
+        if (value > 1.0e6) {
+            mainWindow->SRLbl->setText(QString("%1 Msps").arg(value/1.0e6));
+
+        } else {
+            mainWindow->SRLbl->setText(QString("%1 ksps").arg(value/1.0e3));
+        }
+    });
+
     connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
     connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   mainWindow->getChessaboard(), &Chessboard::onReplot);
 
@@ -192,6 +204,8 @@ void ControllerMain::onMainWindowCreated() {
 
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording,               mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onSigRecording);
+
+    connect(liveNoiseConsumer, &LiveNoiseConsumer::sigResult,   mainWindow->getChessaboard(), &Chessboard::onNoiseValueUpdated);
 
     /*! Plots durations */
     /*! \todo FCON Capire come gestire le durate dei plot */
@@ -307,6 +321,7 @@ void ControllerMain::startProducerConsumers() {
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();
     bigPlotConsumer->onStartConsuming();
+    liveNoiseConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
 void ControllerMain::stopAndDestroyProducerConsumers() {
@@ -326,6 +341,12 @@ void ControllerMain::stopAndDestroyProducerConsumers() {
         abfDataWriterConsumer->onStopConsuming();
         delete abfDataWriterConsumer;
         abfDataWriterConsumer = nullptr;
+    }
+
+    if (liveNoiseConsumer!= nullptr) {
+        liveNoiseConsumer->onStopConsuming();
+        delete liveNoiseConsumer;
+        liveNoiseConsumer = nullptr;
     }
 
     if (deviceDataProducer!= nullptr) {

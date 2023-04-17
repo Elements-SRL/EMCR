@@ -36,6 +36,8 @@ public:
     BoardControlDockWidget * getBoardControlsDockWidget();
     RecordSettingsDialog * getRecordSettingsDialog();
 
+    QLabel * SRLbl = nullptr;
+
 public slots:
     void onDevicesListChanged(vector <string> devicesList);
     void onSetConnectedDeviceIdx(int idx);

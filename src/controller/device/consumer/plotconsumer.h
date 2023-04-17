@@ -1,6 +1,9 @@
 #ifndef PLOTCONSUMER_H
 #define PLOTCONSUMER_H
 
+#include <QFile>
+#include <QTextStream>
+
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
 
@@ -82,6 +85,9 @@ protected:
 
     int subSamplingRatio = 1;
     int subSamplingIdx = 0;
+
+    QFile logFile;
+    QTextStream logStream;
 
 signals:
     void voltageRangeUpdated(RangedMeasurement_t range);

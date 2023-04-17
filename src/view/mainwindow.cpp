@@ -80,6 +80,9 @@ MainWindow::MainWindow(QWidget * parent) :
     connectBtn->setCheckable(true);
     deviceDetectorHl->addWidget(connectBtn);
 
+    SRLbl = new QLabel;
+    deviceDetectorHl->addWidget(SRLbl);
+
     deviceDetectorHl->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
 }
 

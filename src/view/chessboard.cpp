@@ -1,6 +1,7 @@
 #include "chessboard.h"
 
 #include <QBoxLayout>
+#include <QComboBox>
 
 #include "globaldefines.h"
 
@@ -19,12 +20,18 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     mainGl->setSpacing(1);
     this->setLayout(mainGl);
 
+    QComboBox * visualizationCbx = new QComboBox;
+    visualizationCbx->addItem("Plot Overview");
+    visualizationCbx->addItem("Noise Overview");
+
+    mainGl->addWidget(visualizationCbx, 0, 0, 1, -1);
+
     allChannelsSelector = new MyLeftRightMousePushButton();
     allChannelsSelector->setText("ALL");
     allChannelsSelector->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
     connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &Chessboard::allChannelsClicked);
 
-    mainGl->addWidget(allChannelsSelector, 0, 0);
+    mainGl->addWidget(allChannelsSelector, 1, 0);
 
     boardSelectors.resize(boardsNum);
     for (int boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
@@ -35,7 +42,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
             emit oneBoardClicked(boardIdx, selected);
         });
 
-        mainGl->addWidget(btn, 0, boardIdx+1);
+        mainGl->addWidget(btn, 1, boardIdx+1);
         boardSelectors[boardIdx] = btn;
     }
 
@@ -48,34 +55,60 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
             emit oneRowClicked(rowIdx, selected);
         });
 
-        mainGl->addWidget(btn, rowIdx+1, 0);
+        mainGl->addWidget(btn, rowIdx+2, 0);
         rowSelectors[rowIdx] = btn;
     }
 
     int boardIdx = 0;
     int rowIdx = 0;
+
+    overviewWidgets.resize(currentChannelsNum);
+
     plots.resize(currentChannelsNum);
     currentCurves.resize(currentChannelsNum);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        StampPlot * plot = new StampPlot();
-        plot->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
-        plot->setToolTip(QString("Ch %1\nRight click: select\nLeft click: deselect").arg(channelIdx+1));
-        plot->setSelected(false);
-        connect(plot, &StampPlot::clicked, this, [=] (bool selected) {
+        ChannelOverviewWidget * wid = new ChannelOverviewWidget;
+        wid->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+        wid->setChannelIndex(channelIdx);
+
+
+        connect(wid, &ChannelOverviewWidget::clicked, this, [=] (bool selected) {
             emit singleChannelClicked(channelIdx, selected);
         });
 
-        mainGl->addWidget(plot, rowIdx+1, boardIdx+1);
+        connect(visualizationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int idx) {
+            wid->setVisualizationOption((ChannelOverviewWidget::VisualizationOption_t)idx);
+        });
+
+        mainGl->addWidget(wid, rowIdx+2, boardIdx+1);
         rowIdx++;
         if (rowIdx == channelsPerBoard) {
             rowIdx = 0;
             boardIdx++;
         }
+        overviewWidgets[channelIdx] = wid;
+
+
+
+        /*! buttare in una funziioncina di creazione del plot*/
+        StampPlot * plot = new StampPlot();
+        plot->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+        plot->setToolTip(QString("Ch %1\nRight click: select\nLeft click: deselect").arg(channelIdx+1));
+        plot->setSelected(false);
+
+
         plots[channelIdx] = plot;
 
         Curve * curve = new Curve(CurveType_t::CurveTypeStampPlotSolid);
         curve->attach(plot);
         currentCurves[channelIdx] = curve;
+
+        wid->setStampPlot(plot);
+
+
+
+
+        wid->setVisualizationOption(ChannelOverviewWidget::Plot);
     }
 }
 
@@ -117,5 +150,11 @@ void Chessboard::onSelectedPlotsUdpated() {
     QVector <bool> selectedChannels = mDev->getSelectedChannelsIdxs();
     for(int ii = 0; ii < currentChannelsNum; ii++){
         plots[ii]->setSelected(selectedChannels[ii]);
+    }
+}
+
+void Chessboard::onNoiseValueUpdated(LiveNoiseConsumer::Result_t result) {
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        overviewWidgets[channelIdx]->setNoiseValue({result.stdCurrent[channelIdx], UnitPfxNone, "A"});
     }
 }

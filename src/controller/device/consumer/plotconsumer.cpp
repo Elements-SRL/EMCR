@@ -13,10 +13,15 @@ PlotConsumer::PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
 
     selectedChannels.resize(currentChannelsNum);
     selectedChannels.fill(true);
+
+
+    logFile.setFileName(QString("log%1.txt").arg((unsigned int)this));
+    logFile.open(QFile::WriteOnly | QFile::Truncate);
+    logStream.setDevice(&logFile);
 }
 
 PlotConsumer::~PlotConsumer() {
-
+    logFile.close();
 }
 
 void PlotConsumer::forceAxisUpdate() {
@@ -136,6 +141,16 @@ void PlotConsumer::computeTimeAxis() {
 
     subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;
+
+#ifdef GLB_SHOW_DEBUG_CTRLS
+    logStream << "sweepSamplingRateHz " << sweepSamplingRateHz;
+    logStream << " --- sweepDuration " << sweepDuration;
+    logStream << " --- initial dataSize " << qRound(sweepSamplingRateHz*sweepDuration);
+    logStream << " --- final dataSize " << dataSize;
+    logStream << " --- minDataBatchSize " << minDataBatchSize;
+    logStream << " --- subSamplingRatio " << subSamplingRatio;
+    logStream << " --- maxSamples " << maxSamples << endl;
+#endif
 
     subSamplingIdx = 0;
 
@@ -267,7 +282,6 @@ void GapFreePlotConsumer::run() {
             }
 
         } else {
-            /*! \todo FCON al momento questa cosa non accade mai, getDataChunk ritorna sempre true */
             break;
         }
     }

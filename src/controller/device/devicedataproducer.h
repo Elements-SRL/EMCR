@@ -8,7 +8,7 @@
 
 #include "modeldevice.h"
 
-#define DDP_DATA_PACKETS_BUFFER_LEN 0x40000 // 250k
+#define DDP_DATA_PACKETS_BUFFER_LEN 0x40000 // 250k /*! \todo questo valore va abbassato, i plotconsumer prendono troppa memoria */
 #define DDP_DATA_PACKETS_BUFFER_MASK (DDP_DATA_PACKETS_BUFFER_LEN-1)
 #define DDP_MAX_WAIT_COUNT (10)
 

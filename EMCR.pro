@@ -25,6 +25,7 @@ SOURCES += \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
+    src/view/channeloverviewwidget.cpp \
     src/view/bigplot.cpp \
     src/view/bigplotdockwidget.cpp \
     src/view/curve.cpp \
@@ -46,6 +47,7 @@ SOURCES += \
     src/controller/device/consumer/plotconsumer.cpp \
     src/controller/device/consumer/datawriterconsumer.cpp \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
+    src/controller/device/consumer/livenoiseconsumer.cpp \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp \
@@ -56,6 +58,7 @@ HEADERS += \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
+    src/view/channeloverviewwidget.h \
     src/view/bigplot.h \
     src/view/bigplotdockwidget.h \
     src/view/curve.h \
@@ -77,6 +80,7 @@ HEADERS += \
     src/controller/device/consumer/plotconsumer.h \
     src/controller/device/consumer/datawriterconsumer.h \
     src/controller/device/consumer/abfdatawriterconsumer.h \
+    src/controller/device/consumer/livenoiseconsumer.h \
     src/model/modeldevice.h \
     src/model/modelboard.h \
     src/model/modelchannel.h \
