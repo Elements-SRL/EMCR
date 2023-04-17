@@ -137,7 +137,7 @@ void PlotConsumer::updateTimeAxis() {
 
 void PlotConsumer::computeTimeAxis() {
     dataSize = qRound(sweepSamplingRateHz*sweepDuration);
-    minDataBatchSize = qMin(qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), DDP_DATA_PACKETS_BUFFER_LEN/4);
+    minDataBatchSize = qMin(qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), DDP_DATA_PACKETS_BUFFER_LEN/16);
 
     subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;
@@ -280,9 +280,6 @@ void GapFreePlotConsumer::run() {
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
             }
-
-        } else {
-            break;
         }
     }
     emit plotDataUpdated();

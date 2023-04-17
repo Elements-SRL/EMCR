@@ -163,7 +163,7 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
         dataCv.wait(&dataMtx, 100);
     }
 
-    if (waitCount == DDP_MAX_WAIT_COUNT) {
+    if (waitCount >= DDP_MAX_WAIT_COUNT) {
         return false;
     }
 
@@ -199,7 +199,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
         dataCv.wait(&dataMtx, 100);
     }
 
-    if (waitCount == DDP_MAX_WAIT_COUNT) {
+    if (waitCount >= DDP_MAX_WAIT_COUNT) {
         return false;
     }
 
