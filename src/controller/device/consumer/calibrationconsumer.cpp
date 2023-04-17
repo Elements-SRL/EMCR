@@ -142,7 +142,7 @@ void CalibrationConsumer::run(){
             calibrateAdcOffset();
             /*! END CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             if(rangeIdx < vcCurrentRangesArray.size()-1){
-                QString msg = "Need to mount the model cell for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
+                QString msg = "Need to mount the model cell " + QString::fromStdString(calibratonResistances[rangeIdx].niceLabel()) + " for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
                 emit sigNeedToChangeModelCellMsg(msg);
                 waitForModelCellChanged = true;
                 qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
