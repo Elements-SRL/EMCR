@@ -155,11 +155,18 @@ void DataHook::setInitialOffset(unsigned int offset) {
 }
 
 bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
+    int waitCount = 0;
     QMutexLocker locker(&dataMtx);
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx)&DDP_DATA_PACKETS_BUFFER_MASK) <= (DDP_DATA_PACKETS_BUFFER_LEN >> 1)) &&
-           (!exitedDataProducingLoop)) {
+           (!exitedDataProducingLoop) &&
+           waitCount++ < DDP_MAX_WAIT_COUNT) {
         dataCv.wait(&dataMtx, 100);
     }
+
+    if (waitCount == DDP_MAX_WAIT_COUNT) {
+        return false;
+    }
+
     unsigned int dataPacketsMax = dataPacketsIdx;
     locker.unlock();
 
@@ -184,11 +191,18 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
 }
 
 bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+    int waitCount = 0;
     QMutexLocker locker(&dataMtx);
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx)&DDP_DATA_PACKETS_BUFFER_MASK) <= (DDP_DATA_PACKETS_BUFFER_LEN >> 1)) &&
-           (!exitedDataProducingLoop)) {
+           (!exitedDataProducingLoop) &&
+           waitCount++ < DDP_MAX_WAIT_COUNT) {
         dataCv.wait(&dataMtx, 100);
     }
+
+    if (waitCount == DDP_MAX_WAIT_COUNT) {
+        return false;
+    }
+
     unsigned int dataPacketsMax = dataPacketsIdx;
     locker.unlock();
 
