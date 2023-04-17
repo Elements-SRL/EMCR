@@ -83,14 +83,11 @@ void ControllerMain::onConnect(bool flag) {
             mDev->getChannelsNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
             mDev->getBoardsNumberFeatures(boardsNumber);
             mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
+            emit stopDetecting();
         }
 
         emit connectDevice(connectionSuccessful, ret);
         mDev->setConnected(connectionSuccessful);
-
-        if (connectionSuccessful) {
-            emit stopDetecting();
-        }
 
     } else {
         this->stopAndDestroyProducerConsumers();
