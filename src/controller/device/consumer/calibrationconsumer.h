@@ -4,6 +4,7 @@
 #define CCS_CALIB_INTERVAL_IN_S 1
 #define CCS_CALIB_INTERVAL_TO_REMOVE_IN_S 0.1
 #define CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY 3
+#define CCS_CALIBRATION_DEFAULT_PATH "C:/EMCR_calib_folder/"
 
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
@@ -78,7 +79,7 @@ private:
     Measurement_t defaultDacOffsetValue;
 
     vector<QString> boardSerialNums;
-    QString calibrationFilesFolder = "C:/EMCR_calib_folder/";
+    QString calibrationFilesFolder = CCS_CALIBRATION_DEFAULT_PATH;
     QString myCsvSeparator = ",";
 
 

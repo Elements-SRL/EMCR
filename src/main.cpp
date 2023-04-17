@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationName(GLB_SOFTWARE_NAME);
 
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
+    QDir().mkpath(CCS_CALIBRATION_DEFAULT_PATH);
 
     ControllerMain c;
     MainWindow w;
