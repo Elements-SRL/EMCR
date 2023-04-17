@@ -88,13 +88,11 @@ public:
     SpinBoxWithChannel(int idx, MySpinBox * sbx);
     SpinBoxWithChannel(QString title, MySpinBox * sbx);
 
-    double value();
-    void setValue(double value);
+    MySpinBox * getSpinBox();
 
 private:
     QLabel * channelLbl;
     MySpinBox * valueSbx;
-
 };
 
 #endif // CHANNELCONTROLDOCKWIDGET_H

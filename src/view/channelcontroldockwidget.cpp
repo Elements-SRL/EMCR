@@ -152,7 +152,7 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
         for (int i = 0; i<selectedIndexes.size(); i++) {
             vHoldSpinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationIdx][i]);
             if (selectedIndexes.at(i)) {
-                Measurement_t myMeasurementValue = {vHoldSpinBox->value(), UnitPfxMilli, "V"};
+                Measurement_t myMeasurementValue = {vHoldSpinBox->getSpinBox()->value(), UnitPfxMilli, "V"};
                 values.push_back(myMeasurementValue);
                 indexes.push_back(i);
             }
@@ -228,7 +228,7 @@ void ChannelControlDockWidget::onSetAllButtonClicked() {
     for (int i = 0; i<selectedIndexes.size(); i++) {
         spinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationCbx->currentIndex()][i]);
         if (selectedIndexes.at(i)) {
-            spinBox->setValue(this->setAllVholdSpinBox->value());
+            spinBox->getSpinBox()->setValue(this->setAllVholdSpinBox->getSpinBox()->value());
         }
     }
 }
@@ -287,7 +287,7 @@ void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     vector <RangedMeasurement_t> ranges;
     mDev->getVoltageHoldTunerFeatures(ranges);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        QDoubleSpinBox * sbx = static_cast <QDoubleSpinBox *> (operationEdits[OperationHoldingStimulus][channelIdx]);
+        MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
         sbx->setRange(ranges[idx].min, ranges[idx].max);
         sbx->setDecimals(ranges[idx].decimals());
     }
@@ -473,10 +473,6 @@ SpinBoxWithChannel::SpinBoxWithChannel(QString title, MySpinBox * sbx) :
     hl->addWidget(sbx);
 }
 
-double SpinBoxWithChannel::value() {
-    return valueSbx->value();
-}
-
-void SpinBoxWithChannel::setValue(double value) {
-    return valueSbx->setValue(value);
+MySpinBox * SpinBoxWithChannel::getSpinBox() {
+    return valueSbx;
 }
