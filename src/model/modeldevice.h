@@ -65,7 +65,7 @@ public:
     ErrorCodes_t getBoardsNumberFeatures(int &boardNum);
     ErrorCodes_t getClampingModalitiesFeatures(vector<int> &clampingModalitiesFeatures);
 
-    ErrorCodes_t getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures);
+    ErrorCodes_t getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures, uint16_t &defaultVcCurrRangeIdx);
     ErrorCodes_t getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures);
     ErrorCodes_t getCcCurrentRangesFeatures(vector <RangedMeasurement_t> &ccCurrentRangesFeatures);
     ErrorCodes_t getCcVoltageRangesFeatures(vector <RangedMeasurement_t> &ccVoltageRangesFeatures);
@@ -74,6 +74,9 @@ public:
 
     ErrorCodes_t getVoltageStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
     ErrorCodes_t getCurrentStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
+
+    ErrorCodes_t getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures);
+    ErrorCodes_t getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures);
     //---------------------------------------------/
 
 private:

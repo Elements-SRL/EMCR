@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 
 #include <QBoxLayout>
+#include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
+#include <QPushButton>
 
 #include "messagedispatcher.h"
 #include "elementslogowidget.h"
@@ -285,6 +287,69 @@ void MainWindow::createGuiControls() {
     debugVl->addWidget(degugInitializeBtn);
     connect(degugInitializeBtn, &QPushButton::clicked, this, &MainWindow::debugInitialization);
 
+
+
+    /*! ------------------------------------------------------------ */
+    QDockWidget * calibrationDw = new QDockWidget();
+    calibrationDw->setObjectName("calibrationDw");
+    calibrationDw->setWindowTitle("Calibration");
+    this->addDockWidget(Qt::RightDockWidgetArea, calibrationDw);
+    dockWidgets.append(calibrationDw);
+
+    calibrationDw->setFloating(true);
+
+    QWidget * calibrationWid = new QWidget;
+    calibrationDw->setWidget(calibrationWid);
+
+    QVBoxLayout * calibrationVl = new QVBoxLayout;
+    calibrationWid->setLayout(calibrationVl);
+
+    calibrationVl->addWidget(new QLabel("Board (0 all)"));
+    QSpinBox * boardCalibSbx = new QSpinBox;
+    boardCalibSbx->setRange(0, 24);
+//    boardCalibSbx->setValue(0);
+    boardCalibSbx->setSpecialValueText(tr("ALL BOARDS"));
+    calibrationVl->addWidget(boardCalibSbx);
+
+    QPushButton * calibrationAllApplyBtn = new QPushButton("Calibrate");
+    calibrationAllApplyBtn->setCheckable(false);
+    calibrationVl->addWidget(calibrationAllApplyBtn);
+
+//    QPushButton * calibrationBoardApplyBtn = new QPushButton("Calibrate board 2");
+//    calibrationBoardApplyBtn->setCheckable(false);
+//    calibrationVl->addWidget(calibrationBoardApplyBtn);
+
+    connect(calibrationAllApplyBtn, &QPushButton::clicked, this, [=] () {
+        vector<uint16_t> channelsToCalibrateIdxs;
+        //------------------------
+        if(boardCalibSbx->value() == 0){
+            for(int i = 0; i < currentChannelsNum; i++){
+                channelsToCalibrateIdxs.push_back(i);
+            }
+        } else {
+            for(int i = 16*(boardCalibSbx->value()-1); i < 16*(boardCalibSbx->value()-1) + 16; i++){
+                channelsToCalibrateIdxs.push_back(i);
+            }
+
+        }
+        //------------------------
+//        for(int i = 0; i < currentChannelsNum; i++){
+//            channelsToCalibrateIdxs.push_back(i);
+//        }
+        emit sigPerformCalibration(channelsToCalibrateIdxs);
+    });
+
+
+//    connect(calibrationBoardApplyBtn, &QPushButton::clicked, this, [=] () {
+//        vector<uint16_t> channelsToCalibrateIdxs;
+//        for(int i = 16; i < 32; i++){
+//            channelsToCalibrateIdxs.push_back(i);
+//        }
+//        emit sigPerformCalibration(channelsToCalibrateIdxs);
+//    });
+
+    /*! ------------------------------------------------------------ */
+
 #endif
 
     actionRecordingSettings->setEnabled(true);
@@ -459,3 +524,32 @@ void MainWindow::saveUISettings() {
     tag = settingsRoot + this->objectName() + "/state";
     settings.setValue(tag, this->saveState());
 }
+
+void MainWindow::onCalibLoadingMsg(QString msg){
+    QMessageBox msgBox;
+    msgBox.about(this, "Calibration info", msg);
+}
+
+void MainWindow::onManualCalibDoneMsg(QString msg){
+    QMessageBox msgBox;
+    msgBox.about(this, "Calibration info", msg);
+}
+
+void MainWindow::onNeedToChangeModelCellMsg(QString msg){
+    QMessageBox msgBox;
+    msgBox.setText(msg);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    if(msgBox.exec() == QMessageBox::Ok){
+        emit sigModelCellChanged(true);
+    }
+}
+
+void MainWindow::onNeedToCheckFirstModelCellMsg(QString msg){
+    QMessageBox msgBox;
+    msgBox.setText(msg);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    if(msgBox.exec() == QMessageBox::Ok){
+        emit sigFirstModelMounted(true);
+    }
+}
+

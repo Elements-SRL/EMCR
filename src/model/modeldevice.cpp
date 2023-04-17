@@ -225,8 +225,8 @@ ErrorCodes_t ModelDevice::getClampingModalitiesFeatures(vector<int> &clampingMod
     return ret;
 }
 
-ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures) {
-    return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures);
+ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures, uint16_t &defaultVcCurrRangeIdx) {
+    return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures, defaultVcCurrRangeIdx);
 }
 
 ErrorCodes_t ModelDevice::getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures){
@@ -251,5 +251,13 @@ ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(vector <Measurement_t> 
 
 ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <Measurement_t> &currentFilterOptions){
     return this->messageDispatcher->getCurrentStimulusLpfs(currentFilterOptions);
+}
+
+ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures){
+    return this->messageDispatcher->getVcCalibVoltStepsFeatures(calibVcVoltStepsFeatures);
+}
+
+ErrorCodes_t ModelDevice::getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures){
+    return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
 }
 //---------------------------------------------/

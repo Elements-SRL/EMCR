@@ -140,6 +140,9 @@ void ControllerMain::onMainWindowCreated() {
 
     liveNoiseConsumer = new LiveNoiseConsumer(mDev, deviceDataProducer);
     consumers.append(liveNoiseConsumer);
+    
+    calibratorConsumer = new CalibrationConsumer(mDev, deviceDataProducer);
+    consumers.append(calibratorConsumer);
 
     /***********\
      * Connect *
@@ -207,6 +210,18 @@ void ControllerMain::onMainWindowCreated() {
 
     connect(liveNoiseConsumer, &LiveNoiseConsumer::sigResult,   mainWindow->getChessaboard(), &Chessboard::onNoiseValueUpdated);
 
+    /*! \todo at the moment only for debug mode*/
+    connect(mainWindow, &MainWindow::sigPerformCalibration,              calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
+    connect(calibratorConsumer, &CalibrationConsumer::sigCalibLoadingMsg,   mainWindow, &MainWindow::onCalibLoadingMsg);
+    connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,   mainWindow, &MainWindow::onManualCalibDoneMsg);
+    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,   mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
+    connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
+    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToCheckFirstModelCellMsg,   mainWindow, &MainWindow::onNeedToCheckFirstModelCellMsg);
+    connect(mainWindow, &MainWindow::sigFirstModelMounted,   calibratorConsumer, &CalibrationConsumer::onFirstModelMounted);
+
+
+
+
     /*! Plots durations */
     /*! \todo FCON Capire come gestire le durate dei plot */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
@@ -223,6 +238,8 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->forceAxisUpdate();
     bigPlotConsumer->forceAxisUpdate();
 
+
+
     /*! \todo FCON questo potrebbe essere parametrizzato */
 
     vector<uint16_t> channelIndexes(currentChannelsNumber);
@@ -237,6 +254,8 @@ void ControllerMain::onMainWindowCreated() {
     bigPlotConsumer->setMaxSamplesPerPlot(4096);
     vector<bool> offValues(currentChannelsNumber, false);
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
+
+    calibratorConsumer->loadInitialCalibParams("C:/EMCR_calib_folder/", "boardMapping.csv");
 
     /*! Start threads */
     this->startProducerConsumers();
@@ -269,8 +288,12 @@ void ControllerMain::onMainWindowDestroyed() {
 
 void ControllerMain::onVcCurrentRangeSelected(int idx) {
     vector <RangedMeasurement_t> ranges;
-    mDev->getVcCurrentRangesFeatures(ranges);
-    mDev->setVcCurrentRange(ranges[idx]);
+    uint16_t notUsedDefaultVcCurrRangeIdx;
+    mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
+//    mDev->setVcCurrentRange(ranges[idx]);
+
+    /*! Invio dati a FPGA con massageDispatcher*/
+    calibratorConsumer->updateCalibParams();
 
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
@@ -284,7 +307,7 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
     vector <RangedMeasurement_t> ranges;
     mDev->getVcVoltageRangesFeatures(ranges);
-    mDev->setVcVoltageRange(ranges[idx]);
+//    mDev->setVcVoltageRange(ranges[idx]);
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
@@ -298,7 +321,7 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
 void ControllerMain::onSamplingRateSelected(int idx) {
     vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
-    mDev->setSamplingRate(samplingRates[idx]);
+//    mDev->setSamplingRate(samplingRates[idx]);
 
     for (auto consumer : consumers) {
         consumer->onSamplingRateChanged(mDev->getSamplingRate());
@@ -347,6 +370,12 @@ void ControllerMain::stopAndDestroyProducerConsumers() {
         liveNoiseConsumer->onStopConsuming();
         delete liveNoiseConsumer;
         liveNoiseConsumer = nullptr;
+    }
+    
+    if (calibratorConsumer!= nullptr) {
+        calibratorConsumer->onStopConsuming();
+        delete calibratorConsumer;
+        calibratorConsumer = nullptr;
     }
 
     if (deviceDataProducer!= nullptr) {

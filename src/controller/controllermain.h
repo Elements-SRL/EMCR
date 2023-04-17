@@ -14,6 +14,7 @@
 #include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
 #include "livenoiseconsumer.h"
+#include "calibrationconsumer.h"
 
 class ControllerMain : public QObject {
     Q_OBJECT
@@ -51,6 +52,7 @@ private:
     GapFreePlotConsumer * bigPlotConsumer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
     LiveNoiseConsumer * liveNoiseConsumer = nullptr;
+    CalibrationConsumer * calibratorConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;
     QVector <DataWriterConsumer*> dataWriterConsumers;

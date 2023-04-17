@@ -10,7 +10,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
     modelDevice->getClampingModalitiesFeatures(clampingModalities);
 
     vector <RangedMeasurement_t> vcCurrentRanges;
-    modelDevice->getVcCurrentRangesFeatures(vcCurrentRanges);
+    uint16_t defaultVcCurrRangeIdx;
+    modelDevice->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
 
     vector <RangedMeasurement_t> vcVoltageRanges;
     modelDevice->getVcVoltageRangesFeatures(vcVoltageRanges);
@@ -56,7 +57,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
             });
         }
         if (this->vcCurrentRangesRadioButtons.size() > 0) {
-            this->vcCurrentRangesRadioButtons[0]->setChecked(true);
+//            this->vcCurrentRangesRadioButtons[0]->setChecked(true);
+            this->vcCurrentRangesRadioButtons[defaultVcCurrRangeIdx]->setChecked(true);
         }
         this->vcCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
         if (vcCurrentRanges.size() == 1) {

@@ -14,7 +14,8 @@ void ControllerDevice::setModelDevice(ModelDevice * mDev){
 // ADC Current Range in VC
 void ControllerDevice::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex){
     vector <RangedMeasurement_t> ranges;
-    mDev->getVcCurrentRangesFeatures(ranges);
+    uint16_t notUsedDefaultVcCurrRangeIdx;
+    mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
 
     this->mDev->setVcCurrentRange(ranges[selectedVcCurrentRangeIndex]);
     this->mDev->getMessageDispatcher()->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
