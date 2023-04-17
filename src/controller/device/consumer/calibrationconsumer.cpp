@@ -265,7 +265,7 @@ void CalibrationConsumer::calibrateAdcGain(){
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
         samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * voltageChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
-        hook->getDataChunk(buffer, 1, minDataBatchSize);
+        while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
         buffer.remove(0, samplesToremove);
@@ -352,7 +352,7 @@ void CalibrationConsumer::calibrateAdcOffset(){
     sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
     minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
     samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * voltageChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
-    hook->getDataChunk(buffer, 1, minDataBatchSize);
+    while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
     /*! butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
     buffer.remove(0, samplesToremove);
@@ -427,7 +427,7 @@ void CalibrationConsumer::calibrateDacOffset(){
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
         samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * voltageChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
-        hook->getDataChunk(buffer, 1, minDataBatchSize);
+        while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
         buffer.remove(0, samplesToremove);
