@@ -200,6 +200,10 @@ void ControllerMain::onMainWindowCreated() {
     connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,   mainWindow, &MainWindow::onManualCalibDoneMsg);
     connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,   mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
     connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
+    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToCheckFirstModelCellMsg,   mainWindow, &MainWindow::onNeedToCheckFirstModelCellMsg);
+    connect(mainWindow, &MainWindow::sigFirstModelMounted,   calibratorConsumer, &CalibrationConsumer::onFirstModelMounted);
+
+
 
 
     /*! Plots durations */

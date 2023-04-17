@@ -117,6 +117,18 @@ void CalibrationConsumer::run(){
 
         uint16_t bbb; //useless
 
+        /*! spegne lo stimolo e stacco il carico su tutti i canali per concentire all'utente di cambiare la model cell se c'è quella sbagliata*/
+        turnAllStimulaOnOff(false);
+        turnAllChannelsOnOff(false);
+
+        QString msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you mounted the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cell.\nPress OK to continue.\n";
+        waitForFirstModelCellChecked = true;
+        emit sigNeedToCheckFirstModelCellMsg(msg);
+        qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
+        while(waitForFirstModelCellChecked){
+            QThread::msleep(10);
+        }
+
         /*! FOR: START ciclo sui range*/
         for(int jjj = 0; jjj <vcCurrentRangesArray.size(); jjj++){
             rangeIdx = jjj;
@@ -142,9 +154,9 @@ void CalibrationConsumer::run(){
             calibrateAdcOffset();
             /*! END CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             if(rangeIdx < vcCurrentRangesArray.size()-1){
-                QString msg = "Need to mount the model cell " + QString::fromStdString(calibratonResistances[rangeIdx].niceLabel()) + " for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
-                emit sigNeedToChangeModelCellMsg(msg);
+                QString msg = "Need to mount the model cell " + QString::fromStdString(calibratonResistances[rangeIdx+1].niceLabel()) + " for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx+1].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
                 waitForModelCellChanged = true;
+                emit sigNeedToChangeModelCellMsg(msg);
                 qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
                 while(waitForModelCellChanged){
                     QThread::msleep(10);
@@ -853,5 +865,11 @@ void CalibrationConsumer::updateCalibParams(){
 void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
     if(modelCellChanged){
         waitForModelCellChanged = false;
+    }
+}
+
+void CalibrationConsumer::onFirstModelMounted(bool firstModelCellMounted){
+    if(firstModelCellMounted){
+        waitForFirstModelCellChecked = false;
     }
 }
