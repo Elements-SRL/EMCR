@@ -105,7 +105,7 @@ void LiveNoiseConsumer::lockAndResetAnalysis(int currentChannelIdx) {
 void LiveNoiseConsumer::resetAnalysis(int) {
     analysisBuffer.clear();
 
-    minSamples = 100+0*qRound(sweepSamplingRate*LNC_MIN_INTERVAL_S);
+    minSamples = 10000+0*qRound(sweepSamplingRate*LNC_MIN_INTERVAL_S);
 }
 
 void LiveNoiseConsumer::performAnalysis() {
