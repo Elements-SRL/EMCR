@@ -25,7 +25,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultAdcOffsetValue); // 0.0;
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultDacOffsetValue); // 0.0;
 
-    if(ccc == Device384Nanopores || ccc == 2){ /*! \todo 2 means deviceFake in debug */
+    if(ccc == Device384Nanopores || ccc == Device384Fake){ /*! \todo 2 means deviceFake in debug */
         mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);
         mDev->getCalibVcResFeatures(calibratonResistances);
     } else {

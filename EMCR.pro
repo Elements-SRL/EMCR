@@ -4,10 +4,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG(debug, debug|release) {
     DEFINES += GLB_SHOW_DEBUG_CTRLS
+    DEFINES += DEBUG
 }
 
 CONFIG(release, debug|release) {
     DEFINES += GLB_SHOW_DEBUG_CTRLS
+    DEFINES += DEBUG
 }
 
 CONFIG += c++11
