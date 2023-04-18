@@ -95,6 +95,9 @@ void DataWriterConsumer::onRecordSelectedChannels(vector<uint16_t> channelIndexe
 
 void DataWriterConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     pushedSamplingRateHz = samplingRate.getNoPrefixValue();
+    if (!this->isRunning()){
+        sweepSamplingRateHz = pushedSamplingRateHz;
+    }
 }
 
 void DataWriterConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
