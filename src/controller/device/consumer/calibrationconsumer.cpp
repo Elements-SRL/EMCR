@@ -157,7 +157,7 @@ void CalibrationConsumer::run(){
 
             /*! START CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     qui il carico deve essere staccato, staccato al  punto precedente, lo si può fare anche in maniera esplicita qui */
-            calibrateAdcOffset();
+            calibrateAdcOffset(vcCurrentRangesArray[rangeIdx]);
             /*! END CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             if(rangeIdx < vcCurrentRangesArray.size()-1){
                 QString msg = "Need to mount the model cell " + QString::fromStdString(calibratonResistances[rangeIdx+1].niceLabel()) + " for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx+1].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
@@ -335,7 +335,7 @@ void CalibrationConsumer::calibrateAdcGain(){
     turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
 }
 
-void CalibrationConsumer::calibrateAdcOffset(){
+void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange){
     /*!  applico  0V ai canali selezionati*/
     vector<Measurement_t> someVoltSteps;
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
@@ -385,8 +385,9 @@ void CalibrationConsumer::calibrateAdcOffset(){
 
     /*! moltiplico la corrente media per i GAIN calacolati al passo precedente e dovrei avere già l'offset di ADC*/
     for(int i = 0; i < currentSum.size(); i++){
-       usefulAdcOffset[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples); /*! \todo FCON la moltiplicazione per il gain non simula correttamente quello che accade in FPGA, meglio far fare il conto all'FPGA usando il comando del MessageDispatcher
-                                                                                                       vale anche per il calcolo dell'offset del DAC */
+//       usefulAdcOffset[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples); /*! \todo FCON la moltiplicazione per il gain non simula correttamente quello che accade in FPGA, meglio far fare il conto all'FPGA usando il comando del MessageDispatcher
+        usefulAdcOffset[i] = -(gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
+
     }
 
     buffer.clear(); /*! is resized in getDataChunk()*/
@@ -460,7 +461,7 @@ void CalibrationConsumer::calibrateDacOffset(){
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
-            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) - offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
+            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) + offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
             if (adcCompensatedCurrent[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
@@ -469,7 +470,7 @@ void CalibrationConsumer::calibrateDacOffset(){
                 double bubbi = someVoltSteps[i].getNoPrefixValue() - adcCompensatedCurrent[i]/poffi; // A
                 someVoltSteps[i].value = bubbi/someVoltSteps[i].multiplier(); //mV perchè divido V per 1e-3
            }
-           offsetDAC[i] = someVoltSteps[i].getNoPrefixValue(); //V
+           offsetDAC[i] = -(someVoltSteps[i].getNoPrefixValue()); //V
         }
 
         /*! mandi via messageDispatcher i valori aggiornati di voltage step per vedere se la lettura sui canali mi diventa finalmetne 0 */
@@ -635,20 +636,20 @@ QString CalibrationConsumer::getCsvData(vector<uint16_t> chanSubset){
         for(int j = 0; j < chanSubset.size(); j++){
             if(gainADC[i].size()==currentChannelsNum){
                 /*! All channels calibration*/
-                stream << QString("%1").arg(gainADC[i][chanSubset[j]], 0, 'f', 10) << myCsvSeparator;
+                stream << QString("%1").arg(gainADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
             } else {
                 /*! One board channels calibration*/
-                stream << QString("%1").arg(gainADC[i][j], 0, 'f', 10) << myCsvSeparator;
+                stream << QString("%1").arg(gainADC[i][j], 0, 'e', 3) << myCsvSeparator;
             }
         }
         stream << "\n";
         for(int j = 0; j < chanSubset.size(); j++){
             if(offsetADC[i].size()==currentChannelsNum){
                 /*! All channels calibration*/
-                stream << QString("%1").arg(offsetADC[i][chanSubset[j]], 0, 'f', 10) << myCsvSeparator;
+                stream << QString("%1").arg(offsetADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
             } else {
                 /*! One board channels calibration*/
-                stream << QString("%1").arg(offsetADC[i][j], 0, 'f', 10) << myCsvSeparator;
+                stream << QString("%1").arg(offsetADC[i][j], 0, 'e', 3) << myCsvSeparator;
             }
         }
         stream << "\n";
@@ -659,9 +660,9 @@ QString CalibrationConsumer::getCsvData(vector<uint16_t> chanSubset){
         for(int j = 0; j < chanSubset.size(); j++){
             /*! \todo 30 decimali, solo per vedere qualcosa, questo numero sarà da ridurre*/
             if(offsetDAC.size()==currentChannelsNum){
-                stream << QString("%1").arg(offsetDAC[chanSubset[j]], 0, 'f', 30) << myCsvSeparator;
+                stream << QString("%1").arg(offsetDAC[chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
             } else {
-                stream << QString("%1").arg(offsetDAC[j], 0, 'f', 30) << myCsvSeparator;
+                stream << QString("%1").arg(offsetDAC[j], 0, 'e', 3) << myCsvSeparator;
             }
         }
         stream << "\n";
