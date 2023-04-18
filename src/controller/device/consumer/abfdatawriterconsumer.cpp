@@ -18,7 +18,7 @@ AbfDataWriterConsumer::AbfDataWriterConsumer(ModelDevice * mDev, DeviceDataProdu
     abfs.fill(nullptr);
 
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
-    buffer.reserve(DDP_DATA_PACKETS_BUFFER_LEN*totalChannelsNum);
+    buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
 }
 
 AbfDataWriterConsumer::~AbfDataWriterConsumer() {
@@ -96,7 +96,7 @@ void AbfDataWriterConsumer::run() {
         }
         consumptionLock.unlock();
 
-        if (hook->getDataChunk(buffer)) {
+        if (hook->getDataChunk(buffer, 1, 4096)) {
             bufferIdx = 0;
 
             bufferLen = buffer.size();

@@ -9,7 +9,7 @@ PlotConsumer::PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
     currentRange.prefix = UnitPfxNone;
 
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
-    buffer.reserve(DDP_DATA_PACKETS_BUFFER_LEN*totalChannelsNum);
+    buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
 
     selectedChannels.resize(currentChannelsNum);
     selectedChannels.fill(true);
@@ -140,7 +140,7 @@ void PlotConsumer::updateTimeAxis() {
 
 void PlotConsumer::computeTimeAxis() {
     dataSize = qRound(sweepSamplingRateHz*sweepDuration);
-    minDataBatchSize = qMin(qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), DDP_DATA_PACKETS_BUFFER_LEN/16);
+    minDataBatchSize = qMin(qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
 
     subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;

@@ -1,5 +1,7 @@
 #include "devicedataproducer.h"
 
+#include <qmath.h>
+
 static bool exitedDataProducingLoop = true;
 static QMutex dataMtx;
 static QWaitCondition dataCv;
@@ -21,11 +23,14 @@ DeviceDataProducer::DeviceDataProducer(ModelDevice * mDev, QObject * parent) :
     mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
-    dataSamplesBuffer = new int16_t * [DDP_DATA_PACKETS_BUFFER_LEN];
-    floatDataSamplesBuffer = new double * [DDP_DATA_PACKETS_BUFFER_LEN];
-    dataSamplesBuffer[0] = new int16_t[DDP_DATA_PACKETS_BUFFER_LEN*totalChannelsNum];
-    floatDataSamplesBuffer[0] = new double[DDP_DATA_PACKETS_BUFFER_LEN*totalChannelsNum];
-    for (unsigned int packetIdx = 1; packetIdx < DDP_DATA_PACKETS_BUFFER_LEN; packetIdx++) {
+    dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_BYTES_FOR_BUFFER/(double)totalChannelsNum));
+    dataPacketsBufferMask = dataPacketsBufferLen-1U;
+
+    dataSamplesBuffer = new int16_t * [dataPacketsBufferLen];
+    floatDataSamplesBuffer = new double * [dataPacketsBufferLen];
+    dataSamplesBuffer[0] = new int16_t[dataPacketsBufferLen*totalChannelsNum];
+    floatDataSamplesBuffer[0] = new double[dataPacketsBufferLen*totalChannelsNum];
+    for (unsigned int packetIdx = 1; packetIdx < dataPacketsBufferLen; packetIdx++) {
         dataSamplesBuffer[packetIdx] = dataSamplesBuffer[packetIdx-1]+totalChannelsNum;
         floatDataSamplesBuffer[packetIdx] = floatDataSamplesBuffer[packetIdx-1]+totalChannelsNum;
     }
@@ -41,12 +46,17 @@ DeviceDataProducer::~DeviceDataProducer() {
     delete [] floatDataSamplesBuffer;
 }
 
+unsigned int DeviceDataProducer::getDataPacketsBufferLen() {
+    return dataPacketsBufferLen;
+}
+
 DataHook * DeviceDataProducer::getDataHook() {
     DataHook * hook;
 
     QMutexLocker locker(&dataMtx);
     hook = new DataHook(totalChannelsNum);
     hook->setInitialOffset(dataPacketsIdx);
+    hook->setBufferSize(dataPacketsBufferLen, dataPacketsBufferMask);
 
     return hook;
 }
@@ -107,7 +117,7 @@ void DeviceDataProducer::run() {
                     messageDispather->convertCurrentValue(datain[wordsIdx+chIdx], floatDataSamplesBuffer[dataPacketsIdx][chIdx]);
                 }
 
-                dataPacketsIdx = (dataPacketsIdx+1) & DDP_DATA_PACKETS_BUFFER_MASK;
+                dataPacketsIdx = (dataPacketsIdx+1) & dataPacketsBufferMask;
             }
 
             dataCv.wakeAll();
@@ -124,7 +134,7 @@ void DeviceDataProducer::run() {
     }
 
     dataLock.relock();
-    dataPacketsIdx = (dataPacketsIdx+(DDP_DATA_PACKETS_BUFFER_LEN >> 4))&DDP_DATA_PACKETS_BUFFER_MASK;
+    dataPacketsIdx = (dataPacketsIdx+(dataPacketsBufferLen >> 4)) & dataPacketsBufferMask;
     dataCv.wakeAll();
     dataLock.unlock();
 
@@ -154,10 +164,16 @@ void DataHook::setInitialOffset(unsigned int offset) {
     }
 }
 
+void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
+    this->bufferSize = bufferSize;
+    this->bufferMask = bufferMask;
+    halfBufferSize = bufferSize/2;
+}
+
 bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
     int waitCount = 0;
     QMutexLocker locker(&dataMtx);
-    while ((((dataIdx+minDataBatchSize-dataPacketsIdx)&DDP_DATA_PACKETS_BUFFER_MASK) <= (DDP_DATA_PACKETS_BUFFER_LEN >> 1)) &&
+    while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
            (!exitedDataProducingLoop) &&
            waitCount++ < DDP_MAX_WAIT_COUNT) {
         dataCv.wait(&dataMtx, 100);
@@ -175,7 +191,7 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
         dataPacketsToBuffer = dataPacketsMax-dataIdx;
 
     } else {
-        dataPacketsToBuffer = dataPacketsMax+DDP_DATA_PACKETS_BUFFER_LEN-dataIdx;
+        dataPacketsToBuffer = dataPacketsMax+bufferSize-dataIdx;
     }
 
     buffer.resize(dataPacketsToBuffer*totalChannelsNum);
@@ -185,7 +201,7 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
         for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
             buffer[count++] = dataSamplesBuffer[dataIdx][chIdx];
         }
-        dataIdx = (dataIdx+1)&DDP_DATA_PACKETS_BUFFER_MASK;
+        dataIdx = (dataIdx+1) & bufferMask;
     }
     return true;
 }
@@ -193,7 +209,7 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
 bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
     int waitCount = 0;
     QMutexLocker locker(&dataMtx);
-    while ((((dataIdx+minDataBatchSize-dataPacketsIdx)&DDP_DATA_PACKETS_BUFFER_MASK) <= (DDP_DATA_PACKETS_BUFFER_LEN >> 1)) &&
+    while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
            (!exitedDataProducingLoop) &&
            waitCount++ < DDP_MAX_WAIT_COUNT) {
         dataCv.wait(&dataMtx, 100);
@@ -213,7 +229,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
             dataPacketsToBuffer = (int)(((dataPacketsMax-dataIdx)/downsamplingSize) << 1);
 
         } else {
-            dataPacketsToBuffer = (int)(((dataPacketsMax+DDP_DATA_PACKETS_BUFFER_LEN-dataIdx)/downsamplingSize) << 1);
+            dataPacketsToBuffer = (int)(((dataPacketsMax+bufferSize-dataIdx)/downsamplingSize) << 1);
         }
 
     } else {
@@ -221,7 +237,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
             dataPacketsToBuffer = (int)(dataPacketsMax-dataIdx);
 
         } else {
-            dataPacketsToBuffer = (int)(dataPacketsMax+DDP_DATA_PACKETS_BUFFER_LEN-dataIdx);
+            dataPacketsToBuffer = (int)(dataPacketsMax+bufferSize-dataIdx);
         }
     }
 
@@ -238,7 +254,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
                 buffer[count+(int)chIdx] = value; /*! Initialize max */
                 buffer[count+(int)(chIdx+totalChannelsNum)] = value; /*! Initialize min */
             }
-            dataIdx = (dataIdx+1)&DDP_DATA_PACKETS_BUFFER_MASK;
+            dataIdx = (dataIdx+1) & bufferMask;
 
             for (unsigned int downsamplingIdx = 1; downsamplingIdx < downsamplingSize; downsamplingIdx++) {
                 for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
@@ -250,7 +266,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
                         buffer[count+(int)(chIdx+totalChannelsNum)] = value;
                     }
                 }
-                dataIdx = (dataIdx+1)&DDP_DATA_PACKETS_BUFFER_MASK;
+                dataIdx = (dataIdx+1) & bufferMask;
             }
             count += (int)(totalChannelsNum << 1);
         }
@@ -260,7 +276,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
             for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
                 buffer[count++] = floatDataSamplesBuffer[dataIdx][chIdx];
             }
-            dataIdx = (dataIdx+1)&DDP_DATA_PACKETS_BUFFER_MASK;
+            dataIdx = (dataIdx+1) & bufferMask;
         }
     }
     return true;
