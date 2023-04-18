@@ -194,12 +194,6 @@ void AbfDataWriterConsumer::run() {
                     }
                 }
             }
-
-        } else {
-            /*! \todo FCON questa cosa va gestita un po' meglio */
-            consumptionLock.relock();
-            consumptionStopped = true;
-            consumptionLock.unlock();
         }
     }
 

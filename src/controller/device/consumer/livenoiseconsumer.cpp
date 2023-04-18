@@ -74,10 +74,11 @@ void LiveNoiseConsumer::run() {
         this->updateSamplingRate();
         this->updateRanges();
 
-        hook->getDataChunk(buffer, 1, minDataBatchSize);
-        analysisBuffer.append(buffer);
+        if (hook->getDataChunk(buffer, 1, minDataBatchSize)) {
+            analysisBuffer.append(buffer);
 
-        this->performAnalysis();
+            this->performAnalysis();
+        }
     }
 
     exitedDataConsumingLoop = true;
