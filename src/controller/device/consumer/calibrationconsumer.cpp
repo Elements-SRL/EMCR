@@ -22,8 +22,8 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     numOfChannelsOnBoard = currentChannelsNum/numOfBoards;
 
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultAdcGainValue);    //1.57014;
-    mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultAdcOffsetValue); // 0.0;
-    mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultDacOffsetValue); // 0.0;
+    mDev->getMessageDispatcher()->getCalibDefaultVcAdcOffset(defaultAdcOffsetValue); // 0.0;
+    mDev->getMessageDispatcher()->getCalibDefaultVcDacOffset(defaultDacOffsetValue); // 0.0;
 
     if(ccc == Device384Nanopores || ccc == Device384Fake){
         mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);
