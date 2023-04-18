@@ -96,7 +96,7 @@ private:
     /*! REAL CALIBRATION FUNCITIONS*/
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
     void calibrateAdcGain();
-    void calibrateAdcOffset();
+    void calibrateAdcOffset(RangedMeasurement_t thisActualRange);
     void calibrateDacOffset();
 
     /*! Interactions with CSV files*/
