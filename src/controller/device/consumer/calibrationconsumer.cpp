@@ -25,7 +25,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultAdcOffsetValue); // 0.0;
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultDacOffsetValue); // 0.0;
 
-    if(ccc == Device384Nanopores || ccc == Device384Fake){ /*! \todo 2 means deviceFake in debug */
+    if(ccc == Device384Nanopores || ccc == Device384Fake){
         mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);
         mDev->getCalibVcResFeatures(calibratonResistances);
     } else {
@@ -91,6 +91,7 @@ void CalibrationConsumer::run(){
     totalChannelsUnderCalibNum = 2*channelToCalibIdxs.size();
 
     currentSum.resize(channelToCalibIdxs.size());
+    currentSum.fill(0.0);
     currentMeans.resize(calibrationVoltStep.size());
 
 
@@ -264,7 +265,7 @@ void CalibrationConsumer::calibrateAdcGain(){
         la cui struttura è ancora da definire */
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * voltageChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -280,7 +281,7 @@ void CalibrationConsumer::calibrateAdcGain(){
         int channelIdx;
         for (int bufferIdx = 0; bufferIdx < buffer.size(); bufferIdx += totalChannelsNum) {
             for (int currentIdx = 0; currentIdx < channelToCalibIdxs.size(); currentIdx++) {
-                if(channelToCalibIdxs.size()==voltageChannelsNum){
+                if(channelToCalibIdxs.size()==currentChannelsNum){
                     channelIdx = bufferIdx+voltageChannelsNum+currentIdx;
                 } else {
                     /*! necessario se calibro una sola scheda, mi serve come offset l'indice del primo canale che calibro*/
@@ -297,10 +298,11 @@ void CalibrationConsumer::calibrateAdcGain(){
         buffer.clear(); /*! is resized in getDataChunk()*/
         currentSum.clear();
         currentSum.resize(channelToCalibIdxs.size());
+        currentSum.fill(0.0);
     }
     /*! FOR: END ciclo sugli step di tensione*/
 
-    /*! UNA VOLTA CHE HO TUTTE CORRENTI MEDIE PER CIACUN Vstep PER CIASCN CANALE, FACCIO MINIMI QUADRATI */
+    /*! UNA VOLTA CHE HO TUTTE CORRENTI MEDIE PER CIASCUN Vstep PER CIASCUN CANALE, FACCIO MINIMI QUADRATI */
     /*! FOR: START ciclo sui canali*/
     vector<double> y; /*! average currents*/
     y.resize(calibrationVoltStep.size());
@@ -352,7 +354,7 @@ void CalibrationConsumer::calibrateAdcOffset(){
     la cui struttura è ancora da definire */
     sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
     minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-    samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * voltageChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+    samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
     hook->flush(); /*! Remove old buffered data */
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -368,7 +370,7 @@ void CalibrationConsumer::calibrateAdcOffset(){
     int channelIdx;
     for (int bufferIdx = 0; bufferIdx < buffer.size(); bufferIdx += totalChannelsNum) {
         for (int currentIdx = 0; currentIdx < channelToCalibIdxs.size(); currentIdx++) {
-            if(channelToCalibIdxs.size()==voltageChannelsNum){
+            if(channelToCalibIdxs.size()==currentChannelsNum){
                 channelIdx = bufferIdx+voltageChannelsNum+currentIdx;
             } else {
                 /*! necessario se calibro una sola scheda, mi serve come offset l'indice del primo canale che calibro*/
@@ -383,12 +385,14 @@ void CalibrationConsumer::calibrateAdcOffset(){
 
     /*! moltiplico la corrente media per i GAIN calacolati al passo precedente e dovrei avere già l'offset di ADC*/
     for(int i = 0; i < currentSum.size(); i++){
-       usefulAdcOffset[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples);
+       usefulAdcOffset[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples); /*! \todo FCON la moltiplicazione per il gain non simula correttamente quello che accade in FPGA, meglio far fare il conto all'FPGA usando il comando del MessageDispatcher
+                                                                                                       vale anche per il calcolo dell'offset del DAC */
     }
 
     buffer.clear(); /*! is resized in getDataChunk()*/
     currentSum.clear();
     currentSum.resize(channelToCalibIdxs.size());
+    currentSum.fill(0.0);
 
     offsetADC[rangeIdx] = usefulAdcOffset;
 
@@ -428,7 +432,7 @@ void CalibrationConsumer::calibrateDacOffset(){
         la cui struttura è ancora da definire */
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * 2 * voltageChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -444,7 +448,7 @@ void CalibrationConsumer::calibrateDacOffset(){
         int channelIdx;
         for (int bufferIdx = 0; bufferIdx < buffer.size(); bufferIdx += totalChannelsNum) {
             for (int currentIdx = 0; currentIdx < channelToCalibIdxs.size(); currentIdx++) {
-                if(channelToCalibIdxs.size()==voltageChannelsNum){
+                if(channelToCalibIdxs.size()==currentChannelsNum){
                     channelIdx = bufferIdx+voltageChannelsNum+currentIdx;
                 } else {
                     /*! necessario se calibro una sola scheda, mi serve come offset l'indice del primo canale che calibro*/
@@ -456,7 +460,7 @@ void CalibrationConsumer::calibrateDacOffset(){
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
-            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) - offsetADC[rangeIdx][i];
+            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) - offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
             if (adcCompensatedCurrent[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
@@ -474,6 +478,7 @@ void CalibrationConsumer::calibrateDacOffset(){
         buffer.clear(); /*! is resized in getDataChunk()*/
         currentSum.clear();
         currentSum.resize(channelToCalibIdxs.size());
+        currentSum.fill(0.0);
 
         numTries++;
     }

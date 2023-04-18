@@ -14,14 +14,17 @@ PlotConsumer::PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
     selectedChannels.resize(currentChannelsNum);
     selectedChannels.fill(true);
 
-
-    logFile.setFileName(QString("log%1.txt").arg((unsigned int)this));
-    logFile.open(QFile::WriteOnly | QFile::Truncate);
-    logStream.setDevice(&logFile);
+#ifdef GLB_SHOW_DEBUG_CTRLS
+//    logFile.setFileName(QString("log%1.txt").arg((unsigned int)this));
+//    logFile.open(QFile::WriteOnly | QFile::Truncate);
+//    logStream.setDevice(&logFile);
+#endif
 }
 
 PlotConsumer::~PlotConsumer() {
-    logFile.close();
+#ifdef GLB_SHOW_DEBUG_CTRLS
+//    logFile.close();
+#endif
 }
 
 void PlotConsumer::forceAxisUpdate() {
@@ -143,13 +146,13 @@ void PlotConsumer::computeTimeAxis() {
     dataSize /= subSamplingRatio;
 
 #ifdef GLB_SHOW_DEBUG_CTRLS
-    logStream << "sweepSamplingRateHz " << sweepSamplingRateHz;
-    logStream << " --- sweepDuration " << sweepDuration;
-    logStream << " --- initial dataSize " << qRound(sweepSamplingRateHz*sweepDuration);
-    logStream << " --- final dataSize " << dataSize;
-    logStream << " --- minDataBatchSize " << minDataBatchSize;
-    logStream << " --- subSamplingRatio " << subSamplingRatio;
-    logStream << " --- maxSamples " << maxSamples << endl;
+//    logStream << "sweepSamplingRateHz " << sweepSamplingRateHz;
+//    logStream << " --- sweepDuration " << sweepDuration;
+//    logStream << " --- initial dataSize " << qRound(sweepSamplingRateHz*sweepDuration);
+//    logStream << " --- final dataSize " << dataSize;
+//    logStream << " --- minDataBatchSize " << minDataBatchSize;
+//    logStream << " --- subSamplingRatio " << subSamplingRatio;
+//    logStream << " --- maxSamples " << maxSamples << endl;
 #endif
 
     subSamplingIdx = 0;
