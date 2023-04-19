@@ -97,7 +97,7 @@ private:
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
     void calibrateAdcGain();
     void calibrateAdcOffset(RangedMeasurement_t thisActualRange);
-    void calibrateDacOffset();
+    void calibrateDacOffset(RangedMeasurement_t thisActualRange);
 
     /*! Interactions with CSV files*/
     void mainSaveOnCsv();
