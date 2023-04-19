@@ -9,7 +9,6 @@ CONFIG(debug, debug|release) {
 
 CONFIG(release, debug|release) {
     DEFINES += GLB_SHOW_DEBUG_CTRLS
-    DEFINES += DEBUG
 }
 
 CONFIG += c++11
@@ -23,7 +22,6 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/device/consumer/calibrationconsumer.cpp \
     src/main.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
@@ -51,13 +49,13 @@ SOURCES += \
     src/controller/device/consumer/datawriterconsumer.cpp \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
     src/controller/device/consumer/livenoiseconsumer.cpp \
+    src/controller/device/consumer/calibrationconsumer.cpp \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp \
     src/abf/axon.cpp
 
 HEADERS += \
-    src/controller/device/consumer/calibrationconsumer.h \
     src/globaldefines.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
@@ -85,6 +83,7 @@ HEADERS += \
     src/controller/device/consumer/datawriterconsumer.h \
     src/controller/device/consumer/abfdatawriterconsumer.h \
     src/controller/device/consumer/livenoiseconsumer.h \
+    src/controller/device/consumer/calibrationconsumer.h \
     src/model/modeldevice.h \
     src/model/modelboard.h \
     src/model/modelchannel.h \
