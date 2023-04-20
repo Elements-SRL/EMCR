@@ -183,7 +183,7 @@ void CalibrationConsumer::run(){
         }
 
         /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-        calibrateDacOffset();
+        calibrateDacOffset(vcCurrentRangesArray[rangeIdx]);
         /*! END CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
         someFalse.clear();
@@ -406,7 +406,7 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
 }
 
-void CalibrationConsumer::calibrateDacOffset(){
+void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange){
     int numTries = 0;
     vector<bool> needsFurtherCalibration;
     needsFurtherCalibration.resize(channelToCalibIdxs.size());
@@ -465,13 +465,15 @@ void CalibrationConsumer::calibrateDacOffset(){
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
-            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) + offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
+//            (gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
+//            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) + offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
+            adcCompensatedCurrent[i] = (gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[rangeIdx][i];
             if (adcCompensatedCurrent[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
                /*! sottraggo allo step di tensione attualmente applicato*/
                 double poffi = calibratonResistances[rangeIdx].getNoPrefixValue(); // Ohm
-                double bubbi = someVoltSteps[i].getNoPrefixValue() - adcCompensatedCurrent[i]/poffi; // A
+                double bubbi = someVoltSteps[i].getNoPrefixValue() - adcCompensatedCurrent[i]*poffi; // V
                 someVoltSteps[i].value = bubbi/someVoltSteps[i].multiplier(); //mV perchè divido V per 1e-3
            }
            offsetDAC[i] = -(someVoltSteps[i].getNoPrefixValue()); //V
