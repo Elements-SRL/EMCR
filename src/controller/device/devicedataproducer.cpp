@@ -85,6 +85,7 @@ void DeviceDataProducer::run() {
     /*! \todo what to do if the memory is not initialized? */
 
     int chIdx;
+    unsigned int dataSampleBufferIdx;
 
     connectionLock.unlock();
 
@@ -101,25 +102,26 @@ void DeviceDataProducer::run() {
         }
         connectionLock.unlock();
 
-        dataLock.relock();
-
         ret = messageDispather->getNextMessage(dataHeader, datain);
 
         if (ret == Success) {
+            dataSampleBufferIdx = dataPacketsIdx;
             for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
                 for (chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
-                    dataSamplesBuffer[dataPacketsIdx][chIdx] = datain[wordsIdx+chIdx];
-                    messageDispather->convertVoltageValue(datain[wordsIdx+chIdx], floatDataSamplesBuffer[dataPacketsIdx][chIdx]);
+                    dataSamplesBuffer[dataSampleBufferIdx][chIdx] = datain[wordsIdx+chIdx];
                 }
+                messageDispather->convertVoltageValues(datain+wordsIdx, floatDataSamplesBuffer[dataSampleBufferIdx], voltageChannelsNum);
 
                 for (; chIdx < totalChannelsNum; chIdx++) {
-                    dataSamplesBuffer[dataPacketsIdx][chIdx] = datain[wordsIdx+chIdx];
-                    messageDispather->convertCurrentValue(datain[wordsIdx+chIdx], floatDataSamplesBuffer[dataPacketsIdx][chIdx]);
+                    dataSamplesBuffer[dataSampleBufferIdx][chIdx] = datain[wordsIdx+chIdx];
                 }
+                messageDispather->convertCurrentValues(datain+wordsIdx+voltageChannelsNum, floatDataSamplesBuffer[dataSampleBufferIdx]+voltageChannelsNum, currentChannelsNum);
 
-                dataPacketsIdx = (dataPacketsIdx+1) & dataPacketsBufferMask;
+                dataSampleBufferIdx = (dataSampleBufferIdx+1) & dataPacketsBufferMask;
             }
 
+            dataLock.relock();
+            dataPacketsIdx = dataSampleBufferIdx;
             dataCv.wakeAll();
             dataLock.unlock();
 
@@ -128,7 +130,6 @@ void DeviceDataProducer::run() {
             bitRateLock.unlock();
 
         } else {
-            dataLock.unlock();
             QThread::msleep(1);
         }
     }
