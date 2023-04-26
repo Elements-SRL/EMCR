@@ -8,7 +8,7 @@
 
 #include "modeldevice.h"
 
-#define DDP_MAX_BYTES_FOR_BUFFER 0x2000000 // 32M
+#define DDP_MAX_SAMPLES_FOR_BUFFER 0x2000000 // 32M
 #define DDP_MAX_WAIT_COUNT (10)
 
 class DataHook;

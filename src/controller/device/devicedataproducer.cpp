@@ -1,9 +1,11 @@
 #include "devicedataproducer.h"
 
 #include <qmath.h>
+#include <QReadWriteLock>
 
 static bool exitedDataProducingLoop = true;
-static QMutex dataMtx;
+//static QMutex dataMtx;
+static QReadWriteLock dataLock;
 static QWaitCondition dataCv;
 static int16_t ** dataSamplesBuffer;
 static double ** floatDataSamplesBuffer;
@@ -23,7 +25,7 @@ DeviceDataProducer::DeviceDataProducer(ModelDevice * mDev, QObject * parent) :
     mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
-    dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_BYTES_FOR_BUFFER/(double)totalChannelsNum));
+    dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_SAMPLES_FOR_BUFFER/(double)totalChannelsNum));
     dataPacketsBufferMask = dataPacketsBufferLen-1U;
 
     dataSamplesBuffer = new int16_t * [dataPacketsBufferLen];
@@ -53,9 +55,11 @@ unsigned int DeviceDataProducer::getDataPacketsBufferLen() {
 DataHook * DeviceDataProducer::getDataHook() {
     DataHook * hook;
 
-    QMutexLocker locker(&dataMtx);
+//    QMutexLocker locker(&dataMtx);
     hook = new DataHook(totalChannelsNum);
+    dataLock.lockForRead();
     hook->setInitialOffset(dataPacketsIdx);
+    dataLock.unlock();
     hook->setBufferSize(dataPacketsBufferLen, dataPacketsBufferMask);
 
     return hook;
@@ -89,8 +93,8 @@ void DeviceDataProducer::run() {
 
     connectionLock.unlock();
 
-    QMutexLocker dataLock(&dataMtx);
-    dataLock.unlock();
+//    QMutexLocker dataLock(&dataMtx);
+//    dataLock.unlock();
 
     QMutexLocker bitRateLock(&bitRateMtx);
     bitRateLock.unlock();
@@ -120,7 +124,8 @@ void DeviceDataProducer::run() {
                 dataSampleBufferIdx = (dataSampleBufferIdx+1) & dataPacketsBufferMask;
             }
 
-            dataLock.relock();
+//            dataLock.relock();
+            dataLock.lockForWrite();
             dataPacketsIdx = dataSampleBufferIdx;
             dataCv.wakeAll();
             dataLock.unlock();
@@ -134,7 +139,8 @@ void DeviceDataProducer::run() {
         }
     }
 
-    dataLock.relock();
+//    dataLock.relock();
+    dataLock.lockForWrite();
     dataPacketsIdx = (dataPacketsIdx+(dataPacketsBufferLen >> 4)) & dataPacketsBufferMask;
     dataCv.wakeAll();
     dataLock.unlock();
@@ -173,19 +179,21 @@ void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
 
 bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
     int waitCount = 0;
-    QMutexLocker locker(&dataMtx);
+//    QMutexLocker locker(&dataMtx);
+    dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
            (!exitedDataProducingLoop) &&
            waitCount++ < DDP_MAX_WAIT_COUNT) {
-        dataCv.wait(&dataMtx, 100);
+        dataCv.wait(&dataLock, 100);
     }
 
     if (waitCount >= DDP_MAX_WAIT_COUNT) {
+        dataLock.unlock();
         return false;
     }
 
     unsigned int dataPacketsMax = dataPacketsIdx;
-    locker.unlock();
+    dataLock.unlock();
 
     unsigned int dataPacketsToBuffer;
     if (dataIdx <= dataPacketsMax) {
@@ -209,19 +217,21 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
 
 bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
     int waitCount = 0;
-    QMutexLocker locker(&dataMtx);
+//    QMutexLocker locker(&dataMtx);
+    dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
            (!exitedDataProducingLoop) &&
            waitCount++ < DDP_MAX_WAIT_COUNT) {
-        dataCv.wait(&dataMtx, 100);
+        dataCv.wait(&dataLock, 100);
     }
 
     if (waitCount >= DDP_MAX_WAIT_COUNT) {
+        dataLock.unlock();
         return false;
     }
 
     unsigned int dataPacketsMax = dataPacketsIdx;
-    locker.unlock();
+    dataLock.unlock();
 
     int dataPacketsToBuffer;
     unsigned int downsamplingSize = downsamplingRatio << 1; /*! to reduce size by x we take data in chunks of 2*x and then take max and min in the interval */
@@ -284,6 +294,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
 }
 
 void DataHook::flush() {
-    QMutexLocker locker(&dataMtx);
+    dataLock.lockForRead();
     dataIdx = dataPacketsIdx;
+    dataLock.unlock();
 }
