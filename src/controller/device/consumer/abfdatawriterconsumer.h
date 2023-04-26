@@ -1,7 +1,7 @@
 #ifndef ABFDATAWRITERCONSUMER_H
 #define ABFDATAWRITERCONSUMER_H
 
-#define DWC_ABF_RAW_BUFFER_LEN 4096
+#define DWC_ABF_MAX_SAMPLES_FOR_BUFFERS 0x400000 // 4M
 #define DWC_ABF_DATUM_RANGE 32768.0
 #define DWC_ABF_CHANNEL_PER_FILE 2
 
@@ -38,6 +38,8 @@ protected:
     QVector <unsigned short> buffer;
 
     unsigned short ** rawBuffers = nullptr;
+    unsigned int rawBuffersLen;
+    unsigned int minPacketsPerBatch;
     QVector <ABF *> abfs;
     unsigned int blockIdx;
     int samplesFromTheBeginning = 0;

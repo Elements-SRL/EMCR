@@ -10,11 +10,19 @@ DataWriterConsumer::DataWriterConsumer(ModelDevice * mDev, DeviceDataProducer * 
     DeviceDataConsumer(mDev, producer) {
 
     activeChannels.resize(currentChannelsNum);
-    activeChannels.fill(true);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        activeChannels[idx] = idx;
+    }
+    activeChannelsFlag.resize(currentChannelsNum);
+    activeChannelsFlag.fill(true);
     activeChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channels */
 
     pushedActiveChannels.resize(currentChannelsNum);
-    pushedActiveChannels.fill(true);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        pushedActiveChannels[idx] = idx;
+    }
+    pushedActiveChannelsFlag.resize(currentChannelsNum);
+    pushedActiveChannelsFlag.fill(true);
     pushedActiveChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channels */
 
     connect(this, &QThread::started, this, [=] () {
@@ -37,6 +45,7 @@ void DataWriterConsumer::onStartConsuming() {
      *  so when the recording starts freeze the active channels and use
      *  throughout the recording */
     activeChannels = pushedActiveChannels;
+    activeChannelsFlag = pushedActiveChannelsFlag;
     activeChannelsNum = pushedActiveChannelsNum;
     if (dataFormat == settings.fileFormat) {
         recordingInitialized = false;
@@ -81,12 +90,14 @@ void DataWriterConsumer::onRecordingSettingsSet(RecordSettingsDialog::RecordSett
 
 void DataWriterConsumer::onRecordSelectedChannels(vector<uint16_t> channelIndexes, vector<bool> onValues) {
     this->onStopConsuming();
-    pushedActiveChannels.fill(false);
+    pushedActiveChannels.clear();
+    pushedActiveChannelsFlag.fill(false);
     pushedActiveChannelsNum = 0;
 
     for (int idx = 0; idx < channelIndexes.size(); idx++) {
         if (onValues[idx]) {
-            pushedActiveChannels[channelIndexes[idx]] = true;
+            pushedActiveChannels.push_back(idx);
+            pushedActiveChannelsFlag[channelIndexes[idx]] = true;
             pushedActiveChannelsNum++;
         }
     }
@@ -156,7 +167,7 @@ void DataWriterConsumer::manageConsumptionEnd() {
 //    QString activeChannelsString = "";
 
 //    for (int currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-//        if (pushedActiveChannels[currentChannelIdx]) {
+//        if (pushedActiveChannelsFlag[currentChannelIdx]) {
 //            activeChannelsString += QString(" %1").arg(currentChannelIdx+1);
 //        }
 //    }

@@ -49,9 +49,11 @@ protected:
     RecordSettingsDialog::RecordFileFormat_t dataFormat = RecordSettingsDialog::RecordFileNone;
 
     QFile headerFid;
-    QVector <bool> pushedActiveChannels;
+    QVector <int> pushedActiveChannels;
+    QVector <bool> pushedActiveChannelsFlag;
     int pushedActiveChannelsNum;
-    QVector <bool> activeChannels;
+    QVector <int> activeChannels;
+    QVector <bool> activeChannelsFlag;
     int activeChannelsNum;
     RecordSettingsDialog::RecordSettings_t settings;
     QString baseFileName;
