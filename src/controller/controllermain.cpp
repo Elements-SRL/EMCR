@@ -196,6 +196,8 @@ void ControllerMain::onMainWindowCreated() {
         }
     });
 
+    connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied,    controllerChannel, &ControllerChannel::onCompensationApplied);
+
     connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
     connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   mainWindow->getChessaboard(), &Chessboard::onReplot);
 

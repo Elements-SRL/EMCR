@@ -72,4 +72,11 @@ void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes
     }
 }
 
+void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn){
+    this->mDev->enableCompensation(channelIndexes, MessageDispatcher::CompCfast, cfastEn);
+    this->mDev->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, cslowRsEn);
+    this->mDev->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, rsCpEn);
+    this->mDev->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, rsPgEn);
+}
+
 

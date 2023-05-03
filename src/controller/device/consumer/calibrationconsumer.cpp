@@ -27,7 +27,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
 
     if(ccc == Device384Nanopores
         #ifdef DEBUG
-            || ccc == Device384Fake
+            || ccc == Device384Fake || ccc == Device384FakePatchClamp
         #endif
             ){
         mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);

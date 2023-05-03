@@ -34,8 +34,15 @@ void DeviceDetector::detectDevices() {
         ErrorCodes_t ret = MessageDispatcher::detectDevices(detectedList);
 
         if ((ret == Success) || (ret == ErrorNoDeviceFound)) {
-            devicesList = detectedList;
-            emit devicesListChanged(devicesList);
+            if(devicesList.size() != detectedList.size()){
+                devicesList = detectedList;
+                emit devicesListChanged(devicesList);
+            } else {
+                if (!std::equal(detectedList.begin(), detectedList.end(), devicesList.begin())){
+                    devicesList = detectedList;
+                    emit devicesListChanged(devicesList);
+                }
+            }
         }
     }
 }

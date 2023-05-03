@@ -34,6 +34,9 @@ public slots:
 
     /*! \todo void onApplyKawaiiPlotSettings(Boh);*/
 
+    // Compensations
+    void onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn);
+
 
     signals:
     // signals sent to Channel Control Dock Widget (I've already done my stuff)

@@ -16,6 +16,7 @@
 #include "bigplotdockwidget.h"
 #include "recordsettingsdialog.h"
 #include "e384commlib_errorcodes.h"
+#include "compensationcontroldockwidget.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ public:
     ChannelControlDockWidget * getChannelControlsDockWidget();
     BoardControlDockWidget * getBoardControlsDockWidget();
     RecordSettingsDialog * getRecordSettingsDialog();
+    CompensationControlDockWidget * getCompensationControlsDockWidget();
 
     QLabel * SRLbl = nullptr;
 
@@ -69,6 +71,7 @@ private:
     BoardControlDockWidget * boardControlsDw = nullptr;
     BigPlotDockWidget * bigPlotDw = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
+    CompensationControlDockWidget * compensationControlsDw = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;
 

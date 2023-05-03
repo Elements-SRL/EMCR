@@ -260,4 +260,16 @@ ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(vector <Measurement_t> &cal
 ErrorCodes_t ModelDevice::getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures){
     return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
 }
+
+ErrorCodes_t ModelDevice::getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
+    return this->messageDispatcher->getCompFeatures(chIdx, paramToExtractFeatures, compensationFeatures);
+}
+
+ErrorCodes_t ModelDevice::getCompOptionsFeatures(MessageDispatcher::CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+    return this->messageDispatcher->getCompOptionsFeatures(type, compOptionsArray);
+}
+
+ErrorCodes_t ModelDevice::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues){
+    return this->messageDispatcher->enableCompensation(channelIndexes, compTypeToEnable, onValues, true);
+}
 //---------------------------------------------/

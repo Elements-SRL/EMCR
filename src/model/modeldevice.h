@@ -77,6 +77,11 @@ public:
 
     ErrorCodes_t getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures);
     ErrorCodes_t getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures);
+
+    ErrorCodes_t getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
+    ErrorCodes_t getCompOptionsFeatures(MessageDispatcher::CompensationTypes type ,std::vector <std::string> &compOptionsArray);
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues);
+
     //---------------------------------------------/
 
 private:
