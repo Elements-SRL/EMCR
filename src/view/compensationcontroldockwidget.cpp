@@ -46,8 +46,13 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! Cfast checkboxes and spinboxes*/
-    RangedMeasurement_t compensationFeatures;
-    if (mDev->getCompFeatures(0, MessageDispatcher::U_CpVc, compensationFeatures) == Success) {
+    vector<RangedMeasurement_t> compensationFeatures;
+    vector<RangedMeasurement_t> compensationFeaturesBis;
+    compensationFeatures.resize(localNumOfCurrChans);
+    compensationFeaturesBis.resize(localNumOfCurrChans);
+    double defaultParamValue;
+    double defaultParamValueBis;
+    if (mDev->getCompFeatures(MessageDispatcher::U_CpVc, compensationFeatures, defaultParamValue) == Success) {
         anyControlFlag = true;
         QCheckBox* cfastEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -62,13 +67,13 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
         }
 
         MySpinBox* cfastSpinBox;
-        QString cfastUnit = QString().fromStdString(compensationFeatures.getFullUnit());
+        QString cfastUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int i = 1; i <= localNumOfCurrChans; i++){
             cfastSpinBox = new MySpinBox();
             cfastSpinBox->setSuffix(QString(" ") + cfastUnit);
-            cfastSpinBox->setRange(compensationFeatures.min, compensationFeatures.max);
-            cfastSpinBox->setValue(0.0);
-            cfastSpinBox->setDecimals(compensationFeatures.decimals());
+            cfastSpinBox->setRange(compensationFeatures[i-1].min, compensationFeatures[i-1].max);
+            cfastSpinBox->setValue(defaultParamValue);
+            cfastSpinBox->setDecimals(compensationFeatures[i-1].decimals());
             this->cfastSpinBoxes.push_back(cfastSpinBox);
             hbsCfast[i-1]->addWidget(cfastSpinBox);
             QWidget* spazietto = new QWidget();
@@ -78,7 +83,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! Cslow and Rs checkboxes and spinboxes*/
-    if (mDev->getCompFeatures(0, MessageDispatcher::U_Cm, compensationFeatures) == Success && mDev->getCompFeatures(0, MessageDispatcher::U_Rs, compensationFeatures) == Success) {
+    if (mDev->getCompFeatures(MessageDispatcher::U_Cm, compensationFeatures, defaultParamValue) == Success && mDev->getCompFeatures(MessageDispatcher::U_Rs, compensationFeaturesBis, defaultParamValueBis) == Success) {
         anyControlFlag = true;
         QCheckBox* cslowRsEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -93,25 +98,25 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
         }
 
         MySpinBox* cslowSpinBox;
-        QString cslowUnit = QString().fromStdString(compensationFeatures.getFullUnit());
+        QString cslowUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int i = 1; i <= localNumOfCurrChans; i++){
             cslowSpinBox = new MySpinBox();
             cslowSpinBox->setSuffix(QString(" ") + cslowUnit);
-            cslowSpinBox->setRange(compensationFeatures.min, compensationFeatures.max);
-            cslowSpinBox->setValue(0.0);
-            cslowSpinBox->setDecimals(compensationFeatures.decimals());
+            cslowSpinBox->setRange(compensationFeatures[i-1].min, compensationFeatures[i-1].max);
+            cslowSpinBox->setValue(defaultParamValue);
+            cslowSpinBox->setDecimals(compensationFeatures[i-1].decimals());
             this->cslowSpinBoxes.push_back(cslowSpinBox);
             hbsCslowRs[i-1]->addWidget(cslowSpinBox);
         }
 
         MySpinBox* rsSpinBox;
-        QString rsUnit = QString().fromStdString(compensationFeatures.getFullUnit());
+        QString rsUnit = QString().fromStdString(compensationFeaturesBis[0].getFullUnit());
         for(int i = 1; i <= localNumOfCurrChans; i++){
             rsSpinBox = new MySpinBox();
             rsSpinBox->setSuffix(QString(" ") + rsUnit);
-            rsSpinBox->setRange(compensationFeatures.min, compensationFeatures.max);
-            rsSpinBox->setValue(0.0);
-            rsSpinBox->setDecimals(compensationFeatures.decimals());
+            rsSpinBox->setRange(compensationFeaturesBis[i-1].min, compensationFeaturesBis[i-1].max);
+            rsSpinBox->setValue(defaultParamValueBis);
+            rsSpinBox->setDecimals(compensationFeaturesBis[i-1].decimals());
             this->rsSpinBoxes.push_back(rsSpinBox);
             hbsCslowRs[i-1]->addWidget(rsSpinBox);
             QWidget* spazietto = new QWidget();
@@ -121,7 +126,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! RsCp checkboxes and spinboxes*/
-    if (mDev->getCompFeatures(0, MessageDispatcher::U_RsCp, compensationFeatures) == Success) {
+    if (mDev->getCompFeatures(MessageDispatcher::U_RsCp, compensationFeatures, defaultParamValue) == Success) {
         anyControlFlag = true;
         QCheckBox* rsCpEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -136,13 +141,13 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
         }
 
         MySpinBox* rsCpSpinBox;
-        QString rsCpUnit = QString().fromStdString(compensationFeatures.getFullUnit());
+        QString rsCpUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int i = 1; i <= localNumOfCurrChans; i++){
             rsCpSpinBox = new MySpinBox();
             rsCpSpinBox->setSuffix(QString(" ") + rsCpUnit);
-            rsCpSpinBox->setRange(compensationFeatures.min, compensationFeatures.max);
-            rsCpSpinBox->setValue(0.0);
-            rsCpSpinBox->setDecimals(compensationFeatures.decimals());
+            rsCpSpinBox->setRange(compensationFeatures[i-1].min, compensationFeatures[i-1].max);
+            rsCpSpinBox->setValue(defaultParamValue);
+            rsCpSpinBox->setDecimals(compensationFeatures[i-1].decimals());
             this->rsCpSpinBoxes.push_back(rsCpSpinBox);
             hbsRsCp[i-1]->addWidget(rsCpSpinBox);
             QWidget* spazietto = new QWidget();
@@ -152,7 +157,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! RsPg checkboxes and spinboxes*/
-    if (mDev->getCompFeatures(0, MessageDispatcher::U_RsPg, compensationFeatures) == Success) {
+    if (mDev->getCompFeatures(MessageDispatcher::U_RsPg, compensationFeatures, defaultParamValue) == Success) {
         anyControlFlag = true;
 
         QCheckBox* rsPgEnableCb;
@@ -168,13 +173,13 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
         }
 
         MySpinBox* rsPgSpinBox;
-        QString rsPgUnit = QString().fromStdString(compensationFeatures.getFullUnit());
+        QString rsPgUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int i = 1; i <= localNumOfCurrChans; i++){
             rsPgSpinBox = new MySpinBox();
             rsPgSpinBox->setSuffix(QString(" ") + rsPgUnit);
-            rsPgSpinBox->setRange(compensationFeatures.min, compensationFeatures.max);
-            rsPgSpinBox->setValue(0.0);
-            rsPgSpinBox->setDecimals(compensationFeatures.decimals());
+            rsPgSpinBox->setRange(compensationFeatures[i-1].min, compensationFeatures[i-1].max);
+            rsPgSpinBox->setValue(defaultParamValue);
+            rsPgSpinBox->setDecimals(compensationFeatures[i-1].decimals());
             this->rsPgSpinBoxes.push_back(rsPgSpinBox);
             hbsRsPg[i-1]->addWidget(rsPgSpinBox);
             QWidget* spazietto = new QWidget();
@@ -260,6 +265,11 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
     vector<bool> cslowRsEn;
     vector<bool> rsCpEn;
     vector<bool> rsPgEn;
+    vector<double> cfastValues;
+    vector<double> cslowValues;
+    vector<double> rsValues;
+    vector<double> rsCpValues;
+    vector<double> rsPgValues;
 
     int localNumOfVoltChans;
     int localNumOfCurrChans;
@@ -270,8 +280,50 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
         cslowRsEn.push_back(cslowRsCheckBoxes[i]->isChecked());
         rsCpEn.push_back(rsCpCheckBoxes[i]->isChecked());
         rsPgEn.push_back(rsPgCheckBoxes[i]->isChecked());
+        cfastValues.push_back(cfastSpinBoxes[i]->value());
+        cslowValues.push_back(cslowSpinBoxes[i]->value());
+        rsValues.push_back(rsSpinBoxes[i]->value());
+        rsCpValues.push_back(rsCpSpinBoxes[i]->value());
+        rsPgValues.push_back(rsPgSpinBoxes[i]->value());
     }
 
-    emit sigCompensationsApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn);
+    emit sigCompensationsApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues);
 
+}
+
+/*! It updates in GUI both the param values and ranges based on potenial clipings and covnersions done at the asic domain by the messageDispatcher*/
+void CompensationControlDockWidget::onCompValuesDispatched(vector<vector<double>> compValueMatrix, vector<RangedMeasurement> cfastFeatures, vector<RangedMeasurement> cslowFeatures, vector<RangedMeasurement> rsFeatures, vector<RangedMeasurement> rsCpFeatures, vector<RangedMeasurement> rsPgFeatures){
+    int localNumOfVoltChans;
+    int localNumOfCurrChans;
+    int ongoingClampingMode;
+    mDev->getChannelsNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
+    ongoingClampingMode = mDev->getOngoingClampingModality();
+    for (int i = 0; i < localNumOfCurrChans; i++){
+        cfastSpinBoxes[i]->setRange(cfastFeatures[i].min, cfastFeatures[i].max);
+        cfastSpinBoxes[i]->setDecimals(cfastFeatures[i].decimals());
+        if(ongoingClampingMode == E384CL_VOLTAGE_CLAMP_MODE){
+            cfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpVc]);
+        } else if(ongoingClampingMode == E384CL_ZERO_CURRENT_CLAMP_MODE || ongoingClampingMode == E384CL_CURRENT_CLAMP_MODE) {
+            cfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpCc]);
+        } else {
+            /*! \todo MPAC ancora da fare*/
+        }
+
+        cslowSpinBoxes[i]->setRange(cslowFeatures[i].min, cslowFeatures[i].max);
+        cslowSpinBoxes[i]->setDecimals(cslowFeatures[i].decimals());
+        cslowSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_Cm]);
+
+
+        rsSpinBoxes[i]->setRange(rsFeatures[i].min, rsFeatures[i].max);
+        rsSpinBoxes[i]->setDecimals(rsFeatures[i].decimals());
+        rsSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_Rs]);
+
+        rsCpSpinBoxes[i]->setRange(rsCpFeatures[i].min, rsCpFeatures[i].max);
+        rsCpSpinBoxes[i]->setDecimals(rsCpFeatures[i].decimals());
+        rsCpSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_RsCp]);
+
+        rsPgSpinBoxes[i]->setRange(rsPgFeatures[i].min, rsPgFeatures[i].max);
+        rsPgSpinBoxes[i]->setDecimals(rsPgFeatures[i].decimals());
+        rsPgSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_RsPg]);
+    }
 }

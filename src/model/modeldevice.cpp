@@ -80,6 +80,10 @@ QVector <bool> ModelDevice::getSelectedChannelsIdxs() {
     return ret;
 }
 
+int ModelDevice::getOngoingClampingModality(){
+    return ongoingClampingModality;
+}
+
 void ModelDevice::setMessageDispatcher(MessageDispatcher * messageDispatcher) {
     this->messageDispatcher = messageDispatcher;
 }
@@ -261,15 +265,12 @@ ErrorCodes_t ModelDevice::getCalibVcResFeatures(vector <Measurement_t> &calibVcR
     return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
 }
 
-ErrorCodes_t ModelDevice::getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
-    return this->messageDispatcher->getCompFeatures(chIdx, paramToExtractFeatures, compensationFeatures);
+ErrorCodes_t ModelDevice::getCompFeatures(uint16_t paramToExtractFeatures, vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+    return this->messageDispatcher->getCompFeatures(paramToExtractFeatures, compensationFeatures, defaultParamValue);
 }
 
 ErrorCodes_t ModelDevice::getCompOptionsFeatures(MessageDispatcher::CompensationTypes type ,std::vector <std::string> &compOptionsArray){
     return this->messageDispatcher->getCompOptionsFeatures(type, compOptionsArray);
 }
 
-ErrorCodes_t ModelDevice::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues){
-    return this->messageDispatcher->enableCompensation(channelIndexes, compTypeToEnable, onValues, true);
-}
 //---------------------------------------------/

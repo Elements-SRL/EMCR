@@ -16,8 +16,25 @@ uint16_t ModelChannel::getId(){
 bool ModelChannel::isOn(){
     return this->on;
 }
-bool ModelChannel::isCompensating(){
+
+bool ModelChannel::isCompensatingDoc(){
     return this->compensating;
+}
+
+bool ModelChannel::isCompensatingCfast(){
+    return this->compensatingCfast;
+}
+
+bool ModelChannel::isCompensatingCslowRs(){
+    return this->compensatingCslowRs;
+}
+
+bool ModelChannel::isCompensatingRsCp(){
+    return this->compensatingRsCp;
+}
+
+bool ModelChannel::isCompensatingRsPg(){
+    return this->compensatingRSPg;
 }
 
 bool ModelChannel::isInStimActive(){
@@ -45,8 +62,24 @@ void ModelChannel::setOn(bool on){
     this->on = on;
 }
 
-void ModelChannel::setCompensating(bool compensating){
+void ModelChannel::setCompensatingDoc(bool compensating){
     this->compensating = compensating;
+}
+
+void ModelChannel::setCompensatingCfast(bool compensating){
+    this->compensatingCfast = compensating;
+}
+
+void ModelChannel::setCompensatingCslowRs(bool compensating){
+    this->compensatingCslowRs = compensating;
+}
+
+void ModelChannel::setCompensatingRsCp(bool compensating){
+    this->compensatingRsCp = compensating;
+}
+
+void ModelChannel::setCompensatingRsPg(bool compensating){
+    this->compensatingRSPg = compensating;
 }
 
 void ModelChannel::setInStimActive(bool active){

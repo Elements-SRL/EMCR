@@ -32,6 +32,7 @@ public:
     Measurement_t getCcCurrentFilter();
     Measurement_t getCcVoltageFilter();
     QVector <bool> getSelectedChannelsIdxs();
+    int getOngoingClampingModality();
 
     void setMessageDispatcher(MessageDispatcher * messageDispatcher);
     void setSerialNumber(QString serial);
@@ -78,7 +79,7 @@ public:
     ErrorCodes_t getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures);
     ErrorCodes_t getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures);
 
-    ErrorCodes_t getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
+    ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector <RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     ErrorCodes_t getCompOptionsFeatures(MessageDispatcher::CompensationTypes type ,std::vector <std::string> &compOptionsArray);
     ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues);
 
