@@ -270,6 +270,7 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
     vector<double> rsValues;
     vector<double> rsCpValues;
     vector<double> rsPgValues;
+    vector<uint16_t> rsBWValueIdxs;
 
     int localNumOfVoltChans;
     int localNumOfCurrChans;
@@ -285,9 +286,10 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
         rsValues.push_back(rsSpinBoxes[i]->value());
         rsCpValues.push_back(rsCpSpinBoxes[i]->value());
         rsPgValues.push_back(rsPgSpinBoxes[i]->value());
+        rsBWValueIdxs.push_back(rsBwComboBoxes[i]->currentIndex());
     }
 
-    emit sigCompensationsApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues);
+    emit sigCompensationsApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues, rsBWValueIdxs);
 
 }
 

@@ -72,7 +72,7 @@ void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes
     }
 }
 
-void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues){
+void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs){
     int ongoingClampingMode = mDev->getOngoingClampingModality();
     vector<std::vector<double>> compValueMatrix;
     vector<RangedMeasurement> cfastFeatures;
@@ -112,6 +112,7 @@ void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, v
     this->mDev->getMessageDispatcher()->setCompValues(channelIndexes, MessageDispatcher::U_Rs, rsValues, true);
     this->mDev->getMessageDispatcher()->setCompValues(channelIndexes, MessageDispatcher::U_RsCp, rsCpValues, true);
     this->mDev->getMessageDispatcher()->setCompValues(channelIndexes, MessageDispatcher::U_RsPg, rsPgValues, true);
+    this->mDev->getMessageDispatcher()->setCompOptions(channelIndexes, MessageDispatcher::CompRsCorr, rsBWValueIdxs, true);
 
     this->mDev->getMessageDispatcher()->getCompValueMatrix(compValueMatrix);
 

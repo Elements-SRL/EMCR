@@ -41,7 +41,7 @@ private:
 
 
 signals:
-    void sigCompensationsApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues);
+    void sigCompensationsApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs);
 
 
 };
