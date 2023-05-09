@@ -225,6 +225,84 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
         }
     }
 
+    QGridLayout* checkAllLayout = new QGridLayout();
+    // Column captions
+    checkAllLayout->addWidget(new QLabel("Cfast"), 0, 0, Qt::AlignHCenter);
+    checkAllLayout->addWidget(new QLabel("Cslow - Rs"), 0, 1, Qt::AlignHCenter);
+    checkAllLayout->addWidget(new QLabel("RsCorr"), 0, 2, Qt::AlignHCenter);
+    checkAllLayout->addWidget(new QLabel("RsPred"), 0, 3, Qt::AlignHCenter);
+
+    QPushButton* checkAllCfast = new QPushButton("Check All");
+    QPushButton* checkAllCslowRs = new QPushButton("Check All");
+    QPushButton* checkAllRsCorr = new QPushButton("Check All");
+    QPushButton* checkAllRsPred = new QPushButton("Check All");
+    QPushButton* uncheckAllCfast = new QPushButton("Uncheck All");
+    QPushButton* uncheckAllCslowRs = new QPushButton("Uncheck All");
+    QPushButton* uncheckAllRsCorr = new QPushButton("Uncheck All");
+    QPushButton* uncheckAllRsPred = new QPushButton("Uncheck All");
+
+    checkAllLayout->addWidget(checkAllCfast, 1, 0, Qt::AlignHCenter);
+    checkAllLayout->addWidget(uncheckAllCfast, 2, 0, Qt::AlignHCenter);
+
+    checkAllLayout->addWidget(checkAllCslowRs, 1, 1, Qt::AlignHCenter);
+    checkAllLayout->addWidget(uncheckAllCslowRs, 2, 1, Qt::AlignHCenter);
+
+    checkAllLayout->addWidget(checkAllRsCorr, 1, 2, Qt::AlignHCenter);
+    checkAllLayout->addWidget(uncheckAllRsCorr, 2, 2, Qt::AlignHCenter);
+
+    checkAllLayout->addWidget(checkAllRsPred, 1, 3, Qt::AlignHCenter);
+    checkAllLayout->addWidget(uncheckAllRsPred, 2, 3, Qt::AlignHCenter);
+
+    vLayout->addLayout(checkAllLayout);
+
+    connect(checkAllCfast, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < cfastCheckBoxes.size(); i++){
+            cfastCheckBoxes[i]->setChecked(true);
+        }
+    });
+    connect(uncheckAllCfast, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < cfastCheckBoxes.size(); i++){
+            cfastCheckBoxes[i]->setChecked(false);
+        }
+    });
+
+    connect(checkAllCslowRs, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < cslowRsCheckBoxes.size(); i++){
+            cslowRsCheckBoxes[i]->setChecked(true);
+        }
+    });
+    connect(uncheckAllCslowRs, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < cslowRsCheckBoxes.size(); i++){
+            cslowRsCheckBoxes[i]->setChecked(false);
+        }
+    });
+
+    connect(checkAllRsCorr, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < rsCpCheckBoxes.size(); i++){
+            rsCpCheckBoxes[i]->setChecked(true);
+        }
+    });
+    connect(uncheckAllRsCorr, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < rsCpCheckBoxes.size(); i++){
+            rsCpCheckBoxes[i]->setChecked(false);
+        }
+    });
+
+    connect(checkAllRsPred, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < rsPgCheckBoxes.size(); i++){
+            rsPgCheckBoxes[i]->setChecked(true);
+        }
+    });
+    connect(uncheckAllRsPred, &QPushButton::clicked, this, [=] () {
+        for(int i = 0; i < rsPgCheckBoxes.size(); i++){
+            rsPgCheckBoxes[i]->setChecked(false);
+        }
+    });
+
+
+
+
+
     QPushButton* applyButton = new QPushButton("Apply");
     vLayout->addWidget(applyButton);
     connect(applyButton, &QPushButton::clicked, this, &CompensationControlDockWidget::onApplyButtonClicked);
