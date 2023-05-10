@@ -82,6 +82,10 @@ void ModelChannel::setCompensatingRsPg(bool compensating){
     this->compensatingRSPg = compensating;
 }
 
+void ModelChannel::setCompensatingCcCfast(bool compensating){
+    this->compensatingCcCfast = compensating;
+}
+
 void ModelChannel::setInStimActive(bool active){
     this->inStimActive = active;
 }

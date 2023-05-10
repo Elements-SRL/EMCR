@@ -35,7 +35,7 @@ public slots:
     /*! \todo void onApplyKawaiiPlotSettings(Boh);*/
 
     // Compensations
-    void onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs);
+    void onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs, vector<bool> ccCfastEn, vector<double> ccCfastValues);
 
 
     signals:
@@ -43,7 +43,7 @@ public slots:
     void sigSelectedChannelsUpdated();
 
     // signals sent to Compensation Control Widget
-    void sigCompValuesDispatched(vector<vector<double>> compValueMatrix, vector<RangedMeasurement> cfastFeatures, vector<RangedMeasurement> cslowFeatures, vector<RangedMeasurement> rsFeatures, vector<RangedMeasurement> rsCpFeatures, vector<RangedMeasurement> rsPgFeatures);
+    void sigCompValuesDispatched(vector<vector<double>> compValueMatrix, vector<RangedMeasurement> cfastFeatures, vector<RangedMeasurement> cslowFeatures, vector<RangedMeasurement> rsFeatures, vector<RangedMeasurement> rsCpFeatures, vector<RangedMeasurement> rsPgFeatures, vector<RangedMeasurement> ccCfastFeatures);
 };
 
 #endif // CONTROLLERCHANNEL_H

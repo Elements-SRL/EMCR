@@ -72,7 +72,7 @@ void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes
     }
 }
 
-void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs){
+void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs, vector<bool> ccCfastEn, vector<double> ccCfastValues){
     int ongoingClampingMode = mDev->getOngoingClampingModality();
     vector<std::vector<double>> compValueMatrix;
     vector<RangedMeasurement> cfastFeatures;
@@ -80,6 +80,7 @@ void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, v
     vector<RangedMeasurement> rsFeatures;
     vector<RangedMeasurement> rsCpFeatures;
     vector<RangedMeasurement> rsPgFeatures;
+    vector<RangedMeasurement> ccCfastFeatures;
 
     compValueMatrix.resize(channelIndexes.size(), std::vector<double>(MessageDispatcher::CompensationUserParamsNum));
     cfastFeatures.resize(channelIndexes.size());
@@ -87,6 +88,7 @@ void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, v
     rsFeatures.resize(channelIndexes.size());
     rsCpFeatures.resize(channelIndexes.size());
     rsPgFeatures.resize(channelIndexes.size());
+    ccCfastFeatures.resize(channelIndexes.size());
 
     for(int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setCompensatingCfast(cfastEn[i]);
@@ -99,12 +101,13 @@ void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, v
     this->mDev->getMessageDispatcher()->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, cslowRsEn, true);
     this->mDev->getMessageDispatcher()->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, rsCpEn, true);
     this->mDev->getMessageDispatcher()->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, rsPgEn, true);
+    this->mDev->getMessageDispatcher()->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, ccCfastEn, true);
 
     /*! \todo MPAC discriminare tra voltage e current clamp*/
     if(ongoingClampingMode == E384CL_VOLTAGE_CLAMP_MODE){
         this->mDev->getMessageDispatcher()->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, cfastValues, true);
     } else if(ongoingClampingMode == E384CL_ZERO_CURRENT_CLAMP_MODE || ongoingClampingMode == E384CL_CURRENT_CLAMP_MODE) {
-        this->mDev->getMessageDispatcher()->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, cfastValues, true);
+        this->mDev->getMessageDispatcher()->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, ccCfastValues, true);
     } else {
         /*! \todo MPAC ancora da fare*/
     }
@@ -121,7 +124,7 @@ void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, v
     if(ongoingClampingMode == E384CL_VOLTAGE_CLAMP_MODE){
         this->mDev->getMessageDispatcher()->getCompFeatures(MessageDispatcher::U_CpVc, cfastFeatures, defaultParamValue);
     } else if(ongoingClampingMode == E384CL_ZERO_CURRENT_CLAMP_MODE || ongoingClampingMode == E384CL_CURRENT_CLAMP_MODE) {
-        this->mDev->getMessageDispatcher()->getCompFeatures(MessageDispatcher::U_CpCc, cfastFeatures, defaultParamValue);
+        this->mDev->getMessageDispatcher()->getCompFeatures(MessageDispatcher::U_CpCc, ccCfastFeatures, defaultParamValue);
     } else {
         /*! \todo MPAC ancora da fare*/
     }
@@ -130,7 +133,7 @@ void ControllerChannel::onCompensationApplied(vector<uint16_t> channelIndexes, v
     this->mDev->getMessageDispatcher()->getCompFeatures(MessageDispatcher::U_RsCp, rsCpFeatures, defaultParamValue);
     this->mDev->getMessageDispatcher()->getCompFeatures(MessageDispatcher::U_RsPg, rsPgFeatures, defaultParamValue);
 
-    emit sigCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures);
+    emit sigCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures, ccCfastFeatures);
 
 
 

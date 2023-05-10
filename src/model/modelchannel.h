@@ -31,6 +31,7 @@ public:
     void setCompensatingCslowRs(bool compensating);
     void setCompensatingRsCp(bool compensating);
     void setCompensatingRsPg(bool compensating);
+    void setCompensatingCcCfast(bool compensating);
     void setInStimActive(bool active);
     void setSelected(bool selected);
     void setVhold(Measurement_t vHold);
@@ -45,6 +46,7 @@ private:
     bool compensatingCslowRs = false;               // The channel is currently compensating CslowRs
     bool compensatingRsCp = false;                  // The channel is currently compensating RsCp
     bool compensatingRSPg = false;                  // The channel is currently compensating RsPg
+    bool compensatingCcCfast = false;               // The channel is currently compensating Cfast in CURRENT CLAMP
     bool inStimActive = false;                      // The channel currently has active stimulus (true)
     bool selected = false;                          // The channel is selected in the GUI
     Measurement_t vHold = {0.0, UnitPfxMilli, "V"}; // holding voltage

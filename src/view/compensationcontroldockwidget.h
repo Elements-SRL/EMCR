@@ -14,7 +14,7 @@ class CompensationControlDockWidget: public QDockWidget {
 public:
     CompensationControlDockWidget(ModelDevice * mDev, QWidget * parent = nullptr);
 
-    void onCompValuesDispatched(vector<vector<double>> compValueMatrix, vector<RangedMeasurement> cfastFeatures, vector<RangedMeasurement> cslowFeatures, vector<RangedMeasurement> rsFeatures, vector<RangedMeasurement> rsCpFeatures, vector<RangedMeasurement> rsPgFeatures);
+    void onCompValuesDispatched(vector<vector<double>> compValueMatrix, vector<RangedMeasurement> cfastFeatures, vector<RangedMeasurement> cslowFeatures, vector<RangedMeasurement> rsFeatures, vector<RangedMeasurement> rsCpFeatures, vector<RangedMeasurement> rsPgFeatures , vector<RangedMeasurement> ccCfastFeatures);
 
 private:
     QGridLayout * getLayoutWithScrollBar(QWidget * widget);
@@ -31,17 +31,20 @@ private:
     vector<QCheckBox*>  rsPgCheckBoxes;
     vector<MySpinBox*>  rsPgSpinBoxes;
     vector<QComboBox*>  rsBwComboBoxes;
+    vector<QCheckBox*>  ccCfastCheckBoxes;
+    vector<MySpinBox*>  ccCfastSpinBoxes;
 
     vector<QHBoxLayout*> hbsCfast;
     vector<QHBoxLayout*> hbsCslowRs;
     vector<QHBoxLayout*> hbsRsCp;
     vector<QHBoxLayout*> hbsRsPg;
+    vector<QHBoxLayout*> hbsCcCfast;
 
     void onApplyButtonClicked();
 
 
 signals:
-    void sigCompensationsApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs);
+    void sigCompensationsApplied(vector<uint16_t> channelIndexes, vector<bool> cfastEn, vector<bool> cslowRsEn, vector<bool> rsCpEn, vector<bool> rsPgEn, vector<double> cfastValues, vector<double> cslowValues, vector<double> rsValues, vector<double> rsCpValues, vector<double> rsPgValues, vector<uint16_t> rsBWValueIdxs, vector<bool> ccCfastEn, vector<double> ccCfastValues);
 
 
 };
