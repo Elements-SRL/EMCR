@@ -21,6 +21,9 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     mDev->getBoardsNumberFeatures(numOfBoards);
     numOfChannelsOnBoard = currentChannelsNum/numOfBoards;
 
+    suspectChannelIdxs.resize(currentChannelsNum);
+    fill(suspectChannelIdxs.begin(), suspectChannelIdxs.end(), false);
+
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultAdcGainValue);    //1.57014;
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcOffset(defaultAdcOffsetValue); // 0.0;
     mDev->getMessageDispatcher()->getCalibDefaultVcDacOffset(defaultDacOffsetValue); // 0.0;
@@ -30,8 +33,11 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
             || ccc == Device384Fake || ccc == Device384FakePatchClamp
         #endif
             ){
-        mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);
-        mDev->getCalibVcResFeatures(calibratonResistances);
+//        mDev->getCalibVcVoltStepFeatures(calibrationVoltStep);
+//        mDev->getCalibVcResFeatures(calibratonResistances);
+        mDev->getCalibDataFeatures(calibData);
+        calibrationVoltSteps = calibData.vcCalibStepsArrays;
+        calibratonResistances = calibData.vcCalibResArray;
     } else {
         /*! \todo add settings for PatchClamp in case we use this same class  */
     }
@@ -96,7 +102,7 @@ void CalibrationConsumer::run(){
 
     currentSum.resize(channelToCalibIdxs.size());
     currentSum.fill(0.0);
-    currentMeans.resize(calibrationVoltStep.size());
+    currentMeans.resize(calibrationVoltSteps[0].size());
 
 
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
@@ -154,7 +160,7 @@ void CalibrationConsumer::run(){
             turnAllChannelsOnOff(false);
 
              /*! START CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-            calibrateAdcGain();
+            calibrateAdcGain(rangeIdx);
             /*! END CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
             /*! a questo punto tutti i canali hanno carico staccato  e stimolo spento*/
@@ -189,19 +195,24 @@ void CalibrationConsumer::run(){
         someFalse.clear();
         someTrue.clear();
 
-        /*! salvo queste info su CSV la cui struttura deve essere ancora decisa. Forse un file per ciascuna scheda*/
-        mainSaveOnCsv();
+
 
         /*! AGGIORNO LE STRUTTURA IN CUI TENGO TUTTI I VALORI DI CALIBRAZIONE, allGainADC, allOffsetADc, allOffsetDAC*/
         for(int zzz = 0; zzz < vcCurrentRangesArray.size(); zzz++){
             for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
                 allGainADC[zzz][channelToCalibIdxs[xxx]] = gainADC[zzz][xxx];
                 allOffsetADC[zzz][channelToCalibIdxs[xxx]] = offsetADC[zzz][xxx];
+                if(abs(allGainADC[zzz][xxx]) > gainThreshForSuspect){
+                    suspectChannelIdxs[channelToCalibIdxs[xxx]] = true;
+                }
             }
         }
         for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
             allOffsetDAC[channelToCalibIdxs[xxx]] = offsetDAC[xxx];
         }
+
+        /*! salvo queste info su CSV la cui struttura deve essere ancora decisa. Forse un file per ciascuna scheda*/
+        mainSaveOnCsv();
 
         /*! ALLA FINE DI TUTTO SETTO IL VC CURRENT RANGE DI DEFAULT*/
         mDev->getMessageDispatcher()->setVCCurrentRange(defaultVcCurrRangeIdx, true);
@@ -241,12 +252,12 @@ void CalibrationConsumer::onStopConsuming() {
     }
 }
 
-void CalibrationConsumer::calibrateAdcGain(){
+void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
     /*! Representation of voltage steps without any prefix, ...*/
     vector<double> x; /*! voltage steps*/
-    x.resize(calibrationVoltStep.size());
-    for(int i = 0; i< calibrationVoltStep.size(); i++){
-        x[i] = calibrationVoltStep[i].getNoPrefixValue();
+    x.resize(calibrationVoltSteps[thisActualRangeIdx].size());
+    for(int i = 0; i< calibrationVoltSteps[thisActualRangeIdx].size(); i++){
+        x[i] = calibrationVoltSteps[thisActualRangeIdx][i].getNoPrefixValue();
     }
 
     /*! attacca il carico  e accende lo stimolo su tutti i canali  o quelli della scheda selezionata*/
@@ -254,14 +265,14 @@ void CalibrationConsumer::calibrateAdcGain(){
     turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
     /*! FOR: START ciclo sugli step di tensione*/
-    for(int voltStepIdx = 0; voltStepIdx <calibrationVoltStep.size(); voltStepIdx++){
+    for(int voltStepIdx = 0; voltStepIdx <calibrationVoltSteps[thisActualRangeIdx].size(); voltStepIdx++){
         currentMeans[voltStepIdx].resize(channelToCalibIdxs.size());
 
         /*! setta la Vhold per i canali selezionati e applica lo stimolo a tutti i canali selezionati*/
         vector<Measurement_t> someVoltSteps;
         for(int i = 0; i < channelToCalibIdxs.size(); i++){
-            someVoltSteps.push_back(calibrationVoltStep[voltStepIdx]);
-           mDev->getChannels()[channelToCalibIdxs[i]]->setVhold(calibrationVoltStep[voltStepIdx]);
+            someVoltSteps.push_back(calibrationVoltSteps[thisActualRangeIdx][voltStepIdx]);
+           mDev->getChannels()[channelToCalibIdxs[i]]->setVhold(calibrationVoltSteps[thisActualRangeIdx][voltStepIdx]);
         }
         mDev->getMessageDispatcher()->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
 
@@ -309,14 +320,14 @@ void CalibrationConsumer::calibrateAdcGain(){
     /*! UNA VOLTA CHE HO TUTTE CORRENTI MEDIE PER CIASCUN Vstep PER CIASCUN CANALE, FACCIO MINIMI QUADRATI */
     /*! FOR: START ciclo sui canali*/
     vector<double> y; /*! average currents*/
-    y.resize(calibrationVoltStep.size());
+    y.resize(calibrationVoltSteps[thisActualRangeIdx].size());
     vector<double> usefulAdcGain;
     usefulAdcGain.resize(channelToCalibIdxs.size());
     double usefulSlope;
     double uselessOffset;
 
     for(int chIdx = 0; chIdx < channelToCalibIdxs.size(); chIdx++){
-        for(int i = 0; i< calibrationVoltStep.size(); i++){
+        for(int i = 0; i< calibrationVoltSteps[thisActualRangeIdx].size(); i++){
             y[i] = currentMeans[i][chIdx];
         }
         /*! calcolo slope con minimi quadrati che sarebbe 1/Rest*/
@@ -325,12 +336,12 @@ void CalibrationConsumer::calibrateAdcGain(){
         /*! il gain sarebbe Rest/Rcalib, i.e. 1(Rcalib * slope)*/
         usefulAdcGain[chIdx] = 1/(usefulSlope * calibratonResistances[rangeIdx].getNoPrefixValue());
         y.clear();
-        y.resize(calibrationVoltStep.size());
+        y.resize(calibrationVoltSteps[thisActualRangeIdx].size());
     }
     /*! FOR: END ciclo sui canali*/
     gainADC[rangeIdx] = usefulAdcGain;
 
-    for(int i = 0; i< calibrationVoltStep.size(); i++){
+    for(int i = 0; i< calibrationVoltSteps[thisActualRangeIdx].size(); i++){
         currentMeans[i].clear();
     }
 
@@ -592,17 +603,35 @@ void CalibrationConsumer::mainSaveOnCsv(){
             fileName = boardSerialNums[i] + QString(".csv");
             prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, chanSubsetToCalibIdxs);
         }
-        QString msg = "All boards manual calibration successfull!";
+        QString msg = "All boards manual calibration successfull!\n";
+        msg = msg + suspectChannelsMsg(channelToCalibIdxs);
         emit sigManualCalibDoneMsg(msg);
     } else {
         /*! calibro solo una board*/
         fileName = boardSerialNums[channelToCalibIdxs[0]/numOfChannelsOnBoard] + QString(".csv");
         prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, channelToCalibIdxs);
-        QString msg = "Board " + QString("%1").arg(1+channelToCalibIdxs[0]/numOfChannelsOnBoard) +" manual calibration successfull!";
+        QString msg = "Board " + QString("%1").arg(1+channelToCalibIdxs[0]/numOfChannelsOnBoard) +" manual calibration successfull!\n";
+        msg = msg + suspectChannelsMsg(channelToCalibIdxs);
         emit sigManualCalibDoneMsg(msg);
 
     }
 
+}
+
+QString CalibrationConsumer::suspectChannelsMsg(vector<uint16_t> chanToCalibIdxs){
+    QString msgSusp = "";
+    vector<int> listOfSuspectIdxs;
+    for(int j = 0; j < chanToCalibIdxs.size(); j++){
+        if (suspectChannelIdxs[chanToCalibIdxs[j]]){
+            listOfSuspectIdxs.push_back(chanToCalibIdxs[j]);
+            msgSusp = msgSusp + QString("%1").arg(chanToCalibIdxs[j]+1) + ", ";
+        }
+    }
+    if(listOfSuspectIdxs.size() > 0){
+        msgSusp.chop(2);
+        msgSusp = QString("Recheck the following channels: ")+ msgSusp;
+    }
+    return msgSusp;
 }
 
 void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName, vector<uint16_t> chanSubset){

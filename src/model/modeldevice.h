@@ -76,8 +76,9 @@ public:
     ErrorCodes_t getVoltageStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
     ErrorCodes_t getCurrentStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
 
-    ErrorCodes_t getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures);
-    ErrorCodes_t getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures);
+//    ErrorCodes_t getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures);
+//    ErrorCodes_t getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures);
+    ErrorCodes_t getCalibDataFeatures(CalibrationData_t &calibData);
 
     ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector <RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     ErrorCodes_t getCompOptionsFeatures(MessageDispatcher::CompensationTypes type ,std::vector <std::string> &compOptionsArray);

@@ -257,13 +257,18 @@ ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <Measurement_t> 
     return this->messageDispatcher->getCurrentStimulusLpfs(currentFilterOptions);
 }
 
-ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures){
-    return this->messageDispatcher->getVcCalibVoltStepsFeatures(calibVcVoltStepsFeatures);
+//ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures){
+//    return this->messageDispatcher->getVcCalibVoltStepsFeatures(calibVcVoltStepsFeatures);
+//}
+
+//ErrorCodes_t ModelDevice::getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures){
+//    return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
+//}
+
+ErrorCodes_t ModelDevice::getCalibDataFeatures(CalibrationData_t &calibData){
+    return this->messageDispatcher->getCalibData(calibData);
 }
 
-ErrorCodes_t ModelDevice::getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures){
-    return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
-}
 
 ErrorCodes_t ModelDevice::getCompFeatures(uint16_t paramToExtractFeatures, vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     return this->messageDispatcher->getCompFeatures(paramToExtractFeatures, compensationFeatures, defaultParamValue);

@@ -45,11 +45,13 @@ private:
     int deviceUnderCalibrationType; /*! \todo NOT SURE IF NEEDED */
     int numOfBoards;
     int numOfChannelsOnBoard;
+    int numOfChannels;
     Measurement_t calibrationSamplingRate;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
     std::vector <RangedMeasurement_t> vcVoltageRangesArray;
-    std::vector <Measurement_t> calibrationVoltStep;
+    std::vector <std::vector <Measurement_t>> calibrationVoltSteps;
     std::vector <Measurement_t> calibratonResistances;
+    CalibrationData_t calibData;
     std::vector<std::vector<double_t>> gainADC; // vettore di 2 vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> offsetADC; // vettore di 2 vettori_di_offset (Uno per range)
     std::vector <double_t> offsetDAC; // vettore di offset (questo non dipende dal range)
@@ -57,6 +59,9 @@ private:
     std::vector<std::vector<double_t>> allGainADC; // vettore di 2 vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> allOffsetADC; // vettore di 2 vettori_di_offset (Uno per range)
     std::vector <double_t> allOffsetDAC; // vettore di offset (questo non dipende dal range)
+
+    std::vector<bool> suspectChannelIdxs;
+    double gainThreshForSuspect = 2.0;
 
     vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
     int totalChannelsUnderCalibNum;
@@ -95,7 +100,7 @@ private:
 
     /*! REAL CALIBRATION FUNCITIONS*/
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
-    void calibrateAdcGain();
+    void calibrateAdcGain(int thisActualRangeIdx);
     void calibrateAdcOffset(RangedMeasurement_t thisActualRange);
     void calibrateDacOffset(RangedMeasurement_t thisActualRange);
 
@@ -106,6 +111,7 @@ private:
     void loadDefaultCalibParams(int channelsNum);
     void extractBoardCalibDataFromCsv(QTextStream &boardStream);
     QString getCsvData(vector<uint16_t> chanSubset);
+    QString suspectChannelsMsg(vector<uint16_t> chanToCalibIdxs);
 
     void convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas, vector<vector<Measurement_t>> &offsetAdcMeas, vector<Measurement_t> &offsetDacMeas);
 
