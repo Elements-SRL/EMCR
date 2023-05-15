@@ -51,6 +51,7 @@ private:
     std::vector <RangedMeasurement_t> vcVoltageRangesArray;
     std::vector <std::vector <Measurement_t>> calibrationVoltSteps;
     std::vector <Measurement_t> calibratonResistances;
+    bool areCalibResistOnBoard;
     CalibrationData_t calibData;
     std::vector<std::vector<double_t>> gainADC; // vettore di 2 vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> offsetADC; // vettore di 2 vettori_di_offset (Uno per range)
@@ -94,9 +95,11 @@ private:
     void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
     void turnAllChannelsOnOff(bool onValue);
     void turnAllStimulaOnOff(bool onValue);
+    void turnAllCalSwOnOff(bool onValue);
     void selectSomeChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
     void turnSomeChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void turnSomeCalSwOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
 
     /*! REAL CALIBRATION FUNCITIONS*/
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);

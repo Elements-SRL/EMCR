@@ -38,6 +38,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
         mDev->getCalibDataFeatures(calibData);
         calibrationVoltSteps = calibData.vcCalibStepsArrays;
         calibratonResistances = calibData.vcCalibResArray;
+        areCalibResistOnBoard = calibData.areCalibResistOnBoard;
     } else {
         /*! \todo add settings for PatchClamp in case we use this same class  */
     }
@@ -555,6 +556,21 @@ void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
 }
 
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::turnAllCalSwOnOff(bool onValue){
+    vector<uint16_t> channelIndexes;
+    vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+//    for (int i = 0; i < currentChannelsNum; i++){
+//        this->mDev->getChannels()[i]->setInStimActive(onValue);
+//        channelIndexes[i] = i;
+//        onValues[i] = onValue;
+//        qDebug() << "[Channel " << i << "]: on/off status:" << onValue << "\n";
+//    }
+    this->mDev->getMessageDispatcher()->turnCalSwOn(channelIndexes, onValues, true);
+}
+
 void CalibrationConsumer::selectSomeChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues){
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setSelected(selectValues[i]);
@@ -576,6 +592,15 @@ void CalibrationConsumer::turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, 
         this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
     }
+}
+
+/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
+void CalibrationConsumer::turnSomeCalSwOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->turnCalSwOn(channelIndexes, onValues, true);
+//    for (int i = 0; i < channelIndexes.size(); i++){
+//        this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
+//        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
+//    }
 }
 
 void CalibrationConsumer::leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset){
