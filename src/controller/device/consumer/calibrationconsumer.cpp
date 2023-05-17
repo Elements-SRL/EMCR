@@ -132,6 +132,9 @@ void CalibrationConsumer::run(){
         /*! spegne lo stimolo e stacco il carico su tutti i canali per concentire all'utente di cambiare la model cell se c'è quella sbagliata*/
         turnAllStimulaOnOff(false);
         turnAllChannelsOnOff(false);
+        if(areCalibResistOnBoard){
+            turnAllCalSwOnOff(false);
+        }
 
         QString msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you mounted the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cell.\nPress OK to continue.\n";
         waitForFirstModelCellChecked = true;
@@ -159,6 +162,9 @@ void CalibrationConsumer::run(){
             /*! spegne lo stimolo e stacco il carico su tutti i canali */
             turnAllStimulaOnOff(false);
             turnAllChannelsOnOff(false);
+            if(areCalibResistOnBoard){
+                turnAllCalSwOnOff(false);
+            }
 
              /*! START CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             calibrateAdcGain(rangeIdx);
@@ -262,7 +268,12 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
     }
 
     /*! attacca il carico  e accende lo stimolo su tutti i canali  o quelli della scheda selezionata*/
-    turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
+    if(areCalibResistOnBoard){
+        turnSomeCalSwOnOff(channelToCalibIdxs, someTrue);
+    } else {
+        turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
+    }
+
     turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
     /*! FOR: START ciclo sugli step di tensione*/
@@ -348,7 +359,11 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
 
     /*! spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
     turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
-    turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
+    if(areCalibResistOnBoard){
+        turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
+    } else {
+        turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
+    }
 }
 
 void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange){
@@ -415,7 +430,11 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
 
     /*! spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
     turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
-    turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
+    if(areCalibResistOnBoard){
+        turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
+    } else {
+        turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
+    }
 }
 
 void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange){
@@ -437,7 +456,11 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
     /*! accende lo stimolo e attacca gli switch di ingresso su tutti i canali  o su quelli della scheda selezionata*/
     turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
-    turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
+    if(areCalibResistOnBoard){
+        turnSomeCalSwOnOff(channelToCalibIdxs, someTrue);
+    } else {
+        turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
+    }
 
     currentMeans[0].resize(channelToCalibIdxs.size());
 
@@ -504,7 +527,11 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
     /*!  spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
     turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
-    turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
+    if(areCalibResistOnBoard){
+        turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
+    } else {
+        turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
+    }
 }
 
 
@@ -919,6 +946,7 @@ void CalibrationConsumer::updateCalibParams(){
 
         gainAdcMeas.resize(vcCurrentRangesArray.size());
         offsetAdcMeas.resize(vcCurrentRangesArray.size());
+        offsetDacMeas.resize(vcVoltageRangesArray.size());
         convertToMeasurement(gainAdcMeas, offsetAdcMeas, offsetDacMeas);
 
         for(int i = 0; i< currentChannelsNum; i++){
