@@ -20,7 +20,7 @@ QDoubleSpinBox * initQdoubleSpinBox(QDoubleSpinBox * dsb, e384CommLib::RangedMea
     return dsb;
 }
 
-void initQdoubleSpinBox(QDoubleSpinBox * from, QDoubleSpinBox * to){
+void copy(QDoubleSpinBox * from, QDoubleSpinBox * to){
     double minimum = from->minimum();
     double maximum = from->maximum();
     int decimals = from->decimals();

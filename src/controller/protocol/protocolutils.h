@@ -12,5 +12,5 @@ typedef enum {
 
 QDoubleSpinBox * initQdoubleSpinBox(QDoubleSpinBox * dsb, e384CommLib::RangedMeasurement_t rm, RangedQDoubleSpinBox_t rqdsb);
 
-void initQdoubleSpinBox(QDoubleSpinBox * from, QDoubleSpinBox * to);
+void copy(QDoubleSpinBox * from, QDoubleSpinBox * to);
 #endif // PROTOCOLUTILS_H
