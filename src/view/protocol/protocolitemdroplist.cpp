@@ -268,7 +268,7 @@ void ProtocolItemDropList::setControlsFromYaml(const std::vector <YAML::Control_
         mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)voltageRangeIdx, stimulusRange);
 
     } else {
-        mDev->getCurrentProtocolRange((unsigned int)currentRangeIdx, stimulusRange);
+        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)currentRangeIdx, stimulusRange);
     }
 
     for (auto yamlControl : yamlControls) {
@@ -317,17 +317,17 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
     /*! Get the simulus range and set it before importing numeric values into the items */
     RangedMeasurement_t stimulusRange;
     if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        mDev->getVoltageProtocolRange((unsigned int)voltageRangeIdx, stimulusRange);
+        mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)voltageRangeIdx, stimulusRange);
 
     } else {
-        mDev->getCurrentProtocolRange((unsigned int)currentRangeIdx, stimulusRange);
+        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)currentRangeIdx, stimulusRange);
     }
 
     for (auto yamlPhase : yamlPhases) {
         ProtocolDropItem * item = nullptr;
         switch (yamlPhase.index()) {
         case YAML::VHoldIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropVHoldItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VHold_t> (yamlPhase));
@@ -335,7 +335,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::VConstIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropVConstItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VConst_t> (yamlPhase));
@@ -343,7 +343,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::VStepTStepIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropVStepTStepItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VStepTStep_t> (yamlPhase));
@@ -351,7 +351,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::VRestIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropVRestItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VRest_t> (yamlPhase));
@@ -359,7 +359,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::VRampIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
                 item = new ProtocolDropVRampItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::VRamp_t> (yamlPhase));
@@ -367,7 +367,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::VSinIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
                 item = new ProtocolDropVSinItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXSinItem *> (item)->setPhaseFromYaml(std::get <YAML::VSin_t> (yamlPhase));
@@ -375,7 +375,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::IHoldIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropIHoldItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IHold_t> (yamlPhase));
@@ -383,7 +383,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::IConstIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropIConstItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IConst_t> (yamlPhase));
@@ -391,7 +391,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::IStepTStepIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropIStepTStepItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IStepTStep_t> (yamlPhase));
@@ -399,7 +399,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::IRestIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
                 item = new ProtocolDropIRestItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IRest_t> (yamlPhase));
@@ -407,7 +407,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::IRampIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
                 item = new ProtocolDropIRampItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::VRamp_t> (yamlPhase));
@@ -415,7 +415,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::ISinIdx:
-            if (mDev->hasProtocolStep() == Success) {
+            if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
                 item = new ProtocolDropISinItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXSinItem *> (item)->setPhaseFromYaml(std::get <YAML::ISin_t> (yamlPhase));
