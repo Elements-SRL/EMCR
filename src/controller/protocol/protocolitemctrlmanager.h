@@ -15,8 +15,6 @@ class ProtocolDropItemParam;
 class ProtocolDropItemIntParam;
 class ProtocolDropItemDoubleParam;
 
-using namespace std;
-
 class ProtocolItemCtrlManager : public QObject {
     Q_OBJECT
 

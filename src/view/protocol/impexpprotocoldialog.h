@@ -49,8 +49,8 @@ protected:
     QString stimulusName;
     QString fullFileName;
     QString folderName;
-    QStringList sourceProtocolsNames;
-    QStringList destinationProtocolsNames;
+    std::vector <std::string> sourceProtocolsNames;
+    std::vector <std::string> destinationProtocolsNames;
     int protocolsNum = 0;
     QVector <ImpExpProtocolsActionSelector *> * actionSelectors = nullptr;
     EpmlManager * epmlManager = nullptr;

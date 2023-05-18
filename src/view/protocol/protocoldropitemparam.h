@@ -7,6 +7,7 @@
 #include <QSpinBox>
 
 #include "protocolitemctrlmanager.h"
+#include "steppedspinbox.h"
 
 class ProtocolDropItem;
 class ProtocolDropControlItem;

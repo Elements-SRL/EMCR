@@ -11,6 +11,7 @@
 #include "protocolsection.h"
 #include "protocolitemdroplist.h"
 #include "cursorsmanager.h"
+#include "cursor.h"
 #include "e4gcommlib.h"
 
 namespace e4gcl = e4gCommLib;
@@ -50,6 +51,10 @@ public:
     void setAnalysisPidl(AnalysisProtocolItemDropList * analysisPidl);
     void setTooManyTriggersWarning(bool flag);
 
+    std::vector <YAML::Cursor> getYamlCursors();
+
+    void setCursorsFromYaml(const std::vector <YAML::Cursor> &yamlCursors);
+
 public slots:
     void updateView();
 
@@ -80,8 +85,8 @@ private:
     ProtocolPlot * protocolPlot;
     QwtText * errorText;
     QwtPlotTextLabel * errorItem;
-    vector <Curve *> protocolPlotCurve;
-    vector <double *> protocolPlotData;
+    std::vector <Curve *> protocolPlotCurve;
+    std::vector <double *> protocolPlotData;
     ProtocolSections * protocolSections = nullptr;
     CursorsManager * cursorsManager = nullptr;
 };

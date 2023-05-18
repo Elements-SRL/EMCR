@@ -13,6 +13,8 @@
 #include "analysiscursor.h"
 #include "protocoldefs.h"
 #include "epmlmanager.h"
+#include "voltageprotocol.h"
+#include "currentprotocol.h"
 #include "e4gcommlib.h"
 
 namespace e4gcl = e4gCommLib;
@@ -91,6 +93,12 @@ public:
     bool hasInfiniteRepetition();
     virtual ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) = 0;
     virtual ProtocolSection * getItemAtTime(double time, int itemIdx, int repsIdx, int sweepIdx, double &offset) = 0;
+
+    YAML::VoltageProtocol getYamlVoltageProtocol();
+    YAML::CurrentProtocol getYamlCurrentProtocol();
+
+    void setProtocolFromYaml(const YAML::VoltageProtocol &yamlProtocol);
+    void setProtocolFromYaml(const YAML::CurrentProtocol &yamlProtocol);
 
 public slots:
     void onAcceptPropertyDialog();

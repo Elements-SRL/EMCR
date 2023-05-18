@@ -10,6 +10,8 @@
 #include "protocolpreview.h"
 #include "protocolitemctrlmanager.h"
 #include "epmlmanager.h"
+#include "voltageprotocol.h"
+#include "currentprotocol.h"
 #include "e4gcommlib.h"
 
 namespace e4gcl = e4gCommLib;
@@ -62,6 +64,12 @@ public:
     QVector <ProtocolDropItem *> * getDropItems();
     void setTooManyTriggersWarning(bool flag);
 
+    YAML::VoltageProtocol_t getYamlVoltageProtocol();
+    YAML::CurrentProtocol_t getYamlCurrentProtocol();
+
+    void setProtocolFromYaml(const YAML::VoltageProtocol_t &yamlProtocol);
+    void setProtocolFromYaml(const YAML::CurrentProtocol_t &yamlProtocol);
+
 public slots:
     void onUpdateProtocol();
     void onUpdateCtrlItem();
@@ -87,6 +95,7 @@ protected:
     ProtocolPreview * protocolPreview = nullptr;
 
     QString name;
+    QString type;
     QString stimulusAbbrName;
 
     SteppedSpinBox * holdEdit;
@@ -129,15 +138,11 @@ protected:
 class GapfreeProtocolEditor : virtual public ProtocolEditor {
 public:
     GapfreeProtocolEditor();
-
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
 };
 
 class EpisodicProtocolEditor : virtual public ProtocolEditor {
 public:
     EpisodicProtocolEditor();
-
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
 };
 
 class GapfreeVoltageProtocolEditor : public VoltageProtocolEditor, public GapfreeProtocolEditor {

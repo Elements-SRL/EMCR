@@ -332,7 +332,7 @@ void ProtocolCursor::setSection(ProtocolSection * section, double offset, Protoc
         lastRepItem->setFlags(lastRepItem->flags() | Qt::ItemIsEnabled);
 
     } else {
-        repetitionSb->setMaximum(numeric_limits <int> ::max());
+        repetitionSb->setMaximum(std::numeric_limits <int> ::max());
         /*! Within an infinite repetition loop update the repsIdx only if it changes from 0 or to 0, i.e. product = 0,
             or if we come from an item that is not in an infinite loop.
             In any case do not update it if the protocol was imported. */
@@ -623,6 +623,43 @@ bool ProtocolCursor::sameRepetitions(ProtocolCursor * cursor) {
     return ret;
 }
 
+YAML::Cursor ProtocolCursor::getYamlCursor() {
+    YAML::Cursor yamlCursor;
+
+    yamlCursor.xvalue = marker->xValue();
+    yamlCursor.itemidx = itemIdx;
+    yamlCursor.locationtype = (YAML::CursorLocationType_t)locationType;
+    yamlCursor.locationdelay = locationDelay;
+    yamlCursor.repetitiontype = (YAML::CursorRepetitionType_t)repetitionType;
+    yamlCursor.repetitionidx = repetitionIdx;
+    yamlCursor.sweeptype = (YAML::CursorSweepType_t)sweepType;
+    yamlCursor.sweepidx = sweepIdx;
+    yamlCursor.triggertype = (YAML::CursorTriggerType_t)triggerType;
+    yamlCursor.triggeridx = triggerId;
+
+    return yamlCursor;
+}
+
+void ProtocolCursor::setCursorFromYaml(const YAML::Cursor &yamlCursor) {
+    locationType = (LocationType_t)yamlCursor.locationtype;
+    locationDelay = yamlCursor.locationdelay;
+    repetitionType = (RepetitionType_t)yamlCursor.repetitiontype;
+    repetitionIdx = yamlCursor.repetitionidx;
+    sweepType = (SweepType_t)yamlCursor.sweeptype;
+    sweepIdx = yamlCursor.sweepidx;
+    triggerType = (TriggerType_t)yamlCursor.triggertype;
+    triggerId = yamlCursor.triggeridx;
+
+    locationCb->setCurrentIndex(locationType);
+    locationSb->setValue(locationDelay);
+    repetitionCb->setCurrentIndex(repetitionType);
+    repetitionSb->setValue(repetitionIdx);
+    sweepCb->setCurrentIndex(sweepType);
+    sweepSb->setValue(sweepIdx);
+    triggerCb->setCurrentIndex(triggerType);
+    triggerSb->setValue(triggerId);
+}
+
 void ProtocolCursor::initializePropertyDialog() {
     propertyDialog = new QDialog();
 
@@ -650,7 +687,7 @@ void ProtocolCursor::initializePropertyDialog() {
     timeRange.convertValues(e4gcl::UnitPfxMilli);
 
     locationSb = new QDoubleSpinBox();
-    locationSb->setRange(0.0, numeric_limits <double> ::max());
+    locationSb->setRange(0.0, std::numeric_limits <double> ::max());
     locationSb->setValue(locationDelay);
     locationSb->setDecimals(timeRange.decimals());
     locationSb->setSingleStep(timeRange.step);
@@ -686,7 +723,7 @@ void ProtocolCursor::initializePropertyDialog() {
     repetitionLo->addWidget(new QLabel("#"));
 
     repetitionSb = new QSpinBox();
-    repetitionSb->setRange(1, numeric_limits <int> ::max());
+    repetitionSb->setRange(1, std::numeric_limits <int> ::max());
     repetitionSb->setValue(repetitionIdx);
     repetitionSb->setSingleStep(1);
     repetitionSb->setMinimumWidth(70);
@@ -727,7 +764,7 @@ void ProtocolCursor::initializePropertyDialog() {
     sweepLo->addWidget(new QLabel("#"));
 
     sweepSb = new QSpinBox();
-    sweepSb->setRange(1, numeric_limits <int> ::max());
+    sweepSb->setRange(1, std::numeric_limits <int> ::max());
     sweepSb->setValue(sweepIdx);
     sweepSb->setSingleStep(1);
     sweepSb->setMinimumWidth(70);
@@ -1004,7 +1041,7 @@ bool ProtocolCursor::sameRepetitionsLoopLevel(ProtocolCursor * cursor) {
 void ProtocolCursor::onRepetitionIdxChanged(int repsIdx) {
     if (protocolSection != nullptr) {
         if (protocolSection->repsNum == 0) {
-            repsIdx = min(repsIdx, 2);
+            repsIdx = std::min(repsIdx, 2);
         }
 
         protocolSection = protocolSection->getSectionByItem(

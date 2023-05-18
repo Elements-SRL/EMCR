@@ -590,6 +590,509 @@ void ProtocolItemDropList::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
     }
 }
 
+std::vector <YAML::Control_t> ProtocolItemDropList::getYamlControls() {
+    std::vector <YAML::Control_t> yamlControls;
+
+    this->updateDropItemsList();
+
+    for (int itemIdx = 0; itemIdx < items->size(); itemIdx++) {
+        ProtocolDropItem * item = items->at(itemIdx);
+
+        switch (item->type()) {
+        case PROT_DROP_LIST_VOLTAGE_CONTROL_ITEM_TYPE:
+            yamlControls.push_back(static_cast <ProtocolDropControlItem *> (item)->getYamlVoltageCtrl());
+            break;
+
+        case PROT_DROP_LIST_CURRENT_CONTROL_ITEM_TYPE:
+            yamlControls.push_back(static_cast <ProtocolDropControlItem *> (item)->getYamlCurrentCtrl());
+            break;
+
+        case PROT_DROP_LIST_TIME_CONTROL_ITEM_TYPE:
+            yamlControls.push_back(static_cast <ProtocolDropControlItem *> (item)->getYamlTimeCtrl());
+            break;
+
+        case PROT_DROP_LIST_FREQUENCY_CONTROL_ITEM_TYPE:
+            yamlControls.push_back(static_cast <ProtocolDropControlItem *> (item)->getYamlFrequencyCtrl());
+            break;
+
+        case PROT_DROP_LIST_NATURAL_NUM_CONTROL_ITEM_TYPE:
+            yamlControls.push_back(static_cast <ProtocolDropControlItem *> (item)->getYamlNaturalNumCtrl());
+            break;
+
+        default:
+            break;
+        }
+    }
+    return yamlControls;
+}
+
+std::vector <YAML::Phase_t> ProtocolItemDropList::getYamlPhases() {
+    std::vector <YAML::Phase_t> yamlPhases;
+
+    this->updateDropItemsList();
+
+    for (int itemIdx = 0; itemIdx < items->size(); itemIdx++) {
+        ProtocolDropItem * item = items->at(itemIdx);
+
+        switch (item->type()) {
+        case PROT_DROP_LIST_VSTEP_TSTEP_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlVStepTStep());
+            break;
+
+        case PROT_DROP_LIST_ISTEP_TSTEP_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlIStepTStep());
+            break;
+
+        case PROT_DROP_LIST_VCONST_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlVConst());
+            break;
+
+        case PROT_DROP_LIST_ICONST_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlIConst());
+            break;
+
+        case PROT_DROP_LIST_VHOLD_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlVHold());
+            break;
+
+        case PROT_DROP_LIST_IHOLD_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlIHold());
+            break;
+
+        case PROT_DROP_LIST_VREST_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlVRest());
+            break;
+
+        case PROT_DROP_LIST_IREST_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXStepTStepItem *> (item)->getYamlIRest());
+            break;
+
+        case PROT_DROP_LIST_VRAMP_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXRampItem *> (item)->getYamlVRamp());
+            break;
+
+        case PROT_DROP_LIST_IRAMP_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXRampItem *> (item)->getYamlIRamp());
+            break;
+
+        case PROT_DROP_LIST_VSIN_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXSinItem *> (item)->getYamlVSin());
+            break;
+
+        case PROT_DROP_LIST_ISIN_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropXSinItem *> (item)->getYamlISin());
+            break;
+
+        case PROT_DROP_LIST_VREP_SEQ_SCALED_ITEM_TYPE:
+        case PROT_DROP_LIST_IREP_SEQ_SCALED_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropIRepSeqScaledItem *> (item)->getYamlRepSeqScaled());
+            break;
+
+        case PROT_DROP_LIST_VREP_SEQ_ITEM_TYPE:
+        case PROT_DROP_LIST_IREP_SEQ_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropIRepSeqScaledItem *> (item)->getYamlRepSeq());
+            break;
+
+        case PROT_DROP_LIST_VREP_SEQ_WITH_STEPS_ITEM_TYPE:
+        case PROT_DROP_LIST_IREP_SEQ_WITH_STEPS_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropIRepSeqScaledItem *> (item)->getYamlRepSeqWithSteps());
+            break;
+
+        case PROT_DROP_LIST_VINF_REP_SEQ_ITEM_TYPE:
+        case PROT_DROP_LIST_IINF_REP_SEQ_ITEM_TYPE:
+            yamlPhases.push_back(static_cast <ProtocolDropIRepSeqScaledItem *> (item)->getYamlInfRepSeq());
+            break;
+
+        default:
+            break;
+        }
+    }
+    return yamlPhases;
+}
+
+std::vector <YAML::Analysis_t> ProtocolItemDropList::getYamlAnalyses() {
+    std::vector <YAML::Analysis_t> yamlAnalyses;
+
+    this->updateDropItemsList();
+
+    for (int itemIdx = 0; itemIdx < items->size(); itemIdx++) {
+        ProtocolDropItem * item = items->at(itemIdx);
+
+        switch (item->type()) {
+        case PROT_DROP_LIST_NOISE_REPORT_ITEM_TYPE:
+        case PROT_DROP_LIST_HISTOGRAM_ITEM_TYPE:
+        case PROT_DROP_LIST_SPECTRUM_ITEM_TYPE:
+        case PROT_DROP_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE:
+        case PROT_DROP_LIST_MEMBRANE_TEST_ITEM_TYPE:
+        case PROT_DROP_LIST_IV_GRAPH_ITEM_TYPE:
+        case PROT_DROP_LIST_VOLTAGE_TRACKING_ITEM_TYPE:
+        case PROT_DROP_LIST_AP_THRESHOLD_ITEM_TYPE:
+        case PROT_DROP_LIST_AP_STATISTICS_ITEM_TYPE:
+            yamlAnalyses.push_back(static_cast <ProtocolDropAnalysisItem *> (item)->getYamlAnalysis());
+            break;
+
+        default:
+            break;
+        }
+    }
+    return yamlAnalyses;
+}
+
+void ProtocolItemDropList::setControlsFromYaml(const std::vector <YAML::Control_t> &yamlControls, int voltageRangeIdx, int currentRangeIdx) {
+    /*! Get the simulus range and set it before importing numeric values into the items */
+    e4gcl::RangedMeasurement_t stimulusRange;
+    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        commLib->getVoltageProtocolRange((unsigned int)voltageRangeIdx, stimulusRange);
+
+    } else {
+        commLib->getCurrentProtocolRange((unsigned int)currentRangeIdx, stimulusRange);
+    }
+
+    for (auto yamlControl : yamlControls) {
+        ProtocolDropItem * item = nullptr;
+        switch (yamlControl.index()) {
+        case YAML::VoltageCtrlIdx:
+            item = new ProtocolDropVoltageControlItem(commLib, ctrlManager, holdEdit->value());
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::VoltageCtrl> (yamlControl));
+            break;
+
+        case YAML::CurrentCtrlIdx:
+            item = new ProtocolDropCurrentControlItem(commLib, ctrlManager, holdEdit->value());
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::CurrentCtrl> (yamlControl));
+            break;
+
+        case YAML::TimeCtrlIdx:
+            item = new ProtocolDropTimeControlItem(commLib, ctrlManager, holdEdit->value());
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::TimeCtrl> (yamlControl));
+            break;
+
+        case YAML::FrequencyCtrlIdx:
+            item = new ProtocolDropFrequencyControlItem(commLib, ctrlManager, holdEdit->value());
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::FrequencyCtrl> (yamlControl));
+            break;
+
+        case YAML::NaturalNumCtrlIdx:
+            item = new ProtocolDropNaturalNumControlItem(commLib, ctrlManager, holdEdit->value());
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::NaturalNumCtrl> (yamlControl));
+            break;
+        }
+
+        if (item != nullptr) {
+            this->addItem(item);
+            connect(item, &ProtocolDropItem::updateItem, this, &ProtocolItemDropList::onUpdateItem);
+            connect(item, &ProtocolDropItem::protocolDropItemDeleteRequest, this, &ProtocolItemDropList::onDropItemDelete);
+        }
+    }
+}
+
+void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &yamlPhases, int voltageRangeIdx, int currentRangeIdx) {
+    /*! Get the simulus range and set it before importing numeric values into the items */
+    e4gcl::RangedMeasurement_t stimulusRange;
+    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        commLib->getVoltageProtocolRange((unsigned int)voltageRangeIdx, stimulusRange);
+
+    } else {
+        commLib->getCurrentProtocolRange((unsigned int)currentRangeIdx, stimulusRange);
+    }
+
+    for (auto yamlPhase : yamlPhases) {
+        ProtocolDropItem * item = nullptr;
+        switch (yamlPhase.index()) {
+        case YAML::VHoldIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropVHoldItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VHold_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::VConstIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropVConstItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VConst_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::VStepTStepIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropVStepTStepItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VStepTStep_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::VRestIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropVRestItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VRest_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::VRampIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropVRampItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::VRamp_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::VSinIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropVSinItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXSinItem *> (item)->setPhaseFromYaml(std::get <YAML::VSin_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::IHoldIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropIHoldItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IHold_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::IConstIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropIConstItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IConst_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::IStepTStepIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropIStepTStepItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IStepTStep_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::IRestIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropIRestItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IRest_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::IRampIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropIRampItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::VRamp_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::ISinIdx:
+            if (commLib->hasProtocolStep() == e4gcl::Success) {
+                item = new ProtocolDropISinItem(commLib, ctrlManager, holdEdit->value());
+                item->setStimulusRange(stimulusRange);
+                static_cast <ProtocolDropXSinItem *> (item)->setPhaseFromYaml(std::get <YAML::ISin_t> (yamlPhase));
+            }
+            break;
+
+        case YAML::RepSeqIdx:
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                item = new ProtocolDropVRepSeqItem(commLib, ctrlManager, holdEdit->value());
+
+            } else {
+                item = new ProtocolDropIRepSeqItem(commLib, ctrlManager, holdEdit->value());
+            }
+
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::RepSeq_t> (yamlPhase));
+            break;
+
+        case YAML::RepSeqWithStepsIdx:
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                item = new ProtocolDropVRepSeqWithStepsItem(commLib, ctrlManager, holdEdit->value());
+
+            } else {
+                item = new ProtocolDropIRepSeqWithStepsItem(commLib, ctrlManager, holdEdit->value());
+            }
+
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::RepSeqWithSteps_t> (yamlPhase));
+            break;
+
+        case YAML::RepSeqScaledIdx:
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                item = new ProtocolDropVRepSeqScaledItem(commLib, ctrlManager, holdEdit->value());
+
+            } else {
+                item = new ProtocolDropIRepSeqScaledItem(commLib, ctrlManager, holdEdit->value());
+            }
+
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::RepSeqScaled_t> (yamlPhase));
+            break;
+
+        case YAML::InfRepSeqIdx:
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                item = new ProtocolDropVInfRepSeqItem(commLib, ctrlManager, holdEdit->value());
+
+            } else {
+                item = new ProtocolDropIInfRepSeqItem(commLib, ctrlManager, holdEdit->value());
+            }
+
+            item->setStimulusRange(stimulusRange);
+            static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::InfRepSeq_t> (yamlPhase));
+            break;
+        }
+
+        if (item != nullptr) {
+            this->addItem(item);
+            connect(item, &ProtocolDropItem::updateItem, this, &ProtocolItemDropList::onUpdateItem);
+            connect(item, &ProtocolDropItem::protocolDropItemDeleteRequest, this, &ProtocolItemDropList::onDropItemDelete);
+        }
+    }
+}
+
+void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis_t> &yamlAnalyses) {
+    for (auto yamlAnalysis : yamlAnalyses) {
+        ProtocolDropItem * item = nullptr;
+        switch (yamlAnalysis.type) {
+        case YAML::NoiseReport: {
+            item = new ProtocolDropNoiseReportItem(commLib, ctrlManager, holdEdit->value());
+            ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+            this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
+            emit requestCursors(castItem);
+
+            connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+            emit analysisChanged();
+            break;
+        }
+
+        case YAML::Histogram: {
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                item = new ProtocolDropNoiseReportItem(commLib, ctrlManager, holdEdit->value());
+                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+                this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
+                emit requestCursors(castItem);
+
+                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+                emit analysisChanged();
+            }
+            break;
+        }
+
+        case YAML::Spectrum: {
+            if (!(this->analysisRequested(ProtocolConsumerSpectrum))) {
+                item = new ProtocolDropSpectrumItem(commLib, ctrlManager, holdEdit->value());
+                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+                this->setAnalysis(ProtocolConsumerSpectrum, castItem);
+                emit requestCursors(castItem);
+
+                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+                emit analysisChanged();
+            }
+            break;
+        }
+
+        case YAML::MembraneTest: {
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                if (!(this->analysisRequested(ProtocolConsumerMembraneTest))) {
+                    item = new ProtocolDropMembraneTestItem(commLib, ctrlManager, holdEdit->value());
+                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+                    this->setAnalysis(ProtocolConsumerMembraneTest, castItem);
+                    emit requestCursors(castItem);
+
+                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+                    emit analysisChanged();
+                }
+
+            } else {
+                /*! \todo FCON da implementare se serve una analisi diversa in current clamp */
+            }
+            break;
+        }
+
+        case YAML::IVGraph: {
+            if (!(this->analysisRequested(ProtocolConsumerIvGraph))) {
+                item = new ProtocolDropIvGraphItem(commLib, ctrlManager, holdEdit->value());
+                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+                this->setAnalysis(ProtocolConsumerIvGraph, castItem);
+                emit requestCursors(castItem);
+
+                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+                emit analysisChanged();
+            }
+            break;
+        }
+
+        case YAML::ResistanceEstimation: {
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                /*! \todo FCON da implementare se serve una analisi diversa in voltage clamp */
+
+            } else {
+                if (!(this->analysisRequested(ProtocolConsumerResistanceEstimation))) {
+                    item = new ProtocolDropResistanceEstimationItem(commLib, ctrlManager, holdEdit->value());
+                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+                    this->setAnalysis(ProtocolConsumerResistanceEstimation, castItem);
+                    emit requestCursors(castItem);
+
+                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+                    emit analysisChanged();
+                }
+            }
+            break;
+        }
+
+        case YAML::APThreshold: {
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                /*! \todo FCON da implementare se serve una analisi diversa in voltage clamp */
+
+            } else {
+                if (!(this->analysisRequested(ProtocolConsumerApThreshold))) {
+                    item = new ProtocolDropApThresholdItem(commLib, ctrlManager, holdEdit->value());
+                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+                    this->setAnalysis(ProtocolConsumerApThreshold, castItem);
+                    emit requestCursors(castItem);
+
+                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+                    emit analysisChanged();
+                }
+            }
+            break;
+        }
+
+        case YAML::APStatistics: {
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                /*! \todo FCON da implementare se serve una analisi diversa in voltage clamp */
+
+            } else {
+                if (!(this->analysisRequested(ProtocolConsumerApStatistics))) {
+                    item = new ProtocolDropApStatisticsItem(commLib, ctrlManager, holdEdit->value());
+                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
+                    this->setAnalysis(ProtocolConsumerApStatistics, castItem);
+                    emit requestCursors(castItem);
+
+                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
+                    emit analysisChanged();
+                }
+            }
+            break;
+        }
+        }
+
+        if (item != nullptr) {
+            static_cast <ProtocolDropAnalysisItem *> (item)->setAnalysisFromYaml(yamlAnalysis);
+
+            this->addItem(item);
+            connect(item, &ProtocolDropItem::updateItem, this, &ProtocolItemDropList::onUpdateItem);
+            connect(item, &ProtocolDropItem::protocolDropItemDeleteRequest, this, &ProtocolItemDropList::onDropItemDelete);
+        }
+    }
+}
+
 void ProtocolItemDropList::onItemDoubleClicked(QListWidgetItem * item) {
     static_cast <ProtocolDropItem *> (item)->openPropertyDialog();
 }

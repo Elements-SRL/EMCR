@@ -496,6 +496,23 @@ void ProtocolPlot::setCursorsVisibility(bool visible) {
     }
 }
 
+std::vector <YAML::Cursor> ProtocolPlot::getYamlCursors() {
+    std::vector <YAML::Cursor> yamlCursors;
+    for (int cursorIdx = 0; cursorIdx < protocolCursors->size(); cursorIdx++) {
+        yamlCursors.push_back(protocolCursors->at(cursorIdx)->getYamlCursor());
+    }
+    return yamlCursors;
+}
+
+void ProtocolPlot::setCursorsFromYaml(const std::vector <YAML::Cursor> &yamlCursors) {
+    if (protocol != nullptr) {
+        for (auto yamlCursor : yamlCursors) {
+            this->importCursor(yamlCursor);
+        }
+    }
+    emit addCursors();
+}
+
 void ProtocolPlot::onEnableCursorManagement(bool enabled) {
     zoomInPicker->setEnabled(!enabled);
     zoomOutPicker->setEnabled(!enabled);
@@ -687,6 +704,28 @@ bool ProtocolPlot::importCursor(EpmlManager * epmlManager, EpmlStatus_t &epmlSta
     }
 }
 
+bool ProtocolPlot::importCursor(const YAML::Cursor &yamlCursor) {
+    double xvalue = yamlCursor.xvalue;
+    int itemIdx = yamlCursor.itemidx;
+
+    protocolCursors->append(new ProtocolCursor(commLib, this, xvalue, protocolCursors->size()+1));
+    protocolCursors->back()->setCursorFromYaml(yamlCursor);
+
+    double offset;
+    ProtocolSection * section = protocol->getItemAtTime(xvalue, itemIdx, protocolCursors->back()->getRepetitionIdx(), protocolCursors->back()->getSweepIdx(), offset);
+    if (section != nullptr) {
+        protocolCursors->back()->setSection(section, offset, protocol->getType());
+        connect(protocolCursors->back(), &ProtocolCursor::cursorOpenPropertiesRequest, this, QOverload <int> ::of(&ProtocolPlot::onCursorOpenPropertiesRequest));
+        connect(protocolCursors->back(), &ProtocolCursor::propertiesAccepted, this, &ProtocolPlot::onCursorPropertiesAccepted);
+        connect(protocolCursors->back(), &ProtocolCursor::cursorDeleteRequest, this, &ProtocolPlot::onCursorDeleteRequest);
+
+        return true;
+
+    } else {
+        return false;
+    }
+}
+
 void ProtocolPlot::updateCursorsSections(QVector <int> &map) {
     double offset;
     ProtocolSection * section = protocol->getItemAtTime(0.0, 0, offset);
@@ -713,7 +752,7 @@ void ProtocolPlot::updateCursorsSections(QVector <int> &map) {
 }
 
 bool ProtocolPlot::getClosestCursor(QPointF p, int &cursorIdx) {
-    double minDist = numeric_limits <double> ::max();
+    double minDist = std::numeric_limits <double> ::max();
     double dist;
     cursorIdx = -1;
 

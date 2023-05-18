@@ -1,5 +1,7 @@
 #include "protocollist.h"
 
+#include <fstream>
+
 #include <QInputDialog>
 #include <QSettings>
 #include <QFileDialog>
@@ -182,10 +184,6 @@ void ProtocolList::setClampingModality(int clampingModalitySet) {
     this->clampingModalitySet = clampingModalitySet;
     bool visible = clampingModality == clampingModalitySet;
     this->setVisible(visible);
-    if (visible) {
-        /*! If one specific modality is never used do not update its saved protocols */
-        exportLastProtocolsFlag = true;
-    }
 }
 
 void ProtocolList::saveAndClosePropertyDialog() {
@@ -426,14 +424,25 @@ void ProtocolList::onEditProtocol() {
         msgBox.exec();
 
     } else {
-        this->copyTempProtocol(protocol, protocol->getName(), protocol->getShortCutIdx());
-        int dlgRet = protocol->openProtocolEditor();
-        if (dlgRet == QDialog::Accepted) {
-            this->deleteTempProtocol();
+        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+            YAML::VoltageProtocol_t yamlProtocol = this->copyVoltageProtocol(protocol);
+            int dlgRet = protocol->openProtocolEditor();
+            if (dlgRet == QDialog::Accepted) {
+
+            } else {
+                this->removeProtocol(protocol, protocol->getName());
+                this->pasteVoltageProtocol(yamlProtocol);
+            }
 
         } else {
-            this->removeProtocol(protocol, protocol->getName());
-            this->pasteTempProtocol();
+            YAML::CurrentProtocol_t yamlProtocol = this->copyCurrentProtocol(protocol);
+            int dlgRet = protocol->openProtocolEditor();
+            if (dlgRet == QDialog::Accepted) {
+
+            } else {
+                this->removeProtocol(protocol, protocol->getName());
+                this->pasteCurrentProtocol(yamlProtocol);
+            }
         }
     }
 }
@@ -447,8 +456,20 @@ void ProtocolList::onCopyProtocol() {
 
     QString name = this->availableProtocolName("Copy of " + protocol->getName());
 
-    this->copyTempProtocol(protocol, name, -1);
-    this->pasteTempProtocol();
+    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        YAML::VoltageProtocol_t yamlProtocol = this->copyVoltageProtocol(protocol);
+        yamlProtocol.name = name.toStdString();
+        yamlProtocol.shortcutindex = -1;
+
+        this->pasteVoltageProtocol(yamlProtocol);
+
+    } else {
+        YAML::CurrentProtocol_t yamlProtocol = this->copyCurrentProtocol(protocol);
+        yamlProtocol.name = name.toStdString();
+        yamlProtocol.shortcutindex = -1;
+
+        this->pasteCurrentProtocol(yamlProtocol);
+    }
 }
 
 void ProtocolList::onSetProtocolsShortCuts() {
@@ -502,36 +523,50 @@ void ProtocolList::onExportProtocols() {
                 return;
             }
 
-            EpmlManager * epmlManager = new EpmlManager(fullFileName, QIODevice::ReadWrite);
-            EpmlManager * tempEpmlManager = new EpmlManager();
-            EpmlStatus_t epmlStatus;
+            YAML::Node node;
+            node = this->getYamlProtocols();
 
-            int protocolsNum = protocolsNames->size();
-            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-                if (saveFlag[protIdx]) {
-                    if (!tempEpmlManager->createProtocolNameSection(namesSet[protIdx], protocolsGroupName, epmlStatus)) {
-                        /*! \todo FCON gestire uscita */
-                        return;
+            YAML::Protocols_t yamlProtocols = node.as <YAML::Protocols_t> ();
+            YAML::Protocols_t yamlTempProtocols;
+
+            if (QFile::exists(fullFileName)) {
+                node = YAML::LoadFile(fullFileName.toStdString());
+                yamlTempProtocols = node.as <YAML::Protocols_t> ();
+            }
+
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                for (unsigned int protIdx = 0; protIdx < yamlProtocols.voltageprotocols.size(); protIdx++) {
+                    if (saveFlag[protIdx]) {
+                        auto yamlProtocol = yamlProtocols.voltageprotocols[protIdx];
+                        yamlProtocol.name = namesSet[protIdx].toStdString();
+                        if (overwriteFlag[protIdx]) {
+                            yamlTempProtocols.replaceProtocol(yamlProtocol);
+
+                        } else {
+                            yamlTempProtocols.addProtocol(yamlProtocol);
+                        }
                     }
+                }
 
-                    QString parentTag = "protocol";
-                    QString tag = "shortcutindex";
-                    int depth = EPML_PROTOCOL_PARAM_DEPTH;
-                    tempEpmlManager->addIntValue(tag, depth, this->getShortCutByProtocol(protocols->at(protIdx)));
+            } else {
+                for (unsigned int protIdx = 0; protIdx < yamlProtocols.currentprotocols.size(); protIdx++) {
+                    if (saveFlag[protIdx]) {
+                        auto yamlProtocol = yamlProtocols.currentprotocols[protIdx];
+                        yamlProtocol.name = namesSet[protIdx].toStdString();
+                        if (overwriteFlag[protIdx]) {
+                            yamlTempProtocols.replaceProtocol(yamlProtocol);
 
-                    protocols->at(protIdx)->exportEpml(tempEpmlManager, epmlStatus);
-                    epmlManager->copyProtocol(tempEpmlManager, namesSet[protIdx], protocolsGroupName,
-                                              overwriteFlag[protIdx], epmlStatus);
+                        } else {
+                            yamlTempProtocols.addProtocol(yamlProtocol);
+                        }
+                    }
                 }
             }
 
-            if (!(epmlManager->writeToFile())) {
-                /*! \todo FCON gestire l'uscita */
-                return;
-            }
-
-            delete epmlManager;
-            delete tempEpmlManager;
+            std::ofstream fout(fullFileName.toStdString());
+            node = yamlTempProtocols;
+            fout << node;
+            fout.close();
         }
 
         delete epd;
@@ -753,63 +788,44 @@ void ProtocolList::setNullProtocolHolding(ProtocolWidget * protocol) {
 }
 
 void ProtocolList::exportLastRunProtocol(ProtocolWidget * protocol) {
-    EpmlManager * epmlManager = new EpmlManager(EPML_LAST_PROTOCOL_FULL_FILE, QIODevice::WriteOnly);
-    EpmlStatus_t epmlStatus;
+    YAML::Node node;
+    YAML::Protocols yamlProtocols;
+    if (protocol->getClampingModality() == E4GCL_VOLTAGE_CLAMP_MODE) {
+        yamlProtocols.addProtocol(protocol->getYamlVoltageProtocol());
 
-    epmlManager->clear();
-
-    if (!epmlManager->createProtocolNameSection("LAST", protocolsGroupName, epmlStatus)) {
-        /*! \todo FCON gestire uscita, magari qui basta non rendere disponibile il tasto per il write last */
-        return;
+    } else {
+        yamlProtocols.addProtocol(protocol->getYamlCurrentProtocol());
     }
 
-    QString parentTag = "protocol";
-    QString tag = "shortcutindex";
-    int depth = EPML_PROTOCOL_PARAM_DEPTH;
-    epmlManager->addIntValue(tag, depth, 0);
-
-    protocol->exportEpml(epmlManager, epmlStatus);
-
-    if (!(epmlManager->writeToFile())) {
-        /*! \todo FCON gestire l'uscita */
-        return;
-    }
-
-    delete epmlManager;
+    node = yamlProtocols;
+    QString fullFileName = EPML_LAST_PROTOCOL_FULL_FILE;
+    std::ofstream fout(fullFileName.replace(EPML_FILE_EXTENSION, YAML_FILE_EXTENSION).toStdString());
+    fout << node;
+    fout.close();
 }
 
 void ProtocolList::exportLastProtocols() {
-    if (exportLastProtocolsFlag) {
-        EpmlManager * epmlManager = new EpmlManager(EPML_LAST_FULL_FILE, QIODevice::ReadWrite);
-        EpmlStatus_t epmlStatus;
+    QString fullFileName = EPML_LAST_FULL_FILE;
+    fullFileName.replace(EPML_FILE_EXTENSION, YAML_FILE_EXTENSION);
+    YAML::Protocols yamlProtocols;
+    YAML::Node node;
 
-        if (!(epmlManager->clearProtocolList(protocolsGroupName, epmlStatus))) {
-            /*! \todo FCON gestire uscita */
-            return;
-        }
-
-        int protocolsNum = protocolsNames->size();
-        for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-            if (!epmlManager->createProtocolNameSection(protocolsNames->at(protIdx), protocolsGroupName, epmlStatus)) {
-                /*! \todo FCON gestire uscita */
-                return;
-            }
-
-            QString parentTag = "protocol";
-            QString tag = "shortcutindex";
-            int depth = EPML_PROTOCOL_PARAM_DEPTH;
-            epmlManager->addIntValue(tag, depth, this->getShortCutByProtocol(protocols->at(protIdx)));
-
-            protocols->at(protIdx)->exportEpml(epmlManager, epmlStatus);
-        }
-
-        if (!(epmlManager->writeToFile())) {
-            /*! \todo FCON gestire l'uscita */
-            return;
-        }
-
-        delete epmlManager;
+    if (QFile::exists(fullFileName)) {
+        node = YAML::LoadFile(fullFileName.toStdString());
+        yamlProtocols = node.as <YAML::Protocols_t> ();
     }
+
+    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        yamlProtocols.voltageprotocols = this->getYamlProtocols().voltageprotocols;
+
+    } else {
+        yamlProtocols.currentprotocols = this->getYamlProtocols().currentprotocols;
+    }
+
+    node = yamlProtocols;
+    std::ofstream fout(fullFileName.toStdString());
+    fout << node;
+    fout.close();
 }
 
 void ProtocolList::importNullProtocol() {
@@ -856,35 +872,58 @@ void ProtocolList::importLastProtocols() {
 }
 
 bool ProtocolList::importProtocols(QString fullFileName) {
-    bool ret;
-    EpmlManager * epmlManager = new EpmlManager(fullFileName, QIODevice::ReadOnly);
+    bool ret = true;
 
-    if (epmlManager->fileExists()) {
-        QString tag = protocolsGroupName;
-        int depth = EPML_PROTOCOL_LIST_DEPTH;
-        QString parentTag = "";
+    QString yamlFileName = fullFileName;
+    yamlFileName.replace(EPML_FILE_EXTENSION, YAML_FILE_EXTENSION);
+    if (QFile::exists(yamlFileName)) {
+        fullFileName = yamlFileName;
 
-        EpmlStatus_t epmlStatus;
+        YAML::Node node = YAML::LoadFile(fullFileName.toStdString());
+        YAML::Protocols yamlProtocols = node.as <YAML::Protocols> ();
 
-        if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-            parentTag = tag;
-            depth = EPML_PROTOCOL_DEPTH;
-            tag = "protocol";
-            while (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                this->importProtocol(epmlManager, tag, epmlStatus);
+        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+            for (auto yamlProtocol : yamlProtocols.voltageprotocols) {
+                this->importProtocol(yamlProtocol);
+            }
+
+        } else {
+            for (auto yamlProtocol : yamlProtocols.currentprotocols) {
+                this->importProtocol(yamlProtocol);
             }
         }
-        ret = true;
+        return ret;
 
     } else {
-        ret = false;
+        EpmlManager * epmlManager = new EpmlManager(fullFileName, QIODevice::ReadOnly);
+
+        if (epmlManager->fileExists()) {
+            QString tag = protocolsGroupName;
+            int depth = EPML_PROTOCOL_LIST_DEPTH;
+            QString parentTag = "";
+
+            EpmlStatus_t epmlStatus;
+
+            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
+                parentTag = tag;
+                depth = EPML_PROTOCOL_DEPTH;
+                tag = "protocol";
+                while (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
+                    this->importProtocol(epmlManager, tag, epmlStatus);
+                }
+            }
+            ret = true;
+
+        } else {
+            ret = false;
+        }
+        delete epmlManager;
+        return ret;
     }
-    delete epmlManager;
-    return ret;
 }
 
 bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
-    bool ret;
+    bool ret = true;
     QVector <bool> saveFlag;
     QVector <bool> overwriteFlag;
     QStringList names;
@@ -895,38 +934,68 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
         return false;
     }
 
-    EpmlManager * epmlManager = new EpmlManager(fullFileName, QIODevice::ReadOnly);
+    if (fullFileName.endsWith(YAML_FILE_EXTENSION)) {
+        YAML::Node node = YAML::LoadFile(fullFileName.toStdString());
+        YAML::Protocols yamlProtocols = node.as <YAML::Protocols> ();
 
-    int protocolsNum = namesSet.size();
-
-    QString tag = protocolsGroupName;
-    int depth = EPML_PROTOCOL_LIST_DEPTH;
-    QString parentTag = "";
-
-    EpmlStatus_t epmlStatus;
-
-    if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-            if (saveFlag[protIdx]) {
-                if (overwriteFlag[protIdx]) {
-                    this->removeProtocolByName(namesSet[protIdx]);
+        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+            for (unsigned int protIdx = 0; protIdx < yamlProtocols.voltageprotocols.size(); protIdx++) {
+                YAML::VoltageProtocol_t yamlProtocol = yamlProtocols.voltageprotocols[protIdx];
+                if (saveFlag[protIdx]) {
+                    if (overwriteFlag[protIdx]) {
+                        this->removeProtocolByName(namesSet[protIdx]);
+                    }
+                    this->importProtocolAs(yamlProtocol, namesSet[protIdx]);
                 }
-                parentTag = tag;
-                depth = EPML_PROTOCOL_DEPTH;
-                tag = "protocol";
-                if (epmlManager->getNextSectionByName(tag, depth, names[protIdx], parentTag, epmlStatus)) {
-                    this->importProtocolAs(epmlManager, namesSet[protIdx], epmlStatus);
+            }
+
+        } else {
+            for (unsigned int protIdx = 0; protIdx < yamlProtocols.currentprotocols.size(); protIdx++) {
+                YAML::CurrentProtocol_t yamlProtocol = yamlProtocols.currentprotocols[protIdx];
+                if (saveFlag[protIdx]) {
+                    if (overwriteFlag[protIdx]) {
+                        this->removeProtocolByName(namesSet[protIdx]);
+                    }
+                    this->importProtocolAs(yamlProtocol, namesSet[protIdx]);
                 }
             }
         }
-        ret = true;
+        return ret;
 
     } else {
-        ret = false;
-    }
+        EpmlManager * epmlManager = new EpmlManager(fullFileName, QIODevice::ReadOnly);
 
-    delete epmlManager;
-    return ret;
+        int protocolsNum = namesSet.size();
+
+        QString tag = protocolsGroupName;
+        int depth = EPML_PROTOCOL_LIST_DEPTH;
+        QString parentTag = "";
+
+        EpmlStatus_t epmlStatus;
+
+        if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
+            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
+                if (saveFlag[protIdx]) {
+                    if (overwriteFlag[protIdx]) {
+                        this->removeProtocolByName(namesSet[protIdx]);
+                    }
+                    parentTag = tag;
+                    depth = EPML_PROTOCOL_DEPTH;
+                    tag = "protocol";
+                    if (epmlManager->getNextSectionByName(tag, depth, names[protIdx], parentTag, epmlStatus)) {
+                        this->importProtocolAs(epmlManager, namesSet[protIdx], epmlStatus);
+                    }
+                }
+            }
+            ret = true;
+
+        } else {
+            ret = false;
+        }
+
+        delete epmlManager;
+        return ret;
+    }
 }
 
 void ProtocolList::importProtocol(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
@@ -949,6 +1018,32 @@ void ProtocolList::importProtocol(EpmlManager * epmlManager, QString parentTag, 
     } else {
         ErrorManager e("Failed to load protocol", "Protocol missing name keyword");
     }
+}
+
+void ProtocolList::importProtocol(const YAML::VoltageProtocol &yamlProtocol) {
+    QString name = QString::fromStdString(yamlProtocol.name);
+    if (nullProtocolFlag || vhold0ProtocolFlag || ihold0ProtocolFlag) {
+        name = "";
+    }
+
+    if (protocolsNames->contains(name)) {
+        this->removeProtocolByName(name);
+    }
+
+    this->importProtocolAs(yamlProtocol, name);
+}
+
+void ProtocolList::importProtocol(const YAML::CurrentProtocol &yamlProtocol) {
+    QString name = QString::fromStdString(yamlProtocol.name);
+    if (nullProtocolFlag || vhold0ProtocolFlag || ihold0ProtocolFlag) {
+        name = "";
+    }
+
+    if (protocolsNames->contains(name)) {
+        this->removeProtocolByName(name);
+    }
+
+    this->importProtocolAs(yamlProtocol, name);
 }
 
 void ProtocolList::importProtocolAs(EpmlManager * epmlManager, QString name, EpmlStatus_t &epmlStatus) {
@@ -1028,39 +1123,146 @@ void ProtocolList::importProtocolAs(EpmlManager * epmlManager, QString name, Epm
     }
 }
 
-void ProtocolList::copyTempProtocol(ProtocolWidget * protocol, QString name, int shortCutIdx) {
-    this->deleteTempProtocol();
-    tempEpmlManager = new EpmlManager();
-    EpmlStatus_t epmlStatus;
+void ProtocolList::importProtocolAs(const YAML::VoltageProtocol &yamlProtocol, QString name) {
+    bool addProtocolToListFlag = true;
 
-    if (!tempEpmlManager->createProtocolNameSection(name, protocolsGroupName, epmlStatus)) {
-        /*! \todo FCON gestire uscita */
-        return;
+    ProtocolWidget * protocol;
+    /*! Forcing to import the last run protocol as an episodic ensures that if it gets saved to disk
+         *  The recording stops when the protocol stops */
+    if ((yamlProtocol.operationmode == YAML::GapFree) && (!lastRunProtocolFlag)) {
+        protocol = this->newGapfreeProtocol(name);
+
+    } else {
+        protocol = this->newEpisodicProtocol(name);
     }
 
-    QString parentTag = "protocol";
-    QString tag = "shortcutindex";
-    int depth = EPML_PROTOCOL_PARAM_DEPTH;
-    tempEpmlManager->addIntValue(tag, depth, shortCutIdx);
+    protocol->setProtocolFromYaml(yamlProtocol);
 
-    protocol->exportEpml(tempEpmlManager, epmlStatus);
-}
+    if (true) {
+        if (nullProtocolFlag) {
+            protocol->setNullProtocol(true);
+            if (protocol->getType() == ProtocolTypeGapfree) {
+                nullGapfreeProtocol = protocol;
 
-void ProtocolList::pasteTempProtocol() {
-    EpmlStatus_t epmlStatus;
+            } else {
+                nullEpisodicProtocol = protocol;
+            }
+            addProtocolToListFlag = false;
+        }
 
-    tempEpmlManager->reset();
-    QString tag = "protocol";
-    this->importProtocol(tempEpmlManager, tag, epmlStatus);
+        if (vhold0ProtocolFlag) {
+            vhold0Protocol = protocol;
+            addProtocolToListFlag = false;
+        }
 
-    this->deleteTempProtocol();
-}
+        if (ihold0ProtocolFlag) {
+            ihold0Protocol = protocol;
+            addProtocolToListFlag = false;
+        }
 
-void ProtocolList::deleteTempProtocol() {
-    if (tempEpmlManager != nullptr) {
-        delete tempEpmlManager;
-        tempEpmlManager = nullptr;
+        if (lastRunProtocolFlag) {
+            if (lastRunProtocol != nullptr) {
+                delete lastRunProtocol;
+                lastRunProtocol = nullptr;
+            }
+            lastRunProtocol = protocol;
+            addProtocolToListFlag = false;
+        }
+
+        if (addProtocolToListFlag) {
+            this->addItem(protocol);
+            protocols->push_back(protocol);
+            protocolsNames->push_back(name);
+            if ((yamlProtocol.shortcutindex >= 0) && (shortCutsProtocols[yamlProtocol.shortcutindex] == nullptr)) {
+                shortCutsProtocols[yamlProtocol.shortcutindex] = protocol;
+                protocol->setShortCutIdx(yamlProtocol.shortcutindex);
+            }
+            connect(protocol, &ProtocolWidget::nameChanged, this, &ProtocolList::onProtocolNameChanged);
+        }
+
+    } else {
+        ErrorManager e("Failed to load protocol " + name, "Protocol format corrupted");
+        delete protocol;
     }
+}
+
+void ProtocolList::importProtocolAs(const YAML::CurrentProtocol &yamlProtocol, QString name) {
+    bool addProtocolToListFlag = true;
+
+    ProtocolWidget * protocol;
+    /*! Forcing to import the last run protocol as an episodic ensures that if it gets saved to disk
+         *  The recording stops when the protocol stops */
+    if ((yamlProtocol.operationmode == YAML::GapFree) && (!lastRunProtocolFlag)) {
+        protocol = this->newGapfreeProtocol(name);
+
+    } else {
+        protocol = this->newEpisodicProtocol(name);
+    }
+
+    protocol->setProtocolFromYaml(yamlProtocol);
+
+    if (true) {
+        if (nullProtocolFlag) {
+            protocol->setNullProtocol(true);
+            if (protocol->getType() == ProtocolTypeGapfree) {
+                nullGapfreeProtocol = protocol;
+
+            } else {
+                nullEpisodicProtocol = protocol;
+            }
+            addProtocolToListFlag = false;
+        }
+
+        if (vhold0ProtocolFlag) {
+            vhold0Protocol = protocol;
+            addProtocolToListFlag = false;
+        }
+
+        if (ihold0ProtocolFlag) {
+            ihold0Protocol = protocol;
+            addProtocolToListFlag = false;
+        }
+
+        if (lastRunProtocolFlag) {
+            if (lastRunProtocol != nullptr) {
+                delete lastRunProtocol;
+                lastRunProtocol = nullptr;
+            }
+            lastRunProtocol = protocol;
+            addProtocolToListFlag = false;
+        }
+
+        if (addProtocolToListFlag) {
+            this->addItem(protocol);
+            protocols->push_back(protocol);
+            protocolsNames->push_back(name);
+            if ((yamlProtocol.shortcutindex >= 0) && (shortCutsProtocols[yamlProtocol.shortcutindex] == nullptr)) {
+                shortCutsProtocols[yamlProtocol.shortcutindex] = protocol;
+                protocol->setShortCutIdx(yamlProtocol.shortcutindex);
+            }
+            connect(protocol, &ProtocolWidget::nameChanged, this, &ProtocolList::onProtocolNameChanged);
+        }
+
+    } else {
+        ErrorManager e("Failed to load protocol " + name, "Protocol format corrupted");
+        delete protocol;
+    }
+}
+
+YAML::VoltageProtocol_t ProtocolList::copyVoltageProtocol(ProtocolWidget * protocol) {
+    return protocol->getYamlVoltageProtocol();
+}
+
+YAML::CurrentProtocol_t ProtocolList::copyCurrentProtocol(ProtocolWidget * protocol) {
+    return protocol->getYamlCurrentProtocol();
+}
+
+void ProtocolList::pasteVoltageProtocol(const YAML::VoltageProtocol_t &yamlProtocol) {
+    this->importProtocol(yamlProtocol);
+}
+
+void ProtocolList::pasteCurrentProtocol(const YAML::CurrentProtocol_t &yamlProtocol) {
+    this->importProtocol(yamlProtocol);
 }
 
 void ProtocolList::removeProtocolByName(QString name) {
@@ -1073,7 +1275,6 @@ void ProtocolList::removeProtocolByName(QString name) {
 }
 
 void ProtocolList::removeProtocol(ProtocolWidget * protocol, QString name) {
-
     /*! If the protocol was assigned a shortcut remove it */
     int shortCutIdx = this->getShortCutByProtocol(protocol);
     if (shortCutIdx >= 0) {
@@ -1103,6 +1304,22 @@ QString ProtocolList::availableProtocolName(QString name) {
         ret = name + QString::number(idx++);
     }
     return ret;
+}
+
+YAML::Protocols_t ProtocolList::getYamlProtocols() {
+    YAML::Protocols_t yamlProtocols;
+
+    int protocolsNum = protocolsNames->size();
+    for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
+        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+            yamlProtocols.addProtocol(protocols->at(protIdx)->getYamlVoltageProtocol());
+
+        } else {
+            yamlProtocols.addProtocol(protocols->at(protIdx)->getYamlCurrentProtocol());
+        }
+    }
+
+    return yamlProtocols;
 }
 
 void ProtocolList::onAcceptShortCutsDialog() {

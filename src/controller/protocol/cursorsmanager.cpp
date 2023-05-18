@@ -185,6 +185,6 @@ void CursorsManager::interpretCursors() {
 
         analysisCursors.append(analysisCursor);
     }
-    sort(triggerCursors.begin(), triggerCursors.end(), TriggerCursorsCompare());
+    std::sort(triggerCursors.begin(), triggerCursors.end(), TriggerCursorsCompare());
     triggerCursors.append(new TriggerTerminator());
 }

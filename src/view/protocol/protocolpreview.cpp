@@ -213,6 +213,14 @@ void ProtocolPreview::setTooManyTriggersWarning(bool flag) {
     cursorsWarningPlaceHolderLbl->setVisible(!flag);
 }
 
+std::vector <YAML::Cursor> ProtocolPreview::getYamlCursors() {
+    return protocolPlot->getYamlCursors();
+}
+
+void ProtocolPreview::setCursorsFromYaml(const std::vector <YAML::Cursor> &yamlCursors) {
+    protocolPlot->setCursorsFromYaml(yamlCursors);
+}
+
 void ProtocolPreview::updateView() {
     /*! Clear previous curves */
     unsigned int curvesNum = protocolPlotCurve.size();
@@ -463,7 +471,7 @@ void ProtocolPreview::updateView() {
 
                         } else {
                             /*! Limit to repetitions to plot reached, force last repetition */
-                            repsIdx = max(item->repsNum-1, 0);
+                            repsIdx = std::max(item->repsNum-1, 0);
                             lastRep = true;
                         }
 

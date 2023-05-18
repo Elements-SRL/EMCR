@@ -455,6 +455,226 @@ ProtocolDropItemDoubleParam * ProtocolDropXStepTStepItem::getTStepParam() {
     return tStepParam;
 }
 
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlVStepTStep() {
+    YAML::VStepTStep yamlPhase;
+
+    yamlPhase.v0 = x0Param->getValue();
+    yamlPhase.vstep = xStepParam->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.tstep = tStepParam->getValue();
+    yamlPhase.v0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.vstepctrl = xStepParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.tstepctrl = tStepParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlIStepTStep() {
+    YAML::IStepTStep yamlPhase;
+
+    yamlPhase.i0 = x0Param->getValue();
+    yamlPhase.istep = xStepParam->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.tstep = tStepParam->getValue();
+    yamlPhase.i0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.istepctrl = xStepParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.tstepctrl = tStepParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlVConst() {
+    YAML::VConst yamlPhase;
+
+    yamlPhase.v0 = x0Param->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.v0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlIConst() {
+    YAML::IConst yamlPhase;
+
+    yamlPhase.i0 = x0Param->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.i0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlVHold() {
+    YAML::VHold yamlPhase;
+
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlIHold() {
+    YAML::IHold yamlPhase;
+
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlVRest() {
+    YAML::VRest yamlPhase;
+
+    yamlPhase.v0 = x0Param->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.v0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXStepTStepItem::getYamlIRest() {
+    YAML::IRest yamlPhase;
+
+    yamlPhase.i0 = x0Param->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.i0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::VStepTStep_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.v0);
+    x0Param->updateCtrlWidget();
+    xStepParam->setValue(yamlPhase.vstep);
+    xStepParam->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    tStepParam->setValue(yamlPhase.tstep);
+    tStepParam->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.v0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    xStepParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.vstepctrl));
+    xStepParam->onCtrlWidgetActivated(xStepParam->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    tStepParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.tstepctrl));
+    tStepParam->onCtrlWidgetActivated(tStepParam->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::IStepTStep_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.i0);
+    x0Param->updateCtrlWidget();
+    xStepParam->setValue(yamlPhase.istep);
+    xStepParam->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    tStepParam->setValue(yamlPhase.tstep);
+    tStepParam->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.i0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    xStepParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.istepctrl));
+    xStepParam->onCtrlWidgetActivated(xStepParam->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    tStepParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.tstepctrl));
+    tStepParam->onCtrlWidgetActivated(tStepParam->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::VConst_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.v0);
+    x0Param->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.v0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::IConst_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.i0);
+    x0Param->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.i0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::VHold_t &yamlPhase) {
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::IHold_t &yamlPhase) {
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::VRest_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.v0);
+    x0Param->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.v0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXStepTStepItem::setPhaseFromYaml(const YAML::IRest_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.i0);
+    x0Param->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.i0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
 void ProtocolDropXStepTStepItem::onSetString() {
     this->setText(QString(stimulusAbbrName + "0: %1, " + stimulusAbbrName + " step: %2, t0: %3, t step: %4")
                   .arg(x0Param->getValue()).arg(xStepParam->getValue())
@@ -1036,6 +1256,70 @@ ProtocolDropItemDoubleParam * ProtocolDropXRampItem::getT0Param() {
     return t0Param;
 }
 
+YAML::Phase_t ProtocolDropXRampItem::getYamlVRamp() {
+    YAML::VRamp yamlPhase;
+
+    yamlPhase.v0 = x0Param->getValue();
+    yamlPhase.vfinal = xFinalParam->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.v0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.vfinalctrl = xFinalParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXRampItem::getYamlIRamp() {
+    YAML::IRamp yamlPhase;
+
+    yamlPhase.i0 = x0Param->getValue();
+    yamlPhase.ifinal = xFinalParam->getValue();
+    yamlPhase.t0 = t0Param->getValue();
+    yamlPhase.i0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.ifinalctrl = xFinalParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.t0ctrl = t0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+void ProtocolDropXRampItem::setPhaseFromYaml(const YAML::VRamp_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.v0);
+    x0Param->updateCtrlWidget();
+    xFinalParam->setValue(yamlPhase.vfinal);
+    xFinalParam->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.v0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    xFinalParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.vfinalctrl));
+    xFinalParam->onCtrlWidgetActivated(xFinalParam->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXRampItem::setPhaseFromYaml(const YAML::IRamp_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.i0);
+    x0Param->updateCtrlWidget();
+    xFinalParam->setValue(yamlPhase.ifinal);
+    xFinalParam->updateCtrlWidget();
+    t0Param->setValue(yamlPhase.t0);
+    t0Param->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.i0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    xFinalParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.ifinalctrl));
+    xFinalParam->onCtrlWidgetActivated(xFinalParam->getCtrlWidget()->currentIndex());
+    t0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.t0ctrl));
+    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
 void ProtocolDropXRampItem::onSetString() {
     this->setText(QString(stimulusAbbrName + "0: %1, " + stimulusAbbrName + " final: %2, t: %3")
                   .arg(x0Param->getValue()).arg(xFinalParam->getValue()).arg(t0Param->getValue()));
@@ -1315,6 +1599,70 @@ ProtocolDropItemDoubleParam * ProtocolDropXSinItem::getXAmpParam() {
 
 ProtocolDropItemDoubleParam * ProtocolDropXSinItem::getFreqParam() {
     return freqParam;
+}
+
+YAML::Phase_t ProtocolDropXSinItem::getYamlVSin() {
+    YAML::VSin yamlPhase;
+
+    yamlPhase.v0 = x0Param->getValue();
+    yamlPhase.vamp = xAmpParam->getValue();
+    yamlPhase.freq = freqParam->getValue();
+    yamlPhase.v0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.vampctrl = xAmpParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.freqctrl = freqParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXSinItem::getYamlISin() {
+    YAML::ISin yamlPhase;
+
+    yamlPhase.i0 = x0Param->getValue();
+    yamlPhase.iamp = xAmpParam->getValue();
+    yamlPhase.freq = freqParam->getValue();
+    yamlPhase.i0ctrl = x0Param->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.iampctrl = xAmpParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.freqctrl = freqParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.visible = visibleEdit->isChecked();
+
+    return yamlPhase;
+}
+
+void ProtocolDropXSinItem::setPhaseFromYaml(const YAML::VSin_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.v0);
+    x0Param->updateCtrlWidget();
+    xAmpParam->setValue(yamlPhase.vamp);
+    xAmpParam->updateCtrlWidget();
+    freqParam->setValue(yamlPhase.freq);
+    freqParam->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.v0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    xAmpParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.vampctrl));
+    xAmpParam->onCtrlWidgetActivated(xAmpParam->getCtrlWidget()->currentIndex());
+    freqParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.freqctrl));
+    freqParam->onCtrlWidgetActivated(freqParam->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXSinItem::setPhaseFromYaml(const YAML::ISin_t &yamlPhase) {
+    x0Param->setValue(yamlPhase.i0);
+    x0Param->updateCtrlWidget();
+    xAmpParam->setValue(yamlPhase.iamp);
+    xAmpParam->updateCtrlWidget();
+    freqParam->setValue(yamlPhase.freq);
+    freqParam->updateCtrlWidget();
+    x0Param->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.i0ctrl));
+    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
+    xAmpParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.iampctrl));
+    xAmpParam->onCtrlWidgetActivated(xAmpParam->getCtrlWidget()->currentIndex());
+    freqParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.freqctrl));
+    freqParam->onCtrlWidgetActivated(freqParam->getCtrlWidget()->currentIndex());
+    visibleEdit->setChecked(yamlPhase.visible);
+
+    this->onAcceptPropertyDialog();
 }
 
 void ProtocolDropXSinItem::onSetString() {
@@ -1852,6 +2200,162 @@ ProtocolDropItemDoubleParam * ProtocolDropXRepSeqScaledItem::getRestTimeParam() 
     return restTimeParam;
 }
 
+YAML::Phase_t ProtocolDropXRepSeqScaledItem::getYamlRepSeqScaled() {
+    YAML::RepSeqScaled yamlPhase;
+
+    yamlPhase.vholdleak = holdLeakParam->getValue();
+    yamlPhase.scalefactor = scaleFactorParam->getValue();
+    yamlPhase.repnum = repNumParam->getValue();
+    yamlPhase.itemnum = itemNumParam->getValue();
+    yamlPhase.reststimulus = restStimulusParam->getValue();
+    yamlPhase.resttime = restTimeParam->getValue();
+    yamlPhase.preceding = precedingEdit->isChecked();
+    yamlPhase.reversed = reversedEdit->isChecked();
+    yamlPhase.alternating = alternatingEdit->isChecked();
+    yamlPhase.vholdleakctrl = holdLeakParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.scalefactorctrl = scaleFactorParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.repnumctrl = repNumParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.itemnumctrl = itemNumParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.reststimulusctrl = restStimulusParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.resttimectrl = restTimeParam->getCtrlWidget()->currentText().toStdString();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXRepSeqScaledItem::getYamlRepSeq() {
+    YAML::RepSeq yamlPhase;
+
+    yamlPhase.repnum = repNumParam->getValue();
+    yamlPhase.itemnum = itemNumParam->getValue();
+    yamlPhase.reststimulus = restStimulusParam->getValue();
+    yamlPhase.resttime = restTimeParam->getValue();
+    yamlPhase.repnumctrl = repNumParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.itemnumctrl = itemNumParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.reststimulusctrl = restStimulusParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.resttimectrl = restTimeParam->getCtrlWidget()->currentText().toStdString();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXRepSeqScaledItem::getYamlRepSeqWithSteps() {
+    YAML::RepSeqWithSteps yamlPhase;
+
+    yamlPhase.repnum = repNumParam->getValue();
+    yamlPhase.itemnum = itemNumParam->getValue();
+    yamlPhase.reststimulus = restStimulusParam->getValue();
+    yamlPhase.resttime = restTimeParam->getValue();
+    yamlPhase.repnumctrl = repNumParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.itemnumctrl = itemNumParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.reststimulusctrl = restStimulusParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.resttimectrl = restTimeParam->getCtrlWidget()->currentText().toStdString();
+
+    return yamlPhase;
+}
+
+YAML::Phase_t ProtocolDropXRepSeqScaledItem::getYamlInfRepSeq() {
+    YAML::InfRepSeq yamlPhase;
+
+    yamlPhase.itemnum = itemNumParam->getValue();
+    yamlPhase.reststimulus = restStimulusParam->getValue();
+    yamlPhase.resttime = restTimeParam->getValue();
+    yamlPhase.itemnumctrl = itemNumParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.reststimulusctrl = restStimulusParam->getCtrlWidget()->currentText().toStdString();
+    yamlPhase.resttimectrl = restTimeParam->getCtrlWidget()->currentText().toStdString();
+
+    return yamlPhase;
+}
+
+void ProtocolDropXRepSeqScaledItem::setPhaseFromYaml(const YAML::RepSeqScaled_t &yamlPhase) {
+    holdLeakParam->setValue(yamlPhase.vholdleak);
+    holdLeakParam->updateCtrlWidget();
+    scaleFactorParam->setValue(yamlPhase.scalefactor);
+    scaleFactorParam->updateCtrlWidget();
+    repNumParam->setValue(yamlPhase.repnum);
+    repNumParam->updateCtrlWidget();
+    itemNumParam->setValue(yamlPhase.itemnum);
+    itemNumParam->updateCtrlWidget();
+    restStimulusParam->setValue(yamlPhase.reststimulus);
+    restStimulusParam->updateCtrlWidget();
+    restTimeParam->setValue(yamlPhase.resttime);
+    restTimeParam->updateCtrlWidget();
+    precedingEdit->setChecked(yamlPhase.preceding);
+    reversedEdit->setChecked(yamlPhase.reversed);
+    alternatingEdit->setChecked(yamlPhase.alternating);
+    holdLeakParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.vholdleakctrl));
+    holdLeakParam->onCtrlWidgetActivated(holdLeakParam->getCtrlWidget()->currentIndex());
+    scaleFactorParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.scalefactorctrl));
+    scaleFactorParam->onCtrlWidgetActivated(scaleFactorParam->getCtrlWidget()->currentIndex());
+    repNumParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.repnumctrl));
+    repNumParam->onCtrlWidgetActivated(repNumParam->getCtrlWidget()->currentIndex());
+    itemNumParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.itemnumctrl));
+    itemNumParam->onCtrlWidgetActivated(itemNumParam->getCtrlWidget()->currentIndex());
+    restStimulusParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.reststimulusctrl));
+    restStimulusParam->onCtrlWidgetActivated(restStimulusParam->getCtrlWidget()->currentIndex());
+    restTimeParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.resttimectrl));
+    restTimeParam->onCtrlWidgetActivated(restTimeParam->getCtrlWidget()->currentIndex());
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXRepSeqScaledItem::setPhaseFromYaml(const YAML::RepSeq_t &yamlPhase) {
+    repNumParam->setValue(yamlPhase.repnum);
+    repNumParam->updateCtrlWidget();
+    itemNumParam->setValue(yamlPhase.itemnum);
+    itemNumParam->updateCtrlWidget();
+    restStimulusParam->setValue(yamlPhase.reststimulus);
+    restStimulusParam->updateCtrlWidget();
+    restTimeParam->setValue(yamlPhase.resttime);
+    restTimeParam->updateCtrlWidget();
+    repNumParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.repnumctrl));
+    repNumParam->onCtrlWidgetActivated(repNumParam->getCtrlWidget()->currentIndex());
+    itemNumParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.itemnumctrl));
+    itemNumParam->onCtrlWidgetActivated(itemNumParam->getCtrlWidget()->currentIndex());
+    restStimulusParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.reststimulusctrl));
+    restStimulusParam->onCtrlWidgetActivated(restStimulusParam->getCtrlWidget()->currentIndex());
+    restTimeParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.resttimectrl));
+    restTimeParam->onCtrlWidgetActivated(restTimeParam->getCtrlWidget()->currentIndex());
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXRepSeqScaledItem::setPhaseFromYaml(const YAML::RepSeqWithSteps_t &yamlPhase) {
+    repNumParam->setValue(yamlPhase.repnum);
+    repNumParam->updateCtrlWidget();
+    itemNumParam->setValue(yamlPhase.itemnum);
+    itemNumParam->updateCtrlWidget();
+    restStimulusParam->setValue(yamlPhase.reststimulus);
+    restStimulusParam->updateCtrlWidget();
+    restTimeParam->setValue(yamlPhase.resttime);
+    restTimeParam->updateCtrlWidget();
+    repNumParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.repnumctrl));
+    repNumParam->onCtrlWidgetActivated(repNumParam->getCtrlWidget()->currentIndex());
+    itemNumParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.itemnumctrl));
+    itemNumParam->onCtrlWidgetActivated(itemNumParam->getCtrlWidget()->currentIndex());
+    restStimulusParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.reststimulusctrl));
+    restStimulusParam->onCtrlWidgetActivated(restStimulusParam->getCtrlWidget()->currentIndex());
+    restTimeParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.resttimectrl));
+    restTimeParam->onCtrlWidgetActivated(restTimeParam->getCtrlWidget()->currentIndex());
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropXRepSeqScaledItem::setPhaseFromYaml(const YAML::InfRepSeq_t &yamlPhase) {
+    itemNumParam->setValue(yamlPhase.itemnum);
+    itemNumParam->updateCtrlWidget();
+    restStimulusParam->setValue(yamlPhase.reststimulus);
+    restStimulusParam->updateCtrlWidget();
+    restTimeParam->setValue(yamlPhase.resttime);
+    restTimeParam->updateCtrlWidget();
+    itemNumParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.itemnumctrl));
+    itemNumParam->onCtrlWidgetActivated(itemNumParam->getCtrlWidget()->currentIndex());
+    restStimulusParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.reststimulusctrl));
+    restStimulusParam->onCtrlWidgetActivated(restStimulusParam->getCtrlWidget()->currentIndex());
+    restTimeParam->getCtrlWidget()->setCurrentText(QString::fromStdString(yamlPhase.resttimectrl));
+    restTimeParam->onCtrlWidgetActivated(restTimeParam->getCtrlWidget()->currentIndex());
+
+    this->onAcceptPropertyDialog();
+}
+
 void ProtocolDropXRepSeqScaledItem::onSetString() {
     this->setText(QString(stimulusAbbrName + " hold leak: %1, scale: %2, rep: %3, \nitems: %4, " + stimulusAbbrName + " rest: %5, t rest: %6")
                   .arg(holdLeakParam->getValue()).arg(scaleFactorParam->getValue()).arg(repNumParam->getValue())
@@ -2288,6 +2792,86 @@ SteppedSpinBox * ProtocolDropControlItem::getDoubleEdit() {
 
 QString ProtocolDropControlItem::getUnit() {
     return valueUnit->text();
+}
+
+YAML::Control_t ProtocolDropControlItem::getYamlVoltageCtrl() {
+    YAML::VoltageCtrl_t yamlCtrl;
+    yamlCtrl.name = name.toStdString();
+    yamlCtrl.value = doubleEdit->value();
+    return yamlCtrl;
+}
+
+YAML::Control_t ProtocolDropControlItem::getYamlCurrentCtrl() {
+    YAML::CurrentCtrl_t yamlCtrl;
+    yamlCtrl.name = name.toStdString();
+    yamlCtrl.value = doubleEdit->value();
+    return yamlCtrl;
+}
+
+YAML::Control_t ProtocolDropControlItem::getYamlTimeCtrl() {
+    YAML::TimeCtrl_t yamlCtrl;
+    yamlCtrl.name = name.toStdString();
+    yamlCtrl.value = doubleEdit->value();
+    return yamlCtrl;
+}
+
+YAML::Control_t ProtocolDropControlItem::getYamlFrequencyCtrl() {
+    YAML::FrequencyCtrl_t yamlCtrl;
+    yamlCtrl.name = name.toStdString();
+    yamlCtrl.value = doubleEdit->value();
+    return yamlCtrl;
+}
+
+YAML::Control_t ProtocolDropControlItem::getYamlNaturalNumCtrl() {
+    YAML::NaturalNumCtrl_t yamlCtrl;
+    yamlCtrl.name = name.toStdString();
+    yamlCtrl.value = intEdit->value();
+    return yamlCtrl;
+}
+
+void ProtocolDropControlItem::setCtrlFromYaml(const YAML::VoltageCtrl &yamlCtrl) {
+    name = QString::fromStdString(yamlCtrl.name);
+    nameEdit->setText(name);
+    doubleValue = yamlCtrl.value;
+    doubleEdit->setValue(doubleValue);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropControlItem::setCtrlFromYaml(const YAML::CurrentCtrl &yamlCtrl) {
+    name = QString::fromStdString(yamlCtrl.name);
+    nameEdit->setText(name);
+    doubleValue = yamlCtrl.value;
+    doubleEdit->setValue(doubleValue);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropControlItem::setCtrlFromYaml(const YAML::TimeCtrl &yamlCtrl) {
+    name = QString::fromStdString(yamlCtrl.name);
+    nameEdit->setText(name);
+    doubleValue = yamlCtrl.value;
+    doubleEdit->setValue(doubleValue);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropControlItem::setCtrlFromYaml(const YAML::FrequencyCtrl &yamlCtrl) {
+    name = QString::fromStdString(yamlCtrl.name);
+    nameEdit->setText(name);
+    doubleValue = yamlCtrl.value;
+    doubleEdit->setValue(doubleValue);
+
+    this->onAcceptPropertyDialog();
+}
+
+void ProtocolDropControlItem::setCtrlFromYaml(const YAML::NaturalNumCtrl &yamlCtrl) {
+    name = QString::fromStdString(yamlCtrl.name);
+    nameEdit->setText(name);
+    intValue = yamlCtrl.value;
+    intEdit->setValue(intValue);
+
+    this->onAcceptPropertyDialog();
 }
 
 ProtocolDropVoltageControlItem::ProtocolDropVoltageControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
@@ -2736,6 +3320,29 @@ QVector <int> ProtocolDropAnalysisItem::getCursorMapping() {
     return cursorMap;
 }
 
+YAML::Analysis_t ProtocolDropAnalysisItem::getYamlAnalysis() {
+    YAML::Analysis_t yamlAnalysis;
+
+    yamlAnalysis.type = analysisType;
+    for (int timePointIdx = 0; timePointIdx < timePointsRequired; timePointIdx++) {
+        yamlAnalysis.timepoints.push_back(timePointParams[timePointIdx]->getCursorIdx());
+    }
+
+    return yamlAnalysis;
+}
+
+void ProtocolDropAnalysisItem::setAnalysisFromYaml(const YAML::Analysis_t &yamlAnalysis) {
+    this->updateTimePointsNum(yamlAnalysis.timepoints.size());
+
+    int intValue;
+    for (int timePointIdx = 0; timePointIdx < timePointsRequired; timePointIdx++) {
+        intValue = qMin(yamlAnalysis.timepoints[timePointIdx], timePointParams[timePointIdx]->getTimePointWidget()->count()-1);
+        timePointParams[timePointIdx]->getTimePointWidget()->setCurrentIndex(intValue);
+    }
+
+    this->onAcceptPropertyDialog();
+}
+
 void ProtocolDropAnalysisItem::onAcceptPropertyDialog() {
     this->onSetString();
 
@@ -2835,6 +3442,7 @@ void ProtocolDropAnalysisItem::setInvalidLoopsToolTip() {
 ProtocolDropNoiseReportItem::ProtocolDropNoiseReportItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
 
+    analysisType = YAML::NoiseReport;
     QString iconString = ":imgs/analysis noise report.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -2905,6 +3513,7 @@ QString ProtocolDropNoiseReportItem::onCheckCursorsValidity() {
 ProtocolDropHistogramItem::ProtocolDropHistogramItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
 
+    analysisType = YAML::Histogram;
     QString iconString = ":imgs/analysis histogram.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -2974,6 +3583,7 @@ QString ProtocolDropHistogramItem::onCheckCursorsValidity() {
 ProtocolDropSpectrumItem::ProtocolDropSpectrumItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
 
+    analysisType = YAML::Spectrum;
     QString iconString = ":imgs/analysis spectrum.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -3043,6 +3653,7 @@ QString ProtocolDropSpectrumItem::onCheckCursorsValidity() {
 ProtocolDropResistanceEstimationItem::ProtocolDropResistanceEstimationItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
 
+    analysisType = YAML::ResistanceEstimation;
     QString iconString = ":imgs/analysis resistance estimation.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -3142,6 +3753,7 @@ QString ProtocolDropResistanceEstimationItem::onCheckCursorsValidity() {
 ProtocolDropMembraneTestItem::ProtocolDropMembraneTestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
 
+    analysisType = YAML::MembraneTest;
     QString iconString = ":imgs/analysis membrane test.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -3244,6 +3856,7 @@ QString ProtocolDropMembraneTestItem::onCheckCursorsValidity() {
 ProtocolDropIvGraphItem::ProtocolDropIvGraphItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
 
+    analysisType = YAML::IVGraph;
     QString iconString = ":imgs/analysis iv graph.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -3403,6 +4016,7 @@ void ProtocolDropIvGraphItem::updateTimePointsNumHouseKeeping() {
 ProtocolDropVoltageTrackingItem::ProtocolDropVoltageTrackingItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
 
+//    analysisType = YAML::Histogram;
     QString iconString = ":imgs/analysis voltage tracking.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -3472,6 +4086,7 @@ QString ProtocolDropVoltageTrackingItem::onCheckCursorsValidity() {
 ProtocolDropApThresholdItem::ProtocolDropApThresholdItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
 
+    analysisType = YAML::APThreshold;
     QString iconString = ":imgs/analysis ap threshold.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -3541,6 +4156,7 @@ QString ProtocolDropApThresholdItem::onCheckCursorsValidity() {
 ProtocolDropApStatisticsItem::ProtocolDropApStatisticsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
     ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
 
+    analysisType = YAML::APStatistics;
     QString iconString = ":imgs/analysis ap statistics.png";
     QIcon icon;
     icon.addPixmap(iconString);

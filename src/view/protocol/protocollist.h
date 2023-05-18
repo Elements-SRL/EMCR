@@ -12,6 +12,7 @@
 #include "protocolpropertydialog.h"
 #include "impexpprotocoldialog.h"
 #include "protocolssettingsdialog.h"
+#include "protocols.h"
 #include "e4gcommlib.h"
 
 namespace e4gcl = e4gCommLib;
@@ -91,14 +92,21 @@ protected:
     bool importProtocols(QString fullFileName = EPML_DEFAULT_FULL_FILE);
     bool importProtocols(ImportProtocolDialog * ipd);
     void importProtocol(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus);
+    void importProtocol(const YAML::VoltageProtocol &yamlProtocol);
+    void importProtocol(const YAML::CurrentProtocol &yamlProtocol);
     void importProtocolAs(EpmlManager * epmlManager, QString name, EpmlStatus_t &epmlStatus);
-    void copyTempProtocol(ProtocolWidget * protocol, QString name, int shortCutIdx);
-    void pasteTempProtocol();
-    void deleteTempProtocol();
+    void importProtocolAs(const YAML::VoltageProtocol &yamlProtocol, QString name);
+    void importProtocolAs(const YAML::CurrentProtocol &yamlProtocol, QString name);
+    YAML::VoltageProtocol_t copyVoltageProtocol(ProtocolWidget * protocol);
+    YAML::CurrentProtocol_t copyCurrentProtocol(ProtocolWidget * protocol);
+    void pasteVoltageProtocol(const YAML::VoltageProtocol_t &yamlProtocol);
+    void pasteCurrentProtocol(const YAML::CurrentProtocol_t &yamlProtocol);
     void removeProtocolByName(QString name);
     void removeProtocol(ProtocolWidget * protocol, QString name);
     ProtocolWidget * findProtocolByName(QString name);
     QString availableProtocolName(QString name);
+
+    YAML::Protocols_t getYamlProtocols();
 
     e4gcl::CommLib * commLib;
     ProtocolPropertyDialog * protocolPropertyDialog;
@@ -111,9 +119,7 @@ protected:
     QString protocolsGroupName;
     int clampingModality; /*!< Clamping modality of this protocol list */
     int clampingModalitySet; /*!< Clamping modality currently set by the GUI */
-    bool exportLastProtocolsFlag = false;
 
-    EpmlManager * tempEpmlManager = nullptr;
     ProtocolManager * protocolManager = nullptr;
     ProtocolWidget * nullGapfreeProtocol = nullptr;
     ProtocolWidget * nullEpisodicProtocol = nullptr;

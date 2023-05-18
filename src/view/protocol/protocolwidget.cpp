@@ -756,6 +756,26 @@ bool ProtocolWidget::hasInfiniteRepetition() {
     return (protocolItems.back()->repsNum == 0 ? true : false);
 }
 
+YAML::VoltageProtocol ProtocolWidget::getYamlVoltageProtocol() {
+    YAML::VoltageProtocol yamlProtocol = protocolEditor->getYamlVoltageProtocol();
+    yamlProtocol.shortcutindex = shortCutIdx;
+    return yamlProtocol;
+}
+
+YAML::CurrentProtocol ProtocolWidget::getYamlCurrentProtocol() {
+    YAML::CurrentProtocol yamlProtocol = protocolEditor->getYamlCurrentProtocol();
+    yamlProtocol.shortcutindex = shortCutIdx;
+    return yamlProtocol;
+}
+
+void ProtocolWidget::setProtocolFromYaml(const YAML::VoltageProtocol &yamlProtocol) {
+    protocolEditor->setProtocolFromYaml(yamlProtocol);
+}
+
+void ProtocolWidget::setProtocolFromYaml(const YAML::CurrentProtocol &yamlProtocol) {
+    protocolEditor->setProtocolFromYaml(yamlProtocol);
+}
+
 void ProtocolWidget::onAcceptPropertyDialog() {
     name = nameEdit->text();
     emit nameChanged(protocolEditor->getName(), name);

@@ -9,6 +9,10 @@
 #include "protocolcursor.h"
 #include "epmlmanager.h"
 #include "globaldefines.h"
+#include "control.h"
+#include "phase.h"
+#include "cursor.h"
+#include "analysis.h"
 #include "e4gcommlib.h"
 
 namespace e4gcl = e4gCommLib;
@@ -36,6 +40,14 @@ public:
     bool analysisValid(ProtocolConsumerType_t consumerType);
     QVector <int> getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType);
     void setStimulusRange(e4gcl::RangedMeasurement_t &range);
+
+    std::vector <YAML::Control_t> getYamlControls();
+    std::vector <YAML::Phase_t> getYamlPhases();
+    std::vector <YAML::Analysis_t> getYamlAnalyses();
+
+    void setControlsFromYaml(const std::vector <YAML::Control_t> &yamlControls, int voltageRangeIdx, int currentRangeIdx);
+    void setPhasesFromYaml(const std::vector <YAML::Phase_t> &yamlPhases, int voltageRangeIdx, int currentRangeIdx);
+    void setAnalysesFromYaml(const std::vector <YAML::Analysis_t> &yamlAnalyses);
 
 public slots:
     void onItemDoubleClicked(QListWidgetItem * item);

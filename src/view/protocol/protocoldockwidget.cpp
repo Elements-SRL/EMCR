@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include <QDesktopServices>
 #include <QLabel>
+#include <QSettings>
 
 ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingModality, QWidget * parent) :
     QDockWidget(),
@@ -390,6 +391,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     btnLo->addWidget(protocolsSettingsBtn, btnRow, btnCol++);
 
     if (commLib->hasSlaveModality() == e4gcl::Success) {
+        QSettings settings;
         slaveEnabledFlag = true;
 
         /*! New row */
@@ -401,14 +403,17 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
         mainSecondaryCbx->addItem("Secondary device");
 
         connect(mainSecondaryCbx, QOverload <int> ::of (&QComboBox::currentIndexChanged), this, [=] (int idx) {
+            QSettings settings;
             bool secondaryDeviceFlag = idx == 1 ? true : false;
             voltageProtocolList->setSecondaryDevice(secondaryDeviceFlag);
             currentProtocolList->setSecondaryDevice(secondaryDeviceFlag);
             commLib->setSlave(secondaryDeviceFlag);
+            settings.setValue(GLB_PROTOCOL_MAIN_SECONDARY_TAG, idx);
         });
 
-        mainSecondaryCbx->setCurrentIndex(1); /*!< As a safety measure set the device as secondary by default, so that it doesn't try to apply voltages on the digital
-                                                   output, possibly causing short circuits if the digital cable is still plugged to an external trigger */
+        /*! As a safety measure set the device as secondary by default, so that it doesn't try to apply voltages on the digital output, possibly
+         *  causing short circuits if the digital cable is still plugged to an external trigger */
+        mainSecondaryCbx->setCurrentIndex(settings.value(GLB_PROTOCOL_MAIN_SECONDARY_TAG, 1).toInt());
 
         btnLo->addWidget(mainSecondaryCbx, btnRow, btnCol++, 1, -1);
     }

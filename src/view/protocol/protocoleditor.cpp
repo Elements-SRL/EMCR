@@ -53,7 +53,7 @@ ProtocolEditor::ProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protoc
 
     e4gcl::ErrorCodes_t ret = e4gcl::Success;
 
-    vector <e4gcl::Measurement_t> availableSamplingRates;
+    std::vector <e4gcl::Measurement_t> availableSamplingRates;
     ret = commLib->getSamplingRates(availableSamplingRates);
 
     if (ret == e4gcl::Success) {
@@ -274,7 +274,10 @@ bool ProtocolEditor::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlSta
     int depth = EPML_PROTOCOL_PARAM_DEPTH;
     QString parentTag = "protocol";
 
-    QString tag = stimulusAbbrName.toLower() + "hold";
+    QString tag = "type";
+    epmlManager->addStringValue(tag, depth, type);
+
+    tag = stimulusAbbrName.toLower() + "hold";
     epmlManager->addDoubleValue(tag, depth, holdEdit->value());
 
     tag = stimulusAbbrName.toLower() + "holdref";
@@ -348,6 +351,124 @@ QVector <ProtocolDropItem *> * ProtocolEditor::getDropItems() {
 
 void ProtocolEditor::setTooManyTriggersWarning(bool flag) {
     protocolPreview->setTooManyTriggersWarning(flag);
+}
+
+YAML::VoltageProtocol_t ProtocolEditor::getYamlVoltageProtocol() {
+    YAML::VoltageProtocol_t yamlProtocol;
+
+    yamlProtocol.name = name.toStdString();
+    yamlProtocol.operationmode = (type == "Gap Free" ? YAML::GapFree : YAML::Episodic);
+    yamlProtocol.vhold = holdEdit->value();
+    yamlProtocol.vholdref = holdRefEdit->isChecked();
+    yamlProtocol.sweeps = sweepsNumEdit->value();
+    yamlProtocol.currentrange = currentRangeEdit->currentText().toStdString();
+    yamlProtocol.voltagerange = voltageRangeEdit->currentText().toStdString();
+    yamlProtocol.samplingrate = samplingRateEdit->currentText().toStdString();
+
+    yamlProtocol.phases = phasesPidl->getYamlPhases();
+    yamlProtocol.controls = ctrlPidl->getYamlControls();
+    yamlProtocol.cursors = protocolPreview->getYamlCursors();
+    yamlProtocol.analysis = analysisPidl->getYamlAnalyses();
+
+    return yamlProtocol;
+}
+
+YAML::CurrentProtocol ProtocolEditor::getYamlCurrentProtocol() {
+    YAML::CurrentProtocol yamlProtocol;
+
+    yamlProtocol.name = name.toStdString();
+    yamlProtocol.operationmode = (type == "Gap Free" ? YAML::GapFree : YAML::Episodic);
+    yamlProtocol.vhold = holdEdit->value();
+    yamlProtocol.vholdref = holdRefEdit->isChecked();
+    yamlProtocol.sweeps = sweepsNumEdit->value();
+    yamlProtocol.currentrange = currentRangeEdit->currentText().toStdString();
+    yamlProtocol.voltagerange = voltageRangeEdit->currentText().toStdString();
+    yamlProtocol.samplingrate = samplingRateEdit->currentText().toStdString();
+
+    yamlProtocol.phases = phasesPidl->getYamlPhases();
+    yamlProtocol.controls = ctrlPidl->getYamlControls();
+    yamlProtocol.cursors = protocolPreview->getYamlCursors();
+    yamlProtocol.analysis = analysisPidl->getYamlAnalyses();
+
+    return yamlProtocol;
+}
+
+void ProtocolEditor::setProtocolFromYaml(const YAML::VoltageProtocol_t &yamlProtocol) {
+    QString currentRangeStr = QString::fromStdString(yamlProtocol.currentrange);
+    QString voltageRangeStr = QString::fromStdString(yamlProtocol.voltagerange);
+    QString samplingRateStr = QString::fromStdString(yamlProtocol.samplingrate);
+
+    holdRefEdit->setChecked(yamlProtocol.vholdref);
+    sweepsNumEdit->setValue(yamlProtocol.sweeps);
+    /*! Accept also similar values by checking all characters except for the first one, so 200pA can be matched with 300pA */
+    int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegExp);
+    if (currentRangeIdx >= 0) {
+        currentRangeEdit->setCurrentIndex(currentRangeIdx);
+
+    } else {
+        currentRangeIdx = 0;
+    }
+    int voltageRangeIdx = voltageRangeEdit->findText("[1-9]" + voltageRangeStr.right(voltageRangeStr.size()-1), Qt::MatchRegExp);
+    if (voltageRangeIdx >= 0) {
+        voltageRangeEdit->setCurrentIndex(voltageRangeIdx);
+
+    } else {
+        voltageRangeIdx = 0;
+    }
+    samplingRateEdit->setCurrentText(samplingRateStr);
+    this->setHoldingRange();
+    holdEdit->setValue(yamlProtocol.vhold);
+
+    ctrlPidl->setControlsFromYaml(yamlProtocol.controls, voltageRangeIdx, currentRangeIdx);
+    phasesPidl->setPhasesFromYaml(yamlProtocol.phases, voltageRangeIdx, currentRangeIdx);
+
+    if (phasesPidl->getDropItems()->size() > 0) {
+        this->onUpdateProtocol();
+    }
+
+    protocolPreview->updateView();
+
+    protocolPreview->setCursorsFromYaml(yamlProtocol.cursors);
+    analysisPidl->setAnalysesFromYaml(yamlProtocol.analysis);
+}
+
+void ProtocolEditor::setProtocolFromYaml(const YAML::CurrentProtocol_t &yamlProtocol) {
+    QString currentRangeStr = QString::fromStdString(yamlProtocol.currentrange);
+    QString voltageRangeStr = QString::fromStdString(yamlProtocol.voltagerange);
+    QString samplingRateStr = QString::fromStdString(yamlProtocol.samplingrate);
+
+    holdRefEdit->setChecked(yamlProtocol.vholdref);
+    sweepsNumEdit->setValue(yamlProtocol.sweeps);
+    /*! Accept also similar values by checking all characters except for the first one, so 200pA can be matched with 300pA */
+    int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegExp);
+    if (currentRangeIdx >= 0) {
+        currentRangeEdit->setCurrentIndex(currentRangeIdx);
+
+    } else {
+        currentRangeIdx = 0;
+    }
+    int voltageRangeIdx = voltageRangeEdit->findText("[1-9]" + voltageRangeStr.right(voltageRangeStr.size()-1), Qt::MatchRegExp);
+    if (voltageRangeIdx >= 0) {
+        voltageRangeEdit->setCurrentIndex(voltageRangeIdx);
+
+    } else {
+        voltageRangeIdx = 0;
+    }
+    samplingRateEdit->setCurrentText(samplingRateStr);
+    this->setHoldingRange();
+    holdEdit->setValue(yamlProtocol.vhold);
+
+    ctrlPidl->setControlsFromYaml(yamlProtocol.controls, voltageRangeIdx, currentRangeIdx);
+    phasesPidl->setPhasesFromYaml(yamlProtocol.phases, voltageRangeIdx, currentRangeIdx);
+
+    if (phasesPidl->getDropItems()->size() > 0) {
+        this->onUpdateProtocol();
+    }
+
+    protocolPreview->updateView();
+
+    protocolPreview->setCursorsFromYaml(yamlProtocol.cursors);
+    analysisPidl->setAnalysesFromYaml(yamlProtocol.analysis);
 }
 
 void ProtocolEditor::onUpdateCtrlItem() {
@@ -562,7 +683,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
 
     e4gcl::ErrorCodes_t ret = e4gcl::Success;
 
-    vector <e4gcl::RangedMeasurement_t> availableCurrentRanges;
+    std::vector <e4gcl::RangedMeasurement_t> availableCurrentRanges;
     ret = commLib->getVCCurrentRanges(availableCurrentRanges);
 
     if (ret == e4gcl::Success) {
@@ -582,7 +703,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
         }
     } /*! \todo FCON gestire l'errore */
 
-    vector <e4gcl::RangedMeasurement_t> availableVoltageRanges;
+    std::vector <e4gcl::RangedMeasurement_t> availableVoltageRanges;
     ret = commLib->getVCVoltageRanges(availableVoltageRanges);
 
     if (ret == e4gcl::Success) {
@@ -813,7 +934,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
 
     e4gcl::ErrorCodes_t ret = e4gcl::Success;
 
-    vector <e4gcl::RangedMeasurement_t> availableCurrentRanges;
+    std::vector <e4gcl::RangedMeasurement_t> availableCurrentRanges;
     ret = commLib->getCCCurrentRanges(availableCurrentRanges);
 
     if (ret == e4gcl::Success) {
@@ -835,7 +956,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
         }
     } /*! \todo FCON gestire l'errore */
 
-    vector <e4gcl::RangedMeasurement_t> availableVoltageRanges;
+    std::vector <e4gcl::RangedMeasurement_t> availableVoltageRanges;
     ret = commLib->getCCVoltageRanges(availableVoltageRanges);
 
     if (ret == e4gcl::Success) {
@@ -944,6 +1065,8 @@ void CurrentProtocolEditor::stimulusRangeSelected(int rangeIdx) {
 }
 
 GapfreeProtocolEditor::GapfreeProtocolEditor() {
+    type = "Gap Free";
+
     sweepsNumName->setVisible(false);
     sweepsNumEdit->setVisible(false);
 
@@ -956,17 +1079,9 @@ GapfreeProtocolEditor::GapfreeProtocolEditor() {
     phasesVl->addWidget(phasesTitle);
 }
 
-bool GapfreeProtocolEditor::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    int depth = EPML_PROTOCOL_PARAM_DEPTH;
-    QString parentTag = "protocol";
-
-    QString tag = "type";
-    epmlManager->addStringValue(tag, depth, "Gap Free");
-
-    return ProtocolEditor::exportEpml(epmlManager, epmlStatus);
-}
-
 EpisodicProtocolEditor::EpisodicProtocolEditor() {
+    type = "Episodic";
+
     /*! Phases */
     phasesVl = new QVBoxLayout;
     editorHl->insertLayout(PTE_PHASES_COLUMN_IDX, phasesVl);
@@ -974,16 +1089,6 @@ EpisodicProtocolEditor::EpisodicProtocolEditor() {
     QLabel * phasesTitle = new QLabel("Sweeps items");
     phasesTitle->setFont(titlesFont);
     phasesVl->addWidget(phasesTitle);
-}
-
-bool EpisodicProtocolEditor::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    int depth = EPML_PROTOCOL_PARAM_DEPTH;
-    QString parentTag = "protocol";
-
-    QString tag = "type";
-    epmlManager->addStringValue(tag, depth, "Episodic");
-
-    return ProtocolEditor::exportEpml(epmlManager, epmlStatus);
 }
 
 GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name) :

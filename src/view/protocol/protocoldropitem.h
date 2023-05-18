@@ -17,6 +17,9 @@
 #include "steppedspinbox.h"
 #include "epmlmanager.h"
 #include "globaldefines.h"
+#include "control.h"
+#include "phase.h"
+#include "analysis.h"
 #include "e4gcommlib.h"
 
 namespace e4gcl = e4gCommLib;
@@ -108,6 +111,24 @@ public:
     ProtocolDropItemDoubleParam * getXStepParam();
     ProtocolDropItemDoubleParam * getT0Param();
     ProtocolDropItemDoubleParam * getTStepParam();
+
+    YAML::Phase_t getYamlVStepTStep();
+    YAML::Phase_t getYamlIStepTStep();
+    YAML::Phase_t getYamlVConst();
+    YAML::Phase_t getYamlIConst();
+    YAML::Phase_t getYamlVHold();
+    YAML::Phase_t getYamlIHold();
+    YAML::Phase_t getYamlVRest();
+    YAML::Phase_t getYamlIRest();
+
+    void setPhaseFromYaml(const YAML::VStepTStep_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::IStepTStep_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::VConst_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::IConst_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::VHold_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::IHold_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::VRest_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::IRest_t &yamlPhase);
 
 protected:
     ProtocolDropItemDoubleParam * x0Param = nullptr;
@@ -291,6 +312,12 @@ public:
     ProtocolDropItemDoubleParam * getXFinalParam();
     ProtocolDropItemDoubleParam * getT0Param();
 
+    YAML::Phase_t getYamlVRamp();
+    YAML::Phase_t getYamlIRamp();
+
+    void setPhaseFromYaml(const YAML::VRamp_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::IRamp_t &yamlPhase);
+
 protected:
     ProtocolDropItemDoubleParam * x0Param = nullptr;
     ProtocolDropItemDoubleParam * xFinalParam = nullptr;
@@ -336,6 +363,12 @@ public:
     ProtocolDropItemDoubleParam * getX0Param();
     ProtocolDropItemDoubleParam * getXAmpParam();
     ProtocolDropItemDoubleParam * getFreqParam();
+
+    YAML::Phase_t getYamlVSin();
+    YAML::Phase_t getYamlISin();
+
+    void setPhaseFromYaml(const YAML::VSin_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::ISin_t &yamlPhase);
 
 protected:
     ProtocolDropItemDoubleParam * x0Param = nullptr;
@@ -399,6 +432,16 @@ public:
     ProtocolDropItemIntParam * getItemNumParam();
     ProtocolDropItemDoubleParam * getRestStimulusParam();
     ProtocolDropItemDoubleParam * getRestTimeParam();
+
+    YAML::Phase_t getYamlRepSeqScaled();
+    YAML::Phase_t getYamlRepSeq();
+    YAML::Phase_t getYamlRepSeqWithSteps();
+    YAML::Phase_t getYamlInfRepSeq();
+
+    void setPhaseFromYaml(const YAML::RepSeqScaled_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::RepSeq_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::RepSeqWithSteps_t &yamlPhase);
+    void setPhaseFromYaml(const YAML::InfRepSeq_t &yamlPhase);
 
 protected:
     ProtocolDropItemDoubleParam * holdLeakParam = nullptr;
@@ -544,6 +587,18 @@ public:
     SteppedSpinBox * getDoubleEdit();
     QString getUnit();
 
+    YAML::Control_t getYamlVoltageCtrl();
+    YAML::Control_t getYamlCurrentCtrl();
+    YAML::Control_t getYamlTimeCtrl();
+    YAML::Control_t getYamlFrequencyCtrl();
+    YAML::Control_t getYamlNaturalNumCtrl();
+
+    void setCtrlFromYaml(const YAML::VoltageCtrl &yamlCtrl);
+    void setCtrlFromYaml(const YAML::CurrentCtrl &yamlCtrl);
+    void setCtrlFromYaml(const YAML::TimeCtrl &yamlCtrl);
+    void setCtrlFromYaml(const YAML::FrequencyCtrl &yamlCtrl);
+    void setCtrlFromYaml(const YAML::NaturalNumCtrl &yamlCtrl);
+
 protected:
     QString name;
     int intValue;
@@ -653,6 +708,10 @@ public:
     void removeCursors(QVector <ProtocolCursor *> * cursors, QVector <int> cursorsMap);
     QVector <int> getCursorMapping();
 
+    YAML::Analysis_t getYamlAnalysis();
+
+    void setAnalysisFromYaml(const YAML::Analysis_t &yamlAnalysis);
+
 public slots:
     void onAcceptPropertyDialog() override;
     void setEnabled(bool enabled);
@@ -673,6 +732,8 @@ protected:
     QVector <ProtocolDropAnalysisItemParam *> timePointParams;
     QVector <ProtocolCursor *> * protocolCursors = nullptr;
     QVector <ProtocolCursor *> * analysisCursors = nullptr;
+
+    YAML::AnalysisType_t analysisType;
 };
 
 /*! \todo FCON All analyses so far defined as voltage clamp analysis */

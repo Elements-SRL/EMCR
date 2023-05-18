@@ -2,6 +2,8 @@
 
 #include <QSettings>
 
+#include "protocols.h"
+
 ImpExpProtocolDialog::ImpExpProtocolDialog(int clampingModality, QWidget * parent) :
     QDialog(parent),
     clampingModality(clampingModality) {
@@ -112,7 +114,7 @@ QString ImpExpProtocolDialog::getWriteInfo(QVector <bool> &saveFlag, QVector <bo
 
         saveFlag.push_back(sel->toBeSaved());
         overwriteFlag.push_back(sel->overwrite());
-        names.push_back(sourceProtocolsNames[protIdx]);
+        names.push_back(QString::fromStdString(sourceProtocolsNames[protIdx]));
         namesSet.push_back(sel->getNameSet());
     }
     return fullFileName;
@@ -160,13 +162,16 @@ ExportProtocolDialog::ExportProtocolDialog(QStringList pn, int clampingModality,
     titleLbl->setText("Select protocols to be exported");
     fileNameLbl->setText("Save to:");
 
-    sourceProtocolsNames = pn;
+    sourceProtocolsNames.clear();
+    for (auto p : pn) {
+        sourceProtocolsNames.push_back(p.toStdString());
+    }
     protocolsNum = sourceProtocolsNames.size();
 
     for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
         ExportProtocolsActionSelector * sel = new ExportProtocolsActionSelector();
 
-        sel->setText(sourceProtocolsNames[protIdx]);
+        sel->setText(pn[protIdx]);
         connect(sel, &ExportProtocolsActionSelector::checkAcceptability, this, &ExportProtocolDialog::onCheckAcceptability);
         connect(sel, &ExportProtocolsActionSelector::checkSelectAllCbox, this, &ExportProtocolDialog::onCheckSelectAllCbox);
 
@@ -188,7 +193,7 @@ void ExportProtocolDialog::onBrowse() {
     fullFileName = QFileDialog::getSaveFileName(
                 this, "Select export file",
                 settings.value(GLB_PROTOCOL_FOLDER_TAG, EPML_DEFAULT_FOLDER).toString(),
-                "*" + EPML_FILE_EXTENSION, nullptr, QFileDialog::DontConfirmOverwrite);
+                "*" + YAML_FILE_EXTENSION, nullptr, QFileDialog::DontConfirmOverwrite);
 
     if (fullFileName == "") {
         return;
@@ -202,24 +207,25 @@ void ExportProtocolDialog::onBrowse() {
 }
 
 void ExportProtocolDialog::checkFileContent() {
-    epmlManager = new EpmlManager(fullFileName, QIODevice::ReadWrite);
+    if (QFile::exists(fullFileName)) {
+        YAML::Node node = YAML::LoadFile(fullFileName.toStdString());
+        YAML::Protocols_t yamlProtocols = node.as <YAML::Protocols_t> ();
+        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+            destinationProtocolsNames = yamlProtocols.getVoltageProtocolsNames();
 
-    if (epmlManager->fileExists()) {
-        fileNameEdit->setText(fullFileName);
-
-        destinationProtocolsNames = epmlManager->getProtocolsList(stimulusName.toLower() + "protocols");
+        } else {
+            destinationProtocolsNames = yamlProtocols.getCurrentProtocolsNames();
+        }
         for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-            if (destinationProtocolsNames.contains(sourceProtocolsNames[protIdx])) {
+            if (std::find(destinationProtocolsNames.begin(), destinationProtocolsNames.end(), sourceProtocolsNames[protIdx]) < destinationProtocolsNames.end()) {
                 actionSelectors->at(protIdx)->setNameConflict(true);
 
             } else {
                 actionSelectors->at(protIdx)->setNameConflict(false);
             }
         }
-
-    } else {
-        fileNameEdit->setText(fullFileName);
     }
+    fileNameEdit->setText(fullFileName);
 
     if (epmlManager != nullptr) {
         delete epmlManager;
@@ -237,7 +243,10 @@ ImportProtocolDialog::ImportProtocolDialog(QStringList pn, int clampingModality,
     titleLbl->setText("Select protocols to be imported");
     fileNameLbl->setText("Import from:");
 
-    destinationProtocolsNames = pn;
+    destinationProtocolsNames.clear();
+    for (auto p : pn) {
+        destinationProtocolsNames.push_back(p.toStdString());
+    }
 }
 
 ImportProtocolDialog::~ImportProtocolDialog() {
@@ -249,7 +258,7 @@ void ImportProtocolDialog::onBrowse() {
     fullFileName = QFileDialog::getOpenFileName(
                 this, "Select import file",
                 settings.value(GLB_PROTOCOL_FOLDER_TAG, EPML_DEFAULT_FOLDER).toString(),
-                "*" + EPML_FILE_EXTENSION);
+                "*" + YAML_FILE_EXTENSION + ";;*" + EPML_FILE_EXTENSION);
 
     if (fullFileName == "") {
         return;
@@ -263,49 +272,108 @@ void ImportProtocolDialog::onBrowse() {
 }
 
 void ImportProtocolDialog::checkFileContent() {
-    epmlManager = new EpmlManager(fullFileName, QIODevice::ReadWrite);
+    if (fullFileName.endsWith(YAML_FILE_EXTENSION)) {
+        if (QFile::exists(fullFileName)) {
+            YAML::Node node = YAML::LoadFile(fullFileName.toStdString());
+            YAML::Protocols_t yamlProtocols = node.as <YAML::Protocols_t> ();
 
-    if (epmlManager->fileExists()) {
-        fileNameEdit->setText(fullFileName);
+            fileNameEdit->setText(fullFileName);
 
-        QLayoutItem * item;
-        for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-            for (int colIdx = 0; colIdx < 4; colIdx++) { /*! \todo FCON mettere una macro al posto di questo 4 */
-                item = protocolManagementLo->itemAtPosition(protIdx+1, colIdx);
-                protocolManagementLo->removeItem(item);
-                delete item->widget();
+            QLayoutItem * item;
+            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
+                for (int colIdx = 0; colIdx < 4; colIdx++) { /*! \todo FCON mettere una macro al posto di questo 4 */
+                    item = protocolManagementLo->itemAtPosition(protIdx+1, colIdx);
+                    protocolManagementLo->removeItem(item);
+                    delete item->widget();
+                }
+                delete actionSelectors->at(protIdx);
             }
-            delete actionSelectors->at(protIdx);
-        }
-        actionSelectors->clear();
+            actionSelectors->clear();
 
-        sourceProtocolsNames = epmlManager->getProtocolsList(stimulusName.toLower() + "protocols");
-        protocolsNum = sourceProtocolsNames.size();
+            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                sourceProtocolsNames = yamlProtocols.getVoltageProtocolsNames();
 
-        for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-            ImportProtocolsActionSelector * sel = new ImportProtocolsActionSelector();
-
-            sel->setText(sourceProtocolsNames[protIdx]);
-            connect(sel, &ImportProtocolsActionSelector::checkAcceptability, this, &ImportProtocolDialog::onCheckAcceptability);
-            connect(sel, &ImportProtocolsActionSelector::checkSelectAllCbox, this, &ImportProtocolDialog::onCheckSelectAllCbox);
-
-            protocolManagementLo->addWidget(sel->getChBox(), protIdx+1, 0);
-            protocolManagementLo->addWidget(sel->getErrorLbl(), protIdx+1, 1);
-            protocolManagementLo->addWidget(sel->getCbBox(), protIdx+1, 2);
-            protocolManagementLo->addWidget(sel->getLnEdit(), protIdx+1, 3);
-
-            if (destinationProtocolsNames.contains(sourceProtocolsNames[protIdx])) {
-                sel->setNameConflict(true);
+            } else {
+                sourceProtocolsNames = yamlProtocols.getCurrentProtocolsNames();
             }
-            actionSelectors->push_back(sel);
+
+            protocolsNum = sourceProtocolsNames.size();
+
+            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
+                ImportProtocolsActionSelector * sel = new ImportProtocolsActionSelector();
+
+                sel->setText(QString::fromStdString(sourceProtocolsNames[protIdx]));
+                connect(sel, &ImportProtocolsActionSelector::checkAcceptability, this, &ImportProtocolDialog::onCheckAcceptability);
+                connect(sel, &ImportProtocolsActionSelector::checkSelectAllCbox, this, &ImportProtocolDialog::onCheckSelectAllCbox);
+
+                protocolManagementLo->addWidget(sel->getChBox(), protIdx+1, 0);
+                protocolManagementLo->addWidget(sel->getErrorLbl(), protIdx+1, 1);
+                protocolManagementLo->addWidget(sel->getCbBox(), protIdx+1, 2);
+                protocolManagementLo->addWidget(sel->getLnEdit(), protIdx+1, 3);
+
+                if (std::find(destinationProtocolsNames.begin(), destinationProtocolsNames.end(), sourceProtocolsNames[protIdx]) < destinationProtocolsNames.end()) {
+                    sel->setNameConflict(true);
+                }
+                actionSelectors->push_back(sel);
+            }
+
+            this->onCheckAcceptability();
         }
 
-        this->onCheckAcceptability();
-    }
+        if (epmlManager != nullptr) {
+            delete epmlManager;
+            epmlManager = nullptr;
+        }
 
-    if (epmlManager != nullptr) {
-        delete epmlManager;
-        epmlManager = nullptr;
+    } else {
+        epmlManager = new EpmlManager(fullFileName, QIODevice::ReadWrite);
+
+        if (epmlManager->fileExists()) {
+            fileNameEdit->setText(fullFileName);
+
+            QLayoutItem * item;
+            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
+                for (int colIdx = 0; colIdx < 4; colIdx++) { /*! \todo FCON mettere una macro al posto di questo 4 */
+                    item = protocolManagementLo->itemAtPosition(protIdx+1, colIdx);
+                    protocolManagementLo->removeItem(item);
+                    delete item->widget();
+                }
+                delete actionSelectors->at(protIdx);
+            }
+            actionSelectors->clear();
+
+            QStringList namesList = epmlManager->getProtocolsList(stimulusName.toLower() + "protocols");
+            sourceProtocolsNames.clear();
+            for (auto name : namesList) {
+                sourceProtocolsNames.push_back(name.toStdString());
+            }
+            protocolsNum = sourceProtocolsNames.size();
+
+            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
+                ImportProtocolsActionSelector * sel = new ImportProtocolsActionSelector();
+
+                sel->setText(QString::fromStdString(sourceProtocolsNames[protIdx]));
+                connect(sel, &ImportProtocolsActionSelector::checkAcceptability, this, &ImportProtocolDialog::onCheckAcceptability);
+                connect(sel, &ImportProtocolsActionSelector::checkSelectAllCbox, this, &ImportProtocolDialog::onCheckSelectAllCbox);
+
+                protocolManagementLo->addWidget(sel->getChBox(), protIdx+1, 0);
+                protocolManagementLo->addWidget(sel->getErrorLbl(), protIdx+1, 1);
+                protocolManagementLo->addWidget(sel->getCbBox(), protIdx+1, 2);
+                protocolManagementLo->addWidget(sel->getLnEdit(), protIdx+1, 3);
+
+                if (std::find(destinationProtocolsNames.begin(), destinationProtocolsNames.end(), sourceProtocolsNames[protIdx]) < destinationProtocolsNames.end()) {
+                    sel->setNameConflict(true);
+                }
+                actionSelectors->push_back(sel);
+            }
+
+            this->onCheckAcceptability();
+        }
+
+        if (epmlManager != nullptr) {
+            delete epmlManager;
+            epmlManager = nullptr;
+        }
     }
 }
 

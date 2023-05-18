@@ -12,9 +12,9 @@
 #include "protocolsection.h"
 #include "protocoldefs.h"
 #include "epmlmanager.h"
+#include "cursor.h"
 #include "e4gcommlib.h"
 
-using namespace std;
 namespace e4gcl = e4gCommLib;
 
 class ProtocolWidget;
@@ -86,6 +86,10 @@ public:
 
     bool precedes(ProtocolCursor * cursor);
     bool sameRepetitions(ProtocolCursor * cursor);
+
+    YAML::Cursor getYamlCursor();
+
+    void setCursorFromYaml(const YAML::Cursor &yamlCursor);
 
 private:
     void initializePropertyDialog();

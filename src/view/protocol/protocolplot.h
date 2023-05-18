@@ -17,6 +17,7 @@
 
 #include "protocolcursor.h"
 #include "epmlmanager.h"
+#include "cursor.h"
 #include "e4gcommlib.h"
 
 typedef enum {
@@ -126,6 +127,10 @@ public:
     QVector <ProtocolCursor *> * getProtocolCursors();
     void setCursorsVisibility(bool visible);
 
+    std::vector <YAML::Cursor> getYamlCursors();
+
+    void setCursorsFromYaml(const std::vector <YAML::Cursor> &yamlCursors);
+
 public slots:
     void onEnableCursorManagement(bool);
     void onCursorAddRequest(QPointF p);
@@ -138,6 +143,7 @@ public slots:
 
 private:
     bool importCursor(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus);
+    bool importCursor(const YAML::Cursor &yamlCursor);
     void updateCursorsSections(QVector <int> &map);
 
     inline bool getClosestCursor(QPointF p, int &cursorIdx);
