@@ -5,16 +5,14 @@
 
 #include "qwt_plot_textlabel.h"
 
-#include "plot.h"
+#include "protocol/protocolplot.h"
 #include "protocoldropitem.h"
 #include "protocolitem.h"
 #include "protocolsection.h"
 #include "protocolitemdroplist.h"
 #include "cursorsmanager.h"
 #include "cursor.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
+#include "curve.h"
 
 #define PPW_MAX_PLOT_DATA 1024
 #define PPW_MAX_PTS_PER_ITEM 21
@@ -39,15 +37,12 @@ class ProtocolPreview : public QWidget {
     Q_OBJECT
 
 public:
-    ProtocolPreview(e4gcl::CommLib * commLib, e4gcl::RangedMeasurement_t timeRange, e4gcl::RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
+    ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
     ~ProtocolPreview();
 
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus);
-    bool exportEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus);
-
     void setProtocol(ProtocolWidget * protocol);
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range);
-    void setHoldingDelta(e4gcl::Measurement_t &holdingDelta);
+    void setStimulusRange(RangedMeasurement_t &range);
+    void setHoldingDelta(Measurement_t &holdingDelta);
     void setAnalysisPidl(AnalysisProtocolItemDropList * analysisPidl);
     void setTooManyTriggersWarning(bool flag);
 
@@ -59,7 +54,7 @@ public slots:
     void updateView();
 
 protected:
-    e4gcl::CommLib * commLib;
+    ModelDevice * mDev;
     QVector <ProtocolItem *> protocolItems;
     QFrame * cursorsWid;
     QPushButton * manageCursorBtn;
@@ -71,11 +66,11 @@ protected:
     QPixmap cursonBinOpenPxm;
     bool minimal = false;
     unsigned int maxProtocolItems;
-    e4gcl::RangedMeasurement_t stimulusRange; /*!< This is the full range of the stimulus */
-    e4gcl::RangedMeasurement_t stimulusActiveRange; /*!< This is the range when the holding delta is taken into consideration */
-    e4gcl::Measurement_t holdingDelta = {0.0, e4gcl::UnitPfxNone, ""};
+    RangedMeasurement_t stimulusRange; /*!< This is the full range of the stimulus */
+    RangedMeasurement_t stimulusActiveRange; /*!< This is the range when the holding delta is taken into consideration */
+    Measurement_t holdingDelta = {0.0, UnitPfxNone, ""};
     QString stimulusUnit;
-    e4gcl::RangedMeasurement_t timeRange;
+    RangedMeasurement_t timeRange;
     QString timeUnit;
 
 private:
@@ -95,7 +90,7 @@ class MinimalProtocolPreview : public ProtocolPreview {
     Q_OBJECT
 
 public:
-    MinimalProtocolPreview(e4gcl::CommLib * commLib, e4gcl::RangedMeasurement_t timeRange, e4gcl::RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
+    MinimalProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
 };
 
 #endif // PROTOCOLPREVIEW_H

@@ -6,7 +6,7 @@
 
 #include "protocolwidget.h"
 
-ProtocolPropertyDialog::ProtocolPropertyDialog(e4gcl::CommLib * commLib, e4gcl::RangedMeasurement_t timeRange, e4gcl::RangedMeasurement_t stimulusRange) {
+ProtocolPropertyDialog::ProtocolPropertyDialog(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange) {
     QVBoxLayout * mainVl = new QVBoxLayout;
     mainVl->setContentsMargins(0, 0, 0, 0);
     this->setLayout(mainVl);
@@ -49,7 +49,7 @@ ProtocolPropertyDialog::ProtocolPropertyDialog(e4gcl::CommLib * commLib, e4gcl::
     controlsLo->setColumnStretch(2, 1);
 
     /*! Protocol preview */
-    preview = new MinimalProtocolPreview(commLib, timeRange, stimulusRange, "Preview");
+    preview = new MinimalProtocolPreview(mDev, timeRange, stimulusRange, "Preview");
     preview->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     mainSpl->addWidget(preview);
 

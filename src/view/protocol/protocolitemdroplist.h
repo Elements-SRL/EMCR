@@ -7,25 +7,18 @@
 #include "protocoldragitem.h"
 #include "protocolitemctrlmanager.h"
 #include "protocolcursor.h"
-#include "epmlmanager.h"
 #include "globaldefines.h"
 #include "control.h"
 #include "phase.h"
 #include "cursor.h"
 #include "analysis.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
 
 class ProtocolItemDropList : public QListWidget {
     Q_OBJECT
 
 public:
-    ProtocolItemDropList(e4gcl::CommLib * commLib, QDoubleSpinBox * holdEdit, int clampingModality);
+    ProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
     virtual ~ProtocolItemDropList();
-
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus, int voltageRangeIdx = 0, int currentRangeIdx = 0);
-    bool exportEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus);
 
     void setCtrlManager(ProtocolItemCtrlManager * cm);
     void onUpdateHold(double value);
@@ -39,7 +32,7 @@ public:
     bool analysisRequested(ProtocolConsumerType_t consumerType);
     bool analysisValid(ProtocolConsumerType_t consumerType);
     QVector <int> getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType);
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range);
+    void setStimulusRange(RangedMeasurement_t &range);
 
     std::vector <YAML::Control_t> getYamlControls();
     std::vector <YAML::Phase_t> getYamlPhases();
@@ -75,9 +68,9 @@ protected:
     void manageAnalysisDelete(ProtocolDropItem * item);
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) = 0;
 
-    e4gcl::CommLib * commLib;
+    ModelDevice * mDev;
     QDoubleSpinBox * holdEdit;
-    int clampingModality;
+    ClampingModality_t clampingModality;
     QVector <ProtocolDropItem *> * items;
     QVector <ProtocolDropControlItem *> * ctrlItems;
     QVector <ProtocolDropControlItem *> * voltageCtrlItems;
@@ -106,7 +99,7 @@ class GapfreeProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    GapfreeProtocolItemDropList(e4gcl::CommLib * commLib, QDoubleSpinBox * holdEdit, int clampingModality);
+    GapfreeProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
 protected:
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;
@@ -116,7 +109,7 @@ class EpisodicProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    EpisodicProtocolItemDropList(e4gcl::CommLib * commLib, QDoubleSpinBox * holdEdit, int clampingModality);
+    EpisodicProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
 protected:
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;
@@ -126,7 +119,7 @@ class CtrlProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    CtrlProtocolItemDropList(e4gcl::CommLib * commLib, QDoubleSpinBox * holdEdit, int clampingModality);
+    CtrlProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
 protected:
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;
@@ -136,7 +129,7 @@ class AnalysisProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    AnalysisProtocolItemDropList(e4gcl::CommLib * commLib, QDoubleSpinBox * holdEdit, int clampingModality);
+    AnalysisProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
     void addCursors(QVector <ProtocolCursor *> * cursors);
     void removeCursors(QVector <ProtocolCursor *> * cursors, QVector <int> cursorsMap);

@@ -1,11 +1,11 @@
 #include "protocoleditor.h"
 
 #include <QSplitter>
-
+#include "protocolutils.h"
 #include "protocolwidget.h"
 
-ProtocolEditor::ProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name) :
-    commLib(commLib),
+ProtocolEditor::ProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
+    mDev(mDev),
     parentWidget(protocolWidget),
     name(name) {
 
@@ -51,12 +51,12 @@ ProtocolEditor::ProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protoc
     protocolWideCtrlsGl->addWidget(sweepsNumName, PTE_SWEEPS_ROW, 0, Qt::AlignRight);
     protocolWideCtrlsGl->addWidget(sweepsNumEdit, PTE_SWEEPS_ROW, 1);
 
-    e4gcl::ErrorCodes_t ret = e4gcl::Success;
+    ErrorCodes_t ret = Success;
 
-    std::vector <e4gcl::Measurement_t> availableSamplingRates;
-    ret = commLib->getSamplingRates(availableSamplingRates);
+    std::vector <Measurement_t> availableSamplingRates;
+    ret = mDev->getSamplingRates(availableSamplingRates);
 
-    if (ret == e4gcl::Success) {
+    if (ret == Success) {
         uint32_t samplingRatesNum = availableSamplingRates.size();
         QLabel * samplingRateName = new QLabel("Set sampling rate");
         samplingRateEdit = new QComboBox();
@@ -129,211 +129,6 @@ ProtocolEditor::~ProtocolEditor() {
         delete protocolPreview;
         protocolPreview = nullptr;
     }
-}
-
-bool ProtocolEditor::importEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    QString tag = "";
-    int depth = EPML_PROTOCOL_PARAM_DEPTH;
-    QString parentTag = "protocol";
-
-    double hold = 0.0;
-    bool holdRef = false;
-    int sweepsNum = 1;
-    QString currentRangeStr = "None";
-    QString voltageRangeStr = "None";
-    QString samplingRateStr = "None";
-
-    while (tag != "controls") {
-        if (!epmlManager->getNextAny(tag, depth, parentTag, epmlStatus)) {
-            epmlStatus = EpmlSyntaxError;
-            return false;
-        }
-
-        if (tag == stimulusAbbrName.toLower() + "hold") {
-            hold = epmlManager->getDouble(tag, depth, epmlStatus);
-            if (epmlStatus != EpmlValueFound) {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == stimulusAbbrName.toLower() + "holdref") {
-            holdRef = epmlManager->getBool(tag, depth, epmlStatus);
-            if (epmlStatus != EpmlValueFound) {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "sweeps") {
-            sweepsNum = epmlManager->getInt(tag, depth, epmlStatus);
-            if (epmlStatus != EpmlValueFound) {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "currentrange") {
-            currentRangeStr = epmlManager->getString(tag, depth, epmlStatus);
-            if (epmlStatus != EpmlValueFound) {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "voltagerange") {
-            voltageRangeStr = epmlManager->getString(tag, depth, epmlStatus);
-            if (epmlStatus != EpmlValueFound) {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "samplingrate") {
-            samplingRateStr = epmlManager->getString(tag, depth, epmlStatus);
-            if (epmlStatus != EpmlValueFound) {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-        }
-    }
-
-    holdRefEdit->setChecked(holdRef);
-    sweepsNumEdit->setValue(sweepsNum);
-    /*! Accept also similar values by checking all characters except for the first one, so 200pA can be matched with 300pA */
-    int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegExp);
-    if (currentRangeIdx >= 0) {
-        currentRangeEdit->setCurrentIndex(currentRangeIdx);
-
-    } else {
-        currentRangeIdx = 0;
-    }
-    int voltageRangeIdx = voltageRangeEdit->findText("[1-9]" + voltageRangeStr.right(voltageRangeStr.size()-1), Qt::MatchRegExp);
-    if (voltageRangeIdx >= 0) {
-        voltageRangeEdit->setCurrentIndex(voltageRangeIdx);
-
-    } else {
-        voltageRangeIdx = 0;
-    }
-    samplingRateEdit->setCurrentText(samplingRateStr);
-    this->setHoldingRange();
-    holdEdit->setValue(hold);
-
-    /*! tag = "controls"; this is the exit condition from the while loop.
-     *  from now on tags controls, phases, cursors and analysis are mandatory in this order */
-    if (!ctrlPidl->importEpml(epmlManager, tag, epmlStatus, voltageRangeIdx, currentRangeIdx)) {
-        /*! \todo FCON gestire messaggi di errore */
-        return false;
-    }
-
-    tag = "phases";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (!phasesPidl->importEpml(epmlManager, tag, epmlStatus, voltageRangeIdx, currentRangeIdx)) {
-        /*! \todo FCON gestire messaggi di errore */
-        return false;
-    }
-
-    if (phasesPidl->getDropItems()->size() > 0) {
-        this->onUpdateProtocol();
-    }
-
-    protocolPreview->updateView();
-
-    depth = EPML_CURSOR_LIST_DEPTH;
-
-    tag = "cursors";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (!protocolPreview->importEpml(epmlManager, tag, epmlStatus)) {
-        /*! \todo FCON gestire messaggi di errore */
-        return false;
-    }
-
-    depth = EPML_ANALYSIS_LIST_DEPTH;
-
-    tag = "analysis";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (!analysisPidl->importEpml(epmlManager, tag, epmlStatus, voltageRangeIdx, currentRangeIdx)) {
-        /*! \todo FCON gestire messaggi di errore */
-        return false;
-    }
-
-    return true;
-}
-
-bool ProtocolEditor::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    int depth = EPML_PROTOCOL_PARAM_DEPTH;
-    QString parentTag = "protocol";
-
-    QString tag = "type";
-    epmlManager->addStringValue(tag, depth, type);
-
-    tag = stimulusAbbrName.toLower() + "hold";
-    epmlManager->addDoubleValue(tag, depth, holdEdit->value());
-
-    tag = stimulusAbbrName.toLower() + "holdref";
-    epmlManager->addBoolValue(tag, depth, holdRefEdit->isChecked());
-
-    tag = "sweeps";
-    epmlManager->addIntValue(tag, depth, sweepsNumEdit->value());
-
-    tag = "currentrange";
-    epmlManager->addStringValue(tag, depth, currentRangeEdit->currentText());
-
-    tag = "voltagerange";
-    epmlManager->addStringValue(tag, depth, voltageRangeEdit->currentText());
-
-    tag = "samplingrate";
-    epmlManager->addStringValue(tag, depth, samplingRateEdit->currentText());
-
-    depth = EPML_PROTOCOL_ITEM_LIST_DEPTH;
-
-    tag = "controls";
-    if (!epmlManager->createSection(tag, depth, parentTag, epmlStatus)) {
-        return false;
-
-    } else {
-        ctrlPidl->exportEpml(epmlManager, tag, epmlStatus);
-    }
-
-    tag = "phases";
-    if (!epmlManager->createSection(tag, depth, parentTag, epmlStatus)) {
-        return false;
-
-    } else {
-        phasesPidl->exportEpml(epmlManager, tag, epmlStatus);
-    }
-
-    depth = EPML_CURSOR_LIST_DEPTH;
-
-    tag = "cursors";
-    if (!epmlManager->createSection(tag, depth, parentTag, epmlStatus)) {
-        return false;
-
-    } else {
-        protocolPreview->exportEpml(epmlManager, tag, epmlStatus);
-    }
-
-    depth = EPML_ANALYSIS_LIST_DEPTH;
-
-    tag = "analysis";
-    if (!epmlManager->createSection(tag, depth, parentTag, epmlStatus)) {
-        return false;
-
-    } else {
-        analysisPidl->exportEpml(epmlManager, tag, epmlStatus);
-    }
-
-    return true;
 }
 
 void ProtocolEditor::onUpdateProtocol() {
@@ -535,11 +330,11 @@ double ProtocolEditor::getHold() {
     return holdEdit->value();
 }
 
-SteppedSpinBox * ProtocolEditor::getHoldEdit() {
+QDoubleSpinBox * ProtocolEditor::getHoldEdit() {
     return holdEdit;
 }
 
-void ProtocolEditor::setHoldingDelta(e4gcl::Measurement_t &holdingDelta) {
+void ProtocolEditor::setHoldingDelta(Measurement_t &holdingDelta) {
     protocolPreview->setHoldingDelta(holdingDelta);
     this->onUpdateProtocol();
 }
@@ -581,7 +376,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     btn = libraryPidl->setSeparator("Protocol items", PROT_EDITOR_STIMULUS_SEPARATOR_COLOR);
     itemIdx++;
 
-    if (commLib->hasProtocolStep() == e4gcl::Success) {
+    if (mDev->hasProtocolStep() == Success) {
         libraryPidl->addItem(new ProtocolDragVHoldItem());
         itemIdxs.append(itemIdx++);
         libraryPidl->addItem(new ProtocolDragVConstItem());
@@ -598,17 +393,17 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
         itemIdxs.append(itemIdx++);
     }
 
-    if (commLib->hasProtocolRamp() == e4gcl::Success) {
+    if (mDev->hasProtocolRamp() == Success) {
         libraryPidl->addItem(new ProtocolDragVRampItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (commLib->hasProtocolSin() == e4gcl::Success) {
+    if (mDev->hasProtocolSin() == Success) {
         libraryPidl->addItem(new ProtocolDragVSinItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (commLib->hasProtocolStep() == e4gcl::Success) {
+    if (mDev->hasProtocolStep() == Success) {
         libraryPidl->addItem(new ProtocolDragVRestItem());
         itemIdxs.append(itemIdx++);
     }
@@ -668,7 +463,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     /*! Protocol wide controls */
     double hold = 0.0;
     QLabel * holdName = new QLabel("V-Hold");
-    holdEdit = new SteppedSpinBox();
+    holdEdit = new QDoubleSpinBox();
 
     protocolWideCtrlsGl->addWidget(holdName, PTE_HOLD_ROW, 0, Qt::AlignRight);
     protocolWideCtrlsGl->addWidget(holdEdit, PTE_HOLD_ROW, 1);
@@ -681,12 +476,12 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     protocolWideCtrlsGl->addWidget(holdRefName, PTE_HOLDREF_ROW, 0, Qt::AlignRight);
     protocolWideCtrlsGl->addWidget(holdRefEdit, PTE_HOLDREF_ROW, 1);
 
-    e4gcl::ErrorCodes_t ret = e4gcl::Success;
+    ErrorCodes_t ret = Success;
 
-    std::vector <e4gcl::RangedMeasurement_t> availableCurrentRanges;
-    ret = commLib->getVCCurrentRanges(availableCurrentRanges);
+    std::vector <RangedMeasurement_t> availableCurrentRanges;
+    ret = mDev->getVcCurrentRangesFeatures(availableCurrentRanges);
 
-    if (ret == e4gcl::Success) {
+    if (ret == Success) {
         uint32_t currentRangesNum = availableCurrentRanges.size();
         QLabel * currentRangeName = new QLabel("Set current range");
         currentRangeEdit = new QComboBox();
@@ -703,10 +498,10 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
         }
     } /*! \todo FCON gestire l'errore */
 
-    std::vector <e4gcl::RangedMeasurement_t> availableVoltageRanges;
-    ret = commLib->getVCVoltageRanges(availableVoltageRanges);
+    std::vector <RangedMeasurement_t> availableVoltageRanges;
+    ret = mDev->getVcVoltageRangesFeatures(availableVoltageRanges);
 
-    if (ret == e4gcl::Success) {
+    if (ret == Success) {
         uint32_t voltageRangesNum = availableVoltageRanges.size();
         QLabel * voltageRangeName = new QLabel("Set voltage range");
         voltageRangeEdit = new QComboBox();
@@ -737,7 +532,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     ctrlTitle->setFont(titlesFont);
     ctrlItemsVl->addWidget(ctrlTitle);
 
-    ctrlPidl = new CtrlProtocolItemDropList(commLib, holdEdit, E4GCL_VOLTAGE_CLAMP_MODE);
+    ctrlPidl = new CtrlProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     ctrlItemsVl->addWidget(ctrlPidl);
 
     protocolItemCtrlManager = new ProtocolItemCtrlManager(ctrlPidl);
@@ -752,25 +547,26 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     analysisTitle->setFont(titlesFont);
     analysisItemsVl->addWidget(analysisTitle);
 
-    analysisPidl = new AnalysisProtocolItemDropList(commLib, holdEdit, E4GCL_VOLTAGE_CLAMP_MODE);
+    analysisPidl = new AnalysisProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     analysisItemsVl->addWidget(analysisPidl);
 
     connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
 
-    connect(holdEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
+    connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
     connect(holdRefEdit, &QCheckBox::stateChanged, this, &ProtocolEditor::onUpdateHoldRef);
     connect(sweepsNumEdit, QOverload <int> ::of(&QSpinBox::valueChanged), this, &ProtocolEditor::onUpdateProtocol);
 
     connect(ctrlPidl, &CtrlProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateCtrlItem);
 
     /*! Protocol previewer */
-    e4gcl::RangedMeasurement_t stimulusRange;
-    commLib->getVoltageProtocolRange(0, stimulusRange);
-    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
-    e4gcl::RangedMeasurement_t timeRange;
-    commLib->getTimeProtocolRange(timeRange);
-    timeRange.convertValues(e4gcl::UnitPfxMilli);
-    protocolPreview = new ProtocolPreview(commLib, timeRange, stimulusRange, "Protocol Preview");
+    RangedMeasurement_t stimulusRange;
+    mDev->getVoltageProtocolRange(0, stimulusRange);
+    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
+    RangedMeasurement_t timeRange;
+    mDev->getTimeProtocolRange(timeRange);
+    timeRange.convertValues(UnitPfxMilli);
+    protocolPreview = new ProtocolPreview(mDev, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
     protocolPreview->setAnalysisPidl(static_cast <AnalysisProtocolItemDropList *> (analysisPidl));
 
@@ -797,15 +593,17 @@ QComboBox * VoltageProtocolEditor::getVoltageRangeEdit() {
 }
 
 void VoltageProtocolEditor::setHoldingRange() {
-    e4gcl::RangedMeasurement_t stimulusRange;
-    commLib->getVoltageProtocolRange((unsigned int)(voltageRangeEdit->currentIndex()), stimulusRange);
-    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
+    RangedMeasurement_t stimulusRange;
+    mDev->getVoltageProtocolRange((unsigned int)(voltageRangeEdit->currentIndex()), stimulusRange);
+    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 }
 
 void VoltageProtocolEditor::stimulusRangeSelected(int rangeIdx) {
-    e4gcl::RangedMeasurement_t stimulusRange;
-    commLib->getVoltageProtocolRange((unsigned int)rangeIdx, stimulusRange);
-    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
+    RangedMeasurement_t stimulusRange;
+    mDev->getVoltageProtocolRange((unsigned int)rangeIdx, stimulusRange);
+    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 
     protocolPreview->setStimulusRange(stimulusRange);
     parentWidget->getProtocolPreview()->setStimulusRange(stimulusRange);
@@ -826,34 +624,26 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     btn = libraryPidl->setSeparator("Protocol items", PROT_EDITOR_STIMULUS_SEPARATOR_COLOR);
     itemIdx++;
 
-    if (commLib->hasProtocolStep() == e4gcl::Success) {
+    if (mDev->hasProtocolStep() == Success) {
         libraryPidl->addItem(new ProtocolDragIHoldItem());
         itemIdxs.append(itemIdx++);
         libraryPidl->addItem(new ProtocolDragIConstItem());
         itemIdxs.append(itemIdx++);
-#if (GLB_ENABLE_XSTEP_PROTOCOL_ITEM == true)
-        libraryPidl->addItem(new ProtocolDragIStepItem());
-        itemIdxs.append(itemIdx++);
-#endif
-#if (GLB_ENABLE_XTSTEP_PROTOCOL_ITEM == true)
-        libraryPidl->addItem(new ProtocolDragITStepItem());
-        itemIdxs.append(itemIdx++);
-#endif
         libraryPidl->addItem(new ProtocolDragIStepTStepItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (commLib->hasProtocolRamp() == e4gcl::Success) {
+    if (mDev->hasProtocolRamp() == Success) {
         libraryPidl->addItem(new ProtocolDragIRampItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (commLib->hasProtocolSin() == e4gcl::Success) {
+    if (mDev->hasProtocolSin() == Success) {
         libraryPidl->addItem(new ProtocolDragISinItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (commLib->hasProtocolStep() == e4gcl::Success) {
+    if (mDev->hasProtocolStep() == Success) {
         libraryPidl->addItem(new ProtocolDragIRestItem());
         itemIdxs.append(itemIdx++);
     }
@@ -919,7 +709,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     /*! Protocol wide controls */
     double hold = 0.0;
     QLabel * holdName = new QLabel("I-Hold");
-    holdEdit = new SteppedSpinBox();
+    holdEdit = new QDoubleSpinBox();
 
     protocolWideCtrlsGl->addWidget(holdName, PTE_HOLD_ROW, 0, Qt::AlignRight);
     protocolWideCtrlsGl->addWidget(holdEdit, PTE_HOLD_ROW, 1);
@@ -932,12 +722,12 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     protocolWideCtrlsGl->addWidget(holdRefName, PTE_HOLDREF_ROW, 0, Qt::AlignRight);
     protocolWideCtrlsGl->addWidget(holdRefEdit, PTE_HOLDREF_ROW, 1);
 
-    e4gcl::ErrorCodes_t ret = e4gcl::Success;
+    ErrorCodes_t ret = Success;
 
-    std::vector <e4gcl::RangedMeasurement_t> availableCurrentRanges;
-    ret = commLib->getCCCurrentRanges(availableCurrentRanges);
+    std::vector <RangedMeasurement_t> availableCurrentRanges;
+    ret = mDev->getCcCurrentRangesFeatures(availableCurrentRanges);
 
-    if (ret == e4gcl::Success) {
+    if (ret == Success) {
         uint32_t currentRangesNum = availableCurrentRanges.size();
         QLabel * currentRangeName = new QLabel("Set current range");
         currentRangeEdit = new QComboBox();
@@ -956,10 +746,10 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
         }
     } /*! \todo FCON gestire l'errore */
 
-    std::vector <e4gcl::RangedMeasurement_t> availableVoltageRanges;
-    ret = commLib->getCCVoltageRanges(availableVoltageRanges);
+    std::vector <RangedMeasurement_t> availableVoltageRanges;
+    ret = mDev->getCcVoltageRangesFeatures(availableVoltageRanges);
 
-    if (ret == e4gcl::Success) {
+    if (ret == Success) {
         uint32_t voltageRangesNum = availableVoltageRanges.size();
         QLabel * voltageRangeName = new QLabel("Set voltage range");
         voltageRangeEdit = new QComboBox();
@@ -988,7 +778,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     ctrlTitle->setFont(titlesFont);
     ctrlItemsVl->addWidget(ctrlTitle);
 
-    ctrlPidl = new CtrlProtocolItemDropList(commLib, holdEdit, E4GCL_CURRENT_CLAMP_MODE);
+    ctrlPidl = new CtrlProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     ctrlItemsVl->addWidget(ctrlPidl);
 
     protocolItemCtrlManager = new ProtocolItemCtrlManager(ctrlPidl);
@@ -1003,25 +793,26 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     analysisTitle->setFont(titlesFont);
     analysisItemsVl->addWidget(analysisTitle);
 
-    analysisPidl = new AnalysisProtocolItemDropList(commLib, holdEdit, E4GCL_CURRENT_CLAMP_MODE);
+    analysisPidl = new AnalysisProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     analysisItemsVl->addWidget(analysisPidl);
 
     connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
 
-    connect(holdEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
+    connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
     connect(holdRefEdit, &QCheckBox::stateChanged, this, &ProtocolEditor::onUpdateHoldRef);
     connect(sweepsNumEdit, QOverload <int> ::of(&QSpinBox::valueChanged), this, &ProtocolEditor::onUpdateProtocol);
 
     connect(ctrlPidl, &CtrlProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateCtrlItem);
 
     /*! Protocol previewer */
-    e4gcl::RangedMeasurement_t stimulusRange;
-    commLib->getCurrentProtocolRange(0, stimulusRange);
-    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
-    e4gcl::RangedMeasurement_t timeRange;
-    commLib->getTimeProtocolRange(timeRange);
-    timeRange.convertValues(e4gcl::UnitPfxMilli);
-    protocolPreview = new ProtocolPreview(commLib, timeRange, stimulusRange, "Protocol Preview");
+    RangedMeasurement_t stimulusRange;
+    mDev->getCurrentProtocolRange(0, stimulusRange);
+    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX)
+//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
+    RangedMeasurement_t timeRange;
+    mDev->getTimeProtocolRange(timeRange);
+    timeRange.convertValues(UnitPfxMilli);
+    protocolPreview = new ProtocolPreview(mDev, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
     protocolPreview->setAnalysisPidl(static_cast <AnalysisProtocolItemDropList *> (analysisPidl));
 
@@ -1048,15 +839,17 @@ QComboBox * CurrentProtocolEditor::getVoltageRangeEdit() {
 }
 
 void CurrentProtocolEditor::setHoldingRange() {
-    e4gcl::RangedMeasurement_t stimulusRange;
-    commLib->getCurrentProtocolRange((unsigned int)(currentRangeEdit->currentIndex()), stimulusRange);
-    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
+    RangedMeasurement_t stimulusRange;
+    mDev->getCurrentProtocolRange((unsigned int)(currentRangeEdit->currentIndex()), stimulusRange);
+    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 }
 
 void CurrentProtocolEditor::stimulusRangeSelected(int rangeIdx) {
-    e4gcl::RangedMeasurement_t stimulusRange;
-    commLib->getCurrentProtocolRange((unsigned int)rangeIdx, stimulusRange);
-    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
+    RangedMeasurement_t stimulusRange;
+    mDev->getCurrentProtocolRange((unsigned int)rangeIdx, stimulusRange);
+    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 
     protocolPreview->setStimulusRange(stimulusRange);
     parentWidget->getProtocolPreview()->setStimulusRange(stimulusRange);
@@ -1091,48 +884,48 @@ EpisodicProtocolEditor::EpisodicProtocolEditor() {
     phasesVl->addWidget(phasesTitle);
 }
 
-GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(commLib, protocolWidget, name),
+GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, protocolWidget, name),
     VoltageProtocolEditor(),
     GapfreeProtocolEditor() {
 
-    phasesPidl = new GapfreeProtocolItemDropList(commLib, holdEdit, E4GCL_VOLTAGE_CLAMP_MODE);
+    phasesPidl = new GapfreeProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(commLib, protocolWidget, name),
+EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, protocolWidget, name),
     VoltageProtocolEditor(),
     EpisodicProtocolEditor() {
 
-    phasesPidl = new EpisodicProtocolItemDropList(commLib, holdEdit, E4GCL_VOLTAGE_CLAMP_MODE);
+    phasesPidl = new EpisodicProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(commLib, protocolWidget, name),
+GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, protocolWidget, name),
     CurrentProtocolEditor(),
     GapfreeProtocolEditor() {
 
-    phasesPidl = new GapfreeProtocolItemDropList(commLib, holdEdit, E4GCL_CURRENT_CLAMP_MODE);
+    phasesPidl = new GapfreeProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-EpisodicCurrentProtocolEditor::EpisodicCurrentProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(commLib, protocolWidget, name),
+EpisodicCurrentProtocolEditor::EpisodicCurrentProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, protocolWidget, name),
     CurrentProtocolEditor(),
     EpisodicProtocolEditor() {
 
-    phasesPidl = new EpisodicProtocolItemDropList(commLib, holdEdit, E4GCL_CURRENT_CLAMP_MODE);
+    phasesPidl = new EpisodicProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);

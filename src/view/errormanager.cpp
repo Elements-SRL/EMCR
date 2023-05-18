@@ -226,3 +226,193 @@ ErrorManager::ErrorManager(ErrorCodes_t errorCode) :
     ErrorManager(errorCode, commLibCode2info(errorCode)) {
 
 }
+
+QString protocolManagerCode2error(ProtocolManager::ProtocolApplicationStatus_t errorCode) {
+    QString error;
+
+    switch (errorCode) {
+    case ProtocolManager::Success:
+        error = "NONE";
+        break;
+
+    case ProtocolManager::ErrorNotEnoughItemsForSequence:
+    case ProtocolManager::ErrorOverlappingSequences:
+    case ProtocolManager::ErrorMidInfiniteSequence:
+    case ProtocolManager::ErrorItemsOverflow:
+    case ProtocolManager::ErrorItemsNotFound:
+    case ProtocolManager::ErrorItemsOverStimulus:
+    case ProtocolManager::ErrorItemsUnderStimulus:
+    case ProtocolManager::ErrorItemsUnderDuration:
+    case ProtocolManager::ErrorItemsNotProcessed:
+        error = "Couldn't start the selected protocol";
+        break;
+
+    case ProtocolManager::ErrorProtocolInhibited:
+        error = "The selected protocol is inhibited";
+        break;
+
+    }
+    return error;
+}
+
+QString protocolManagerCode2info(ProtocolManager::ProtocolApplicationStatus_t errorCode) {
+    QString info;
+
+    switch (errorCode) {
+    case ProtocolManager::Success:
+        info = "NONE";
+        break;
+
+    case ProtocolManager::ErrorNotEnoughItemsForSequence:
+        info = "A sequence requires more protocol items than are available.";
+        break;
+
+    case ProtocolManager::ErrorOverlappingSequences:
+        info = "Two sequences are overlapped.";
+        break;
+
+    case ProtocolManager::ErrorMidInfiniteSequence:
+        info = "Protocol items found after an infinite sequence.";
+        break;
+
+    case ProtocolManager::ErrorItemsOverflow:
+        info = "Too many protocol items for this device.";
+        break;
+
+    case ProtocolManager::ErrorItemsNotFound:
+        info = "No protocol items found for this device.";
+        break;
+
+    case ProtocolManager::ErrorItemsOverStimulus:
+        info = "The stimulus value is too high.";
+        break;
+
+    case ProtocolManager::ErrorItemsUnderStimulus:
+        info = "The stimulus value is too low.";
+        break;
+
+    case ProtocolManager::ErrorItemsUnderDuration:
+        info = "The duration of one protocol items is too low.";
+        break;
+
+    case ProtocolManager::ErrorItemsNotProcessed:
+        info = "The protocol was not processed correctly.\n"
+               "Please try again or write to support@elements-ic.com for support.";
+        break;
+
+    case ProtocolManager::ErrorProtocolInhibited:
+        info = "";
+        break;
+
+    }
+    return info;
+}
+
+QString protocolListCode2error(ProtocolList::ProtocolListStatus_t errorCode) {
+    QString error;
+
+    switch (errorCode) {
+    case ProtocolList::Success:
+        error = "NONE";
+        break;
+
+    case ProtocolList::ErrorProtocolAlreadyExists:
+        error = "Couldn't create protocol";
+        break;
+
+    case ProtocolList::ErrorNoProtocolSelected:
+        error = "No protocol selected";
+        break;
+
+    case ProtocolList::ErrorLoadNullProtocolsFail:
+        error = "Failed to load stop protocols";
+        break;
+
+    case ProtocolList::ErrorLoadOffsetCompensationProtocolFail:
+        error = "Failed to load protocol for offset compensation";
+        break;
+
+    case ProtocolList::ErrorLoadRestingPotentialProtocolFail:
+        error = "Failed to load protocol for resting potential";
+        break;
+
+    case ProtocolList::ErrorLoadLastExecutedProtocolFail:
+        error = "Failed to load last executed protocol";
+        break;
+
+    case ProtocolList::ErrorLoadLastExecutionProtocolsFail:
+        error = "No file protocols from last EZ Patch execution " + YAML_LAST_FULL_FILE + " found";
+        break;
+
+    case ProtocolList::ErrorLoadDefaultProtocolsFail:
+        error = "Failed to load the file of deafult protocols";
+        break;
+    }
+    return error;
+}
+
+QString protocolListCode2info(ProtocolList::ProtocolListStatus_t errorCode) {
+    QString info;
+
+    switch (errorCode) {
+    case ProtocolList::Success:
+        info = "NONE";
+        break;
+
+    case ProtocolList::ErrorProtocolAlreadyExists:
+        info = "A protocol with the same name already exists.\n"
+               "Please select unique names for new protocols.";
+        break;
+
+    case ProtocolList::ErrorNoProtocolSelected:
+        info = "";
+        break;
+
+    case ProtocolList::ErrorLoadNullProtocolsFail:
+        info = "Check that the file " + YAML_NULL_FULL_FILE +
+                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+        break;
+
+    case ProtocolList::ErrorLoadOffsetCompensationProtocolFail:
+        info = "Check that the file " + YAML_VHOLD0_FULL_FILE +
+                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+        break;
+
+    case ProtocolList::ErrorLoadRestingPotentialProtocolFail:
+        info = "Check that the file " + YAML_IHOLD0_FULL_FILE +
+                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+        break;
+
+    case ProtocolList::ErrorLoadLastExecutedProtocolFail:
+        info = "It is possible that the file " + YAML_LAST_PROTOCOL_FULL_FILE +
+                " was not correctly saved during the last execution.";
+        break;
+
+    case ProtocolList::ErrorLoadLastExecutionProtocolsFail:
+        info = "Loading default protocols.";
+        break;
+
+    case ProtocolList::ErrorLoadDefaultProtocolsFail:
+        info = "Check that the file " + YAML_DEFAULT_FULL_FILE +
+                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+        break;
+    }
+    return info;
+}
+
+ErrorManager::ErrorManager(ProtocolManager::ProtocolApplicationStatus_t errorCode, QString info) :
+    ErrorManager(protocolManagerCode2error(errorCode), info) {
+}
+
+ErrorManager::ErrorManager(ProtocolManager::ProtocolApplicationStatus_t errorCode) :
+    ErrorManager(errorCode, protocolManagerCode2info(errorCode)) {
+}
+
+ErrorManager::ErrorManager(ProtocolList::ProtocolListStatus_t errorCode, QString info) :
+    ErrorManager(protocolListCode2error(errorCode), info) {
+}
+
+ErrorManager::ErrorManager(ProtocolList::ProtocolListStatus_t errorCode) :
+    ErrorManager(errorCode, protocolListCode2info(errorCode)) {
+}
+

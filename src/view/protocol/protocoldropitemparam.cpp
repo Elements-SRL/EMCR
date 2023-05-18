@@ -204,7 +204,7 @@ void ProtocolDropItemIntParam::onCtrlWidgetActivated(int cbxIdx) {
 
 ProtocolDropItemDoubleParam::ProtocolDropItemDoubleParam(
         ProtocolItemCtrlManager * ctrlManager, ProtocolItemCtrlTypes_t ctrlType, double value,
-        QString name, SteppedSpinBox * editWidget, QString unit) :
+        QString name, QDoubleSpinBox * editWidget, QString unit) :
     ProtocolDropItemParam(ctrlManager, ctrlType, name, unit),
     value(value),
     editWidget(editWidget) {
@@ -235,7 +235,7 @@ double ProtocolDropItemDoubleParam::getValue() {
     return value;
 }
 
-SteppedSpinBox * ProtocolDropItemDoubleParam::getEditWidget() {
+QDoubleSpinBox * ProtocolDropItemDoubleParam::getEditWidget() {
     return editWidget;
 }
 

@@ -95,7 +95,7 @@ private:
     Measurement_t vcVoltageFilter = {0.0, UnitPfxNone, "Hz"};;
     Measurement_t ccCurrentFilter = {0.0, UnitPfxNone, "Hz"};;
     Measurement_t ccVoltageFilter = {0.0, UnitPfxNone, "Hz"};;
-    int ongoingClampingModality = E384CL_VOLTAGE_CLAMP_MODE;
+    e384CommLib::ClampingModality_t  ongoingClampingModality = e384CommLib::ClampingModality_t::VOLTAGE_CLAMP;
 
 };
 

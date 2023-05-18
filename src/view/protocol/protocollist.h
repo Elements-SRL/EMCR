@@ -13,9 +13,6 @@
 #include "impexpprotocoldialog.h"
 #include "protocolssettingsdialog.h"
 #include "protocols.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
 
 class ProtocolList : public QListWidget {
     Q_OBJECT
@@ -33,7 +30,7 @@ public:
         ErrorLoadDefaultProtocolsFail
     } ProtocolListStatus_t;
 
-    ProtocolList(e4gcl::CommLib * commLib, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
+    ProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
     virtual ~ProtocolList();
 
     QVector <ProtocolWidget *> * getProtocols();
@@ -42,11 +39,11 @@ public:
     void startVhold0Protocol();
     void startIhold0Protocol();
     void recordIhold0Protocol();
-    void setStopProtocolHold(e4gcl::Measurement_t hold);
+    void setStopProtocolHold(Measurement_t hold);
     void inhibitProtocols(bool inhibitFlag);
     void startProtocol(int shortCutIdx);
     void recordProtocol(int shortCutIdx);
-    void setClampingModality(int clampingModalitySet);
+    void setClampingModality(ClampingModality_t clampingModalitySet);
     void saveAndClosePropertyDialog();
     void setSecondaryDevice(bool flag);
 
@@ -63,7 +60,7 @@ public slots:
     void onImportProtocols();
     void onExportProtocols();
     void onProtocolsSettings();
-    void onHoldingDeltaChanged(e4gcl::Measurement_t newHoldingDelta);
+    void onHoldingDeltaChanged(Measurement_t newHoldingDelta);
     void onProtocolNameChanged(QString oldName, QString newName);
     void onPlotting(bool flag, ProtocolType_t protocolType);
     void onControlsChanged();
@@ -89,12 +86,10 @@ protected:
     void importIhold0Protocol();
     void importLastRunProtocol();
     void importLastProtocols();
-    bool importProtocols(QString fullFileName = EPML_DEFAULT_FULL_FILE);
+    bool importProtocols(QString fullFileName = YAML_DEFAULT_FILE);
     bool importProtocols(ImportProtocolDialog * ipd);
-    void importProtocol(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus);
     void importProtocol(const YAML::VoltageProtocol &yamlProtocol);
     void importProtocol(const YAML::CurrentProtocol &yamlProtocol);
-    void importProtocolAs(EpmlManager * epmlManager, QString name, EpmlStatus_t &epmlStatus);
     void importProtocolAs(const YAML::VoltageProtocol &yamlProtocol, QString name);
     void importProtocolAs(const YAML::CurrentProtocol &yamlProtocol, QString name);
     YAML::VoltageProtocol_t copyVoltageProtocol(ProtocolWidget * protocol);
@@ -108,7 +103,7 @@ protected:
 
     YAML::Protocols_t getYamlProtocols();
 
-    e4gcl::CommLib * commLib;
+    ModelDevice * mDev;
     ProtocolPropertyDialog * protocolPropertyDialog;
     QWidget * parent;
     QVector <ProtocolWidget *> * protocols;
@@ -117,8 +112,8 @@ protected:
     QVector <ProtocolWidget *> shortCutsProtocols;
     QVector <int> shortCutsIndexes;
     QString protocolsGroupName;
-    int clampingModality; /*!< Clamping modality of this protocol list */
-    int clampingModalitySet; /*!< Clamping modality currently set by the GUI */
+    ClampingModality_t clampingModality; /*!< Clamping modality of this protocol list */
+    ClampingModality_t clampingModalitySet; /*!< Clamping modality currently set by the GUI */
 
     ProtocolManager * protocolManager = nullptr;
     ProtocolWidget * nullGapfreeProtocol = nullptr;
@@ -130,7 +125,7 @@ protected:
     bool vhold0ProtocolFlag = false;
     bool ihold0ProtocolFlag = false;
     bool lastRunProtocolFlag = false;
-    e4gcl::Measurement_t holdingDelta = {0.0, e4gcl::UnitPfxNone, ""};
+    Measurement_t holdingDelta = {0.0, UnitPfxNone, ""};
     ProtocolsSettingsDialog * protocolsSettingsDlg;
     QGridLayout * shortCutsDlgLo;
     QVector <QComboBox *> shortCutIdxCbxs;
@@ -157,7 +152,7 @@ signals:
     void enableSaveLastProtocol(bool);
     void requestCurrentRange(int);
     void requestVoltageRange(int);
-    void protocolAppliedRange(e4gcl::RangedMeasurement_t);
+    void protocolAppliedRange(RangedMeasurement_t);
     void requestSamplingRate(int);
     void newRecordPath();
 };
@@ -166,7 +161,7 @@ class VoltageProtocolList : public ProtocolList {
     Q_OBJECT
 
 public:
-    VoltageProtocolList(e4gcl::CommLib * commLib, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
+    VoltageProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
     ~VoltageProtocolList();
 
     ProtocolWidget * newGapfreeProtocol(QString name) override;
@@ -177,7 +172,7 @@ class CurrentProtocolList : public ProtocolList {
     Q_OBJECT
 
 public:
-    CurrentProtocolList(e4gcl::CommLib * commLib, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
+    CurrentProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
     ~CurrentProtocolList();
 
     ProtocolWidget * newGapfreeProtocol(QString name) override;

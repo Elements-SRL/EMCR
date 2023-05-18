@@ -1,16 +1,18 @@
 #include "impexpprotocoldialog.h"
 
 #include <QSettings>
-
+#include "protocoldefs.h"
 #include "protocols.h"
+#include "e384commlib_global.h"
 
-ImpExpProtocolDialog::ImpExpProtocolDialog(ClampingModality_t clampingModality, QWidget * parent) :
+namespace commLib = e384CommLib;
+
+ImpExpProtocolDialog::ImpExpProtocolDialog(e384CommLib::ClampingModality_t clampingModality, QWidget * parent) :
     QDialog(parent),
     clampingModality(clampingModality) {
 
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
         stimulusName = "Voltage";
-
     } else {
         stimulusName = "Current";
     }
@@ -154,7 +156,7 @@ void ImpExpProtocolDialog::onCheckSelectAllCbox() {
     selectAllCbox->setChecked(all);
 }
 
-ExportProtocolDialog::ExportProtocolDialog(QStringList pn, int clampingModality, QWidget * parent) :
+ExportProtocolDialog::ExportProtocolDialog(QStringList pn, e384CommLib::ClampingModality_t clampingModality, QWidget * parent) :
     ImpExpProtocolDialog(clampingModality, parent) {
 
     this->setWindowTitle("Export " + stimulusName.toLower() + " protocols");
@@ -192,7 +194,7 @@ void ExportProtocolDialog::onBrowse() {
     QSettings settings;
     fullFileName = QFileDialog::getSaveFileName(
                 this, "Select export file",
-                settings.value(GLB_PROTOCOL_FOLDER_TAG, EPML_DEFAULT_FOLDER).toString(),
+                settings.value(GLB_PROTOCOL_FOLDER_TAG, YAML_DEFAULT_FOLDER).toString(),
                 "*" + YAML_FILE_EXTENSION, nullptr, QFileDialog::DontConfirmOverwrite);
 
     if (fullFileName == "") {
@@ -210,7 +212,7 @@ void ExportProtocolDialog::checkFileContent() {
     if (QFile::exists(fullFileName)) {
         YAML::Node node = YAML::LoadFile(fullFileName.toStdString());
         YAML::Protocols_t yamlProtocols = node.as <YAML::Protocols_t> ();
-        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
             destinationProtocolsNames = yamlProtocols.getVoltageProtocolsNames();
 
         } else {
@@ -230,7 +232,7 @@ void ExportProtocolDialog::checkFileContent() {
     this->onCheckAcceptability();
 }
 
-ImportProtocolDialog::ImportProtocolDialog(QStringList pn, int clampingModality, QWidget * parent) :
+ImportProtocolDialog::ImportProtocolDialog(QStringList pn, e384CommLib::ClampingModality_t clampingModality, QWidget * parent) :
     ImpExpProtocolDialog(clampingModality, parent) {
 
     this->setWindowTitle("Import " + stimulusName.toLower() + " protocols");
@@ -252,8 +254,8 @@ void ImportProtocolDialog::onBrowse() {
     QSettings settings;
     fullFileName = QFileDialog::getOpenFileName(
                 this, "Select import file",
-                settings.value(GLB_PROTOCOL_FOLDER_TAG, EPML_DEFAULT_FOLDER).toString(),
-                "*" + YAML_FILE_EXTENSION + ";;*" + EPML_FILE_EXTENSION);
+                settings.value(GLB_PROTOCOL_FOLDER_TAG, YAML_DEFAULT_FOLDER).toString(),
+                "*" + YAML_FILE_EXTENSION);
 
     if (fullFileName == "") {
         return;
@@ -285,7 +287,7 @@ void ImportProtocolDialog::checkFileContent() {
             }
             actionSelectors->clear();
 
-            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+            if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
                 sourceProtocolsNames = yamlProtocols.getVoltageProtocolsNames();
 
             } else {
@@ -314,61 +316,8 @@ void ImportProtocolDialog::checkFileContent() {
 
             this->onCheckAcceptability();
         }
-
-        if (epmlManager != nullptr) {
-            delete epmlManager;
-            epmlManager = nullptr;
-        }
-
     } else {
-        epmlManager = new EpmlManager(fullFileName, QIODevice::ReadWrite);
-
-        if (epmlManager->fileExists()) {
-            fileNameEdit->setText(fullFileName);
-
-            QLayoutItem * item;
-            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-                for (int colIdx = 0; colIdx < 4; colIdx++) { /*! \todo FCON mettere una macro al posto di questo 4 */
-                    item = protocolManagementLo->itemAtPosition(protIdx+1, colIdx);
-                    protocolManagementLo->removeItem(item);
-                    delete item->widget();
-                }
-                delete actionSelectors->at(protIdx);
-            }
-            actionSelectors->clear();
-
-            QStringList namesList = epmlManager->getProtocolsList(stimulusName.toLower() + "protocols");
-            sourceProtocolsNames.clear();
-            for (auto name : namesList) {
-                sourceProtocolsNames.push_back(name.toStdString());
-            }
-            protocolsNum = sourceProtocolsNames.size();
-
-            for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-                ImportProtocolsActionSelector * sel = new ImportProtocolsActionSelector();
-
-                sel->setText(QString::fromStdString(sourceProtocolsNames[protIdx]));
-                connect(sel, &ImportProtocolsActionSelector::checkAcceptability, this, &ImportProtocolDialog::onCheckAcceptability);
-                connect(sel, &ImportProtocolsActionSelector::checkSelectAllCbox, this, &ImportProtocolDialog::onCheckSelectAllCbox);
-
-                protocolManagementLo->addWidget(sel->getChBox(), protIdx+1, 0);
-                protocolManagementLo->addWidget(sel->getErrorLbl(), protIdx+1, 1);
-                protocolManagementLo->addWidget(sel->getCbBox(), protIdx+1, 2);
-                protocolManagementLo->addWidget(sel->getLnEdit(), protIdx+1, 3);
-
-                if (std::find(destinationProtocolsNames.begin(), destinationProtocolsNames.end(), sourceProtocolsNames[protIdx]) < destinationProtocolsNames.end()) {
-                    sel->setNameConflict(true);
-                }
-                actionSelectors->push_back(sel);
-            }
-
-            this->onCheckAcceptability();
-        }
-
-        if (epmlManager != nullptr) {
-            delete epmlManager;
-            epmlManager = nullptr;
-        }
+//        todo LR return some kind of error?
     }
 }
 

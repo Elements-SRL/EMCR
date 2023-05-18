@@ -33,7 +33,7 @@ class ProtocolWidget;
 
 class ProtocolPropertyDialog : public QWidget {
 public:
-    ProtocolPropertyDialog(e4gCommLib::CommLib * commLib, e4gcl::RangedMeasurement_t timeRange, e4gcl::RangedMeasurement_t stimulusRange);
+    ProtocolPropertyDialog(ModelDevice *  mDev, RangedMeasurement_t timeRange,RangedMeasurement_t stimulusRange);
     ~ProtocolPropertyDialog();
 
     QGridLayout * getControlsLayout();

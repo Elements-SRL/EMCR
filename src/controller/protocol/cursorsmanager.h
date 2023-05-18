@@ -3,7 +3,7 @@
 
 #include "protocolcursor.h"
 #include "protocolitemdroplist.h"
-#include "plot.h"
+#include "protocolplot.h"
 #include "analysiscursor.h"
 
 class ProtocolWidget;

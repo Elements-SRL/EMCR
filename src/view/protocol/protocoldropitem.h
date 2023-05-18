@@ -31,7 +31,7 @@ class ProtocolDropItem : public QObject, public QListWidgetItem {
     Q_OBJECT
 
 public:
-    ProtocolDropItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_WIDGET_ITEM_TYPE);
+    ProtocolDropItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_WIDGET_ITEM_TYPE);
     virtual ~ProtocolDropItem();
 
     virtual void openPropertyDialog() = 0;
@@ -81,7 +81,7 @@ signals:
 
 class ProtocolDropStimulusItem : public ProtocolDropItem {
 public:
-    ProtocolDropStimulusItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_STIMULUS_ITEM_TYPE);
+    ProtocolDropStimulusItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_STIMULUS_ITEM_TYPE);
 
     QString getName() override;
 };
@@ -90,7 +90,7 @@ class ProtocolDropXStepTStepItem : public ProtocolDropStimulusItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXStepTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXStepTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
     void openPropertyDialog() override;
     void setStimulusRange(RangedMeasurement_t &range) override;
@@ -155,7 +155,7 @@ class ProtocolDropXStepItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -182,7 +182,7 @@ class ProtocolDropXTStepItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -209,7 +209,7 @@ class ProtocolDropXConstItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXConstItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXConstItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -236,7 +236,7 @@ class ProtocolDropXHoldItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXHoldItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXHoldItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -263,7 +263,7 @@ class ProtocolDropXRestItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRestItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRestItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -290,7 +290,7 @@ class ProtocolDropXRampItem : public ProtocolDropStimulusItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRampItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRampItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
     void openPropertyDialog() override;
     void setStimulusRange(RangedMeasurement_t &range) override;
@@ -340,7 +340,7 @@ class ProtocolDropXSinItem : public ProtocolDropStimulusItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXSinItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_VSIN_ITEM_TYPE);
+    ProtocolDropXSinItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_VSIN_ITEM_TYPE);
 
     void openPropertyDialog() override;
     void setStimulusRange(RangedMeasurement_t &range) override;
@@ -388,7 +388,7 @@ public:
 
 class ProtocolDropLoopsItem : public ProtocolDropItem {
 public:
-    ProtocolDropLoopsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_LOOPS_ITEM_TYPE);
+    ProtocolDropLoopsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_LOOPS_ITEM_TYPE);
 
     QString getName() override;
 };
@@ -397,7 +397,7 @@ class ProtocolDropXRepSeqScaledItem : public ProtocolDropLoopsItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRepSeqScaledItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRepSeqScaledItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
     void openPropertyDialog() override;
     void setStimulusRange(RangedMeasurement_t &range) override;
@@ -473,7 +473,7 @@ class ProtocolDropXRepSeqItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
     int getRepsNum() override;
 
@@ -502,7 +502,7 @@ class ProtocolDropXRepSeqWithStepsItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRepSeqWithStepsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRepSeqWithStepsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
     int getRepsNum() override;
 
@@ -531,7 +531,7 @@ class ProtocolDropXInfRepSeqItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXInfRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXInfRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type);
 
     int getRepsNum() override;
 
@@ -560,7 +560,7 @@ class ProtocolDropControlItem : public ProtocolDropItem {
     Q_OBJECT
 
 public:
-    ProtocolDropControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_CONTROL_ITEM_TYPE);
+    ProtocolDropControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_CONTROL_ITEM_TYPE);
 
     void openPropertyDialog() override;
 
@@ -679,7 +679,7 @@ class ProtocolDropAnalysisItem : public ProtocolDropItem {
     Q_OBJECT
 
 public:
-    ProtocolDropAnalysisItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_ANALYSIS_ITEM_TYPE);
+    ProtocolDropAnalysisItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_ANALYSIS_ITEM_TYPE);
     ~ProtocolDropAnalysisItem();
 
     void openPropertyDialog() override;

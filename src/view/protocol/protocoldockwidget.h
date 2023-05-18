@@ -8,15 +8,12 @@
 #include "protocolpropertydialog.h"
 #include "addtagdialog.h"
 #include "lcddisplay.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
 
 class ProtocolDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingModality, QWidget * parent = nullptr);
+    ProtocolDockWidget(ModelDevice *  mDev, int clampingModality, QWidget * parent = nullptr);
     ~ProtocolDockWidget();
 
     ProtocolList * getProtocolList();
@@ -24,7 +21,7 @@ public:
     ProtocolList * getCurrentProtocolList();
 
 public slots:
-    void onSetClampingModality(int clampingModality);
+    void onSetClampingModality(ClampingModality_t clampingModality);
     void onNewRecordFile(QString fileName);
     void onPlotting(bool flag, ProtocolType_t type);
     void onNullProtocol();
@@ -38,11 +35,11 @@ private:
     void setProtocolListVisibility();
     void setRecordFile(QString path, QString name);
 
-    e4gcl::CommLib * commLib;
+    ModelDevice *  mDev;
     ProtocolPropertyDialog * protocolPropertyDialog = nullptr;
     ProtocolList * voltageProtocolList = nullptr;
     ProtocolList * currentProtocolList = nullptr;
-    int clampingModality;
+    ClampingModality_t clampingModality;
     QString recordPath;
     QPushButton * recordFileBtn;
     QPushButton * recordProtocolBtn;

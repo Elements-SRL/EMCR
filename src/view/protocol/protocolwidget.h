@@ -8,16 +8,11 @@
 #include "protocoleditor.h"
 #include "protocolpropertydialog.h"
 #include "protocolpreview.h"
-#include "steppedspinbox.h"
 #include "protocolitem.h"
 #include "analysiscursor.h"
 #include "protocoldefs.h"
-#include "epmlmanager.h"
 #include "voltageprotocol.h"
 #include "currentprotocol.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
 
 class ProtocolCtrlDispatcher;
 
@@ -31,12 +26,10 @@ public:
         ClosureRequestRejected
     } ClosureRequestReply_t;
 
-    ProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, int clampingModality);
+    ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality);
     ProtocolWidget();
     ~ProtocolWidget();
 
-    bool importEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus);
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus);
     void initConsumerRequests();
     bool consumerRequested(ProtocolConsumerType_t consumerType);
     void setConsumerRequest(ProtocolConsumerType_t consumerType);
@@ -53,7 +46,7 @@ public:
     ClosureRequestReply_t askForPropertyDialogClosure();
     int openProtocolEditor();
     ProtocolType_t getType();
-    int getClampingModality();
+    ClampingModality_t getClampingModality();
     QVector <ProtocolDropItem *> * getProtocolDropItems();
     void pushProtocolItems(QVector <ProtocolItem *> items);
     void setProtocolItems();
@@ -71,20 +64,20 @@ public:
     QVector <TriggerCursor *> getTriggerCursors();
     void setProtocolSections(ProtocolSections * sections);
     ProtocolSection * getSectionByItem(int itemIdx, int repsIdx, int sweepIdx);
-    void setHold(e4gCommLib::Measurement_t hold);
-    e4gcl::Measurement_t getHold();
-    void setHoldingDelta(e4gcl::Measurement_t &holdingDelta);
+    void setHold(Measurement_t hold);
+    Measurement_t getHold();
+    void setHoldingDelta(Measurement_t &holdingDelta);
     virtual void setStimulusRangeIndex(int idx) = 0;
     virtual int getStimulusRangeIndex() = 0;
-    e4gcl::UnitPfx_t getStimulusPrefix();
+    UnitPfx_t getStimulusPrefix();
     bool getHoldRef();
     int getSweepsNum();
     virtual int getCurrentRangeIndex() = 0;
     virtual int getVoltageRangeIndex() = 0;
     int getSamplingRateIndex();
     void setProtocolValid(bool valid);
-    void setAppliedRange(e4gcl::RangedMeasurement_t &newAppliedRange);
-    e4gcl::RangedMeasurement_t getAppliedRange();
+    void setAppliedRange(RangedMeasurement_t &newAppliedRange);
+    RangedMeasurement_t getAppliedRange();
     void setNullProtocol(bool flag);
     bool isNullProtocol();
 
@@ -109,26 +102,26 @@ protected:
     void updateText();
     void setValidityColor();
 
-    e4gcl::CommLib * commLib;
+    ModelDevice *  mDev;
     QString name;
     ProtocolPropertyDialog * dialog;
     ProtocolType_t type;
-    int clampingModality;
+    ClampingModality_t clampingModality;
     QGridLayout * propertyCtrlLo;
     QHBoxLayout * propertyBtnsHl;
     QLineEdit * nameEdit;
     int shortCutIdx = -1;
     bool isNull = false;
-    e4gcl::Measurement_t hold;
-    e4gcl::RangedMeasurement_t appliedRange;
+    Measurement_t hold;
+    RangedMeasurement_t appliedRange;
 
     QVector <bool> consumerRequests;
 
     bool dialogPopulated = false;
     bool propertyChangedFlag = false;
 
-    SteppedSpinBox * holdEdit = nullptr;
-    SteppedSpinBox * holdEditOrig;
+    QDoubleSpinBox * holdEdit = nullptr;
+    QDoubleSpinBox * holdEditOrig;
 
     QCheckBox * holdRefEdit;
     QCheckBox * holdRefEditOrig;
@@ -226,28 +219,28 @@ class GapfreeVoltageProtocolWidget : public VoltageProtocolWidget, public Gapfre
     Q_OBJECT
 
 public:
-    GapfreeVoltageProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog);
+    GapfreeVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class EpisodicVoltageProtocolWidget : public VoltageProtocolWidget, public EpisodicProtocolWidget {
     Q_OBJECT
 
 public:
-    EpisodicVoltageProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog);
+    EpisodicVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class GapfreeCurrentProtocolWidget : public CurrentProtocolWidget, public GapfreeProtocolWidget {
     Q_OBJECT
 
 public:
-    GapfreeCurrentProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog);
+    GapfreeCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class EpisodicCurrentProtocolWidget : public CurrentProtocolWidget, public EpisodicProtocolWidget {
     Q_OBJECT
 
 public:
-    EpisodicCurrentProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog);
+    EpisodicCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class ProtocolCtrlDispatcher : public QObject {

@@ -1,9 +1,9 @@
 #include "protocoldragitem.h"
 
-ProtocolDragItem::ProtocolDragItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragItem::ProtocolDragItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     QListWidgetItem(QString("Drag"), nullptr, type) {
 
-    if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
         stimulusAbbrName = "V";
 
     } else {
@@ -11,12 +11,12 @@ ProtocolDragItem::ProtocolDragItem(ClampingModality_t clampingModality, int type
     }
 }
 
-ProtocolDragStimulusItem::ProtocolDragStimulusItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragStimulusItem::ProtocolDragStimulusItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragItem(clampingModality, type) {
     this->setBackground(PROT_EDITOR_STIMULUS_ITEM_COLOR);
 }
 
-ProtocolDragXStepTStepItem::ProtocolDragXStepTStepItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXStepTStepItem::ProtocolDragXStepTStepItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragStimulusItem(clampingModality, type) {
 
     QString iconString = ":imgs/stimulus step time step.png";
@@ -28,16 +28,16 @@ ProtocolDragXStepTStepItem::ProtocolDragXStepTStepItem(ClampingModality_t clampi
 }
 
 ProtocolDragVStepTStepItem::ProtocolDragVStepTStepItem(int type) :
-    ProtocolDragXStepTStepItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXStepTStepItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIStepTStepItem::ProtocolDragIStepTStepItem(int type) :
-    ProtocolDragXStepTStepItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXStepTStepItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXStepItem::ProtocolDragXStepItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXStepItem::ProtocolDragXStepItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXStepTStepItem(clampingModality, type) {
 
     QString iconString = ":imgs/stimulus step.png";
@@ -49,16 +49,16 @@ ProtocolDragXStepItem::ProtocolDragXStepItem(ClampingModality_t clampingModality
 }
 
 ProtocolDragVStepItem::ProtocolDragVStepItem(int type) :
-    ProtocolDragXStepItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXStepItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIStepItem::ProtocolDragIStepItem(int type) :
-    ProtocolDragXStepItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXStepItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXTStepItem::ProtocolDragXTStepItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXTStepItem::ProtocolDragXTStepItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXStepTStepItem(clampingModality, type) {
 
     QString iconString = ":imgs/time step.png";
@@ -70,16 +70,16 @@ ProtocolDragXTStepItem::ProtocolDragXTStepItem(ClampingModality_t clampingModali
 }
 
 ProtocolDragVTStepItem::ProtocolDragVTStepItem(int type) :
-    ProtocolDragXTStepItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXTStepItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragITStepItem::ProtocolDragITStepItem(int type) :
-    ProtocolDragXTStepItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXTStepItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXConstItem::ProtocolDragXConstItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXConstItem::ProtocolDragXConstItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXStepTStepItem(clampingModality, type) {
 
     QString iconString = ":imgs/constant stimulus.png";
@@ -91,16 +91,16 @@ ProtocolDragXConstItem::ProtocolDragXConstItem(ClampingModality_t clampingModali
 }
 
 ProtocolDragVConstItem::ProtocolDragVConstItem(int type) :
-    ProtocolDragXConstItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXConstItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIConstItem::ProtocolDragIConstItem(int type) :
-    ProtocolDragXConstItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXConstItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXHoldItem::ProtocolDragXHoldItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXHoldItem::ProtocolDragXHoldItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXStepTStepItem(clampingModality, type) {
 
     QString iconString = ":imgs/holding stimulus.png";
@@ -112,16 +112,16 @@ ProtocolDragXHoldItem::ProtocolDragXHoldItem(ClampingModality_t clampingModality
 }
 
 ProtocolDragVHoldItem::ProtocolDragVHoldItem(int type) :
-    ProtocolDragXHoldItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXHoldItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIHoldItem::ProtocolDragIHoldItem(int type) :
-    ProtocolDragXHoldItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXHoldItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXRestItem::ProtocolDragXRestItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXRestItem::ProtocolDragXRestItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXStepTStepItem(clampingModality, type) {
 
     QString iconString = ":imgs/rest.png";
@@ -133,16 +133,16 @@ ProtocolDragXRestItem::ProtocolDragXRestItem(ClampingModality_t clampingModality
 }
 
 ProtocolDragVRestItem::ProtocolDragVRestItem(int type) :
-    ProtocolDragXRestItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXRestItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIRestItem::ProtocolDragIRestItem(int type) :
-    ProtocolDragXRestItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXRestItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXRampItem::ProtocolDragXRampItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXRampItem::ProtocolDragXRampItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragStimulusItem(clampingModality, type) {
 
     QString iconString = ":imgs/stimulus ramp.png";
@@ -154,16 +154,16 @@ ProtocolDragXRampItem::ProtocolDragXRampItem(ClampingModality_t clampingModality
 }
 
 ProtocolDragVRampItem::ProtocolDragVRampItem(int type) :
-    ProtocolDragXRampItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXRampItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIRampItem::ProtocolDragIRampItem(int type) :
-    ProtocolDragXRampItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXRampItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXSinItem::ProtocolDragXSinItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXSinItem::ProtocolDragXSinItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragStimulusItem(clampingModality, type) {
 
     QString iconString = ":imgs/stimulus sin.png";
@@ -175,21 +175,21 @@ ProtocolDragXSinItem::ProtocolDragXSinItem(ClampingModality_t clampingModality, 
 }
 
 ProtocolDragVSinItem::ProtocolDragVSinItem(int type) :
-    ProtocolDragXSinItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXSinItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragISinItem::ProtocolDragISinItem(int type) :
-    ProtocolDragXSinItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXSinItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragLoopsItem::ProtocolDragLoopsItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragLoopsItem::ProtocolDragLoopsItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragItem(clampingModality, type) {
     this->setBackground(PROT_EDITOR_LOOPS_ITEM_COLOR);
 }
 
-ProtocolDragXRepSeqScaledItem::ProtocolDragXRepSeqScaledItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXRepSeqScaledItem::ProtocolDragXRepSeqScaledItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragLoopsItem(clampingModality, type) {
 
     QString iconString = ":imgs/P over N.png";
@@ -201,16 +201,16 @@ ProtocolDragXRepSeqScaledItem::ProtocolDragXRepSeqScaledItem(ClampingModality_t 
 }
 
 ProtocolDragVRepSeqScaledItem::ProtocolDragVRepSeqScaledItem(int type) :
-    ProtocolDragXRepSeqScaledItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXRepSeqScaledItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIRepSeqScaledItem::ProtocolDragIRepSeqScaledItem(int type) :
-    ProtocolDragXRepSeqScaledItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXRepSeqScaledItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXRepSeqItem::ProtocolDragXRepSeqItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXRepSeqItem::ProtocolDragXRepSeqItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXRepSeqScaledItem(clampingModality, type) {
 
     QString iconString = ":imgs/repeat sequence.png";
@@ -222,16 +222,16 @@ ProtocolDragXRepSeqItem::ProtocolDragXRepSeqItem(ClampingModality_t clampingModa
 }
 
 ProtocolDragVRepSeqItem::ProtocolDragVRepSeqItem(int type) :
-    ProtocolDragXRepSeqItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXRepSeqItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIRepSeqItem::ProtocolDragIRepSeqItem(int type) :
-    ProtocolDragXRepSeqItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXRepSeqItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXRepSeqWithStepsItem::ProtocolDragXRepSeqWithStepsItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXRepSeqWithStepsItem::ProtocolDragXRepSeqWithStepsItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXRepSeqScaledItem(clampingModality, type) {
 
     QString iconString = ":imgs/repeat with steps.png";
@@ -243,16 +243,16 @@ ProtocolDragXRepSeqWithStepsItem::ProtocolDragXRepSeqWithStepsItem(ClampingModal
 }
 
 ProtocolDragVRepSeqWithStepsItem::ProtocolDragVRepSeqWithStepsItem(int type) :
-    ProtocolDragXRepSeqWithStepsItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXRepSeqWithStepsItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIRepSeqWithStepsItem::ProtocolDragIRepSeqWithStepsItem(int type) :
-    ProtocolDragXRepSeqWithStepsItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXRepSeqWithStepsItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragXInfRepSeqItem::ProtocolDragXInfRepSeqItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragXInfRepSeqItem::ProtocolDragXInfRepSeqItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragXRepSeqScaledItem(clampingModality, type) {
 
     QString iconString = ":imgs/infinite repeat sequence.png";
@@ -264,22 +264,22 @@ ProtocolDragXInfRepSeqItem::ProtocolDragXInfRepSeqItem(ClampingModality_t clampi
 }
 
 ProtocolDragVInfRepSeqItem::ProtocolDragVInfRepSeqItem(int type) :
-    ProtocolDragXInfRepSeqItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragXInfRepSeqItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
 ProtocolDragIInfRepSeqItem::ProtocolDragIInfRepSeqItem(int type) :
-    ProtocolDragXInfRepSeqItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragXInfRepSeqItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDragControlItem::ProtocolDragControlItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragControlItem::ProtocolDragControlItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragItem(clampingModality, type) {
     this->setBackground(PROT_EDITOR_CONTROLS_ITEM_COLOR);
 }
 
 ProtocolDragVoltageControlItem::ProtocolDragVoltageControlItem(int type) :
-    ProtocolDragControlItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragControlItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/voltage control.png";
     QIcon icon;
@@ -290,7 +290,7 @@ ProtocolDragVoltageControlItem::ProtocolDragVoltageControlItem(int type) :
 }
 
 ProtocolDragCurrentControlItem::ProtocolDragCurrentControlItem(int type) :
-    ProtocolDragControlItem(ClampingModality_t::CURRENT_CLAMP, type) {
+    ProtocolDragControlItem(e384CommLib::ClampingModality_t::CURRENT_CLAMP, type) {
 
     QString iconString = ":imgs/current control.png";
     QIcon icon;
@@ -301,7 +301,7 @@ ProtocolDragCurrentControlItem::ProtocolDragCurrentControlItem(int type) :
 }
 
 ProtocolDragTimeControlItem::ProtocolDragTimeControlItem(int type) :
-    ProtocolDragControlItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragControlItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/time control.png";
     QIcon icon;
@@ -312,7 +312,7 @@ ProtocolDragTimeControlItem::ProtocolDragTimeControlItem(int type) :
 }
 
 ProtocolDragFrequencyControlItem::ProtocolDragFrequencyControlItem(int type) :
-    ProtocolDragControlItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragControlItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/frequency control.png";
     QIcon icon;
@@ -323,7 +323,7 @@ ProtocolDragFrequencyControlItem::ProtocolDragFrequencyControlItem(int type) :
 }
 
 ProtocolDragNaturalNumControlItem::ProtocolDragNaturalNumControlItem(int type) :
-    ProtocolDragControlItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragControlItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/number control.png";
     QIcon icon;
@@ -333,13 +333,13 @@ ProtocolDragNaturalNumControlItem::ProtocolDragNaturalNumControlItem(int type) :
     this->setText("N control");
 }
 
-ProtocolDragAnalysisItem::ProtocolDragAnalysisItem(ClampingModality_t clampingModality, int type) :
+ProtocolDragAnalysisItem::ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t clampingModality, int type) :
     ProtocolDragItem(clampingModality, type) {
     this->setBackground(PROT_EDITOR_ANALYSIS_ITEM_COLOR);
 }
 
 ProtocolDragNoiseReportItem::ProtocolDragNoiseReportItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis noise report.png";
     QIcon icon;
@@ -350,7 +350,7 @@ ProtocolDragNoiseReportItem::ProtocolDragNoiseReportItem(int type) :
 }
 
 ProtocolDragHistogramItem::ProtocolDragHistogramItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis histogram.png";
     QIcon icon;
@@ -361,7 +361,7 @@ ProtocolDragHistogramItem::ProtocolDragHistogramItem(int type) :
 }
 
 ProtocolDragSpectrumItem::ProtocolDragSpectrumItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis spectrum.png";
     QIcon icon;
@@ -372,7 +372,7 @@ ProtocolDragSpectrumItem::ProtocolDragSpectrumItem(int type) :
 }
 
 ProtocolDragResistanceEstimationItem::ProtocolDragResistanceEstimationItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis resistance estimation.png";
     QIcon icon;
@@ -383,7 +383,7 @@ ProtocolDragResistanceEstimationItem::ProtocolDragResistanceEstimationItem(int t
 }
 
 ProtocolDragMembraneTestItem::ProtocolDragMembraneTestItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis membrane test.png";
     QIcon icon;
@@ -394,7 +394,7 @@ ProtocolDragMembraneTestItem::ProtocolDragMembraneTestItem(int type) :
 }
 
 ProtocolDragIvGraphItem::ProtocolDragIvGraphItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis iv graph.png";
     QIcon icon;
@@ -405,7 +405,7 @@ ProtocolDragIvGraphItem::ProtocolDragIvGraphItem(int type) :
 }
 
 ProtocolDragVoltageTrackingItem::ProtocolDragVoltageTrackingItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis voltage tracking.png";
     QIcon icon;
@@ -416,7 +416,7 @@ ProtocolDragVoltageTrackingItem::ProtocolDragVoltageTrackingItem(int type) :
 }
 
 ProtocolDragApThresholdItem::ProtocolDragApThresholdItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis ap threshold.png";
     QIcon icon;
@@ -427,7 +427,7 @@ ProtocolDragApThresholdItem::ProtocolDragApThresholdItem(int type) :
 }
 
 ProtocolDragApStatisticsItem::ProtocolDragApStatisticsItem(int type) :
-    ProtocolDragAnalysisItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/analysis ap statistics.png";
     QIcon icon;
@@ -438,7 +438,7 @@ ProtocolDragApStatisticsItem::ProtocolDragApStatisticsItem(int type) :
 }
 
 ProtocolDragSeparator::ProtocolDragSeparator(int type) :
-    ProtocolDragItem(ClampingModality_t::VOLTAGE_CLAMP, type) {
+    ProtocolDragItem(e384CommLib::ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     this->setText("");
 }

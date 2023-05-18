@@ -5,10 +5,6 @@
 
 #include "protocolwidget.h"
 #include "devicedataconsumer.h"
-#include "epmlmanager.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
 
 class ProtocolManager : public QObject {
     Q_OBJECT
@@ -28,7 +24,7 @@ public:
         ErrorProtocolInhibited
     } ProtocolApplicationStatus_t;
 
-    ProtocolManager(e4gcl::CommLib * commLib);
+    ProtocolManager(ModelDevice *  mDev);
 
     ProtocolApplicationStatus_t startProtocol(ProtocolWidget * protocol, bool recordFlag = false);
     void saveLast(ProtocolWidget * protocol);
@@ -42,7 +38,7 @@ public slots:
 private:
     ProtocolApplicationStatus_t toProtocolApplicationStatus(ItemsProcStatus_t status);
 
-    e4gcl::CommLib * commLib;
+    ModelDevice *  mDev;
 
     unsigned short protocolId = 0;
     unsigned short lastRunProtocolId = 0;
@@ -57,45 +53,45 @@ private:
     /*! \todo FCON non mi piace molto nemmeno il fatto che si danno per scontate le unità di misura. Meglio pensare ad un modo per rendere i valor di
                    default del software disponibili ovunque */
 
-    e4gcl::Measurement_t x0 = {
+    Measurement_t x0 = {
         0.0, // value
-        e4gcl::UnitPfxNone, // prefix
+        UnitPfxNone, // prefix
         "V" // unit
     };
 
-    e4gcl::Measurement_t xStep = {
+    Measurement_t xStep = {
         0.0, // value
-        e4gcl::UnitPfxNone, // prefix
+        UnitPfxNone, // prefix
         "V" // unit
     };
 
-    e4gcl::Measurement_t xFinal = {
+    Measurement_t xFinal = {
         0.0, // value
-        e4gcl::UnitPfxNone, // prefix
+        UnitPfxNone, // prefix
         "V" // unit
     };
 
-    e4gcl::Measurement_t xAmp = {
+    Measurement_t xAmp = {
         0.0, // value
-        e4gcl::UnitPfxNone, // prefix
+        UnitPfxNone, // prefix
         "V" // unit
     };
 
-    e4gcl::Measurement_t t0 = {
+    Measurement_t t0 = {
         0.0, // value
-        e4gcl::UnitPfxMilli, // prefix
+        UnitPfxMilli, // prefix
         "s" // unit
     };
 
-    e4gcl::Measurement_t tStep = {
+    Measurement_t tStep = {
         0.0, // value
-        e4gcl::UnitPfxMilli, // prefix
+        UnitPfxMilli, // prefix
         "s" // unit
     };
 
-    e4gcl::Measurement_t freq = {
+    Measurement_t freq = {
         0.0, // value
-        e4gcl::UnitPfxKilo, // prefix
+        UnitPfxKilo, // prefix
         "Hz" // unit
     };
 

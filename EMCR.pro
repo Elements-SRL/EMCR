@@ -25,7 +25,9 @@ SOURCES += \
     src/controller/protocol/cursorsmanager.cpp \
     src/controller/protocol/protocolitemctrlmanager.cpp \
     src/controller/protocol/protocolmanager.cpp \
+    src/controller/protocol/protocolutils.cpp \
     src/main.cpp \
+    src/model/analysiscursor.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/doubleclickmachine.cpp \
     src/view/mainwindow.cpp \
@@ -82,7 +84,9 @@ HEADERS += \
     src/controller/protocol/cursorsmanager.h \
     src/controller/protocol/protocolitemctrlmanager.h \
     src/controller/protocol/protocolmanager.h \
+    src/controller/protocol/protocolutils.h \
     src/globaldefines.h \
+    src/model/analysiscursor.h \
     src/protocoldefs.h \
     src/view/conversionscaledraw.h \
     src/view/doubleclickmachine.h \

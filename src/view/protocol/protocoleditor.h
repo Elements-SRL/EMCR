@@ -9,12 +9,8 @@
 #include "protocolitemdroplist.h"
 #include "protocolpreview.h"
 #include "protocolitemctrlmanager.h"
-#include "epmlmanager.h"
 #include "voltageprotocol.h"
 #include "currentprotocol.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
 
 #define PTE_HOLD_ROW 0
 #define PTE_HOLDREF_ROW (PTE_HOLD_ROW+1)
@@ -31,12 +27,10 @@ class ProtocolEditor : public QDialog {
     Q_OBJECT
 
 public:
-    ProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name);
+    ProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name);
     ProtocolEditor();
     virtual ~ProtocolEditor();
 
-    bool importEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus);
-    virtual bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus);
     QVector <ProtocolDropControlItem *> * getCtrlItems();
     bool analysisRequested(ProtocolConsumerType_t consumerType);
     bool analysisValid(ProtocolConsumerType_t consumerType);
@@ -48,8 +42,8 @@ public:
     void setSweepsNum(int value);
     QString getName();
     double getHold();
-    SteppedSpinBox * getHoldEdit();
-    void setHoldingDelta(e4gcl::Measurement_t &holdingDelta);
+    QDoubleSpinBox * getHoldEdit();
+    void setHoldingDelta(Measurement_t &holdingDelta);
     bool getHoldRef();
     QCheckBox * getHoldRefEdit();
     int getSweepsNum();
@@ -80,7 +74,7 @@ public slots:
 protected:
     virtual void stimulusRangeSelected(int rangeIdx) = 0;
 
-    e4gcl::CommLib * commLib;
+    ModelDevice *  mDev;
     ProtocolWidget * parentWidget;
     QVBoxLayout * mainVl;
     QHBoxLayout * editorHl;
@@ -98,7 +92,7 @@ protected:
     QString type;
     QString stimulusAbbrName;
 
-    SteppedSpinBox * holdEdit;
+    QDoubleSpinBox * holdEdit;
     QCheckBox * holdRefEdit;
     QLabel * sweepsNumName;
     QSpinBox * sweepsNumEdit;
@@ -149,28 +143,28 @@ class GapfreeVoltageProtocolEditor : public VoltageProtocolEditor, public Gapfre
     Q_OBJECT
 
 public:
-    GapfreeVoltageProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name);
+    GapfreeVoltageProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name);
 };
 
 class EpisodicVoltageProtocolEditor : public VoltageProtocolEditor, public EpisodicProtocolEditor {
     Q_OBJECT
 
 public:
-    EpisodicVoltageProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name);
+    EpisodicVoltageProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name);
 };
 
 class GapfreeCurrentProtocolEditor : public CurrentProtocolEditor, public GapfreeProtocolEditor {
     Q_OBJECT
 
 public:
-    GapfreeCurrentProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name);
+    GapfreeCurrentProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name);
 };
 
 class EpisodicCurrentProtocolEditor : public CurrentProtocolEditor, public EpisodicProtocolEditor {
     Q_OBJECT
 
 public:
-    EpisodicCurrentProtocolEditor(e4gcl::CommLib * commLib, ProtocolWidget * protocolWidget, QString name);
+    EpisodicCurrentProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name);
 };
 
 #endif // PROTOCOLEDITOR_H

@@ -6,9 +6,9 @@
 
 static double sinTable[PPW_MAX_PTS_PER_ITEM];
 
-ProtocolPreview::ProtocolPreview(e4gcl::CommLib * commLib, e4gcl::RangedMeasurement_t timeRange, e4gcl::RangedMeasurement_t stimulusRange, QString title) :
+ProtocolPreview::ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title) :
     QWidget(),
-    commLib(commLib),
+    mDev(mDev),
     timeRange(timeRange) {
 
     QVBoxLayout * mainVl = new QVBoxLayout();
@@ -17,9 +17,7 @@ ProtocolPreview::ProtocolPreview(e4gcl::CommLib * commLib, e4gcl::RangedMeasurem
     this->setLayout(mainVl);
 
     /*! Plot */
-    protocolPlot = new ProtocolPlot(commLib);
-    protocolPlot->setTitle(title);
-    protocolPlot->setXUnit(QString::fromStdString(timeRange.getFullUnit()));
+    protocolPlot = new ProtocolPlot(mDev, title, QString::fromStdString(timeRange.getFullUnit()), "");
     /*! y unit is set in setStimulusRange */
     protocolPlot->setAxisAutoScale(QwtPlot::yLeft);
     protocolPlot->setAxisAutoScale(QwtPlot::xBottom);
@@ -39,7 +37,7 @@ ProtocolPreview::ProtocolPreview(e4gcl::CommLib * commLib, e4gcl::RangedMeasurem
 
     errorItem->setVisible(false);
 
-    commLib->getMaxOutputTriggers(maxOutputTriggers);
+    mDev->getMaxOutputTriggers(maxOutputTriggers);
     if (!minimal) {
         /*! Cursors */
         cursorsManager = new CursorsManager(protocolPlot, maxOutputTriggers);
@@ -152,7 +150,7 @@ ProtocolPreview::ProtocolPreview(e4gcl::CommLib * commLib, e4gcl::RangedMeasurem
         sinTable[ptsIdx] = sin(((double)ptsIdx)*2.0*M_PI/(double)(PPW_MAX_PTS_PER_ITEM-1));
     }
 
-    commLib->getMaxProtocolItems(maxProtocolItems);
+    mDev->getMaxProtocolItems(maxProtocolItems);
 
     /*! stimulusUnit is set in setStimulusRange */
     timeUnit = QString::fromStdString(timeRange.getFullUnit());
@@ -169,14 +167,6 @@ ProtocolPreview::~ProtocolPreview() {
     protocolPlotData.clear();
 }
 
-bool ProtocolPreview::importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    return protocolPlot->importEpml(epmlManager, parentTag, epmlStatus);
-}
-
-bool ProtocolPreview::exportEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    return protocolPlot->exportEpml(epmlManager, parentTag, epmlStatus);
-}
-
 void ProtocolPreview::setProtocol(ProtocolWidget * protocol) {
     this->protocol = protocol;
     if (!minimal) {
@@ -184,14 +174,14 @@ void ProtocolPreview::setProtocol(ProtocolWidget * protocol) {
     }
 }
 
-void ProtocolPreview::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
+void ProtocolPreview::setStimulusRange(RangedMeasurement_t &range) {
     stimulusRange = range;
     this->setHoldingDelta(holdingDelta);
     stimulusUnit = QString::fromStdString(stimulusRange.getFullUnit());
     protocolPlot->setYUnit(stimulusUnit);
 }
 
-void ProtocolPreview::setHoldingDelta(e4gcl::Measurement_t &newHoldingDelta) {
+void ProtocolPreview::setHoldingDelta(Measurement_t &newHoldingDelta) {
     holdingDelta = newHoldingDelta;
     holdingDelta.convertValue(stimulusRange.prefix);
     if (holdingDelta.value < 0.0) {
@@ -240,7 +230,7 @@ void ProtocolPreview::updateView() {
 
     /*! Preprocess new protocol */
     ItemsProcStatus_t status = this->interpretProtocolItems(protocol);
-    e4gcl::Measurement_t hold = protocol->getHold();
+    Measurement_t hold = protocol->getHold();
     int sweepsNum = protocol->getSweepsNum();
 
     if (!minimal) {
@@ -514,7 +504,7 @@ void ProtocolPreview::updateView() {
 
         cursorsManager->enableAnalysis(status == ItemsProcOk);
         protocol->setProtocolValid(status == ItemsProcOk);
-        e4gcl::RangedMeasurement_t appliedRange;
+        RangedMeasurement_t appliedRange;
         appliedRange.min = minStimulusApplied;
         appliedRange.max = maxStimulusApplied;
         appliedRange.prefix = stimulusRange.prefix;
@@ -558,7 +548,7 @@ void ProtocolPreview::updateView() {
 ItemsProcStatus_t ProtocolPreview::interpretProtocolItems(ProtocolWidget * protocol) {
     QVector <ProtocolDropItem *> * dropItems = protocol->getProtocolDropItems();
 
-    e4gcl::Measurement_t hold = protocol->getHold();
+    Measurement_t hold = protocol->getHold();
     bool holdRef = protocol->getHoldRef();
     double addedHold = (holdRef ? hold.value : 0.0);
 
@@ -802,8 +792,8 @@ ItemsProcStatus_t ProtocolPreview::interpretProtocolItems(ProtocolWidget * proto
     return status;
 }
 
-MinimalProtocolPreview::MinimalProtocolPreview(e4gcl::CommLib * commLib, e4gcl::RangedMeasurement_t timeRange, e4gcl::RangedMeasurement_t stimulusRange, QString title) :
-    ProtocolPreview(commLib, timeRange, stimulusRange, title) {
+MinimalProtocolPreview::MinimalProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title) :
+    ProtocolPreview(mDev, timeRange, stimulusRange, title) {
 
     cursorsWid->setVisible(false);
     minimal = true;

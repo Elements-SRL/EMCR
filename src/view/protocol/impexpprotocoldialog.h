@@ -10,7 +10,7 @@
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QGridLayout>
-
+#include "e384commlib_global.h"
 #include "globaldefines.h"
 
 class ImpExpProtocolsActionSelector;
@@ -19,7 +19,7 @@ class ImpExpProtocolDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ImpExpProtocolDialog(int clampingModality, QWidget * parent = nullptr);
+    explicit ImpExpProtocolDialog(e384CommLib::ClampingModality_t clampingModality, QWidget * parent = nullptr);
     virtual ~ImpExpProtocolDialog();
 
     void show();
@@ -43,7 +43,7 @@ protected:
     QGridLayout * protocolManagementLo;
     QPushButton * browseBtn;
 
-    ClampingModality_t clampingModality;
+    e384CommLib::ClampingModality_t clampingModality;
     QString stimulusName;
     QString fullFileName;
     QString folderName;
@@ -59,7 +59,7 @@ class ExportProtocolDialog : public ImpExpProtocolDialog {
     Q_OBJECT
 
 public:
-    ExportProtocolDialog(QStringList pn, int clampingModality, QWidget * parent = nullptr);
+    ExportProtocolDialog(QStringList pn, e384CommLib::ClampingModality_t clampingModality, QWidget * parent = nullptr);
     virtual ~ExportProtocolDialog();
 
 protected slots:
@@ -73,7 +73,7 @@ class ImportProtocolDialog : public ImpExpProtocolDialog {
     Q_OBJECT
 
 public:
-    ImportProtocolDialog(QStringList pn, ClampingModality_t clampingModality, QWidget * parent = nullptr);
+    ImportProtocolDialog(QStringList pn, e384CommLib::ClampingModality_t clampingModality, QWidget * parent = nullptr);
     virtual ~ImportProtocolDialog();
 
 protected slots:

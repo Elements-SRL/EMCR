@@ -4,7 +4,8 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QGroupBox>
-
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include "globaldefines.h"
 
 ProtocolsSettingsDialog::ProtocolsSettingsDialog() :

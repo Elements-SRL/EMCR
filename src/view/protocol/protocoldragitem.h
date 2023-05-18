@@ -5,10 +5,11 @@
 
 #include "globaldefines.h"
 #include "protocoldefs.h"
+#include "e384commlib_global.h"
 
 class ProtocolDragItem : public QListWidgetItem {
 public:
-    ProtocolDragItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_WIDGET_ITEM_TYPE);
+    ProtocolDragItem(e384CommLib::ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_WIDGET_ITEM_TYPE);
 
 protected:
     QString stimulusAbbrName;
@@ -16,12 +17,12 @@ protected:
 
 class ProtocolDragStimulusItem : public ProtocolDragItem {
 public:
-    ProtocolDragStimulusItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_STIMULUS_ITEM_TYPE);
+    ProtocolDragStimulusItem(e384CommLib::ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_STIMULUS_ITEM_TYPE);
 };
 
 class ProtocolDragXStepTStepItem : public ProtocolDragStimulusItem {
 public:
-    ProtocolDragXStepTStepItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXStepTStepItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVStepTStepItem : public ProtocolDragXStepTStepItem {
@@ -36,7 +37,7 @@ public:
 
 class ProtocolDragXStepItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXStepItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXStepItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVStepItem : public ProtocolDragXStepItem {
@@ -51,7 +52,7 @@ public:
 
 class ProtocolDragXTStepItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXTStepItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXTStepItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVTStepItem : public ProtocolDragXTStepItem {
@@ -66,7 +67,7 @@ public:
 
 class ProtocolDragXConstItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXConstItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXConstItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVConstItem : public ProtocolDragXConstItem {
@@ -81,7 +82,7 @@ public:
 
 class ProtocolDragXHoldItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXHoldItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXHoldItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVHoldItem : public ProtocolDragXHoldItem {
@@ -96,7 +97,7 @@ public:
 
 class ProtocolDragXRestItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXRestItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXRestItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRestItem : public ProtocolDragXRestItem {
@@ -111,7 +112,7 @@ public:
 
 class ProtocolDragXRampItem : public ProtocolDragStimulusItem {
 public:
-    ProtocolDragXRampItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXRampItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRampItem : public ProtocolDragXRampItem {
@@ -126,7 +127,7 @@ public:
 
 class ProtocolDragXSinItem : public ProtocolDragStimulusItem {
 public:
-    ProtocolDragXSinItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_VSIN_ITEM_TYPE);
+    ProtocolDragXSinItem(e384CommLib::ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_VSIN_ITEM_TYPE);
 };
 
 class ProtocolDragVSinItem : public ProtocolDragXSinItem {
@@ -141,12 +142,12 @@ public:
 
 class ProtocolDragLoopsItem : public ProtocolDragItem {
 public:
-    ProtocolDragLoopsItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_LOOPS_ITEM_TYPE);
+    ProtocolDragLoopsItem(e384CommLib::ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_LOOPS_ITEM_TYPE);
 };
 
 class ProtocolDragXRepSeqScaledItem : public ProtocolDragLoopsItem {
 public:
-    ProtocolDragXRepSeqScaledItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXRepSeqScaledItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRepSeqScaledItem : public ProtocolDragXRepSeqScaledItem {
@@ -161,7 +162,7 @@ public:
 
 class ProtocolDragXRepSeqItem : public ProtocolDragXRepSeqScaledItem {
 public:
-    ProtocolDragXRepSeqItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXRepSeqItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRepSeqItem : public ProtocolDragXRepSeqItem {
@@ -176,7 +177,7 @@ public:
 
 class ProtocolDragXRepSeqWithStepsItem : public ProtocolDragXRepSeqScaledItem {
 public:
-    ProtocolDragXRepSeqWithStepsItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXRepSeqWithStepsItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRepSeqWithStepsItem : public ProtocolDragXRepSeqWithStepsItem {
@@ -191,7 +192,7 @@ public:
 
 class ProtocolDragXInfRepSeqItem : public ProtocolDragXRepSeqScaledItem {
 public:
-    ProtocolDragXInfRepSeqItem(ClampingModality_t clampingModality, int type);
+    ProtocolDragXInfRepSeqItem(e384CommLib::ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVInfRepSeqItem : public ProtocolDragXInfRepSeqItem {
@@ -206,7 +207,7 @@ public:
 
 class ProtocolDragControlItem : public ProtocolDragItem {
 public:
-    ProtocolDragControlItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_CONTROL_ITEM_TYPE);
+    ProtocolDragControlItem(e384CommLib::ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_CONTROL_ITEM_TYPE);
 };
 
 class ProtocolDragVoltageControlItem : public ProtocolDragControlItem {
@@ -236,7 +237,7 @@ public:
 
 class ProtocolDragAnalysisItem : public ProtocolDragItem {
 public:
-    ProtocolDragAnalysisItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_ANALYSIS_ITEM_TYPE);
+    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_ANALYSIS_ITEM_TYPE);
 };
 
 /*! \todo FCON All analyses so far defined as voltage clamp analysis */

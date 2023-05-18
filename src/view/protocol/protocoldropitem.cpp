@@ -1,4 +1,5 @@
 #include "protocoldropitem.h"
+#include "protocol/protocolutils.h"
 
 static int voltageControlItemIdx = 0;
 static int currentControlItemIdx = 0;
@@ -6,9 +7,9 @@ static int timeControlItemIdx = 0;
 static int frequencyControlItemIdx = 0;
 static int naturalNumControlItemIdx = 0;
 
-ProtocolDropItem::ProtocolDropItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
+ProtocolDropItem::ProtocolDropItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
     QObject(), QListWidgetItem(QString("Drop"), nullptr, type),
-    commLib(commLib),
+    mDev(mDev),
     ctrlManager(ctrlManager),
     hold(hold0) {
 
@@ -60,28 +61,28 @@ ProtocolDropItem::ProtocolDropItem(e4gcl::CommLib * commLib, ProtocolItemCtrlMan
 
     propertyDialog->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
         stimulusAbbrName = "V";
         stimulusName = "Voltage";
         stimulusCtrlType = ProtocolItemCtrlVoltage;
 
-        /*! Collect protocol information from commLib */
-        commLib->getVoltageProtocolRange(0, stimulusRange);
+        /*! Collect protocol information from mDev */
+        mDev->getVoltageProtocolRange(0, stimulusRange);
 
     } else {
         stimulusAbbrName = "I";
         stimulusName = "Current";
         stimulusCtrlType = ProtocolItemCtrlCurrent;
 
-        commLib->getCurrentProtocolRange(0, stimulusRange);
+        mDev->getCurrentProtocolRange(0, stimulusRange);
     }
 
-    commLib->getTimeProtocolRange(timeRange);
-    timeRange.convertValues(e4gcl::UnitPfxMilli);
+    mDev->getTimeProtocolRange(timeRange);
+    timeRange.convertValues(UnitPfxMilli);
     timeDecimals = timeRange.decimals();
 
-    commLib->getFrequencyProtocolRange(frequencyRange);
-    frequencyRange.convertValues(e4gcl::UnitPfxNone);
+    mDev->getFrequencyProtocolRange(frequencyRange);
+    frequencyRange.convertValues(UnitPfxNone);
     frequencyDecimals = frequencyRange.decimals();
 
     editWidgets.clear();
@@ -140,8 +141,8 @@ void ProtocolDropItem::onRejectPropertyDialog() {
     }
 }
 
-ProtocolDropStimulusItem::ProtocolDropStimulusItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropStimulusItem::ProtocolDropStimulusItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
     this->setBackground(PROT_EDITOR_STIMULUS_ITEM_COLOR);
 
     propertyLo->setColumnStretch(0, 2);
@@ -155,8 +156,8 @@ QString ProtocolDropStimulusItem::getName() {
     return "";
 }
 
-ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropStimulusItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropStimulusItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus step time step.png";
     QIcon icon;
@@ -174,8 +175,9 @@ ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(e4gcl::CommLib * commLib,
     /*! Param x0 */ {
         double value = hold+100.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         x0Param = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                   "First " + stimulusName.toLower(), editWidget,
@@ -196,8 +198,9 @@ ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(e4gcl::CommLib * commLib,
     /*! Param xStep */ {
         double value = 0.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         xStepParam = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                      stimulusName + "step", editWidget,
@@ -218,8 +221,8 @@ ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(e4gcl::CommLib * commLib,
     /*! Param t0 */ {
         double value = 100.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(timeRange, SteppedSpinBox::MinMaxRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, timeRange, RangedQDoubleSpinBox_t::MIN_MAX);
 
         t0Param = new ProtocolDropItemDoubleParam(ctrlManager, ProtocolItemCtrlTime, value,
                                                   "First duration", editWidget,
@@ -239,8 +242,8 @@ ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(e4gcl::CommLib * commLib,
     /*! Param tStep */ {
         double value = 0.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(timeRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, timeRange, RangedQDoubleSpinBox_t::DELTA);
 
         tStepParam = new ProtocolDropItemDoubleParam(ctrlManager, ProtocolItemCtrlTime, value,
                                                      "Duration step", editWidget,
@@ -260,150 +263,6 @@ ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(e4gcl::CommLib * commLib,
     this->onSetString();
 }
 
-bool ProtocolDropXStepTStepItem::importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    while (epmlManager->getNextAny(tag, depth, parentTag, epmlStatus)) {
-        if (tag == stimulusAbbrName.toLower() + "0") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                x0Param->setValue(value);
-                x0Param->updateCtrlWidget();
-                if (stringValue != "0") {
-                    x0Param->getCtrlWidget()->setCurrentText(stringValue);
-                    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == stimulusAbbrName.toLower() + "step") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                xStepParam->setValue(value);
-                xStepParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    xStepParam->getCtrlWidget()->setCurrentText(stringValue);
-                    xStepParam->onCtrlWidgetActivated(xStepParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "t0") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                t0Param->setValue(value);
-                t0Param->updateCtrlWidget();
-                if (stringValue != "0") {
-                    t0Param->getCtrlWidget()->setCurrentText(stringValue);
-                    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "tstep") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                tStepParam->setValue(value);
-                tStepParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    tStepParam->getCtrlWidget()->setCurrentText(stringValue);
-                    tStepParam->onCtrlWidgetActivated(tStepParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "visible") {
-            visible = epmlManager->getBool(tag, depth, epmlStatus);
-            visibleEdit->setChecked(visible);
-
-        } else {
-            epmlStatus = EpmlSyntaxError;
-            return false;
-        }
-    }
-
-    this->onAcceptPropertyDialog();
-    return true;
-}
-
-bool ProtocolDropXStepTStepItem::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    if (x0Param->isEnabled()) {
-        tag = stimulusAbbrName.toLower() + "0";
-        epmlManager->addDoubleValue(tag, depth, x0Param->getValue());
-        if (x0Param->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, x0Param->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (xStepParam->isEnabled()) {
-        tag = stimulusAbbrName.toLower() + "step";
-        epmlManager->addDoubleValue(tag, depth, xStepParam->getValue());
-        if (xStepParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, xStepParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (t0Param->isEnabled()) {
-        tag = "t0";
-        epmlManager->addDoubleValue(tag, depth, t0Param->getValue());
-        if (t0Param->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, t0Param->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (tStepParam->isEnabled()) {
-        tag = "tstep";
-        epmlManager->addDoubleValue(tag, depth, tStepParam->getValue());
-        if (tStepParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, tStepParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (visibleEdit->isEnabled()) {
-        tag = "visible";
-        epmlManager->addBoolValue(tag, depth, visibleEdit->isChecked());
-    }
-
-    epmlStatus = EpmlValueAdded;
-    return true;
-}
-
 void ProtocolDropXStepTStepItem::openPropertyDialog() {
     x0Param->updateCtrlWidget();
     xStepParam->updateCtrlWidget();
@@ -412,13 +271,14 @@ void ProtocolDropXStepTStepItem::openPropertyDialog() {
     propertyDialog->exec();
 }
 
-void ProtocolDropXStepTStepItem::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
+void ProtocolDropXStepTStepItem::setStimulusRange(RangedMeasurement_t &range) {
     stimulusRange = range;
-
-    x0EditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(x0EditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    x0EditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     x0Param->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
 
-    xStepEditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(x0EditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    xStepEditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     xStepParam->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
     this->onAcceptPropertyDialog();
 }
@@ -705,20 +565,20 @@ void ProtocolDropXStepTStepItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVStepTStepItem::ProtocolDropVStepTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepTStepItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVStepTStepItem::ProtocolDropVStepTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIStepTStepItem::ProtocolDropIStepTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepTStepItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIStepTStepItem::ProtocolDropIStepTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXStepItem::ProtocolDropXStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clmapingModality, int type) :
-    ProtocolDropXStepTStepItem(commLib, ctrlManager, hold0, clmapingModality, type) {
+ProtocolDropXStepItem::ProtocolDropXStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus step.png";
     QIcon icon;
@@ -764,20 +624,20 @@ void ProtocolDropXStepItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVStepItem::ProtocolDropVStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVStepItem::ProtocolDropVStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIStepItem::ProtocolDropIStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIStepItem::ProtocolDropIStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXTStepItem::ProtocolDropXTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropXStepTStepItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXTStepItem::ProtocolDropXTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/time step.png";
     QIcon icon;
@@ -823,20 +683,20 @@ void ProtocolDropXTStepItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVTStepItem::ProtocolDropVTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXTStepItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVTStepItem::ProtocolDropVTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropITStepItem::ProtocolDropITStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXTStepItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropITStepItem::ProtocolDropITStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXConstItem::ProtocolDropXConstItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropXStepTStepItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXConstItem::ProtocolDropXConstItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/constant stimulus.png";
     QIcon icon;
@@ -885,20 +745,20 @@ void ProtocolDropXConstItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVConstItem::ProtocolDropVConstItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXConstItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVConstItem::ProtocolDropVConstItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXConstItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIConstItem::ProtocolDropIConstItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXConstItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIConstItem::ProtocolDropIConstItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXConstItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXHoldItem::ProtocolDropXHoldItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropXStepTStepItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXHoldItem::ProtocolDropXHoldItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/holding stimulus.png";
     QIcon icon;
@@ -947,18 +807,18 @@ void ProtocolDropXHoldItem::onUpdateHold(double value) {
     x0Param->setValue(hold);
 }
 
-ProtocolDropVHoldItem::ProtocolDropVHoldItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXHoldItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVHoldItem::ProtocolDropVHoldItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXHoldItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIHoldItem::ProtocolDropIHoldItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXHoldItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIHoldItem::ProtocolDropIHoldItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXHoldItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropXRestItem::ProtocolDropXRestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropXStepTStepItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRestItem::ProtocolDropXRestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/rest.png";
     QIcon icon;
@@ -1013,20 +873,20 @@ void ProtocolDropXRestItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVRestItem::ProtocolDropVRestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRestItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVRestItem::ProtocolDropVRestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRestItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRestItem::ProtocolDropIRestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRestItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIRestItem::ProtocolDropIRestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRestItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXRampItem::ProtocolDropXRampItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropStimulusItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRampItem::ProtocolDropXRampItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropStimulusItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus ramp.png";
     QIcon icon;
@@ -1044,8 +904,9 @@ ProtocolDropXRampItem::ProtocolDropXRampItem(e4gcl::CommLib * commLib, ProtocolI
     /*! Param x0 */ {
         double value = hold;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         x0Param = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                   "Initial " + stimulusName.toLower(), editWidget,
@@ -1066,8 +927,9 @@ ProtocolDropXRampItem::ProtocolDropXRampItem(e4gcl::CommLib * commLib, ProtocolI
     /*! Param xFinal */ {
         double value = hold+100.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         xFinalParam = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                       "Final " + stimulusName.toLower(), editWidget,
@@ -1088,8 +950,9 @@ ProtocolDropXRampItem::ProtocolDropXRampItem(e4gcl::CommLib * commLib, ProtocolI
     /*! Param t0 */ {
         double value = 100.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(timeRange, SteppedSpinBox::MinMaxRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, timeRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//        editWidget->setRangedMeasurement(timeRange, QDoubleSpinBox::MinMaxRange);
 
         t0Param = new ProtocolDropItemDoubleParam(ctrlManager, ProtocolItemCtrlTime, value,
                                                   "Ramp duration", editWidget,
@@ -1107,122 +970,6 @@ ProtocolDropXRampItem::ProtocolDropXRampItem(e4gcl::CommLib * commLib, ProtocolI
     }
 
     this->onSetString();
-}
-
-bool ProtocolDropXRampItem::importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    while (epmlManager->getNextAny(tag, depth, parentTag, epmlStatus)) {
-        if (tag == stimulusAbbrName.toLower() + "0") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                x0Param->setValue(value);
-                x0Param->updateCtrlWidget();
-                if (stringValue != "0") {
-                    x0Param->getCtrlWidget()->setCurrentText(stringValue);
-                    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == stimulusAbbrName.toLower() + "final") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                xFinalParam->setValue(value);
-                xFinalParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    xFinalParam->getCtrlWidget()->setCurrentText(stringValue);
-                    xFinalParam->onCtrlWidgetActivated(xFinalParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "t0") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                t0Param->setValue(value);
-                t0Param->updateCtrlWidget();
-                if (stringValue != "0") {
-                    t0Param->getCtrlWidget()->setCurrentText(stringValue);
-                    t0Param->onCtrlWidgetActivated(t0Param->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "visible") {
-            visible = epmlManager->getBool(tag, depth, epmlStatus);
-            visibleEdit->setChecked(visible);
-
-        } else {
-            epmlStatus = EpmlSyntaxError;
-            return false;
-        }
-    }
-
-    this->onAcceptPropertyDialog();
-    return true;
-}
-
-bool ProtocolDropXRampItem::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    if (x0Param->isEnabled()) {
-        tag = stimulusAbbrName.toLower() + "0";
-        epmlManager->addDoubleValue(tag, depth, x0Param->getValue());
-        if (x0Param->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, x0Param->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (xFinalParam->isEnabled()) {
-        tag = stimulusAbbrName.toLower() + "final";
-        epmlManager->addDoubleValue(tag, depth, xFinalParam->getValue());
-        if (xFinalParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, xFinalParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (t0Param->isEnabled()) {
-        tag = "t0";
-        epmlManager->addDoubleValue(tag, depth, t0Param->getValue());
-        if (t0Param->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, t0Param->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (visibleEdit->isEnabled()) {
-        tag = "visible";
-        epmlManager->addBoolValue(tag, depth, visibleEdit->isChecked());
-    }
-
-    epmlStatus = EpmlValueAdded;
-    return true;
 }
 
 void ProtocolDropXRampItem::openPropertyDialog() {
@@ -1334,13 +1081,15 @@ void ProtocolDropXRampItem::onAcceptPropertyDialog() {
     ProtocolDropItem::onAcceptPropertyDialog();
 }
 
-void ProtocolDropXRampItem::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
+void ProtocolDropXRampItem::setStimulusRange(RangedMeasurement_t &range) {
     stimulusRange = range;
 
-    x0EditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(x0EditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    x0EditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     x0Param->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
 
-    xFinalEditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(xFinalEditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    xFinalEditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     xFinalParam->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
     this->onAcceptPropertyDialog();
 }
@@ -1358,20 +1107,20 @@ void ProtocolDropXRampItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVRampItem::ProtocolDropVRampItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRampItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVRampItem::ProtocolDropVRampItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRampItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRampItem::ProtocolDropIRampItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRampItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIRampItem::ProtocolDropIRampItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRampItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     xFinalParam->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXSinItem::ProtocolDropXSinItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropStimulusItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXSinItem::ProtocolDropXSinItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropStimulusItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus sin.png";
     QIcon icon;
@@ -1389,8 +1138,9 @@ ProtocolDropXSinItem::ProtocolDropXSinItem(e4gcl::CommLib * commLib, ProtocolIte
     /*! Param x0 */ {
         double value = hold;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         x0Param = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                   "Offset " + stimulusName.toLower(), editWidget,
@@ -1411,8 +1161,9 @@ ProtocolDropXSinItem::ProtocolDropXSinItem(e4gcl::CommLib * commLib, ProtocolIte
     /*! Param xAmp */ {
         double value = hold+100.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         xAmpParam = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                     "Oscillation amplitude", editWidget,
@@ -1433,8 +1184,9 @@ ProtocolDropXSinItem::ProtocolDropXSinItem(e4gcl::CommLib * commLib, ProtocolIte
     /*! Param freq */ {
         double value = 10.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(frequencyRange, SteppedSpinBox::MinMaxRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, frequencyRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//        editWidget->setRangedMeasurement(frequencyRange, QDoubleSpinBox::MinMaxRange);
 
         freqParam = new ProtocolDropItemDoubleParam(ctrlManager, ProtocolItemCtrlFrequency, value,
                                                     "Oscillation frequency", editWidget,
@@ -1452,122 +1204,6 @@ ProtocolDropXSinItem::ProtocolDropXSinItem(e4gcl::CommLib * commLib, ProtocolIte
     }
 
     this->onSetString();
-}
-
-bool ProtocolDropXSinItem::importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    while (epmlManager->getNextAny(tag, depth, parentTag, epmlStatus)) {
-        if (tag == stimulusAbbrName.toLower() + "0") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                x0Param->setValue(value);
-                x0Param->updateCtrlWidget();
-                if (stringValue != "0") {
-                    x0Param->getCtrlWidget()->setCurrentText(stringValue);
-                    x0Param->onCtrlWidgetActivated(x0Param->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == stimulusAbbrName.toLower() + "amp") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                xAmpParam->setValue(value);
-                xAmpParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    xAmpParam->getCtrlWidget()->setCurrentText(stringValue);
-                    xAmpParam->onCtrlWidgetActivated(xAmpParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "freq") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                freqParam->setValue(value);
-                freqParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    freqParam->getCtrlWidget()->setCurrentText(stringValue);
-                    freqParam->onCtrlWidgetActivated(freqParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "visible") {
-            visible = epmlManager->getBool(tag, depth, epmlStatus);
-            visibleEdit->setChecked(visible);
-
-        } else {
-            epmlStatus = EpmlSyntaxError;
-            return false;
-        }
-    }
-
-    this->onAcceptPropertyDialog();
-    return true;
-}
-
-bool ProtocolDropXSinItem::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    if (x0Param->isEnabled()) {
-        tag = stimulusAbbrName.toLower() + "0";
-        epmlManager->addDoubleValue(tag, depth, x0Param->getValue());
-        if (x0Param->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, x0Param->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (xAmpParam->isEnabled()) {
-        tag = stimulusAbbrName.toLower() + "amp";
-        epmlManager->addDoubleValue(tag, depth, xAmpParam->getValue());
-        if (xAmpParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, xAmpParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (freqParam->isEnabled()) {
-        tag = "freq";
-        epmlManager->addDoubleValue(tag, depth, freqParam->getValue());
-        if (freqParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, freqParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (visibleEdit->isEnabled()) {
-        tag = "visible";
-        epmlManager->addBoolValue(tag, depth, visibleEdit->isChecked());
-    }
-
-    epmlStatus = EpmlValueAdded;
-    return true;
 }
 
 void ProtocolDropXSinItem::openPropertyDialog() {
@@ -1679,13 +1315,15 @@ void ProtocolDropXSinItem::onAcceptPropertyDialog() {
     ProtocolDropItem::onAcceptPropertyDialog();
 }
 
-void ProtocolDropXSinItem::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
+void ProtocolDropXSinItem::setStimulusRange(RangedMeasurement_t &range) {
     stimulusRange = range;
 
-    x0EditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(x0EditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    x0EditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     x0Param->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
 
-    xAmpEditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(xAmpEditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    xAmpEditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     xAmpParam->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
     this->onAcceptPropertyDialog();
 }
@@ -1703,20 +1341,20 @@ void ProtocolDropXSinItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVSinItem::ProtocolDropVSinItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXSinItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVSinItem::ProtocolDropVSinItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXSinItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropISinItem::ProtocolDropISinItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXSinItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropISinItem::ProtocolDropISinItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXSinItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     xAmpParam->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropLoopsItem::ProtocolDropLoopsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropLoopsItem::ProtocolDropLoopsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     this->setBackground(PROT_EDITOR_LOOPS_ITEM_COLOR);
 
@@ -1731,8 +1369,8 @@ QString ProtocolDropLoopsItem::getName() {
     return "";
 }
 
-ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropLoopsItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropLoopsItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/P over N.png";
     QIcon icon;
@@ -1751,8 +1389,9 @@ ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(e4gcl::CommLib * co
     /*! Param holdLeak */ {
         double value = hold-100.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         holdLeakParam = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                          "Leak holding " + stimulusName.toLower(), editWidget,
@@ -1830,8 +1469,9 @@ ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(e4gcl::CommLib * co
     /*! Param restStimulus */ {
         double value = hold;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         restStimulusParam = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
                                                            "Preceding rest " + stimulusName.toLower(), editWidget,
@@ -1852,8 +1492,9 @@ ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(e4gcl::CommLib * co
     /*! Param restTime */ {
         double value = 0.0;
 
-        SteppedSpinBox * editWidget = new SteppedSpinBox();
-        editWidget->setRangedMeasurement(timeRange, SteppedSpinBox::ZeroMaxRange);
+        QDoubleSpinBox * editWidget = new QDoubleSpinBox();
+        initQdoubleSpinBox(editWidget, timeRange, RangedQDoubleSpinBox_t::ZERO_MAX);
+//        editWidget->setRangedMeasurement(timeRange, QDoubleSpinBox::ZeroMaxRange);
 
         restTimeParam = new ProtocolDropItemDoubleParam(ctrlManager, ProtocolItemCtrlTime, value,
                                                         "Preceding rest time", editWidget,
@@ -1897,224 +1538,6 @@ ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(e4gcl::CommLib * co
     this->onSetString();
 }
 
-bool ProtocolDropXRepSeqScaledItem::importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    while (epmlManager->getNextAny(tag, depth, parentTag, epmlStatus)) {
-        if (tag == stimulusAbbrName.toLower() + "holdleak") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                holdLeakParam->setValue(value);
-                holdLeakParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    holdLeakParam->getCtrlWidget()->setCurrentText(stringValue);
-                    holdLeakParam->onCtrlWidgetActivated(holdLeakParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "scalefactor") {
-            int value = epmlManager->getInt(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                scaleFactorParam->setValue(value);
-                scaleFactorParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    scaleFactorParam->getCtrlWidget()->setCurrentText(stringValue);
-                    scaleFactorParam->onCtrlWidgetActivated(scaleFactorParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "repnum") {
-            int value = epmlManager->getInt(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                repNumParam->setValue(value);
-                repNumParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    repNumParam->getCtrlWidget()->setCurrentText(stringValue);
-                    repNumParam->onCtrlWidgetActivated(repNumParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "itemnum") {
-            int value = epmlManager->getInt(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                itemNumParam->setValue(value);
-                itemNumParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    itemNumParam->getCtrlWidget()->setCurrentText(stringValue);
-                    itemNumParam->onCtrlWidgetActivated(itemNumParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "rest" + stimulusName.toLower()) {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                restStimulusParam->setValue(value);
-                restStimulusParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    restStimulusParam->getCtrlWidget()->setCurrentText(stringValue);
-                    restStimulusParam->onCtrlWidgetActivated(restStimulusParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "resttime") {
-            double value = epmlManager->getDouble(tag, depth, epmlStatus);
-            tag += "ctrl";
-            if (epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-                QString stringValue = epmlManager->getString(tag, depth, epmlStatus);
-                restTimeParam->setValue(value);
-                restTimeParam->updateCtrlWidget();
-                if (stringValue != "0") {
-                    restTimeParam->getCtrlWidget()->setCurrentText(stringValue);
-                    restTimeParam->onCtrlWidgetActivated(restTimeParam->getCtrlWidget()->currentIndex());
-                }
-
-            } else {
-                epmlStatus = EpmlSyntaxError;
-                return false;
-            }
-
-        } else if (tag == "preceding") {
-            preceding = epmlManager->getBool(tag, depth, epmlStatus);
-            precedingEdit->setChecked(preceding);
-
-        } else if (tag == "reversed") {
-            reversed = epmlManager->getBool(tag, depth, epmlStatus);
-            reversedEdit->setChecked(reversed);
-
-        } else if (tag == "alternating") {
-            alternating = epmlManager->getBool(tag, depth, epmlStatus);
-            alternatingEdit->setChecked(alternating);
-
-        } else {
-            epmlStatus = EpmlSyntaxError;
-            return false;
-        }
-    }
-
-    this->onAcceptPropertyDialog();
-    return true;
-}
-
-bool ProtocolDropXRepSeqScaledItem::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-
-    if (holdLeakParam->isEnabled()) {
-        tag = stimulusAbbrName.toLower() + "holdleak";
-        epmlManager->addDoubleValue(tag, depth, holdLeakParam->getValue());
-        if (holdLeakParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, holdLeakParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (scaleFactorParam->isEnabled()) {
-        tag = "scalefactor";
-        epmlManager->addIntValue(tag, depth, scaleFactorParam->getValue());
-        if (scaleFactorParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, scaleFactorParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (repNumParam->isEnabled()) {
-        tag = "repnum";
-        epmlManager->addIntValue(tag, depth, repNumParam->getValue());
-        if (repNumParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, repNumParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (itemNumParam->isEnabled()) {
-        tag = "itemnum";
-        epmlManager->addIntValue(tag, depth, itemNumParam->getValue());
-        if (itemNumParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, itemNumParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (restStimulusParam->isEnabled()) {
-        tag = "rest" + stimulusName.toLower();
-        epmlManager->addDoubleValue(tag, depth, restStimulusParam->getValue());
-        if (restStimulusParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, restStimulusParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (restTimeParam->isEnabled()) {
-        tag = "resttime";
-        epmlManager->addDoubleValue(tag, depth, restTimeParam->getValue());
-        if (restTimeParam->getCtrlWidget()->currentIndex() == 0) {
-            epmlManager->addStringValue(tag + "ctrl", depth, "0");
-
-        } else {
-            epmlManager->addStringValue(tag + "ctrl", depth, restTimeParam->getCtrlWidget()->currentText());
-        }
-    }
-
-    if (precedingEdit->isEnabled()) {
-        tag = "preceding";
-        epmlManager->addBoolValue(tag, depth, precedingEdit->isChecked());
-    }
-
-    if (reversedEdit->isEnabled()) {
-        tag = "reversed";
-        epmlManager->addBoolValue(tag, depth, reversedEdit->isChecked());
-    }
-
-    if (alternatingEdit->isEnabled()) {
-        tag = "alternating";
-        epmlManager->addBoolValue(tag, depth, alternatingEdit->isChecked());
-    }
-
-    epmlStatus = EpmlValueAdded;
-    return true;
-}
-
 void ProtocolDropXRepSeqScaledItem::openPropertyDialog() {
     holdLeakParam->updateCtrlWidget();
     scaleFactorParam->updateCtrlWidget();
@@ -2125,13 +1548,15 @@ void ProtocolDropXRepSeqScaledItem::openPropertyDialog() {
     propertyDialog->exec();
 }
 
-void ProtocolDropXRepSeqScaledItem::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
+void ProtocolDropXRepSeqScaledItem::setStimulusRange(RangedMeasurement_t &range) {
     stimulusRange = range;
 
-    holdLeakEditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(holdLeakEditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    holdLeakEditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     holdLeakParam->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
 
-    restStimulusEditWidget->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(restStimulusEditWidget, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    restStimulusEditWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     restStimulusParam->setUnit(QString::fromStdString(stimulusRange.getFullUnit()));
     this->onAcceptPropertyDialog();
 }
@@ -2394,20 +1819,20 @@ void ProtocolDropXRepSeqScaledItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVRepSeqScaledItem::ProtocolDropVRepSeqScaledItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqScaledItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVRepSeqScaledItem::ProtocolDropVRepSeqScaledItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRepSeqScaledItem::ProtocolDropIRepSeqScaledItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqScaledItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIRepSeqScaledItem::ProtocolDropIRepSeqScaledItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     holdLeakParam->setValue(hold-1.0);
     this->onSetString();
 }
 
-ProtocolDropXRepSeqItem::ProtocolDropXRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropXRepSeqScaledItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRepSeqItem::ProtocolDropXRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/repeat sequence.png";
     QIcon icon;
@@ -2477,18 +1902,18 @@ void ProtocolDropXRepSeqItem::onUpdateHold(double value) {
     holdLeakParam->setValue(hold);
 }
 
-ProtocolDropVRepSeqItem::ProtocolDropVRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVRepSeqItem::ProtocolDropVRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRepSeqItem::ProtocolDropIRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIRepSeqItem::ProtocolDropIRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropXRepSeqWithStepsItem::ProtocolDropXRepSeqWithStepsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropXRepSeqScaledItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRepSeqWithStepsItem::ProtocolDropXRepSeqWithStepsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/repeat with steps.png";
     QIcon icon;
@@ -2558,18 +1983,18 @@ void ProtocolDropXRepSeqWithStepsItem::onUpdateHold(double value) {
     holdLeakParam->setValue(hold);
 }
 
-ProtocolDropVRepSeqWithStepsItem::ProtocolDropVRepSeqWithStepsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqWithStepsItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVRepSeqWithStepsItem::ProtocolDropVRepSeqWithStepsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqWithStepsItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRepSeqWithStepsItem::ProtocolDropIRepSeqWithStepsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqWithStepsItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIRepSeqWithStepsItem::ProtocolDropIRepSeqWithStepsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqWithStepsItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropXInfRepSeqItem::ProtocolDropXInfRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropXRepSeqScaledItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXInfRepSeqItem::ProtocolDropXInfRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/infinite repeat sequence.png";
     QIcon icon;
@@ -2639,18 +2064,18 @@ void ProtocolDropXInfRepSeqItem::onUpdateHold(double value) {
     holdLeakParam->setValue(hold);
 }
 
-ProtocolDropVInfRepSeqItem::ProtocolDropVInfRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXInfRepSeqItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVInfRepSeqItem::ProtocolDropVInfRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXInfRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIInfRepSeqItem::ProtocolDropIInfRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXInfRepSeqItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropIInfRepSeqItem::ProtocolDropIInfRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXInfRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropControlItem::ProtocolDropControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropControlItem::ProtocolDropControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     visible = false;
     visibleEdit->setVisible(false);
@@ -2662,108 +2087,6 @@ ProtocolDropControlItem::ProtocolDropControlItem(e4gcl::CommLib * commLib, Proto
     propertyLo->setColumnStretch(2, 2);
     propertyLo->setColumnStretch(3, 3);
     propertyLo->setColumnStretch(4, 1);
-}
-
-bool ProtocolDropControlItem::importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-    bool intCtrl = false;
-
-    switch (this->type()) {
-    case PROT_DROP_LIST_VOLTAGE_CONTROL_ITEM_TYPE:
-        voltageControlItemIdx--;
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_CURRENT_CONTROL_ITEM_TYPE:
-        currentControlItemIdx--;
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_TIME_CONTROL_ITEM_TYPE:
-        timeControlItemIdx--;
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_FREQUENCY_CONTROL_ITEM_TYPE:
-        frequencyControlItemIdx--;
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_NATURAL_NUM_CONTROL_ITEM_TYPE:
-        naturalNumControlItemIdx--;
-        intCtrl = true;
-        break;
-    }
-
-    tag = "name";
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    name = epmlManager->getString(tag, depth, epmlStatus);
-    nameEdit->setText(name);
-
-    tag = "value";
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (intCtrl) {
-        intValue = epmlManager->getInt(tag, depth, epmlStatus);
-        intEdit->setValue(intValue);
-
-    } else {
-        doubleValue = epmlManager->getDouble(tag, depth, epmlStatus);
-        doubleEdit->setValue(doubleValue);
-    }
-
-    this->onAcceptPropertyDialog();
-    return true;
-}
-
-bool ProtocolDropControlItem::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    QString tag;
-    int depth = EPML_PROTOCOL_ITEM_PARAM_DEPTH;
-    bool intCtrl = false;
-
-    switch (this->type()) {
-    case PROT_DROP_LIST_VOLTAGE_CONTROL_ITEM_TYPE:
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_CURRENT_CONTROL_ITEM_TYPE:
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_TIME_CONTROL_ITEM_TYPE:
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_FREQUENCY_CONTROL_ITEM_TYPE:
-        intCtrl = false;
-        break;
-
-    case PROT_DROP_LIST_NATURAL_NUM_CONTROL_ITEM_TYPE:
-        intCtrl = true;
-        break;
-    }
-
-    tag = "name";
-    epmlManager->addStringValue(tag, depth, name);
-
-    tag = "value";
-    if (intCtrl) {
-        epmlManager->addIntValue(tag, depth, intEdit->value());
-
-    } else {
-        epmlManager->addDoubleValue(tag, depth, doubleEdit->value());
-    }
-
-    epmlStatus = EpmlValueAdded;
-    return true;
 }
 
 void ProtocolDropControlItem::openPropertyDialog() {
@@ -2786,7 +2109,7 @@ QSpinBox * ProtocolDropControlItem::getIntEdit() {
     return intEdit;
 }
 
-SteppedSpinBox * ProtocolDropControlItem::getDoubleEdit() {
+QDoubleSpinBox * ProtocolDropControlItem::getDoubleEdit() {
     return doubleEdit;
 }
 
@@ -2874,8 +2197,8 @@ void ProtocolDropControlItem::setCtrlFromYaml(const YAML::NaturalNumCtrl &yamlCt
     this->onAcceptPropertyDialog();
 }
 
-ProtocolDropVoltageControlItem::ProtocolDropVoltageControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropVoltageControlItem::ProtocolDropVoltageControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/voltage control.png";
     QIcon icon;
@@ -2896,12 +2219,13 @@ ProtocolDropVoltageControlItem::ProtocolDropVoltageControlItem(e4gcl::CommLib * 
     name = QString("voltage ctrl%1").arg(voltageControlItemIdx++);
     nameEdit = new QLineEdit(name);
     doubleValue = 100.0;
-    doubleEdit = new SteppedSpinBox();
-    doubleEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    doubleEdit = new QDoubleSpinBox();
+    initQdoubleSpinBox(doubleEdit, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    doubleEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     doubleEdit->setValue(doubleValue);
     valueUnit = new QLabel(QString::fromStdString(stimulusRange.getFullUnit()));
 
-    connect(doubleEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
+    connect(doubleEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
 
     propertyLo->addWidget(new QLabel("Name"), rowIdx, 0, Qt::AlignRight);
     propertyLo->addWidget(nameEdit, rowIdx, 1, 1, 2);
@@ -2913,10 +2237,11 @@ ProtocolDropVoltageControlItem::ProtocolDropVoltageControlItem(e4gcl::CommLib * 
     this->onSetString();
 }
 
-void ProtocolDropVoltageControlItem::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
+void ProtocolDropVoltageControlItem::setStimulusRange(RangedMeasurement_t &range) {
     stimulusRange = range;
 
-    doubleEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(doubleEdit, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    doubleEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     valueUnit->setText(QString::fromStdString(stimulusRange.getFullUnit()));
     this->onAcceptPropertyDialog();
 }
@@ -2943,8 +2268,8 @@ void ProtocolDropVoltageControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropCurrentControlItem::ProtocolDropCurrentControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropCurrentControlItem::ProtocolDropCurrentControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     QString iconString = ":imgs/current control.png";
     QIcon icon;
@@ -2965,12 +2290,13 @@ ProtocolDropCurrentControlItem::ProtocolDropCurrentControlItem(e4gcl::CommLib * 
     name = QString("current ctrl%1").arg(currentControlItemIdx++);
     nameEdit = new QLineEdit(name);
     doubleValue = 1.0;
-    doubleEdit = new SteppedSpinBox();
-    doubleEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    doubleEdit = new QDoubleSpinBox();
+    initQdoubleSpinBox(doubleEdit, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    doubleEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     doubleEdit->setValue(doubleValue);
     valueUnit = new QLabel(QString::fromStdString(stimulusRange.getFullUnit()));
 
-    connect(doubleEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
+    connect(doubleEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
 
     propertyLo->addWidget(new QLabel("Name"), rowIdx, 0, Qt::AlignRight);
     propertyLo->addWidget(nameEdit, rowIdx, 1, 1, 2);
@@ -2982,10 +2308,10 @@ ProtocolDropCurrentControlItem::ProtocolDropCurrentControlItem(e4gcl::CommLib * 
     this->onSetString();
 }
 
-void ProtocolDropCurrentControlItem::setStimulusRange(e4gcl::RangedMeasurement_t &range) {
+void ProtocolDropCurrentControlItem::setStimulusRange(RangedMeasurement_t &range) {
     stimulusRange = range;
-
-    doubleEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::DeltaRange);
+    initQdoubleSpinBox(doubleEdit, stimulusRange, RangedQDoubleSpinBox_t::DELTA);
+//    doubleEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
     valueUnit->setText(QString::fromStdString(stimulusRange.getFullUnit()));
     this->onAcceptPropertyDialog();
 }
@@ -3012,8 +2338,8 @@ void ProtocolDropCurrentControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropTimeControlItem::ProtocolDropTimeControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropTimeControlItem::ProtocolDropTimeControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/time control.png";
     QIcon icon;
@@ -3034,12 +2360,13 @@ ProtocolDropTimeControlItem::ProtocolDropTimeControlItem(e4gcl::CommLib * commLi
     name = QString("time ctrl%1").arg(timeControlItemIdx++);
     nameEdit = new QLineEdit(name);
     doubleValue = 100.0;
-    doubleEdit = new SteppedSpinBox();
-    doubleEdit->setRangedMeasurement(timeRange, SteppedSpinBox::DeltaRange);
+    doubleEdit = new QDoubleSpinBox();
+    initQdoubleSpinBox(doubleEdit, timeRange, RangedQDoubleSpinBox_t::DELTA);
+//    doubleEdit->setRangedMeasurement(timeRange, QDoubleSpinBox::DeltaRange);
     doubleEdit->setValue(doubleValue);
     valueUnit = new QLabel(QString::fromStdString(timeRange.getFullUnit()));
 
-    connect(doubleEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
+    connect(doubleEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
 
     propertyLo->addWidget(new QLabel("Name"), rowIdx, 0, Qt::AlignRight);
     propertyLo->addWidget(nameEdit, rowIdx, 1, 1, 2);
@@ -3051,7 +2378,7 @@ ProtocolDropTimeControlItem::ProtocolDropTimeControlItem(e4gcl::CommLib * commLi
     this->onSetString();
 }
 
-void ProtocolDropTimeControlItem::setStimulusRange(e4gcl::RangedMeasurement_t &) {
+void ProtocolDropTimeControlItem::setStimulusRange(RangedMeasurement_t &) {
     /*! nothing to do */
 }
 
@@ -3077,8 +2404,8 @@ void ProtocolDropTimeControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropFrequencyControlItem::ProtocolDropFrequencyControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropFrequencyControlItem::ProtocolDropFrequencyControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/frequency control.png";
     QIcon icon;
@@ -3099,12 +2426,13 @@ ProtocolDropFrequencyControlItem::ProtocolDropFrequencyControlItem(e4gcl::CommLi
     name = QString("frequency ctrl%1").arg(frequencyControlItemIdx++);
     nameEdit = new QLineEdit(name);
     doubleValue = 10.0;
-    doubleEdit = new SteppedSpinBox();
-    doubleEdit->setRangedMeasurement(frequencyRange, SteppedSpinBox::MinMaxRange);
+    doubleEdit = new QDoubleSpinBox();
+    initQdoubleSpinBox(doubleEdit, frequencyRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//    doubleEdit->setRangedMeasurement(frequencyRange, QDoubleSpinBox::MinMaxRange);
     doubleEdit->setValue(doubleValue);
     valueUnit = new QLabel(QString::fromStdString(frequencyRange.getFullUnit()));
 
-    connect(doubleEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
+    connect(doubleEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, QOverload <double> ::of(&ProtocolDropControlItem::valueChanged));
 
     propertyLo->addWidget(new QLabel("Name"), rowIdx, 0, Qt::AlignRight);
     propertyLo->addWidget(nameEdit, rowIdx, 1, 1, 2);
@@ -3116,7 +2444,7 @@ ProtocolDropFrequencyControlItem::ProtocolDropFrequencyControlItem(e4gcl::CommLi
     this->onSetString();
 }
 
-void ProtocolDropFrequencyControlItem::setStimulusRange(e4gcl::RangedMeasurement_t &) {
+void ProtocolDropFrequencyControlItem::setStimulusRange(RangedMeasurement_t &) {
     /*! nothing to do */
 }
 
@@ -3142,8 +2470,8 @@ void ProtocolDropFrequencyControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropNaturalNumControlItem::ProtocolDropNaturalNumControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropNaturalNumControlItem::ProtocolDropNaturalNumControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/number control.png";
     QIcon icon;
@@ -3179,7 +2507,7 @@ ProtocolDropNaturalNumControlItem::ProtocolDropNaturalNumControlItem(e4gcl::Comm
     this->onSetString();
 }
 
-void ProtocolDropNaturalNumControlItem::setStimulusRange(e4gcl::RangedMeasurement_t &) {
+void ProtocolDropNaturalNumControlItem::setStimulusRange(RangedMeasurement_t &) {
     /*! nothing to do */
 }
 
@@ -3205,8 +2533,8 @@ void ProtocolDropNaturalNumControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropAnalysisItem::ProtocolDropAnalysisItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type) :
-    ProtocolDropItem(commLib, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropAnalysisItem::ProtocolDropAnalysisItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
 
     visible = false;
     visibleEdit->setVisible(false);
@@ -3240,49 +2568,6 @@ ProtocolDropAnalysisItem::~ProtocolDropAnalysisItem() {
     }
 }
 
-bool ProtocolDropAnalysisItem::importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    QString tag = "timepointsnum";
-    int depth = EPML_ANALYSIS_PARAM_DEPTH;
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-    int timePointsNum = epmlManager->getInt(tag, depth, epmlStatus);
-    this->updateTimePointsNum(timePointsNum);
-
-    tag = "timepoint";
-    int intValue;
-    for (int timePointIdx = 0; timePointIdx < timePointsRequired; timePointIdx++) {
-        if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-            epmlStatus = EpmlSyntaxError;
-            return false;
-        }
-
-        intValue = qMin(epmlManager->getInt(tag, depth, epmlStatus), timePointParams[timePointIdx]->getTimePointWidget()->count()-1);
-        timePointParams[timePointIdx]->getTimePointWidget()->setCurrentIndex(intValue);
-    }
-
-    this->onAcceptPropertyDialog();
-    return true;
-}
-
-bool ProtocolDropAnalysisItem::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    QString tag = "timepointsnum";
-    int depth = EPML_ANALYSIS_PARAM_DEPTH;
-
-    epmlManager->addIntValue(tag, depth, timePointsRequired);
-
-    tag = "timepoint";
-    int intValue;
-    for (int timePointIdx = 0; timePointIdx < timePointsRequired; timePointIdx++) {
-        intValue = timePointParams[timePointIdx]->getCursorIdx();
-        epmlManager->addIntValue(tag, depth, intValue);
-    }
-
-    epmlStatus = EpmlValueAdded;
-    return true;
-}
-
 void ProtocolDropAnalysisItem::openPropertyDialog() {
     propertyDialog->exec();
 }
@@ -3291,7 +2576,7 @@ QString ProtocolDropAnalysisItem::getName() {
     return "";
 }
 
-void ProtocolDropAnalysisItem::setStimulusRange(e4gcl::RangedMeasurement_t &) {
+void ProtocolDropAnalysisItem::setStimulusRange(RangedMeasurement_t &) {
     /*! nothing to do */
 }
 
@@ -3439,8 +2724,8 @@ void ProtocolDropAnalysisItem::setInvalidLoopsToolTip() {
                      "can't be active only on 1 repetition.");
 }
 
-ProtocolDropNoiseReportItem::ProtocolDropNoiseReportItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropNoiseReportItem::ProtocolDropNoiseReportItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::NoiseReport;
     QString iconString = ":imgs/analysis noise report.png";
@@ -3510,8 +2795,8 @@ QString ProtocolDropNoiseReportItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropHistogramItem::ProtocolDropHistogramItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropHistogramItem::ProtocolDropHistogramItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::Histogram;
     QString iconString = ":imgs/analysis histogram.png";
@@ -3580,8 +2865,8 @@ QString ProtocolDropHistogramItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropSpectrumItem::ProtocolDropSpectrumItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropSpectrumItem::ProtocolDropSpectrumItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::Spectrum;
     QString iconString = ":imgs/analysis spectrum.png";
@@ -3650,8 +2935,8 @@ QString ProtocolDropSpectrumItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropResistanceEstimationItem::ProtocolDropResistanceEstimationItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropResistanceEstimationItem::ProtocolDropResistanceEstimationItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::ResistanceEstimation;
     QString iconString = ":imgs/analysis resistance estimation.png";
@@ -3750,8 +3035,8 @@ QString ProtocolDropResistanceEstimationItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropMembraneTestItem::ProtocolDropMembraneTestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropMembraneTestItem::ProtocolDropMembraneTestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::MembraneTest;
     QString iconString = ":imgs/analysis membrane test.png";
@@ -3853,8 +3138,8 @@ QString ProtocolDropMembraneTestItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropIvGraphItem::ProtocolDropIvGraphItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_VOLTAGE_CLAMP_MODE, type) {
+ProtocolDropIvGraphItem::ProtocolDropIvGraphItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::IVGraph;
     QString iconString = ":imgs/analysis iv graph.png";
@@ -4013,8 +3298,8 @@ void ProtocolDropIvGraphItem::updateTimePointsNumHouseKeeping() {
     this->onSetString();
 }
 
-ProtocolDropVoltageTrackingItem::ProtocolDropVoltageTrackingItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropVoltageTrackingItem::ProtocolDropVoltageTrackingItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 //    analysisType = YAML::Histogram;
     QString iconString = ":imgs/analysis voltage tracking.png";
@@ -4083,8 +3368,8 @@ QString ProtocolDropVoltageTrackingItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropApThresholdItem::ProtocolDropApThresholdItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropApThresholdItem::ProtocolDropApThresholdItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     analysisType = YAML::APThreshold;
     QString iconString = ":imgs/analysis ap threshold.png";
@@ -4153,8 +3438,8 @@ QString ProtocolDropApThresholdItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropApStatisticsItem::ProtocolDropApStatisticsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(commLib, ctrlManager, hold0, E4GCL_CURRENT_CLAMP_MODE, type) {
+ProtocolDropApStatisticsItem::ProtocolDropApStatisticsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     analysisType = YAML::APStatistics;
     QString iconString = ":imgs/analysis ap statistics.png";

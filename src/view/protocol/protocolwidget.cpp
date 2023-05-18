@@ -486,7 +486,7 @@ ProtocolType_t ProtocolWidget::getType() {
     return type;
 }
 
-int ProtocolWidget::getClampingModality() {
+e384CommLib::ClampingModality_t ProtocolWidget::getClampingModality() {
     return clampingModality;
 }
 
