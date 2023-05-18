@@ -11,7 +11,7 @@ CONFIG(release, debug|release) {
 #    DEFINES += GLB_SHOW_DEBUG_CTRLS
 }
 
-CONFIG += c++11
+CONFIG += c++17
 
 include(version.pri)
 
@@ -22,6 +22,9 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/protocol/cursorsmanager.cpp \
+    src/controller/protocol/protocolitemctrlmanager.cpp \
+    src/controller/protocol/protocolmanager.cpp \
     src/main.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
@@ -33,6 +36,23 @@ SOURCES += \
     src/view/chessboard.cpp \
     src/view/myleftrightmousepushbutton.cpp \
     src/view/myspinbox.cpp \
+    src/view/protocol/impexpprotocoldialog.cpp \
+    src/view/protocol/protocolcursor.cpp \
+    src/view/protocol/protocoldockwidget.cpp \
+    src/view/protocol/protocoldragitem.cpp \
+    src/view/protocol/protocoldropitem.cpp \
+    src/view/protocol/protocoldropitemparam.cpp \
+    src/view/protocol/protocoleditor.cpp \
+    src/view/protocol/protocolitem.cpp \
+    src/view/protocol/protocolitemdraglist.cpp \
+    src/view/protocol/protocolitemdroplist.cpp \
+    src/view/protocol/protocollist.cpp \
+    src/view/protocol/protocolplot.cpp \
+    src/view/protocol/protocolpreview.cpp \
+    src/view/protocol/protocolpropertydialog.cpp \
+    src/view/protocol/protocolsection.cpp \
+    src/view/protocol/protocolssettingsdialog.cpp \
+    src/view/protocol/protocolwidget.cpp \
     src/view/recordsettingsdialog.cpp \
     src/view/stampplot.cpp \
     src/view/channelcontroldockwidget.cpp \
@@ -56,7 +76,11 @@ SOURCES += \
     src/abf/axon.cpp
 
 HEADERS += \
+    src/controller/protocol/cursorsmanager.h \
+    src/controller/protocol/protocolitemctrlmanager.h \
+    src/controller/protocol/protocolmanager.h \
     src/globaldefines.h \
+    src/protocoldefs.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
@@ -67,6 +91,23 @@ HEADERS += \
     src/view/chessboard.h \
     src/view/myleftrightmousepushbutton.h \
     src/view/myspinbox.h \
+    src/view/protocol/impexpprotocoldialog.h \
+    src/view/protocol/protocolcursor.h \
+    src/view/protocol/protocoldockwidget.h \
+    src/view/protocol/protocoldragitem.h \
+    src/view/protocol/protocoldropitem.h \
+    src/view/protocol/protocoldropitemparam.h \
+    src/view/protocol/protocoleditor.h \
+    src/view/protocol/protocolitem.h \
+    src/view/protocol/protocolitemdraglist.h \
+    src/view/protocol/protocolitemdroplist.h \
+    src/view/protocol/protocollist.h \
+    src/view/protocol/protocolplot.h \
+    src/view/protocol/protocolpreview.h \
+    src/view/protocol/protocolpropertydialog.h \
+    src/view/protocol/protocolsection.h \
+    src/view/protocol/protocolssettingsdialog.h \
+    src/view/protocol/protocolwidget.h \
     src/view/recordsettingsdialog.h \
     src/view/stampplot.h \
     src/view/channelcontroldockwidget.h \
@@ -98,7 +139,9 @@ INCLUDEPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/model \
-    ./src/abf
+    ./src/abf \
+    ./src/view/protocol \
+    ./src/controller/protocol
 
 DEPENDPATH += \
     ./src \
@@ -107,7 +150,9 @@ DEPENDPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/model \
-    ./src/abf
+    ./src/abf \
+    ./src/view/protocol \
+    ./src/controller/protocol
 
 RC_ICONS = imgs/Elements.ico
 ICON = imgs/Elements.ico.icns
@@ -115,6 +160,7 @@ ICON = imgs/Elements.ico.icns
 include(../e384commLib/frontPanel/includefrontpanel.pri)
 include(../e384commLib/includecommlib.pri)
 include(../qwt-6.1.4/includeqwt.pri)
+include(C:/protocol-serializer/includeprotocolserializer.pri)
 
 RESOURCES += \
     resources.qrc
