@@ -19,3 +19,17 @@ QDoubleSpinBox * initQdoubleSpinBox(QDoubleSpinBox * dsb, e384CommLib::RangedMea
     dsb->setSingleStep(rm.step);
     return dsb;
 }
+
+void initQdoubleSpinBox(QDoubleSpinBox * from, QDoubleSpinBox * to){
+    double minimum = from->minimum();
+    double maximum = from->maximum();
+    int decimals = from->decimals();
+    double singleStep = from->singleStep();
+    double value = from->value();
+
+    to->setRange(minimum, maximum);
+    to->setDecimals(decimals);
+    to->setSingleStep(singleStep);
+    to->setValue(value);
+}
+
