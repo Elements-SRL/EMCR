@@ -1,7 +1,9 @@
 #include "protocolmanager.h"
-#include "model/modeldevice.h"
 
-ProtocolManager::ProtocolManager(ModelDevice *  mDev) :
+#include "modeldevice.h"
+#include "globaldefines.h"
+
+ProtocolManager::ProtocolManager(ModelDevice * mDev) :
     QObject(),
     mDev(mDev) {
 
@@ -31,21 +33,12 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
     }
 
     /*! Send the commands to mDev */
-    QVector <TriggerCursor *> triggerCursors = protocol->getTriggerCursors();
-    TriggerCursor * cursor;
-    Measurement_t delay = {0.0, UnitPfxNone, "s"};
-    for (int cursorIdx = 0; cursorIdx < triggerCursors.size(); cursorIdx++) {
-        cursor = triggerCursors[cursorIdx];
-        delay.value = cursor->delay;
-        mDev->setDigitalTriggerOutput((unsigned short)cursorIdx, cursor->terminator, cursor->high, (unsigned short)cursor->id, delay);
-    }
-
     if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
-        mDev->setVoltageProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
+        mDev->getMessageDispatcher()->setVoltageProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
 
     } else {
         emit currentApplied();
-        mDev->setCurrentProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
+        mDev->getMessageDispatcher()->setCurrentProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
     }
 
     UnitPfx_t stimulusPrefix = protocol->getStimulusPrefix();
@@ -66,10 +59,10 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
             tStep.value = castItem->tStep;
 
             if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
-                mDev->voltStepTimeStep(x0, xStep, t0, tStep, (uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, (uint16_t)(protocolItem->applySteps ? 1 : 0));
+                mDev->getMessageDispatcher()->setVoltageProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, tStep);
 
             } else {
-                mDev->currStepTimeStep(x0, xStep, t0, tStep, (uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, (uint16_t)(protocolItem->applySteps ? 1 : 0));
+                mDev->getMessageDispatcher()->setCurrentProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, tStep);
             }
             break;
         }
@@ -81,10 +74,10 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
             t0.value = castItem->t0;
 
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                mDev->voltRamp(x0, xFinal, t0, (uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, (uint16_t)(protocolItem->applySteps ? 1 : 0));
+                mDev->getMessageDispatcher()->setVoltageProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, tStep);
 
             } else {
-                mDev->currRamp(x0, xFinal, t0, (uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, (uint16_t)(protocolItem->applySteps ? 1 : 0));
+                mDev->getMessageDispatcher()->setCurrentProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, tStep);
             }
             break;
         }
@@ -93,13 +86,13 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
             ProtocolXSinItem * castItem = static_cast <ProtocolXSinItem *> (protocolItem);
             x0.value = castItem->x0;
             xAmp.value = castItem->xAmp;
-            freq.value = castItem->freq;
+            f0.value = castItem->freq;
 
             if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
-                mDev->voltSin(x0, xAmp, freq, (uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, (uint16_t)(protocolItem->applySteps ? 1 : 0));
+                mDev->getMessageDispatcher()->setVoltageProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step);
 
             } else {
-                mDev->currSin(x0, xAmp, freq, (uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, (uint16_t)(protocolItem->applySteps ? 1 : 0));
+                mDev->getMessageDispatcher()->setCurrentProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step);
             }
             break;
         }
@@ -107,7 +100,7 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
     }
 
     if (!secondaryDeviceFlag) {
-        mDev->startProtocol();
+        mDev->getMessageDispatcher()->startProtocol();
     }
 
     lastStartedType = protocol->getType();

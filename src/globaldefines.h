@@ -22,6 +22,7 @@
 
 /*! Global defines */
 #define STAMP_PLOT_SIZE 35
+#define GLB_MAX_PROT_ID 0xFFFF
 
 /*! Utility to debug by printf */
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }

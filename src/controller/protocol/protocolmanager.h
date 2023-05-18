@@ -71,7 +71,19 @@ private:
         "V" // unit
     };
 
+    Measurement_t xFinalStep = {
+        0.0, // value
+        UnitPfxNone, // prefix
+        "V" // unit
+    };
+
     Measurement_t xAmp = {
+        0.0, // value
+        UnitPfxNone, // prefix
+        "V" // unit
+    };
+
+    Measurement_t xAmpStep = {
         0.0, // value
         UnitPfxNone, // prefix
         "V" // unit
@@ -89,9 +101,15 @@ private:
         "s" // unit
     };
 
-    Measurement_t freq = {
+    Measurement_t f0 = {
         0.0, // value
-        UnitPfxKilo, // prefix
+        UnitPfxNone, // prefix
+        "Hz" // unit
+    };
+
+    Measurement_t f0Step = {
+        0.0, // value
+        UnitPfxNone, // prefix
         "Hz" // unit
     };
 
