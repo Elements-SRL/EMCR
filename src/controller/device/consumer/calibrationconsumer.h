@@ -42,7 +42,7 @@ private:
     QMutex consumptionMtx;
     QWaitCondition exitedDataConsumingLoopCv;
 
-    int deviceUnderCalibrationType; /*! \todo NOT SURE IF NEEDED */
+    DeviceTypes_t deviceUnderCalibrationType;
     int numOfBoards;
     int numOfChannelsOnBoard;
     int numOfChannels;
@@ -53,12 +53,12 @@ private:
     std::vector <Measurement_t> calibratonResistances;
     bool areCalibResistOnBoard;
     CalibrationData_t calibData;
-    std::vector<std::vector<double_t>> gainADC; // vettore di 2 vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> offsetADC; // vettore di 2 vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> gainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> offsetADC; // vettore di vettori_di_offset (Uno per range)
     std::vector <double_t> offsetDAC; // vettore di offset (questo non dipende dal range)
 
-    std::vector<std::vector<double_t>> allGainADC; // vettore di 2 vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> allOffsetADC; // vettore di 2 vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> allGainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> allOffsetADC; // vettore di vettori_di_offset (Uno per range)
     std::vector <double_t> allOffsetDAC; // vettore di offset (questo non dipende dal range)
 
     std::vector<bool> suspectChannelIdxs;
@@ -88,8 +88,34 @@ private:
     QString calibrationFilesFolder = CCS_CALIBRATION_DEFAULT_PATH;
     QString myCsvSeparator = ",";
 
+    /*! \note MPAC new fields for calibration in current clamp*/
+    std::vector <RangedMeasurement_t> ccCurrentRangesArray;
+    std::vector <RangedMeasurement_t> ccVoltageRangesArray;
+    QVector <double> voltageSum;
+    QVector<QVector <double>> voltageMeans;
+    std::vector<std::vector<double_t>> ccGainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccOffsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> ccGainDAC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccOffsetDAC; // vettore di vettori_di_offset (Uno per range)
+
+    std::vector<std::vector<double_t>> ccAllGainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccAllOffsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> ccAllGainDAC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccAllOffsetDAC; // vettore di vettori_di_offset (Uno per range)
+
+    std::vector <std::vector <Measurement_t>> ccCalibrationVoltSteps;
+    std::vector <std::vector <Measurement_t>> ccCalibrationCurrSteps;
+    std::vector <Measurement_t> ccCalibratonResistances;
+    std::vector <Measurement_t> ccCalibratonResisForCcAdcOffset; // only for ccVoltageOffset (ADC)
+
+    double multiplierVoltage = 1.0;
+
+
 
     void run() override;
+
+    /*! CALIBRATION MACROPROCEDURES*/
+    void oldVcOnlyCalibration();
 
     /*! SOME UTILITY FUNCTIONS*/
     void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
@@ -101,11 +127,26 @@ private:
     void turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void turnSomeCalSwOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
 
+    void turnAllVcSwOnOff(bool onValue);
+    void turnAllCcSwOnOff(bool onValue);
+    void turnAllVcCcSelOnOff(bool onValue);
+    void turnAllCcStimulaOnOff(bool onValue);
+    void turnSomeVcSwOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void turnSomeCcSwOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void turnSomeVcCcSelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void turnSomeCcStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void setSourceForVoltageChannel(uint16_t source);
+    void setSourceForCurrentChannel(uint16_t source);    void setVcConfiguration(vector<uint16_t> channelIndexes, vector<bool> someTrue, vector<bool> someFalse);
+    void setCcConfiguration(vector<uint16_t> channelIndexes, vector<bool> someTrue, vector<bool> someFalse);
+
     /*! REAL CALIBRATION FUNCITIONS*/
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
     void calibrateAdcGain(int thisActualRangeIdx);
     void calibrateAdcOffset(RangedMeasurement_t thisActualRange);
     void calibrateDacOffset(RangedMeasurement_t thisActualRange);
+
+    void calibrateCcAdcGain(int thisActualRangeIdx);
+    void calibrateCcDacGain(int thisActualRangeIdx);
 
     /*! Interactions with CSV files*/
     void mainSaveOnCsv();
@@ -126,19 +167,3 @@ signals:
 };
 
 #endif // CALIBRATIONCONSUMER_H
-
-/* OCCHIO CHE NEI messageDispatcher device specifici abbiamo questa roba*/
-//    /*! VC current gain */
-//    calibVcCurrentGainRange.step = 1.0/1024.0;
-//    calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
-//    calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
-//    calibVcCurrentGainRange.prefix = UnitPfxNone;
-//    calibVcCurrentGainRange.unit = "";
-//    selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-//    Measurement_t defaultCalibVcCurrentGain = {1.57014, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
-
-//    /*! VC current offset */
-//    calibVcCurrentOffsetRanges = vcCurrentRangesArray;
-//    selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
-//    Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
-
