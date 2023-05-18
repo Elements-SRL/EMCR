@@ -11,12 +11,13 @@
 #include "qwt_plot_grid.h"
 #include "qwt_text_label.h"
 
+#include "conversionscaledraw.h"
+#include "doubleclickmachine.h"
+#include "rect4.h"
+
 #include "e384commlib_global.h"
 
-using namespace e384CommLib;
-
-class Rect4;
-class ConversionScaleDraw;
+namespace commlib = e384CommLib;
 
 class BigPlot : public QwtPlot {
     Q_OBJECT
@@ -54,8 +55,8 @@ public slots:
     void onZoomOutRequest();
     void onZoomResetRequest();
     void onUpdateBaseline(Axis axisIdx, double baseline);
-    void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
-    void onDurationUpdated(Measurement_t duration);
+    void onRangeUpdated(commlib::RangedMeasurement_t newRange, Axis axisIdx = yLeft);
+    void onDurationUpdated(commlib::Measurement_t duration);
 
 protected:
     typedef enum {
@@ -87,9 +88,9 @@ protected:
 
     ConversionScaleDraw * xBottomScaleDraw;
 
-    RangedMeasurement_t currentRange[axisCnt];
-    Measurement_t sweepDuration = {1.0, UnitPfxNone, "s"};
-    UnitPfx_t xAxisPrefix = UnitPfxNone;
+    commlib::RangedMeasurement_t currentRange[axisCnt];
+    commlib::Measurement_t sweepDuration = {1.0, commlib::UnitPfxNone, "s"};
+    commlib::UnitPfx_t xAxisPrefix = commlib::UnitPfxNone;
 
 protected slots:
     virtual void onZoomInPickerAppended(const QPointF &p);
@@ -106,36 +107,6 @@ signals:
     void zoomInRequest(Rect4 * rect);
     void zoomOutRequest();
     void zoomResetRequest();
-};
-
-class Rect4 : public QVector <QwtInterval> {
-public:
-    Rect4(QwtPlot * plot);
-    Rect4(QRectF rect);
-    Rect4();
-
-    Rect4 & operator = (const Rect4 &other);
-};
-
-class ConversionScaleDraw : public QwtScaleDraw{
-public:
-    ConversionScaleDraw(double conversionFactor = 1.0);
-
-    void setConversionFactor(double value);
-    QwtText label(double value) const override;
-
-private:
-    double conversionFactor;
-};
-
-class DoubleClickMachine: public QwtPickerMachine {
-public:
-    DoubleClickMachine(Qt::MouseButton btn);
-
-    virtual QList <Command> transition(const QwtEventPattern &, const QEvent * event);
-
-private:
-    Qt::MouseButton btn;
 };
 
 #endif // BIGPLOT_H

@@ -299,7 +299,7 @@ void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
     this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
 }
 
-void BigPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
+void BigPlot::onRangeUpdated(commlib::RangedMeasurement_t newRange, Axis axisIdx) {
     if (rangeInitialized[axisIdx]) {
         if (newRange != currentRange[axisIdx]) {
             currentRange[axisIdx].max = 1.0;
@@ -337,9 +337,9 @@ void BigPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
     this->replot();
 }
 
-void BigPlot::onDurationUpdated(Measurement_t duration) {
+void BigPlot::onDurationUpdated(commlib::Measurement_t duration) {
     sweepDuration = duration;
-    sweepDuration.convertValue(UnitPfxNone);
+    sweepDuration.convertValue(commlib::UnitPfxNone);
     this->setAxisScale(xBottom, 0.0, sweepDuration.value);
     this->recomputeXAxisFactor(sweepDuration.value);
 
@@ -388,7 +388,7 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
 
 void BigPlot::recomputeXAxisFactor(double duration) {
     sweepDuration.value = duration;
-    sweepDuration.prefix = UnitPfxNone;
+    sweepDuration.prefix = commlib::UnitPfxNone;
     sweepDuration.nice();
 
     if (xAxisPrefix != sweepDuration.prefix) {
@@ -459,73 +459,4 @@ void BigPlot::onZoomOutPickerSelected(const QPointF &) {
 
 void BigPlot::onZoomResetPickerSelected(const QPointF &) {
     emit zoomResetRequest();
-}
-
-Rect4::Rect4(QwtPlot * plot) {
-    for (int axisIdx = 0; axisIdx < QwtPlot::axisCnt; axisIdx++) {
-        this->push_back(plot->axisInterval(axisIdx));
-    }
-}
-
-Rect4::Rect4(QRectF rect) {
-    for (int axisIdx = 0; axisIdx < QwtPlot::axisCnt; axisIdx++) {
-        if (axisIdx == QwtPlot::yLeft) {
-            this->push_back(QwtInterval(rect.y(), rect.y()+rect.height()));
-
-        } else if (axisIdx == QwtPlot::xBottom) {
-            this->push_back(QwtInterval(rect.x(), rect.x()+rect.width()));
-
-        } else {
-            this->push_back(QwtInterval(0.0, 1000.0));
-        }
-    }
-}
-
-Rect4::Rect4() {
-    for (int axisIdx = 0; axisIdx < QwtPlot::axisCnt; axisIdx++) {
-        this->push_back(QwtInterval(0.0, 1000.0));
-    }
-}
-
-Rect4 & Rect4::operator = (const Rect4 &other) {
-    if (&other == this) {
-        return * this;
-    }
-
-    this->clear();
-    for (int axisIdx = 0; axisIdx < QwtPlot::axisCnt; axisIdx++) {
-        this->push_back(other.at(axisIdx));
-    }
-
-    return * this;
-}
-
-ConversionScaleDraw::ConversionScaleDraw(double conversionFactor) :
-    conversionFactor(conversionFactor) {
-}
-
-void ConversionScaleDraw::setConversionFactor(double value) {
-    conversionFactor = value;
-    this->invalidateCache();
-}
-
-QwtText ConversionScaleDraw::label(double value) const {
-    return QwtScaleDraw::label(value*conversionFactor);
-}
-
-DoubleClickMachine::DoubleClickMachine(Qt::MouseButton btn) :
-    QwtPickerMachine(PointSelection),
-    btn(btn) {
-}
-
-QList <QwtPickerMachine::Command> DoubleClickMachine::transition(const QwtEventPattern &, const QEvent * event) {
-    QList <QwtPickerMachine::Command> cmdList;
-    if ((event->type() == QEvent::MouseButtonDblClick) &&
-            (((const QMouseEvent *)event)->button() == btn)) {
-        cmdList += Begin;
-        cmdList += Append;
-        cmdList += End;
-    }
-
-    return cmdList;
 }

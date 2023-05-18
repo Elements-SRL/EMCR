@@ -26,6 +26,8 @@ SOURCES += \
     src/controller/protocol/protocolitemctrlmanager.cpp \
     src/controller/protocol/protocolmanager.cpp \
     src/main.cpp \
+    src/view/conversionscaledraw.cpp \
+    src/view/doubleclickmachine.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
@@ -54,6 +56,7 @@ SOURCES += \
     src/view/protocol/protocolssettingsdialog.cpp \
     src/view/protocol/protocolwidget.cpp \
     src/view/recordsettingsdialog.cpp \
+    src/view/rect4.cpp \
     src/view/stampplot.cpp \
     src/view/channelcontroldockwidget.cpp \
     src/view/boardcontroldockwidget.cpp \
@@ -81,6 +84,8 @@ HEADERS += \
     src/controller/protocol/protocolmanager.h \
     src/globaldefines.h \
     src/protocoldefs.h \
+    src/view/conversionscaledraw.h \
+    src/view/doubleclickmachine.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
@@ -109,6 +114,7 @@ HEADERS += \
     src/view/protocol/protocolssettingsdialog.h \
     src/view/protocol/protocolwidget.h \
     src/view/recordsettingsdialog.h \
+    src/view/rect4.h \
     src/view/stampplot.h \
     src/view/channelcontroldockwidget.h \
     src/view/boardcontroldockwidget.h \
