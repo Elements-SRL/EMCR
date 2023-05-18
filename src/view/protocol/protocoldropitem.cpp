@@ -67,21 +67,21 @@ ProtocolDropItem::ProtocolDropItem(ModelDevice *  mDev, ProtocolItemCtrlManager 
         stimulusCtrlType = ProtocolItemCtrlVoltage;
 
         /*! Collect protocol information from mDev */
-        mDev->getVoltageProtocolRange(0, stimulusRange);
+        mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
 
     } else {
         stimulusAbbrName = "I";
         stimulusName = "Current";
         stimulusCtrlType = ProtocolItemCtrlCurrent;
 
-        mDev->getCurrentProtocolRange(0, stimulusRange);
+        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
     }
 
-    mDev->getTimeProtocolRange(timeRange);
+    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
     timeRange.convertValues(UnitPfxMilli);
     timeDecimals = timeRange.decimals();
 
-    mDev->getFrequencyProtocolRange(frequencyRange);
+    mDev->getMessageDispatcher()->getFrequencyProtocolRangeFeature(frequencyRange);
     frequencyRange.convertValues(UnitPfxNone);
     frequencyDecimals = frequencyRange.decimals();
 

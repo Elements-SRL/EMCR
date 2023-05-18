@@ -2,6 +2,7 @@
 
 #include <QSplitter>
 #include <QMessageBox>
+#include "protocolutils.h"
 
 ProtocolWidget::ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
     QListWidgetItem(),
@@ -210,10 +211,10 @@ void ProtocolWidget::populatePropertyDialog() {
                 if (clampingModality == ClampingModality_t::CURRENT_CLAMP) {
                     protocolEditor->onStimulusRangeSelected(rangeIdx);
                     RangedMeasurement_t stimulusRange;
-                    mDev->getCurrentProtocolRange((unsigned int)rangeIdx, stimulusRange);
-
-                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
-                    holdUnitLbl->setText(holdEdit->getUnit());
+                    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+                    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
+                    holdUnitLbl->setText(QString::fromStdString(stimulusRange.getFullUnit()));
                 }
             });
 
@@ -248,9 +249,10 @@ void ProtocolWidget::populatePropertyDialog() {
                 if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
                     protocolEditor->onStimulusRangeSelected(rangeIdx);
                     RangedMeasurement_t stimulusRange;
-                    mDev->getVoltageProtocolRange((unsigned int)rangeIdx, stimulusRange);
-                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
-                    holdUnitLbl->setText(holdEdit->getUnit());
+                    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+                    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
+//                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
+                    holdUnitLbl->setText(QString::fromStdString(stimulusRange.getFullUnit()));
                 }
             });
 
@@ -358,12 +360,12 @@ void ProtocolWidget::populatePropertyDialog() {
 
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             RangedMeasurement_t stimulusRange;
-            mDev->getVoltageProtocolRange((unsigned int)voltageRangeEditOrig->currentIndex(), stimulusRange);
+            mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)voltageRangeEditOrig->currentIndex(), stimulusRange);
             dialog->getProtocolPreview()->setStimulusRange(stimulusRange);
 
         } else {
             RangedMeasurement_t stimulusRange;
-            mDev->getCurrentProtocolRange((unsigned int)currentRangeEditOrig->currentIndex(), stimulusRange);
+            mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)currentRangeEditOrig->currentIndex(), stimulusRange);
             dialog->getProtocolPreview()->setStimulusRange(stimulusRange);
         }
 
