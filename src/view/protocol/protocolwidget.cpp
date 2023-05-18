@@ -3,9 +3,9 @@
 #include <QSplitter>
 #include <QMessageBox>
 
-ProtocolWidget::ProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, int clampingModality) :
+ProtocolWidget::ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
     QListWidgetItem(),
-    commLib(commLib),
+    mDev(mDev),
     name(name),
     dialog(dialog),
     type(type),
@@ -14,19 +14,19 @@ ProtocolWidget::ProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolP
     this->setBackgroundColor(PROT_WIDGET_VALID_COLOR);
 
     if (type == ProtocolTypeGapfree) {
-        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
-            protocolEditor = new GapfreeVoltageProtocolEditor(commLib, this, name);
+        if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+            protocolEditor = new GapfreeVoltageProtocolEditor(mDev, this, name);
 
         } else {
-            protocolEditor = new GapfreeCurrentProtocolEditor(commLib, this, name);
+            protocolEditor = new GapfreeCurrentProtocolEditor(mDev, this, name);
         }
 
     } else {
-        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
-            protocolEditor = new EpisodicVoltageProtocolEditor(commLib, this, name);
+        if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+            protocolEditor = new EpisodicVoltageProtocolEditor(mDev, this, name);
 
         } else {
-            protocolEditor = new EpisodicCurrentProtocolEditor(commLib, this, name);
+            protocolEditor = new EpisodicCurrentProtocolEditor(mDev, this, name);
         }
     }
 
@@ -48,7 +48,7 @@ ProtocolWidget::ProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolP
     consumerRequests.resize(ProtocolConsumerAnalysis);
     this->initConsumerRequests();
 
-    commLib->getMaxOutputTriggers(maxTriggerEvents);
+    mDev->getMaxOutputTriggers(maxTriggerEvents);
 }
 
 ProtocolWidget::ProtocolWidget() {
@@ -66,22 +66,6 @@ ProtocolWidget::~ProtocolWidget() {
     for (int idx = 0; idx < ctrlDispatchers->size(); idx++) {
         delete ctrlDispatchers->at(idx);
     }
-}
-
-bool ProtocolWidget::importEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    if (!protocolEditor->importEpml(epmlManager, epmlStatus)) {
-        /*! \todo FCON gestire messaggi di errore */
-        return false;
-    }
-    return true;
-}
-
-bool ProtocolWidget::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    if (!protocolEditor->exportEpml(epmlManager, epmlStatus)) {
-        /*! \todo FCON gestire messaggi di errore */
-        return false;
-    }
-    return true;
 }
 
 void ProtocolWidget::initConsumerRequests() {
@@ -156,7 +140,7 @@ void ProtocolWidget::populatePropertyDialog() {
 
         /*! Hold control */
         QLabel * holdLbl = new QLabel(holdName);
-        holdEdit = new SteppedSpinBox();
+        holdEdit = new QDoubleSpinBox();
         holdEdit->setMinimumWidth(50);
         double hold = holdEditOrig->value();
         holdEdit->copySettings(holdEditOrig);
@@ -165,8 +149,8 @@ void ProtocolWidget::populatePropertyDialog() {
         holdDispatcher->setEdit(holdEditOrig);
         holdDispatcher->setOrigValue(hold);
         ctrlDispatchers->push_back(holdDispatcher);
-        connect(holdEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), holdDispatcher, &ProtocolDoubleSpinBoxCtrlDispatcher::onCtrlChanged);
-        connect(holdEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, &ProtocolWidget::onPropertyChanged);
+        connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), holdDispatcher, &ProtocolDoubleSpinBoxCtrlDispatcher::onCtrlChanged);
+        connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolWidget::onPropertyChanged);
         propertyCtrlLo->addWidget(holdLbl, PPD_HOLD_ROW, 0, 1, 1, Qt::AlignRight);
         propertyCtrlLo->addWidget(holdEdit, PPD_HOLD_ROW, 1, 1, 1);
         propertyCtrlLo->addWidget(holdUnitLbl, PPD_HOLD_ROW, 2, 1, 1);
@@ -223,11 +207,12 @@ void ProtocolWidget::populatePropertyDialog() {
             connect(currentRangeEdit, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int rangeIdx) {
                 currentRangeDispatcher->onCtrlChanged(rangeIdx);
                 this->onPropertyChanged();
-                if (clampingModality == E4GCL_CURRENT_CLAMP_MODE) {
+                if (clampingModality == ClampingModality_t::CURRENT_CLAMP) {
                     protocolEditor->onStimulusRangeSelected(rangeIdx);
-                    e4gcl::RangedMeasurement_t stimulusRange;
-                    commLib->getCurrentProtocolRange((unsigned int)rangeIdx, stimulusRange);
-                    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
+                    RangedMeasurement_t stimulusRange;
+                    mDev->getCurrentProtocolRange((unsigned int)rangeIdx, stimulusRange);
+
+                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
                     holdUnitLbl->setText(holdEdit->getUnit());
                 }
             });
@@ -235,8 +220,8 @@ void ProtocolWidget::populatePropertyDialog() {
             propertyCtrlLo->addWidget(currentRangeLbl, PPD_CURRENT_RANGE_ROW, 0, 1, 1, Qt::AlignRight);
             propertyCtrlLo->addWidget(currentRangeEdit, PPD_CURRENT_RANGE_ROW, 1, 1, 1);
 
-            if (((clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) && (currentRangeEditOrig->count() < 3)) ||
-                    ((clampingModality == E4GCL_CURRENT_CLAMP_MODE) && (currentRangeEditOrig->count() < 2))) {
+            if (((clampingModality == ClampingModality_t::VOLTAGE_CLAMP) && (currentRangeEditOrig->count() < 3)) ||
+                    ((clampingModality == ClampingModality_t::CURRENT_CLAMP) && (currentRangeEditOrig->count() < 2))) {
                 currentRangeLbl->setVisible(false);
                 currentRangeEdit->setVisible(false);
             }
@@ -260,11 +245,11 @@ void ProtocolWidget::populatePropertyDialog() {
             connect(voltageRangeEdit, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int rangeIdx) {
                 voltageRangeDispatcher->onCtrlChanged(rangeIdx);
                 this->onPropertyChanged();
-                if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
                     protocolEditor->onStimulusRangeSelected(rangeIdx);
-                    e4gcl::RangedMeasurement_t stimulusRange;
-                    commLib->getVoltageProtocolRange((unsigned int)rangeIdx, stimulusRange);
-                    holdEdit->setRangedMeasurement(stimulusRange, SteppedSpinBox::MinMaxRange);
+                    RangedMeasurement_t stimulusRange;
+                    mDev->getVoltageProtocolRange((unsigned int)rangeIdx, stimulusRange);
+                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
                     holdUnitLbl->setText(holdEdit->getUnit());
                 }
             });
@@ -272,8 +257,8 @@ void ProtocolWidget::populatePropertyDialog() {
             propertyCtrlLo->addWidget(voltageRangeLbl, PPD_VOLTAGE_RANGE_ROW, 0, 1, 1, Qt::AlignRight);
             propertyCtrlLo->addWidget(voltageRangeEdit, PPD_VOLTAGE_RANGE_ROW, 1, 1, 1);
 
-            if (((clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) && (voltageRangeEditOrig->count() < 2)) ||
-                    ((clampingModality == E4GCL_CURRENT_CLAMP_MODE) && (voltageRangeEditOrig->count() < 3))) {
+            if (((clampingModality == ClampingModality_t::VOLTAGE_CLAMP) && (voltageRangeEditOrig->count() < 2)) ||
+                    ((clampingModality == ClampingModality_t::CURRENT_CLAMP) && (voltageRangeEditOrig->count() < 3))) {
                 voltageRangeLbl->setVisible(false);
                 voltageRangeEdit->setVisible(false);
             }
@@ -312,8 +297,8 @@ void ProtocolWidget::populatePropertyDialog() {
             case ProtocolItemCtrlCurrent:
             case ProtocolItemCtrlTime:
             case ProtocolItemCtrlFrequency: {
-                SteppedSpinBox * doubleEditOrig = ctrlItem->getDoubleEdit();
-                SteppedSpinBox * doubleEdit = new SteppedSpinBox();
+                QDoubleSpinBox * doubleEditOrig = ctrlItem->getDoubleEdit();
+                QDoubleSpinBox * doubleEdit = new QDoubleSpinBox();
                 doubleEdit->setMinimumWidth(50);
                 doubleEdit->copySettings(doubleEditOrig);
 
@@ -321,8 +306,8 @@ void ProtocolWidget::populatePropertyDialog() {
                 dispatcher->setCtrl(ctrlItem);
                 dispatcher->setEdit(doubleEditOrig);
                 ctrlDispatchers->push_back(dispatcher);
-                connect(doubleEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), dispatcher, &ProtocolDoubleSpinBoxCtrlDispatcher::onCtrlChanged);
-                connect(doubleEdit, QOverload <double> ::of(&SteppedSpinBox::valueChanged), this, &ProtocolWidget::onPropertyChanged);
+                connect(doubleEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), dispatcher, &ProtocolDoubleSpinBoxCtrlDispatcher::onCtrlChanged);
+                connect(doubleEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolWidget::onPropertyChanged);
 
                 QLabel * unitLbl = new QLabel(ctrlItem->getUnit());
 
@@ -371,14 +356,14 @@ void ProtocolWidget::populatePropertyDialog() {
             }
         }
 
-        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
-            e4gcl::RangedMeasurement_t stimulusRange;
-            commLib->getVoltageProtocolRange((unsigned int)voltageRangeEditOrig->currentIndex(), stimulusRange);
+        if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+            RangedMeasurement_t stimulusRange;
+            mDev->getVoltageProtocolRange((unsigned int)voltageRangeEditOrig->currentIndex(), stimulusRange);
             dialog->getProtocolPreview()->setStimulusRange(stimulusRange);
 
         } else {
-            e4gcl::RangedMeasurement_t stimulusRange;
-            commLib->getCurrentProtocolRange((unsigned int)currentRangeEditOrig->currentIndex(), stimulusRange);
+            RangedMeasurement_t stimulusRange;
+            mDev->getCurrentProtocolRange((unsigned int)currentRangeEditOrig->currentIndex(), stimulusRange);
             dialog->getProtocolPreview()->setStimulusRange(stimulusRange);
         }
 
@@ -605,21 +590,21 @@ ProtocolSection * ProtocolWidget::getSectionByItem(int itemIdx, int repsIdx, int
     return protocolSections->getSectionByItem(itemIdx, repsIdx, sweepIdx);
 }
 
-void ProtocolWidget::setHold(e4gcl::Measurement_t hold) {
+void ProtocolWidget::setHold(Measurement_t hold) {
     holdEditOrig->setValue(hold.value);
 }
 
-e4gcl::Measurement_t ProtocolWidget::getHold() {
+Measurement_t ProtocolWidget::getHold() {
     hold.value = holdEditOrig->value();
     hold.prefix = holdEditOrig->getPrefix();
     return hold;
 }
 
-void ProtocolWidget::setHoldingDelta(e4gcl::Measurement_t &holdingDelta) {
+void ProtocolWidget::setHoldingDelta(Measurement_t &holdingDelta) {
     protocolEditor->setHoldingDelta(holdingDelta);
 }
 
-e4gcl::UnitPfx_t ProtocolWidget::getStimulusPrefix() {
+UnitPfx_t ProtocolWidget::getStimulusPrefix() {
     return holdEditOrig->getPrefix();
 }
 
@@ -640,11 +625,11 @@ void ProtocolWidget::setProtocolValid(bool valid) {
     this->setValidityColor();
 }
 
-void ProtocolWidget::setAppliedRange(e4gcl::RangedMeasurement_t &newAppliedRange) {
+void ProtocolWidget::setAppliedRange(RangedMeasurement_t &newAppliedRange) {
     appliedRange = newAppliedRange;
 }
 
-e4gcl::RangedMeasurement_t ProtocolWidget::getAppliedRange() {
+RangedMeasurement_t ProtocolWidget::getAppliedRange() {
     return appliedRange;
 }
 
@@ -1159,29 +1144,29 @@ ProtocolSection * EpisodicProtocolWidget::getItemAtTime(double time, int itemIdx
     return protocolSections->at(sectionIdx);
 }
 
-GapfreeVoltageProtocolWidget::GapfreeVoltageProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(commLib, name, dialog, ProtocolTypeGapfree, E4GCL_VOLTAGE_CLAMP_MODE),
+GapfreeVoltageProtocolWidget::GapfreeVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(mDev, name, dialog, ProtocolTypeGapfree, ClampingModality_t::VOLTAGE_CLAMP),
     VoltageProtocolWidget(),
     GapfreeProtocolWidget() {
 
 }
 
-EpisodicVoltageProtocolWidget::EpisodicVoltageProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(commLib, name, dialog, ProtocolTypeEpisodic, E4GCL_VOLTAGE_CLAMP_MODE),
+EpisodicVoltageProtocolWidget::EpisodicVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(mDev, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::VOLTAGE_CLAMP),
     VoltageProtocolWidget(),
     EpisodicProtocolWidget() {
 
 }
 
-GapfreeCurrentProtocolWidget::GapfreeCurrentProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(commLib, name, dialog, ProtocolTypeGapfree, E4GCL_CURRENT_CLAMP_MODE),
+GapfreeCurrentProtocolWidget::GapfreeCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(mDev, name, dialog, ProtocolTypeGapfree, ClampingModality_t::CURRENT_CLAMP),
     CurrentProtocolWidget(),
     GapfreeProtocolWidget() {
 
 }
 
-EpisodicCurrentProtocolWidget::EpisodicCurrentProtocolWidget(e4gcl::CommLib * commLib, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(commLib, name, dialog, ProtocolTypeEpisodic, E4GCL_CURRENT_CLAMP_MODE),
+EpisodicCurrentProtocolWidget::EpisodicCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(mDev, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::CURRENT_CLAMP),
     CurrentProtocolWidget(),
     EpisodicProtocolWidget() {
 

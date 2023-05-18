@@ -15,7 +15,7 @@ static int createdProtocolIdx = 0;
 
 ProtocolList::ProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
     QListWidget(),
-    commLib(commLib),
+    mDev(mDev),
     protocolPropertyDialog(protocolPropertyDialog),
     parent(parent) {
 
@@ -24,7 +24,7 @@ ProtocolList::ProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocol
     connect(this, &ProtocolList::itemDoubleClicked, this, &ProtocolList::onItemDoubleClicked);
     protocols = new QVector <ProtocolWidget *>;
     protocolsNames = new QStringList;
-    protocolManager = new ProtocolManager(commLib);
+    protocolManager = new ProtocolManager(mDev);
 
     connect(protocolManager, &ProtocolManager::protocolStarted, this, &ProtocolList::protocolStarted);
     connect(protocolManager, &ProtocolManager::protocolSaveRequest, this, &ProtocolList::protocolSaveRequest);
@@ -423,7 +423,7 @@ void ProtocolList::onEditProtocol() {
         msgBox.exec();
 
     } else {
-        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             YAML::VoltageProtocol_t yamlProtocol = this->copyVoltageProtocol(protocol);
             int dlgRet = protocol->openProtocolEditor();
             if (dlgRet == QDialog::Accepted) {
@@ -455,7 +455,7 @@ void ProtocolList::onCopyProtocol() {
 
     QString name = this->availableProtocolName("Copy of " + protocol->getName());
 
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
         YAML::VoltageProtocol_t yamlProtocol = this->copyVoltageProtocol(protocol);
         yamlProtocol.name = name.toStdString();
         yamlProtocol.shortcutindex = -1;
@@ -533,7 +533,7 @@ void ProtocolList::onExportProtocols() {
                 yamlTempProtocols = node.as <YAML::Protocols_t> ();
             }
 
-            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
                 for (unsigned int protIdx = 0; protIdx < yamlProtocols.voltageprotocols.size(); protIdx++) {
                     if (saveFlag[protIdx]) {
                         auto yamlProtocol = yamlProtocols.voltageprotocols[protIdx];
@@ -576,7 +576,7 @@ void ProtocolList::onProtocolsSettings() {
     protocolsSettingsDlg->exec();
 }
 
-void ProtocolList::onHoldingDeltaChanged(e4gcl::Measurement_t newHoldingDelta) {
+void ProtocolList::onHoldingDeltaChanged(Measurement_t newHoldingDelta) {
     holdingDelta = newHoldingDelta;
 
     for (int protIdx = 0; protIdx < protocols->size(); protIdx++) {
@@ -789,7 +789,7 @@ void ProtocolList::setNullProtocolHolding(ProtocolWidget * protocol) {
 void ProtocolList::exportLastRunProtocol(ProtocolWidget * protocol) {
     YAML::Node node;
     YAML::Protocols yamlProtocols;
-    if (protocol->getClampingModality() == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (protocol->getClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
         yamlProtocols.addProtocol(protocol->getYamlVoltageProtocol());
 
     } else {
@@ -814,7 +814,7 @@ void ProtocolList::exportLastProtocols() {
         yamlProtocols = node.as <YAML::Protocols_t> ();
     }
 
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
         yamlProtocols.voltageprotocols = this->getYamlProtocols().voltageprotocols;
 
     } else {
@@ -829,7 +829,7 @@ void ProtocolList::exportLastProtocols() {
 
 void ProtocolList::importNullProtocol() {
     nullProtocolFlag = true;
-    if (!(this->importProtocols(EPML_NULL_FULL_FILE))) {
+    if (!(this->importProtocols(YAML_NULL_FULL_FILE))) {
         ErrorManager e(ErrorLoadNullProtocolsFail);
     }
     nullProtocolFlag = false;
@@ -891,8 +891,8 @@ bool ProtocolList::importProtocols(QString fullFileName) {
             }
         }
         return ret;
-
     }
+    return ret;
 }
 
 bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
@@ -937,28 +937,6 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
     return ret;
 }
 
-void ProtocolList::importProtocol(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) {
-    int depth = YAML_PROTOCOL_PARAM_DEPTH;
-    QString tag = "name";
-    epmlManager->getNext(tag, depth, parentTag, epmlStatus);
-
-    QString name = epmlManager->getString(tag, depth, epmlStatus);
-    if (nullProtocolFlag || vhold0ProtocolFlag || ihold0ProtocolFlag) {
-        name = "";
-    }
-
-    if (protocolsNames->contains(name)) {
-        this->removeProtocolByName(name);
-    }
-
-    if (epmlStatus == EpmlValueFound) {
-        this->importProtocolAs(epmlManager, name, epmlStatus);
-
-    } else {
-        ErrorManager e("Failed to load protocol", "Protocol missing name keyword");
-    }
-}
-
 void ProtocolList::importProtocol(const YAML::VoltageProtocol &yamlProtocol) {
     QString name = QString::fromStdString(yamlProtocol.name);
     if (nullProtocolFlag || vhold0ProtocolFlag || ihold0ProtocolFlag) {
@@ -983,83 +961,6 @@ void ProtocolList::importProtocol(const YAML::CurrentProtocol &yamlProtocol) {
     }
 
     this->importProtocolAs(yamlProtocol, name);
-}
-
-void ProtocolList::importProtocolAs(EpmlManager * epmlManager, QString name, EpmlStatus_t &epmlStatus) {
-    int depth = YAML_PROTOCOL_PARAM_DEPTH;
-
-    QString tag = "shortcutindex";
-    QString parentTag = "protocol";
-    epmlManager->getNext(tag, depth, parentTag, epmlStatus);
-    int shortCutIdx = epmlManager->getInt(tag, depth, epmlStatus);
-
-    tag = "type";
-    epmlManager->getNext(tag, depth, parentTag, epmlStatus);
-
-    bool addProtocolToListFlag = true;
-
-    QString type = epmlManager->getString(tag, depth, epmlStatus);
-    if (epmlStatus == EpmlValueFound) {
-        ProtocolWidget * protocol;
-        /*! Forcing to import the last run protocol as an episodic ensures that if it gets saved to disk
-         *  The recording stops when the protocol stops */
-        if ((type == "Gap Free") && (!lastRunProtocolFlag)) {
-            protocol = this->newGapfreeProtocol(name);
-
-        } else {
-            protocol = this->newEpisodicProtocol(name);
-        }
-
-        if (protocol->importEpml(epmlManager, epmlStatus)) {
-            if (nullProtocolFlag) {
-                protocol->setNullProtocol(true);
-                if (protocol->getType() == ProtocolTypeGapfree) {
-                    nullGapfreeProtocol = protocol;
-
-                } else {
-                    nullEpisodicProtocol = protocol;
-                }
-                addProtocolToListFlag = false;
-            }
-
-            if (vhold0ProtocolFlag) {
-                vhold0Protocol = protocol;
-                addProtocolToListFlag = false;
-            }
-
-            if (ihold0ProtocolFlag) {
-                ihold0Protocol = protocol;
-                addProtocolToListFlag = false;
-            }
-
-            if (lastRunProtocolFlag) {
-                if (lastRunProtocol != nullptr) {
-                    delete lastRunProtocol;
-                    lastRunProtocol = nullptr;
-                }
-                lastRunProtocol = protocol;
-                addProtocolToListFlag = false;
-            }
-
-            if (addProtocolToListFlag) {
-                this->addItem(protocol);
-                protocols->push_back(protocol);
-                protocolsNames->push_back(name);
-                if ((shortCutIdx >= 0) && (shortCutsProtocols[shortCutIdx] == nullptr)) {
-                    shortCutsProtocols[shortCutIdx] = protocol;
-                    protocol->setShortCutIdx(shortCutIdx);
-                }
-                connect(protocol, &ProtocolWidget::nameChanged, this, &ProtocolList::onProtocolNameChanged);
-            }
-
-        } else {
-            ErrorManager e("Failed to load protocol " + name, "Protocol format corrupted");
-            delete protocol;
-        }
-
-    } else {
-        ErrorManager e("Failed to load protocol " + name, "Protocol missing type keyword");
-    }
 }
 
 void ProtocolList::importProtocolAs(const YAML::VoltageProtocol &yamlProtocol, QString name) {
@@ -1250,7 +1151,7 @@ YAML::Protocols_t ProtocolList::getYamlProtocols() {
 
     int protocolsNum = protocolsNames->size();
     for (int protIdx = 0; protIdx < protocolsNum; protIdx++) {
-        if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             yamlProtocols.addProtocol(protocols->at(protIdx)->getYamlVoltageProtocol());
 
         } else {
@@ -1279,9 +1180,9 @@ void ProtocolList::onRejectShortCutsDialog() {
 }
 
 VoltageProtocolList::VoltageProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
-    ProtocolList(commLib, protocolPropertyDialog, parent) {
+    ProtocolList(mDev, protocolPropertyDialog, parent) {
 
-    clampingModality = E4GCL_VOLTAGE_CLAMP_MODE;
+    clampingModality = ClampingModality_t::VOLTAGE_CLAMP;
     protocolsGroupName = "voltageprotocols";
     this->importNullProtocol();
     this->importVhold0Protocol();
@@ -1295,19 +1196,19 @@ VoltageProtocolList::~VoltageProtocolList() {
 }
 
 ProtocolWidget * VoltageProtocolList::newGapfreeProtocol(QString name) {
-    ProtocolWidget * protocol = new GapfreeVoltageProtocolWidget(commLib, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new GapfreeVoltageProtocolWidget(mDev, name, protocolPropertyDialog);
     return protocol;
 }
 
 ProtocolWidget * VoltageProtocolList::newEpisodicProtocol(QString name) {
-    ProtocolWidget * protocol = new EpisodicVoltageProtocolWidget(commLib, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new EpisodicVoltageProtocolWidget(mDev, name, protocolPropertyDialog);
     return protocol;
 }
 
 CurrentProtocolList::CurrentProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
-    ProtocolList(commLib, protocolPropertyDialog, parent) {
+    ProtocolList(mDev, protocolPropertyDialog, parent) {
 
-    clampingModality = E4GCL_CURRENT_CLAMP_MODE;
+    clampingModality = ClampingModality_t::CURRENT_CLAMP;
     protocolsGroupName = "currentprotocols";
 
     this->importNullProtocol();
@@ -1322,11 +1223,11 @@ CurrentProtocolList::~CurrentProtocolList() {
 }
 
 ProtocolWidget * CurrentProtocolList::newGapfreeProtocol(QString name) {
-    ProtocolWidget * protocol = new GapfreeCurrentProtocolWidget(commLib, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new GapfreeCurrentProtocolWidget(mDev, name, protocolPropertyDialog);
     return protocol;
 }
 
 ProtocolWidget * CurrentProtocolList::newEpisodicProtocol(QString name) {
-    ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(commLib, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(mDev, name, protocolPropertyDialog);
     return protocol;
 }
