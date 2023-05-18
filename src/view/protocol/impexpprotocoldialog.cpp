@@ -4,7 +4,7 @@
 
 #include "protocols.h"
 
-ImpExpProtocolDialog::ImpExpProtocolDialog(int clampingModality, QWidget * parent) :
+ImpExpProtocolDialog::ImpExpProtocolDialog(ClampingModality_t clampingModality, QWidget * parent) :
     QDialog(parent),
     clampingModality(clampingModality) {
 
@@ -227,11 +227,6 @@ void ExportProtocolDialog::checkFileContent() {
     }
     fileNameEdit->setText(fullFileName);
 
-    if (epmlManager != nullptr) {
-        delete epmlManager;
-        epmlManager = nullptr;
-    }
-
     this->onCheckAcceptability();
 }
 
@@ -290,7 +285,7 @@ void ImportProtocolDialog::checkFileContent() {
             }
             actionSelectors->clear();
 
-            if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
                 sourceProtocolsNames = yamlProtocols.getVoltageProtocolsNames();
 
             } else {

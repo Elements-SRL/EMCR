@@ -7,7 +7,6 @@
 #include <QSpinBox>
 
 #include "protocolitemctrlmanager.h"
-#include "steppedspinbox.h"
 
 class ProtocolDropItem;
 class ProtocolDropControlItem;
@@ -99,14 +98,14 @@ class ProtocolDropItemDoubleParam : public ProtocolDropItemParam {
 
 public:
     ProtocolDropItemDoubleParam(ProtocolItemCtrlManager * ctrlManager, ProtocolItemCtrlTypes_t ctrlType, double value,
-                                QString name, SteppedSpinBox * editWidget, QString unit);
+                                QString name, QDoubleSpinBox * editWidget, QString unit);
 
     void setValue(double v);
     void setCtrlSign(double cs);
     void setVisible(bool visible) override;
 
     double getValue();
-    SteppedSpinBox * getEditWidget();
+    QDoubleSpinBox * getEditWidget();
     double getCtrlSign();
 
     void updateCtrlWidget() override;
@@ -121,7 +120,7 @@ public slots:
 private:
     double value = 0.0;
 
-    SteppedSpinBox * editWidget;
+    QDoubleSpinBox * editWidget;
 
     double ctrlSign = 1.0;
 };

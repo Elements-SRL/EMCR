@@ -4,11 +4,11 @@
 #include <QListWidgetItem>
 
 #include "globaldefines.h"
-#include "e4gcommlib_global.h"
+#include "protocoldefs.h"
 
 class ProtocolDragItem : public QListWidgetItem {
 public:
-    ProtocolDragItem(int clampingModality, int type = PROT_DRAG_LIST_WIDGET_ITEM_TYPE);
+    ProtocolDragItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_WIDGET_ITEM_TYPE);
 
 protected:
     QString stimulusAbbrName;
@@ -16,12 +16,12 @@ protected:
 
 class ProtocolDragStimulusItem : public ProtocolDragItem {
 public:
-    ProtocolDragStimulusItem(int clampingModality, int type = PROT_DRAG_LIST_STIMULUS_ITEM_TYPE);
+    ProtocolDragStimulusItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_STIMULUS_ITEM_TYPE);
 };
 
 class ProtocolDragXStepTStepItem : public ProtocolDragStimulusItem {
 public:
-    ProtocolDragXStepTStepItem(int clampingModality, int type);
+    ProtocolDragXStepTStepItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVStepTStepItem : public ProtocolDragXStepTStepItem {
@@ -36,7 +36,7 @@ public:
 
 class ProtocolDragXStepItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXStepItem(int clampingModality, int type);
+    ProtocolDragXStepItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVStepItem : public ProtocolDragXStepItem {
@@ -51,7 +51,7 @@ public:
 
 class ProtocolDragXTStepItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXTStepItem(int clampingModality, int type);
+    ProtocolDragXTStepItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVTStepItem : public ProtocolDragXTStepItem {
@@ -66,7 +66,7 @@ public:
 
 class ProtocolDragXConstItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXConstItem(int clampingModality, int type);
+    ProtocolDragXConstItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVConstItem : public ProtocolDragXConstItem {
@@ -81,7 +81,7 @@ public:
 
 class ProtocolDragXHoldItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXHoldItem(int clampingModality, int type);
+    ProtocolDragXHoldItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVHoldItem : public ProtocolDragXHoldItem {
@@ -96,7 +96,7 @@ public:
 
 class ProtocolDragXRestItem : public ProtocolDragXStepTStepItem {
 public:
-    ProtocolDragXRestItem(int clampingModality, int type);
+    ProtocolDragXRestItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRestItem : public ProtocolDragXRestItem {
@@ -111,7 +111,7 @@ public:
 
 class ProtocolDragXRampItem : public ProtocolDragStimulusItem {
 public:
-    ProtocolDragXRampItem(int clampingModality, int type);
+    ProtocolDragXRampItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRampItem : public ProtocolDragXRampItem {
@@ -126,7 +126,7 @@ public:
 
 class ProtocolDragXSinItem : public ProtocolDragStimulusItem {
 public:
-    ProtocolDragXSinItem(int clampingModality, int type = PROT_DRAG_LIST_VSIN_ITEM_TYPE);
+    ProtocolDragXSinItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_VSIN_ITEM_TYPE);
 };
 
 class ProtocolDragVSinItem : public ProtocolDragXSinItem {
@@ -141,12 +141,12 @@ public:
 
 class ProtocolDragLoopsItem : public ProtocolDragItem {
 public:
-    ProtocolDragLoopsItem(int clampingModality, int type = PROT_DRAG_LIST_LOOPS_ITEM_TYPE);
+    ProtocolDragLoopsItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_LOOPS_ITEM_TYPE);
 };
 
 class ProtocolDragXRepSeqScaledItem : public ProtocolDragLoopsItem {
 public:
-    ProtocolDragXRepSeqScaledItem(int clampingModality, int type);
+    ProtocolDragXRepSeqScaledItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRepSeqScaledItem : public ProtocolDragXRepSeqScaledItem {
@@ -161,7 +161,7 @@ public:
 
 class ProtocolDragXRepSeqItem : public ProtocolDragXRepSeqScaledItem {
 public:
-    ProtocolDragXRepSeqItem(int clampingModality, int type);
+    ProtocolDragXRepSeqItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRepSeqItem : public ProtocolDragXRepSeqItem {
@@ -176,7 +176,7 @@ public:
 
 class ProtocolDragXRepSeqWithStepsItem : public ProtocolDragXRepSeqScaledItem {
 public:
-    ProtocolDragXRepSeqWithStepsItem(int clampingModality, int type);
+    ProtocolDragXRepSeqWithStepsItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVRepSeqWithStepsItem : public ProtocolDragXRepSeqWithStepsItem {
@@ -191,7 +191,7 @@ public:
 
 class ProtocolDragXInfRepSeqItem : public ProtocolDragXRepSeqScaledItem {
 public:
-    ProtocolDragXInfRepSeqItem(int clampingModality, int type);
+    ProtocolDragXInfRepSeqItem(ClampingModality_t clampingModality, int type);
 };
 
 class ProtocolDragVInfRepSeqItem : public ProtocolDragXInfRepSeqItem {
@@ -206,7 +206,7 @@ public:
 
 class ProtocolDragControlItem : public ProtocolDragItem {
 public:
-    ProtocolDragControlItem(int clampingModality, int type = PROT_DRAG_LIST_CONTROL_ITEM_TYPE);
+    ProtocolDragControlItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_CONTROL_ITEM_TYPE);
 };
 
 class ProtocolDragVoltageControlItem : public ProtocolDragControlItem {
@@ -236,7 +236,7 @@ public:
 
 class ProtocolDragAnalysisItem : public ProtocolDragItem {
 public:
-    ProtocolDragAnalysisItem(int clampingModality, int type = PROT_DRAG_LIST_ANALYSIS_ITEM_TYPE);
+    ProtocolDragAnalysisItem(ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_ANALYSIS_ITEM_TYPE);
 };
 
 /*! \todo FCON All analyses so far defined as voltage clamp analysis */

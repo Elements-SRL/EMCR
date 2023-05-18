@@ -4,9 +4,9 @@
 #include <QPushButton>
 #include <QLabel>
 
-ProtocolCursor::ProtocolCursor(e4gcl::CommLib * commLib, QwtPlot * plot, double x, int cursorIdx) :
+ProtocolCursor::ProtocolCursor(ModelDevice * mDev, QwtPlot * plot, double x, int cursorIdx) :
     QObject(),
-    commLib(commLib),
+    mDev(mDev),
     cursorIdx(cursorIdx) {
 
     marker = new QwtPlotMarker();
@@ -35,265 +35,6 @@ ProtocolCursor::~ProtocolCursor() {
         delete propertyDialog;
         propertyDialog = nullptr;
     }
-}
-
-bool ProtocolCursor::importEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    int depth = EPML_CURSOR_PARAM_DEPTH;
-    QString parentTag = "cursor";
-
-    QString tag = "locationtype";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    QString locationTypeStr = epmlManager->getString(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (locationTypeStr == "from start") {
-        locationType = LocationFromStart;
-
-    } else if (locationTypeStr == "to end") {
-        locationType = LocationToEnd;
-
-    } else {
-        return false;
-    }
-
-    tag = "locationdelay";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    locationDelay = epmlManager->getDouble(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    tag = "repetitiontype";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    QString repetitionTypeStr = epmlManager->getString(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (repetitionTypeStr == "all") {
-        repetitionType = RepetitionAll;
-
-    } else if (repetitionTypeStr == "last") {
-        repetitionType = RepetitionLast;
-
-    } else if (repetitionTypeStr == "one") {
-        repetitionType = RepetitionOne;
-
-    } else {
-        return false;
-    }
-
-    tag = "repetitionidx";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    repetitionIdx = epmlManager->getInt(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    tag = "sweeptype";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    QString sweepTypeStr = epmlManager->getString(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (sweepTypeStr == "all") {
-        sweepType = SweepAll;
-
-    } else if (sweepTypeStr == "last") {
-        sweepType = SweepLast;
-
-    } else if (sweepTypeStr == "one") {
-        sweepType = SweepOne;
-
-    } else {
-        return false;
-    }
-
-    tag = "sweepidx";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    sweepIdx = epmlManager->getInt(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    tag = "triggertype";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    QString triggerTypeStr = epmlManager->getString(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    if (triggerTypeStr == "none") {
-        triggerType = TriggerNone;
-
-    } else if (triggerTypeStr == "rising") {
-        triggerType = TriggerRising;
-
-    } else if (triggerTypeStr == "falling") {
-        triggerType = TriggerFalling;
-
-    } else {
-        return false;
-    }
-
-    tag = "triggeridx";
-
-    if (!epmlManager->getNext(tag, depth, parentTag, epmlStatus)) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    triggerId = epmlManager->getInt(tag, depth, epmlStatus);
-    if (epmlStatus != EpmlValueFound) {
-        epmlStatus = EpmlSyntaxError;
-        return false;
-    }
-
-    locationCb->setCurrentIndex(locationType);
-    locationSb->setValue(locationDelay);
-    repetitionCb->setCurrentIndex(repetitionType);
-    repetitionSb->setValue(repetitionIdx);
-    sweepCb->setCurrentIndex(sweepType);
-    sweepSb->setValue(sweepIdx);
-    triggerCb->setCurrentIndex(triggerType);
-    triggerSb->setValue(triggerId);
-
-    return true;
-}
-
-bool ProtocolCursor::exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) {
-    int depth = EPML_CURSOR_PARAM_DEPTH;
-    QString parentTag = "cursor";
-
-    QString tag = "xvalue";
-    epmlManager->addDoubleValue(tag, depth, marker->xValue());
-
-    tag = "itemidx";
-    epmlManager->addIntValue(tag, depth, itemIdx);
-
-    tag = "locationtype";
-    QString locationTypeStr;
-    switch (locationType) {
-    case LocationFromStart:
-        locationTypeStr = "from start";
-        break;
-
-    case LocationToEnd:
-        locationTypeStr = "to end";
-        break;
-    }
-    epmlManager->addStringValue(tag, depth, locationTypeStr);
-
-    tag = "locationdelay";
-    epmlManager->addDoubleValue(tag, depth, locationDelay);
-
-    tag = "repetitiontype";
-    QString repetitionTypeStr;
-    switch (repetitionType) {
-    case RepetitionAll:
-        repetitionTypeStr = "all";
-        break;
-
-    case RepetitionLast:
-        repetitionTypeStr = "last";
-        break;
-
-    case RepetitionOne:
-        repetitionTypeStr = "one";
-        break;
-    }
-    epmlManager->addStringValue(tag, depth, repetitionTypeStr);
-
-    tag = "repetitionidx";
-    epmlManager->addIntValue(tag, depth, repetitionIdx);
-
-    tag = "sweeptype";
-    QString sweepTypeStr;
-    switch (sweepType) {
-    case SweepAll:
-        sweepTypeStr = "all";
-        break;
-
-    case SweepLast:
-        sweepTypeStr = "last";
-        break;
-
-    case SweepOne:
-        sweepTypeStr = "one";
-        break;
-    }
-    epmlManager->addStringValue(tag, depth, sweepTypeStr);
-
-    tag = "sweepidx";
-    epmlManager->addIntValue(tag, depth, sweepIdx);
-
-    tag = "triggertype";
-    QString triggerTypeStr;
-    switch (triggerType) {
-    case TriggerNone:
-        triggerTypeStr = "none";
-        break;
-
-    case TriggerRising:
-        triggerTypeStr = "rising";
-        break;
-
-    case TriggerFalling:
-        triggerTypeStr = "falling";
-        break;
-    }
-    epmlManager->addStringValue(tag, depth, triggerTypeStr);
-
-    tag = "triggeridx";
-    epmlManager->addIntValue(tag, depth, triggerId);
-
-    epmlStatus = EpmlValueAdded;
-    return true;
 }
 
 void ProtocolCursor::openPropertyDialog() {
@@ -682,9 +423,10 @@ void ProtocolCursor::initializePropertyDialog() {
     locationCb->addItem("to item end");
     locationLo->addWidget(locationCb);
 
-    e4gcl::RangedMeasurement_t timeRange;
-    commLib->getTimeProtocolRange(timeRange);
-    timeRange.convertValues(e4gcl::UnitPfxMilli);
+    RangedMeasurement_t timeRange;
+//    \todo FCON Ficona potresti gentilmente aggiungere la linea seguente thx
+//    mDev->getTimeProtocolRange(timeRange);
+    timeRange.convertValues(UnitPfxMilli);
 
     locationSb = new QDoubleSpinBox();
     locationSb->setRange(0.0, std::numeric_limits <double> ::max());
@@ -803,8 +545,9 @@ void ProtocolCursor::initializePropertyDialog() {
 
     triggerLo->addWidget(new QLabel("#"));
 
-    unsigned int triggersNum;
-    commLib->getOutputTriggersNum(triggersNum);
+//    \todo FCON add getTriggerOutput in ModelDevice?
+    unsigned int triggersNum = 10;
+//    commLib->getOutputTriggersNum(triggersNum);
     triggerSb = new QSpinBox();
     triggerSb->setRange(1, (int)triggersNum);
     triggerSb->setValue(triggerId);

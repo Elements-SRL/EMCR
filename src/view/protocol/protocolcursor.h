@@ -11,11 +11,8 @@
 
 #include "protocolsection.h"
 #include "protocoldefs.h"
-#include "epmlmanager.h"
 #include "cursor.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
+#include "model/modeldevice.h"
 
 class ProtocolWidget;
 
@@ -46,11 +43,8 @@ public:
         TriggerFalling
     } TriggerType_t;
 
-    ProtocolCursor(e4gcl::CommLib * commLib, QwtPlot * plot, double x, int cursorIdx);
+    ProtocolCursor(ModelDevice * mDev, QwtPlot * plot, double x, int cursorIdx);
     ~ProtocolCursor();
-
-    bool importEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus);
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus);
 
     void openPropertyDialog();
     void setVisible(bool visible);
@@ -100,7 +94,7 @@ private:
     bool precedesItemLevel(ProtocolCursor * cursor, int sweepIter, int repetitionIter);
     bool sameRepetitionsLoopLevel(ProtocolCursor * cursor);
 
-    e4gcl::CommLib * commLib;
+    ModelDevice * mDev;
     int cursorIdx;
     ProtocolType_t protocolType;
 

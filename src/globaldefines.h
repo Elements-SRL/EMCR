@@ -23,6 +23,11 @@
 /*! Global defines */
 #define STAMP_PLOT_SIZE 35
 
+typedef enum {
+    VOLTAGE_CLAMP= 0,
+    CURRENT_CLAMP = 1
+} ClampingModality_t;
+
 /*! Utility to debug by printf */
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }
 

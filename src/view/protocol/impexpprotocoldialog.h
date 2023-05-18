@@ -11,9 +11,7 @@
 #include <QLineEdit>
 #include <QGridLayout>
 
-#include "epmlmanager.h"
 #include "globaldefines.h"
-#include "e4gcommlib_global.h"
 
 class ImpExpProtocolsActionSelector;
 
@@ -45,7 +43,7 @@ protected:
     QGridLayout * protocolManagementLo;
     QPushButton * browseBtn;
 
-    int clampingModality;
+    ClampingModality_t clampingModality;
     QString stimulusName;
     QString fullFileName;
     QString folderName;
@@ -53,7 +51,6 @@ protected:
     std::vector <std::string> destinationProtocolsNames;
     int protocolsNum = 0;
     QVector <ImpExpProtocolsActionSelector *> * actionSelectors = nullptr;
-    EpmlManager * epmlManager = nullptr;
 
     virtual void checkFileContent() = 0;
 };
@@ -76,7 +73,7 @@ class ImportProtocolDialog : public ImpExpProtocolDialog {
     Q_OBJECT
 
 public:
-    ImportProtocolDialog(QStringList pn, int clampingModality, QWidget * parent = nullptr);
+    ImportProtocolDialog(QStringList pn, ClampingModality_t clampingModality, QWidget * parent = nullptr);
     virtual ~ImportProtocolDialog();
 
 protected slots:

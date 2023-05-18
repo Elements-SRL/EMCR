@@ -14,15 +14,11 @@
 #include "protocolitemctrlmanager.h"
 #include "protocoldropitemparam.h"
 #include "protocolcursor.h"
-#include "steppedspinbox.h"
-#include "epmlmanager.h"
 #include "globaldefines.h"
 #include "control.h"
 #include "phase.h"
 #include "analysis.h"
-#include "e4gcommlib.h"
-
-namespace e4gcl = e4gCommLib;
+#include "model/modeldevice.h"
 
 #define PDI_MAX_PARAMS 16
 #define PDI_DESCRIPTION_ROW 0
@@ -35,20 +31,18 @@ class ProtocolDropItem : public QObject, public QListWidgetItem {
     Q_OBJECT
 
 public:
-    ProtocolDropItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_WIDGET_ITEM_TYPE);
+    ProtocolDropItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_WIDGET_ITEM_TYPE);
     virtual ~ProtocolDropItem();
 
-    virtual bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) = 0;
-    virtual bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) = 0;
     virtual void openPropertyDialog() = 0;
     bool hasVisibleData();
     ProtocolItemCtrlTypes_t getItemCtrlType();
     ProtocolConsumerType_t getConsumerType();
     virtual QString getName() = 0;
-    virtual void setStimulusRange(e4gcl::RangedMeasurement_t &range) = 0;
+    virtual void setStimulusRange(RangedMeasurement_t &range) = 0;
 
 protected:
-    e4gcl::CommLib * commLib;
+    ModelDevice * mDev;
     QDialog * propertyDialog = nullptr;
     QGridLayout * propertyLo;
     QLabel * descriptionName;
@@ -64,10 +58,10 @@ protected:
     ProtocolItemCtrlManager * ctrlManager = nullptr;
     double hold = 0.0;
 
-    e4gcl::RangedMeasurement_t stimulusRange;
-    e4gcl::RangedMeasurement_t timeRange;
+    RangedMeasurement_t stimulusRange;
+    RangedMeasurement_t timeRange;
     int timeDecimals;
-    e4gcl::RangedMeasurement_t frequencyRange;
+    RangedMeasurement_t frequencyRange;
     int frequencyDecimals;
 
     ProtocolItemCtrlTypes_t protocolItemCtrlType = ProtocolItemCtrlNone;
@@ -87,7 +81,7 @@ signals:
 
 class ProtocolDropStimulusItem : public ProtocolDropItem {
 public:
-    ProtocolDropStimulusItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_STIMULUS_ITEM_TYPE);
+    ProtocolDropStimulusItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_STIMULUS_ITEM_TYPE);
 
     QString getName() override;
 };
@@ -96,12 +90,10 @@ class ProtocolDropXStepTStepItem : public ProtocolDropStimulusItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXStepTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXStepTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) override;
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
     void openPropertyDialog() override;
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
     double getX0();
     double getXStep();
@@ -135,8 +127,8 @@ protected:
     ProtocolDropItemDoubleParam * xStepParam = nullptr;
     ProtocolDropItemDoubleParam * t0Param = nullptr;
     ProtocolDropItemDoubleParam * tStepParam = nullptr;
-    SteppedSpinBox * x0EditWidget;
-    SteppedSpinBox * xStepEditWidget;
+    QDoubleSpinBox * x0EditWidget;
+    QDoubleSpinBox * xStepEditWidget;
 
 public slots:
     virtual void onSetString() override;
@@ -149,21 +141,21 @@ class ProtocolDropVStepTStepItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVStepTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VSTEP_TSTEP_ITEM_TYPE);
+    ProtocolDropVStepTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VSTEP_TSTEP_ITEM_TYPE);
 };
 
 class ProtocolDropIStepTStepItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIStepTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ISTEP_TSTEP_ITEM_TYPE);
+    ProtocolDropIStepTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ISTEP_TSTEP_ITEM_TYPE);
 };
 
 class ProtocolDropXStepItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -176,21 +168,21 @@ class ProtocolDropVStepItem : public ProtocolDropXStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VSTEP_ITEM_TYPE);
+    ProtocolDropVStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VSTEP_ITEM_TYPE);
 };
 
 class ProtocolDropIStepItem : public ProtocolDropXStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ISTEP_ITEM_TYPE);
+    ProtocolDropIStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ISTEP_ITEM_TYPE);
 };
 
 class ProtocolDropXTStepItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -203,21 +195,21 @@ class ProtocolDropVTStepItem : public ProtocolDropXTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVTStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VTSTEP_ITEM_TYPE);
+    ProtocolDropVTStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VTSTEP_ITEM_TYPE);
 };
 
 class ProtocolDropITStepItem : public ProtocolDropXTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropITStepItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ITSTEP_ITEM_TYPE);
+    ProtocolDropITStepItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ITSTEP_ITEM_TYPE);
 };
 
 class ProtocolDropXConstItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXConstItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXConstItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -230,21 +222,21 @@ class ProtocolDropVConstItem : public ProtocolDropXConstItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVConstItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VCONST_ITEM_TYPE);
+    ProtocolDropVConstItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VCONST_ITEM_TYPE);
 };
 
 class ProtocolDropIConstItem : public ProtocolDropXConstItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIConstItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ICONST_ITEM_TYPE);
+    ProtocolDropIConstItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ICONST_ITEM_TYPE);
 };
 
 class ProtocolDropXHoldItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXHoldItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXHoldItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -257,21 +249,21 @@ class ProtocolDropVHoldItem : public ProtocolDropXHoldItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVHoldItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VHOLD_ITEM_TYPE);
+    ProtocolDropVHoldItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VHOLD_ITEM_TYPE);
 };
 
 class ProtocolDropIHoldItem : public ProtocolDropXHoldItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIHoldItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IHOLD_ITEM_TYPE);
+    ProtocolDropIHoldItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IHOLD_ITEM_TYPE);
 };
 
 class ProtocolDropXRestItem : public ProtocolDropXStepTStepItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRestItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
 public slots:
     void onSetString() override;
@@ -284,26 +276,24 @@ class ProtocolDropVRestItem : public ProtocolDropXRestItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVRestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREST_ITEM_TYPE);
+    ProtocolDropVRestItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREST_ITEM_TYPE);
 };
 
 class ProtocolDropIRestItem : public ProtocolDropXRestItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIRestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREST_ITEM_TYPE);
+    ProtocolDropIRestItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREST_ITEM_TYPE);
 };
 
 class ProtocolDropXRampItem : public ProtocolDropStimulusItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRampItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRampItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) override;
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
     void openPropertyDialog() override;
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
     double getX0();
     double getXFinal();
@@ -322,8 +312,8 @@ protected:
     ProtocolDropItemDoubleParam * x0Param = nullptr;
     ProtocolDropItemDoubleParam * xFinalParam = nullptr;
     ProtocolDropItemDoubleParam * t0Param = nullptr;
-    SteppedSpinBox * x0EditWidget;
-    SteppedSpinBox * xFinalEditWidget;
+    QDoubleSpinBox * x0EditWidget;
+    QDoubleSpinBox * xFinalEditWidget;
 
 public slots:
     void onSetString() override;
@@ -336,26 +326,24 @@ class ProtocolDropVRampItem : public ProtocolDropXRampItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVRampItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VRAMP_ITEM_TYPE);
+    ProtocolDropVRampItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VRAMP_ITEM_TYPE);
 };
 
 class ProtocolDropIRampItem : public ProtocolDropXRampItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIRampItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IRAMP_ITEM_TYPE);
+    ProtocolDropIRampItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IRAMP_ITEM_TYPE);
 };
 
 class ProtocolDropXSinItem : public ProtocolDropStimulusItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXSinItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_VSIN_ITEM_TYPE);
+    ProtocolDropXSinItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_VSIN_ITEM_TYPE);
 
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) override;
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
     void openPropertyDialog() override;
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
     double getX0();
     double getXAmp();
@@ -374,8 +362,8 @@ protected:
     ProtocolDropItemDoubleParam * x0Param = nullptr;
     ProtocolDropItemDoubleParam * xAmpParam = nullptr;
     ProtocolDropItemDoubleParam * freqParam = nullptr;
-    SteppedSpinBox * x0EditWidget;
-    SteppedSpinBox * xAmpEditWidget;
+    QDoubleSpinBox * x0EditWidget;
+    QDoubleSpinBox * xAmpEditWidget;
 
 public slots:
     void onSetString() override;
@@ -388,19 +376,19 @@ class ProtocolDropVSinItem : public ProtocolDropXSinItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVSinItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VSIN_ITEM_TYPE);
+    ProtocolDropVSinItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VSIN_ITEM_TYPE);
 };
 
 class ProtocolDropISinItem : public ProtocolDropXSinItem {
     Q_OBJECT
 
 public:
-    ProtocolDropISinItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ISIN_ITEM_TYPE);
+    ProtocolDropISinItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_ISIN_ITEM_TYPE);
 };
 
 class ProtocolDropLoopsItem : public ProtocolDropItem {
 public:
-    ProtocolDropLoopsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_LOOPS_ITEM_TYPE);
+    ProtocolDropLoopsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_LOOPS_ITEM_TYPE);
 
     QString getName() override;
 };
@@ -409,12 +397,10 @@ class ProtocolDropXRepSeqScaledItem : public ProtocolDropLoopsItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRepSeqScaledItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRepSeqScaledItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) override;
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
     void openPropertyDialog() override;
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
     double getHoldLeak();
     int getScaleFactor();
@@ -450,8 +436,8 @@ protected:
     ProtocolDropItemIntParam * itemNumParam = nullptr;
     ProtocolDropItemDoubleParam * restStimulusParam = nullptr;
     ProtocolDropItemDoubleParam * restTimeParam = nullptr;
-    SteppedSpinBox * holdLeakEditWidget;
-    SteppedSpinBox * restStimulusEditWidget;
+    QDoubleSpinBox * holdLeakEditWidget;
+    QDoubleSpinBox * restStimulusEditWidget;
 
     bool preceding;
     bool reversed;
@@ -473,21 +459,21 @@ class ProtocolDropVRepSeqScaledItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVRepSeqScaledItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREP_SEQ_SCALED_ITEM_TYPE);
+    ProtocolDropVRepSeqScaledItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREP_SEQ_SCALED_ITEM_TYPE);
 };
 
 class ProtocolDropIRepSeqScaledItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIRepSeqScaledItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREP_SEQ_SCALED_ITEM_TYPE);
+    ProtocolDropIRepSeqScaledItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREP_SEQ_SCALED_ITEM_TYPE);
 };
 
 class ProtocolDropXRepSeqItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
     int getRepsNum() override;
 
@@ -502,21 +488,21 @@ class ProtocolDropVRepSeqItem : public ProtocolDropXRepSeqItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREP_SEQ_ITEM_TYPE);
+    ProtocolDropVRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREP_SEQ_ITEM_TYPE);
 };
 
 class ProtocolDropIRepSeqItem : public ProtocolDropXRepSeqItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREP_SEQ_ITEM_TYPE);
+    ProtocolDropIRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREP_SEQ_ITEM_TYPE);
 };
 
 class ProtocolDropXRepSeqWithStepsItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXRepSeqWithStepsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXRepSeqWithStepsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
     int getRepsNum() override;
 
@@ -531,21 +517,21 @@ class ProtocolDropVRepSeqWithStepsItem : public ProtocolDropXRepSeqWithStepsItem
     Q_OBJECT
 
 public:
-    ProtocolDropVRepSeqWithStepsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREP_SEQ_WITH_STEPS_ITEM_TYPE);
+    ProtocolDropVRepSeqWithStepsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VREP_SEQ_WITH_STEPS_ITEM_TYPE);
 };
 
 class ProtocolDropIRepSeqWithStepsItem : public ProtocolDropXRepSeqWithStepsItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIRepSeqWithStepsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREP_SEQ_WITH_STEPS_ITEM_TYPE);
+    ProtocolDropIRepSeqWithStepsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IREP_SEQ_WITH_STEPS_ITEM_TYPE);
 };
 
 class ProtocolDropXInfRepSeqItem : public ProtocolDropXRepSeqScaledItem {
     Q_OBJECT
 
 public:
-    ProtocolDropXInfRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
+    ProtocolDropXInfRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type);
 
     int getRepsNum() override;
 
@@ -560,31 +546,29 @@ class ProtocolDropVInfRepSeqItem : public ProtocolDropXInfRepSeqItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVInfRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VINF_REP_SEQ_ITEM_TYPE);
+    ProtocolDropVInfRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VINF_REP_SEQ_ITEM_TYPE);
 };
 
 class ProtocolDropIInfRepSeqItem : public ProtocolDropXInfRepSeqItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIInfRepSeqItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IINF_REP_SEQ_ITEM_TYPE);
+    ProtocolDropIInfRepSeqItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IINF_REP_SEQ_ITEM_TYPE);
 };
 
 class ProtocolDropControlItem : public ProtocolDropItem {
     Q_OBJECT
 
 public:
-    ProtocolDropControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_CONTROL_ITEM_TYPE);
+    ProtocolDropControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_CONTROL_ITEM_TYPE);
 
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) override;
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
     void openPropertyDialog() override;
 
     QString getName() override;
     int getIntValue();
     double getDoubleValue();
     QSpinBox * getIntEdit();
-    SteppedSpinBox * getDoubleEdit();
+    QDoubleSpinBox * getDoubleEdit();
     QString getUnit();
 
     YAML::Control_t getYamlVoltageCtrl();
@@ -606,7 +590,7 @@ protected:
 
     QLineEdit * nameEdit;
     QSpinBox * intEdit;
-    SteppedSpinBox * doubleEdit;
+    QDoubleSpinBox * doubleEdit;
 
     QLabel * valueUnit;
 
@@ -625,8 +609,8 @@ class ProtocolDropVoltageControlItem : public ProtocolDropControlItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVoltageControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VOLTAGE_CONTROL_ITEM_TYPE);
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    ProtocolDropVoltageControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VOLTAGE_CONTROL_ITEM_TYPE);
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
 public slots:
     void onSetString() override;
@@ -639,8 +623,8 @@ class ProtocolDropCurrentControlItem : public ProtocolDropControlItem {
     Q_OBJECT
 
 public:
-    ProtocolDropCurrentControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_CURRENT_CONTROL_ITEM_TYPE);
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    ProtocolDropCurrentControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_CURRENT_CONTROL_ITEM_TYPE);
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
 public slots:
     void onSetString() override;
@@ -653,8 +637,8 @@ class ProtocolDropTimeControlItem : public ProtocolDropControlItem {
     Q_OBJECT
 
 public:
-    ProtocolDropTimeControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_TIME_CONTROL_ITEM_TYPE);
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    ProtocolDropTimeControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_TIME_CONTROL_ITEM_TYPE);
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
 public slots:
     void onSetString() override;
@@ -667,8 +651,8 @@ class ProtocolDropFrequencyControlItem : public ProtocolDropControlItem {
     Q_OBJECT
 
 public:
-    ProtocolDropFrequencyControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_FREQUENCY_CONTROL_ITEM_TYPE);
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    ProtocolDropFrequencyControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_FREQUENCY_CONTROL_ITEM_TYPE);
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
 public slots:
     void onSetString() override;
@@ -681,8 +665,8 @@ class ProtocolDropNaturalNumControlItem : public ProtocolDropControlItem {
     Q_OBJECT
 
 public:
-    ProtocolDropNaturalNumControlItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_NATURAL_NUM_CONTROL_ITEM_TYPE);
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    ProtocolDropNaturalNumControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_NATURAL_NUM_CONTROL_ITEM_TYPE);
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
 public slots:
     void onSetString() override;
@@ -695,14 +679,12 @@ class ProtocolDropAnalysisItem : public ProtocolDropItem {
     Q_OBJECT
 
 public:
-    ProtocolDropAnalysisItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_ANALYSIS_ITEM_TYPE);
+    ProtocolDropAnalysisItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int clampingModality, int type = PROT_DROP_LIST_ANALYSIS_ITEM_TYPE);
     ~ProtocolDropAnalysisItem();
 
-    bool importEpml(EpmlManager * epmlManager, QString parentTag, EpmlStatus_t &epmlStatus) override;
-    bool exportEpml(EpmlManager * epmlManager, EpmlStatus_t &epmlStatus) override;
     void openPropertyDialog() override;
     QString getName() override;
-    void setStimulusRange(e4gcl::RangedMeasurement_t &range) override;
+    void setStimulusRange(RangedMeasurement_t &range) override;
 
     void addCursors(QVector <ProtocolCursor *> * cursors);
     void removeCursors(QVector <ProtocolCursor *> * cursors, QVector <int> cursorsMap);
@@ -741,7 +723,7 @@ class ProtocolDropNoiseReportItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropNoiseReportItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_NOISE_REPORT_ITEM_TYPE);
+    ProtocolDropNoiseReportItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_NOISE_REPORT_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -755,7 +737,7 @@ class ProtocolDropHistogramItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropHistogramItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_HISTOGRAM_ITEM_TYPE);
+    ProtocolDropHistogramItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_HISTOGRAM_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -769,7 +751,7 @@ class ProtocolDropSpectrumItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropSpectrumItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_SPECTRUM_ITEM_TYPE);
+    ProtocolDropSpectrumItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_SPECTRUM_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -783,7 +765,7 @@ class ProtocolDropResistanceEstimationItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropResistanceEstimationItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE);
+    ProtocolDropResistanceEstimationItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -797,7 +779,7 @@ class ProtocolDropMembraneTestItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropMembraneTestItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_MEMBRANE_TEST_ITEM_TYPE);
+    ProtocolDropMembraneTestItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_MEMBRANE_TEST_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -811,7 +793,7 @@ class ProtocolDropIvGraphItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropIvGraphItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IV_GRAPH_ITEM_TYPE);
+    ProtocolDropIvGraphItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IV_GRAPH_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -834,7 +816,7 @@ class ProtocolDropVoltageTrackingItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropVoltageTrackingItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VOLTAGE_TRACKING_ITEM_TYPE);
+    ProtocolDropVoltageTrackingItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VOLTAGE_TRACKING_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -848,7 +830,7 @@ class ProtocolDropApThresholdItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropApThresholdItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_AP_THRESHOLD_ITEM_TYPE);
+    ProtocolDropApThresholdItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_AP_THRESHOLD_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
@@ -862,7 +844,7 @@ class ProtocolDropApStatisticsItem : public ProtocolDropAnalysisItem {
     Q_OBJECT
 
 public:
-    ProtocolDropApStatisticsItem(e4gcl::CommLib * commLib, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_AP_STATISTICS_ITEM_TYPE);
+    ProtocolDropApStatisticsItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_AP_STATISTICS_ITEM_TYPE);
 
 public slots:
     void onSetString() override;
