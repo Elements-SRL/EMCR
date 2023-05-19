@@ -8,6 +8,7 @@
 #include "protocolpropertydialog.h"
 #include "addtagdialog.h"
 #include "lcddisplay.h"
+#include "globaldefines.h"
 
 class ProtocolDockWidget : public QDockWidget {
     Q_OBJECT
@@ -22,39 +23,45 @@ public:
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
-    void onNewRecordFile(QString fileName);
     void onPlotting(bool flag, ProtocolType_t type);
     void onNullProtocol();
-    void onRecording(bool flag);
     void onProtocolEnded();
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+    void onNewRecordFile(QString fileName);
+    void onRecording(bool flag);
+#endif
 
 protected:
     bool eventFilter(QObject * obj, QEvent * event) override;
 
 private:
     void setProtocolListVisibility();
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     void setRecordFile(QString path, QString name);
+#endif
 
     ModelDevice *  mDev;
     ProtocolPropertyDialog * protocolPropertyDialog = nullptr;
     ProtocolList * voltageProtocolList = nullptr;
     ProtocolList * currentProtocolList = nullptr;
     ClampingModality_t clampingModality;
+    TimerDisplay * protocolTimer = nullptr;
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     QString recordPath;
     QPushButton * recordFileBtn;
     QPushButton * recordProtocolBtn;
     QPushButton * saveLastProtocolBtn;
     AddTagDialog * tagDlg = nullptr;
-    TimerDisplay * protocolTimer = nullptr;
+#endif
 
 signals:
     void plotting(bool);
     void sweep(int, int);
-    void stimulusApplied(double value, e384CommLib::RangedMeasurement_t range);
-    void holdApplied(double value, e384CommLib::RangedMeasurement_t range);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     void enableTags(bool);
     void markTagTime();
     void saveTagString(QString);
+#endif
 };
 
 #endif // PROTOCOLDOCKWIDGET_H

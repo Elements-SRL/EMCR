@@ -43,6 +43,7 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
     voltageProtocolList = new VoltageProtocolList(mDev, protocolPropertyDialog, parent);
     currentProtocolList = new CurrentProtocolList(mDev, protocolPropertyDialog, parent);
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     recordFileBtn = new QPushButton();
     recordFileBtn->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     recordFileBtn->setStyleSheet("Text-align:left");
@@ -56,53 +57,18 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
     connect(recordFileBtn, &QPushButton::clicked, this, [=] () {
         QDesktopServices::openUrl(QUrl::fromLocalFile(recordPath));
     });
+#endif
 
     QHBoxLayout * sweepInfoHl = new QHBoxLayout;
     sweepInfoHl->setSpacing(1);
     sweepInfoHl->setContentsMargins(1, 1, 1, 1);
-
-    QLabel * sweepNumLbl = new QLabel("");
-    sweepInfoHl->addWidget(sweepNumLbl);
-    sweepNumLbl->setStyleSheet("font-weight:bold");
-    connect(this, &ProtocolDockWidget::sweep, this, [=] (int sweepIdx, int sweepsNum) {
-        if (sweepsNum > 0) {
-            sweepNumLbl->setText(QString("Sweep %1/%2").arg(sweepIdx).arg(sweepsNum));
-
-        } else {
-            sweepNumLbl->setText("");
-        }
-    });
-
-    QLabel * appliedStimLbl = new QLabel("Vhold 1000mV  ");
-    sweepInfoHl->addWidget(appliedStimLbl);
-    appliedStimLbl->setStyleSheet("font-weight:bold");
-    QFontMetrics fm((QFont(appliedStimLbl->font())));
-    appliedStimLbl->setFixedWidth(fm.width(appliedStimLbl->text()));
-    appliedStimLbl->setText("");
-
-    connect(this, &ProtocolDockWidget::stimulusApplied, this, [=] (double value, e384CommLib::RangedMeasurement_t range) {
-        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-            appliedStimLbl->setText(QString("Vc %1" + QString::fromStdString(range.getFullUnit())).arg(value, 0, 'f', 0));
-
-        } else {
-            appliedStimLbl->setText(QString("Ic %1" + QString::fromStdString(range.getFullUnit())).arg(value, 0, 'f', 0));
-        }
-    });
-
-    connect(this, &ProtocolDockWidget::holdApplied, this, [=] (double value, e384CommLib::RangedMeasurement_t range) {
-        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-            appliedStimLbl->setText(QString("Vhold %1" + QString::fromStdString(range.getFullUnit())).arg(value, 0, 'f', 0));
-
-        } else {
-            appliedStimLbl->setText(QString("Ihold %1" + QString::fromStdString(range.getFullUnit())).arg(value, 0, 'f', 0));
-        }
-    });
 
     protocolTimer = new TimerDisplay(this, "hh.mm.ss");
     sweepInfoHl->addWidget(protocolTimer);
 
     mainVl->addLayout(sweepInfoHl);
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     connect(voltageProtocolList, &ProtocolList::newRecordPath, this, [=] () {
         this->setRecordFile(voltageProtocolList->getProtocolsSettingsDialog()->getRecordPath(), voltageProtocolList->getProtocolsSettingsDialog()->getRecordName());
         currentProtocolList->getProtocolsSettingsDialog()->synchronizeSettings();
@@ -112,6 +78,7 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
         this->setRecordFile(currentProtocolList->getProtocolsSettingsDialog()->getRecordPath(), currentProtocolList->getProtocolsSettingsDialog()->getRecordName());
         voltageProtocolList->getProtocolsSettingsDialog()->synchronizeSettings();
     });
+#endif
 
     QSplitter * mainSpl = new QSplitter(Qt::Vertical, this);
     mainVl->addWidget(mainSpl);
@@ -286,8 +253,13 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
             currentProtocolList->onStartProtocol();
         }
     });
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     btnLo->addWidget(startProtocolBtn, btnRow, btnCol++);
+#else
+    sweepInfoHl->insertWidget(btnCol++, startProtocolBtn);
+#endif
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     recordProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/record protocol.png");
         QIcon btnIcon(btnPix);
@@ -306,6 +278,7 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
         }
     });
     btnLo->addWidget(recordProtocolBtn, btnRow, btnCol++);
+#endif
 
     QPushButton * stopProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/stop protocol.png");
@@ -324,8 +297,18 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
             currentProtocolList->onStopProtocol();
         }
     });
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     btnLo->addWidget(stopProtocolBtn, btnRow, btnCol++);
+#else
+    sweepInfoHl->insertWidget(btnCol++, stopProtocolBtn);
+    {
+        QWidget * spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sweepInfoHl->insertWidget(btnCol++, spacer);
+    }
+#endif
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     QPushButton * addTagBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/add tag.png");
         QIcon btnIcon(btnPix);
@@ -391,6 +374,7 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
     btnLo->addWidget(protocolsSettingsBtn, btnRow, btnCol++);
 
     connect(this, &ProtocolDockWidget::enableTags, addTagBtn, &QPushButton::setEnabled);
+#endif
 }
 
 ProtocolDockWidget::~ProtocolDockWidget() {
@@ -409,23 +393,16 @@ ProtocolDockWidget::~ProtocolDockWidget() {
         protocolPropertyDialog = nullptr;
     }
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     if (tagDlg != nullptr) {
         delete tagDlg;
         tagDlg = nullptr;
     }
+#endif
 
     if (protocolTimer != nullptr) {
         delete protocolTimer;
         protocolTimer = nullptr;
-    }
-}
-
-void ProtocolDockWidget::onNewRecordFile(QString fileName) {
-    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-        this->setRecordFile(voltageProtocolList->getProtocolsSettingsDialog()->getRecordPath(), fileName);
-
-    } else {
-        this->setRecordFile(currentProtocolList->getProtocolsSettingsDialog()->getRecordPath(), fileName);
     }
 }
 
@@ -453,6 +430,25 @@ void ProtocolDockWidget::onNullProtocol() {
     protocolTimer->onStopTimer(false);
 }
 
+void ProtocolDockWidget::onProtocolEnded() {
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        voltageProtocolList->onProtocolEnded();
+
+    } else {
+        currentProtocolList->onProtocolEnded();
+    }
+}
+
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+void ProtocolDockWidget::onNewRecordFile(QString fileName) {
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        this->setRecordFile(voltageProtocolList->getProtocolsSettingsDialog()->getRecordPath(), fileName);
+
+    } else {
+        this->setRecordFile(currentProtocolList->getProtocolsSettingsDialog()->getRecordPath(), fileName);
+    }
+}
+
 void ProtocolDockWidget::onRecording(bool flag) {
     if (flag) {
         QPixmap btnPix(":/imgs/recording protocol.png");
@@ -467,15 +463,7 @@ void ProtocolDockWidget::onRecording(bool flag) {
         protocolTimer->onStopTimer(false);
     }
 }
-
-void ProtocolDockWidget::onProtocolEnded() {
-    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-        voltageProtocolList->onProtocolEnded();
-
-    } else {
-        currentProtocolList->onProtocolEnded();
-    }
-}
+#endif
 
 bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
     if (event->type() == QEvent::KeyPress) {
@@ -521,7 +509,9 @@ ProtocolList * ProtocolDockWidget::getCurrentProtocolList() {
 
 void ProtocolDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
     this->clampingModality = clampingModality;
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     saveLastProtocolBtn->setEnabled(false);
+#endif
     this->setProtocolListVisibility();
 }
 
@@ -545,8 +535,10 @@ void ProtocolDockWidget::setProtocolListVisibility() {
     }
 }
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
 void ProtocolDockWidget::setRecordFile(QString path, QString name) {
     recordPath = path;
     recordFileBtn->setText("Recording path: " + recordPath + "\nFile: " + name);
     recordFileBtn->setToolTip(recordPath + name);
 }
+#endif

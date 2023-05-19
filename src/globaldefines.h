@@ -27,6 +27,8 @@
 /*! Utility to debug by printf */
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }
 
+//#define GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+
 /*! Undef to see all controls */
 #ifndef GLB_SHOW_DEBUG_CTRLS
 #define GLB_HIDE_DEBUG_CTRLS
