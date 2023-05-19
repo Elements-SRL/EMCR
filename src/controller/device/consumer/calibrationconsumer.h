@@ -83,6 +83,10 @@ private:
     Measurement_t defaultAdcGainValue;
     Measurement_t defaultAdcOffsetValue;
     Measurement_t defaultDacOffsetValue;
+    Measurement_t defaultCcAdcGainValue;
+    Measurement_t defaultCcAdcOffsetValue;
+    Measurement_t defaultCcDacGainValue;
+    Measurement_t defaultCcDacOffsetValue;
 
     vector<QString> boardSerialNums;
     QString calibrationFilesFolder = CCS_CALIBRATION_DEFAULT_PATH;
@@ -113,9 +117,6 @@ private:
 
 
     void run() override;
-
-    /*! CALIBRATION MACROPROCEDURES*/
-    void oldVcOnlyCalibration();
 
     /*! SOME UTILITY FUNCTIONS*/
     void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
@@ -160,7 +161,14 @@ private:
     QString getCsvData(vector<uint16_t> chanSubset);
     QString suspectChannelsMsg(vector<uint16_t> chanToCalibIdxs);
 
-    void convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas, vector<vector<Measurement_t>> &offsetAdcMeas, vector<Measurement_t> &offsetDacMeas);
+    void convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas,
+                              vector<vector<Measurement_t>> &offsetAdcMeas,
+                              vector<vector<Measurement_t>> &offsetDacMeas,
+                              vector<vector<Measurement_t>> &ccGainAdcMeas,
+                              vector<vector<Measurement_t>> &ccOffsetAdcMeas,
+                              vector<vector<Measurement_t>> &ccGainDacMeas,
+                              vector<vector<Measurement_t>> &ccOffsetDacMeas
+                              );
 
 signals:
     void sigCalibLoadingMsg(QString calibLoadMsg);
