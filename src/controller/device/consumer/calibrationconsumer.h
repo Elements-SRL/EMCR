@@ -55,11 +55,11 @@ private:
     CalibrationData_t calibData;
     std::vector<std::vector<double_t>> gainADC; // vettore di vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> offsetADC; // vettore di vettori_di_offset (Uno per range)
-    std::vector <double_t> offsetDAC; // vettore di offset (questo non dipende dal range)
+    std::vector<std::vector<double_t>> offsetDAC; // vettore di offset (questo non dipende dal range)
 
     std::vector<std::vector<double_t>> allGainADC; // vettore di vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> allOffsetADC; // vettore di vettori_di_offset (Uno per range)
-    std::vector <double_t> allOffsetDAC; // vettore di offset (questo non dipende dal range)
+    std::vector<std::vector<double_t>> allOffsetDAC; // vettore di offset (questo non dipende dal range)
 
     std::vector<bool> suspectChannelIdxs;
     double gainThreshForSuspect = 2.0;
@@ -147,6 +147,9 @@ private:
 
     void calibrateCcAdcGain(int thisActualRangeIdx);
     void calibrateCcDacGain(int thisActualRangeIdx);
+    void calibrateCcAdcOffset(RangedMeasurement_t thisActualRange);
+    void calibrateCcDacOffset(RangedMeasurement_t thisActualRange);
+
 
     /*! Interactions with CSV files*/
     void mainSaveOnCsv();

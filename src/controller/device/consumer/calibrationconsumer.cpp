@@ -66,8 +66,13 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
         allOffsetADC[i].resize(currentChannelsNum);
     }
 
-    offsetDAC.resize(currentChannelsNum);
-    allOffsetDAC.resize(currentChannelsNum);
+//    offsetDAC.resize(currentChannelsNum);
+//    allOffsetDAC.resize(currentChannelsNum);
+    offsetDAC.resize(vcVoltageRangesArray.size());
+    allOffsetDAC.resize(vcVoltageRangesArray.size());
+    for(int i = 0; i< vcVoltageRangesArray.size(); i++){
+        allOffsetDAC[i].resize(currentChannelsNum);
+    }
 
 
     ccGainADC.resize(ccVoltageRangesArray.size());
@@ -141,10 +146,15 @@ void CalibrationConsumer::run(){
     currentSum.fill(0.0);
     currentMeans.resize(calibrationVoltSteps[0].size());
 
-    voltageSum.resize(channelToCalibIdxs.size());
-    voltageSum.fill(0.0);
-    voltageMeans.resize(ccCalibrationCurrSteps[0].size());
-
+    if(deviceUnderCalibrationType == Device384PatchClamp
+        #ifdef DEBUG
+            || deviceUnderCalibrationType == Device384FakePatchClamp
+        #endif
+       ){
+        voltageSum.resize(channelToCalibIdxs.size());
+        voltageSum.fill(0.0);
+        voltageMeans.resize(ccCalibrationCurrSteps[0].size());
+    }
 
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
         someTrue.push_back(true);
@@ -277,9 +287,28 @@ void CalibrationConsumer::run(){
         /*! FOR: END ciclo sui range*/
         }
 
-        /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-        calibrateDacOffset(vcCurrentRangesArray[rangeIdx]);
-        /*! END CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+
+        for(int jjj = 0; jjj <vcVoltageRangesArray.size(); jjj++){
+            rangeIdx = jjj;
+
+            /*! setto il range di tensione per Voltage Clamp*/
+            vector <RangedMeasurement_t> rangeInfo;
+            mDev->getVcVoltageRangesFeatures(rangeInfo);
+            mDev->getMessageDispatcher()->setVCVoltageRange(rangeIdx, true);
+            multiplierVoltage = rangeInfo[rangeIdx].multiplier();
+
+            /*! \note MPAC: qui ho bisogno anche di un multiplier di corrente, visto che leggerò
+             *  correnti dall'ADC in VC. Per comodità prendo il primo range di vcCurrentRanges*/
+            vector <RangedMeasurement_t> rangeInfoAdditional;
+            mDev->getVcCurrentRangesFeatures(rangeInfoAdditional, bbb);
+            multiplierCurrent = rangeInfoAdditional[0].multiplier();
+
+            /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+            calibrateDacOffset(vcVoltageRangesArray[rangeIdx]);
+            /*! END CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+        }
+
 
 
 
@@ -307,7 +336,7 @@ void CalibrationConsumer::run(){
             setSourceForVoltageChannel(0);
             setSourceForCurrentChannel(0);
 
-            /*! \todo CCVgain ADC*/
+            /*! \note CCVgain ADC*/
 
             /*! FOR: START ciclo sui range di tensione in CC*/
             for(int jjj = 0; jjj <ccVoltageRangesArray.size(); jjj++){
@@ -329,6 +358,7 @@ void CalibrationConsumer::run(){
             /*! \note a questo punto potrei evitare di abilitare e disabilitare in continuazione gli stimoli in corrente*/
             setCcConfiguration(channelToCalibIdxs, someTrue, someFalse);
 
+            /*! \note CCIgain DAC*/
             /*! FOR: START ciclo sui range di corrente in CC*/
             for(int jjj = 0; jjj <ccCurrentRangesArray.size(); jjj++){
                 rangeIdx = jjj;
@@ -339,6 +369,12 @@ void CalibrationConsumer::run(){
                 mDev->getMessageDispatcher()->setCCCurrentRange(rangeIdx, true);
                 multiplierCurrent = rangeInfo[rangeIdx].multiplier();
 
+                /*! \note MPAC: qui ho bisogno anche di un multiplier di tensione, visto che leggerò
+                 *  tensioni dall'ADC in CC. Per comodità prendo il primo range di ccVoltageRanges*/
+                vector <RangedMeasurement_t> rangeInfoAdditional;
+                mDev->getCcVoltageRangesFeatures(rangeInfoAdditional);
+                multiplierVoltage = rangeInfoAdditional[0].multiplier();
+
                 /*! START CALCOLO CC DAC GAIN (CCIgain)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
                calibrateCcDacGain(rangeIdx);
                /*! END CALCOLO CC DAC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
@@ -348,8 +384,8 @@ void CalibrationConsumer::run(){
             turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
             turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
 
+            /*! \note CCVoffset ADC*/
             /*! FOR: START ciclo sui range di tensione in CC*/
-            /*! \todo MPAC: al 20230518 sono arrivato qui, ricontrolla e continua*/
             for(int jjj = 0; jjj <ccVoltageRangesArray.size(); jjj++){
                 rangeIdx = jjj;
 
@@ -360,7 +396,7 @@ void CalibrationConsumer::run(){
                 multiplierVoltage = rangeInfo[rangeIdx].multiplier();
 
                 /*! START CALCOLO CC ADC OFFSET (CCVoffset)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-//               calibrateCcAdcOffset(rangeIdx);
+               calibrateCcAdcOffset(ccVoltageRangesArray[rangeIdx]);
                /*! END CALCOLO CC ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             }
 
@@ -371,9 +407,29 @@ void CalibrationConsumer::run(){
 
 
 
-            /*! \todo CCVoffset ADC, quello piu' problematico*/
 
-            /*! \todo CCIoffset DAC*/
+
+            /*! \note CCIoffset DAC*/
+            /*! FOR: START ciclo sui range di corrente in CC*/
+            for(int jjj = 0; jjj <ccCurrentRangesArray.size(); jjj++){
+                rangeIdx = jjj;
+
+                /*! setto il range di corrente per Current Clamp*/
+                vector <RangedMeasurement_t> rangeInfo;
+                mDev->getCcCurrentRangesFeatures(rangeInfo);
+                mDev->getMessageDispatcher()->setCCCurrentRange(rangeIdx, true);
+                multiplierCurrent = rangeInfo[rangeIdx].multiplier();
+
+                /*! \note MPAC: qui ho bisogno anche di un multiplier di tensione, visto che leggerò
+                 *  tensioni dall'ADC in CC. Per comodità prendo il primo range di ccVoltageRanges*/
+                vector <RangedMeasurement_t> rangeInfoAdditional;
+                mDev->getCcVoltageRangesFeatures(rangeInfoAdditional);
+                multiplierVoltage = rangeInfoAdditional[0].multiplier();
+
+                /*! START CALCOLO CC ADC OFFSET (CCVoffset)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+               calibrateCcDacOffset(ccCurrentRangesArray[rangeIdx]);
+               /*! END CALCOLO CC ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+            }
 
         }
 
@@ -387,7 +443,7 @@ void CalibrationConsumer::run(){
 
 
 
-        /*! AGGIORNO LE STRUTTURA IN CUI TENGO TUTTI I VALORI DI CALIBRAZIONE, allGainADC, allOffsetADc, allOffsetDAC*/
+        /*! AGGIORNO LE STRUTTURA IN CUI TENGO TUTTI I VALORI DI CALIBRAZIONE*/
         for(int zzz = 0; zzz < vcCurrentRangesArray.size(); zzz++){
             for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
                 allGainADC[zzz][channelToCalibIdxs[xxx]] = gainADC[zzz][xxx];
@@ -397,8 +453,25 @@ void CalibrationConsumer::run(){
                 }
             }
         }
-        for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
-            allOffsetDAC[channelToCalibIdxs[xxx]] = offsetDAC[xxx];
+        for(int zzz = 0; zzz < vcVoltageRangesArray.size(); zzz++){
+            for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
+                allOffsetDAC[zzz][channelToCalibIdxs[xxx]] = offsetDAC[zzz][xxx];
+            }
+        }
+        for(int zzz = 0; zzz < ccVoltageRangesArray.size(); zzz++){
+            for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
+                ccAllGainADC[zzz][channelToCalibIdxs[xxx]] = ccGainADC[zzz][xxx];
+                ccAllOffsetADC[zzz][channelToCalibIdxs[xxx]] = ccOffsetADC[zzz][xxx];
+                if(abs(ccAllGainADC[zzz][xxx]) > gainThreshForSuspect){
+                    suspectChannelIdxs[channelToCalibIdxs[xxx]] = true;
+                }
+            }
+        }
+        for(int zzz = 0; zzz < ccCurrentRangesArray.size(); zzz++){
+            for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
+                ccAllOffsetADC[zzz][channelToCalibIdxs[xxx]] = ccOffsetADC[zzz][xxx];
+                ccAllOffsetDAC[zzz][channelToCalibIdxs[xxx]] = ccOffsetDAC[zzz][xxx];
+            }
         }
 
         /*! salvo queste info su CSV la cui struttura deve essere ancora decisa. Forse un file per ciascuna scheda*/
@@ -798,7 +871,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
                 double bubbi = someVoltSteps[i].getNoPrefixValue() - adcCompensatedCurrent[i]*poffi; // V
                 someVoltSteps[i].value = bubbi/someVoltSteps[i].multiplier(); //mV perchè divido V per 1e-3
            }
-           offsetDAC[i] = -(someVoltSteps[i].getNoPrefixValue()); //V
+           usefulDacOffset[i] = -(someVoltSteps[i].getNoPrefixValue()); //V
         }
 
         /*! mandi via messageDispatcher i valori aggiornati di voltage step per vedere se la lettura sui canali mi diventa finalmetne 0 */
@@ -808,6 +881,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         currentSum.clear();
         currentSum.resize(channelToCalibIdxs.size());
         currentSum.fill(0.0);
+        offsetDAC[rangeIdx] = usefulDacOffset;
 
         numTries++;
     }
@@ -1117,18 +1191,18 @@ QString CalibrationConsumer::getCsvData(vector<uint16_t> chanSubset){
         stream << "\n";
     }
     /*! \todo bisogna adattare questa funzione e la calibrazione del DAC offset in caso ci siano più VC voltage ranges*/
-//    for(int i = 0; i < vcVoltageRangesArray.size(); i++){
-        stream << QString("%1").arg(vcVoltageRangesArray[0].max) << "\n";
+    for(int i = 0; i < vcVoltageRangesArray.size(); i++){
+        stream << QString("%1").arg(vcVoltageRangesArray[i].max) << "\n";
         for(int j = 0; j < chanSubset.size(); j++){
             /*! \todo 30 decimali, solo per vedere qualcosa, questo numero sarà da ridurre*/
-            if(offsetDAC.size()==currentChannelsNum){
-                stream << QString("%1").arg(offsetDAC[chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+            if(offsetDAC[i].size()==currentChannelsNum){
+                stream << QString("%1").arg(offsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
             } else {
-                stream << QString("%1").arg(offsetDAC[j], 0, 'e', 3) << myCsvSeparator;
+                stream << QString("%1").arg(offsetDAC[i][j], 0, 'e', 3) << myCsvSeparator;
             }
         }
         stream << "\n";
-//    }
+    }
     return ret;
 }
 
@@ -1141,8 +1215,10 @@ void CalibrationConsumer::loadDefaultCalibParams(int channelsNum){
     }
 
     /*! \todo COME PER CALIBRATEDACOFFSET, ANCHE QUI BISOGNEREBBE CICLARE SUL NUMERO DI RANGE DI TENSIONE*/
-    for(int j = 0; j < channelsNum; j++){
-        offsetDAC.push_back(defaultDacOffsetValue.getNoPrefixValue());
+    for(int i = 0; i < vcVoltageRangesArray.size(); i++){
+        for(int j = 0; j < channelsNum; j++){
+            offsetDAC[i].push_back(defaultDacOffsetValue.getNoPrefixValue());
+        }
     }
 }
 
@@ -1274,20 +1350,22 @@ void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream)
     }
 
     //leggo su VC Voltage range
-    // valore VC voltage range, da buttare
-    dump = boardStream.readLine();
+    for(int lineIdx = 0; lineIdx< vcVoltageRangesArray.size(); lineIdx++){
+        // valore VC voltage range, da buttare
+        dump = boardStream.readLine();
 
-    // linea con valori utili
+        // linea con valori utili
 
-    line = boardStream.readLine();
-    tempList.append(line.split(myCsvSeparator));
-    tempList.removeLast(); // remove the \n at the end of the line
-    for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-        offsetDAC.push_back(tempList[paramIdx].toDouble());
+        line = boardStream.readLine();
+        tempList.append(line.split(myCsvSeparator));
+        tempList.removeLast(); // remove the \n at the end of the line
+        for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+            offsetDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
+        }
+
+        tempVector.clear();
+        tempList.clear();
     }
-
-    tempVector.clear();
-    tempList.clear();
 }
 
 /*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
@@ -1301,8 +1379,11 @@ void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &ga
             offsetAdcMeas[iii].push_back({allOffsetADC[iii][jjj], UnitPfxNone, "A"});
         }
     }
-    for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-        offsetDacMeas.push_back({allOffsetDAC[jjj], UnitPfxNone, "V"});
+
+    for(int iii = 0; iii < vcVoltageRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            offsetDacMeas.push_back({allOffsetDAC[iii][jjj], UnitPfxNone, "V"});
+        }
     }
 }
 
@@ -1338,6 +1419,7 @@ void CalibrationConsumer::updateCalibParams(){
 
             mDev->getMessageDispatcher()->setCalibVcCurrentGain(channelIndexes, gainAdcMeas[thisVcCurrentRangeIdx], true);
             mDev->getMessageDispatcher()->setCalibVcCurrentOffset(channelIndexes, offsetAdcMeas[thisVcCurrentRangeIdx], true);
+            /*!\todo MPAC: qui per 384patchclamp bisogna anche mandare a FFPGA il offsetDAC, ccADCgain, ccADC,offset, ccDACgaine e ccDACOffset*/
     }
 
 
@@ -1477,10 +1559,10 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
         /*! setta la Chold per i canali selezionati e applica lo stimolo a tutti i canali selezionati*/
         vector<Measurement_t> someCurrSteps;
         /*! \todo MPAC: non abbiamo una setChold nel modello, al momento non aggiorniamo il modello per questa cosa*/
-//        for(int i = 0; i < channelToCalibIdxs.size(); i++){
-//            someCurrSteps.push_back(ccCalibrationCurrSteps[thisActualRangeIdx][currStepIdx]);
-//           mDev->getChannels()[channelToCalibIdxs[i]]->setVhold(ccCalibrationCurrSteps[thisActualRangeIdx][currStepIdx]);
-//        }
+        for(int i = 0; i < channelToCalibIdxs.size(); i++){
+            someCurrSteps.push_back(ccCalibrationCurrSteps[thisActualRangeIdx][currStepIdx]);
+           //mDev->getChannels()[channelToCalibIdxs[i]]->setChold(ccCalibrationCurrSteps[thisActualRangeIdx][currStepIdx]);
+        }
         mDev->getMessageDispatcher()->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
 
         /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
@@ -1560,4 +1642,157 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
     /*! spegne lo stimolo, i carichi erano già stati staccati fuori dalla funzione*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
 
+}
+
+void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRange){
+    /*!  applico  0nA ai canali selezionati*/
+    vector<Measurement_t> someCurrSteps;
+    /*! \todo MPAC: non abbiamo una setChold nel modello, al momento non aggiorniamo il modello per questa cosa*/
+    for(int i = 0; i < channelToCalibIdxs.size(); i++){
+        someCurrSteps.push_back({0.0, UnitPfxNano, "A"});
+       //mDev->getChannels()[channelToCalibIdxs[i]]->setChold({0.0, UnitPfxMilli, "V"});
+    }
+    mDev->getMessageDispatcher()->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
+
+    /*! accende lo stimolo su tutti i canali  o su quelli della scheda selezionata*/
+    /*! gli switch di ingresso sono staccati dal passo precedente*/
+    turnSomeCcStimulaOnOff(channelToCalibIdxs, someTrue);
+
+    voltageMeans[0].resize(channelToCalibIdxs.size());
+
+    /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
+    la cui struttura è ancora da definire */
+    sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
+    minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+    samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+    hook->flush(); /*! Remove old buffered data */
+    while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
+
+    /*! butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
+    buffer.remove(0, samplesToremove);
+    int actualBufferSize = buffer.size();
+    buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+    actualBufferSize = buffer.size();
+
+    int timeSamples = actualBufferSize/totalChannelsNum;
+
+     /*! \todo  faccio media delle sole correnti */
+    int channelIdx;
+    for (int bufferIdx = 0; bufferIdx < buffer.size(); bufferIdx += totalChannelsNum) {
+        for (int currentIdx = 0; currentIdx < channelToCalibIdxs.size(); currentIdx++) {
+            if(channelToCalibIdxs.size()==currentChannelsNum){
+                channelIdx = bufferIdx+currentIdx;
+            } else {
+                /*! necessario se calibro una sola scheda, mi serve come offset l'indice del primo canale che calibro*/
+                channelIdx = bufferIdx+currentIdx + channelToCalibIdxs[0];
+            }
+            voltageSum[currentIdx] += buffer[channelIdx]*multiplierVoltage;
+        }
+    }
+
+    vector<double> usefulAdcOffset;
+    usefulAdcOffset.resize(channelToCalibIdxs.size());
+
+    /*! moltiplico la tensione media per i GAIN ADC calacolati al passo precedente e dovrei avere già l'offset di ADC*/
+    for(int i = 0; i < voltageSum.size(); i++){
+        usefulAdcOffset[i] = -(ccGainADC[rangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()); //V
+    }
+
+    buffer.clear(); /*! is resized in getDataChunk()*/
+    voltageSum.clear();
+    voltageSum.resize(channelToCalibIdxs.size());
+    voltageSum.fill(0.0);
+
+    ccOffsetADC[rangeIdx] = usefulAdcOffset;
+
+    /*! spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
+    turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
+}
+
+void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRange){
+    int numTries = 0;
+    vector<bool> needsFurtherCalibration;
+    needsFurtherCalibration.resize(channelToCalibIdxs.size());
+
+    vector<double> adcCompensatedVoltage;
+    adcCompensatedVoltage.resize(channelToCalibIdxs.size());
+
+    /*! applico  0nA ai canali selezionati*/
+    vector<Measurement_t> someCurrSteps;
+    for(int i = 0; i < channelToCalibIdxs.size(); i++){
+       someCurrSteps.push_back({0.0, UnitPfxNano, "A"});
+       // mDev->getChannels()[channelToCalibIdxs[i]]->setChold({0.0, UnitPfxNano, "A"});
+       needsFurtherCalibration[i] = true;
+    }
+    mDev->getMessageDispatcher()->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
+
+    /*! accende lo stimolo, i CAL_SW erano stati attaccati fuori dalla funzione*/
+    turnSomeCcStimulaOnOff(channelToCalibIdxs, someTrue);
+
+    voltageMeans[0].resize(channelToCalibIdxs.size());
+
+    vector<double> usefulDacOffset;
+    usefulDacOffset.resize(channelToCalibIdxs.size());
+
+    while(numTries <= CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY){
+        /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
+        la cui struttura è ancora da definire */
+        sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
+        minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        hook->flush(); /*! Remove old buffered data */
+        while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
+
+        /*!  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
+        buffer.remove(0, samplesToremove);
+        int actualBufferSize = buffer.size();
+        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+        actualBufferSize = buffer.size();
+
+        int timeSamples = actualBufferSize/totalChannelsNum;
+
+         /*!  faccio media delle sole correnti */
+        int channelIdx;
+        for (int bufferIdx = 0; bufferIdx < buffer.size(); bufferIdx += totalChannelsNum) {
+            for (int currentIdx = 0; currentIdx < channelToCalibIdxs.size(); currentIdx++) {
+                if(channelToCalibIdxs.size()==currentChannelsNum){
+                    channelIdx = bufferIdx+currentIdx;
+                } else {
+                    /*! necessario se calibro una sola scheda, mi serve come offset l'indice del primo canale che calibro*/
+                    channelIdx = bufferIdx+currentIdx + channelToCalibIdxs[0];
+                };
+                voltageSum[currentIdx] += buffer[channelIdx]*multiplierVoltage;
+            }
+        }
+
+        /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
+        for(int i = 0; i < currentSum.size(); i++){
+
+            adcCompensatedVoltage[i] = (ccGainADC[rangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + ccOffsetADC[rangeIdx][i];
+            if (adcCompensatedVoltage[i] == 0.0){
+               needsFurtherCalibration[i] = false;
+           } else {
+               /*! sottraggo allo step di corrente attualmente applicato*/
+                double poffi = ccCalibratonResistances[rangeIdx].getNoPrefixValue(); // Ohm
+                double bubbi = someCurrSteps[i].getNoPrefixValue() - adcCompensatedVoltage[i]/poffi; // A
+                someCurrSteps[i].value = bubbi/someCurrSteps[i].multiplier(); //nA perchè divido I per 1e-9
+           }
+           usefulDacOffset[i] = -(someCurrSteps[i].getNoPrefixValue()); //A
+        }
+
+        /*! mandi via messageDispatcher i valori aggiornati di voltage step per vedere se la lettura sui canali mi diventa finalmetne 0 */
+        mDev->getMessageDispatcher()->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
+
+        buffer.clear(); /*! is resized in getDataChunk()*/
+        voltageSum.clear();
+        voltageSum.resize(channelToCalibIdxs.size());
+        voltageSum.fill(0.0);
+
+        ccOffsetDAC[rangeIdx] = usefulDacOffset;
+
+        numTries++;
+    }
+
+    /*!  spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
+    turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
 }
