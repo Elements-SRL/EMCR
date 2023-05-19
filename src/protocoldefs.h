@@ -1,6 +1,7 @@
 #ifndef PROTOCOLDEFS_H
 #define PROTOCOLDEFS_H
 
+#include <QListWidgetItem>
 
 /*! Defines for protocol editor draggable objects */
 #define PROT_DRAG_LIST_WIDGET_ITEM_TYPE (QListWidgetItem::UserType)
@@ -152,7 +153,7 @@
 #define PROT_WIDGET_INVALID_COLOR QColor(0xFF, 0xBF, 0xBF)
 #define PROT_WIDGET_ANALYSIS_INVALID_COLOR QColor(0xFF, 0xFF, 0xBF)
 
-#define YAML_DEFAULT_FOLDER QString(QDir::homePath() + "/EMCR/Protocols/")
+#define YAML_DEFAULT_FOLDER QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME +"/Protocols/")
 #define YAML_DEFAULT_FILE QString("default")
 #define YAML_FILE_EXTENSION QString(".yaml")
 
@@ -177,6 +178,7 @@
 #define YAML_LAST_PROTOCOL_FOLDER YAML_DEFAULT_FOLDER
 #define YAML_LAST_PROTOCOL_FILE QString("last protocol")
 #define YAML_LAST_PROTOCOL_FULL_FILE (YAML_LAST_PROTOCOL_FOLDER+YAML_LAST_PROTOCOL_FILE+YAML_FILE_EXTENSION)
+
 typedef enum {
     ProtocolTypeGapfree = 0,
     ProtocolTypeEpisodic = 1

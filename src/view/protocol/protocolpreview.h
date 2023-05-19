@@ -60,7 +60,7 @@ protected:
     QPushButton * manageCursorBtn;
     QLabel * cursorsBinLbl;
     QLabel * cursorsWarningLbl;
-    unsigned int maxOutputTriggers;
+    unsigned int maxOutputTriggers = 0;
     QLabel * cursorsWarningPlaceHolderLbl;
     QPixmap cursonBinClosedPxm;
     QPixmap cursonBinOpenPxm;

@@ -10,8 +10,6 @@
 #include "e384commlib_global_addendum.h"
 #include "modelboard.h"
 
-using namespace std;
-
 class ModelDevice {
 public:
     ModelDevice();
@@ -20,8 +18,8 @@ public:
     MessageDispatcher * getMessageDispatcher();
     QString getSerialNumber();
     bool isConnected();
-    vector<ModelBoard*> getBoards();
-    vector<ModelChannel*> getChannels();
+    std::vector<ModelBoard*> getBoards();
+    std::vector<ModelChannel*> getChannels();
     Measurement_t getSamplingRate();
     RangedMeasurement_t getVcCurrentRange();
     RangedMeasurement_t getVcVoltageRange();
@@ -36,8 +34,8 @@ public:
     void setMessageDispatcher(MessageDispatcher * messageDispatcher);
     void setSerialNumber(QString serial);
     void setConnected(bool flag);
-    void setBoards(vector<ModelBoard*> boards);
-    void setChannels(vector<ModelChannel*> channels);
+    void setBoards(std::vector<ModelBoard*> boards);
+    void setChannels(std::vector<ModelChannel*> channels);
     void setSamplingRate(Measurement_t samplingRate);
     void setVcCurrentRange(RangedMeasurement_t vCcurrentRange);
     void setVcVoltageRange(RangedMeasurement_t vCvoltageRange);
@@ -56,27 +54,27 @@ public:
     // wrappers for MessageDispatcher get features
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
     ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
-    ErrorCodes_t getCalibVcCurrentOffsetFeatures(vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
+    ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
     ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
-    ErrorCodes_t getCalibCcVoltageOffsetFeatures(vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
+    ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
     ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
     ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
     ErrorCodes_t getChannelsNumberFeatures(int &voltageChannelNum, int &currentChannelNum);
     ErrorCodes_t getBoardsNumberFeatures(int &boardNum);
-    ErrorCodes_t getClampingModalitiesFeatures(vector<int> &clampingModalitiesFeatures);
+    ErrorCodes_t getClampingModalitiesFeatures(std::vector<int> &clampingModalitiesFeatures);
 
-    ErrorCodes_t getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures, uint16_t &defaultVcCurrRangeIdx);
-    ErrorCodes_t getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures);
-    ErrorCodes_t getCcCurrentRangesFeatures(vector <RangedMeasurement_t> &ccCurrentRangesFeatures);
-    ErrorCodes_t getCcVoltageRangesFeatures(vector <RangedMeasurement_t> &ccVoltageRangesFeatures);
+    ErrorCodes_t getVcCurrentRangesFeatures(std::vector <RangedMeasurement_t> &vcCurrentRangesFeatures, uint16_t &defaultVcCurrRangeIdx);
+    ErrorCodes_t getVcVoltageRangesFeatures(std::vector <RangedMeasurement_t> &vcVoltageRangesFeatures);
+    ErrorCodes_t getCcCurrentRangesFeatures(std::vector <RangedMeasurement_t> &ccCurrentRangesFeatures);
+    ErrorCodes_t getCcVoltageRangesFeatures(std::vector <RangedMeasurement_t> &ccVoltageRangesFeatures);
 
-    ErrorCodes_t getSamplingRatesFeatures(vector <Measurement_t> &samplingRatesFeatures);
+    ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRatesFeatures);
 
-    ErrorCodes_t getVoltageStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
-    ErrorCodes_t getCurrentStimulusLpfsFeatures(vector <Measurement_t> &filterOptions);
+    ErrorCodes_t getVoltageStimulusLpfsFeatures(std::vector <Measurement_t> &filterOptions);
+    ErrorCodes_t getCurrentStimulusLpfsFeatures(std::vector <Measurement_t> &filterOptions);
 
-    ErrorCodes_t getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures);
-    ErrorCodes_t getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures);
+    ErrorCodes_t getCalibVcVoltStepFeatures(std::vector <Measurement_t> &calibVcVoltStepsFeatures);
+    ErrorCodes_t getCalibVcResFeatures(std::vector <Measurement_t> &calibVcResFeatures);
     //---------------------------------------------/
 
 private:
@@ -84,8 +82,8 @@ private:
     QString serialNumber = "";
 
     bool connected = false;
-    vector<ModelBoard*> myBoards;
-    vector<ModelChannel*> myChannels;
+    std::vector<ModelBoard*> myBoards;
+    std::vector<ModelChannel*> myChannels;
     Measurement_t samplingRate = {0.0, UnitPfxNone, "Hz"};
     RangedMeasurement_t vcCurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
     RangedMeasurement_t vcVoltageRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};

@@ -83,8 +83,8 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
     switch (operationIdx) {
     case OperationTurnChannelsOnOff: {
         QCheckBox * cb;
-        vector<bool> values;
-        vector<uint16_t> indexes;
+        std::vector<bool> values;
+        std::vector<uint16_t> indexes;
 
         QVector <bool> selectedIndexes;
         if (applyAll) {
@@ -108,8 +108,8 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
     }
     case OperationTurnStimulusOnOff:{
         QCheckBox * cb;
-        vector<bool> values;
-        vector<uint16_t> indexes;
+        std::vector<bool> values;
+        std::vector<uint16_t> indexes;
 
         QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -126,8 +126,8 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
     }
     case OperationStartStopDigitalOffsetCompensation:{
         QCheckBox * cb;
-        vector<bool> values;
-        vector<uint16_t> indexes;
+        std::vector<bool> values;
+        std::vector<uint16_t> indexes;
 
         QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -144,8 +144,8 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
     }
     case OperationHoldingStimulus:{
         SpinBoxWithChannel * vHoldSpinBox;
-        vector<Measurement_t> values;
-        vector<uint16_t> indexes;
+        std::vector<Measurement_t> values;
+        std::vector<uint16_t> indexes;
 
         QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -167,8 +167,8 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
     }
     case OperationPlotToBigPlot:{
         QCheckBox * cb;
-        vector<bool> values;
-        vector<uint16_t> indexes;
+        std::vector<bool> values;
+        std::vector<uint16_t> indexes;
 
         QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -190,8 +190,8 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
 
 void ChannelControlDockWidget::onCheckAllButtonClicked() {
     QCheckBox * cb;
-    vector<bool> values;
-    vector<uint16_t> indexes;
+    std::vector<bool> values;
+    std::vector<uint16_t> indexes;
 
     QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -205,8 +205,8 @@ void ChannelControlDockWidget::onCheckAllButtonClicked() {
 
 void ChannelControlDockWidget::onUncheckAllButtonClicked() {
     QCheckBox * cb;
-    vector<bool> values;
-    vector<uint16_t> indexes;
+    std::vector<bool> values;
+    std::vector<uint16_t> indexes;
 
     QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -220,8 +220,8 @@ void ChannelControlDockWidget::onUncheckAllButtonClicked() {
 
 void ChannelControlDockWidget::onSetAllButtonClicked() {
     SpinBoxWithChannel * spinBox;
-    vector<bool> values;
-    vector<uint16_t> indexes;
+    std::vector<bool> values;
+    std::vector<uint16_t> indexes;
 
     QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
@@ -235,8 +235,8 @@ void ChannelControlDockWidget::onSetAllButtonClicked() {
 
 void ChannelControlDockWidget::onStartRecordingButtonClicked() {
     QCheckBox * cb;
-    vector<bool> values;
-    vector<uint16_t> indexes;
+    std::vector<bool> values;
+    std::vector<uint16_t> indexes;
     bool isAtLeastOneChannelChecked = false;
 
     QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
@@ -284,7 +284,7 @@ void ChannelControlDockWidget::onSigRecording(bool state){
 }
 
 void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     mDev->getVoltageHoldTunerFeatures(ranges);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
@@ -316,7 +316,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         break;
 
     case OperationHoldingStimulus: {
-        vector <RangedMeasurement_t> ranges;
+        std::vector <RangedMeasurement_t> ranges;
         mDev->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -369,7 +369,7 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
         operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
         operationButtonGridLayout->setSpacing(0);
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
-        vector <RangedMeasurement_t> ranges;
+        std::vector <RangedMeasurement_t> ranges;
         mDev->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
         MySpinBox * sbx = new MySpinBox;

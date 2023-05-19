@@ -54,7 +54,7 @@ ProtocolEditor::ProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWid
     ErrorCodes_t ret = Success;
 
     std::vector <Measurement_t> availableSamplingRates;
-    ret = mDev->getSamplingRates(availableSamplingRates);
+    ret = mDev->getSamplingRatesFeatures(availableSamplingRates);
 
     if (ret == Success) {
         uint32_t samplingRatesNum = availableSamplingRates.size();
@@ -376,34 +376,26 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     btn = libraryPidl->setSeparator("Protocol items", PROT_EDITOR_STIMULUS_SEPARATOR_COLOR);
     itemIdx++;
 
-    if (mDev->hasProtocolStep() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragVHoldItem());
         itemIdxs.append(itemIdx++);
         libraryPidl->addItem(new ProtocolDragVConstItem());
         itemIdxs.append(itemIdx++);
-#if (GLB_ENABLE_XSTEP_PROTOCOL_ITEM == true)
-        libraryPidl->addItem(new ProtocolDragVStepItem());
-        itemIdxs.append(itemIdx++);
-#endif
-#if (GLB_ENABLE_XTSTEP_PROTOCOL_ITEM == true)
-        libraryPidl->addItem(new ProtocolDragVTStepItem());
-        itemIdxs.append(itemIdx++);
-#endif
         libraryPidl->addItem(new ProtocolDragVStepTStepItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->hasProtocolRamp() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragVRampItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->hasProtocolSin() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragVSinItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->hasProtocolStep() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragVRestItem());
         itemIdxs.append(itemIdx++);
     }
@@ -479,7 +471,8 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     ErrorCodes_t ret = Success;
 
     std::vector <RangedMeasurement_t> availableCurrentRanges;
-    ret = mDev->getVcCurrentRangesFeatures(availableCurrentRanges);
+    uint16_t defaultRange;
+    ret = mDev->getVcCurrentRangesFeatures(availableCurrentRanges, defaultRange);
 
     if (ret == Success) {
         uint32_t currentRangesNum = availableCurrentRanges.size();
@@ -560,11 +553,10 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
 
     /*! Protocol previewer */
     RangedMeasurement_t stimulusRange;
-    mDev->getVoltageProtocolRange(0, stimulusRange);
+    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
-//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
     RangedMeasurement_t timeRange;
-    mDev->getTimeProtocolRange(timeRange);
+    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
     timeRange.convertValues(UnitPfxMilli);
     protocolPreview = new ProtocolPreview(mDev, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
@@ -594,16 +586,14 @@ QComboBox * VoltageProtocolEditor::getVoltageRangeEdit() {
 
 void VoltageProtocolEditor::setHoldingRange() {
     RangedMeasurement_t stimulusRange;
-    mDev->getVoltageProtocolRange((unsigned int)(voltageRangeEdit->currentIndex()), stimulusRange);
+    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)(voltageRangeEdit->currentIndex()), stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
-//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 }
 
 void VoltageProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     RangedMeasurement_t stimulusRange;
-    mDev->getVoltageProtocolRange((unsigned int)rangeIdx, stimulusRange);
+    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
-//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 
     protocolPreview->setStimulusRange(stimulusRange);
     parentWidget->getProtocolPreview()->setStimulusRange(stimulusRange);
@@ -624,7 +614,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     btn = libraryPidl->setSeparator("Protocol items", PROT_EDITOR_STIMULUS_SEPARATOR_COLOR);
     itemIdx++;
 
-    if (mDev->hasProtocolStep() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragIHoldItem());
         itemIdxs.append(itemIdx++);
         libraryPidl->addItem(new ProtocolDragIConstItem());
@@ -633,17 +623,17 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->hasProtocolRamp() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragIRampItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->hasProtocolSin() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragISinItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->hasProtocolStep() == Success) {
+    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragIRestItem());
         itemIdxs.append(itemIdx++);
     }
@@ -695,10 +685,6 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     itemIdxs.append(itemIdx++);
     libraryPidl->addItem(new ProtocolDragIvGraphItem());
     itemIdxs.append(itemIdx++);
-#ifndef GLB_DISABLE_VOLTAGE_TRACKING
-    libraryPidl->addItem(new ProtocolDragVoltageTrackingItem());
-    itemIdxs.append(itemIdx++);
-#endif
     libraryPidl->addItem(new ProtocolDragApThresholdItem());
     itemIdxs.append(itemIdx++);
     libraryPidl->addItem(new ProtocolDragApStatisticsItem());
@@ -806,11 +792,10 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
 
     /*! Protocol previewer */
     RangedMeasurement_t stimulusRange;
-    mDev->getCurrentProtocolRange(0, stimulusRange);
-    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX)
-//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
+    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
+    initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
     RangedMeasurement_t timeRange;
-    mDev->getTimeProtocolRange(timeRange);
+    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
     timeRange.convertValues(UnitPfxMilli);
     protocolPreview = new ProtocolPreview(mDev, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
@@ -840,14 +825,14 @@ QComboBox * CurrentProtocolEditor::getVoltageRangeEdit() {
 
 void CurrentProtocolEditor::setHoldingRange() {
     RangedMeasurement_t stimulusRange;
-    mDev->getCurrentProtocolRange((unsigned int)(currentRangeEdit->currentIndex()), stimulusRange);
+    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)(currentRangeEdit->currentIndex()), stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 //    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 }
 
 void CurrentProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     RangedMeasurement_t stimulusRange;
-    mDev->getCurrentProtocolRange((unsigned int)rangeIdx, stimulusRange);
+    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 //    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 

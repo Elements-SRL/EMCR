@@ -37,7 +37,7 @@ ProtocolPreview::ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRan
 
     errorItem->setVisible(false);
 
-    mDev->getMaxOutputTriggers(maxOutputTriggers);
+//    mDev->getMaxOutputTriggers(maxOutputTriggers);
     if (!minimal) {
         /*! Cursors */
         cursorsManager = new CursorsManager(protocolPlot, maxOutputTriggers);
@@ -150,7 +150,7 @@ ProtocolPreview::ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRan
         sinTable[ptsIdx] = sin(((double)ptsIdx)*2.0*M_PI/(double)(PPW_MAX_PTS_PER_ITEM-1));
     }
 
-    mDev->getMaxProtocolItems(maxProtocolItems);
+    mDev->getMessageDispatcher()->getMaxProtocolItemsFeature(maxProtocolItems);
 
     /*! stimulusUnit is set in setStimulusRange */
     timeUnit = QString::fromStdString(timeRange.getFullUnit());

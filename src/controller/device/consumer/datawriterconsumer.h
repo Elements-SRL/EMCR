@@ -23,7 +23,7 @@ public slots:
     virtual void onStopConsuming() override;
 
     void onRecordingSettingsSet(RecordSettingsDialog::RecordSettings_t settings);
-    void onRecordSelectedChannels(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onRecordSelectedChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 
     virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;

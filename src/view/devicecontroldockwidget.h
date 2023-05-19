@@ -3,9 +3,10 @@
 
 #include <QDockWidget>
 #include <QGroupBox>
-#include "model/modeldevice.h"
 #include <QRadioButton>
 #include <QVBoxLayout>
+
+#include "modeldevice.h"
 
 #define DCW_CURRENT_RANGE_TITLE "Current Ranges"
 #define DCW_VOLTAGE_RANGE_TITLE "Voltage Ranges"
@@ -23,23 +24,23 @@ public:
 private:
     ModelDevice * modelDevice;
     QGroupBox * vcCurrentRangesGroupBox = nullptr;
-    vector<QRadioButton *> vcCurrentRangesRadioButtons;
+    std::vector<QRadioButton *> vcCurrentRangesRadioButtons;
     bool vcCurrentRangesPrevioueEnableStateBeforeRecording = false;
     QGroupBox * vcVoltageRangesGroupBox = nullptr;
-    vector<QRadioButton *> vcVoltageRangesRadioButtons;
+    std::vector<QRadioButton *> vcVoltageRangesRadioButtons;
     bool vcVoltageRangesPrevioueEnableStateBeforeRecording = false;
     QGroupBox * ccCurrentRangesGroupBox = nullptr;
-    vector<QRadioButton *> ccCurrentRangesRadioButtons;
+    std::vector<QRadioButton *> ccCurrentRangesRadioButtons;
     bool ccCurrentRangesPrevioueEnableStateBeforeRecording = false;
     QGroupBox * ccVoltageRangesGroupBox = nullptr;
-    vector<QRadioButton *> ccVoltageRangesRadioButtons;
+    std::vector<QRadioButton *> ccVoltageRangesRadioButtons;
     bool ccVoltageRangesPrevioueEnableStateBeforeRecording = false;
     QGroupBox * samplingRatesGroupBox = nullptr;
-    vector<QRadioButton *> samplingRatesRadioButtons;
+    std::vector<QRadioButton *> samplingRatesRadioButtons;
     bool samplingRatesPrevioueEnableStateBeforeRecording = false;
 
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
-//    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons);
+//    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, std::vector <RangedMeasurement_t> myRanges, std::vector<QRadioButton *> &qRadioButtons);
 
     signals:
     void sigVcCurrentRangeSelected(int idx);
@@ -49,7 +50,7 @@ private:
     void sigSamplingRateSelected(int idx);
 
 public slots:
-    void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onStopRecording();
 };
 

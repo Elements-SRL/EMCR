@@ -27,10 +27,10 @@ public slots:
     void onAllChannelsClicked(bool newChannelState);
 
     // To do on apply pushed on the Channel Control Dock Widget
-    void onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
-    void onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
-    void onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
-    void onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues);
+    void onApplyTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void onApplyVoltageHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> vHoldValues);
 
     /*! \todo void onApplyKawaiiPlotSettings(Boh);*/
 

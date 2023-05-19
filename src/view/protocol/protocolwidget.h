@@ -160,7 +160,7 @@ protected:
 
     QVector <TriggerCursor *> pushedTriggerCursors;
     QVector <TriggerCursor *> triggerCursors;
-    unsigned int maxTriggerEvents;
+    unsigned int maxTriggerEvents = 0;
 
     bool protocolValid = true;
     bool protocolInhibited = false;

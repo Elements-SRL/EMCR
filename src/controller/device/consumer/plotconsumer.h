@@ -29,7 +29,7 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
     void onDurationChanged(Measurement_t duration);
-    void onSelectChannels(vector<uint16_t> channelIndexes, vector <bool> channels);
+    void onSelectChannels(std::vector<uint16_t> channelIndexes, std::vector <bool> channels);
 
 protected:
     typedef enum {

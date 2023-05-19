@@ -11,13 +11,13 @@ void ControllerBoard::setModelDevice(ModelDevice * mDev){
     this->mDev = mDev;
 }
 
-void ControllerBoard::onGateSourceVoltagesApplied(vector<uint16_t> gateVoltageBoardIndexes, vector<Measurement_t> gateVoltages, vector<uint16_t> sourceVoltageBoardIndexes, vector<Measurement_t> sourceVoltages){
+void ControllerBoard::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
     /*Set gate and source voltages in messageDispatcher*/
     this->mDev->getMessageDispatcher()->setGateVoltagesTuner(gateVoltageBoardIndexes, gateVoltages, true);
     this->mDev->getMessageDispatcher()->setSourceVoltagesTuner(sourceVoltageBoardIndexes, sourceVoltages, true);
 
     /*Set gate and source voltages in the model*/
-    vector<ModelBoard*> myBoards = this->mDev->getBoards();
+    std::vector<ModelBoard*> myBoards = this->mDev->getBoards();
     for(int i = 0; i<gateVoltageBoardIndexes.size(); i++){
         myBoards[gateVoltageBoardIndexes[i]]->setGateVoltage(gateVoltages[i]);
     }

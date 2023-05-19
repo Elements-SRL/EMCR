@@ -27,7 +27,7 @@ public:
 public slots:
     void onStartConsuming() override;
     void onStopConsuming() override;
-    void onPerformCalibration(vector<uint16_t> channelsToCalibrateIdxs);
+    void onPerformCalibration(std::vector<uint16_t> channelsToCalibrateIdxs);
     void onModelCellChanged(bool modelCellChanged);
     void onFirstModelMounted(bool firstModelCellMounted);
 
@@ -58,15 +58,15 @@ private:
     std::vector<std::vector<double_t>> allOffsetADC; // vettore di 2 vettori_di_offset (Uno per range)
     std::vector <double_t> allOffsetDAC; // vettore di offset (questo non dipende dal range)
 
-    vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
+    std::vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
     int totalChannelsUnderCalibNum;
     QVector <double> buffer;
     int samplesToremove;
     QVector <double> currentSum;
     QVector<QVector <double>> currentMeans;
     int rangeIdx;
-    vector<bool> someTrue;
-    vector<bool> someFalse;
+    std::vector<bool> someTrue;
+    std::vector<bool> someFalse;
     double multiplierCurrent = 1.0;
     uint16_t defaultVcCurrRangeIdx;
     bool waitForModelCellChanged = false;
@@ -78,7 +78,7 @@ private:
     Measurement_t defaultAdcOffsetValue;
     Measurement_t defaultDacOffsetValue;
 
-    vector<QString> boardSerialNums;
+    std::vector<QString> boardSerialNums;
     QString calibrationFilesFolder = CCS_CALIBRATION_DEFAULT_PATH;
     QString myCsvSeparator = ",";
 
@@ -89,25 +89,25 @@ private:
     void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
     void turnAllChannelsOnOff(bool onValue);
     void turnAllStimulaOnOff(bool onValue);
-    void selectSomeChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
-    void turnSomeChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
-    void turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void selectSomeChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
+    void turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void turnSomeStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 
     /*! REAL CALIBRATION FUNCITIONS*/
-    void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
+    void leastSquareSimple(std::vector<double> x, std::vector<double> y, double &slope, double &offset);
     void calibrateAdcGain();
     void calibrateAdcOffset(RangedMeasurement_t thisActualRange);
     void calibrateDacOffset(RangedMeasurement_t thisActualRange);
 
     /*! Interactions with CSV files*/
     void mainSaveOnCsv();
-    void prepareStuffToSaveOnCsv(QString path, QString fileName, vector<uint16_t> chanSubset);
-    void saveCsv(vector<uint16_t> chanSubset, QTextStream &stream);
+    void prepareStuffToSaveOnCsv(QString path, QString fileName, std::vector<uint16_t> chanSubset);
+    void saveCsv(std::vector<uint16_t> chanSubset, QTextStream &stream);
     void loadDefaultCalibParams(int channelsNum);
     void extractBoardCalibDataFromCsv(QTextStream &boardStream);
-    QString getCsvData(vector<uint16_t> chanSubset);
+    QString getCsvData(std::vector<uint16_t> chanSubset);
 
-    void convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas, vector<vector<Measurement_t>> &offsetAdcMeas, vector<Measurement_t> &offsetDacMeas);
+    void convertToMeasurement(std::vector<std::vector<Measurement_t>> &gainAdcMeas, std::vector<std::vector<Measurement_t>> &offsetAdcMeas, std::vector<Measurement_t> &offsetDacMeas);
 
 signals:
     void sigCalibLoadingMsg(QString calibLoadMsg);

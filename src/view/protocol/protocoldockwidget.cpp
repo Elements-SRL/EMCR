@@ -6,9 +6,9 @@
 #include <QLabel>
 #include <QSettings>
 
-ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingModality, QWidget * parent) :
+ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t clampingModality, QWidget * parent) :
     QDockWidget(),
-    commLib(commLib),
+    mDev(mDev),
     clampingModality(clampingModality) {
 
     QWidget * mainW = new QWidget;
@@ -27,26 +27,26 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
 
     this->installEventFilter(this);
 
-    e4gcl::RangedMeasurement_t stimulusRange;
-    if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
-        commLib->getVoltageProtocolRange(0, stimulusRange);
+    e384CommLib::RangedMeasurement_t stimulusRange;
+    if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
 
     } else {
-        commLib->getCurrentProtocolRange(0, stimulusRange);
+        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
     }
 
-    e4gcl::RangedMeasurement_t timeRange;
-    commLib->getTimeProtocolRange(timeRange);
-    timeRange.convertValues(e4gcl::UnitPfxMilli);
-    protocolPropertyDialog = new ProtocolPropertyDialog(commLib, timeRange, stimulusRange);
+    e384CommLib::RangedMeasurement_t timeRange;
+    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
+    timeRange.convertValues(e384CommLib::UnitPfxMilli);
+    protocolPropertyDialog = new ProtocolPropertyDialog(mDev, timeRange, stimulusRange);
 
-    voltageProtocolList = new VoltageProtocolList(commLib, protocolPropertyDialog, parent);
-    currentProtocolList = new CurrentProtocolList(commLib, protocolPropertyDialog, parent);
+    voltageProtocolList = new VoltageProtocolList(mDev, protocolPropertyDialog, parent);
+    currentProtocolList = new CurrentProtocolList(mDev, protocolPropertyDialog, parent);
 
     recordFileBtn = new QPushButton();
     recordFileBtn->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     recordFileBtn->setStyleSheet("Text-align:left");
-    if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
         this->setRecordFile(voltageProtocolList->getProtocolsSettingsDialog()->getRecordPath(), voltageProtocolList->getProtocolsSettingsDialog()->getRecordName());
 
     } else {
@@ -80,8 +80,8 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     appliedStimLbl->setFixedWidth(fm.width(appliedStimLbl->text()));
     appliedStimLbl->setText("");
 
-    connect(this, &ProtocolDockWidget::stimulusApplied, this, [=] (double value, e4gcl::RangedMeasurement_t range) {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    connect(this, &ProtocolDockWidget::stimulusApplied, this, [=] (double value, e384CommLib::RangedMeasurement_t range) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             appliedStimLbl->setText(QString("Vc %1" + QString::fromStdString(range.getFullUnit())).arg(value, 0, 'f', 0));
 
         } else {
@@ -89,8 +89,8 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
         }
     });
 
-    connect(this, &ProtocolDockWidget::holdApplied, this, [=] (double value, e4gcl::RangedMeasurement_t range) {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    connect(this, &ProtocolDockWidget::holdApplied, this, [=] (double value, e384CommLib::RangedMeasurement_t range) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             appliedStimLbl->setText(QString("Vhold %1" + QString::fromStdString(range.getFullUnit())).arg(value, 0, 'f', 0));
 
         } else {
@@ -138,7 +138,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     addProtocolBtn->setCheckable(false);
     connect(addProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onAddProtocol();
 
         } else {
@@ -157,7 +157,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     removeProtocolBtn->setCheckable(false);
     connect(removeProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onRemoveProtocol();
 
         } else {
@@ -176,7 +176,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     editProtocolBtn->setCheckable(false);
     connect(editProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onEditProtocol();
 
         } else {
@@ -195,7 +195,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     copyProtocolBtn->setCheckable(false);
     connect(copyProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onCopyProtocol();
 
         } else {
@@ -214,7 +214,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     setProtocolsShortCutsBtn->setCheckable(false);
     connect(setProtocolsShortCutsBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onSetProtocolsShortCuts();
 
         } else {
@@ -233,7 +233,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     importProtocolBtn->setCheckable(false);
     connect(importProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onImportProtocols();
 
         } else {
@@ -252,7 +252,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     exportProtocolBtn->setCheckable(false);
     connect(exportProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onExportProtocols();
 
         } else {
@@ -279,7 +279,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     startProtocolBtn->setCheckable(false);
     connect(startProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onStartProtocol();
 
         } else {
@@ -298,7 +298,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     recordProtocolBtn->setCheckable(false);
     connect(recordProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onRecordProtocol();
 
         } else {
@@ -317,7 +317,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     stopProtocolBtn->setCheckable(false);
     connect(stopProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onStopProtocol();
 
         } else {
@@ -360,7 +360,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     saveLastProtocolBtn->setCheckable(false);
     saveLastProtocolBtn->setEnabled(false);
     connect(saveLastProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onSaveLastProtocol();
 
         } else {
@@ -381,7 +381,7 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
     }
     protocolsSettingsBtn->setCheckable(false);
     connect(protocolsSettingsBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onProtocolsSettings();
 
         } else {
@@ -389,34 +389,6 @@ ProtocolDockWidget::ProtocolDockWidget(e4gcl::CommLib * commLib, int clampingMod
         }
     });
     btnLo->addWidget(protocolsSettingsBtn, btnRow, btnCol++);
-
-    if (commLib->hasSlaveModality() == e4gcl::Success) {
-        QSettings settings;
-        slaveEnabledFlag = true;
-
-        /*! New row */
-        btnRow++;
-        btnCol = 0;
-
-        QComboBox * mainSecondaryCbx = new QComboBox;
-        mainSecondaryCbx->addItem("Main device");
-        mainSecondaryCbx->addItem("Secondary device");
-
-        connect(mainSecondaryCbx, QOverload <int> ::of (&QComboBox::currentIndexChanged), this, [=] (int idx) {
-            QSettings settings;
-            bool secondaryDeviceFlag = idx == 1 ? true : false;
-            voltageProtocolList->setSecondaryDevice(secondaryDeviceFlag);
-            currentProtocolList->setSecondaryDevice(secondaryDeviceFlag);
-            commLib->setSlave(secondaryDeviceFlag);
-            settings.setValue(GLB_PROTOCOL_MAIN_SECONDARY_TAG, idx);
-        });
-
-        /*! As a safety measure set the device as secondary by default, so that it doesn't try to apply voltages on the digital output, possibly
-         *  causing short circuits if the digital cable is still plugged to an external trigger */
-        mainSecondaryCbx->setCurrentIndex(settings.value(GLB_PROTOCOL_MAIN_SECONDARY_TAG, 1).toInt());
-
-        btnLo->addWidget(mainSecondaryCbx, btnRow, btnCol++, 1, -1);
-    }
 
     connect(this, &ProtocolDockWidget::enableTags, addTagBtn, &QPushButton::setEnabled);
 }
@@ -449,7 +421,7 @@ ProtocolDockWidget::~ProtocolDockWidget() {
 }
 
 void ProtocolDockWidget::onNewRecordFile(QString fileName) {
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
         this->setRecordFile(voltageProtocolList->getProtocolsSettingsDialog()->getRecordPath(), fileName);
 
     } else {
@@ -497,7 +469,7 @@ void ProtocolDockWidget::onRecording(bool flag) {
 }
 
 void ProtocolDockWidget::onProtocolEnded() {
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
         voltageProtocolList->onProtocolEnded();
 
     } else {
@@ -510,7 +482,7 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
         QKeyEvent * keyEvent = static_cast <QKeyEvent *> (event);
         if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
             if ((keyEvent->modifiers() & Qt::ShiftModifier) > 0) {
-                if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
                     voltageProtocolList->onRecordProtocol();
 
                 } else {
@@ -518,7 +490,7 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
                 }
 
             } else {
-                if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+                if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
                     voltageProtocolList->onStartProtocol();
 
                 } else {
@@ -531,7 +503,7 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
 }
 
 ProtocolList * ProtocolDockWidget::getProtocolList() {
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
         return voltageProtocolList;
 
     } else {
@@ -547,24 +519,24 @@ ProtocolList * ProtocolDockWidget::getCurrentProtocolList() {
     return currentProtocolList;
 }
 
-void ProtocolDockWidget::onSetClampingModality(int clampingModality) {
+void ProtocolDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
     this->clampingModality = clampingModality;
     saveLastProtocolBtn->setEnabled(false);
     this->setProtocolListVisibility();
 }
 
 void ProtocolDockWidget::setProtocolListVisibility() {
-    if (clampingModality == E4GCL_VOLTAGE_CLAMP_MODE) {
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
         this->setWindowTitle("Voltage Protocols");
         voltageProtocolList->setClampingModality(clampingModality);
         voltageProtocolList->saveAndClosePropertyDialog();
         currentProtocolList->setClampingModality(clampingModality);
         currentProtocolList->saveAndClosePropertyDialog();
 
-    } else if (clampingModality == E4GCL_ZERO_CURRENT_CLAMP_MODE) {
+    } else if (clampingModality == e384CommLib::ZERO_CURRENT_CLAMP) {
         /*! Nothing to do */
 
-    } else if (clampingModality == E4GCL_CURRENT_CLAMP_MODE) {
+    } else if (clampingModality == e384CommLib::CURRENT_CLAMP) {
         this->setWindowTitle("Current Protocols");
         voltageProtocolList->setClampingModality(clampingModality);
         voltageProtocolList->saveAndClosePropertyDialog();

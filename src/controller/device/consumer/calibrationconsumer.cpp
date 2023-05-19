@@ -115,7 +115,7 @@ void CalibrationConsumer::run(){
         consumptionLock.unlock();
 
         /*! seleziona la più bassa sampling rate possibile*/
-        vector <Measurement_t> samplingRates;
+        std::vector <Measurement_t> samplingRates;
         mDev->getSamplingRatesFeatures(samplingRates);
         mDev->getMessageDispatcher()->setSamplingRate(0, true);
         mDev->setSamplingRate(samplingRates[0]);
@@ -144,7 +144,7 @@ void CalibrationConsumer::run(){
             rangeIdx = jjj;
 
             /*! setto il range di corrente per Voltage Clamp*/
-            vector <RangedMeasurement_t> rangeInfo;
+            std::vector <RangedMeasurement_t> rangeInfo;
             mDev->getVcCurrentRangesFeatures(rangeInfo, bbb);
             mDev->getMessageDispatcher()->setVCCurrentRange(rangeIdx, true);
             multiplierCurrent = rangeInfo[rangeIdx].multiplier();
@@ -243,7 +243,7 @@ void CalibrationConsumer::onStopConsuming() {
 
 void CalibrationConsumer::calibrateAdcGain(){
     /*! Representation of voltage steps without any prefix, ...*/
-    vector<double> x; /*! voltage steps*/
+    std::vector<double> x; /*! voltage steps*/
     x.resize(calibrationVoltStep.size());
     for(int i = 0; i< calibrationVoltStep.size(); i++){
         x[i] = calibrationVoltStep[i].getNoPrefixValue();
@@ -258,7 +258,7 @@ void CalibrationConsumer::calibrateAdcGain(){
         currentMeans[voltStepIdx].resize(channelToCalibIdxs.size());
 
         /*! setta la Vhold per i canali selezionati e applica lo stimolo a tutti i canali selezionati*/
-        vector<Measurement_t> someVoltSteps;
+        std::vector<Measurement_t> someVoltSteps;
         for(int i = 0; i < channelToCalibIdxs.size(); i++){
             someVoltSteps.push_back(calibrationVoltStep[voltStepIdx]);
            mDev->getChannels()[channelToCalibIdxs[i]]->setVhold(calibrationVoltStep[voltStepIdx]);
@@ -308,9 +308,9 @@ void CalibrationConsumer::calibrateAdcGain(){
 
     /*! UNA VOLTA CHE HO TUTTE CORRENTI MEDIE PER CIASCUN Vstep PER CIASCUN CANALE, FACCIO MINIMI QUADRATI */
     /*! FOR: START ciclo sui canali*/
-    vector<double> y; /*! average currents*/
+    std::vector<double> y; /*! average currents*/
     y.resize(calibrationVoltStep.size());
-    vector<double> usefulAdcGain;
+    std::vector<double> usefulAdcGain;
     usefulAdcGain.resize(channelToCalibIdxs.size());
     double usefulSlope;
     double uselessOffset;
@@ -341,7 +341,7 @@ void CalibrationConsumer::calibrateAdcGain(){
 
 void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange){
     /*!  applico  0V ai canali selezionati*/
-    vector<Measurement_t> someVoltSteps;
+    std::vector<Measurement_t> someVoltSteps;
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
         someVoltSteps.push_back({0.0, UnitPfxMilli, "V"});
        mDev->getChannels()[channelToCalibIdxs[i]]->setVhold({0.0, UnitPfxMilli, "V"});
@@ -384,7 +384,7 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
         }
     }
 
-    vector<double> usefulAdcOffset;
+    std::vector<double> usefulAdcOffset;
     usefulAdcOffset.resize(channelToCalibIdxs.size());
 
     /*! moltiplico la corrente media per i GAIN calacolati al passo precedente e dovrei avere già l'offset di ADC*/
@@ -408,14 +408,14 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
 
 void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange){
     int numTries = 0;
-    vector<bool> needsFurtherCalibration;
+    std::vector<bool> needsFurtherCalibration;
     needsFurtherCalibration.resize(channelToCalibIdxs.size());
 
-    vector<double> adcCompensatedCurrent;
+    std::vector<double> adcCompensatedCurrent;
     adcCompensatedCurrent.resize(channelToCalibIdxs.size());
 
     /*! applico  0V ai canali selezionati*/
-    vector<Measurement_t> someVoltSteps;
+    std::vector<Measurement_t> someVoltSteps;
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
        someVoltSteps.push_back({0.0, UnitPfxMilli, "V"});
        mDev->getChannels()[channelToCalibIdxs[i]]->setVhold({0.0, UnitPfxMilli, "V"});
@@ -429,7 +429,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
     currentMeans[0].resize(channelToCalibIdxs.size());
 
-    vector<double> usefulDacOffset;
+    std::vector<double> usefulDacOffset;
     usefulDacOffset.resize(channelToCalibIdxs.size());
 
     while(numTries <= CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY){
@@ -498,7 +498,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
 /*! RECHECK: this can be used to pass specific params from the calibration GUI to the calibration thread, e.g. calibrate only one board
 More functions will be needed, e.g. to load calibration from  a csv file */
-void CalibrationConsumer::onPerformCalibration(vector<uint16_t> channelsToCalibrateIdxs){
+void CalibrationConsumer::onPerformCalibration(std::vector<uint16_t> channelsToCalibrateIdxs){
     /*! \todo usa come esempio l'abf writer*/
     this->onStopConsuming();
     this->channelToCalibIdxs = channelsToCalibrateIdxs;
@@ -517,8 +517,8 @@ void CalibrationConsumer::selectAllChannels(bool selectValue){
 }
 
 void CalibrationConsumer::turnAllChannelsOnOff(bool onValue){
-    vector<uint16_t> channelIndexes;
-    vector<bool> onValues;
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
     onValues.resize(currentChannelsNum);
     for (int i = 0; i < currentChannelsNum; i++){
@@ -531,8 +531,8 @@ void CalibrationConsumer::turnAllChannelsOnOff(bool onValue){
 }
 
 void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
-    vector<uint16_t> channelIndexes;
-    vector<bool> onValues;
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
     onValues.resize(currentChannelsNum);
     for (int i = 0; i < currentChannelsNum; i++){
@@ -544,14 +544,14 @@ void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
 }
 
-void CalibrationConsumer::selectSomeChannels(vector<uint16_t> channelIndexes, vector<bool> selectValues){
+void CalibrationConsumer::selectSomeChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> selectValues){
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setSelected(selectValues[i]);
         qDebug() << "[Channel " << channelIndexes[i] << "]: selected status:" << selectValues[i] << "\n";
     }
 }
 
-void CalibrationConsumer::turnSomeChannelsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
@@ -559,7 +559,7 @@ void CalibrationConsumer::turnSomeChannelsOnOff(vector<uint16_t> channelIndexes,
     }
 }
 
-void CalibrationConsumer::turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+void CalibrationConsumer::turnSomeStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
@@ -567,7 +567,7 @@ void CalibrationConsumer::turnSomeStimulaOnOff(vector<uint16_t> channelIndexes, 
     }
 }
 
-void CalibrationConsumer::leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset){
+void CalibrationConsumer::leastSquareSimple(std::vector<double> x, std::vector<double> y, double &slope, double &offset){
     double xsum=0,x2sum=0,ysum=0,xysum=0;                //variables for sums/sigma of xi,yi,xi^2,xiyi etc
     int n = x.size();
     for (int i = 0 ; i < x.size(); i++){
@@ -586,9 +586,9 @@ void CalibrationConsumer::mainSaveOnCsv(){
     if(channelToCalibIdxs.size() == currentChannelsNum){
         for(int i = 0; i < numOfBoards; i++){
             /*! calibro tutte le board*/
-            vector<uint16_t>::iterator first = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i; // incluso
-            vector<uint16_t>::iterator last = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i + (numOfChannelsOnBoard); // escluso
-            vector<uint16_t> chanSubsetToCalibIdxs(first, last);
+            std::vector<uint16_t>::iterator first = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i; // incluso
+            std::vector<uint16_t>::iterator last = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i + (numOfChannelsOnBoard); // escluso
+            std::vector<uint16_t> chanSubsetToCalibIdxs(first, last);
             fileName = boardSerialNums[i] + QString(".csv");
             prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, chanSubsetToCalibIdxs);
         }
@@ -605,7 +605,7 @@ void CalibrationConsumer::mainSaveOnCsv(){
 
 }
 
-void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName, vector<uint16_t> chanSubset){
+void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName, std::vector<uint16_t> chanSubset){
     QFile outFile(path + fileName);
     QTextStream stream;
         if (QDir().exists(path)) {
@@ -627,11 +627,11 @@ void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName
         }
 }
 
-void CalibrationConsumer::saveCsv(vector<uint16_t> chanSubset, QTextStream &stream){
+void CalibrationConsumer::saveCsv(std::vector<uint16_t> chanSubset, QTextStream &stream){
     stream << this->getCsvData(chanSubset);
 }
 
-QString CalibrationConsumer::getCsvData(vector<uint16_t> chanSubset){
+QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset){
     QString ret;
     QTextStream stream(&ret);
 
@@ -693,7 +693,7 @@ void CalibrationConsumer::loadDefaultCalibParams(int channelsNum){
 void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFileName){
     QStringList mappingStringList;
     QStringList boardStringList;
-    vector<bool> calibratedWithDefaultParams;
+    std::vector<bool> calibratedWithDefaultParams;
 
     /*! all'inizio devo caricare i valori di calibrazione per tutti i canali (o dai file se li trovo o dai valori di defalut)*/
     channelToCalibIdxs.resize(currentChannelsNum);
@@ -787,7 +787,7 @@ void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream)
     QString dump;
     QString line;
     QStringList tempList;
-    vector<double> tempVector;
+    std::vector<double> tempVector;
 
     // seriale della scheda, da buttare
     dump = boardStream.readLine();
@@ -837,7 +837,7 @@ void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream)
 /*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
 gainADC, offsetADC anf offsetDAC contain only the parameters corresponding to channelToCalibIdxs (i.e. all the 384 channels or the 16 channels
 belonging to the board under calibration) */
-void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas, vector<vector<Measurement_t>> &offsetAdcMeas, vector<Measurement_t> &offsetDacMeas){
+void CalibrationConsumer::convertToMeasurement(std::vector<std::vector<Measurement_t>> &gainAdcMeas, std::vector<std::vector<Measurement_t>> &offsetAdcMeas, std::vector<Measurement_t> &offsetDacMeas){
     /*! loop over ranges */
     for(int iii = 0; iii < vcCurrentRangesArray.size(); iii++){
         for(int jjj = 0; jjj < currentChannelsNum; jjj++){
@@ -858,10 +858,10 @@ void CalibrationConsumer::updateCalibParams(){
     if(channelToCalibIdxs.size()==0){
         return;
     } else {
-        vector<vector<Measurement_t>> gainAdcMeas;
-        vector<vector<Measurement_t>> offsetAdcMeas;
-        vector<Measurement_t> offsetDacMeas;
-        vector<uint16_t> channelIndexes;
+        std::vector<std::vector<Measurement_t>> gainAdcMeas;
+        std::vector<std::vector<Measurement_t>> offsetAdcMeas;
+        std::vector<Measurement_t> offsetDacMeas;
+        std::vector<uint16_t> channelIndexes;
 
         gainAdcMeas.resize(vcCurrentRangesArray.size());
         offsetAdcMeas.resize(vcCurrentRangesArray.size());

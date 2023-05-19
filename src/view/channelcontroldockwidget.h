@@ -72,13 +72,13 @@ private slots:
 
 
 signals:
-    void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-    void sigAppliedTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-    void sigAppliedVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
-    void sigAppliedTurnStimulsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
-    void sigStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void sigAppliedTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onvalues);
+    void sigAppliedTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onvalues);
+    void sigAppliedVoltageHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages);
+    void sigAppliedTurnStimulsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void sigStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void sigStopRecording();
-    void sigAppliedPlotToBigPlot(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void sigAppliedPlotToBigPlot(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 };
 
 class SpinBoxWithChannel : public QWidget {

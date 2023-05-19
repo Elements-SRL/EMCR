@@ -28,8 +28,10 @@ SOURCES += \
     src/controller/protocol/protocolutils.cpp \
     src/main.cpp \
     src/model/analysiscursor.cpp \
+    src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/doubleclickmachine.cpp \
+    src/view/lcddisplay.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
@@ -88,8 +90,10 @@ HEADERS += \
     src/globaldefines.h \
     src/model/analysiscursor.h \
     src/protocoldefs.h \
+    src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
     src/view/doubleclickmachine.h \
+    src/view/lcddisplay.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \

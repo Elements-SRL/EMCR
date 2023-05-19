@@ -5,5 +5,44 @@
         <file>imgs/record protocol.png</file>
         <file>imgs/stop protocol.png</file>
         <file>imgs/recording protocol.png</file>
+        <file>imgs/add protocol.png</file>
+        <file>imgs/add tag.png</file>
+        <file>imgs/analysis ap statistics.png</file>
+        <file>imgs/analysis ap threshold.png</file>
+        <file>imgs/analysis histogram.png</file>
+        <file>imgs/analysis iv graph.png</file>
+        <file>imgs/analysis membrane test.png</file>
+        <file>imgs/analysis noise report.png</file>
+        <file>imgs/analysis resistance estimation.png</file>
+        <file>imgs/analysis spectrum.png</file>
+        <file>imgs/constant stimulus.png</file>
+        <file>imgs/copy protocol.png</file>
+        <file>imgs/current control.png</file>
+        <file>imgs/edit parameters.png</file>
+        <file>imgs/edit protocol.png</file>
+        <file>imgs/episodic icon.png</file>
+        <file>imgs/export protocol.png</file>
+        <file>imgs/folder settings.png</file>
+        <file>imgs/frequency control.png</file>
+        <file>imgs/gap free icon.png</file>
+        <file>imgs/gapfree protocols shortcuts.png</file>
+        <file>imgs/number control.png</file>
+        <file>imgs/P over N.png</file>
+        <file>imgs/protocols shortcuts.png</file>
+        <file>imgs/repeat sequence.png</file>
+        <file>imgs/repeat with steps.png</file>
+        <file>imgs/rest.png</file>
+        <file>imgs/save last protocol.png</file>
+        <file>imgs/start protocol.png</file>
+        <file>imgs/stimulus step time step.png</file>
+        <file>imgs/time control.png</file>
+        <file>imgs/trash bin closed.png</file>
+        <file>imgs/trash bin open.png</file>
+        <file>imgs/voltage control.png</file>
+        <file>imgs/import protocol.png</file>
+        <file>imgs/remove protocol.png</file>
+        <file>imgs/infinite repeat sequence.png</file>
+        <file>imgs/holding stimulus.png</file>
+        <file>imgs/stimulus ramp.png</file>
     </qresource>
 </RCC>

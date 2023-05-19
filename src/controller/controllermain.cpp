@@ -45,7 +45,7 @@ ControllerMain::~ControllerMain() {
     }
 }
 
-void ControllerMain::onDevicesListChanged(vector <string> devicesList) {
+void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList) {
     emit devicesListChanged(devicesList);
     if (devicesList.size() > 0) {
         if (mDev->isConnected()) {
@@ -235,21 +235,19 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->forceAxisUpdate();
     bigPlotConsumer->forceAxisUpdate();
 
-
-
     /*! \todo FCON questo potrebbe essere parametrizzato */
 
-    vector<uint16_t> channelIndexes(currentChannelsNumber);
+    std::vector<uint16_t> channelIndexes(currentChannelsNumber);
     for(int i = 0; i < currentChannelsNumber; i++){
         channelIndexes[i] = i;
     }
 
     stampPlotConsumer->setMaxSamplesPerPlot(256);
-    vector<bool> onValues(currentChannelsNumber, true);
+    std::vector<bool> onValues(currentChannelsNumber, true);
     stampPlotConsumer->onSelectChannels(channelIndexes, onValues);
 
     bigPlotConsumer->setMaxSamplesPerPlot(4096);
-    vector<bool> offValues(currentChannelsNumber, false);
+    std::vector<bool> offValues(currentChannelsNumber, false);
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
 
     calibratorConsumer->loadInitialCalibParams("C:/EMCR_calib_folder/", "boardMapping.csv");
@@ -284,7 +282,7 @@ void ControllerMain::onMainWindowDestroyed() {
 /*! Message forward from ControllerMain to other consumers */
 
 void ControllerMain::onVcCurrentRangeSelected(int idx) {
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     uint16_t notUsedDefaultVcCurrRangeIdx;
     mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
 //    mDev->setVcCurrentRange(ranges[idx]);
@@ -302,7 +300,7 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
 }
 
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     mDev->getVcVoltageRangesFeatures(ranges);
 //    mDev->setVcVoltageRange(ranges[idx]);
 
@@ -316,7 +314,7 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
 }
 
 void ControllerMain::onSamplingRateSelected(int idx) {
-    vector <Measurement_t> samplingRates;
+    std::vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
 //    mDev->setSamplingRate(samplingRates[idx]);
 
@@ -325,7 +323,7 @@ void ControllerMain::onSamplingRateSelected(int idx) {
     }
 }
 
-void ControllerMain::onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues) {
+void ControllerMain::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
     for (auto consumer : dataWriterConsumers) {
         consumer->onRecordSelectedChannels(channelIndexes, onValues);
     }

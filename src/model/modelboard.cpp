@@ -19,7 +19,7 @@ uint16_t ModelBoard::getId(){
     return this->id;
 }
 
-vector<ModelChannel*> ModelBoard::getChannelsOnBoard(){
+std::vector<ModelChannel*> ModelBoard::getChannelsOnBoard(){
     return this->channelsOnBoard;
 }
 
@@ -36,7 +36,7 @@ void ModelBoard::setId(uint16_t id){
     this->id = id;
 }
 
-void ModelBoard::setChannelsOnBoard (vector<ModelChannel*> channelsOnBoard){
+void ModelBoard::setChannelsOnBoard (std::vector<ModelChannel*> channelsOnBoard){
     this->channelsOnBoard = channelsOnBoard;
 }
 

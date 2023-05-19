@@ -2,6 +2,7 @@
 
 #include <QSplitter>
 #include <QMessageBox>
+
 #include "protocolutils.h"
 
 ProtocolWidget::ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
@@ -49,7 +50,7 @@ ProtocolWidget::ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolProper
     consumerRequests.resize(ProtocolConsumerAnalysis);
     this->initConsumerRequests();
 
-    mDev->getMaxOutputTriggers(maxTriggerEvents);
+//    mDev->getMaxOutputTriggers(maxTriggerEvents);
 }
 
 ProtocolWidget::ProtocolWidget() {
@@ -144,8 +145,15 @@ void ProtocolWidget::populatePropertyDialog() {
         holdEdit = new QDoubleSpinBox();
         holdEdit->setMinimumWidth(50);
         double hold = holdEditOrig->value();
-        holdEdit->copySettings(holdEditOrig);
-        QLabel * holdUnitLbl = new QLabel(holdEdit->getUnit());
+        copy(holdEditOrig, holdEdit);
+        QString unitString;
+        if (clampingModality == VOLTAGE_CLAMP) {
+            unitString = QString::fromStdString(mDev->getVcVoltageRange().getFullUnit());
+
+        } else {
+            unitString = QString::fromStdString(mDev->getCcVoltageRange().getFullUnit());
+        }
+        QLabel * holdUnitLbl = new QLabel(unitString);
         ProtocolDoubleSpinBoxCtrlDispatcher * holdDispatcher = new ProtocolDoubleSpinBoxCtrlDispatcher();
         holdDispatcher->setEdit(holdEditOrig);
         holdDispatcher->setOrigValue(hold);
@@ -302,7 +310,7 @@ void ProtocolWidget::populatePropertyDialog() {
                 QDoubleSpinBox * doubleEditOrig = ctrlItem->getDoubleEdit();
                 QDoubleSpinBox * doubleEdit = new QDoubleSpinBox();
                 doubleEdit->setMinimumWidth(50);
-                doubleEdit->copySettings(doubleEditOrig);
+                copy(doubleEditOrig, doubleEdit);
 
                 ProtocolDoubleSpinBoxCtrlDispatcher * dispatcher = new ProtocolDoubleSpinBoxCtrlDispatcher();
                 dispatcher->setCtrl(ctrlItem);
@@ -318,14 +326,14 @@ void ProtocolWidget::populatePropertyDialog() {
 
                 if (ctrlItem->getItemCtrlType() == ProtocolItemCtrlVoltage) {
                     connect(voltageRangeEdit, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int) {
-                        doubleEdit->copySettings(doubleEditOrig);
+                        copy(doubleEditOrig, doubleEdit);
                         unitLbl->setText(ctrlItem->getUnit());
                     });
                 }
 
                 if (ctrlItem->getItemCtrlType() == ProtocolItemCtrlCurrent) {
                     connect(currentRangeEdit, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int) {
-                        doubleEdit->copySettings(doubleEditOrig);
+                        copy(doubleEditOrig, doubleEdit);
                         unitLbl->setText(ctrlItem->getUnit());
                     });
                 }
@@ -598,7 +606,14 @@ void ProtocolWidget::setHold(Measurement_t hold) {
 
 Measurement_t ProtocolWidget::getHold() {
     hold.value = holdEditOrig->value();
-    hold.prefix = holdEditOrig->getPrefix();
+    UnitPfx prefix;
+    if (clampingModality == VOLTAGE_CLAMP) {
+        prefix = mDev->getVcVoltageRange().prefix;
+
+    } else {
+        prefix = mDev->getCcCurrentRange().prefix;
+    }
+    hold.prefix = prefix;
     return hold;
 }
 
@@ -607,7 +622,12 @@ void ProtocolWidget::setHoldingDelta(Measurement_t &holdingDelta) {
 }
 
 UnitPfx_t ProtocolWidget::getStimulusPrefix() {
-    return holdEditOrig->getPrefix();
+    if (clampingModality == VOLTAGE_CLAMP) {
+        return mDev->getVcVoltageRange().prefix;
+
+    } else {
+        return mDev->getCcCurrentRange().prefix;
+    }
 }
 
 bool ProtocolWidget::getHoldRef() {

@@ -112,9 +112,9 @@ QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
     return scrollHl;
 }
 
-vector<uint16_t> BoardControlDockWidget::getChangedChannelIndexes(vector<MySpinBox*> spinBoxVector, vector<double> previousChannelValues){
+std::vector<uint16_t> BoardControlDockWidget::getChangedChannelIndexes(std::vector<MySpinBox*> spinBoxVector, std::vector<double> previousChannelValues){
     int j=0;
-    vector<uint16_t> changedChannelIndexes;
+    std::vector<uint16_t> changedChannelIndexes;
     for(int i = 0; i < spinBoxVector.size(); i++){
         if(spinBoxVector[i]->value() != previousChannelValues[i]){
             changedChannelIndexes.push_back((uint16_t)i);
@@ -127,8 +127,8 @@ vector<uint16_t> BoardControlDockWidget::getChangedChannelIndexes(vector<MySpinB
 void BoardControlDockWidget::onApplyButtonClicked(){
     RangedMeasurement_t range;
     this->mDev->getGateVoltagesTunerFeatures(range);
-    vector<Measurement_t> gateChangedVoltages;
-    vector<uint16_t> gateChangedChannelIndexes = this->getChangedChannelIndexes(this->gateSpinBoxes, this->previousGateSpinBoxValues);
+    std::vector<Measurement_t> gateChangedVoltages;
+    std::vector<uint16_t> gateChangedChannelIndexes = this->getChangedChannelIndexes(this->gateSpinBoxes, this->previousGateSpinBoxValues);
     gateChangedVoltages.resize(gateChangedChannelIndexes.size());
     for(int i = 0; i < gateChangedChannelIndexes.size(); i++){
         double changedValue;
@@ -137,8 +137,8 @@ void BoardControlDockWidget::onApplyButtonClicked(){
     }
 
     this->mDev->getSourceVoltagesTunerFeatures(range);
-    vector<Measurement_t> sourceChangedVoltages;
-    vector<uint16_t> sourceChangedChannelIndexes = this->getChangedChannelIndexes(this->sourceSpinBoxes, this->previousSourceSpinBoxValues);
+    std::vector<Measurement_t> sourceChangedVoltages;
+    std::vector<uint16_t> sourceChangedChannelIndexes = this->getChangedChannelIndexes(this->sourceSpinBoxes, this->previousSourceSpinBoxValues);
     sourceChangedVoltages.resize(sourceChangedChannelIndexes.size());
     for(int i = 0; i < sourceChangedChannelIndexes.size(); i++){
         double changedValue;

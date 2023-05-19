@@ -40,7 +40,7 @@ void ControllerChannel::onAllChannelsClicked(bool newChannelState){
     emit sigSelectedChannelsUpdated();
 }
 
-void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+void ControllerChannel::onApplyTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
@@ -48,7 +48,7 @@ void ControllerChannel::onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes,
     }
 }
 
-void ControllerChannel::onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+void ControllerChannel::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
@@ -56,7 +56,7 @@ void ControllerChannel::onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes
     }
 }
 
-void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues){
+void ControllerChannel::onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     this->mDev->getMessageDispatcher()->digitalOffsetCompensation(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setCompensating(onValues[i]);
@@ -64,7 +64,7 @@ void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vec
     }
 }
 
-void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues){
+void ControllerChannel::onApplyVoltageHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> vHoldValues){
     this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, vHoldValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setVhold(vHoldValues[i]);

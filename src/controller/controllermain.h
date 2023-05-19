@@ -26,14 +26,14 @@ public:
     void setMainWindow(MainWindow * mainWindow);
 
 public slots:
-    void onDevicesListChanged(vector <string> devicesList);
+    void onDevicesListChanged(std::vector <std::string> devicesList);
     void onConnect(bool flag);
     void onMainWindowCreated();
     void onMainWindowDestroyed();
     void onVcCurrentRangeSelected(int idx);
     void onVcVoltageRangeSelected(int idx);
     void onSamplingRateSelected(int idx);
-    void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onStopRecording();
 
 private:
@@ -68,7 +68,7 @@ private:
 signals:
     void startDetecting();
     void stopDetecting();
-    void devicesListChanged(vector <string> devicesList);
+    void devicesListChanged(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int connectedDeviceIdx);
     void connectDevice(bool flag, ErrorCodes_t err);
 };

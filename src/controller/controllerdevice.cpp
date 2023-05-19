@@ -13,7 +13,7 @@ void ControllerDevice::setModelDevice(ModelDevice * mDev){
 // Slots (actionPerformed) for current and voltage ranges
 // ADC Current Range in VC
 void ControllerDevice::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex){
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     uint16_t notUsedDefaultVcCurrRangeIdx;
     mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
 
@@ -25,7 +25,7 @@ void ControllerDevice::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeI
 
 // DAC Voltage Range in VC might be set by protocol
 void ControllerDevice::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeIndex){
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     mDev->getVcVoltageRangesFeatures(ranges);
 
     this->mDev->setVcVoltageRange(ranges[selectedVcVoltageRangeIndex]);
@@ -36,7 +36,7 @@ void ControllerDevice::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeI
 
 // DAC Current Range in CC might be set by protocol
 void ControllerDevice::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeIndex){
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     mDev->getCcCurrentRangesFeatures(ranges);
 
     this->mDev->setCcCurrentRange(ranges[selectedCcCurrentRangeIndex]);
@@ -47,7 +47,7 @@ void ControllerDevice::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeI
 
 // ADC Voltage Range in CC
 void ControllerDevice::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex){
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     mDev->getCcVoltageRangesFeatures(ranges);
 
     this->mDev->setCcVoltageRange(ranges[selectedCcVoltageRangeIndex]);
@@ -61,7 +61,7 @@ void ControllerDevice::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeI
 
 // DAC Voltage Filter in VC
 void ControllerDevice::onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex){
-    vector <Measurement_t> filters;
+    std::vector <Measurement_t> filters;
     mDev->getVoltageStimulusLpfsFeatures(filters);
 
     this->mDev->setVcVoltageFilter(filters[selectedVcVoltageFilterIndex]);
@@ -72,7 +72,7 @@ void ControllerDevice::onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilte
 
 // DAC Current Filter in CC
 void ControllerDevice::onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex){
-    vector <Measurement_t> filters;
+    std::vector <Measurement_t> filters;
     mDev->getCurrentStimulusLpfsFeatures(filters);
 
     this->mDev->setCcCurrentFilter(filters[selectedCcCurrentFilterIndex]);
@@ -83,7 +83,7 @@ void ControllerDevice::onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilte
 
 // Sampling rate
 void ControllerDevice::onSamplingRateSelected(uint16_t selectedSamplingRateIndex){
-    vector <Measurement_t> samplingRates;
+    std::vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
 
     this->mDev->setSamplingRate(samplingRates[selectedSamplingRateIndex]);

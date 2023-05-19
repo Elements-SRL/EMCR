@@ -15,9 +15,8 @@
 #include "boardcontroldockwidget.h"
 #include "bigplotdockwidget.h"
 #include "recordsettingsdialog.h"
+#include "protocoldockwidget.h"
 #include "e384commlib_errorcodes.h"
-
-using namespace std;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -34,12 +33,13 @@ public:
     DeviceControlDockWidget * getDeviceControlsDockWidget();
     ChannelControlDockWidget * getChannelControlsDockWidget();
     BoardControlDockWidget * getBoardControlsDockWidget();
+    ProtocolDockWidget * getProtocolDockWidget();
     RecordSettingsDialog * getRecordSettingsDialog();
 
     QLabel * SRLbl = nullptr;
 
 public slots:
-    void onDevicesListChanged(vector <string> devicesList);
+    void onDevicesListChanged(std::vector <std::string> devicesList);
     void onSetConnectedDeviceIdx(int idx);
     void onConnect(bool flag, ErrorCodes_t err);
     void onCalibLoadingMsg(QString msg);
@@ -68,6 +68,7 @@ private:
     ChannelControlDockWidget * channelControlsDw = nullptr;
     BoardControlDockWidget * boardControlsDw = nullptr;
     BigPlotDockWidget * bigPlotDw = nullptr;
+    ProtocolDockWidget * protocolDw = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;
@@ -90,7 +91,7 @@ signals:
     void setDebugBit(int word, int bit, bool flag);
     void setDebugWord(int word, int value);
     void debugInitialization();
-    void sigPerformCalibration(vector<uint16_t> channelsToCalibrateIdxs);
+    void sigPerformCalibration(std::vector<std::uint16_t> channelsToCalibrateIdxs);
     void sigModelCellChanged(bool modelCellChanged);
     void sigFirstModelMounted(bool modelCellChanged);
 };

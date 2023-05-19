@@ -13,7 +13,7 @@ class ProtocolDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    ProtocolDockWidget(ModelDevice *  mDev, int clampingModality, QWidget * parent = nullptr);
+    ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t clampingModality, QWidget * parent = nullptr);
     ~ProtocolDockWidget();
 
     ProtocolList * getProtocolList();
@@ -47,13 +47,11 @@ private:
     AddTagDialog * tagDlg = nullptr;
     TimerDisplay * protocolTimer = nullptr;
 
-    bool slaveEnabledFlag = false;
-
 signals:
     void plotting(bool);
     void sweep(int, int);
-    void stimulusApplied(double value, e4gcl::RangedMeasurement_t range);
-    void holdApplied(double value, e4gcl::RangedMeasurement_t range);
+    void stimulusApplied(double value, e384CommLib::RangedMeasurement_t range);
+    void holdApplied(double value, e384CommLib::RangedMeasurement_t range);
     void enableTags(bool);
     void markTagTime();
     void saveTagString(QString);
