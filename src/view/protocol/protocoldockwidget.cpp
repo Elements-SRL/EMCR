@@ -430,15 +430,6 @@ void ProtocolDockWidget::onNullProtocol() {
     protocolTimer->onStopTimer(false);
 }
 
-void ProtocolDockWidget::onProtocolEnded() {
-    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-        voltageProtocolList->onProtocolEnded();
-
-    } else {
-        currentProtocolList->onProtocolEnded();
-    }
-}
-
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
 void ProtocolDockWidget::onNewRecordFile(QString fileName) {
     if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
@@ -470,12 +461,14 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
         QKeyEvent * keyEvent = static_cast <QKeyEvent *> (event);
         if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
             if ((keyEvent->modifiers() & Qt::ShiftModifier) > 0) {
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
                 if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
                     voltageProtocolList->onRecordProtocol();
 
                 } else {
                     currentProtocolList->onRecordProtocol();
                 }
+#endif
 
             } else {
                 if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {

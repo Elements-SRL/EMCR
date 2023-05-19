@@ -15,8 +15,8 @@ public:
     ErrorManager(QString error, QString info = "");
     ErrorManager(ErrorCodes_t errorCode, QString info);
     ErrorManager(ErrorCodes_t errorCode);
-    ErrorManager(ProtocolManager::ProtocolApplicationStatus_t errorCode, QString info);
-    ErrorManager(ProtocolManager::ProtocolApplicationStatus_t errorCode);
+    ErrorManager(ProtocolApplicationStatus_t errorCode, QString info);
+    ErrorManager(ProtocolApplicationStatus_t errorCode);
     ErrorManager(ProtocolList::ProtocolListStatus_t errorCode, QString info);
     ErrorManager(ProtocolList::ProtocolListStatus_t errorCode);
 };

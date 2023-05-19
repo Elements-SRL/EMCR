@@ -25,7 +25,6 @@ public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
     void onPlotting(bool flag, ProtocolType_t type);
     void onNullProtocol();
-    void onProtocolEnded();
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     void onNewRecordFile(QString fileName);
     void onRecording(bool flag);

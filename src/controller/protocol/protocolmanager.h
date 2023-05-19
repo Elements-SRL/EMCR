@@ -5,48 +5,33 @@
 
 #include "protocolwidget.h"
 #include "devicedataconsumer.h"
+#include "protocoldefs.h"
 
 class ProtocolManager : public QObject {
     Q_OBJECT
 
 public:
-    typedef enum {
-        Success,
-        ErrorNotEnoughItemsForSequence,
-        ErrorOverlappingSequences,
-        ErrorMidInfiniteSequence,
-        ErrorItemsOverflow,
-        ErrorItemsNotFound,
-        ErrorItemsOverStimulus,
-        ErrorItemsUnderStimulus,
-        ErrorItemsUnderDuration,
-        ErrorItemsNotProcessed,
-        ErrorProtocolInhibited
-    } ProtocolApplicationStatus_t;
-
     ProtocolManager(ModelDevice *  mDev);
 
-    ProtocolApplicationStatus_t startProtocol(ProtocolWidget * protocol, bool recordFlag = false);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     void saveLast(ProtocolWidget * protocol);
-    ProtocolType_t getLastStartedType();
-    void setSecondaryDevice(bool flag);
+#endif
 
 public slots:
+    void onStartProtocolRequest(ProtocolWidget * protocol);
     void onIncreaseProtocolId();
-    void onProtocolEnded();
 
 private:
+    ProtocolApplicationStatus_t startProtocol(ProtocolWidget * protocol, bool recordFlag = false);
     ProtocolApplicationStatus_t toProtocolApplicationStatus(ItemsProcStatus_t status);
 
     ModelDevice *  mDev;
 
     unsigned short protocolId = 0;
     unsigned short lastRunProtocolId = 0;
-    ProtocolType_t lastStartedType = ProtocolTypeGapfree;
 
     ProtocolWidget * protocol;
     bool recordFlag;
-    bool secondaryDeviceFlag = false;
 
     /*! \todo FCON questa cosa non mi piace per niente, se si cambia la struttura Measurement_t, anche solo l'ordine degli elementi qui si sballa tutto.
                    Cercare di gestire meglio tutta questa cosa (magari si riesce a fare qualcosa di più pulito anche per la conversione in Measurement_t) */
@@ -115,8 +100,11 @@ private:
 
 signals:
     void protocolStarted(unsigned int, ProtocolWidget *);
-    void protocolSaveRequest(unsigned int, ProtocolWidget *);
     void currentApplied();
+    void protocolRequestOutcome(ProtocolApplicationStatus_t status);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+    void protocolSaveRequest(unsigned int, ProtocolWidget *);
+#endif
 };
 
 #endif // PROTOCOLMANAGER_H

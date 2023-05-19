@@ -15,6 +15,7 @@
 #include "plotconsumer.h"
 #include "livenoiseconsumer.h"
 #include "calibrationconsumer.h"
+#include "protocolmanager.h"
 
 class ControllerMain : public QObject {
     Q_OBJECT
@@ -60,6 +61,9 @@ private:
     ControllerChannel * controllerChannel = nullptr;
     ControllerBoard * controllerBoard = nullptr;
     ControllerDevice * controllerDevice = nullptr;
+
+    ProtocolManager * voltageProtocolManager = nullptr;
+    ProtocolManager * currentProtocolManager = nullptr;
 
     int voltageChannelsNumber;
     int currentChannelsNumber;

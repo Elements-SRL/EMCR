@@ -24,17 +24,13 @@ ProtocolList::ProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocol
     connect(this, &ProtocolList::itemDoubleClicked, this, &ProtocolList::onItemDoubleClicked);
     protocols = new QVector <ProtocolWidget *>;
     protocolsNames = new QStringList;
-    protocolManager = new ProtocolManager(mDev);
-
-    connect(protocolManager, &ProtocolManager::protocolStarted, this, &ProtocolList::protocolStarted);
-    connect(protocolManager, &ProtocolManager::protocolSaveRequest, this, &ProtocolList::protocolSaveRequest);
-    connect(protocolManager, &ProtocolManager::currentApplied, this, &ProtocolList::currentApplied);
-    connect(this, &ProtocolList::increaseProtocolId, protocolManager, &ProtocolManager::onIncreaseProtocolId);
 
     this->installEventFilter(this);
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     protocolsSettingsDlg = new ProtocolsSettingsDialog();
     connect(protocolsSettingsDlg, &ProtocolsSettingsDialog::newRecordPath, this, &ProtocolList::newRecordPath);
+#endif
 
     this->createActions();
     this->createShortCutsDialog();
@@ -77,11 +73,6 @@ ProtocolList::~ProtocolList() {
 
     protocolsNames->clear();
 
-    if (protocolManager != nullptr) {
-        delete protocolManager;
-        protocolManager = nullptr;
-    }
-
     if (nullGapfreeProtocol != nullptr) {
         delete nullGapfreeProtocol;
         nullGapfreeProtocol = nullptr;
@@ -117,16 +108,15 @@ QVector <ProtocolWidget *> * ProtocolList::getProtocols() {
     return protocols;
 }
 
-ProtocolsSettingsDialog * ProtocolList::getProtocolsSettingsDialog() {
-    return protocolsSettingsDlg;
-}
-
 void ProtocolList::startVhold0Protocol() {
     if (vhold0Protocol != nullptr) {
         this->setNullProtocolHolding(vhold0Protocol);
 
-        protocolManager->startProtocol(vhold0Protocol);
+        lastStartedType = vhold0Protocol->getType();
+        emit startProtocolRequest(vhold0Protocol);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
         this->exportLastRunProtocol(vhold0Protocol);
+#endif
     }
 }
 
@@ -134,17 +124,11 @@ void ProtocolList::startIhold0Protocol() {
     if (ihold0Protocol != nullptr) {
         this->setNullProtocolHolding(ihold0Protocol);
 
-        protocolManager->startProtocol(ihold0Protocol);
+        lastStartedType = ihold0Protocol->getType();
+        emit startProtocolRequest(ihold0Protocol);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
         this->exportLastRunProtocol(ihold0Protocol);
-    }
-}
-
-void ProtocolList::recordIhold0Protocol() {
-    if (ihold0Protocol != nullptr) {
-        this->setNullProtocolHolding(ihold0Protocol);
-
-        protocolManager->startProtocol(ihold0Protocol, true);
-        this->exportLastRunProtocol(ihold0Protocol);
+#endif
     }
 }
 
@@ -169,16 +153,6 @@ void ProtocolList::startProtocol(int shortCutIdx) {
     }
 }
 
-void ProtocolList::recordProtocol(int shortCutIdx) {
-    if (clampingModality == clampingModalitySet) {
-        ProtocolWidget * protocol = shortCutsProtocols[shortCutIdx];
-        if (protocol != nullptr) {
-            this->setCurrentItem(protocol);
-            this->onRecordProtocol();
-        }
-    }
-}
-
 void ProtocolList::setClampingModality(ClampingModality_t clampingModalitySet) {
     this->clampingModalitySet = clampingModalitySet;
     bool visible = clampingModality == clampingModalitySet;
@@ -195,9 +169,30 @@ void ProtocolList::saveAndClosePropertyDialog() {
     }
 }
 
-void ProtocolList::setSecondaryDevice(bool flag) {
-    protocolManager->setSecondaryDevice(flag);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+ProtocolsSettingsDialog * ProtocolList::getProtocolsSettingsDialog() {
+    return protocolsSettingsDlg;
 }
+
+void ProtocolList::recordIhold0Protocol() {
+    if (ihold0Protocol != nullptr) {
+        this->setNullProtocolHolding(ihold0Protocol);
+
+        protocolManager->startProtocol(ihold0Protocol, true);
+        this->exportLastRunProtocol(ihold0Protocol);
+    }
+}
+
+void ProtocolList::recordProtocol(int shortCutIdx) {
+    if (clampingModality == clampingModalitySet) {
+        ProtocolWidget * protocol = shortCutsProtocols[shortCutIdx];
+        if (protocol != nullptr) {
+            this->setCurrentItem(protocol);
+            this->onRecordProtocol();
+        }
+    }
+}
+#endif
 
 bool ProtocolList::eventFilter(QObject * obj, QEvent * event) {
     if (event->type() == QEvent::KeyPress) {
@@ -212,7 +207,9 @@ bool ProtocolList::eventFilter(QObject * obj, QEvent * event) {
 void ProtocolList::contextMenuEvent(QContextMenuEvent * event) {
     QMenu menu(this);
     menu.addAction(startProtocolAct);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     menu.addAction(recordProtocolAct);
+#endif
     menu.addSeparator();
     menu.addAction(copyProtocolAct);
     menu.addAction(editProtocolAct);
@@ -247,42 +244,18 @@ void ProtocolList::onStartProtocol(bool recordFlag) {
 
     this->setNullProtocolHolding(protocol);
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     if (!(protocol->isNullProtocol())) {
         this->exportLastRunProtocol(protocol);
     }
+#endif
 
-    ProtocolManager::ProtocolApplicationStatus_t ret = protocolManager->startProtocol(protocol, recordFlag);
-    if (ret != ProtocolManager::Success) {
-        ErrorManager e(ret);
-    }
-}
-
-void ProtocolList::onRecordProtocol() {
-    QSettings settings;
-
-    QString fileName = settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, "").toString();
-    if (fileName == "") {
-        this->onProtocolsSettings();
-    }
-
-    this->onStartProtocol(true);
-}
-
-void ProtocolList::onSaveLastProtocol() {
-    QSettings settings;
-
-    QString fileName = settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, "").toString();
-    if (fileName == "") {
-        this->onProtocolsSettings();
-    }
-
-    this->importLastRunProtocol();
-
-    protocolManager->saveLast(lastRunProtocol);
+    lastStartedType = protocol->getType();
+    emit startProtocolRequest(protocol);
 }
 
 void ProtocolList::onStopProtocol() {
-    if (protocolManager->getLastStartedType() == ProtocolTypeGapfree) {
+    if (lastStartedType == ProtocolTypeGapfree) {
         if (nullGapfreeProtocol != nullptr) {
             int currentRangeIndex = nullGapfreeProtocol->getCurrentRangeIndex();
             if (currentRangeIndex >= 0) {
@@ -294,7 +267,7 @@ void ProtocolList::onStopProtocol() {
                 emit requestVoltageRange(voltageRangeIndex);
             }
 
-            protocolManager->startProtocol(nullGapfreeProtocol);
+            emit startProtocolRequest(nullGapfreeProtocol);
         }
 
     } else {
@@ -309,7 +282,7 @@ void ProtocolList::onStopProtocol() {
                 emit requestVoltageRange(voltageRangeIndex);
             }
 
-            protocolManager->startProtocol(nullEpisodicProtocol);
+            emit startProtocolRequest(nullEpisodicProtocol);
         }
     }
 }
@@ -572,38 +545,11 @@ void ProtocolList::onExportProtocols() {
     }
 }
 
-void ProtocolList::onProtocolsSettings() {
-    protocolsSettingsDlg->exec();
-}
-
 void ProtocolList::onHoldingDeltaChanged(Measurement_t newHoldingDelta) {
     holdingDelta = newHoldingDelta;
 
     for (int protIdx = 0; protIdx < protocols->size(); protIdx++) {
         protocols->at(protIdx)->setHoldingDelta(holdingDelta);
-    }
-}
-
-void ProtocolList::onProtocolNameChanged(QString oldName, QString newName) {
-    protocolsNames->replace(protocolsNames->indexOf(oldName), newName);
-}
-
-void ProtocolList::onPlotting(bool flag, ProtocolType_t) {
-    plottingFlag = flag;
-    if (plottingFlag == true) {
-        /*! Whenever a plot starts controlsChangeFlag is reset */
-        controlsChangedFlag = false;
-    }
-
-    /*! The save last button is enbaled if we are not plotting anymore and there has been no change in the controls in the meanwhile */
-    emit enableSaveLastProtocol((!plottingFlag) && (!controlsChangedFlag));
-}
-
-void ProtocolList::onControlsChanged() {
-    controlsChangedFlag = true;
-    if (!plottingFlag) {
-        /*! If the controls change after the plot ends disable the save last protocol button */
-        emit enableSaveLastProtocol(false);
     }
 }
 
@@ -627,18 +573,75 @@ void ProtocolList::onItemDoubleClicked(QListWidgetItem * item) {
     }
 }
 
-void ProtocolList::onProtocolEnded() {
-    protocolManager->onProtocolEnded();
+void ProtocolList::onProtocolNameChanged(QString oldName, QString newName) {
+    protocolsNames->replace(protocolsNames->indexOf(oldName), newName);
 }
+
+void ProtocolList::onProtocolRequestOutcome(ProtocolApplicationStatus_t status) {
+    if (status != ProtocolApplicationSuccess) {
+        ErrorManager e(status);
+    }
+}
+
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+void ProtocolList::onRecordProtocol() {
+    QSettings settings;
+
+    QString fileName = settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, "").toString();
+    if (fileName == "") {
+        this->onProtocolsSettings();
+    }
+
+    this->onStartProtocol(true);
+}
+
+void ProtocolList::onSaveLastProtocol() {
+    QSettings settings;
+
+    QString fileName = settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, "").toString();
+    if (fileName == "") {
+        this->onProtocolsSettings();
+    }
+
+    this->importLastRunProtocol();
+
+    protocolManager->saveLast(lastRunProtocol);
+}
+
+void ProtocolList::onProtocolsSettings() {
+    protocolsSettingsDlg->exec();
+}
+
+void ProtocolList::onPlotting(bool flag, ProtocolType_t) {
+    plottingFlag = flag;
+    if (plottingFlag == true) {
+        /*! Whenever a plot starts controlsChangeFlag is reset */
+        controlsChangedFlag = false;
+    }
+
+    /*! The save last button is enbaled if we are not plotting anymore and there has been no change in the controls in the meanwhile */
+    emit enableSaveLastProtocol((!plottingFlag) && (!controlsChangedFlag));
+}
+
+void ProtocolList::onControlsChanged() {
+    controlsChangedFlag = true;
+    if (!plottingFlag) {
+        /*! If the controls change after the plot ends disable the save last protocol button */
+        emit enableSaveLastProtocol(false);
+    }
+}
+#endif
 
 void ProtocolList::createActions() {
     startProtocolAct = new QAction("Start protocol", this);
     startProtocolAct->setIcon(QIcon(":/imgs/start protocol.png"));
     connect(startProtocolAct, &QAction::triggered, this, &ProtocolList::onStartProtocol);
 
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     recordProtocolAct = new QAction("Record protocol", this);
     recordProtocolAct->setIcon(QIcon(":/imgs/record protocol.png"));
     connect(recordProtocolAct, &QAction::triggered, this, &ProtocolList::onRecordProtocol);
+#endif
 
     copyProtocolAct = new QAction("Copy protocol", this);
     copyProtocolAct->setIcon(QIcon(":/imgs/copy protocol.png"));
@@ -784,23 +787,6 @@ void ProtocolList::setNullProtocolHolding(ProtocolWidget * protocol) {
             nullEpisodicProtocol->setHold(protocol->getHold());
         }
     }
-}
-
-void ProtocolList::exportLastRunProtocol(ProtocolWidget * protocol) {
-    YAML::Node node;
-    YAML::Protocols yamlProtocols;
-    if (protocol->getClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
-        yamlProtocols.addProtocol(protocol->getYamlVoltageProtocol());
-
-    } else {
-        yamlProtocols.addProtocol(protocol->getYamlCurrentProtocol());
-    }
-
-    node = yamlProtocols;
-    QString fullFileName = YAML_LAST_PROTOCOL_FULL_FILE;
-    std::ofstream fout(fullFileName.replace(YAML_FILE_EXTENSION, YAML_FILE_EXTENSION).toStdString());
-    fout << node;
-    fout.close();
 }
 
 void ProtocolList::exportLastProtocols() {
@@ -1145,6 +1131,25 @@ QString ProtocolList::availableProtocolName(QString name) {
     }
     return ret;
 }
+
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+void ProtocolList::exportLastRunProtocol(ProtocolWidget * protocol) {
+    YAML::Node node;
+    YAML::Protocols yamlProtocols;
+    if (protocol->getClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
+        yamlProtocols.addProtocol(protocol->getYamlVoltageProtocol());
+
+    } else {
+        yamlProtocols.addProtocol(protocol->getYamlCurrentProtocol());
+    }
+
+    node = yamlProtocols;
+    QString fullFileName = YAML_LAST_PROTOCOL_FULL_FILE;
+    std::ofstream fout(fullFileName.replace(YAML_FILE_EXTENSION, YAML_FILE_EXTENSION).toStdString());
+    fout << node;
+    fout.close();
+}
+#endif
 
 YAML::Protocols_t ProtocolList::getYamlProtocols() {
     YAML::Protocols_t yamlProtocols;

@@ -200,6 +200,21 @@ typedef enum {
     ProtocolConsumerTypesNum /*!< This is a marker, must not be used to identify single consumer types */
 } ProtocolConsumerType_t;
 
+typedef enum {
+    ProtocolApplicationSuccess,
+    ErrorNotEnoughItemsForSequence,
+    ErrorOverlappingSequences,
+    ErrorMidInfiniteSequence,
+    ErrorItemsOverflow,
+    ErrorItemsNotFound,
+    ErrorItemsOverStimulus,
+    ErrorItemsUnderStimulus,
+    ErrorItemsUnderDuration,
+    ErrorItemsNotProcessed,
+    ErrorProtocolInhibited,
+    ProtocolApplicationStatusNum
+} ProtocolApplicationStatus_t;
+
 #define PTD_PROTOCOL_ANALYSIS_OFFSET (ProtocolConsumerAnalysis+1)
 #define PTD_PROTOCOL_ANALYSIS_NUM (ProtocolConsumerTypesNum-PTD_PROTOCOL_ANALYSIS_OFFSET)
 

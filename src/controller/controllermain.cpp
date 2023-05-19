@@ -115,6 +115,9 @@ void ControllerMain::onMainWindowCreated() {
     controllerBoard = new ControllerBoard(mDev);
     controllerDevice = new ControllerDevice(mDev);
 
+    voltageProtocolManager = new ProtocolManager(mDev);
+    currentProtocolManager = new ProtocolManager(mDev);
+
     /************\
      * Producer *
     \************/
@@ -154,6 +157,19 @@ void ControllerMain::onMainWindowCreated() {
     connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected,     this, &ControllerMain::onVcVoltageRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected,       this, &ControllerMain::onSamplingRateSelected);
 
+    connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
+    connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+    connect(voltageProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::currentApplied);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+    connect(voltageProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolSaveRequest);
+#endif
+    connect(currentProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolStarted);
+    connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+    connect(currentProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::currentApplied);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+    connect(currentProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolSaveRequest);
+#endif
+
     connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,      controllerChannel, &ControllerChannel::onAllChannelsClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,           controllerChannel, &ControllerChannel::onOneRowClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,         controllerChannel, &ControllerChannel::onOneBoardClicked);
@@ -174,6 +190,11 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected,       controllerDevice, &ControllerDevice::onSamplingRateSelected);
+
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
 
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 
@@ -270,6 +291,16 @@ void ControllerMain::onMainWindowDestroyed() {
     if (controllerDevice != nullptr) {
         delete controllerDevice;
         controllerDevice = nullptr;
+    }
+
+    if (voltageProtocolManager != nullptr) {
+        delete voltageProtocolManager;
+        voltageProtocolManager = nullptr;
+    }
+
+    if (currentProtocolManager != nullptr) {
+        delete currentProtocolManager;
+        currentProtocolManager = nullptr;
     }
 
     this->stopAndDestroyProducerConsumers();

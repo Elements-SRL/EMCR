@@ -227,27 +227,27 @@ ErrorManager::ErrorManager(ErrorCodes_t errorCode) :
 
 }
 
-QString protocolManagerCode2error(ProtocolManager::ProtocolApplicationStatus_t errorCode) {
+QString protocolManagerCode2error(ProtocolApplicationStatus_t errorCode) {
     QString error;
 
     switch (errorCode) {
-    case ProtocolManager::Success:
+    case ProtocolApplicationSuccess:
         error = "NONE";
         break;
 
-    case ProtocolManager::ErrorNotEnoughItemsForSequence:
-    case ProtocolManager::ErrorOverlappingSequences:
-    case ProtocolManager::ErrorMidInfiniteSequence:
-    case ProtocolManager::ErrorItemsOverflow:
-    case ProtocolManager::ErrorItemsNotFound:
-    case ProtocolManager::ErrorItemsOverStimulus:
-    case ProtocolManager::ErrorItemsUnderStimulus:
-    case ProtocolManager::ErrorItemsUnderDuration:
-    case ProtocolManager::ErrorItemsNotProcessed:
+    case ErrorNotEnoughItemsForSequence:
+    case ErrorOverlappingSequences:
+    case ErrorMidInfiniteSequence:
+    case ErrorItemsOverflow:
+    case ErrorItemsNotFound:
+    case ErrorItemsOverStimulus:
+    case ErrorItemsUnderStimulus:
+    case ErrorItemsUnderDuration:
+    case ErrorItemsNotProcessed:
         error = "Couldn't start the selected protocol";
         break;
 
-    case ProtocolManager::ErrorProtocolInhibited:
+    case ErrorProtocolInhibited:
         error = "The selected protocol is inhibited";
         break;
 
@@ -255,52 +255,52 @@ QString protocolManagerCode2error(ProtocolManager::ProtocolApplicationStatus_t e
     return error;
 }
 
-QString protocolManagerCode2info(ProtocolManager::ProtocolApplicationStatus_t errorCode) {
+QString protocolManagerCode2info(ProtocolApplicationStatus_t errorCode) {
     QString info;
 
     switch (errorCode) {
-    case ProtocolManager::Success:
+    case ProtocolApplicationSuccess:
         info = "NONE";
         break;
 
-    case ProtocolManager::ErrorNotEnoughItemsForSequence:
+    case ErrorNotEnoughItemsForSequence:
         info = "A sequence requires more protocol items than are available.";
         break;
 
-    case ProtocolManager::ErrorOverlappingSequences:
+    case ErrorOverlappingSequences:
         info = "Two sequences are overlapped.";
         break;
 
-    case ProtocolManager::ErrorMidInfiniteSequence:
+    case ErrorMidInfiniteSequence:
         info = "Protocol items found after an infinite sequence.";
         break;
 
-    case ProtocolManager::ErrorItemsOverflow:
+    case ErrorItemsOverflow:
         info = "Too many protocol items for this device.";
         break;
 
-    case ProtocolManager::ErrorItemsNotFound:
+    case ErrorItemsNotFound:
         info = "No protocol items found for this device.";
         break;
 
-    case ProtocolManager::ErrorItemsOverStimulus:
+    case ErrorItemsOverStimulus:
         info = "The stimulus value is too high.";
         break;
 
-    case ProtocolManager::ErrorItemsUnderStimulus:
+    case ErrorItemsUnderStimulus:
         info = "The stimulus value is too low.";
         break;
 
-    case ProtocolManager::ErrorItemsUnderDuration:
+    case ErrorItemsUnderDuration:
         info = "The duration of one protocol items is too low.";
         break;
 
-    case ProtocolManager::ErrorItemsNotProcessed:
+    case ErrorItemsNotProcessed:
         info = "The protocol was not processed correctly.\n"
                "Please try again or write to support@elements-ic.com for support.";
         break;
 
-    case ProtocolManager::ErrorProtocolInhibited:
+    case ErrorProtocolInhibited:
         info = "";
         break;
 
@@ -400,11 +400,11 @@ QString protocolListCode2info(ProtocolList::ProtocolListStatus_t errorCode) {
     return info;
 }
 
-ErrorManager::ErrorManager(ProtocolManager::ProtocolApplicationStatus_t errorCode, QString info) :
+ErrorManager::ErrorManager(ProtocolApplicationStatus_t errorCode, QString info) :
     ErrorManager(protocolManagerCode2error(errorCode), info) {
 }
 
-ErrorManager::ErrorManager(ProtocolManager::ProtocolApplicationStatus_t errorCode) :
+ErrorManager::ErrorManager(ProtocolApplicationStatus_t errorCode) :
     ErrorManager(errorCode, protocolManagerCode2info(errorCode)) {
 }
 

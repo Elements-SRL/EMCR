@@ -9,7 +9,24 @@ ProtocolManager::ProtocolManager(ModelDevice * mDev) :
 
 }
 
-ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * protocol, bool recordFlag) {
+void ProtocolManager::onStartProtocolRequest(ProtocolWidget * protocol) {
+    emit protocolRequestOutcome(this->startProtocol(protocol));
+}
+
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+void ProtocolManager::saveLast(ProtocolWidget * protocol) {
+    /*! Preprocess protocol items */
+    protocol->setProtocolItems();
+    protocol->setProcessingStatus();
+    protocol->setAnalysisCursors();
+    protocol->resetConsumerRequests();
+    protocol->setConsumerRequest(ProtocolConsumerDataWriter);
+
+    emit protocolSaveRequest(lastRunProtocolId, protocol);
+}
+#endif
+
+ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * protocol, bool recordFlag) {
     this->protocol = protocol;
     this->recordFlag = recordFlag;
     Measurement_t hold = protocol->getHold();
@@ -24,7 +41,7 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
     QVector <ProtocolItem *> protocolItems = protocol->getProtocolItems();
     ProtocolApplicationStatus_t status = this->toProtocolApplicationStatus(protocol->getProcessingStatus());
 
-    if (status != Success) {
+    if (status != ProtocolApplicationSuccess) {
         return status;
     }
 
@@ -99,11 +116,7 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
         }
     }
 
-    if (!secondaryDeviceFlag) {
-        mDev->getMessageDispatcher()->startProtocol();
-    }
-
-    lastStartedType = protocol->getType();
+    mDev->getMessageDispatcher()->startProtocol();
 
     protocol->resetConsumerRequests();
     if (recordFlag) {
@@ -122,42 +135,16 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::startProtocol(Prot
     return status;
 }
 
-void ProtocolManager::saveLast(ProtocolWidget * protocol) {
-    /*! Preprocess protocol items */
-    protocol->setProtocolItems();
-    protocol->setProcessingStatus();
-    protocol->setAnalysisCursors();
-    protocol->resetConsumerRequests();
-    protocol->setConsumerRequest(ProtocolConsumerDataWriter);
-
-    emit protocolSaveRequest(lastRunProtocolId, protocol);
-}
-
-ProtocolType_t ProtocolManager::getLastStartedType() {
-    return lastStartedType;
-}
-
-void ProtocolManager::setSecondaryDevice(bool flag) {
-    secondaryDeviceFlag = flag;
-}
-
 void ProtocolManager::onIncreaseProtocolId() {
     /*! Increment protocol ID: this is used to discriminate data coming for the current protocol from spurious data from the previous procotocol */
     /*! This is done here in this slot too so that the protocol manager of a given clamping modality increases the protocol ID of all other protocol managers as well */
     protocolId = (protocolId+1) & GLB_MAX_PROT_ID;
 }
 
-void ProtocolManager::onProtocolEnded() {
-    if (secondaryDeviceFlag) {
-        /*! Ifthe device is secondary get ready for another trigger */
-        this->startProtocol(protocol, recordFlag);
-    }
-}
-
-ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::toProtocolApplicationStatus(ItemsProcStatus_t status) {
+ProtocolApplicationStatus_t ProtocolManager::toProtocolApplicationStatus(ItemsProcStatus_t status) {
     switch (status) {
     case ItemsProcOk:
-        return Success;
+        return ProtocolApplicationSuccess;
 
     case ItemsProcErrorNotEnoughItemsForSequence:
         return ErrorNotEnoughItemsForSequence;
@@ -187,5 +174,5 @@ ProtocolManager::ProtocolApplicationStatus_t ProtocolManager::toProtocolApplicat
         return ErrorItemsNotProcessed;
     }
 
-    return Success;
+    return ProtocolApplicationSuccess;
 }
