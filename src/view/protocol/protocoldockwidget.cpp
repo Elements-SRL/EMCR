@@ -246,12 +246,7 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
     }
     startProtocolBtn->setCheckable(false);
     connect(startProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-            voltageProtocolList->onStartProtocol();
-
-        } else {
-            currentProtocolList->onStartProtocol();
-        }
+        this->onStartProtocol(true);
     });
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     btnLo->addWidget(startProtocolBtn, btnRow, btnCol++);
@@ -290,12 +285,7 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
     }
     stopProtocolBtn->setCheckable(false);
     connect(stopProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-            voltageProtocolList->onStopProtocol();
-
-        } else {
-            currentProtocolList->onStopProtocol();
-        }
+        this->onStartProtocol(false);
     });
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     btnLo->addWidget(stopProtocolBtn, btnRow, btnCol++);
@@ -406,30 +396,6 @@ ProtocolDockWidget::~ProtocolDockWidget() {
     }
 }
 
-void ProtocolDockWidget::onPlotting(bool flag, ProtocolType_t type) {
-    if (flag) {
-        /*! Gapfree protocols can be pause and restart the timer, while episodic ones always reset the timer */
-        if (type == ProtocolTypeGapfree) {
-            protocolTimer->onRestartTimer();
-
-        } else {
-            protocolTimer->onStartTimer();
-        }
-
-    } else {
-        if (type == ProtocolTypeGapfree) {
-            protocolTimer->onStopTimer(true);
-
-        } else {
-            protocolTimer->onStopTimer(false);
-        }
-    }
-}
-
-void ProtocolDockWidget::onNullProtocol() {
-    protocolTimer->onStopTimer(false);
-}
-
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
 void ProtocolDockWidget::onNewRecordFile(QString fileName) {
     if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
@@ -471,16 +437,23 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
 #endif
 
             } else {
-                if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-                    voltageProtocolList->onStartProtocol();
-
-                } else {
-                    currentProtocolList->onStartProtocol();
-                }
+                this->onStartProtocol(true);
             }
         }
     }
     return QObject::eventFilter(obj, event);
+}
+
+void ProtocolDockWidget::onStartProtocol(bool flag) {
+    if (flag) {
+        protocolTimer->onStopTimer();
+        protocolTimer->onStartTimer();
+        emit startProtocol();
+
+    } else {
+        protocolTimer->onStopTimer();
+        emit stopProtocol();
+    }
 }
 
 ProtocolList * ProtocolDockWidget::getProtocolList() {

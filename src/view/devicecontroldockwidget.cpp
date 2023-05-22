@@ -3,27 +3,27 @@
 #include "devicecontroldockwidget.h"
 #include <QVBoxLayout>
 
-DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDockWidget() {
-    this->modelDevice = modelDevice;
+DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidget() {
+    this->mDev = mDev;
 
     std::vector<int> clampingModalities;
-    modelDevice->getClampingModalitiesFeatures(clampingModalities);
+    mDev->getClampingModalitiesFeatures(clampingModalities);
 
     std::vector <RangedMeasurement_t> vcCurrentRanges;
     uint16_t defaultVcCurrRangeIdx;
-    modelDevice->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
+    mDev->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
 
     std::vector <RangedMeasurement_t> vcVoltageRanges;
-    modelDevice->getVcVoltageRangesFeatures(vcVoltageRanges);
+    mDev->getVcVoltageRangesFeatures(vcVoltageRanges);
 
     std::vector <RangedMeasurement_t> ccCurrentRanges;
-    modelDevice->getCcCurrentRangesFeatures(ccCurrentRanges);
+    mDev->getCcCurrentRangesFeatures(ccCurrentRanges);
 
     std::vector <RangedMeasurement_t> ccVoltageRanges;
-    modelDevice->getCcVoltageRangesFeatures(ccCurrentRanges);
+    mDev->getCcVoltageRangesFeatures(ccCurrentRanges);
 
     std::vector <Measurement_t> samplingRates;
-    modelDevice->getSamplingRatesFeatures(samplingRates);
+    mDev->getSamplingRatesFeatures(samplingRates);
 
     QWidget *window = new QWidget;
     this->setWidget(window);
@@ -153,6 +153,16 @@ void DeviceControlDockWidget::forceEmit() {
             emit sigSamplingRateSelected(idx);
         }
     }
+}
+
+void DeviceControlDockWidget::updateParameters() {
+    vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+    vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
+    ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
+    ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+    samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+
+    /*! \todo FCON aggiungere controlli per DAC filters */
 }
 
 /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/

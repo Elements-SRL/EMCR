@@ -17,6 +17,7 @@ void ControllerDevice::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeI
     uint16_t notUsedDefaultVcCurrRangeIdx;
     mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
 
+    this->mDev->setVcCurrentRange(selectedVcCurrentRangeIndex);
     this->mDev->setVcCurrentRange(ranges[selectedVcCurrentRangeIndex]);
     this->mDev->getMessageDispatcher()->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
 
@@ -28,6 +29,7 @@ void ControllerDevice::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeI
     std::vector <RangedMeasurement_t> ranges;
     mDev->getVcVoltageRangesFeatures(ranges);
 
+    this->mDev->setVcVoltageRange(selectedVcVoltageRangeIndex);
     this->mDev->setVcVoltageRange(ranges[selectedVcVoltageRangeIndex]);
     this->mDev->getMessageDispatcher()->setVCVoltageRange(selectedVcVoltageRangeIndex, true);
 
@@ -39,6 +41,7 @@ void ControllerDevice::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeI
     std::vector <RangedMeasurement_t> ranges;
     mDev->getCcCurrentRangesFeatures(ranges);
 
+    this->mDev->setCcCurrentRange(selectedCcCurrentRangeIndex);
     this->mDev->setCcCurrentRange(ranges[selectedCcCurrentRangeIndex]);
     this->mDev->getMessageDispatcher()->setCCCurrentRange(selectedCcCurrentRangeIndex, true);
 
@@ -50,6 +53,7 @@ void ControllerDevice::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeI
     std::vector <RangedMeasurement_t> ranges;
     mDev->getCcVoltageRangesFeatures(ranges);
 
+    this->mDev->setCcVoltageRange(selectedCcVoltageRangeIndex);
     this->mDev->setCcVoltageRange(ranges[selectedCcVoltageRangeIndex]);
     this->mDev->getMessageDispatcher()->setCCVoltageRange(selectedCcVoltageRangeIndex, true);
 
@@ -64,6 +68,7 @@ void ControllerDevice::onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilte
     std::vector <Measurement_t> filters;
     mDev->getVoltageStimulusLpfsFeatures(filters);
 
+    this->mDev->setVcVoltageFilter(selectedVcVoltageFilterIndex);
     this->mDev->setVcVoltageFilter(filters[selectedVcVoltageFilterIndex]);
     this->mDev->getMessageDispatcher()->setVoltageStimulusLpf(selectedVcVoltageFilterIndex, true);
 
@@ -75,6 +80,7 @@ void ControllerDevice::onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilte
     std::vector <Measurement_t> filters;
     mDev->getCurrentStimulusLpfsFeatures(filters);
 
+    this->mDev->setCcCurrentFilter(selectedCcCurrentFilterIndex);
     this->mDev->setCcCurrentFilter(filters[selectedCcCurrentFilterIndex]);
     this->mDev->getMessageDispatcher()->setCurrentStimulusLpf(selectedCcCurrentFilterIndex, true);
 
@@ -86,6 +92,7 @@ void ControllerDevice::onSamplingRateSelected(uint16_t selectedSamplingRateIndex
     std::vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
 
+    this->mDev->setSamplingRate(selectedSamplingRateIndex);
     this->mDev->setSamplingRate(samplingRates[selectedSamplingRateIndex]);
     this->mDev->getMessageDispatcher()->setSamplingRate(selectedSamplingRateIndex, true);
 

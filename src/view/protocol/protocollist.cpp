@@ -219,6 +219,10 @@ void ProtocolList::contextMenuEvent(QContextMenuEvent * event) {
 }
 
 void ProtocolList::onStartProtocol(bool recordFlag) {
+    if (clampingModality != clampingModalitySet) {
+        return;
+    }
+
     ProtocolWidget * protocol = static_cast <ProtocolWidget *> (this->currentItem());
     if (protocol == nullptr) {
         ErrorManager e(ErrorNoProtocolSelected);
@@ -255,6 +259,10 @@ void ProtocolList::onStartProtocol(bool recordFlag) {
 }
 
 void ProtocolList::onStopProtocol() {
+    if (clampingModality != clampingModalitySet) {
+        return;
+    }
+
     if (lastStartedType == ProtocolTypeGapfree) {
         if (nullGapfreeProtocol != nullptr) {
             int currentRangeIndex = nullGapfreeProtocol->getCurrentRangeIndex();

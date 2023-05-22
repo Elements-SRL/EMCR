@@ -23,8 +23,6 @@ public:
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
-    void onPlotting(bool flag, ProtocolType_t type);
-    void onNullProtocol();
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     void onNewRecordFile(QString fileName);
     void onRecording(bool flag);
@@ -32,6 +30,9 @@ public slots:
 
 protected:
     bool eventFilter(QObject * obj, QEvent * event) override;
+
+protected slots:
+    void onStartProtocol(bool flag);
 
 private:
     void setProtocolListVisibility();
@@ -43,7 +44,7 @@ private:
     ProtocolPropertyDialog * protocolPropertyDialog = nullptr;
     ProtocolList * voltageProtocolList = nullptr;
     ProtocolList * currentProtocolList = nullptr;
-    ClampingModality_t clampingModality;
+    ClampingModality_t clampingModality = e384CommLib::VOLTAGE_CLAMP;
     TimerDisplay * protocolTimer = nullptr;
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     QString recordPath;
@@ -54,8 +55,8 @@ private:
 #endif
 
 signals:
-    void plotting(bool);
-    void sweep(int, int);
+    void startProtocol();
+    void stopProtocol();
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     void enableTags(bool);
     void markTagTime();

@@ -33,6 +33,8 @@ public slots:
     void onMainWindowDestroyed();
     void onVcCurrentRangeSelected(int idx);
     void onVcVoltageRangeSelected(int idx);
+    void onCcCurrentRangeSelected(int idx);
+    void onCcVoltageRangeSelected(int idx);
     void onSamplingRateSelected(int idx);
     void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onStopRecording();

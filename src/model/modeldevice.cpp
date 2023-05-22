@@ -36,6 +36,26 @@ std::vector<ModelChannel*> ModelDevice::getChannels(){
     return this->myChannels;
 }
 
+int ModelDevice::getSamplingRateIdx(){
+    return this->samplingRateIdx;
+}
+
+int ModelDevice::getVcCurrentRangeIdx(){
+    return this->vcCurrentRangeIdx;
+}
+
+int ModelDevice::getVcVoltageRangeIdx(){
+    return this->vcVoltageRangeIdx;
+}
+
+int ModelDevice::getCcCurrentRangeIdx(){
+    return this->ccCurrentRangeIdx;
+}
+
+int ModelDevice::getCcVoltageRangeIdx(){
+    return this->ccVoltageRangeIdx;
+}
+
 Measurement_t ModelDevice::getSamplingRate(){
     return this->samplingRate;
 }
@@ -54,6 +74,22 @@ RangedMeasurement_t ModelDevice::getCcCurrentRange(){
 
 RangedMeasurement_t ModelDevice::getCcVoltageRange(){
     return this->ccVoltageRange;
+}
+
+int ModelDevice::getVcCurrentFilterIdx(){
+    return this->vcCurrentFilterIdx;
+}
+
+int ModelDevice::getVcVoltageFilterIdx(){
+    return this->vcVoltageFilterIdx;
+}
+
+int ModelDevice::getCcCurrentFilterIdx(){
+    return this->ccCurrentFilterIdx;
+}
+
+int ModelDevice::getCcVoltageFilterIdx(){
+    return this->ccVoltageFilterIdx;
 }
 
 Measurement_t ModelDevice::getVcCurrentFilter(){
@@ -92,6 +128,26 @@ void ModelDevice::setChannels(std::vector<ModelChannel*> channels){
     this->myChannels = channels;
 }
 
+void ModelDevice::setSamplingRate(int idx){
+    this->samplingRateIdx = idx;
+}
+
+void ModelDevice::setVcCurrentRange(int idx){
+    this->vcCurrentRangeIdx = idx;
+}
+
+void ModelDevice::setVcVoltageRange(int idx){
+    this->vcVoltageRangeIdx = idx;
+}
+
+void ModelDevice::setCcCurrentRange(int idx){
+    this->ccCurrentRangeIdx = idx;
+}
+
+void ModelDevice::setCcVoltageRange(int idx){
+    this->ccVoltageRangeIdx = idx;
+}
+
 void ModelDevice::setSamplingRate(Measurement_t samplingRate){
     this->samplingRate = samplingRate;
 }
@@ -112,6 +168,22 @@ void ModelDevice::setCcVoltageRange(RangedMeasurement_t ccVoltageRange){
     this->ccVoltageRange = ccVoltageRange;
 }
 
+void ModelDevice::setVcCurrentFilter(int idx){
+    this->vcCurrentFilterIdx = idx;
+}
+
+void ModelDevice::setVcVoltageFilter(int idx){
+    this->vcVoltageFilterIdx = idx;
+}
+
+void ModelDevice::setCcCurrentFilter(int idx){
+    this->ccCurrentFilterIdx = idx;
+}
+
+void ModelDevice::setCcVoltageFilter(int idx){
+    this->ccVoltageFilterIdx = idx;
+}
+
 void ModelDevice::setVcCurrentFilter(Measurement_t vcCurrentFilter){
     this->vcCurrentFilter = vcCurrentFilter;
 }
@@ -127,7 +199,6 @@ void ModelDevice::setCcCurrentFilter(Measurement_t ccCurrentFilter){
 void ModelDevice::setCcVoltageFilter(Measurement_t ccVoltageFilter){
     this->ccVoltageFilter = ccVoltageFilter;
 }
-
 
 void ModelDevice::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
     this->myBoards.resize(numOfBoards);
