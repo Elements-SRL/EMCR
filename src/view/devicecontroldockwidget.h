@@ -12,6 +12,9 @@
 #define DCW_SAMPLING_RATE_TITLE "Sampling Rates"
 #define DCW_STIMULUS_FILTER_TITLE "Readout Filters"
 
+#define DCW_CC_CURRENT_RANGE_TITLE "CC Current Ranges"
+#define DCW_CC_VOLTAGE_RANGE_TITLE "CC Voltage Ranges"
+
 class DeviceControlDockWidget : public QDockWidget{
     Q_OBJECT
 

@@ -36,6 +36,9 @@ public slots:
     void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void onStopRecording();
 
+//    void onCcVoltageRangeSelected(int idx);
+//    void onCcCurrentRangeSelected(int idx);
+
 private:
     void startProducerConsumers();
     void stopAndDestroyProducerConsumers();

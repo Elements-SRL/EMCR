@@ -175,6 +175,13 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected,       controllerDevice, &ControllerDevice::onSamplingRateSelected);
 
+    /*! \note MPAC: added connections for Current Clamp*/
+//    connect(controllerDevice, &ControllerDevice::sigCcVoltageRangeSelected,     this, &ControllerMain::onCcVoltageRangeSelected);
+//    connect(controllerDevice, &ControllerDevice::sigCcCurrentRangeSelected,     this, &ControllerMain::onCcCurrentRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onCcVoltageRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
+
+
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
@@ -317,6 +324,35 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
 
     /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
 }
+
+/*! \todo MPAC:ricontrollare questa roba se serve, per il calibratore i metodi onVoltageRangeChanged e onCurrentRangeChanged erano vuoti, per il resto ci penseremo*/
+//void ControllerMain::onCcVoltageRangeSelected(int idx) {
+//    vector <RangedMeasurement_t> ranges;
+//    mDev->getCcVoltageRangesFeatures(ranges);
+////    mDev->setCcVoltageRange(ranges[idx]);
+
+//    for (auto consumer : consumers) {
+//        consumer->onCcVoltageRangeChanged(mDev->getCcVoltageRange());
+//    }
+//    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
+//    mainWindow->getChannelControlsDockWidget()->onCcVoltageRangeSelected(idx);
+
+//    /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
+//}
+
+//void ControllerMain::onCcCurrentRangeSelected(int idx) {
+//    vector <RangedMeasurement_t> ranges;
+//    mDev->getCcCurrentRangesFeatures(ranges);
+////    mDev->setCcVoltageRange(ranges[idx]);
+
+//    for (auto consumer : consumers) {
+//        consumer->onCcCurrentRangeChanged(mDev->getCcCurrentRange());
+//    }
+//    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yRight);
+//    mainWindow->getChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
+
+//    /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
+//}
 
 void ControllerMain::onSamplingRateSelected(int idx) {
     vector <Measurement_t> samplingRates;

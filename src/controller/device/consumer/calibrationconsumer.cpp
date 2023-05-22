@@ -1392,21 +1392,21 @@ void CalibrationConsumer::updateCalibParams(){
             }
             mDev->getMessageDispatcher()->setCalibVcVoltageOffset(channelIndexes, offsetDacMeas[thisVcVoltageRangeIdx], true);
 
-//            for (int j = 0; j < ccVoltageRangesArray.size(); j++){
-//                if(thisCcVoltageRange.max==ccVoltageRangesArray[j].max){
-//                    thisCcVoltageRangeIdx = j;
-//                }
-//            }
-//            mDev->getMessageDispatcher()->setCalibCcVoltageGain(channelIndexes, ccGainAdcMeas[thisCcVoltageRangeIdx], true);
-//            mDev->getMessageDispatcher()->setCalibCcVoltageOffset(channelIndexes, ccOffsetAdcMeas[thisCcVoltageRangeIdx], true);
+            for (int j = 0; j < ccVoltageRangesArray.size(); j++){
+                if(thisCcVoltageRange.max==ccVoltageRangesArray[j].max){
+                    thisCcVoltageRangeIdx = j;
+                }
+            }
+            mDev->getMessageDispatcher()->setCalibCcVoltageGain(channelIndexes, ccGainAdcMeas[thisCcVoltageRangeIdx], true);
+            mDev->getMessageDispatcher()->setCalibCcVoltageOffset(channelIndexes, ccOffsetAdcMeas[thisCcVoltageRangeIdx], true);
 
-//            for (int j = 0; j < ccCurrentRangesArray.size(); j++){
-//                if(thisCcCurrentRange.max==ccCurrentRangesArray[j].max){
-//                    thisCcCurrentRangeIdx = j;
-//                }
-//            }
-//            mDev->getMessageDispatcher()->setCalibCcCurrentGain(channelIndexes, ccGainDacMeas[thisCcCurrentRangeIdx], true);
-//            mDev->getMessageDispatcher()->setCalibCcCurrentOffset(channelIndexes, ccOffsetDacMeas[thisCcCurrentRangeIdx], true);
+            for (int j = 0; j < ccCurrentRangesArray.size(); j++){
+                if(thisCcCurrentRange.max==ccCurrentRangesArray[j].max){
+                    thisCcCurrentRangeIdx = j;
+                }
+            }
+            mDev->getMessageDispatcher()->setCalibCcCurrentGain(channelIndexes, ccGainDacMeas[thisCcCurrentRangeIdx], true);
+            mDev->getMessageDispatcher()->setCalibCcCurrentOffset(channelIndexes, ccOffsetDacMeas[thisCcCurrentRangeIdx], true);
 
         }
     }
