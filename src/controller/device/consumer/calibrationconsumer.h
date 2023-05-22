@@ -154,11 +154,11 @@ private:
 
     /*! Interactions with CSV files*/
     void mainSaveOnCsv();
-    void prepareStuffToSaveOnCsv(QString path, QString fileName, vector<uint16_t> chanSubset);
-    void saveCsv(vector<uint16_t> chanSubset, QTextStream &stream);
-    void loadDefaultCalibParams(int channelsNum);
-    void extractBoardCalibDataFromCsv(QTextStream &boardStream);
-    QString getCsvData(vector<uint16_t> chanSubset);
+    void prepareStuffToSaveOnCsv(QString path, QString fileNameRoot, vector<uint16_t> chanSubset);
+    void saveCsv(vector<uint16_t> chanSubset, QTextStream &stream, bool vcTccF);
+    void loadDefaultCalibParams(int channelsNum, bool forVc, bool forCc);
+    void extractBoardCalibDataFromCsv(QTextStream &boardStream, bool vcTccF);
+    QString getCsvData(vector<uint16_t> chanSubset, bool vcTccF);
     QString suspectChannelsMsg(vector<uint16_t> chanToCalibIdxs);
 
     void convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas,
