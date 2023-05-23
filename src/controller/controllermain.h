@@ -32,12 +32,13 @@ public slots:
     void onMainWindowDestroyed();
     void onVcCurrentRangeSelected(int idx);
     void onVcVoltageRangeSelected(int idx);
+    void onCcVoltageRangeSelected(int idx);
+    void onCcCurrentRangeSelected(int idx);
     void onSamplingRateSelected(int idx);
+    void onClampingModalitySelected(int idx);
     void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void onStopRecording();
 
-//    void onCcVoltageRangeSelected(int idx);
-//    void onCcCurrentRangeSelected(int idx);
 
 private:
     void startProducerConsumers();

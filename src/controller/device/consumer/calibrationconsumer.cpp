@@ -1237,6 +1237,8 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
     }
 
     if (!QDir().exists(path)) {
+        this->loadDefaultCalibParams(currentChannelsNum, true, true);
+        updateCalibParams();
         QString msg = "Calibration directory " + path + " not found.\nDefault calibration parameters were loaded.";
         emit sigCalibLoadingMsg(msg);
 
@@ -1244,6 +1246,8 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
         calibrationFilesFolder = path;
         QFile boardMappingFile(path + mappingFileName);
         if(!boardMappingFile.exists()){
+            this->loadDefaultCalibParams(currentChannelsNum, true, true);
+            updateCalibParams();
             QString msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
             emit sigCalibLoadingMsg(msg);
         } else {
@@ -1257,6 +1261,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
                         QString msg = "Wrong mapping in " + mappingFileName + " for board " + mappingStringList[1] +".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR and repeat the calibration procedure.";
                         emit sigCalibLoadingMsg(msg);
                         boardMappingFile.close();
+                        /*! Mapping file corrupted, do not load any calibration info */
                         return;
                     }
                     boardSerialNums[mappingStringList[0].toInt()] = mappingStringList[1];
@@ -1554,58 +1559,29 @@ void CalibrationConsumer::updateCalibParams(){
             channelIndexes.push_back(i);
         }
 
-        RangedMeasurement_t thisVcCurrentRange = mDev->getVcCurrentRange();
-        uint16_t thisVcCurrentRangeIdx;
-        for (int j = 0; j < vcCurrentRangesArray.size(); j++){
-            if(thisVcCurrentRange.max==vcCurrentRangesArray[j].max){
-                thisVcCurrentRangeIdx = j;
-            }
+        if (mDev->getOngoingClampingModality() == E384CL_VOLTAGE_CLAMP_MODE) {
+            mDev->getMessageDispatcher()->setCalibVcCurrentGain(channelIndexes, gainAdcMeas[mDev->getVcCurrentRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibVcCurrentOffset(channelIndexes, offsetAdcMeas[mDev->getVcCurrentRangeIdx()], true);
         }
-
-        mDev->getMessageDispatcher()->setCalibVcCurrentGain(channelIndexes, gainAdcMeas[thisVcCurrentRangeIdx], true);
-        mDev->getMessageDispatcher()->setCalibVcCurrentOffset(channelIndexes, offsetAdcMeas[thisVcCurrentRangeIdx], true);
-        /*! \todo MPAC: qui per 384patchclamp bisogna anche mandare a FFPGA il offsetDAC, ccADCgain, ccADC,offset, ccDACgaine e ccDACOffset*/
 
         if(deviceUnderCalibrationType == Device384PatchClamp
         #ifdef DEBUG
             || deviceUnderCalibrationType == Device384FakePatchClamp
         #endif
         ){
-            RangedMeasurement_t thisVcVoltageRange = mDev->getVcVoltageRange();
-            RangedMeasurement_t thisCcVoltageRange = mDev->getCcVoltageRange();
-            RangedMeasurement_t thisCcCurrentRange = mDev->getCcCurrentRange();
-            uint16_t thisVcVoltageRangeIdx;
-            uint16_t thisCcVoltageRangeIdx;
-            uint16_t thisCcCurrentRangeIdx;
-
-            for (int j = 0; j < vcVoltageRangesArray.size(); j++){
-                if(thisVcVoltageRange.max==vcVoltageRangesArray[j].max){
-                    thisVcVoltageRangeIdx = j;
-                }
+            if (mDev->getOngoingClampingModality() == E384CL_VOLTAGE_CLAMP_MODE) {
+                mDev->getMessageDispatcher()->setCalibVcVoltageOffset(channelIndexes, offsetDacMeas[mDev->getVcVoltageRangeIdx()], true);
             }
-            mDev->getMessageDispatcher()->setCalibVcVoltageOffset(channelIndexes, offsetDacMeas[thisVcVoltageRangeIdx], true);
 
-            for (int j = 0; j < ccVoltageRangesArray.size(); j++){
-                if(thisCcVoltageRange.max==ccVoltageRangesArray[j].max){
-                    thisCcVoltageRangeIdx = j;
-                }
+            if (mDev->getOngoingClampingModality() == E384CL_CURRENT_CLAMP_MODE) {
+                mDev->getMessageDispatcher()->setCalibCcVoltageGain(channelIndexes, ccGainAdcMeas[mDev->getCcVoltageRangeIdx()], true);
+                mDev->getMessageDispatcher()->setCalibCcVoltageOffset(channelIndexes, ccOffsetAdcMeas[mDev->getCcVoltageRangeIdx()], true);
+
+                mDev->getMessageDispatcher()->setCalibCcCurrentGain(channelIndexes, ccGainDacMeas[mDev->getCcCurrentRangeIdx()], true);
+                mDev->getMessageDispatcher()->setCalibCcCurrentOffset(channelIndexes, ccOffsetDacMeas[mDev->getCcCurrentRangeIdx()], true);
             }
-            mDev->getMessageDispatcher()->setCalibCcVoltageGain(channelIndexes, ccGainAdcMeas[thisCcVoltageRangeIdx], true);
-            mDev->getMessageDispatcher()->setCalibCcVoltageOffset(channelIndexes, ccOffsetAdcMeas[thisCcVoltageRangeIdx], true);
-
-            for (int j = 0; j < ccCurrentRangesArray.size(); j++){
-                if(thisCcCurrentRange.max==ccCurrentRangesArray[j].max){
-                    thisCcCurrentRangeIdx = j;
-                }
-            }
-            mDev->getMessageDispatcher()->setCalibCcCurrentGain(channelIndexes, ccGainDacMeas[thisCcCurrentRangeIdx], true);
-            mDev->getMessageDispatcher()->setCalibCcCurrentOffset(channelIndexes, ccOffsetDacMeas[thisCcCurrentRangeIdx], true);
-
         }
     }
-
-
-
 }
 
 void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){

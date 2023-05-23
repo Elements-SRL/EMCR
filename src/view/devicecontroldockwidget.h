@@ -15,16 +15,23 @@
 #define DCW_CC_CURRENT_RANGE_TITLE "CC Current Ranges"
 #define DCW_CC_VOLTAGE_RANGE_TITLE "CC Voltage Ranges"
 
+#define DCW_CLMAPINGMODALITY_TITLE "Clamping Modality"
+
 class DeviceControlDockWidget : public QDockWidget{
     Q_OBJECT
 
 public:
-    DeviceControlDockWidget(ModelDevice * modelDevice);
+    DeviceControlDockWidget(ModelDevice * mDev);
 
     void forceEmit();
+    void updateParameters();
+
+public slots:
+    void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onStopRecording();
 
 private:
-    ModelDevice * modelDevice;
+    ModelDevice * mDev;
     QGroupBox * vcCurrentRangesGroupBox = nullptr;
     vector<QRadioButton *> vcCurrentRangesRadioButtons;
     bool vcCurrentRangesPrevioueEnableStateBeforeRecording = false;
@@ -40,20 +47,20 @@ private:
     QGroupBox * samplingRatesGroupBox = nullptr;
     vector<QRadioButton *> samplingRatesRadioButtons;
     bool samplingRatesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * clampingModalitiesGroupBox = nullptr;
+    vector<QRadioButton *> clampingModalitiesRadioButtons;
+    bool clampingModalitiesPrevioueEnableStateBeforeRecording = false;
 
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons);
 
-    signals:
+signals:
     void sigVcCurrentRangeSelected(int idx);
     void sigVcVoltageRangeSelected(int idx);
     void sigCcCurrentRangeSelected(int idx);
     void sigCcVoltageRangeSelected(int idx);
     void sigSamplingRateSelected(int idx);
-
-public slots:
-    void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
-    void onStopRecording();
+    void sigClampingModalitySelected(int idx);
 };
 
 #endif // DEVICECONTROLDOCKWIDGET_H

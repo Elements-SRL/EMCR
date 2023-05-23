@@ -17,6 +17,7 @@ void ControllerDevice::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeI
     uint16_t notUsedDefaultVcCurrRangeIdx;
     mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
 
+    this->mDev->setVcCurrentRange(selectedVcCurrentRangeIndex);
     this->mDev->setVcCurrentRange(ranges[selectedVcCurrentRangeIndex]);
     this->mDev->getMessageDispatcher()->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
 
@@ -28,6 +29,7 @@ void ControllerDevice::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeI
     vector <RangedMeasurement_t> ranges;
     mDev->getVcVoltageRangesFeatures(ranges);
 
+    this->mDev->setVcVoltageRange(selectedVcVoltageRangeIndex);
     this->mDev->setVcVoltageRange(ranges[selectedVcVoltageRangeIndex]);
     this->mDev->getMessageDispatcher()->setVCVoltageRange(selectedVcVoltageRangeIndex, true);
 
@@ -39,6 +41,7 @@ void ControllerDevice::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeI
     vector <RangedMeasurement_t> ranges;
     mDev->getCcCurrentRangesFeatures(ranges);
 
+    this->mDev->setCcCurrentRange(selectedCcCurrentRangeIndex);
     this->mDev->setCcCurrentRange(ranges[selectedCcCurrentRangeIndex]);
     this->mDev->getMessageDispatcher()->setCCCurrentRange(selectedCcCurrentRangeIndex, true);
 
@@ -50,6 +53,7 @@ void ControllerDevice::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeI
     vector <RangedMeasurement_t> ranges;
     mDev->getCcVoltageRangesFeatures(ranges);
 
+    this->mDev->setCcVoltageRange(selectedCcVoltageRangeIndex);
     this->mDev->setCcVoltageRange(ranges[selectedCcVoltageRangeIndex]);
     this->mDev->getMessageDispatcher()->setCCVoltageRange(selectedCcVoltageRangeIndex, true);
 
@@ -64,6 +68,7 @@ void ControllerDevice::onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilte
     vector <Measurement_t> filters;
     mDev->getVoltageStimulusLpfsFeatures(filters);
 
+    this->mDev->setVcVoltageFilter(selectedVcVoltageFilterIndex);
     this->mDev->setVcVoltageFilter(filters[selectedVcVoltageFilterIndex]);
     this->mDev->getMessageDispatcher()->setVoltageStimulusLpf(selectedVcVoltageFilterIndex, true);
 
@@ -75,6 +80,7 @@ void ControllerDevice::onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilte
     vector <Measurement_t> filters;
     mDev->getCurrentStimulusLpfsFeatures(filters);
 
+    this->mDev->setCcCurrentFilter(selectedCcCurrentFilterIndex);
     this->mDev->setCcCurrentFilter(filters[selectedCcCurrentFilterIndex]);
     this->mDev->getMessageDispatcher()->setCurrentStimulusLpf(selectedCcCurrentFilterIndex, true);
 
@@ -86,9 +92,43 @@ void ControllerDevice::onSamplingRateSelected(uint16_t selectedSamplingRateIndex
     vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
 
+    this->mDev->setSamplingRate(selectedSamplingRateIndex);
     this->mDev->setSamplingRate(samplingRates[selectedSamplingRateIndex]);
     this->mDev->getMessageDispatcher()->setSamplingRate(selectedSamplingRateIndex, true);
 
     emit sigSamplingRateSelected(selectedSamplingRateIndex);
 }
 // ADC Voltage Filter in CC set by Sampling rate
+
+void ControllerDevice::onClampingModalitySelected(uint16_t selectedClampingModalityIndex){
+    vector <int> clampingModalities;
+    mDev->getClampingModalitiesFeatures(clampingModalities);
+
+    this->mDev->setOngoingClampingModalityIdx(selectedClampingModalityIndex);
+    this->mDev->setOngoingClampingModality(clampingModalities[selectedClampingModalityIndex]);
+
+    int voltageChannelsNum;
+    int currentChannelsNum;
+    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    vector <bool> allTrue(currentChannelsNum, true);
+    vector <bool> allFalse(currentChannelsNum, false);
+
+    if (clampingModalities[selectedClampingModalityIndex] == E384CL_VOLTAGE_CLAMP_MODE) {
+        mDev->getMessageDispatcher()->turnCcSwOn(allChannels, allFalse, false);
+        mDev->getMessageDispatcher()->enableCcStimulus(allChannels, allFalse, false);
+        mDev->getMessageDispatcher()->turnVcSwOn(allChannels, allTrue, false);
+        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allTrue, true);
+
+    } else {
+        mDev->getMessageDispatcher()->turnVcSwOn(allChannels, allFalse, false);
+        mDev->getMessageDispatcher()->turnCcSwOn(allChannels, allTrue, false);
+        mDev->getMessageDispatcher()->enableCcStimulus(allChannels, allTrue, false);
+        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allFalse, true);
+    }
+
+    emit sigClampingModalitySelected(selectedClampingModalityIndex);
+}

@@ -3,27 +3,27 @@
 #include "devicecontroldockwidget.h"
 #include <QVBoxLayout>
 
-DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDockWidget() {
-    this->modelDevice = modelDevice;
+DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidget() {
+    this->mDev = mDev;
 
     vector<int> clampingModalities;
-    modelDevice->getClampingModalitiesFeatures(clampingModalities);
+    mDev->getClampingModalitiesFeatures(clampingModalities);
 
     vector <RangedMeasurement_t> vcCurrentRanges;
     uint16_t defaultVcCurrRangeIdx;
-    modelDevice->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
+    mDev->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
 
     vector <RangedMeasurement_t> vcVoltageRanges;
-    modelDevice->getVcVoltageRangesFeatures(vcVoltageRanges);
+    mDev->getVcVoltageRangesFeatures(vcVoltageRanges);
 
     vector <RangedMeasurement_t> ccCurrentRanges;
-    modelDevice->getCcCurrentRangesFeatures(ccCurrentRanges);
+    mDev->getCcCurrentRangesFeatures(ccCurrentRanges);
 
     vector <RangedMeasurement_t> ccVoltageRanges;
-    modelDevice->getCcVoltageRangesFeatures(ccVoltageRanges);
+    mDev->getCcVoltageRangesFeatures(ccVoltageRanges);
 
     vector <Measurement_t> samplingRates;
-    modelDevice->getSamplingRatesFeatures(samplingRates);
+    mDev->getSamplingRatesFeatures(samplingRates);
 
     QWidget *window = new QWidget;
     this->setWidget(window);
@@ -183,6 +183,45 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDoc
         }
     }
 
+    /*! Sampling rate */
+    if (clampingModalities.size() > 0) {
+        this->clampingModalitiesGroupBox = new QGroupBox(DCW_CLMAPINGMODALITY_TITLE);
+
+        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+        radioButtonsBoxLayout->setSpacing(2);
+
+        vLayout->addWidget(this->clampingModalitiesGroupBox);
+        for (int idx = 0; idx < clampingModalities.size(); idx++){
+            auto m = clampingModalities[idx];
+            QRadioButton * qrb;
+            switch (clampingModalities[idx]) {
+            case E384CL_VOLTAGE_CLAMP_MODE:
+                qrb = new QRadioButton("Voltage clamp");
+                break;
+
+            case E384CL_CURRENT_CLAMP_MODE:
+                qrb = new QRadioButton("Current clamp");
+                break;
+            }
+
+            radioButtonsBoxLayout->addWidget(qrb);
+            this->clampingModalitiesRadioButtons.push_back(qrb);
+            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigClampingModalitySelected(idx);
+                }
+            });
+        }
+        if (this->clampingModalitiesRadioButtons.size() > 0) {
+            this->clampingModalitiesRadioButtons[0]->setChecked(true);
+        }
+        this->clampingModalitiesGroupBox->setLayout(radioButtonsBoxLayout);
+        if (clampingModalities.size() == 1) {
+            clampingModalitiesGroupBox->setEnabled(false);
+        }
+    }
+
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    DeviceControlDockWidget::testFunction(vLayout, this->vcCurrentRangesGroupBox, vcCurrentRanges, this->vcCurrentRangesRadioButtons);
 
@@ -226,6 +265,17 @@ void DeviceControlDockWidget::forceEmit() {
             emit sigSamplingRateSelected(idx);
         }
     }
+}
+
+void DeviceControlDockWidget::updateParameters() {
+    vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+    vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
+    ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
+    ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+    samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+    clampingModalitiesRadioButtons[mDev->getOngoingClampingModalityIdx()]->setChecked(true);
+
+    /*! \todo FCON aggiungere controlli per DAC filters */
 }
 
 /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
