@@ -262,7 +262,7 @@ void ControllerMain::onMainWindowCreated() {
     vector<bool> offValues(currentChannelsNumber, false);
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
 
-    calibratorConsumer->loadInitialCalibParams("C:/EMCR_calib_folder/", "boardMapping.csv");
+    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationPath(), "boardMapping.csv");
 
     /*! Start threads */
     this->startProducerConsumers();

@@ -23,6 +23,7 @@ public:
 
     void loadInitialCalibParams(QString path, QString mappingFileName);
     void updateCalibParams();
+    QString getCalibrationPath();
 
 public slots:
     void onStartConsuming() override;

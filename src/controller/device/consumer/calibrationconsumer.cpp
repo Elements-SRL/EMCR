@@ -11,6 +11,8 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     std::vector <Measurement_t> aaa;
 //    DeviceTypes_t ccc;
 
+    calibrationFilesFolder = calibrationFilesFolder + mDev->getSerialNumber() + "/";
+
     mDev->getSamplingRatesFeatures(aaa);
     calibrationSamplingRate = aaa[0];
 
@@ -137,6 +139,10 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
 
 CalibrationConsumer::~CalibrationConsumer(){
 
+}
+
+QString CalibrationConsumer::getCalibrationPath(){
+    return calibrationFilesFolder;
 }
 
 void CalibrationConsumer::run(){
