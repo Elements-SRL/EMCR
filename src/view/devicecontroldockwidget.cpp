@@ -276,20 +276,24 @@ void DeviceControlDockWidget::forceEmit() {
 }
 
 void DeviceControlDockWidget::updateParameters() {
-    if(vcCurrentRangesRadioButtons.size()>0){
-        vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+    if (mDev->getOngoingClampingModality() == E384CL_VOLTAGE_CLAMP_MODE) {
+        if(vcCurrentRangesRadioButtons.size()>0){
+            vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+        }
+
+        if(vcVoltageRangesRadioButtons.size()>0){
+            vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
+        }
     }
 
-    if(vcVoltageRangesRadioButtons.size()>0){
-        vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
-    }
+    if (mDev->getOngoingClampingModality() == E384CL_CURRENT_CLAMP_MODE) {
+        if(ccCurrentRangesRadioButtons.size()>0){
+            ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
+        }
 
-    if(ccCurrentRangesRadioButtons.size()>0){
-        ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
-    }
-
-    if(ccVoltageRangesRadioButtons.size()>0){
-        ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+        if(ccVoltageRangesRadioButtons.size()>0){
+            ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+        }
     }
 
     if(samplingRatesRadioButtons.size()>0){
