@@ -1238,6 +1238,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
 
     if (!QDir().exists(path)) {
         this->loadDefaultCalibParams(currentChannelsNum, true, true);
+        copyToAllVectors();
         updateCalibParams();
         QString msg = "Calibration directory " + path + " not found.\nDefault calibration parameters were loaded.";
         emit sigCalibLoadingMsg(msg);
@@ -1247,6 +1248,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
         QFile boardMappingFile(path + mappingFileName);
         if(!boardMappingFile.exists()){
             this->loadDefaultCalibParams(currentChannelsNum, true, true);
+            copyToAllVectors();
             updateCalibParams();
             QString msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
             emit sigCalibLoadingMsg(msg);
@@ -1344,20 +1346,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
                 }
 //                msg = msg + "calibrated with default parameters";
 
-                allGainADC = gainADC;
-                allOffsetADC = offsetADC;
-                allOffsetDAC = offsetDAC;
-                if(deviceUnderCalibrationType == Device384PatchClamp
-                #ifdef DEBUG
-                    || deviceUnderCalibrationType == Device384FakePatchClamp
-                #endif
-                ){
-                    ccAllGainADC = ccGainADC;
-                    ccAllOffsetADC = ccOffsetADC;
-                    ccAllGainDAC = ccGainDAC;
-                    ccAllOffsetDAC = ccOffsetDAC;
-                }
-
+                copyToAllVectors();
 
                 /*! Invio dati a FPGA con massageDispatcher*/
                 updateCalibParams();
@@ -1526,6 +1515,22 @@ void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &ga
             }
         }
 
+    }
+}
+
+void CalibrationConsumer::copyToAllVectors() {
+    allGainADC = gainADC;
+    allOffsetADC = offsetADC;
+    allOffsetDAC = offsetDAC;
+    if(deviceUnderCalibrationType == Device384PatchClamp
+    #ifdef DEBUG
+        || deviceUnderCalibrationType == Device384FakePatchClamp
+    #endif
+    ){
+        ccAllGainADC = ccGainADC;
+        ccAllOffsetADC = ccOffsetADC;
+        ccAllGainDAC = ccGainDAC;
+        ccAllOffsetDAC = ccOffsetDAC;
     }
 }
 

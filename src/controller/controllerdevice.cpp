@@ -121,13 +121,23 @@ void ControllerDevice::onClampingModalitySelected(uint16_t selectedClampingModal
         mDev->getMessageDispatcher()->turnCcSwOn(allChannels, allFalse, false);
         mDev->getMessageDispatcher()->enableCcStimulus(allChannels, allFalse, false);
         mDev->getMessageDispatcher()->turnVcSwOn(allChannels, allTrue, false);
-        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allTrue, true);
+        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allTrue, false);
+        mDev->getMessageDispatcher()->setSourceForVoltageChannel(0, false);
+        mDev->getMessageDispatcher()->setSourceForCurrentChannel(0, false);
+        mDev->getMessageDispatcher()->setVCCurrentRange(mDev->getVcCurrentRangeIdx(), false);
+        mDev->getMessageDispatcher()->setVCVoltageRange(mDev->getVcVoltageRangeIdx(), false);
+        mDev->getMessageDispatcher()->setDebugBit(0, 7, false);
 
     } else {
         mDev->getMessageDispatcher()->turnVcSwOn(allChannels, allFalse, false);
         mDev->getMessageDispatcher()->turnCcSwOn(allChannels, allTrue, false);
         mDev->getMessageDispatcher()->enableCcStimulus(allChannels, allTrue, false);
-        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allFalse, true);
+        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allFalse, false);
+        mDev->getMessageDispatcher()->setSourceForVoltageChannel(1, false);
+        mDev->getMessageDispatcher()->setSourceForCurrentChannel(1, false);
+        mDev->getMessageDispatcher()->setCCCurrentRange(mDev->getCcCurrentRangeIdx(), false);
+        mDev->getMessageDispatcher()->setCCVoltageRange(mDev->getCcVoltageRangeIdx(), false);
+        mDev->getMessageDispatcher()->setDebugBit(0, 7, true);
     }
 
     emit sigClampingModalitySelected(selectedClampingModalityIndex);

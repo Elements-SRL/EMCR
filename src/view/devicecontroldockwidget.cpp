@@ -231,31 +231,42 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
 }
 
 void DeviceControlDockWidget::forceEmit() {
-    for (int idx = 0; idx < vcCurrentRangesRadioButtons.size(); idx++) {
-        QRadioButton* btn = vcCurrentRangesRadioButtons[idx];
+    for (int idx = 0; idx < clampingModalitiesRadioButtons.size(); idx++) {
+        QRadioButton* btn = clampingModalitiesRadioButtons[idx];
         if (btn->isChecked()) {
-            emit sigVcCurrentRangeSelected(idx);
+            emit sigClampingModalitySelected(idx);
         }
     }
 
-    for (int idx = 0; idx < vcVoltageRangesRadioButtons.size(); idx++) {
-        QRadioButton* btn = vcVoltageRangesRadioButtons[idx];
-        if (btn->isChecked()) {
-            emit sigVcVoltageRangeSelected(idx);
+    if (mDev->getOngoingClampingModality() == E384CL_VOLTAGE_CLAMP_MODE) {
+        for (int idx = 0; idx < vcCurrentRangesRadioButtons.size(); idx++) {
+            QRadioButton* btn = vcCurrentRangesRadioButtons[idx];
+            if (btn->isChecked()) {
+                emit sigVcCurrentRangeSelected(idx);
+            }
+        }
+
+        for (int idx = 0; idx < vcVoltageRangesRadioButtons.size(); idx++) {
+            QRadioButton* btn = vcVoltageRangesRadioButtons[idx];
+            if (btn->isChecked()) {
+                emit sigVcVoltageRangeSelected(idx);
+            }
         }
     }
 
-    for (int idx = 0; idx < ccCurrentRangesRadioButtons.size(); idx++) {
-        QRadioButton* btn = ccCurrentRangesRadioButtons[idx];
-        if (btn->isChecked()) {
-            emit sigCcCurrentRangeSelected(idx);
+    if (mDev->getOngoingClampingModality() == E384CL_CURRENT_CLAMP_MODE) {
+        for (int idx = 0; idx < ccCurrentRangesRadioButtons.size(); idx++) {
+            QRadioButton* btn = ccCurrentRangesRadioButtons[idx];
+            if (btn->isChecked()) {
+                emit sigCcCurrentRangeSelected(idx);
+            }
         }
-    }
 
-    for (int idx = 0; idx < ccVoltageRangesRadioButtons.size(); idx++) {
-        QRadioButton* btn = ccVoltageRangesRadioButtons[idx];
-        if (btn->isChecked()) {
-            emit sigCcVoltageRangeSelected(idx);
+        for (int idx = 0; idx < ccVoltageRangesRadioButtons.size(); idx++) {
+            QRadioButton* btn = ccVoltageRangesRadioButtons[idx];
+            if (btn->isChecked()) {
+                emit sigCcVoltageRangeSelected(idx);
+            }
         }
     }
 

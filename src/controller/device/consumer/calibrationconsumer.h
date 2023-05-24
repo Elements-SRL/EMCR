@@ -22,6 +22,7 @@ public:
     ~CalibrationConsumer();
 
     void loadInitialCalibParams(QString path, QString mappingFileName);
+    void copyToAllVectors();
     void updateCalibParams();
     QString getCalibrationPath();
 
