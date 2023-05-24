@@ -44,5 +44,7 @@
         <file>imgs/infinite repeat sequence.png</file>
         <file>imgs/holding stimulus.png</file>
         <file>imgs/stimulus ramp.png</file>
+        <file>imgs/help icon.png</file>
+        <file>imgs/warning icon.png</file>
     </qresource>
 </RCC>
