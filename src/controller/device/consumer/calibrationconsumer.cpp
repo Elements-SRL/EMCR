@@ -30,6 +30,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
 
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcGain(defaultAdcGainValue);    //1.0;
     mDev->getMessageDispatcher()->getCalibDefaultVcAdcOffset(defaultAdcOffsetValue); // 0.0;
+    mDev->getMessageDispatcher()->getCalibDefaultVcDacGain(defaultDacGainValue); // 1.0;
     mDev->getMessageDispatcher()->getCalibDefaultVcDacOffset(defaultDacOffsetValue); // 0.0;
     mDev->getMessageDispatcher()->getCalibDefaultCcAdcGain(defaultCcAdcGainValue);    //1.0;
     mDev->getMessageDispatcher()->getCalibDefaultCcAdcOffset(defaultCcAdcOffsetValue); // 0.0;
@@ -72,11 +73,12 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
         allOffsetADC[i].resize(currentChannelsNum);
     }
 
-//    offsetDAC.resize(currentChannelsNum);
-//    allOffsetDAC.resize(currentChannelsNum);
+    gainDAC.resize(vcVoltageRangesArray.size());
     offsetDAC.resize(vcVoltageRangesArray.size());
+    allGainDAC.resize(vcVoltageRangesArray.size());
     allOffsetDAC.resize(vcVoltageRangesArray.size());
     for(int i = 0; i< vcVoltageRangesArray.size(); i++){
+        allGainDAC[i].resize(currentChannelsNum);
         allOffsetDAC[i].resize(currentChannelsNum);
     }
 
@@ -462,6 +464,7 @@ void CalibrationConsumer::run(){
         for(int zzz = 0; zzz < vcVoltageRangesArray.size(); zzz++){
             for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
                 allOffsetDAC[zzz][channelToCalibIdxs[xxx]] = offsetDAC[zzz][xxx];
+                /*! \todo FCON qui andrebbero aggiornati anche i gain del DAC */
             }
         }
         for(int zzz = 0; zzz < ccVoltageRangesArray.size(); zzz++){
@@ -1202,6 +1205,7 @@ void CalibrationConsumer::loadDefaultCalibParams(int channelsNum, bool forVc, bo
 
         for(int i = 0; i < vcVoltageRangesArray.size(); i++){
             for(int j = 0; j < channelsNum; j++){
+                gainDAC[i].push_back(defaultDacGainValue.getNoPrefixValue());
                 offsetDAC[i].push_back(defaultDacOffsetValue.getNoPrefixValue());
             }
         }
@@ -1473,7 +1477,8 @@ void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream,
 /*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
 gainADC, offsetADC anf offsetDAC contain only the parameters corresponding to channelToCalibIdxs (i.e. all the 384 channels or the 16 channels
 belonging to the board under calibration) */
-void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas,
+void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &gainDacMeas,
+                                               vector<vector<Measurement_t>> &gainAdcMeas,
                                                vector<vector<Measurement_t>> &offsetAdcMeas,
                                                vector<vector<Measurement_t>> &offsetDacMeas,
                                                vector<vector<Measurement_t>> &ccGainAdcMeas,
@@ -1491,6 +1496,7 @@ void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &ga
 
     for(int iii = 0; iii < vcVoltageRangesArray.size(); iii++){
         for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            gainDacMeas[iii].push_back({allGainDAC[iii][jjj], UnitPfxNone, ""});
             offsetDacMeas[iii].push_back({allOffsetDAC[iii][jjj], UnitPfxNone, "V"});
         }
     }
@@ -1514,13 +1520,13 @@ void CalibrationConsumer::convertToMeasurement(vector<vector<Measurement_t>> &ga
                 ccOffsetDacMeas[iii].push_back({ccAllOffsetDAC[iii][jjj], UnitPfxNone, "A"});
             }
         }
-
     }
 }
 
 void CalibrationConsumer::copyToAllVectors() {
     allGainADC = gainADC;
     allOffsetADC = offsetADC;
+    allGainDAC = gainDAC;
     allOffsetDAC = offsetDAC;
     if(deviceUnderCalibrationType == Device384PatchClamp
     #ifdef DEBUG
@@ -1542,6 +1548,7 @@ void CalibrationConsumer::updateCalibParams(){
     if(channelToCalibIdxs.size()==0){
         return;
     } else {
+        vector<vector<Measurement_t>> gainDacMeas;
         vector<vector<Measurement_t>> gainAdcMeas;
         vector<vector<Measurement_t>> offsetAdcMeas;
         vector<vector<Measurement_t>> offsetDacMeas;
@@ -1551,6 +1558,7 @@ void CalibrationConsumer::updateCalibParams(){
         vector<vector<Measurement_t>> ccOffsetDacMeas;
         vector<uint16_t> channelIndexes;
 
+        gainDacMeas.resize(vcVoltageRangesArray.size());
         gainAdcMeas.resize(vcCurrentRangesArray.size());
         offsetAdcMeas.resize(vcCurrentRangesArray.size());
         offsetDacMeas.resize(vcVoltageRangesArray.size());
@@ -1558,7 +1566,7 @@ void CalibrationConsumer::updateCalibParams(){
         ccOffsetAdcMeas.resize(ccVoltageRangesArray.size());
         ccGainDacMeas.resize(ccCurrentRangesArray.size());
         ccOffsetDacMeas.resize(ccCurrentRangesArray.size());
-        convertToMeasurement(gainAdcMeas, offsetAdcMeas, offsetDacMeas, ccGainAdcMeas, ccOffsetAdcMeas, ccGainDacMeas, ccOffsetDacMeas);
+        convertToMeasurement(gainDacMeas, gainAdcMeas, offsetAdcMeas, offsetDacMeas, ccGainAdcMeas, ccOffsetAdcMeas, ccGainDacMeas, ccOffsetDacMeas);
 
         for(int i = 0; i< currentChannelsNum; i++){
             channelIndexes.push_back(i);
@@ -1575,6 +1583,7 @@ void CalibrationConsumer::updateCalibParams(){
         #endif
         ){
             if (mDev->getOngoingClampingModality() == E384CL_VOLTAGE_CLAMP_MODE) {
+                mDev->getMessageDispatcher()->setCalibVcVoltageGain(channelIndexes, gainDacMeas[mDev->getVcVoltageRangeIdx()], true);
                 mDev->getMessageDispatcher()->setCalibVcVoltageOffset(channelIndexes, offsetDacMeas[mDev->getVcVoltageRangeIdx()], true);
             }
 

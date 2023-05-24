@@ -57,10 +57,12 @@ private:
     CalibrationData_t calibData;
     std::vector<std::vector<double_t>> gainADC; // vettore di vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> offsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> gainDAC; // vettore di gain (Uno per range)
     std::vector<std::vector<double_t>> offsetDAC; // vettore di offset (questo non dipende dal range)
 
     std::vector<std::vector<double_t>> allGainADC; // vettore di vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> allOffsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> allGainDAC; // vettore di vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> allOffsetDAC; // vettore di offset (questo non dipende dal range)
 
     std::vector<bool> suspectChannelIdxs;
@@ -84,6 +86,7 @@ private:
     /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
     Measurement_t defaultAdcGainValue;
     Measurement_t defaultAdcOffsetValue;
+    Measurement_t defaultDacGainValue;
     Measurement_t defaultDacOffsetValue;
     Measurement_t defaultCcAdcGainValue;
     Measurement_t defaultCcAdcOffsetValue;
@@ -163,7 +166,8 @@ private:
     QString getCsvData(vector<uint16_t> chanSubset, bool vcTccF);
     QString suspectChannelsMsg(vector<uint16_t> chanToCalibIdxs);
 
-    void convertToMeasurement(vector<vector<Measurement_t>> &gainAdcMeas,
+    void convertToMeasurement(vector<vector<Measurement_t>> &gainDacMeas,
+                              vector<vector<Measurement_t>> &gainAdcMeas,
                               vector<vector<Measurement_t>> &offsetAdcMeas,
                               vector<vector<Measurement_t>> &offsetDacMeas,
                               vector<vector<Measurement_t>> &ccGainAdcMeas,
