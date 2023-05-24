@@ -98,6 +98,10 @@ void ModelChannel::setVhold(Measurement_t vHold){
     this->vHold = vHold;
 }
 
+void ModelChannel::setChold(Measurement_t cHold){
+    this->cHold = cHold;
+}
+
 void ModelChannel::setVdoc(Measurement_t vDoc){
     this->vDoc = vDoc;
 }

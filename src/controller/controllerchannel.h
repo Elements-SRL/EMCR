@@ -30,7 +30,7 @@ public slots:
     void onApplyTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void onApplyTurnStimulusOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
-    void onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues);
+    void onApplyHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues);
 
     /*! \todo void onApplyKawaiiPlotSettings(Boh);*/
 

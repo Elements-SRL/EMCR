@@ -256,6 +256,10 @@ ErrorCodes_t ModelDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasure
     return this->messageDispatcher->getVoltageHoldTunerFeatures(voltageHoldTunerFeatures);
 }
 
+ErrorCodes_t ModelDevice::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures) {
+    return this->messageDispatcher->getCurrentHoldTunerFeatures(currentHoldTunerFeatures);
+}
+
 ErrorCodes_t ModelDevice::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
     return this->messageDispatcher->getCalibVcCurrentGainFeatures(calibVcCurrentGainFeatures);
 }

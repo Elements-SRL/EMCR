@@ -24,6 +24,7 @@ public slots:
     void onUpdate();
     void onSigRecording(bool state);
     void onVcVoltageRangeSelected(int idx);
+    void onCcCurrentRangeSelected(int idx);
 
 private:
     typedef enum Operations {
@@ -59,6 +60,7 @@ private:
     QVector <QVector <QWidget *>> operationEdits;
 
     QVector <QWidget *> operationButtonWidgets;
+    RangedMeasurement_t holdingTunerRange;
 
 private slots:
     void onOperationSelected(int operationIdx);
@@ -74,7 +76,7 @@ private slots:
 signals:
     void sigAppliedTurnChannelOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
     void sigAppliedTurnDocOnOff(vector<uint16_t> channelIndexes, vector<bool> onvalues);
-    void sigAppliedVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages);
+    void sigAppliedHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> holdValues);
     void sigAppliedTurnStimulsOnOff(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void sigStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
     void sigStopRecording();

@@ -35,6 +35,7 @@ public:
     void setInStimActive(bool active);
     void setSelected(bool selected);
     void setVhold(Measurement_t vHold);
+    void setChold(Measurement_t cHold);
     void setVdoc(Measurement_t vDoc);
 
 
@@ -50,6 +51,7 @@ private:
     bool inStimActive = false;                      // The channel currently has active stimulus (true)
     bool selected = false;                          // The channel is selected in the GUI
     Measurement_t vHold = {0.0, UnitPfxMilli, "V"}; // holding voltage
+    Measurement_t cHold = {0.0, UnitPfxNano, "A"};  // holding current
     Measurement_t vDoc = {0.0, UnitPfxMilli, "V"};  // digital offset compensation voltage
 
 };

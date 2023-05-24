@@ -64,11 +64,20 @@ void ControllerChannel::onApplyTurnDocOnOff(vector<uint16_t> channelIndexes, vec
     }
 }
 
-void ControllerChannel::onApplyVoltageHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> vHoldValues){
-    this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, vHoldValues, true);
-    for (int i = 0; i < channelIndexes.size(); i++){
-        this->mDev->getChannels()[channelIndexes[i]]->setVhold(vHoldValues[i]);
-//        qDebug() << "[Channel " << channelIndexes[i] << "]: vHold set:" << vHoldValues[i].value << "\n";
+void ControllerChannel::onApplyHoldValues(vector<uint16_t> channelIndexes, vector<Measurement_t> holdValues){
+    if (mDev->getOngoingClampingModality() == E384CL_VOLTAGE_CLAMP_MODE) {
+        this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, holdValues, true);
+        for (int i = 0; i < channelIndexes.size(); i++){
+            this->mDev->getChannels()[channelIndexes[i]]->setVhold(holdValues[i]);
+                    qDebug() << "[Channel " << channelIndexes[i] << "]: vHold set:" << holdValues[i].value << "\n";
+        }
+
+    } else {
+        this->mDev->getMessageDispatcher()->setCurrentHoldTuner(channelIndexes, holdValues, true);
+        for (int i = 0; i < channelIndexes.size(); i++){
+            this->mDev->getChannels()[channelIndexes[i]]->setChold(holdValues[i]);
+                    qDebug() << "[Channel " << channelIndexes[i] << "]: cHold set:" << holdValues[i].value << "\n";
+        }
     }
 }
 

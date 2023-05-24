@@ -165,7 +165,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnChannelOnOff,      controllerChannel, &ControllerChannel::onApplyTurnChannelOnOff);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff,      controllerChannel, &ControllerChannel::onApplyTurnStimulusOnOff);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnDocOnOff,          controllerChannel, &ControllerChannel::onApplyTurnDocOnOff);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedVoltageHoldValues,     controllerChannel, &ControllerChannel::onApplyVoltageHoldValues);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedHoldValues,            controllerChannel, &ControllerChannel::onApplyHoldValues);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &ControllerMain::onStartRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &ControllerMain::onStopRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::onStartRecording);
@@ -318,6 +318,7 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
     }
+    mainWindow->getChessaboard()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
     mainWindow->getChannelControlsDockWidget()->onVcVoltageRangeSelected(idx);
 }
@@ -334,6 +335,7 @@ void ControllerMain::onCcCurrentRangeSelected(int idx) {
 
     mainWindow->getChessaboard()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
+    mainWindow->getChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
 void ControllerMain::onCcVoltageRangeSelected(int idx) {
