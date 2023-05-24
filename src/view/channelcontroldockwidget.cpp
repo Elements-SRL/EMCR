@@ -288,6 +288,9 @@ void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     mDev->getVoltageHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
+    setAllChannelsSbx->setSuffix(QString(" ") + unit);
+    setAllChannelsSbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbx->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
         sbx->setSuffix(QString(" ") + unit);
@@ -303,6 +306,9 @@ void ChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     mDev->getCurrentHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
+    setAllChannelsSbx->setSuffix(QString(" ") + unit);
+    setAllChannelsSbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbx->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
         sbx->setSuffix(QString(" ") + unit);
@@ -392,12 +398,12 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
         /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
         mDev->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
-        MySpinBox * sbx = new MySpinBox;
-        sbx->setSuffix(QString(" ") + unit);
-        sbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
-        sbx->setValue(0.0);
-        sbx->setDecimals(ranges[0].decimals());
-        setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), sbx);
+        setAllChannelsSbx = new MySpinBox;
+        setAllChannelsSbx->setSuffix(QString(" ") + unit);
+        setAllChannelsSbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
+        setAllChannelsSbx->setValue(0.0);
+        setAllChannelsSbx->setDecimals(ranges[0].decimals());
+        setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), setAllChannelsSbx);
         QPushButton* setAllBtn = new QPushButton("Set all channels");
         connect(setAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onSetAllButtonClicked);
         operationButtonGridLayout->addWidget(setAllVholdSpinBox, 0, 1);

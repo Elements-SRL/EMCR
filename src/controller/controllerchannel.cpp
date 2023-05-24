@@ -69,14 +69,14 @@ void ControllerChannel::onApplyHoldValues(vector<uint16_t> channelIndexes, vecto
         this->mDev->getMessageDispatcher()->setVoltageHoldTuner(channelIndexes, holdValues, true);
         for (int i = 0; i < channelIndexes.size(); i++){
             this->mDev->getChannels()[channelIndexes[i]]->setVhold(holdValues[i]);
-                    qDebug() << "[Channel " << channelIndexes[i] << "]: vHold set:" << holdValues[i].value << "\n";
+//                    qDebug() << "[Channel " << channelIndexes[i] << "]: vHold set:" << holdValues[i].value << "\n";
         }
 
     } else {
         this->mDev->getMessageDispatcher()->setCurrentHoldTuner(channelIndexes, holdValues, true);
         for (int i = 0; i < channelIndexes.size(); i++){
             this->mDev->getChannels()[channelIndexes[i]]->setChold(holdValues[i]);
-                    qDebug() << "[Channel " << channelIndexes[i] << "]: cHold set:" << holdValues[i].value << "\n";
+//                    qDebug() << "[Channel " << channelIndexes[i] << "]: cHold set:" << holdValues[i].value << "\n";
         }
     }
 }

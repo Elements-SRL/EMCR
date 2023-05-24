@@ -118,23 +118,27 @@ void ControllerDevice::onClampingModalitySelected(uint16_t selectedClampingModal
     vector <bool> allFalse(currentChannelsNum, false);
 
     if (clampingModalities[selectedClampingModalityIndex] == E384CL_VOLTAGE_CLAMP_MODE) {
-        mDev->getMessageDispatcher()->turnCcSwOn(allChannels, allFalse, false);
-        mDev->getMessageDispatcher()->enableCcStimulus(allChannels, allFalse, false);
-        mDev->getMessageDispatcher()->turnVcSwOn(allChannels, allTrue, false);
-        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allTrue, false);
+        mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
+        mDev->getMessageDispatcher()->turnCurrentStimulusOn(false, false);
+        mDev->getMessageDispatcher()->turnVoltageStimulusOn(true, false);
+        mDev->getMessageDispatcher()->turnCurrentReaderOn(true, false);
+
         mDev->getMessageDispatcher()->setSourceForVoltageChannel(0, false);
         mDev->getMessageDispatcher()->setSourceForCurrentChannel(0, false);
+
         mDev->getMessageDispatcher()->setDebugBit(0, 7, false);
         this->onVcCurrentRangeSelected(mDev->getVcCurrentRangeIdx());
         this->onVcVoltageRangeSelected(mDev->getVcVoltageRangeIdx());
 
     } else {
-        mDev->getMessageDispatcher()->turnVcSwOn(allChannels, allFalse, false);
-        mDev->getMessageDispatcher()->turnCcSwOn(allChannels, allTrue, false);
-        mDev->getMessageDispatcher()->enableCcStimulus(allChannels, allTrue, false);
-        mDev->getMessageDispatcher()->turnVcCcSelOn(allChannels, allFalse, false);
+        mDev->getMessageDispatcher()->turnVoltageStimulusOn(false, false);
+        mDev->getMessageDispatcher()->turnCurrentReaderOn(false, false);
+        mDev->getMessageDispatcher()->turnVoltageReaderOn(true, false);
+        mDev->getMessageDispatcher()->turnCurrentStimulusOn(true, false);
+
         mDev->getMessageDispatcher()->setSourceForVoltageChannel(1, false);
         mDev->getMessageDispatcher()->setSourceForCurrentChannel(1, false);
+
         mDev->getMessageDispatcher()->setDebugBit(0, 7, true);
         this->onCcCurrentRangeSelected(mDev->getCcCurrentRangeIdx());
         this->onCcVoltageRangeSelected(mDev->getCcVoltageRangeIdx());

@@ -61,6 +61,7 @@ private:
 
     QVector <QWidget *> operationButtonWidgets;
     RangedMeasurement_t holdingTunerRange;
+    MySpinBox * setAllChannelsSbx;
 
 private slots:
     void onOperationSelected(int operationIdx);
