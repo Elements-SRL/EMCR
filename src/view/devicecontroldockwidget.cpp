@@ -268,12 +268,29 @@ void DeviceControlDockWidget::forceEmit() {
 }
 
 void DeviceControlDockWidget::updateParameters() {
-    vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
-    vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
-    ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
-    ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
-    samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
-    clampingModalitiesRadioButtons[mDev->getOngoingClampingModalityIdx()]->setChecked(true);
+    if(vcCurrentRangesRadioButtons.size()>0){
+        vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+    }
+
+    if(vcVoltageRangesRadioButtons.size()>0){
+        vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
+    }
+
+    if(ccCurrentRangesRadioButtons.size()>0){
+        ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
+    }
+
+    if(ccVoltageRangesRadioButtons.size()>0){
+        ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+    }
+
+    if(samplingRatesRadioButtons.size()>0){
+        samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+    }
+
+    if(clampingModalitiesRadioButtons.size()>0){
+        clampingModalitiesRadioButtons[mDev->getOngoingClampingModalityIdx()]->setChecked(true);
+    }
 
     /*! \todo FCON aggiungere controlli per DAC filters */
 }
