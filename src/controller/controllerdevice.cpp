@@ -118,10 +118,12 @@ void ControllerDevice::onClampingModalitySelected(uint16_t selectedClampingModal
     vector <bool> allFalse(currentChannelsNum, false);
 
     if (clampingModalities[selectedClampingModalityIndex] == E384CL_VOLTAGE_CLAMP_MODE) {
-        mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
+        mDev->getMessageDispatcher()->enableCcCompensations(false);
         mDev->getMessageDispatcher()->turnCurrentStimulusOn(false, false);
-        mDev->getMessageDispatcher()->turnVoltageStimulusOn(true, false);
+        mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
         mDev->getMessageDispatcher()->turnCurrentReaderOn(true, false);
+        mDev->getMessageDispatcher()->turnVoltageStimulusOn(true, false);
+        mDev->getMessageDispatcher()->enableVcCompensations(true);
 
         mDev->getMessageDispatcher()->setSourceForVoltageChannel(0, false);
         mDev->getMessageDispatcher()->setSourceForCurrentChannel(0, false);
@@ -131,10 +133,12 @@ void ControllerDevice::onClampingModalitySelected(uint16_t selectedClampingModal
         this->onVcVoltageRangeSelected(mDev->getVcVoltageRangeIdx());
 
     } else {
+        mDev->getMessageDispatcher()->enableVcCompensations(false);
         mDev->getMessageDispatcher()->turnVoltageStimulusOn(false, false);
         mDev->getMessageDispatcher()->turnCurrentReaderOn(false, false);
         mDev->getMessageDispatcher()->turnVoltageReaderOn(true, false);
         mDev->getMessageDispatcher()->turnCurrentStimulusOn(true, false);
+        mDev->getMessageDispatcher()->enableCcCompensations(true);
 
         mDev->getMessageDispatcher()->setSourceForVoltageChannel(1, false);
         mDev->getMessageDispatcher()->setSourceForCurrentChannel(1, false);
