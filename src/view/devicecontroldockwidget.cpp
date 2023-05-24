@@ -33,9 +33,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
 
     this->setWindowTitle(TITLE);
 
-    /*! \todo add button for Current clamp and voltage clamp and set the ongoingClampingMOdality in modelDevice and in cascade in the real device through the messageDispatcher*/
-
-
     /*! VC Current range */
     if (vcCurrentRanges.size() > 0) {
         this->vcCurrentRangesGroupBox = new QGroupBox(DCW_CURRENT_RANGE_TITLE);
