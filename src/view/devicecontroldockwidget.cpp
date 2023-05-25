@@ -3,27 +3,27 @@
 #include "devicecontroldockwidget.h"
 #include <QVBoxLayout>
 
-DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice *modelDevice): QDockWidget() {
-    this->modelDevice = modelDevice;
+DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidget() {
+    this->mDev = mDev;
 
-    vector<int> clampingModalities;
-    modelDevice->getClampingModalitiesFeatures(clampingModalities);
+    std::vector<int> clampingModalities;
+    mDev->getClampingModalitiesFeatures(clampingModalities);
 
-    vector <RangedMeasurement_t> vcCurrentRanges;
+    std::vector <RangedMeasurement_t> vcCurrentRanges;
     uint16_t defaultVcCurrRangeIdx;
-    modelDevice->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
+    mDev->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
 
-    vector <RangedMeasurement_t> vcVoltageRanges;
-    modelDevice->getVcVoltageRangesFeatures(vcVoltageRanges);
+    std::vector <RangedMeasurement_t> vcVoltageRanges;
+    mDev->getVcVoltageRangesFeatures(vcVoltageRanges);
 
-    vector <RangedMeasurement_t> ccCurrentRanges;
-    modelDevice->getCcCurrentRangesFeatures(ccCurrentRanges);
+    std::vector <RangedMeasurement_t> ccCurrentRanges;
+    mDev->getCcCurrentRangesFeatures(ccCurrentRanges);
 
-    vector <RangedMeasurement_t> ccVoltageRanges;
-    modelDevice->getCcVoltageRangesFeatures(ccCurrentRanges);
+    std::vector <RangedMeasurement_t> ccVoltageRanges;
+    mDev->getCcVoltageRangesFeatures(ccCurrentRanges);
 
-    vector <Measurement_t> samplingRates;
-    modelDevice->getSamplingRatesFeatures(samplingRates);
+    std::vector <Measurement_t> samplingRates;
+    mDev->getSamplingRatesFeatures(samplingRates);
 
     QWidget *window = new QWidget;
     this->setWidget(window);
@@ -155,8 +155,18 @@ void DeviceControlDockWidget::forceEmit() {
     }
 }
 
+void DeviceControlDockWidget::updateParameters() {
+    vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+    vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
+    ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
+    ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+    samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+
+    /*! \todo FCON aggiungere controlli per DAC filters */
+}
+
 /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
-//void DeviceControlDockWidget::testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, vector <RangedMeasurement_t> myRanges, vector<QRadioButton *> &qRadioButtons){
+//void DeviceControlDockWidget::testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, std::vector <RangedMeasurement_t> myRanges, std::vector<QRadioButton *> &qRadioButtons){
 //    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
 
 //    vLayout->addWidget(qGroupBox);
@@ -178,7 +188,7 @@ void DeviceControlDockWidget::forceEmit() {
 //}
 
 
-void DeviceControlDockWidget::onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues){
+void DeviceControlDockWidget::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     /*! \todo MPAC at the moment miccing ccCurrent and ccVoltage*/
     if(this->vcCurrentRangesGroupBox != nullptr){
         vcCurrentRangesPrevioueEnableStateBeforeRecording = this->vcCurrentRangesGroupBox->isEnabled();

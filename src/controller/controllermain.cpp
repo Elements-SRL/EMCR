@@ -45,7 +45,7 @@ ControllerMain::~ControllerMain() {
     }
 }
 
-void ControllerMain::onDevicesListChanged(vector <string> devicesList) {
+void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList) {
     emit devicesListChanged(devicesList);
     if (devicesList.size() > 0) {
         if (mDev->isConnected()) {
@@ -86,7 +86,7 @@ void ControllerMain::onConnect(bool flag) {
             emit stopDetecting();
         }
 
-        emit connectDevice(connectionSuccessful, ret);
+        emit connectDevice(true, ret);
         mDev->setConnected(connectionSuccessful);
 
     } else {
@@ -114,6 +114,9 @@ void ControllerMain::onMainWindowCreated() {
     controllerChannel = new ControllerChannel(mDev);
     controllerBoard = new ControllerBoard(mDev);
     controllerDevice = new ControllerDevice(mDev);
+
+    voltageProtocolManager = new ProtocolManager(mDev);
+    currentProtocolManager = new ProtocolManager(mDev);
 
     /************\
      * Producer *
@@ -152,7 +155,22 @@ void ControllerMain::onMainWindowCreated() {
 
     connect(controllerDevice, &ControllerDevice::sigVcCurrentRangeSelected,     this, &ControllerMain::onVcCurrentRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected,     this, &ControllerMain::onVcVoltageRangeSelected);
+    connect(controllerDevice, &ControllerDevice::sigCcCurrentRangeSelected,     this, &ControllerMain::onCcCurrentRangeSelected);
+    connect(controllerDevice, &ControllerDevice::sigCcVoltageRangeSelected,     this, &ControllerMain::onCcVoltageRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected,       this, &ControllerMain::onSamplingRateSelected);
+
+    connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
+    connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+    connect(voltageProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::currentApplied);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+    connect(voltageProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolSaveRequest);
+#endif
+    connect(currentProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolStarted);
+    connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+    connect(currentProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::currentApplied);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+    connect(currentProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolSaveRequest);
+#endif
 
     connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,      controllerChannel, &ControllerChannel::onAllChannelsClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,           controllerChannel, &ControllerChannel::onOneRowClicked);
@@ -173,7 +191,30 @@ void ControllerMain::onMainWindowCreated() {
 
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onCcVoltageRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected,       controllerDevice, &ControllerDevice::onSamplingRateSelected);
+
+    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
+        mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
+    });
+    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onStopProtocol);
+    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
+        mainWindow->getProtocolDockWidget()->getCurrentProtocolList()->onStartProtocol();
+    });
+    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onStopProtocol);
+
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestCurrentRange,  controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestVoltageRange,  controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestSamplingRate,  controllerDevice, &ControllerDevice::onSamplingRateSelected);
+
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  controllerDevice, &ControllerDevice::onCcVoltageRangeSelected);
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  controllerDevice, &ControllerDevice::onSamplingRateSelected);
 
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 
@@ -235,21 +276,19 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->forceAxisUpdate();
     bigPlotConsumer->forceAxisUpdate();
 
-
-
     /*! \todo FCON questo potrebbe essere parametrizzato */
 
-    vector<uint16_t> channelIndexes(currentChannelsNumber);
+    std::vector<uint16_t> channelIndexes(currentChannelsNumber);
     for(int i = 0; i < currentChannelsNumber; i++){
         channelIndexes[i] = i;
     }
 
     stampPlotConsumer->setMaxSamplesPerPlot(256);
-    vector<bool> onValues(currentChannelsNumber, true);
+    std::vector<bool> onValues(currentChannelsNumber, true);
     stampPlotConsumer->onSelectChannels(channelIndexes, onValues);
 
     bigPlotConsumer->setMaxSamplesPerPlot(4096);
-    vector<bool> offValues(currentChannelsNumber, false);
+    std::vector<bool> offValues(currentChannelsNumber, false);
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
 
     calibratorConsumer->loadInitialCalibParams("C:/EMCR_calib_folder/", "boardMapping.csv");
@@ -274,6 +313,16 @@ void ControllerMain::onMainWindowDestroyed() {
         controllerDevice = nullptr;
     }
 
+    if (voltageProtocolManager != nullptr) {
+        delete voltageProtocolManager;
+        voltageProtocolManager = nullptr;
+    }
+
+    if (currentProtocolManager != nullptr) {
+        delete currentProtocolManager;
+        currentProtocolManager = nullptr;
+    }
+
     this->stopAndDestroyProducerConsumers();
 
     mDev->flushBoardList();
@@ -284,10 +333,11 @@ void ControllerMain::onMainWindowDestroyed() {
 /*! Message forward from ControllerMain to other consumers */
 
 void ControllerMain::onVcCurrentRangeSelected(int idx) {
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     uint16_t notUsedDefaultVcCurrRangeIdx;
     mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
-//    mDev->setVcCurrentRange(ranges[idx]);
+
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
     calibratorConsumer->updateCalibParams();
@@ -302,9 +352,10 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
 }
 
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
-    vector <RangedMeasurement_t> ranges;
+    std::vector <RangedMeasurement_t> ranges;
     mDev->getVcVoltageRangesFeatures(ranges);
-//    mDev->setVcVoltageRange(ranges[idx]);
+
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
@@ -315,17 +366,50 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
     /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
 }
 
+void ControllerMain::onCcCurrentRangeSelected(int idx) {
+    std::vector <RangedMeasurement_t> ranges;
+    mDev->getCcCurrentRangesFeatures(ranges);
+
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+
+    /*! Invio dati a FPGA con massageDispatcher*/
+    calibratorConsumer->updateCalibParams();
+
+    for (auto consumer : consumers) {
+        consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
+    }
+
+    /*! \todo FCON Questi metodi protebbero cambiare di significato se si lavora in CC: l'asse da cambiare sarebbe quello destro probabilmente */
+    mainWindow->getChessaboard()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
+    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
+}
+
+void ControllerMain::onCcVoltageRangeSelected(int idx) {
+    std::vector <RangedMeasurement_t> ranges;
+    mDev->getCcVoltageRangesFeatures(ranges);
+
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+
+    for (auto consumer : consumers) {
+        consumer->onVoltageRangeChanged(mDev->getCcVoltageRange());
+    }
+    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
+
+    /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
+}
+
 void ControllerMain::onSamplingRateSelected(int idx) {
-    vector <Measurement_t> samplingRates;
+    std::vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
-//    mDev->setSamplingRate(samplingRates[idx]);
+
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     for (auto consumer : consumers) {
         consumer->onSamplingRateChanged(mDev->getSamplingRate());
     }
 }
 
-void ControllerMain::onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues) {
+void ControllerMain::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
     for (auto consumer : dataWriterConsumers) {
         consumer->onRecordSelectedChannels(channelIndexes, onValues);
     }

@@ -15,6 +15,7 @@
 #include "plotconsumer.h"
 #include "livenoiseconsumer.h"
 #include "calibrationconsumer.h"
+#include "protocolmanager.h"
 
 class ControllerMain : public QObject {
     Q_OBJECT
@@ -26,14 +27,16 @@ public:
     void setMainWindow(MainWindow * mainWindow);
 
 public slots:
-    void onDevicesListChanged(vector <string> devicesList);
+    void onDevicesListChanged(std::vector <std::string> devicesList);
     void onConnect(bool flag);
     void onMainWindowCreated();
     void onMainWindowDestroyed();
     void onVcCurrentRangeSelected(int idx);
     void onVcVoltageRangeSelected(int idx);
+    void onCcCurrentRangeSelected(int idx);
+    void onCcVoltageRangeSelected(int idx);
     void onSamplingRateSelected(int idx);
-    void onStartRecording(vector<uint16_t> channelIndexes, vector<bool> onValues);
+    void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onStopRecording();
 
 private:
@@ -61,6 +64,9 @@ private:
     ControllerBoard * controllerBoard = nullptr;
     ControllerDevice * controllerDevice = nullptr;
 
+    ProtocolManager * voltageProtocolManager = nullptr;
+    ProtocolManager * currentProtocolManager = nullptr;
+
     int voltageChannelsNumber;
     int currentChannelsNumber;
     int boardsNumber;
@@ -68,7 +74,7 @@ private:
 signals:
     void startDetecting();
     void stopDetecting();
-    void devicesListChanged(vector <string> devicesList);
+    void devicesListChanged(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int connectedDeviceIdx);
     void connectDevice(bool flag, ErrorCodes_t err);
 };

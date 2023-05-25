@@ -28,12 +28,32 @@ void ModelDevice::setConnected(bool flag) {
     this->connected = flag;
 }
 
-vector<ModelBoard*> ModelDevice::getBoards(){
+std::vector<ModelBoard*> ModelDevice::getBoards(){
     return this->myBoards;
 }
 
-vector<ModelChannel*> ModelDevice::getChannels(){
+std::vector<ModelChannel*> ModelDevice::getChannels(){
     return this->myChannels;
+}
+
+int ModelDevice::getSamplingRateIdx(){
+    return this->samplingRateIdx;
+}
+
+int ModelDevice::getVcCurrentRangeIdx(){
+    return this->vcCurrentRangeIdx;
+}
+
+int ModelDevice::getVcVoltageRangeIdx(){
+    return this->vcVoltageRangeIdx;
+}
+
+int ModelDevice::getCcCurrentRangeIdx(){
+    return this->ccCurrentRangeIdx;
+}
+
+int ModelDevice::getCcVoltageRangeIdx(){
+    return this->ccVoltageRangeIdx;
 }
 
 Measurement_t ModelDevice::getSamplingRate(){
@@ -54,6 +74,22 @@ RangedMeasurement_t ModelDevice::getCcCurrentRange(){
 
 RangedMeasurement_t ModelDevice::getCcVoltageRange(){
     return this->ccVoltageRange;
+}
+
+int ModelDevice::getVcCurrentFilterIdx(){
+    return this->vcCurrentFilterIdx;
+}
+
+int ModelDevice::getVcVoltageFilterIdx(){
+    return this->vcVoltageFilterIdx;
+}
+
+int ModelDevice::getCcCurrentFilterIdx(){
+    return this->ccCurrentFilterIdx;
+}
+
+int ModelDevice::getCcVoltageFilterIdx(){
+    return this->ccVoltageFilterIdx;
 }
 
 Measurement_t ModelDevice::getVcCurrentFilter(){
@@ -84,12 +120,32 @@ void ModelDevice::setMessageDispatcher(MessageDispatcher * messageDispatcher) {
     this->messageDispatcher = messageDispatcher;
 }
 
-void ModelDevice::setBoards(vector<ModelBoard*> boards){
+void ModelDevice::setBoards(std::vector<ModelBoard*> boards){
     this->myBoards = boards;
 }
 
-void ModelDevice::setChannels(vector<ModelChannel*> channels){
+void ModelDevice::setChannels(std::vector<ModelChannel*> channels){
     this->myChannels = channels;
+}
+
+void ModelDevice::setSamplingRate(int idx){
+    this->samplingRateIdx = idx;
+}
+
+void ModelDevice::setVcCurrentRange(int idx){
+    this->vcCurrentRangeIdx = idx;
+}
+
+void ModelDevice::setVcVoltageRange(int idx){
+    this->vcVoltageRangeIdx = idx;
+}
+
+void ModelDevice::setCcCurrentRange(int idx){
+    this->ccCurrentRangeIdx = idx;
+}
+
+void ModelDevice::setCcVoltageRange(int idx){
+    this->ccVoltageRangeIdx = idx;
 }
 
 void ModelDevice::setSamplingRate(Measurement_t samplingRate){
@@ -112,6 +168,22 @@ void ModelDevice::setCcVoltageRange(RangedMeasurement_t ccVoltageRange){
     this->ccVoltageRange = ccVoltageRange;
 }
 
+void ModelDevice::setVcCurrentFilter(int idx){
+    this->vcCurrentFilterIdx = idx;
+}
+
+void ModelDevice::setVcVoltageFilter(int idx){
+    this->vcVoltageFilterIdx = idx;
+}
+
+void ModelDevice::setCcCurrentFilter(int idx){
+    this->ccCurrentFilterIdx = idx;
+}
+
+void ModelDevice::setCcVoltageFilter(int idx){
+    this->ccVoltageFilterIdx = idx;
+}
+
 void ModelDevice::setVcCurrentFilter(Measurement_t vcCurrentFilter){
     this->vcCurrentFilter = vcCurrentFilter;
 }
@@ -127,7 +199,6 @@ void ModelDevice::setCcCurrentFilter(Measurement_t ccCurrentFilter){
 void ModelDevice::setCcVoltageFilter(Measurement_t ccVoltageFilter){
     this->ccVoltageFilter = ccVoltageFilter;
 }
-
 
 void ModelDevice::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
     this->myBoards.resize(numOfBoards);
@@ -173,7 +244,7 @@ ErrorCodes_t ModelDevice::getCalibVcCurrentGainFeatures(RangedMeasurement_t &cal
     return this->messageDispatcher->getCalibVcCurrentGainFeatures(calibVcCurrentGainFeatures);
 }
 
-ErrorCodes_t ModelDevice::getCalibVcCurrentOffsetFeatures(vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
+ErrorCodes_t ModelDevice::getCalibVcCurrentOffsetFeatures(std::vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
     return this->messageDispatcher->getCalibVcCurrentOffsetFeatures(calibVcCurrentOffsetFeatures);
 }
 
@@ -181,7 +252,7 @@ ErrorCodes_t ModelDevice::getCalibCcVoltageGainFeatures(RangedMeasurement_t &cal
     return this->messageDispatcher->getCalibCcVoltageGainFeatures(calibCcVoltageGainFeatures);
 }
 
-ErrorCodes_t ModelDevice::getCalibCcVoltageOffsetFeatures(vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
+ErrorCodes_t ModelDevice::getCalibCcVoltageOffsetFeatures(std::vector <RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
     return this->messageDispatcher->getCalibCcVoltageOffsetFeatures(calibCcVoltageOffsetFeatures);
 }
 
@@ -213,8 +284,8 @@ ErrorCodes_t ModelDevice::getBoardsNumberFeatures(int &boardNum) {
     return ret;
 }
 
-ErrorCodes_t ModelDevice::getClampingModalitiesFeatures(vector<int> &clampingModalitiesFeatures){
-    vector<uint16_t> tempVector;
+ErrorCodes_t ModelDevice::getClampingModalitiesFeatures(std::vector<int> &clampingModalitiesFeatures){
+    std::vector<uint16_t> tempVector;
     ErrorCodes_t ret = this->messageDispatcher->getClampingModalitiesFeatures(tempVector);
     if (ret == Success) {
         clampingModalitiesFeatures.resize(tempVector.size());
@@ -225,39 +296,39 @@ ErrorCodes_t ModelDevice::getClampingModalitiesFeatures(vector<int> &clampingMod
     return ret;
 }
 
-ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(vector <RangedMeasurement_t> &vcCurrentRangesFeatures, uint16_t &defaultVcCurrRangeIdx) {
+ErrorCodes_t ModelDevice::getVcCurrentRangesFeatures(std::vector <RangedMeasurement_t> &vcCurrentRangesFeatures, uint16_t &defaultVcCurrRangeIdx) {
     return this->messageDispatcher->getVCCurrentRanges(vcCurrentRangesFeatures, defaultVcCurrRangeIdx);
 }
 
-ErrorCodes_t ModelDevice::getVcVoltageRangesFeatures(vector <RangedMeasurement_t> &vcVoltageRangesFeatures){
+ErrorCodes_t ModelDevice::getVcVoltageRangesFeatures(std::vector <RangedMeasurement_t> &vcVoltageRangesFeatures){
     return this->messageDispatcher->getVCVoltageRanges(vcVoltageRangesFeatures);
 }
 
-ErrorCodes_t ModelDevice::getCcCurrentRangesFeatures(vector <RangedMeasurement_t> &ccCurrentRangesFeatures){
+ErrorCodes_t ModelDevice::getCcCurrentRangesFeatures(std::vector <RangedMeasurement_t> &ccCurrentRangesFeatures){
     return this->messageDispatcher->getCCCurrentRanges(ccCurrentRangesFeatures);
 }
 
-ErrorCodes_t ModelDevice::getCcVoltageRangesFeatures(vector <RangedMeasurement_t> &ccVoltageRangesFeatures){
+ErrorCodes_t ModelDevice::getCcVoltageRangesFeatures(std::vector <RangedMeasurement_t> &ccVoltageRangesFeatures){
     return this->messageDispatcher->getCCVoltageRanges(ccVoltageRangesFeatures);
 }
 
-ErrorCodes_t ModelDevice::getSamplingRatesFeatures(vector <Measurement_t> &samplingRatesFeatures) {
+ErrorCodes_t ModelDevice::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRatesFeatures) {
     return this->messageDispatcher->getSamplingRatesFeatures(samplingRatesFeatures);
 }
 
-ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(vector <Measurement_t> &voltageFilterOptions){
+ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(std::vector <Measurement_t> &voltageFilterOptions){
     return this->messageDispatcher->getVoltageStimulusLpfs(voltageFilterOptions);
 }
 
-ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(vector <Measurement_t> &currentFilterOptions){
+ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(std::vector <Measurement_t> &currentFilterOptions){
     return this->messageDispatcher->getCurrentStimulusLpfs(currentFilterOptions);
 }
 
-ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(vector <Measurement_t> &calibVcVoltStepsFeatures){
+ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(std::vector <Measurement_t> &calibVcVoltStepsFeatures){
     return this->messageDispatcher->getVcCalibVoltStepsFeatures(calibVcVoltStepsFeatures);
 }
 
-ErrorCodes_t ModelDevice::getCalibVcResFeatures(vector <Measurement_t> &calibVcResFeatures){
+ErrorCodes_t ModelDevice::getCalibVcResFeatures(std::vector <Measurement_t> &calibVcResFeatures){
     return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
 }
 //---------------------------------------------/

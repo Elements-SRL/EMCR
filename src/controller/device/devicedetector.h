@@ -8,8 +8,6 @@
 
 #include "messagedispatcher.h"
 
-using namespace std;
-
 class DeviceDetector : public QObject {
     Q_OBJECT
 
@@ -24,15 +22,15 @@ public slots:
 private:
     bool detectFlag = false;
 
-    vector <string> devicesList;
-    vector <string> detectedList;
+    std::vector <std::string> devicesList;
+    std::vector <std::string> detectedList;
     QTimer * detectDevicesTmr;
 
 private slots:
     void detectDevices();
 
 signals:
-    void devicesListChanged(vector <string>);
+    void devicesListChanged(std::vector <std::string>);
 };
 
 #endif // DEVICEDETECTOR_H

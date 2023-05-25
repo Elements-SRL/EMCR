@@ -124,11 +124,15 @@ BoardControlDockWidget * MainWindow::getBoardControlsDockWidget() {
     return boardControlsDw;
 }
 
+ProtocolDockWidget * MainWindow::getProtocolDockWidget() {
+    return protocolDw;
+}
+
 RecordSettingsDialog * MainWindow::getRecordSettingsDialog() {
     return recordSettingsDialog;
 }
 
-void MainWindow::onDevicesListChanged(vector <string> devicesList) {
+void MainWindow::onDevicesListChanged(std::vector <std::string> devicesList) {
     if (devicesList.size() > 0) {
         devicesComboBox->clear();
 
@@ -205,6 +209,15 @@ void MainWindow::createGuiControls() {
     channelControlsDw->setObjectName("channelControlsDw");
     this->addDockWidget(Qt::RightDockWidgetArea, channelControlsDw);
     dockWidgets.append(channelControlsDw);
+
+    /******************\
+     * protocols dock *
+    \******************/
+
+    protocolDw = new ProtocolDockWidget(mDev, e384CommLib::VOLTAGE_CLAMP);
+    protocolDw->setObjectName("protocolDw");
+    this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
+    dockWidgets.append(protocolDw);
 
     /*********\
      * plots *
@@ -320,7 +333,7 @@ void MainWindow::createGuiControls() {
 //    calibrationVl->addWidget(calibrationBoardApplyBtn);
 
     connect(calibrationAllApplyBtn, &QPushButton::clicked, this, [=] () {
-        vector<uint16_t> channelsToCalibrateIdxs;
+        std::vector<uint16_t> channelsToCalibrateIdxs;
         //------------------------
         if(boardCalibSbx->value() == 0){
             for(int i = 0; i < currentChannelsNum; i++){
@@ -341,7 +354,7 @@ void MainWindow::createGuiControls() {
 
 
 //    connect(calibrationBoardApplyBtn, &QPushButton::clicked, this, [=] () {
-//        vector<uint16_t> channelsToCalibrateIdxs;
+//        std::vector<uint16_t> channelsToCalibrateIdxs;
 //        for(int i = 16; i < 32; i++){
 //            channelsToCalibrateIdxs.push_back(i);
 //        }

@@ -17,16 +17,16 @@ private:
     QGridLayout * getLayoutWithScrollBar(QWidget * widget);
 
     ModelDevice * mDev;
-    vector<double> previousGateSpinBoxValues;
-    vector<double> previousSourceSpinBoxValues;
-    vector<MySpinBox*>  gateSpinBoxes;
-    vector<MySpinBox*>  sourceSpinBoxes;
+    std::vector<double> previousGateSpinBoxValues;
+    std::vector<double> previousSourceSpinBoxValues;
+    std::vector<MySpinBox*>  gateSpinBoxes;
+    std::vector<MySpinBox*>  sourceSpinBoxes;
 
-    vector<uint16_t> getChangedChannelIndexes(vector<MySpinBox*> spinBoxVector, vector<double> previousChannelValues);
+    std::vector<uint16_t> getChangedChannelIndexes(std::vector<MySpinBox*> spinBoxVector, std::vector<double> previousChannelValues);
     void onApplyButtonClicked();
 
 signals:
-    void sigGateSourceVoltagesApplied(vector<uint16_t> gateVoltageBoardIndexes, vector<Measurement_t> gateVoltages, vector<uint16_t> sourceVoltageBoardIndexes, vector<Measurement_t> sourceVoltages);
+    void sigGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages);
 };
 
 #endif // BOARDCONTROLDOCKWIDGET_H

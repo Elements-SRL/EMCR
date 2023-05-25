@@ -99,7 +99,7 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
     pushedDurationFlag = true;
 }
 
-void PlotConsumer::onSelectChannels(vector<uint16_t> channelIndexes, vector <bool> channels) {
+void PlotConsumer::onSelectChannels(std::vector<uint16_t> channelIndexes, std::vector <bool> channels) {
     bool wasThisRunning = this->isRunning();
     if(wasThisRunning){
         this->onStopConsuming();

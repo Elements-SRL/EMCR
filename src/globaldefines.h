@@ -17,14 +17,17 @@
 #define GLB_PROTOCOL_RECORD_FORMAT_TAG "Protocol/Settings/recordFormat"
 #define GLB_PROTOCOL_RECORD_DURATION_TAG "Protocol/Settings/recordDuration"
 #define GLB_PROTOCOL_CHUNK_DURATION_TAG "Protocol/Settings/chunkDuration"
-
+#define GLB_PROTOCOL_FOLDER_TAG "Protocol/folder"
 /*! Utility defines */
 
 /*! Global defines */
 #define STAMP_PLOT_SIZE 35
+#define GLB_MAX_PROT_ID 0xFFFF
 
 /*! Utility to debug by printf */
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }
+
+//#define GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
 
 /*! Undef to see all controls */
 #ifndef GLB_SHOW_DEBUG_CTRLS

@@ -1,0 +1,178 @@
+#include "protocolmanager.h"
+
+#include "modeldevice.h"
+#include "globaldefines.h"
+
+ProtocolManager::ProtocolManager(ModelDevice * mDev) :
+    QObject(),
+    mDev(mDev) {
+
+}
+
+void ProtocolManager::onStartProtocolRequest(ProtocolWidget * protocol) {
+    emit protocolRequestOutcome(this->startProtocol(protocol));
+}
+
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+void ProtocolManager::saveLast(ProtocolWidget * protocol) {
+    /*! Preprocess protocol items */
+    protocol->setProtocolItems();
+    protocol->setProcessingStatus();
+    protocol->setAnalysisCursors();
+    protocol->resetConsumerRequests();
+    protocol->setConsumerRequest(ProtocolConsumerDataWriter);
+
+    emit protocolSaveRequest(lastRunProtocolId, protocol);
+}
+#endif
+
+ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * protocol, bool recordFlag) {
+    this->protocol = protocol;
+    this->recordFlag = recordFlag;
+    Measurement_t hold = protocol->getHold();
+    int sweepsNum = protocol->getSweepsNum();
+    e384CommLib::ClampingModality_t clampingModality = protocol->getClampingModality();
+
+    /*! Preprocess protocol items */
+    protocol->setProtocolItems();
+    protocol->setProcessingStatus();
+    protocol->setAnalysisCursors();
+    protocol->setTriggerCursors();
+    QVector <ProtocolItem *> protocolItems = protocol->getProtocolItems();
+    ProtocolApplicationStatus_t status = this->toProtocolApplicationStatus(protocol->getProcessingStatus());
+
+    if (status != ProtocolApplicationSuccess) {
+        return status;
+    }
+
+    if (protocol->isInhibited()) {
+        return ErrorProtocolInhibited;
+    }
+
+    /*! Send the commands to mDev */
+    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+        mDev->getMessageDispatcher()->setVoltageProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
+
+    } else {
+        emit currentApplied();
+        mDev->getMessageDispatcher()->setCurrentProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
+    }
+
+    UnitPfx_t stimulusPrefix = protocol->getStimulusPrefix();
+
+    x0.prefix = stimulusPrefix;
+    xStep.prefix = stimulusPrefix;
+    xFinal.prefix = stimulusPrefix;
+    xAmp.prefix = stimulusPrefix;
+
+    for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
+        ProtocolItem * protocolItem = protocolItems[itemIdx];
+        switch (protocolItem->type) {
+        case ProtocolItemXStepTStep: {
+            ProtocolXStepTStepItem * castItem = static_cast <ProtocolXStepTStepItem *> (protocolItem);
+            x0.value = castItem->x0;
+            xStep.value = castItem->xStep;
+            t0.value = castItem->t0;
+            tStep.value = castItem->tStep;
+
+            if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+                mDev->getMessageDispatcher()->setVoltageProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, tStep);
+
+            } else {
+                mDev->getMessageDispatcher()->setCurrentProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, tStep);
+            }
+            break;
+        }
+
+        case ProtocolItemXRamp: {
+            ProtocolXRampItem * castItem = static_cast <ProtocolXRampItem *> (protocolItem);
+            x0.value = castItem->x0;
+            xFinal.value = castItem->xFinal;
+            t0.value = castItem->t0;
+
+            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+                mDev->getMessageDispatcher()->setVoltageProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, tStep);
+
+            } else {
+                mDev->getMessageDispatcher()->setCurrentProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, tStep);
+            }
+            break;
+        }
+
+        case ProtocolItemXSin: {
+            ProtocolXSinItem * castItem = static_cast <ProtocolXSinItem *> (protocolItem);
+            x0.value = castItem->x0;
+            xAmp.value = castItem->xAmp;
+            f0.value = castItem->freq;
+
+            if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+                mDev->getMessageDispatcher()->setVoltageProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step);
+
+            } else {
+                mDev->getMessageDispatcher()->setCurrentProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step);
+            }
+            break;
+        }
+        }
+    }
+
+    mDev->getMessageDispatcher()->startProtocol();
+
+    protocol->resetConsumerRequests();
+    if (recordFlag) {
+        protocol->setConsumerRequest(ProtocolConsumerDataWriter);
+    }
+
+    emit protocolStarted(protocolId, protocol);
+
+    if (!(protocol->isNullProtocol()) && !recordFlag) {
+        lastRunProtocolId = protocolId;
+    }
+
+    /*! Increment protocol ID: this is used to discriminate data coming for the current protocol from spurious data from the previous procotocol */
+    protocolId = (protocolId+1) & GLB_MAX_PROT_ID;
+
+    return status;
+}
+
+void ProtocolManager::onIncreaseProtocolId() {
+    /*! Increment protocol ID: this is used to discriminate data coming for the current protocol from spurious data from the previous procotocol */
+    /*! This is done here in this slot too so that the protocol manager of a given clamping modality increases the protocol ID of all other protocol managers as well */
+    protocolId = (protocolId+1) & GLB_MAX_PROT_ID;
+}
+
+ProtocolApplicationStatus_t ProtocolManager::toProtocolApplicationStatus(ItemsProcStatus_t status) {
+    switch (status) {
+    case ItemsProcOk:
+        return ProtocolApplicationSuccess;
+
+    case ItemsProcErrorNotEnoughItemsForSequence:
+        return ErrorNotEnoughItemsForSequence;
+
+    case ItemsProcErrorOverlappingSequences:
+        return ErrorOverlappingSequences;
+
+    case ItemsProcErrorMidInfiniteSequence:
+        return ErrorMidInfiniteSequence;
+
+    case ItemsOverflow:
+        return ErrorItemsOverflow;
+
+    case ItemsNotFound:
+        return ErrorItemsNotFound;
+
+    case ItemsOverStimulus:
+        return ErrorItemsOverStimulus;
+
+    case ItemsUnderStimulus:
+        return ErrorItemsUnderStimulus;
+
+    case ItemsUnderDuration:
+        return ErrorItemsUnderDuration;
+
+    case ItemsNotProcessed:
+        return ErrorItemsNotProcessed;
+    }
+
+    return ProtocolApplicationSuccess;
+}
