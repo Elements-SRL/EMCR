@@ -311,9 +311,11 @@ void CalibrationConsumer::run(){
             vector <RangedMeasurement_t> rangeInfoAdditional;
             mDev->getVcCurrentRangesFeatures(rangeInfoAdditional, bbb);
             multiplierCurrent = rangeInfoAdditional[0].multiplier();
+            mDev->getMessageDispatcher()->setVCCurrentRange(0, true);
 
             /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-            calibrateDacOffset(vcVoltageRangesArray[rangeIdx]);
+//            calibrateDacOffset(vcVoltageRangesArray[rangeIdx]);
+            calibrateDacOffset(vcCurrentRangesArray[0]);
             /*! END CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         }
 
@@ -547,6 +549,7 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
 
     /*! FOR: START ciclo sugli step di tensione*/
     for(int voltStepIdx = 0; voltStepIdx <calibrationVoltSteps[thisActualRangeIdx].size(); voltStepIdx++){
+        QThread::sleep(1);
         currentMeans[voltStepIdx].resize(channelToCalibIdxs.size());
 
         /*! setta la Vhold per i canali selezionati e applica lo stimolo a tutti i canali selezionati*/
@@ -737,7 +740,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
     vector<double> usefulDacOffset;
     usefulDacOffset.resize(channelToCalibIdxs.size());
 
-    while(numTries <= CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY){
+    while(numTries < CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY){
         /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
         la cui struttura è ancora da definire */
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
