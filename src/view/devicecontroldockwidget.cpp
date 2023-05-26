@@ -156,11 +156,25 @@ void DeviceControlDockWidget::forceEmit() {
 }
 
 void DeviceControlDockWidget::updateParameters() {
-    vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
-    vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
-    ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
-    ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
-    samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+    if (!vcCurrentRangesRadioButtons.empty()) {
+        vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+    }
+
+    if (!vcVoltageRangesRadioButtons.empty()) {
+        vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
+    }
+
+    if (!ccCurrentRangesRadioButtons.empty()) {
+        ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
+    }
+
+    if (!ccVoltageRangesRadioButtons.empty()) {
+        ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+    }
+
+    if (!samplingRatesRadioButtons.empty()) {
+        samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+    }
 
     /*! \todo FCON aggiungere controlli per DAC filters */
 }

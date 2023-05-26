@@ -7,7 +7,7 @@
 #include <QCoreApplication>
 
 /*! Sw info */
-#define GLB_SOFTWARE_NAME "EMCR"
+#define GLB_SOFTWARE_NAME QString("EMCR")
 #define GLB_SOFTWARE_VERSION_NUMBER (QString("%1.%2.%3").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH))
 
 /*! Settings tags */

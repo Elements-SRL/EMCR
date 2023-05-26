@@ -42,7 +42,7 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         break;
 
     case ErrorDeviceTypeNotRecognized:
-        error = "Device type not controllable with EDR4";
+        error = "Device type not controllable with " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorDeviceAlreadyConnected:
@@ -113,31 +113,31 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
         break;
 
     case ErrorListDeviceFailed:
-        info = "If any device is connected try restarting EDR4.";
+        info = "If any device is connected try restarting " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromAlreadyConnected:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromConnectionFailed:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromDisconnectionFailed:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromNotConnected:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromReadFailed:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromNotRecognized:
-        info = "This device probably is not usable with EDR4.";
+        info = "This device probably is not usable with " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorDeviceTypeNotRecognized:
@@ -155,19 +155,19 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
         break;
 
     case ErrorDeviceConnectionFailed:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorFtdiConfigurationFailed:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorDeviceDisconnectionFailed:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorSendMessageFailed:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorCommandNotImplemented:
@@ -195,7 +195,7 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
         break;
 
     case ErrorUnknown:
-        info = "Try to unplug and replug the device and restart EDR4.";
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
     }
     return info;

@@ -70,6 +70,7 @@ void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList)
 }
 
 void ControllerMain::onConnect(bool flag) {
+    emit stopDetecting();
     QString serial = mainWindow->getSelectedSerialNumber();
     mDev->setSerialNumber(serial);
 
@@ -83,11 +84,14 @@ void ControllerMain::onConnect(bool flag) {
             mDev->getChannelsNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
             mDev->getBoardsNumberFeatures(boardsNumber);
             mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
-            emit stopDetecting();
         }
 
         emit connectDevice(true, ret);
         mDev->setConnected(connectionSuccessful);
+
+        if (connectionSuccessful) {
+            emit startDetecting();
+        }
 
     } else {
         this->stopAndDestroyProducerConsumers();
@@ -100,6 +104,8 @@ void ControllerMain::onConnect(bool flag) {
             delete mDev->getMessageDispatcher();
             mDev->setMessageDispatcher(nullptr);
         }
+
+        emit startDetecting();
     }
 }
 
