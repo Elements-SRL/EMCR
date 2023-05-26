@@ -46,5 +46,6 @@
         <file>imgs/stimulus ramp.png</file>
         <file>imgs/help icon.png</file>
         <file>imgs/warning icon.png</file>
+        <file>imgs/stimulus sin.png</file>
     </qresource>
 </RCC>
