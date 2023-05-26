@@ -1302,7 +1302,7 @@ void ProtocolDropXSinItem::setPhaseFromYaml(const YAML::ISin_t &yamlPhase) {
 }
 
 void ProtocolDropXSinItem::onSetString() {
-    this->setText(QString(stimulusAbbrName + "V0: %1, " + stimulusAbbrName + " amp: %2, freq: %3")
+    this->setText(QString(stimulusAbbrName + "0: %1, " + stimulusAbbrName + " amp: %2, freq: %3")
                   .arg(x0Param->getValue()).arg(xAmpParam->getValue()).arg(freqParam->getValue()));
 }
 

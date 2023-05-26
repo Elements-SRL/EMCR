@@ -89,7 +89,7 @@ void ControllerMain::onConnect(bool flag) {
         emit connectDevice(true, ret);
         mDev->setConnected(connectionSuccessful);
 
-        if (connectionSuccessful) {
+        if (!connectionSuccessful) {
             emit startDetecting();
         }
 
