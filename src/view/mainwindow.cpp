@@ -132,6 +132,10 @@ RecordSettingsDialog * MainWindow::getRecordSettingsDialog() {
     return recordSettingsDialog;
 }
 
+CompensationControlDockWidget * MainWindow::getCompensationControlsDockWidget() {
+    return compensationControlsDw;
+}
+
 void MainWindow::onDevicesListChanged(std::vector <std::string> devicesList) {
     if (devicesList.size() > 0) {
         devicesComboBox->clear();
@@ -209,6 +213,11 @@ void MainWindow::createGuiControls() {
     channelControlsDw->setObjectName("channelControlsDw");
     this->addDockWidget(Qt::RightDockWidgetArea, channelControlsDw);
     dockWidgets.append(channelControlsDw);
+
+    compensationControlsDw = new CompensationControlDockWidget(mDev);
+    compensationControlsDw->setObjectName("compensationControlsDw");
+    this->addDockWidget(Qt::RightDockWidgetArea, compensationControlsDw);
+    dockWidgets.append(compensationControlsDw);
 
     /******************\
      * protocols dock *

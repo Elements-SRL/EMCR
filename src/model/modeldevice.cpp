@@ -116,6 +116,14 @@ QVector <bool> ModelDevice::getSelectedChannelsIdxs() {
     return ret;
 }
 
+int ModelDevice::getOngoingClampingModality(){
+    return ongoingClampingModality;
+}
+
+int ModelDevice::getOngoingClampingModalityIdx(){
+    return ongoingClampingModalityIdx;
+}
+
 void ModelDevice::setMessageDispatcher(MessageDispatcher * messageDispatcher) {
     this->messageDispatcher = messageDispatcher;
 }
@@ -200,6 +208,13 @@ void ModelDevice::setCcVoltageFilter(Measurement_t ccVoltageFilter){
     this->ccVoltageFilter = ccVoltageFilter;
 }
 
+void ModelDevice::setOngoingClampingModality(int mode) {
+    ongoingClampingModality = (ClampingModality_t)mode;
+}
+
+void ModelDevice::setOngoingClampingModalityIdx(int idx) {
+    ongoingClampingModalityIdx = idx;
+}
 void ModelDevice::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
     this->myBoards.resize(numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
@@ -238,6 +253,10 @@ void ModelDevice::flushBoardList() {
 // wrappers for MessageDispatcher get features
 ErrorCodes_t ModelDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
     return this->messageDispatcher->getVoltageHoldTunerFeatures(voltageHoldTunerFeatures);
+}
+
+ErrorCodes_t ModelDevice::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures) {
+    return this->messageDispatcher->getCurrentHoldTunerFeatures(currentHoldTunerFeatures);
 }
 
 ErrorCodes_t ModelDevice::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
@@ -324,11 +343,18 @@ ErrorCodes_t ModelDevice::getCurrentStimulusLpfsFeatures(std::vector <Measuremen
     return this->messageDispatcher->getCurrentStimulusLpfs(currentFilterOptions);
 }
 
-ErrorCodes_t ModelDevice::getCalibVcVoltStepFeatures(std::vector <Measurement_t> &calibVcVoltStepsFeatures){
-    return this->messageDispatcher->getVcCalibVoltStepsFeatures(calibVcVoltStepsFeatures);
+
+ErrorCodes_t ModelDevice::getCalibDataFeatures(CalibrationData_t &calibData){
+    return this->messageDispatcher->getCalibData(calibData);
 }
 
-ErrorCodes_t ModelDevice::getCalibVcResFeatures(std::vector <Measurement_t> &calibVcResFeatures){
-    return this->messageDispatcher->getVcCalibResFeatures(calibVcResFeatures);
+
+ErrorCodes_t ModelDevice::getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+    return this->messageDispatcher->getCompFeatures(paramToExtractFeatures, compensationFeatures, defaultParamValue);
 }
+
+ErrorCodes_t ModelDevice::getCompOptionsFeatures(MessageDispatcher::CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+    return this->messageDispatcher->getCompOptionsFeatures(type, compOptionsArray);
+}
+
 //---------------------------------------------/

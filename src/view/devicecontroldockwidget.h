@@ -13,6 +13,11 @@
 #define DCW_SAMPLING_RATE_TITLE "Sampling Rates"
 #define DCW_STIMULUS_FILTER_TITLE "Readout Filters"
 
+#define DCW_CC_CURRENT_RANGE_TITLE "CC Current Ranges"
+#define DCW_CC_VOLTAGE_RANGE_TITLE "CC Voltage Ranges"
+
+#define DCW_CLMAPINGMODALITY_TITLE "Clamping Modality"
+
 class DeviceControlDockWidget : public QDockWidget{
     Q_OBJECT
 
@@ -43,6 +48,9 @@ private:
     QGroupBox * samplingRatesGroupBox = nullptr;
     std::vector<QRadioButton *> samplingRatesRadioButtons;
     bool samplingRatesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * clampingModalitiesGroupBox = nullptr;
+    std::vector<QRadioButton *> clampingModalitiesRadioButtons;
+    bool clampingModalitiesPrevioueEnableStateBeforeRecording = false;
 
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, std::vector <RangedMeasurement_t> myRanges, std::vector<QRadioButton *> &qRadioButtons);
@@ -53,6 +61,7 @@ signals:
     void sigCcCurrentRangeSelected(int idx);
     void sigCcVoltageRangeSelected(int idx);
     void sigSamplingRateSelected(int idx);
+    void sigClampingModalitySelected(int idx);
 };
 
 #endif // DEVICECONTROLDOCKWIDGET_H

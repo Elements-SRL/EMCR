@@ -28,6 +28,7 @@ SOURCES += \
     src/controller/protocol/protocolutils.cpp \
     src/main.cpp \
     src/model/analysiscursor.cpp \
+    src/view/compensationcontroldockwidget.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/doubleclickmachine.cpp \
@@ -89,6 +90,7 @@ HEADERS += \
     src/controller/protocol/protocolutils.h \
     src/globaldefines.h \
     src/model/analysiscursor.h \
+    src/view/compensationcontroldockwidget.h \
     src/protocoldefs.h \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \

@@ -39,6 +39,8 @@ public:
     Measurement_t getCcCurrentFilter();
     Measurement_t getCcVoltageFilter();
     QVector <bool> getSelectedChannelsIdxs();
+    int getOngoingClampingModality();
+    int getOngoingClampingModalityIdx();
 
     void setMessageDispatcher(MessageDispatcher * messageDispatcher);
     void setSerialNumber(QString serial);
@@ -63,6 +65,8 @@ public:
     void setVcVoltageFilter(Measurement_t vCvoltageFilter);
     void setCcCurrentFilter(Measurement_t cCcurrentFilter);
     void setCcVoltageFilter(Measurement_t cCvoltageFilter);
+    void setOngoingClampingModality(int mode);
+    void setOngoingClampingModalityIdx(int idx);
 
     void fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
@@ -71,6 +75,7 @@ public:
 
     // wrappers for MessageDispatcher get features
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
+    ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures);
     ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
     ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector <RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
     ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
@@ -91,8 +96,12 @@ public:
     ErrorCodes_t getVoltageStimulusLpfsFeatures(std::vector <Measurement_t> &filterOptions);
     ErrorCodes_t getCurrentStimulusLpfsFeatures(std::vector <Measurement_t> &filterOptions);
 
-    ErrorCodes_t getCalibVcVoltStepFeatures(std::vector <Measurement_t> &calibVcVoltStepsFeatures);
-    ErrorCodes_t getCalibVcResFeatures(std::vector <Measurement_t> &calibVcResFeatures);
+    ErrorCodes_t getCalibDataFeatures(CalibrationData_t &calibData);
+
+    ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector <RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
+    ErrorCodes_t getCompOptionsFeatures(MessageDispatcher::CompensationTypes type ,std::vector <std::string> &compOptionsArray);
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues);
+
     //---------------------------------------------/
 
 private:
@@ -121,7 +130,7 @@ private:
     Measurement_t ccCurrentFilter = {0.0, UnitPfxNone, "Hz"};
     Measurement_t ccVoltageFilter = {0.0, UnitPfxNone, "Hz"};
     e384CommLib::ClampingModality_t  ongoingClampingModality = e384CommLib::ClampingModality_t::VOLTAGE_CLAMP;
-
+    int ongoingClampingModalityIdx = 0;
 };
 
 #endif // MODELDEVICE_H

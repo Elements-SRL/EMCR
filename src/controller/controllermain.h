@@ -36,8 +36,10 @@ public slots:
     void onCcCurrentRangeSelected(int idx);
     void onCcVoltageRangeSelected(int idx);
     void onSamplingRateSelected(int idx);
+    void onClampingModalitySelected(int idx);
     void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onStopRecording();
+
 
 private:
     void startProducerConsumers();

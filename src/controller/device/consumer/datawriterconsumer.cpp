@@ -4,8 +4,6 @@
 
 #include "globaldefines.h"
 
-using namespace std;
-
 DataWriterConsumer::DataWriterConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
     DeviceDataConsumer(mDev, producer) {
 
@@ -88,7 +86,7 @@ void DataWriterConsumer::onRecordingSettingsSet(RecordSettingsDialog::RecordSett
     this->computeSamples();
 }
 
-void DataWriterConsumer::onRecordSelectedChannels(vector<uint16_t> channelIndexes, vector<bool> onValues) {
+void DataWriterConsumer::onRecordSelectedChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
     this->onStopConsuming();
     pushedActiveChannels.clear();
     pushedActiveChannelsFlag.fill(false);

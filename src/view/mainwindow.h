@@ -17,6 +17,7 @@
 #include "recordsettingsdialog.h"
 #include "protocoldockwidget.h"
 #include "e384commlib_errorcodes.h"
+#include "compensationcontroldockwidget.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -35,6 +36,7 @@ public:
     BoardControlDockWidget * getBoardControlsDockWidget();
     ProtocolDockWidget * getProtocolDockWidget();
     RecordSettingsDialog * getRecordSettingsDialog();
+    CompensationControlDockWidget * getCompensationControlsDockWidget();
 
     QLabel * SRLbl = nullptr;
 
@@ -70,6 +72,7 @@ private:
     BigPlotDockWidget * bigPlotDw = nullptr;
     ProtocolDockWidget * protocolDw = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
+    CompensationControlDockWidget * compensationControlsDw = nullptr;
 
 //    DeviceDataProducer * deviceDataProducer = nullptr;
 

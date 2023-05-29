@@ -22,6 +22,7 @@ public slots:
     void onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex);
     void onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex);
     void onSamplingRateSelected(uint16_t selectedCcCurrentFilterIndex);
+    void onClampingModalitySelected(uint16_t selectedClampingModalityIndex);
 
 private:
     ModelDevice * mDev = nullptr;
@@ -34,5 +35,6 @@ signals:
     void sigVcVoltageFilterSelected(int idx);
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
+    void sigClampingModalitySelected(int idx);
 };
 #endif // CONTROLLERDEVICE_H
