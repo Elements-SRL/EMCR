@@ -150,6 +150,7 @@ private:
     void leastSquareSimple(std::vector<double> x, std::vector<double> y, double &slope, double &offset);
     void calibrateAdcGain(int thisActualRangeIdx);
     void calibrateAdcOffset(RangedMeasurement_t thisActualRange);
+    void calibrateDacGain();
     void calibrateDacOffset(RangedMeasurement_t thisVcCurrentActualRange, int thisVcCurrentActualRangeIdx);
 
     void calibrateCcAdcGain(int thisActualRangeIdx);

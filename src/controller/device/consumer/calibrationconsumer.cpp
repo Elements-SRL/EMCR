@@ -313,6 +313,8 @@ void CalibrationConsumer::run(){
             multiplierCurrent = rangeInfoAdditional[0].multiplier();
             mDev->getMessageDispatcher()->setVCCurrentRange(0, true);
 
+            /*! \todo 20230529 MPAC: questa funzione è solo unpo stub che riempie la struttura gainDAC di 1.0*/
+            calibrateDacGain();
             /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 //            calibrateDacOffset(vcVoltageRangesArray[rangeIdx]);
             /*! 20230529 MPAC: rengeIdx serve solo  a memorizzare nella posizione giusta del vettore offsetDac. Mi serve selezionare un range
@@ -467,6 +469,7 @@ void CalibrationConsumer::run(){
         }
         for(int zzz = 0; zzz < vcVoltageRangesArray.size(); zzz++){
             for(int xxx = 0; xxx < channelToCalibIdxs.size(); xxx++){
+                allGainDAC[zzz][channelToCalibIdxs[xxx]] = gainDAC[zzz][xxx];
                 allOffsetDAC[zzz][channelToCalibIdxs[xxx]] = offsetDAC[zzz][xxx];
                 /*! \todo FCON qui andrebbero aggiornati anche i gain del DAC */
             }
@@ -711,6 +714,17 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     } else {
         turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
     }
+}
+
+void CalibrationConsumer::calibrateDacGain(){
+    std::vector<double> usefulDacGain;
+    usefulDacGain.resize(channelToCalibIdxs.size());
+    for(int i = 0; i< usefulDacGain.size(); i++){
+        usefulDacGain[i] = 1.0;
+    }
+
+    gainDAC[rangeIdx] = usefulDacGain;
+
 }
 
 void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange, int thisVcCurrentActualRangeIdx){
@@ -1137,6 +1151,16 @@ QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset, bool v
         for(int i = 0; i < vcVoltageRangesArray.size(); i++){
             stream << QString("%1").arg(vcVoltageRangesArray[i].max) << "\n";
             for(int j = 0; j < chanSubset.size(); j++){
+                if(gainDAC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(gainDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(gainDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
                 if(offsetDAC[i].size()==currentChannelsNum){
                     stream << QString("%1").arg(offsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
                 } else {
@@ -1413,6 +1437,15 @@ void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream,
         for(int lineIdx = 0; lineIdx< vcVoltageRangesArray.size(); lineIdx++){
             // valore VC voltage range, da buttare
             dump = boardStream.readLine();
+
+            // linea con valori utili di DAC gain
+            line = boardStream.readLine();
+            tempList.append(line.split(myCsvSeparator));
+            tempList.removeLast(); // remove the \n at the end of the line
+            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+                gainDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
+            }
+            tempList.clear();
 
             // linea con valori utili
 
