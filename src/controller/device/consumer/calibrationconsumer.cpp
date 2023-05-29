@@ -311,9 +311,13 @@ void CalibrationConsumer::run(){
             std::vector <RangedMeasurement_t> rangeInfoAdditional;
             mDev->getVcCurrentRangesFeatures(rangeInfoAdditional, bbb);
             multiplierCurrent = rangeInfoAdditional[0].multiplier();
+            mDev->getMessageDispatcher()->setVCCurrentRange(0, true);
 
             /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-            calibrateDacOffset(vcVoltageRangesArray[rangeIdx]);
+//            calibrateDacOffset(vcVoltageRangesArray[rangeIdx]);
+            /*! 20230529 MPAC: rengeIdx serve solo  a memorizzare nella posizione giusta del vettore offsetDac. Mi serve selezionare un range
+            di VC Current (e relativo indice e resistenza di calibrazione) per la lettura della corrente dovuta alla tensione residua*/
+            calibrateDacOffset(vcCurrentRangesArray[0], 0);
             /*! END CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         }
 
@@ -547,6 +551,7 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
 
     /*! FOR: START ciclo sugli step di tensione*/
     for(int voltStepIdx = 0; voltStepIdx <calibrationVoltSteps[thisActualRangeIdx].size(); voltStepIdx++){
+        QThread::sleep(1);
         currentMeans[voltStepIdx].resize(channelToCalibIdxs.size());
 
         /*! setta la Vhold per i canali selezionati e applica lo stimolo a tutti i canali selezionati*/
@@ -566,7 +571,7 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, samplesToremove);
+        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
         int actualBufferSize = buffer.size();
         buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
         actualBufferSize = buffer.size();
@@ -660,7 +665,8 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
     /*! butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-    buffer.remove(0, samplesToremove);
+//    buffer.remove(0, 5*samplesToremove);
+    buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
     int actualBufferSize = buffer.size();
     buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
     actualBufferSize = buffer.size();
@@ -707,7 +713,7 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     }
 }
 
-void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange){
+void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange, int thisVcCurrentActualRangeIdx){
     int numTries = 0;
     std::vector<bool> needsFurtherCalibration;
     needsFurtherCalibration.resize(channelToCalibIdxs.size());
@@ -737,7 +743,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
     std::vector<double> usefulDacOffset;
     usefulDacOffset.resize(channelToCalibIdxs.size());
 
-    while(numTries <= CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY){
+    while(numTries < CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY){
         /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
         la cui struttura è ancora da definire */
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
@@ -747,7 +753,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, samplesToremove);
+        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
         int actualBufferSize = buffer.size();
         buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
         actualBufferSize = buffer.size();
@@ -772,13 +778,13 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         for(int i = 0; i < currentSum.size(); i++){
 //            (gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
 //            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) + offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
-            adcCompensatedCurrent[i] = (gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[rangeIdx][i];
+            adcCompensatedCurrent[i] = (gainADC[thisVcCurrentActualRangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[thisVcCurrentActualRangeIdx][i];
             if (adcCompensatedCurrent[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
                /*! sottraggo allo step di tensione attualmente applicato*/
-                double poffi = calibratonResistances[rangeIdx].getNoPrefixValue(); // Ohm
-                double bubbi = someVoltSteps[i].getNoPrefixValue() - adcCompensatedCurrent[i]*poffi; // V
+                double poffi = calibratonResistances[thisVcCurrentActualRangeIdx].getNoPrefixValue(); // Ohm
+                double bubbi = adcCompensatedCurrent[i]*poffi - someVoltSteps[i].getNoPrefixValue(); // V
                 someVoltSteps[i].value = bubbi/someVoltSteps[i].multiplier(); //mV perchè divido V per 1e-3
            }
            usefulDacOffset[i] = -(someVoltSteps[i].getNoPrefixValue()); //V
@@ -1663,7 +1669,7 @@ void CalibrationConsumer::calibrateCcAdcGain(int thisActualRangeIdx){
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, samplesToremove);
+        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
         int actualBufferSize = buffer.size();
         buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
         actualBufferSize = buffer.size();
@@ -1764,7 +1770,7 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, samplesToremove);
+        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
         int actualBufferSize = buffer.size();
         buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
         actualBufferSize = buffer.size();
@@ -1859,7 +1865,7 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
     /*! butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-    buffer.remove(0, samplesToremove);
+    buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
     int actualBufferSize = buffer.size();
     buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
     actualBufferSize = buffer.size();
@@ -1934,7 +1940,7 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, samplesToremove);
+        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
         int actualBufferSize = buffer.size();
         buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
         actualBufferSize = buffer.size();
