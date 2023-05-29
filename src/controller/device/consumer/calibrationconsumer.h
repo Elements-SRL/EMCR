@@ -3,6 +3,7 @@
 
 #define CCS_CALIB_INTERVAL_IN_S 1
 #define CCS_CALIB_INTERVAL_TO_REMOVE_IN_S 0.1
+#define CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ 5
 #define CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY 1
 #define CCS_CALIBRATION_DEFAULT_PATH "C:/EMCR_calib_folder/"
 
@@ -149,7 +150,7 @@ private:
     void leastSquareSimple(vector<double> x, vector<double> y, double &slope, double &offset);
     void calibrateAdcGain(int thisActualRangeIdx);
     void calibrateAdcOffset(RangedMeasurement_t thisActualRange);
-    void calibrateDacOffset(RangedMeasurement_t thisActualRange);
+    void calibrateDacOffset(RangedMeasurement_t thisVcCurrentActualRange, int thisVcCurrentActualRangeIdx);
 
     void calibrateCcAdcGain(int thisActualRangeIdx);
     void calibrateCcDacGain(int thisActualRangeIdx);
