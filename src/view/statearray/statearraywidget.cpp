@@ -8,7 +8,7 @@
 #include <QGroupBox>
 #include <QPushButton>
 
-StateWidget::StateWidget(QWidget *parent)
+StateArrrayWidget::StateArrrayWidget(QWidget *parent)
     : QWidget(parent)
 {
     // Constructor implementation
@@ -197,7 +197,7 @@ StateWidget::StateWidget(QWidget *parent)
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
-StateWidget::~StateWidget()
+StateArrrayWidget::~StateArrrayWidget()
 {
     // Destructor implementation
 }

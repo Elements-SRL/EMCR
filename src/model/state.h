@@ -5,16 +5,16 @@
 
 namespace YAML {
 typedef struct State {
-    bool activeTimeout;
-    double timeout;
-    int timeoutState;
-    bool activeTrigger;
-    bool delta;
-    double minTrigLevel;
-    double maxTrigLevel;
-    int triggerState;
-    std::string triggerType;
-    double voltage;
+    bool activeTimeout = false;
+    double timeout = 0.0;
+    int timeoutState = 0;
+    bool activeTrigger = false;
+    bool delta = false;
+    double minTrigLevel = 0.0;
+    double maxTrigLevel = 0.0;
+    int triggerState = 0;
+    std::string triggerType = "Curren(pA)";
+    double voltage = 0.0;
 } State_t;
 
 template<>

@@ -2,13 +2,13 @@
 #define STATEARRAYWIDGET_H
 #include <QWidget>
 
-class StateWidget : public QWidget
+class StateArrrayWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    StateWidget(QWidget *parent = nullptr);
-    ~StateWidget();
+    StateArrrayWidget(QWidget *parent = nullptr);
+    ~StateArrrayWidget();
 
 private:
     // Private member variables and functions

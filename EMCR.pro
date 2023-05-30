@@ -22,6 +22,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/controllerstatearray.cpp \
     src/controller/protocol/cursorsmanager.cpp \
     src/controller/protocol/protocolitemctrlmanager.cpp \
     src/controller/protocol/protocolmanager.cpp \
@@ -84,6 +85,7 @@ SOURCES += \
     src/view/statearray/statearraywidget.cpp
 
 HEADERS += \
+    src/controller/controllerstatearray.h \
     src/controller/protocol/cursorsmanager.h \
     src/controller/protocol/protocolitemctrlmanager.h \
     src/controller/protocol/protocolmanager.h \
