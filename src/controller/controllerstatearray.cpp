@@ -9,7 +9,7 @@ ControllerStateArray::ControllerStateArray()
 {
     stateArray.push_back({});
     std::cout << stateArray[0].triggerType << std::endl;
-    stateArrayWidget = new StateArrrayWidget();
+    stateArrayWidget = new StateArrrayWidget(nullptr, stateArray[0]);
 }
 
 void ControllerStateArray::showWidget(){

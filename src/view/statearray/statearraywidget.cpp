@@ -7,10 +7,14 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QPushButton>
+#include <QString>
+#include "model/state.h"
 
-StateArrrayWidget::StateArrrayWidget(QWidget *parent)
+StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     : QWidget(parent)
 {
+
+    currentState = state;
     // Constructor implementation
     QVBoxLayout * mainLayout = new QVBoxLayout(this);
 
@@ -19,14 +23,15 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent)
 
     QVBoxLayout * numberOfStatesLayout = new QVBoxLayout();
     QLabel * numberOfStatesLabel = new QLabel("Number of States");
-    QSpinBox * numberOfStatesSpinbox = new QSpinBox(this);
+    numberOfStatesSpinbox = new QSpinBox(this);
+    numberOfStatesSpinbox->setEnabled(false);
     numberOfStatesLayout ->addWidget(numberOfStatesLabel);
     numberOfStatesLayout ->addWidget(numberOfStatesSpinbox);
     stateArrayConfigurationLayout->addLayout(numberOfStatesLayout);
 
     QVBoxLayout * initialStateLayout = new QVBoxLayout();
     QLabel * initialStateLabel = new QLabel("Initial State");
-    QSpinBox * initialStateSpinbox = new QSpinBox(this);
+    initialStateSpinbox = new QSpinBox(this);
 //    TODO LROSSI min &max bound to numberOfstates
     initialStateLayout ->addWidget(initialStateLabel);
     initialStateLayout ->addWidget(initialStateSpinbox);
@@ -79,7 +84,7 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent)
 
     QLabel *voltageLabel = new QLabel("Voltage (V)");
     QDoubleSpinBox *voltageSpinbox = new QDoubleSpinBox();
-
+    voltageSpinbox->setValue(currentState.voltage);
     voltageLayout->addWidget(voltageLabel);
     voltageLayout->addWidget(voltageSpinbox);
 
@@ -89,28 +94,31 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent)
     QGroupBox *timeoutGroupBox = new QGroupBox(this);
     // Create the QHBoxLayout for the checkbox and its label
     QHBoxLayout *activeTimeoutLayout = new QHBoxLayout(timeoutGroupBox);
-    QCheckBox *activeTimeoutCheckbox = new QCheckBox("Active", this);
+    activeTimeoutCheckbox = new QCheckBox("Active", this);
 
+    activeTimeoutCheckbox->setChecked(currentState.activeTimeout);
     // Add the checkbox and its label to the checkboxLayout
     activeTimeoutLayout->addWidget(activeTimeoutCheckbox);
 
     // Create the first QLineEdit for the timeout (sec)
     QVBoxLayout *timeoutLayout = new QVBoxLayout();
     QLabel *timeoutLabel = new QLabel("Timeout (sec):", this);
-    QLineEdit *timeoutLineEdit = new QLineEdit(this);
+    timeoutLineEdit = new QLineEdit(this);
     timeoutLineEdit->setValidator(new QIntValidator(0, 9999, this)); // Restrict input to integers
 
     // Add the label and line edit for the timeout to the timeoutLayout
+    timeoutLineEdit->setText(QString::fromStdString(std::to_string(currentState.timeout)));
     timeoutLayout->addWidget(timeoutLabel);
     timeoutLayout->addWidget(timeoutLineEdit);
 
     // Create the second QLineEdit for the timeout state
     QVBoxLayout *timeoutStateLayout = new QVBoxLayout();
     QLabel *timeoutStateLabel = new QLabel("Timeout state:", this);
-    QLineEdit *timeoutStateLineEdit = new QLineEdit(this);
+    timeoutStateLineEdit = new QLineEdit(this);
     timeoutStateLineEdit->setValidator(new QIntValidator(0, 9999, this)); // Restrict input to integers
 
     // Add the label and line edit for the timeout state to the timeoutStateLayout
+    timeoutStateLineEdit->setText(QString::fromStdString(std::to_string(currentState.timeout)));
     timeoutStateLayout->addWidget(timeoutStateLabel);
     timeoutStateLayout->addWidget(timeoutStateLineEdit);
 
@@ -126,9 +134,10 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent)
     QHBoxLayout * triggerLayout = new QHBoxLayout(triggersGroupBox);
 
     QVBoxLayout * triggerCheckboxesLayout = new QVBoxLayout();
-    QCheckBox * activeTriggerCheckbox = new QCheckBox("Active");
-    QCheckBox * deltaTriggerCheckbox = new QCheckBox("Delta");
-
+    activeTriggerCheckbox = new QCheckBox("Active");
+    deltaTriggerCheckbox = new QCheckBox("Delta");
+    activeTriggerCheckbox ->setChecked(currentState.activeTrigger);
+    deltaTriggerCheckbox->setChecked(currentState.delta);
     triggerCheckboxesLayout->addWidget(activeTriggerCheckbox);
     triggerCheckboxesLayout->addWidget(deltaTriggerCheckbox);
     triggerLayout->addLayout(triggerCheckboxesLayout);
@@ -137,10 +146,12 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent)
 
     QVBoxLayout * triggerLevelsLayout = new QVBoxLayout();
     QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level");
-    QLineEdit * minTrigLevelLineEdit = new QLineEdit();
+    minTrigLevelLineEdit = new QLineEdit();
     QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
-    QLineEdit * maxTrigLevelLineEdit = new QLineEdit();
+    maxTrigLevelLineEdit = new QLineEdit();
 
+    minTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(currentState.minTrigLevel)));
+    maxTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(currentState.maxTrigLevel)));
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
     triggerLevelsLayout->addWidget(minTrigLevelLineEdit);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
