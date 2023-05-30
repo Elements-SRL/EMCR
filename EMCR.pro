@@ -80,7 +80,8 @@ SOURCES += \
     src/model/modeldevice.cpp \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp \
-    src/abf/axon.cpp
+    src/abf/axon.cpp \
+    src/view/statearray/statearraywidget.cpp
 
 HEADERS += \
     src/controller/protocol/cursorsmanager.h \
@@ -144,7 +145,8 @@ HEADERS += \
     src/model/modelchannel.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
-    src/abf/axon_structs.h
+    src/abf/axon_structs.h \
+    src/view/statearray/statearraywidget.h
 
 INCLUDEPATH += \
     ./src \
