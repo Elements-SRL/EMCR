@@ -90,6 +90,7 @@ HEADERS += \
     src/controller/protocol/protocolutils.h \
     src/globaldefines.h \
     src/model/analysiscursor.h \
+    src/model/state.h \
     src/protocoldefs.h \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
