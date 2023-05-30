@@ -11,15 +11,16 @@ class ControllerStateArray : public QObject {
 public:
     ControllerStateArray();
     void showWidget();
+    void printYaml();
     void deleteState(int idx);
     void insertState(int idx);
     void open();
     void saveAs();
     void start();
-    void cance();
+    void cancel();
 
 private:
     StateArrrayWidget * stateArrayWidget;
-    std::vector<YAML::State> stateArray;
+    std::vector<YAML::State_t> stateArray;
 };
 #endif // CONTROLLERSTATEARRAY_H

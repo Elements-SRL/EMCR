@@ -13,3 +13,9 @@ ControllerStateArray::ControllerStateArray()
 void ControllerStateArray::showWidget(){
     stateArrayWidget->show();
 }
+
+void ControllerStateArray::printYaml(){
+    YAML::Node node;
+    node = stateArray;
+    std::cout << node << std::endl;
+}

@@ -29,5 +29,6 @@ int main(int argc, char *argv[]) {
 
     ControllerStateArray * controllerStateArray = new ControllerStateArray();
     controllerStateArray->showWidget();
+    controllerStateArray->printYaml();
     return a.exec();
 }
