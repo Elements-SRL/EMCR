@@ -3,6 +3,12 @@
 
 #include "yaml.h"
 
+typedef enum TriggerType {
+    CURRENT,
+} TriggerType_t;
+
+static std::vector <std::string> triggerTypeStrings = {"Curren(pA)"};
+
 namespace YAML {
 typedef struct State {
     bool activeTimeout = false;
@@ -13,7 +19,7 @@ typedef struct State {
     double minTrigLevel = 0.0;
     double maxTrigLevel = 0.0;
     int triggerState = 0;
-    std::string triggerType = "Curren(pA)";
+    TriggerType triggerType = TriggerType::CURRENT;
     double voltage = 0.0;
 } State_t;
 
@@ -46,7 +52,7 @@ struct convert<State>{
         rhs.minTrigLevel = node["minTrigLevel"].as<double>();
         rhs.maxTrigLevel = node["maxTrigLevel"].as<double>();
         rhs.triggerState = node["triggerState"].as<int>();
-        rhs.triggerType = node["triggerType"].as<std::string>();
+        rhs.triggerType = (TriggerType)(std::find(triggerTypeStrings.begin(), triggerTypeStrings.end(), node["triggerType"].as<std::string>())-triggerTypeStrings.begin());
         rhs.voltage = node["voltage"].as<double>();
         return true;
     }
