@@ -224,7 +224,7 @@ void CalibrationConsumer::run(){
 
         waitForFirstModelCellChecked = true;
         emit sigNeedToCheckFirstModelCellMsg(msg);
-        qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
+//        qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
         while(true){
             QMutexLocker myLock(&popUpWindowMtx);
             if(!waitForFirstModelCellChecked){
@@ -280,7 +280,7 @@ void CalibrationConsumer::run(){
 
                 waitForModelCellChanged = true;
                 emit sigNeedToChangeModelCellMsg(msg);
-                qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
+//                qDebug() << "[CALIBRATIONCONSUMER] MI FERMO\n";
                 while(true){
                     QMutexLocker myLock(&popUpWindowMtx);
                     if(!waitForModelCellChanged){
@@ -290,7 +290,7 @@ void CalibrationConsumer::run(){
                     QThread::msleep(10);
                 }
             }
-            qDebug() << "[CALIBRATIONCONSUMER] RIPARTO\n";
+//            qDebug() << "[CALIBRATIONCONSUMER] RIPARTO\n";
 
         /*! FOR: END ciclo sui range*/
         }
@@ -657,13 +657,14 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     /*! gli switch di ingresso sono staccati dal passo precedente*/
     turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
-    currentMeans[0].resize(channelToCalibIdxs.size());
+//    currentMeans[0].resize(channelToCalibIdxs.size());
 
     /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
     la cui struttura è ancora da definire */
     sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
     minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
     samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+    QThread::sleep(1);
     hook->flush(); /*! Remove old buffered data */
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -696,7 +697,7 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     /*! moltiplico la corrente media per i GAIN calacolati al passo precedente e dovrei avere già l'offset di ADC*/
     for(int i = 0; i < currentSum.size(); i++){
 //       usefulAdcOffset[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples); /*! \todo FCON la moltiplicazione per il gain non simula correttamente quello che accade in FPGA, meglio far fare il conto all'FPGA usando il comando del MessageDispatcher
-        usefulAdcOffset[i] = -(gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
+        usefulAdcOffset[i] =-(gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
 
     }
 
@@ -752,7 +753,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         turnSomeChannelsOnOff(channelToCalibIdxs, someTrue);
     }
 
-    currentMeans[0].resize(channelToCalibIdxs.size());
+//    currentMeans[0].resize(channelToCalibIdxs.size());
 
     std::vector<double> usefulDacOffset;
     usefulDacOffset.resize(channelToCalibIdxs.size());
@@ -763,6 +764,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
         samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        QThread::sleep(1);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -793,6 +795,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 //            (gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
 //            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) + offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
             adcCompensatedCurrent[i] = (gainADC[thisVcCurrentActualRangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[thisVcCurrentActualRangeIdx][i];
+
             if (adcCompensatedCurrent[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
@@ -855,7 +858,7 @@ void CalibrationConsumer::turnAllChannelsOnOff(bool onValue){
         this->mDev->getChannels()[i]->setOn(onValue);
         channelIndexes[i] = i;
         onValues[i] = onValue;
-        qDebug() << "[Channel " << i << "]: on/off status:" << onValue << "\n";
+//        qDebug() << "[Channel " << i << "]: on/off status:" << onValue << "\n";
     }
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
 }
@@ -869,7 +872,7 @@ void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
         this->mDev->getChannels()[i]->setInStimActive(onValue);
         channelIndexes[i] = i;
         onValues[i] = onValue;
-        qDebug() << "[Channel " << i << "]: on/off status:" << onValue << "\n";
+//        qDebug() << "[Channel " << i << "]: on/off status:" << onValue << "\n";
     }
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
 }
@@ -929,7 +932,7 @@ void CalibrationConsumer::turnAllCcStimulaOnOff(bool onValue){
 void CalibrationConsumer::selectSomeChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> selectValues){
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setSelected(selectValues[i]);
-        qDebug() << "[Channel " << channelIndexes[i] << "]: selected status:" << selectValues[i] << "\n";
+//        qDebug() << "[Channel " << channelIndexes[i] << "]: selected status:" << selectValues[i] << "\n";
     }
 }
 
@@ -938,7 +941,7 @@ void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelInd
     this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
-        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
+//        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
     }
 }
 
@@ -946,7 +949,7 @@ void CalibrationConsumer::turnSomeStimulaOnOff(std::vector<uint16_t> channelInde
     this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
-        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
+//        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
     }
 }
 
