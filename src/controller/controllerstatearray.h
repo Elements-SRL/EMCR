@@ -18,6 +18,7 @@ public:
     void saveAs();
     void start();
     void cancel();
+    void writeToFile(std::string);
 
 private:
     StateArrrayWidget * stateArrayWidget;

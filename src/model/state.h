@@ -35,7 +35,7 @@ struct convert<State>{
         node["minTrigLevel"] = rhs.minTrigLevel;
         node["maxTrigLevel"] = rhs.maxTrigLevel;
         node["triggerState"] = rhs.triggerState;
-        node["triggerType"] = rhs.triggerType;
+        node["triggerType"] = triggerTypeStrings[rhs.triggerType];
         node["voltage"] = rhs.voltage;
         return node;
     }

@@ -1,6 +1,7 @@
 #include "controller/controllerstatearray.h"
 #include "view/statearray/statearraywidget.h"
 #include <iostream>
+#include <fstream>
 
 ControllerStateArray::ControllerStateArray()
 {
@@ -18,4 +19,13 @@ void ControllerStateArray::printYaml(){
     YAML::Node node;
     node = stateArray;
     std::cout << node << std::endl;
+}
+
+void ControllerStateArray::writeToFile(std::string fname){
+    YAML::Node node;
+    node = stateArray;
+    std::ofstream file;
+    file.open(fname);
+    file << node;
+    file.close();
 }
