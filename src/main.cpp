@@ -31,5 +31,6 @@ int main(int argc, char *argv[]) {
     controllerStateArray->showWidget();
     controllerStateArray->printYaml();
     controllerStateArray->writeToFile("ciccia.yaml");
+    controllerStateArray->open("ciccia.yaml");
     return a.exec();
 }

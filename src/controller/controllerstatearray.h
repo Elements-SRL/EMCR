@@ -14,7 +14,7 @@ public:
     void printYaml();
     void deleteState(int idx);
     void insertState(int idx);
-    void open();
+    void open(std::string);
     void saveAs();
     void start();
     void cancel();

@@ -45,7 +45,7 @@ struct convert<State>{
             return false;
         }
         rhs.activeTimeout = node["activeTimeout"].as<bool>();
-        rhs.timeout = node["activeTimeout"].as<double>();
+        rhs.timeout = node["timeout"].as<double>();
         rhs.timeoutState = node["timeoutState"].as<int>();
         rhs.activeTrigger = node["activeTrigger"].as<bool>();
         rhs.delta = node["delta"].as<bool>();
