@@ -186,7 +186,14 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
         if (filename.isEmpty()) {
             return;
         }
-        emit this->sigOpenFileButtonPressed(filename.toStdString());
+        emit this->sigOpenButtonPressed(filename.toStdString());
+    });
+    connect(saveAsButton, &QPushButton::clicked, this, [=](){
+        QString filename = QFileDialog::getSaveFileName(nullptr, "Save File", "", "YAML files (*.yaml);;");
+        if (filename.isEmpty()) {
+            return;
+        }
+        emit this->sigSaveAsButtonPressed(filename.toStdString());
     });
 
     buttonsLayout->addWidget(openButton);

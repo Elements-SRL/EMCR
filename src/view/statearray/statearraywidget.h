@@ -39,6 +39,7 @@ private:
     // Private member variables and functions
 
 signals:
-    void sigOpenFileButtonPressed(std::string fname);
+    void sigOpenButtonPressed(std::string fname);
+    void sigSaveAsButtonPressed(std::string fname);
 };
 #endif // STATEARRAYWIDGET_H

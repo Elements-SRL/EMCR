@@ -10,8 +10,11 @@
 ControllerStateArray::ControllerStateArray()
 {
     stateArrayWidget = new StateArrayWidget(nullptr, stateArray.states[0]);
-    connect(stateArrayWidget, &StateArrayWidget::sigOpenFileButtonPressed, this, [=](std::string s){
+    connect(stateArrayWidget, &StateArrayWidget::sigOpenButtonPressed, this, [=](std::string s){
         this->open(s);
+    });
+    connect(stateArrayWidget, &StateArrayWidget::sigSaveAsButtonPressed, this, [=](std::string s){
+        this->writeToFile(s);
     });
 }
 
