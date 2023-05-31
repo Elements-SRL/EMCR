@@ -29,6 +29,7 @@ SOURCES += \
     src/controller/protocol/protocolutils.cpp \
     src/main.cpp \
     src/model/analysiscursor.cpp \
+    src/model/state.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/doubleclickmachine.cpp \

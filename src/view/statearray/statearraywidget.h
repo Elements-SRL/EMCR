@@ -1,6 +1,7 @@
 #ifndef STATEARRAYWIDGET_H
 #define STATEARRAYWIDGET_H
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QWidget>
@@ -14,8 +15,9 @@ public:
     StateArrrayWidget(QWidget *parent = nullptr, YAML::State state = {});
     ~StateArrrayWidget();
 
+    void setState(YAML::State);
 private:
-    YAML::State currentState;
+    QDoubleSpinBox *voltageSpinbox;
     QSpinBox * numberOfStatesSpinbox;
     QSpinBox * initialStateSpinbox;
     QCheckBox * activeTimeoutCheckbox;
@@ -25,6 +27,8 @@ private:
     QCheckBox * deltaTriggerCheckbox;
     QLineEdit * minTrigLevelLineEdit;
     QLineEdit * maxTrigLevelLineEdit;
+    QLineEdit * triggerStateLineEdit;
+    QComboBox * triggerTypeComboBox;
     // Private member variables and functions
 };
 #endif // STATEARRAYWIDGET_H

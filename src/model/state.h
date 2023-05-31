@@ -3,6 +3,8 @@
 
 #include "yaml.h"
 
+#include <QString>
+
 typedef enum TriggerType {
     CURRENT,
 } TriggerType_t;
@@ -58,4 +60,7 @@ struct convert<State>{
     }
 };
 }
+
+QStringList getListOfTriggerStates(YAML::State, QStringList *);
+
 #endif // STATE_H

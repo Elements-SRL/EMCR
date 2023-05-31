@@ -42,3 +42,8 @@ void ControllerStateArray::writeToFile(std::string fname){
     file << node;
     file.close();
 }
+
+void ControllerStateArray::insertState(int idx, YAML::State s){
+    stateArray.insert(stateArray.begin()+idx, s);
+    stateArrayWidget->setState(s);
+}

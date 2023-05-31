@@ -13,7 +13,7 @@ public:
     void showWidget();
     void printYaml();
     void deleteState(int idx);
-    void insertState(int idx);
+    void insertState(int idx, YAML::State s);
     void open(std::string);
     void saveAs();
     void start();
@@ -22,6 +22,6 @@ public:
 
 private:
     StateArrrayWidget * stateArrayWidget;
-    std::vector<YAML::State_t> stateArray;
+    std::vector<YAML::State> stateArray;
 };
 #endif // CONTROLLERSTATEARRAY_H

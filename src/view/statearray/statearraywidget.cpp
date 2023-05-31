@@ -10,11 +10,10 @@
 #include <QString>
 #include "model/state.h"
 
-StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
+StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
     : QWidget(parent)
 {
 
-    currentState = state;
     // Constructor implementation
     QVBoxLayout * mainLayout = new QVBoxLayout(this);
 
@@ -24,7 +23,6 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     QVBoxLayout * numberOfStatesLayout = new QVBoxLayout();
     QLabel * numberOfStatesLabel = new QLabel("Number of States");
     numberOfStatesSpinbox = new QSpinBox(this);
-    numberOfStatesSpinbox->setEnabled(false);
     numberOfStatesLayout ->addWidget(numberOfStatesLabel);
     numberOfStatesLayout ->addWidget(numberOfStatesSpinbox);
     stateArrayConfigurationLayout->addLayout(numberOfStatesLayout);
@@ -62,7 +60,6 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     insertDeleteLayout->addLayout(insertStateLayout);
 
     stateArrayConfigurationLayout->addWidget(insertDeleteGroupBox);
-
     mainLayout->addLayout(stateArrayConfigurationLayout);
 
     // Create the QHBoxLayout and QDoubleSpinBox objects
@@ -83,8 +80,7 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     QVBoxLayout *voltageLayout = new QVBoxLayout();
 
     QLabel *voltageLabel = new QLabel("Voltage (V)");
-    QDoubleSpinBox *voltageSpinbox = new QDoubleSpinBox();
-    voltageSpinbox->setValue(currentState.voltage);
+    voltageSpinbox = new QDoubleSpinBox();
     voltageLayout->addWidget(voltageLabel);
     voltageLayout->addWidget(voltageSpinbox);
 
@@ -96,7 +92,6 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     QHBoxLayout *activeTimeoutLayout = new QHBoxLayout(timeoutGroupBox);
     activeTimeoutCheckbox = new QCheckBox("Active", this);
 
-    activeTimeoutCheckbox->setChecked(currentState.activeTimeout);
     // Add the checkbox and its label to the checkboxLayout
     activeTimeoutLayout->addWidget(activeTimeoutCheckbox);
 
@@ -107,7 +102,6 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     timeoutLineEdit->setValidator(new QIntValidator(0, 9999, this)); // Restrict input to integers
 
     // Add the label and line edit for the timeout to the timeoutLayout
-    timeoutLineEdit->setText(QString::fromStdString(std::to_string(currentState.timeout)));
     timeoutLayout->addWidget(timeoutLabel);
     timeoutLayout->addWidget(timeoutLineEdit);
 
@@ -118,7 +112,6 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     timeoutStateLineEdit->setValidator(new QIntValidator(0, 9999, this)); // Restrict input to integers
 
     // Add the label and line edit for the timeout state to the timeoutStateLayout
-    timeoutStateLineEdit->setText(QString::fromStdString(std::to_string(currentState.timeout)));
     timeoutStateLayout->addWidget(timeoutStateLabel);
     timeoutStateLayout->addWidget(timeoutStateLineEdit);
 
@@ -126,9 +119,7 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     activeTimeoutLayout->addLayout(timeoutLayout);
     activeTimeoutLayout->addLayout(timeoutStateLayout);
 
-//    mainLayout->addLayout(activeTimeoutLayout);
     //////////////////  Trigger Layout  //////////////////
-    /// \brief triggerLayout
     ///// Create a container widget (QGroupBox)
     QGroupBox *triggersGroupBox = new QGroupBox(this);
     QHBoxLayout * triggerLayout = new QHBoxLayout(triggersGroupBox);
@@ -136,13 +127,9 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     QVBoxLayout * triggerCheckboxesLayout = new QVBoxLayout();
     activeTriggerCheckbox = new QCheckBox("Active");
     deltaTriggerCheckbox = new QCheckBox("Delta");
-    activeTriggerCheckbox ->setChecked(currentState.activeTrigger);
-    deltaTriggerCheckbox->setChecked(currentState.delta);
     triggerCheckboxesLayout->addWidget(activeTriggerCheckbox);
     triggerCheckboxesLayout->addWidget(deltaTriggerCheckbox);
     triggerLayout->addLayout(triggerCheckboxesLayout);
-
-//    mainLayout->addLayout(triggerLayout);
 
     QVBoxLayout * triggerLevelsLayout = new QVBoxLayout();
     QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level");
@@ -150,8 +137,6 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
     maxTrigLevelLineEdit = new QLineEdit();
 
-    minTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(currentState.minTrigLevel)));
-    maxTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(currentState.maxTrigLevel)));
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
     triggerLevelsLayout->addWidget(minTrigLevelLineEdit);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
@@ -160,14 +145,16 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
 
     QVBoxLayout * triggerStateTypeLayout = new QVBoxLayout();
     QLabel *triggerStateLabel = new QLabel("Trigger State");
-    QLineEdit * triggerStateLineEdit = new QLineEdit();
+    triggerStateLineEdit = new QLineEdit();
     QLabel *triggerType = new QLabel("Trigger Type");
-    QLineEdit * triggerTypeLineEdit = new QLineEdit();
+    triggerTypeComboBox = new QComboBox();
+    QStringList l = getListOfTriggerStates(s, new QStringList());
+    triggerTypeComboBox->addItems(l);
 
     triggerStateTypeLayout->addWidget(triggerStateLabel);
     triggerStateTypeLayout->addWidget(triggerStateLineEdit);
     triggerStateTypeLayout->addWidget(triggerType);
-    triggerStateTypeLayout->addWidget(triggerTypeLineEdit);
+    triggerStateTypeLayout->addWidget(triggerTypeComboBox);
     triggerLayout->addLayout(triggerStateTypeLayout);
 
     QVBoxLayout * controlLayout = new QVBoxLayout();
@@ -187,7 +174,6 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
 
 
     ///////// BUTTONS TO OPEN, SAVE, START AND CANCEL ////////////
-
     QHBoxLayout * buttonsLayout = new QHBoxLayout();
     QPushButton * openButton = new QPushButton("Open");
     QPushButton * saveAsButton = new QPushButton("Save As");
@@ -206,6 +192,22 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State state)
     // Set the QVBoxLayout as the main layout of the widget
     setLayout(mainLayout);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setState(s);
+}
+
+void StateArrrayWidget::setState(YAML::State s){
+    numberOfStatesSpinbox->setEnabled(false);
+    voltageSpinbox->setValue(s.voltage);
+    timeoutLineEdit->setText(QString::fromStdString(std::to_string(s.timeout)));
+    activeTimeoutCheckbox->setChecked(s.activeTimeout);
+    timeoutStateLineEdit->setText(QString::fromStdString(std::to_string(s.timeoutState)));
+    activeTriggerCheckbox ->setChecked(s.activeTrigger);
+    deltaTriggerCheckbox->setChecked(s.delta);
+    minTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(s.minTrigLevel)));
+    maxTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(s.maxTrigLevel)));
+    triggerStateLineEdit->setText(QString::fromStdString(std::to_string(s.triggerState)));
+
+//    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
 }
 
 StateArrrayWidget::~StateArrrayWidget()
