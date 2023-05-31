@@ -5,13 +5,16 @@
 
 #include <QString>
 
+
+
+namespace YAML {
+
 typedef enum TriggerType {
     CURRENT,
 } TriggerType_t;
 
 static std::vector <std::string> triggerTypeStrings = {"Curren(pA)"};
 
-namespace YAML {
 typedef struct State {
     bool activeTimeout = false;
     double timeout = 0.0;

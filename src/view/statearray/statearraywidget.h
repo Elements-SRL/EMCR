@@ -16,7 +16,14 @@ public:
     ~StateArrrayWidget();
 
     void setState(YAML::State);
+    void insertStateAfter();
+    void setStateChecboxesRanges(int min, int max);
+    void setStateCount(int count);
+
 private:
+    QSpinBox * insertStateSpinBox;
+    QSpinBox * deleteStateSpinBox;
+    QSpinBox *stateSpinBox;
     QDoubleSpinBox *voltageSpinbox;
     QSpinBox * numberOfStatesSpinbox;
     QSpinBox * initialStateSpinbox;

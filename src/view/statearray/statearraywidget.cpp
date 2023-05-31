@@ -44,7 +44,7 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
     QHBoxLayout * deleteStateLayout = new QHBoxLayout();
     QPushButton * deleteStateButton = new QPushButton("Delete state");
     //    TODO LROSSI min &max bound to numberOfstates
-    QSpinBox * deleteStateSpinBox = new QSpinBox(this);
+    deleteStateSpinBox = new QSpinBox(this);
     deleteStateLayout->addWidget(deleteStateButton);
     deleteStateLayout->addWidget(deleteStateSpinBox);
     insertDeleteLayout->addLayout(deleteStateLayout);
@@ -54,7 +54,7 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
     QHBoxLayout * insertStateLayout = new QHBoxLayout();
     QPushButton * insertStateButton = new QPushButton("Insert state after");
     //    TODO LROSSI min &max bound to numberOfstates
-    QSpinBox * insertStateSpinBox = new QSpinBox(this);
+    insertStateSpinBox = new QSpinBox(this);
     insertStateLayout->addWidget(insertStateButton);
     insertStateLayout->addWidget(insertStateSpinBox);
     insertDeleteLayout->addLayout(insertStateLayout);
@@ -64,7 +64,7 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
 
     // Create the QHBoxLayout and QDoubleSpinBox objects
     QHBoxLayout *stateLayout = new QHBoxLayout();
-    QSpinBox *stateSpinBox = new QSpinBox(this);
+    stateSpinBox = new QSpinBox(this);
     // Set the range and properties of the QDoubleSpinBox
     stateSpinBox->setRange(0.0, 100.0);  // Set the allowed range of values
 
@@ -208,6 +208,21 @@ void StateArrrayWidget::setState(YAML::State s){
     triggerStateLineEdit->setText(QString::fromStdString(std::to_string(s.triggerState)));
 
 //    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
+}
+
+void StateArrrayWidget::insertStateAfter(){
+//    emit signal to controllerstateArray
+}
+
+void StateArrrayWidget::setStateCount(int count){
+    numberOfStatesSpinbox->setValue(count);
+}
+
+void StateArrrayWidget::setStateChecboxesRanges(int min, int max){
+    initialStateSpinbox->setRange(min, max);
+    insertStateSpinBox->setRange(min, max);
+    deleteStateSpinBox->setRange(min, max);
+    stateSpinBox->setRange(min, max);
 }
 
 StateArrrayWidget::~StateArrrayWidget()

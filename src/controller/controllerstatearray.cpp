@@ -45,5 +45,7 @@ void ControllerStateArray::writeToFile(std::string fname){
 
 void ControllerStateArray::insertState(int idx, YAML::State s){
     stateArray.insert(stateArray.begin()+idx, s);
+    stateArrayWidget->setStateChecboxesRanges(0, stateArray.size()-1);
+    stateArrayWidget->setStateCount(stateArray.size());
     stateArrayWidget->setState(s);
 }

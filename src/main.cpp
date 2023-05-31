@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
     controllerStateArray->printYaml();
     controllerStateArray->writeToFile("ciccia.yaml");
     controllerStateArray->open("ciccia.yaml");
-    YAML::State s2 = {true, 1.0, 5, true, true, 4.0, 5.0,2, TriggerType::CURRENT, 10.0,};
+    YAML::State s2 = {true, 1.0, 5, true, true, 4.0, 5.0,2, YAML::TriggerType::CURRENT, 10.0,};
     controllerStateArray->insertState(1,s2);
+    controllerStateArray->printYaml();
     return a.exec();
 }
