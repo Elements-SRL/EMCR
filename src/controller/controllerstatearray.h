@@ -3,6 +3,7 @@
 
 #include "QObject"
 #include "model/state.h"
+#include "model/statearray.h"
 #include "view/statearray/statearraywidget.h"
 
 class ControllerStateArray : public QObject {
@@ -22,6 +23,7 @@ public:
 
 private:
     StateArrrayWidget * stateArrayWidget;
-    std::vector<YAML::State> stateArray;
+    YAML::StateArray stateArray;
+    QAction * actionOpenFile = nullptr;
 };
 #endif // CONTROLLERSTATEARRAY_H

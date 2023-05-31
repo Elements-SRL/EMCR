@@ -30,6 +30,7 @@ SOURCES += \
     src/main.cpp \
     src/model/analysiscursor.cpp \
     src/model/state.cpp \
+    src/model/statearray.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/doubleclickmachine.cpp \
@@ -94,6 +95,7 @@ HEADERS += \
     src/globaldefines.h \
     src/model/analysiscursor.h \
     src/model/state.h \
+    src/model/statearray.h \
     src/protocoldefs.h \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \

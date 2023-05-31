@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QPushButton>
 #include <QString>
+#include <QFileDialog>
 #include "model/state.h"
 
 StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
@@ -179,6 +180,14 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
     QPushButton * startButton = new QPushButton("Start");
     QPushButton * cancelButton = new QPushButton("Cancel");
     QSpacerItem * spacer = new QSpacerItem(20, 40);
+
+    connect(openButton, &QPushButton::clicked, this, [=](){
+        QString filename = QFileDialog::getOpenFileName(nullptr, "Open File", "", "YAML files (*.yaml);;");
+        if (filename.isEmpty()) {
+            return;
+        }
+        emit this->sigOpenFileButtonPressed(filename.toStdString());
+    });
 
     buttonsLayout->addWidget(openButton);
     buttonsLayout->addWidget(saveAsButton);

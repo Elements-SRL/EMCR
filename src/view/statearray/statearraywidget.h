@@ -37,5 +37,8 @@ private:
     QSpinBox * triggerStateSpinBox;
     QComboBox * triggerTypeComboBox;
     // Private member variables and functions
+
+signals:
+    void sigOpenFileButtonPressed(std::string fname);
 };
 #endif // STATEARRAYWIDGET_H
