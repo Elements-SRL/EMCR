@@ -49,3 +49,13 @@ void ControllerStateArray::insertState(int idx, YAML::State s){
     stateArrayWidget->setStateCount(stateArray.size());
     stateArrayWidget->setState(s);
 }
+
+void ControllerStateArray::deleteState(int idx){
+    if (stateArray.size() <= 1){
+        return;
+    }
+    stateArray.erase(stateArray.begin()+idx);
+    stateArrayWidget->setStateChecboxesRanges(0, stateArray.size()-1);
+    stateArrayWidget->setStateCount(stateArray.size());
+    stateArrayWidget->setState(stateArray.front());
+}
