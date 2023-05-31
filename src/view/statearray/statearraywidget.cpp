@@ -49,7 +49,9 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
     deleteStateLayout->addWidget(deleteStateButton);
     deleteStateLayout->addWidget(deleteStateSpinBox);
     insertDeleteLayout->addLayout(deleteStateLayout);
-
+    connect(deleteStateButton, &QPushButton::clicked, this, [=](){
+        emit this->sigDeleteButtonPressed(deleteStateSpinBox->value());
+    });
     stateArrayConfigurationLayout->addWidget(insertDeleteGroupBox);
 
     QHBoxLayout * insertStateLayout = new QHBoxLayout();

@@ -18,7 +18,12 @@ ControllerStateArray::ControllerStateArray()
     });
     connect(stateArrayWidget, &StateArrayWidget::sigStateChanged, this, [=](int idx, YAML::State state){
         std::cout << state.voltage << std::endl;
+//        TODO LROSSI USE AN INTERNAL VARIABLE FOR THE CURRENT STATE AND MODIFY IT HERE
         stateArrayWidget->setState(stateArray.states[idx]);
+    });
+    connect(stateArrayWidget, &StateArrayWidget::sigDeleteButtonPressed, this, [=](int idx){
+        deleteState(idx);
+        updateUI();
     });
 }
 

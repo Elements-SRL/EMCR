@@ -42,5 +42,6 @@ signals:
     void sigOpenButtonPressed(std::string fname);
     void sigSaveAsButtonPressed(std::string fname);
     void sigStateChanged(int, YAML::State);
+    void sigDeleteButtonPressed(int);
 };
 #endif // STATEARRAYWIDGET_H
