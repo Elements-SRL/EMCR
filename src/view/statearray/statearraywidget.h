@@ -41,5 +41,6 @@ private:
 signals:
     void sigOpenButtonPressed(std::string fname);
     void sigSaveAsButtonPressed(std::string fname);
+    void sigStateChanged(int);
 };
 #endif // STATEARRAYWIDGET_H

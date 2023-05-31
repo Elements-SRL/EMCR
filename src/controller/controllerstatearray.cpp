@@ -16,6 +16,9 @@ ControllerStateArray::ControllerStateArray()
     connect(stateArrayWidget, &StateArrayWidget::sigSaveAsButtonPressed, this, [=](std::string s){
         this->writeToFile(s);
     });
+    connect(stateArrayWidget, &StateArrayWidget::sigStateChanged, this, [=](int idx){
+        stateArrayWidget->setState(stateArray.states[idx]);
+    });
 }
 
 void ControllerStateArray::showWidget(){

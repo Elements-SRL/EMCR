@@ -66,8 +66,10 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
     // Create the QHBoxLayout and QDoubleSpinBox objects
     QHBoxLayout *stateLayout = new QHBoxLayout();
     stateSpinBox = new QSpinBox(this);
+    connect(stateSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
+        emit this->sigStateChanged(value);
+    });
     // Set the range and properties of the QDoubleSpinBox
-    stateSpinBox->setRange(0.0, 100.0);  // Set the allowed range of values
 
     // Add the QDoubleSpinBox to the QHBoxLayout
     stateLayout->addWidget(stateSpinBox);
