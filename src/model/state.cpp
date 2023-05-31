@@ -9,3 +9,7 @@ QStringList getListOfTriggerStates(YAML::State state, QStringList * list){
     }
     return * list;
 }
+
+YAML::TriggerType getTriggerTypeFromString(std::string toFind){
+    return (YAML::TriggerType)(std::find(YAML::triggerTypeStrings.begin(), YAML::triggerTypeStrings.end(), toFind)-YAML::triggerTypeStrings.begin());
+}

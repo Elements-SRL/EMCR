@@ -67,7 +67,19 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
     QHBoxLayout *stateLayout = new QHBoxLayout();
     stateSpinBox = new QSpinBox(this);
     connect(stateSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
-        emit this->sigStateChanged(value);
+        emit this->sigStateChanged(value, {activeTimeoutCheckbox->isChecked(),
+                                           timeoutLineEdit->text().toDouble(),
+                                           timeoutStateSpinBox->value(),
+                                           activeTriggerCheckbox->isChecked(),
+                                           deltaTriggerCheckbox->isChecked(),
+                                           minTrigLevelLineEdit->text().toDouble(),
+                                           maxTrigLevelLineEdit->text().toDouble(),
+                                           triggerStateSpinBox->value(),
+                                           getTriggerTypeFromString(triggerTypeComboBox->currentText().toStdString()),
+                                           voltageSpinbox->value()
+                                   });
+//        emit this->sigStateChanged(value, {});
+
     });
     // Set the range and properties of the QDoubleSpinBox
 
@@ -173,7 +185,6 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
     QFrame *secondLine = new QFrame(this);
     secondLine->setFrameShape(QFrame::HLine);
     mainLayout->addWidget(secondLine);
-
 
     ///////// BUTTONS TO OPEN, SAVE, START AND CANCEL ////////////
     QHBoxLayout * buttonsLayout = new QHBoxLayout();

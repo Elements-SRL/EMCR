@@ -65,5 +65,6 @@ struct convert<State>{
 }
 
 QStringList getListOfTriggerStates(YAML::State, QStringList *);
+YAML::TriggerType getTriggerTypeFromString(std::string);
 
 #endif // STATE_H
