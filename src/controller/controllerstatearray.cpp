@@ -27,9 +27,7 @@ void ControllerStateArray::printYaml(){
 
 void ControllerStateArray::open(std::string fname){
     stateArray = readStateArrayFromFile(fname);
-    stateArrayWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
-    stateArrayWidget->setStateCount(stateArray.states.size());
-    stateArrayWidget->setState(stateArray.states[0]);
+    updateUI();
 }
 
 void ControllerStateArray::writeToFile(std::string fname){
@@ -39,8 +37,7 @@ void ControllerStateArray::writeToFile(std::string fname){
 void ControllerStateArray::insertState(int idx, YAML::State s){
 //    stateArray = insertState(stateArray, s, idx);
     stateArray.states.insert(stateArray.states.begin()+idx, s);
-    stateArrayWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
-    stateArrayWidget->setStateCount(stateArray.states.size());
+    updateUI();
     stateArrayWidget->setState(s);
 }
 
@@ -49,6 +46,10 @@ void ControllerStateArray::deleteState(int idx){
         return;
     }
     stateArray.states.erase(stateArray.states.begin()+idx);
+    updateUI();
+}
+
+void ControllerStateArray::updateUI(){
     stateArrayWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
     stateArrayWidget->setStateCount(stateArray.states.size());
     stateArrayWidget->setState(stateArray.states.front());

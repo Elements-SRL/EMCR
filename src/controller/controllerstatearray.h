@@ -25,5 +25,6 @@ private:
     StateArrayWidget * stateArrayWidget;
     YAML::StateArray stateArray;
     QAction * actionOpenFile = nullptr;
+    void updateUI();
 };
 #endif // CONTROLLERSTATEARRAY_H
