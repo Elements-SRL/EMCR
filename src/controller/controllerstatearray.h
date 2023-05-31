@@ -22,7 +22,7 @@ public:
     void writeToFile(std::string);
 
 private:
-    StateArrrayWidget * stateArrayWidget;
+    StateArrayWidget * stateArrayWidget;
     YAML::StateArray stateArray;
     QAction * actionOpenFile = nullptr;
 };

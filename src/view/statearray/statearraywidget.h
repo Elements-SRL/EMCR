@@ -7,13 +7,13 @@
 #include <QWidget>
 #include <model/state.h>
 
-class StateArrrayWidget : public QWidget
+class StateArrayWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    StateArrrayWidget(QWidget *parent = nullptr, YAML::State state = {});
-    ~StateArrrayWidget();
+    StateArrayWidget(QWidget *parent = nullptr, YAML::State state = {});
+    ~StateArrayWidget();
 
     void setState(YAML::State);
     void insertStateAfter();

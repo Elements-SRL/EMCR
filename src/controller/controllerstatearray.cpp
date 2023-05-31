@@ -9,8 +9,8 @@
 
 ControllerStateArray::ControllerStateArray()
 {
-    stateArrayWidget = new StateArrrayWidget(nullptr, stateArray.states[0]);
-    connect(stateArrayWidget, &StateArrrayWidget::sigOpenFileButtonPressed, this, [=](std::string s){
+    stateArrayWidget = new StateArrayWidget(nullptr, stateArray.states[0]);
+    connect(stateArrayWidget, &StateArrayWidget::sigOpenFileButtonPressed, this, [=](std::string s){
         this->open(s);
     });
 }
@@ -27,6 +27,9 @@ void ControllerStateArray::printYaml(){
 
 void ControllerStateArray::open(std::string fname){
     stateArray = readStateArrayFromFile(fname);
+    stateArrayWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
+    stateArrayWidget->setStateCount(stateArray.states.size());
+    stateArrayWidget->setState(stateArray.states[0]);
 }
 
 void ControllerStateArray::writeToFile(std::string fname){
