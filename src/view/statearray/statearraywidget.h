@@ -29,12 +29,12 @@ private:
     QSpinBox * initialStateSpinbox;
     QCheckBox * activeTimeoutCheckbox;
     QLineEdit * timeoutLineEdit;
-    QLineEdit *timeoutStateLineEdit;
+    QSpinBox * timeoutStateSpinBox;
     QCheckBox * activeTriggerCheckbox;
     QCheckBox * deltaTriggerCheckbox;
     QLineEdit * minTrigLevelLineEdit;
     QLineEdit * maxTrigLevelLineEdit;
-    QLineEdit * triggerStateLineEdit;
+    QSpinBox * triggerStateSpinBox;
     QComboBox * triggerTypeComboBox;
     // Private member variables and functions
 };

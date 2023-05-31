@@ -108,12 +108,11 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
     // Create the second QLineEdit for the timeout state
     QVBoxLayout *timeoutStateLayout = new QVBoxLayout();
     QLabel *timeoutStateLabel = new QLabel("Timeout state:", this);
-    timeoutStateLineEdit = new QLineEdit(this);
-    timeoutStateLineEdit->setValidator(new QIntValidator(0, 9999, this)); // Restrict input to integers
+    timeoutStateSpinBox = new QSpinBox(this);
 
     // Add the label and line edit for the timeout state to the timeoutStateLayout
     timeoutStateLayout->addWidget(timeoutStateLabel);
-    timeoutStateLayout->addWidget(timeoutStateLineEdit);
+    timeoutStateLayout->addWidget(timeoutStateSpinBox);
 
     // Add the checkbox layout, timeout layout, and timeout state layout to the main layout
     activeTimeoutLayout->addLayout(timeoutLayout);
@@ -145,14 +144,14 @@ StateArrrayWidget::StateArrrayWidget(QWidget *parent, YAML::State s)
 
     QVBoxLayout * triggerStateTypeLayout = new QVBoxLayout();
     QLabel *triggerStateLabel = new QLabel("Trigger State");
-    triggerStateLineEdit = new QLineEdit();
+    triggerStateSpinBox = new QSpinBox();
     QLabel *triggerType = new QLabel("Trigger Type");
     triggerTypeComboBox = new QComboBox();
     QStringList l = getListOfTriggerStates(s, new QStringList());
     triggerTypeComboBox->addItems(l);
 
     triggerStateTypeLayout->addWidget(triggerStateLabel);
-    triggerStateTypeLayout->addWidget(triggerStateLineEdit);
+    triggerStateTypeLayout->addWidget(triggerStateSpinBox);
     triggerStateTypeLayout->addWidget(triggerType);
     triggerStateTypeLayout->addWidget(triggerTypeComboBox);
     triggerLayout->addLayout(triggerStateTypeLayout);
@@ -200,12 +199,12 @@ void StateArrrayWidget::setState(YAML::State s){
     voltageSpinbox->setValue(s.voltage);
     timeoutLineEdit->setText(QString::fromStdString(std::to_string(s.timeout)));
     activeTimeoutCheckbox->setChecked(s.activeTimeout);
-    timeoutStateLineEdit->setText(QString::fromStdString(std::to_string(s.timeoutState)));
+    timeoutStateSpinBox->setValue(s.timeoutState);
     activeTriggerCheckbox ->setChecked(s.activeTrigger);
     deltaTriggerCheckbox->setChecked(s.delta);
     minTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(s.minTrigLevel)));
     maxTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(s.maxTrigLevel)));
-    triggerStateLineEdit->setText(QString::fromStdString(std::to_string(s.triggerState)));
+    triggerStateSpinBox->setValue(s.triggerState);
 
 //    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
 }
@@ -223,6 +222,8 @@ void StateArrrayWidget::setStateChecboxesRanges(int min, int max){
     insertStateSpinBox->setRange(min, max);
     deleteStateSpinBox->setRange(min, max);
     stateSpinBox->setRange(min, max);
+    timeoutStateSpinBox->setRange(min, max);
+    triggerStateSpinBox->setRange(min, max);
 }
 
 StateArrrayWidget::~StateArrrayWidget()
