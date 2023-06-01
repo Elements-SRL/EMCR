@@ -3,7 +3,7 @@
 #include <QString>
 #include <QStringList>
 
-QStringList getListOfTriggerStates(YAML::State state, QStringList * list){
+QStringList getListOfTriggerStates(QStringList * list){
     for (auto tt : YAML::triggerTypeStrings){
         list->append(QString::fromStdString(tt));
     }

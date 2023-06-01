@@ -2,23 +2,24 @@
 #define STATEARRAYWIDGET_H
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDockWidget>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QWidget>
 #include <model/state.h>
 
-class StateArrayWidget : public QWidget
+class StateArrayWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    StateArrayWidget(QWidget *parent = nullptr, YAML::State state = {}, int initialState = 0);
+    StateArrayWidget(QWidget *parent = nullptr);
     ~StateArrayWidget();
 
     void setState(YAML::State, int);
-    void insertStateAfter();
     void setStateChecboxesRanges(int min, int max);
-    void setStateCount(int count);
+    void setStateCount(int count);    
+    void setInitialState(int);
 
 private:
     int currentStateIdx;
@@ -46,5 +47,6 @@ signals:
     void sigDeleteButtonPressed(int);
     void sigInsertStateAfter(int);
     void sigInitialStateChanged(int);
+    void sigStartButtonPressed();
 };
 #endif // STATEARRAYWIDGET_H

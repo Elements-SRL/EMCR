@@ -11,13 +11,18 @@
 #include <QFileDialog>
 #include "model/state.h"
 
-StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialState)
-    : QWidget(parent)
+StateArrayWidget::StateArrayWidget(QWidget *parent)
+    : QDockWidget(parent)
 {
-//    TODO LROSSI get initial value from constructor
+    QWidget * mainWg = new QWidget();
+    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setWindowTitle("State Array");
+
+    setWidget(mainWg);
+
     currentStateIdx = 0;
     // Constructor implementation
-    QVBoxLayout * mainLayout = new QVBoxLayout(this);
+    QVBoxLayout * mainLayout = new QVBoxLayout();
 
     // STATE ARRAY CONFIGURATION
     QHBoxLayout * stateArrayConfigurationLayout = new QHBoxLayout();
@@ -36,7 +41,6 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialSt
     initialStateLayout ->addWidget(initialStateLabel);
     initialStateLayout ->addWidget(initialStateSpinbox);
     stateArrayConfigurationLayout->addLayout(initialStateLayout);
-    initialStateSpinbox->setValue(initialState);
     connect(initialStateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
         emit this->sigInitialStateChanged(value);
     });
@@ -171,7 +175,7 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialSt
     triggerStateSpinBox = new QSpinBox();
     QLabel *triggerType = new QLabel("Trigger Type");
     triggerTypeComboBox = new QComboBox();
-    QStringList l = getListOfTriggerStates(s, new QStringList());
+    QStringList l = getListOfTriggerStates(new QStringList());
     triggerTypeComboBox->addItems(l);
 
     triggerStateTypeLayout->addWidget(triggerStateLabel);
@@ -203,6 +207,9 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialSt
     QPushButton * cancelButton = new QPushButton("Cancel");
     QSpacerItem * spacer = new QSpacerItem(20, 40);
 
+    connect(startButton, &QPushButton::clicked, this, [=](){
+        emit this->sigStartButtonPressed();
+    });
     connect(openButton, &QPushButton::clicked, this, [=](){
         QString filename = QFileDialog::getOpenFileName(nullptr, "Open File", "", "YAML files (*.yaml);;");
         if (filename.isEmpty()) {
@@ -227,9 +234,7 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialSt
     mainLayout->addLayout(buttonsLayout);
 
     // Set the QVBoxLayout as the main layout of the widget
-    setLayout(mainLayout);
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    setState(s, initialState);
+    mainWg->setLayout(mainLayout);
 }
 
 void StateArrayWidget::setState(YAML::State s, int index){
@@ -248,10 +253,6 @@ void StateArrayWidget::setState(YAML::State s, int index){
 //    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
 }
 
-void StateArrayWidget::insertStateAfter(){
-//    emit signal to controllerstateArray
-}
-
 void StateArrayWidget::setStateCount(int count){
     numberOfStatesSpinbox->setValue(count);
 }
@@ -263,6 +264,10 @@ void StateArrayWidget::setStateChecboxesRanges(int min, int max){
     stateSpinBox->setRange(min, max);
     timeoutStateSpinBox->setRange(min, max);
     triggerStateSpinBox->setRange(min, max);
+}
+
+void StateArrayWidget::setInitialState(int initialState){
+    initialStateSpinbox->setValue(initialState);
 }
 
 StateArrayWidget::~StateArrayWidget()

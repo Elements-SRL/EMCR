@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QPushButton>
 
+
 #include "modeldevice.h"
 #include "chessboard.h"
 #include "devicecontroldockwidget.h"
@@ -18,6 +19,8 @@
 #include "protocoldockwidget.h"
 #include "e384commlib_errorcodes.h"
 #include "compensationcontroldockwidget.h"
+#include "statearray/statearraywidget.h"
+
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -37,6 +40,7 @@ public:
     ProtocolDockWidget * getProtocolDockWidget();
     RecordSettingsDialog * getRecordSettingsDialog();
     CompensationControlDockWidget * getCompensationControlsDockWidget();
+    StateArrayWidget * getStateArrayDockWidget();
 
     QLabel * SRLbl = nullptr;
 
@@ -73,7 +77,7 @@ private:
     ProtocolDockWidget * protocolDw = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
     CompensationControlDockWidget * compensationControlsDw = nullptr;
-
+    StateArrayWidget * stateArrayDockWidget = nullptr;
 //    DeviceDataProducer * deviceDataProducer = nullptr;
 
     QComboBox * devicesComboBox = nullptr;

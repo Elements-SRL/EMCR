@@ -3,7 +3,7 @@
 #include "controllermain.h"
 #include "mainwindow.h"
 #include "globaldefines.h"
-#include "controller/controllerstatearray.h"
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
@@ -26,9 +26,5 @@ int main(int argc, char *argv[]) {
     MainWindow w;
     c.setMainWindow(&w);
     w.show();
-
-    ControllerStateArray * controllerStateArray = new ControllerStateArray();
-    controllerStateArray->showWidget();
-//    controllerStateArray->open("ciccia.yaml");
     return a.exec();
 }

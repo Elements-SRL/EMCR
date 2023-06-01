@@ -7,9 +7,13 @@
 #include <QAction>
 #include "iostream"
 
-ControllerStateArray::ControllerStateArray()
+ControllerStateArray::ControllerStateArray(ModelDevice * mDev)
 {
-    stateArrayWidget = new StateArrayWidget(nullptr, stateArray.states[0], stateArray.initialState);
+    this->mDev = mDev;
+}
+
+void ControllerStateArray::setStateArrayWidget(StateArrayWidget * stateArrayWidget){
+    this->stateArrayWidget = stateArrayWidget;
     updateUI();
     connect(stateArrayWidget, &StateArrayWidget::sigOpenButtonPressed, this, [=](std::string s){
         this->open(s);
@@ -31,10 +35,15 @@ ControllerStateArray::ControllerStateArray()
     connect(stateArrayWidget, &StateArrayWidget::sigInitialStateChanged, this, [=](int idx){
         stateArray.initialState = idx;
     });
-}
-
-void ControllerStateArray::showWidget(){
-    stateArrayWidget->show();
+    connect(stateArrayWidget, &StateArrayWidget::sigStartButtonPressed, this, [=](){
+        auto md = mDev->getMessageDispatcher();
+        md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState);
+        for (int i = 0; i < stateArray.states.size(); i++){
+            auto s = stateArray.states[i];
+            md->setSateArrayState(i, s.voltage, s.activeTimeout, s.timeout, s.timeoutState, s.minTrigLevel, s.maxTrigLevel, s.triggerState);
+        }
+        md->startStateArray();
+    });
 }
 
 void ControllerStateArray::printYaml(){

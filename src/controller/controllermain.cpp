@@ -1,4 +1,5 @@
 #include "controllermain.h"
+#include "controllerstatearray.h"
 
 ControllerMain::ControllerMain() {
     mDev = new ModelDevice();
@@ -17,7 +18,6 @@ void ControllerMain::setMainWindow(MainWindow * mainWindow) {
     this->mainWindow = mainWindow;
 
     mainWindow->setModelDevice(mDev);
-
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &ControllerMain::onDevicesListChanged);
     connect(this, &ControllerMain::devicesListChanged, mainWindow, &MainWindow::onDevicesListChanged);
     connect(this, &ControllerMain::setConnectedDeviceIdx, mainWindow, &MainWindow::onSetConnectedDeviceIdx);
@@ -123,7 +123,8 @@ void ControllerMain::onMainWindowCreated() {
 
     voltageProtocolManager = new ProtocolManager(mDev);
     currentProtocolManager = new ProtocolManager(mDev);
-
+    controllerStateArray = new ControllerStateArray(mDev);
+    controllerStateArray->setStateArrayWidget(mainWindow->getStateArrayDockWidget());
     /************\
      * Producer *
     \************/

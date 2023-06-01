@@ -6,12 +6,21 @@
 #include "model/statearray.h"
 #include "view/statearray/statearraywidget.h"
 
+#include <modeldevice.h>
+
 class ControllerStateArray : public QObject {
     Q_OBJECT
 
 public:
-    ControllerStateArray();
-    void showWidget();
+    ControllerStateArray(ModelDevice * mDev);
+    void setStateArrayWidget(StateArrayWidget * stateArrayWidget);
+
+private:
+    ModelDevice *mDev;
+    StateArrayWidget * stateArrayWidget;
+    YAML::StateArray stateArray;
+    QAction * actionOpenFile = nullptr;
+    void updateUI();
     void printYaml();
     void deleteState(int idx);
     void insertState(int idx, YAML::State s);
@@ -20,11 +29,5 @@ public:
     void start();
     void cancel();
     void writeToFile(std::string);
-
-private:
-    StateArrayWidget * stateArrayWidget;
-    YAML::StateArray stateArray;
-    QAction * actionOpenFile = nullptr;
-    void updateUI();
 };
 #endif // CONTROLLERSTATEARRAY_H

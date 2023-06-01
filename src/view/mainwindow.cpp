@@ -84,8 +84,6 @@ MainWindow::MainWindow(QWidget * parent) :
 
     SRLbl = new QLabel;
     deviceDetectorHl->addWidget(SRLbl);
-
-    deviceDetectorHl->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
 }
 
 MainWindow::~MainWindow() {
@@ -153,6 +151,10 @@ void MainWindow::onDevicesListChanged(std::vector <std::string> devicesList) {
         devicesComboBox->setEnabled(false);
         connectBtn->setEnabled(false);
     }
+}
+
+StateArrayWidget * MainWindow::getStateArrayDockWidget(){
+    return stateArrayDockWidget;
 }
 
 void MainWindow::onSetConnectedDeviceIdx(int idx) {
@@ -242,6 +244,13 @@ void MainWindow::createGuiControls() {
     bigPlotDw->setObjectName("bigPlotDw");
     this->addDockWidget(Qt::BottomDockWidgetArea, bigPlotDw);
     dockWidgets.append(bigPlotDw);
+
+    //STATE ARRAY WIDGET
+    stateArrayDockWidget = new StateArrayWidget(this);
+    stateArrayDockWidget->setObjectName("stateArrayDockWidget");
+    this->addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
+    dockWidgets.append(stateArrayDockWidget);
+    stateArrayDockWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     /**************\
      * debug dock *
