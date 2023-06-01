@@ -12,7 +12,7 @@ class StateArrayWidget : public QWidget
     Q_OBJECT
 
 public:
-    StateArrayWidget(QWidget *parent = nullptr, YAML::State state = {});
+    StateArrayWidget(QWidget *parent = nullptr, YAML::State state = {}, int initialState = 0);
     ~StateArrayWidget();
 
     void setState(YAML::State);

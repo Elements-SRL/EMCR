@@ -11,7 +11,7 @@
 #include <QFileDialog>
 #include "model/state.h"
 
-StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
+StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialState)
     : QWidget(parent)
 {
 //    TODO LROSSI get initial value from constructor
@@ -36,7 +36,7 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
     initialStateLayout ->addWidget(initialStateLabel);
     initialStateLayout ->addWidget(initialStateSpinbox);
     stateArrayConfigurationLayout->addLayout(initialStateLayout);
-
+    initialStateSpinbox->setValue(initialState);
 
     ///////////////// CRUD BUTTONS /////////////////
     QGroupBox *insertDeleteGroupBox = new QGroupBox(this);

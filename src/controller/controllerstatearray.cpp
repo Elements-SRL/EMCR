@@ -9,7 +9,7 @@
 
 ControllerStateArray::ControllerStateArray()
 {
-    stateArrayWidget = new StateArrayWidget(nullptr, stateArray.states[0]);
+    stateArrayWidget = new StateArrayWidget(nullptr, stateArray.states[0], stateArray.initialState);
     connect(stateArrayWidget, &StateArrayWidget::sigOpenButtonPressed, this, [=](std::string s){
         this->open(s);
     });
@@ -18,7 +18,6 @@ ControllerStateArray::ControllerStateArray()
     });
     connect(stateArrayWidget, &StateArrayWidget::sigStateChanged, this, [=](int idx, int oldIdx, YAML::State oldState){
         stateArray.states[oldIdx] = oldState;
-//        TODO LROSSI USE AN INTERNAL VARIABLE FOR THE CURRENT STATE AND MODIFY IT HERE
         stateArrayWidget->setState(stateArray.states[idx]);
     });
     connect(stateArrayWidget, &StateArrayWidget::sigDeleteButtonPressed, this, [=](int idx){
@@ -27,8 +26,6 @@ ControllerStateArray::ControllerStateArray()
     });
     connect(stateArrayWidget, &StateArrayWidget::sigInsertStateAfter, this, [=](int idx){
         insertState(idx, {});
-        updateUI();
-        stateArrayWidget->setState(stateArray.states[idx]);
     });
 }
 
@@ -52,7 +49,6 @@ void ControllerStateArray::writeToFile(std::string fname){
 }
 
 void ControllerStateArray::insertState(int idx, YAML::State s){
-//    stateArray = insertState(stateArray, s, idx);
     stateArray.states.insert(stateArray.states.begin()+idx, s);
     updateUI();
     stateArrayWidget->setState(s);
