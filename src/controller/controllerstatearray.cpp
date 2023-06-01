@@ -10,6 +10,7 @@
 ControllerStateArray::ControllerStateArray()
 {
     stateArrayWidget = new StateArrayWidget(nullptr, stateArray.states[0], stateArray.initialState);
+    updateUI();
     connect(stateArrayWidget, &StateArrayWidget::sigOpenButtonPressed, this, [=](std::string s){
         this->open(s);
     });
@@ -52,9 +53,10 @@ void ControllerStateArray::writeToFile(std::string fname){
 }
 
 void ControllerStateArray::insertState(int idx, YAML::State s){
-    stateArray.states.insert(stateArray.states.begin()+idx, s);
+    const int newIdx = idx+1;
+    stateArray.states.insert(stateArray.states.begin()+newIdx, s);
     updateUI();
-    stateArrayWidget->setState(s, idx);
+    stateArrayWidget->setState(s, newIdx);
 }
 
 void ControllerStateArray::deleteState(int idx){

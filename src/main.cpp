@@ -29,16 +29,6 @@ int main(int argc, char *argv[]) {
 
     ControllerStateArray * controllerStateArray = new ControllerStateArray();
     controllerStateArray->showWidget();
-//    controllerStateArray->printYaml();
-    controllerStateArray->writeToFile("ciccia.yaml");
-    controllerStateArray->open("ciccia.yaml");
-    YAML::State s2 = {true, 1.0, 5, true, true, 4.0, 5.0,2, YAML::TriggerType::CURRENT, 10.0,};
-    YAML::State s3 = {true, 1.0, 5, true, true, 4.0, 5.0,2, YAML::TriggerType::CURRENT, 10.0,};
-    YAML::State s4 = {true, 1.0, 5, true, true, 4.0, 5.0,2, YAML::TriggerType::CURRENT, 10.0,};
-    controllerStateArray->insertState(1,s2);
-    controllerStateArray->insertState(1,s3);
-    controllerStateArray->insertState(1,s4);
-    controllerStateArray->deleteState(3);
-    controllerStateArray->printYaml();
+//    controllerStateArray->open("ciccia.yaml");
     return a.exec();
 }
