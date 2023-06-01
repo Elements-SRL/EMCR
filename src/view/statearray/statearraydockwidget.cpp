@@ -77,16 +77,16 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
 
     // Create the QHBoxLayout and QDoubleSpinBox objects
     QHBoxLayout *stateLayout = new QHBoxLayout();
-    stateSpinBox = new QSpinBox(this);
-    connect(stateSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
+    stateSpinbox = new QSpinBox(this);
+    connect(stateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
         emit this->sigStateChanged(value, currentStateIdx, {activeTimeoutCheckbox->isChecked(),
-                                                            timeoutLineEdit->text().toDouble(),
-                                                            timeoutStateSpinBox->value(),
+                                                            timeoutDoubleSpinbox->text().toDouble(),
+                                                            timeoutStateSpinbox->value(),
                                                             activeTriggerCheckbox->isChecked(),
                                                             deltaTriggerCheckbox->isChecked(),
-                                                            minTrigLevelLineEdit->text().toDouble(),
-                                                            maxTrigLevelLineEdit->text().toDouble(),
-                                                            triggerStateSpinBox->value(),
+                                                            minTrigLevelDoubleSpinbox->text().toDouble(),
+                                                            maxTrigLeveDoubleSpinbox->text().toDouble(),
+                                                            triggerStateSpinbox->value(),
                                                             getTriggerTypeFromString(triggerTypeComboBox->currentText().toStdString()),
                                                             voltageSpinbox->value()
                                                             });
@@ -97,7 +97,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     // Set the range and properties of the QDoubleSpinBox
 
     // Add the QDoubleSpinBox to the QHBoxLayout
-    stateLayout->addWidget(stateSpinBox);
+    stateLayout->addWidget(stateSpinbox);
 
     /////////// LINE THAT SEPARATES THE FIRST PART FROM THE SECOND ///////////
     QFrame *firstLine = new QFrame(this);
@@ -126,21 +126,20 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     // Create the first QLineEdit for the timeout (sec)
     QVBoxLayout *timeoutLayout = new QVBoxLayout();
     QLabel *timeoutLabel = new QLabel("Timeout (sec):", this);
-    timeoutLineEdit = new QLineEdit(this);
-    timeoutLineEdit->setValidator(new QIntValidator(0, 9999, this)); // Restrict input to integers
-
+    timeoutDoubleSpinbox = new QDoubleSpinBox(this);
+    timeoutDoubleSpinbox->setDecimals(4);
     // Add the label and line edit for the timeout to the timeoutLayout
     timeoutLayout->addWidget(timeoutLabel);
-    timeoutLayout->addWidget(timeoutLineEdit);
+    timeoutLayout->addWidget(timeoutDoubleSpinbox);
 
     // Create the second QLineEdit for the timeout state
     QVBoxLayout *timeoutStateLayout = new QVBoxLayout();
     QLabel *timeoutStateLabel = new QLabel("Timeout state:", this);
-    timeoutStateSpinBox = new QSpinBox(this);
+    timeoutStateSpinbox = new QSpinBox(this);
 
     // Add the label and line edit for the timeout state to the timeoutStateLayout
     timeoutStateLayout->addWidget(timeoutStateLabel);
-    timeoutStateLayout->addWidget(timeoutStateSpinBox);
+    timeoutStateLayout->addWidget(timeoutStateSpinbox);
 
     // Add the checkbox layout, timeout layout, and timeout state layout to the main layout
     activeTimeoutLayout->addLayout(timeoutLayout);
@@ -160,26 +159,26 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
 
     QVBoxLayout * triggerLevelsLayout = new QVBoxLayout();
     QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level");
-    minTrigLevelLineEdit = new QLineEdit();
+    minTrigLevelDoubleSpinbox = new QDoubleSpinBox();
     QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
-    maxTrigLevelLineEdit = new QLineEdit();
+    maxTrigLeveDoubleSpinbox = new QDoubleSpinBox();
 
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
-    triggerLevelsLayout->addWidget(minTrigLevelLineEdit);
+    triggerLevelsLayout->addWidget(minTrigLevelDoubleSpinbox);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
-    triggerLevelsLayout->addWidget(maxTrigLevelLineEdit);
+    triggerLevelsLayout->addWidget(maxTrigLeveDoubleSpinbox);
     triggerLayout->addLayout(triggerLevelsLayout);
 
     QVBoxLayout * triggerStateTypeLayout = new QVBoxLayout();
     QLabel *triggerStateLabel = new QLabel("Trigger State");
-    triggerStateSpinBox = new QSpinBox();
+    triggerStateSpinbox = new QSpinBox();
     QLabel *triggerType = new QLabel("Trigger Type");
     triggerTypeComboBox = new QComboBox();
     QStringList l = getListOfTriggerStates(new QStringList());
     triggerTypeComboBox->addItems(l);
 
     triggerStateTypeLayout->addWidget(triggerStateLabel);
-    triggerStateTypeLayout->addWidget(triggerStateSpinBox);
+    triggerStateTypeLayout->addWidget(triggerStateSpinbox);
     triggerStateTypeLayout->addWidget(triggerType);
     triggerStateTypeLayout->addWidget(triggerTypeComboBox);
     triggerLayout->addLayout(triggerStateTypeLayout);
@@ -205,6 +204,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QPushButton * saveAsButton = new QPushButton("Save As");
     QPushButton * startButton = new QPushButton("Start");
     QPushButton * cancelButton = new QPushButton("Cancel");
+    cancelButton->setVisible(false);
     QSpacerItem * spacer = new QSpacerItem(20, 40);
 
     connect(startButton, &QPushButton::clicked, this, [=](){
@@ -238,17 +238,17 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
 }
 
 void StateArrayDockWidget::setState(YAML::State s, int index){
-    stateSpinBox->setValue(index);
+    stateSpinbox->setValue(index);
     numberOfStatesSpinbox->setEnabled(false);
     voltageSpinbox->setValue(s.voltage);
-    timeoutLineEdit->setText(QString::fromStdString(std::to_string(s.timeout)));
+    timeoutDoubleSpinbox->setValue(s.timeout);
     activeTimeoutCheckbox->setChecked(s.activeTimeout);
-    timeoutStateSpinBox->setValue(s.timeoutState);
+    timeoutStateSpinbox->setValue(s.timeoutState);
     activeTriggerCheckbox ->setChecked(s.activeTrigger);
     deltaTriggerCheckbox->setChecked(s.delta);
-    minTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(s.minTrigLevel)));
-    maxTrigLevelLineEdit->setText(QString::fromStdString(std::to_string(s.maxTrigLevel)));
-    triggerStateSpinBox->setValue(s.triggerState);
+    minTrigLevelDoubleSpinbox->setValue(s.minTrigLevel);
+    maxTrigLeveDoubleSpinbox->setValue(s.maxTrigLevel);
+    triggerStateSpinbox->setValue(s.triggerState);
 
 //    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
 }
@@ -261,9 +261,9 @@ void StateArrayDockWidget::setStateChecboxesRanges(int min, int max){
     initialStateSpinbox->setRange(min, max);
     insertStateSpinBox->setRange(min, max);
     deleteStateSpinBox->setRange(min, max);
-    stateSpinBox->setRange(min, max);
-    timeoutStateSpinBox->setRange(min, max);
-    triggerStateSpinBox->setRange(min, max);
+    stateSpinbox->setRange(min, max);
+    timeoutStateSpinbox->setRange(min, max);
+    triggerStateSpinbox->setRange(min, max);
 }
 
 void StateArrayDockWidget::setInitialState(int initialState){

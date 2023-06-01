@@ -25,18 +25,18 @@ private:
     int currentStateIdx;
     QSpinBox * insertStateSpinBox;
     QSpinBox * deleteStateSpinBox;
-    QSpinBox *stateSpinBox;
+    QSpinBox *stateSpinbox;
     QDoubleSpinBox *voltageSpinbox;
     QSpinBox * numberOfStatesSpinbox;
     QSpinBox * initialStateSpinbox;
     QCheckBox * activeTimeoutCheckbox;
-    QLineEdit * timeoutLineEdit;
-    QSpinBox * timeoutStateSpinBox;
+    QDoubleSpinBox * timeoutDoubleSpinbox;
+    QSpinBox * timeoutStateSpinbox;
     QCheckBox * activeTriggerCheckbox;
     QCheckBox * deltaTriggerCheckbox;
-    QLineEdit * minTrigLevelLineEdit;
-    QLineEdit * maxTrigLevelLineEdit;
-    QSpinBox * triggerStateSpinBox;
+    QDoubleSpinBox * minTrigLevelDoubleSpinbox;
+    QDoubleSpinBox * maxTrigLeveDoubleSpinbox;
+    QSpinBox * triggerStateSpinbox;
     QComboBox * triggerTypeComboBox;
     // Private member variables and functions
 
