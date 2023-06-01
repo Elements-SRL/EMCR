@@ -143,22 +143,22 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
         break;
     }
     case OperationHoldingStimulus:{
-        SpinBoxWithChannel * vHoldSpinBox;
+        SpinBoxWithChannel * sbx;
         std::vector<Measurement_t> values;
         std::vector<uint16_t> indexes;
 
         QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
 
         for (int i = 0; i<selectedIndexes.size(); i++) {
-            vHoldSpinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationIdx][i]);
+            sbx = static_cast<SpinBoxWithChannel *>(operationEdits[operationIdx][i]);
             if (selectedIndexes.at(i)) {
-                Measurement_t myMeasurementValue = {vHoldSpinBox->getSpinBox()->value(), UnitPfxMilli, "V"};
+                Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), holdingTunerRange.prefix, holdingTunerRange.unit};
                 values.push_back(myMeasurementValue);
                 indexes.push_back(i);
             }
         }
 
-        emit sigAppliedVoltageHoldValues(indexes, values);
+        emit sigAppliedHoldValues(indexes, values);
         break;
     }
     case OperationRecordToFile:{
@@ -286,10 +286,34 @@ void ChannelControlDockWidget::onSigRecording(bool state){
 void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     mDev->getVoltageHoldTunerFeatures(ranges);
+    holdingTunerRange = ranges[idx];
+    QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
+    setAllChannelsSbx->setSuffix(QString(" ") + unit);
+    setAllChannelsSbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbx->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
-        sbx->setRange(ranges[idx].min, ranges[idx].max);
-        sbx->setDecimals(ranges[idx].decimals());
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+        sbx->setDecimals(holdingTunerRange.decimals());
+    }
+
+    this->onApplyButtonClicked(OperationHoldingStimulus, true);
+}
+
+void ChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
+    std::vector <RangedMeasurement_t> ranges;
+    mDev->getCurrentHoldTunerFeatures(ranges);
+    holdingTunerRange = ranges[idx];
+    QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
+    setAllChannelsSbx->setSuffix(QString(" ") + unit);
+    setAllChannelsSbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbx->setDecimals(holdingTunerRange.decimals());
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+        sbx->setDecimals(holdingTunerRange.decimals());
     }
 
     this->onApplyButtonClicked(OperationHoldingStimulus, true);
@@ -317,12 +341,13 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
 
     case OperationHoldingStimulus: {
         std::vector <RangedMeasurement_t> ranges;
+        /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
         mDev->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             MySpinBox * sbx = new MySpinBox;
             sbx->setSuffix(QString(" ") + unit);
-            sbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
+            sbx->setRange(ranges[0].min, ranges[0].max);
             sbx->setValue(0.0);
             sbx->setDecimals(ranges[0].decimals());
             SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
@@ -370,14 +395,15 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
         operationButtonGridLayout->setSpacing(0);
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
         std::vector <RangedMeasurement_t> ranges;
+        /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
         mDev->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
-        MySpinBox * sbx = new MySpinBox;
-        sbx->setSuffix(QString(" ") + unit);
-        sbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
-        sbx->setValue(0.0);
-        sbx->setDecimals(ranges[0].decimals());
-        setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), sbx);
+        setAllChannelsSbx = new MySpinBox;
+        setAllChannelsSbx->setSuffix(QString(" ") + unit);
+        setAllChannelsSbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
+        setAllChannelsSbx->setValue(0.0);
+        setAllChannelsSbx->setDecimals(ranges[0].decimals());
+        setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), setAllChannelsSbx);
         QPushButton* setAllBtn = new QPushButton("Set all channels");
         connect(setAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onSetAllButtonClicked);
         operationButtonGridLayout->addWidget(setAllVholdSpinBox, 0, 1);

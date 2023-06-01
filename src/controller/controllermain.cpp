@@ -164,6 +164,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(controllerDevice, &ControllerDevice::sigCcCurrentRangeSelected,     this, &ControllerMain::onCcCurrentRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigCcVoltageRangeSelected,     this, &ControllerMain::onCcVoltageRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected,       this, &ControllerMain::onSamplingRateSelected);
+    connect(controllerDevice, &ControllerDevice::sigClampingModalitySelected,   this, &ControllerMain::onClampingModalitySelected);
 
     connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
     connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
@@ -186,7 +187,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnChannelOnOff,      controllerChannel, &ControllerChannel::onApplyTurnChannelOnOff);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff,      controllerChannel, &ControllerChannel::onApplyTurnStimulusOnOff);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnDocOnOff,          controllerChannel, &ControllerChannel::onApplyTurnDocOnOff);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedVoltageHoldValues,     controllerChannel, &ControllerChannel::onApplyVoltageHoldValues);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedHoldValues,            controllerChannel, &ControllerChannel::onApplyHoldValues);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &ControllerMain::onStartRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &ControllerMain::onStopRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::onStartRecording);
@@ -200,6 +201,8 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onCcVoltageRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected,       controllerDevice, &ControllerDevice::onSamplingRateSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigClampingModalitySelected,   controllerDevice, &ControllerDevice::onClampingModalitySelected);
+
 
     connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
         mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
@@ -242,6 +245,9 @@ void ControllerMain::onMainWindowCreated() {
             mainWindow->SRLbl->setText(QString("%1 ksps").arg(value/1.0e3));
         }
     });
+
+    connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied,    controllerChannel, &ControllerChannel::onCompensationApplied);
+    connect(controllerChannel, &ControllerChannel::sigCompValuesDispatched, mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::onCompValuesDispatched);
 
     connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
     connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   mainWindow->getChessaboard(), &Chessboard::onReplot);
@@ -297,7 +303,7 @@ void ControllerMain::onMainWindowCreated() {
     std::vector<bool> offValues(currentChannelsNumber, false);
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
 
-    calibratorConsumer->loadInitialCalibParams("C:/EMCR_calib_folder/", "boardMapping.csv");
+    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationPath(), "boardMapping.csv");
 
     /*! Start threads */
     this->startProducerConsumers();
@@ -339,10 +345,7 @@ void ControllerMain::onMainWindowDestroyed() {
 /*! Message forward from ControllerMain to other consumers */
 
 void ControllerMain::onVcCurrentRangeSelected(int idx) {
-    std::vector <RangedMeasurement_t> ranges;
-    uint16_t notUsedDefaultVcCurrRangeIdx;
-    mDev->getVcCurrentRangesFeatures(ranges, notUsedDefaultVcCurrRangeIdx);
-
+    /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
@@ -352,30 +355,27 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
     }
 
-    /*! \todo FCON Questi metodi protebbero cambiare di significato se si lavora in CC: l'asse da cambiare sarebbe quello destro probabilmente */
     mainWindow->getChessaboard()->onRangeUpdated(mDev->getVcCurrentRange(), QwtPlot::yLeft);
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcCurrentRange(), QwtPlot::yLeft);
 }
 
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
-    std::vector <RangedMeasurement_t> ranges;
-    mDev->getVcVoltageRangesFeatures(ranges);
-
+    /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
+
+    /*! Invio dati a FPGA con massageDispatcher*/
+    calibratorConsumer->updateCalibParams();
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
     }
+    mainWindow->getChessaboard()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
     mainWindow->getChannelControlsDockWidget()->onVcVoltageRangeSelected(idx);
-
-    /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
 }
 
 void ControllerMain::onCcCurrentRangeSelected(int idx) {
-    std::vector <RangedMeasurement_t> ranges;
-    mDev->getCcCurrentRangesFeatures(ranges);
-
+    /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
@@ -385,34 +385,46 @@ void ControllerMain::onCcCurrentRangeSelected(int idx) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
     }
 
-    /*! \todo FCON Questi metodi protebbero cambiare di significato se si lavora in CC: l'asse da cambiare sarebbe quello destro probabilmente */
     mainWindow->getChessaboard()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
+    mainWindow->getChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
 void ControllerMain::onCcVoltageRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     mDev->getCcVoltageRangesFeatures(ranges);
 
+    /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
+
+    /*! Invio dati a FPGA con massageDispatcher*/
+    calibratorConsumer->updateCalibParams();
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getCcVoltageRange());
     }
+    mainWindow->getChessaboard()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
-
-    /*! \todo FCON anche qui si potrebbe dover cambiare gli assi dei plot in CC o con più range di stimolo in Vc */
 }
 
 void ControllerMain::onSamplingRateSelected(int idx) {
-    std::vector <Measurement_t> samplingRates;
-    mDev->getSamplingRatesFeatures(samplingRates);
 
+    /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     for (auto consumer : consumers) {
         consumer->onSamplingRateChanged(mDev->getSamplingRate());
     }
+}
+
+void ControllerMain::onClampingModalitySelected(int idx) {
+    /*! update GUI */
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+
+    /*! Invio dati a FPGA con massageDispatcher*/
+    calibratorConsumer->updateCalibParams();
+
+    /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 
 void ControllerMain::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {

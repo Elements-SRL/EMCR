@@ -8,7 +8,7 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
-#    DEFINES += GLB_SHOW_DEBUG_CTRLS
+    DEFINES += GLB_SHOW_DEBUG_CTRLS
 }
 
 CONFIG += c++17
@@ -30,6 +30,7 @@ SOURCES += \
     src/main.cpp \
     src/model/analysiscursor.cpp \
     src/model/state.cpp \
+    src/view/compensationcontroldockwidget.cpp \
     src/model/statearray.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
@@ -95,6 +96,7 @@ HEADERS += \
     src/globaldefines.h \
     src/model/analysiscursor.h \
     src/model/state.h \
+    src/view/compensationcontroldockwidget.h \
     src/model/statearray.h \
     src/protocoldefs.h \
     src/view/addtagdialog.h \

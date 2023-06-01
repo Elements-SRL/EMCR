@@ -28,15 +28,15 @@ void ControllerBoard::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVolt
 
     emit sigGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);
 
-    qDebug() << "numero di gate voltage cambiati: " << gateVoltageBoardIndexes.size() << "";
-    for(int i = 0; i < gateVoltageBoardIndexes.size(); i++){
-        qDebug() << "[Gate channel" << gateVoltageBoardIndexes[i] + 1 << "]: " << " now has value " << gateVoltages[i].value;
-    }
+//    qDebug() << "numero di gate voltage cambiati: " << gateVoltageBoardIndexes.size() << "";
+//    for(int i = 0; i < gateVoltageBoardIndexes.size(); i++){
+//        qDebug() << "[Gate channel" << gateVoltageBoardIndexes[i] + 1 << "]: " << " now has value " << gateVoltages[i].value;
+//    }
 
 
-    qDebug() << "numero di source voltage cambiati: " << sourceVoltageBoardIndexes.size() << "";
-    for(int i = 0; i < sourceVoltageBoardIndexes.size(); i++){
-        qDebug() << "[Source channel" << sourceVoltageBoardIndexes[i] + 1 << "]: " << " now has value " << sourceVoltages[i].value;
-    }
+//    qDebug() << "numero di source voltage cambiati: " << sourceVoltageBoardIndexes.size() << "";
+//    for(int i = 0; i < sourceVoltageBoardIndexes.size(); i++){
+//        qDebug() << "[Source channel" << sourceVoltageBoardIndexes[i] + 1 << "]: " << " now has value " << sourceVoltages[i].value;
+//    }
 
 }

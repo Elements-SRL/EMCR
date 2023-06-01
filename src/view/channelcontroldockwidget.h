@@ -24,6 +24,7 @@ public slots:
     void onUpdate();
     void onSigRecording(bool state);
     void onVcVoltageRangeSelected(int idx);
+    void onCcCurrentRangeSelected(int idx);
 
 private:
     typedef enum Operations {
@@ -59,6 +60,8 @@ private:
     QVector <QVector <QWidget *>> operationEdits;
 
     QVector <QWidget *> operationButtonWidgets;
+    RangedMeasurement_t holdingTunerRange;
+    MySpinBox * setAllChannelsSbx;
 
 private slots:
     void onOperationSelected(int operationIdx);
@@ -74,7 +77,7 @@ private slots:
 signals:
     void sigAppliedTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onvalues);
     void sigAppliedTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onvalues);
-    void sigAppliedVoltageHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages);
+    void sigAppliedHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues);
     void sigAppliedTurnStimulsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void sigStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void sigStopRecording();

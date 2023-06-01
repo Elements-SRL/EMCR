@@ -80,7 +80,7 @@ private:
         "s" // unit
     };
 
-    Measurement_t tStep = {
+    Measurement_t t0Step = {
         0.0, // value
         UnitPfxMilli, // prefix
         "s" // unit

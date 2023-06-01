@@ -99,3 +99,54 @@ void ControllerDevice::onSamplingRateSelected(uint16_t selectedSamplingRateIndex
     emit sigSamplingRateSelected(selectedSamplingRateIndex);
 }
 // ADC Voltage Filter in CC set by Sampling rate
+
+void ControllerDevice::onClampingModalitySelected(uint16_t selectedClampingModalityIndex){
+    std::vector <int> clampingModalities;
+    mDev->getClampingModalitiesFeatures(clampingModalities);
+
+    this->mDev->setOngoingClampingModalityIdx(selectedClampingModalityIndex);
+    this->mDev->setOngoingClampingModality(clampingModalities[selectedClampingModalityIndex]);
+
+    int voltageChannelsNum;
+    int currentChannelsNum;
+    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    std::vector <bool> allTrue(currentChannelsNum, true);
+    std::vector <bool> allFalse(currentChannelsNum, false);
+
+    if (clampingModalities[selectedClampingModalityIndex] == ClampingModality_t::VOLTAGE_CLAMP) {
+        mDev->getMessageDispatcher()->enableCcCompensations(false);
+        mDev->getMessageDispatcher()->turnCurrentStimulusOn(false, false);
+        mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
+        mDev->getMessageDispatcher()->turnCurrentReaderOn(true, false);
+        mDev->getMessageDispatcher()->turnVoltageStimulusOn(true, false);
+        mDev->getMessageDispatcher()->enableVcCompensations(true);
+
+        mDev->getMessageDispatcher()->setSourceForVoltageChannel(0, false);
+        mDev->getMessageDispatcher()->setSourceForCurrentChannel(0, false);
+
+        mDev->getMessageDispatcher()->setDebugBit(0, 7, false);
+        this->onVcCurrentRangeSelected(mDev->getVcCurrentRangeIdx());
+        this->onVcVoltageRangeSelected(mDev->getVcVoltageRangeIdx());
+
+    } else {
+        mDev->getMessageDispatcher()->enableVcCompensations(false);
+        mDev->getMessageDispatcher()->turnVoltageStimulusOn(false, false);
+        mDev->getMessageDispatcher()->turnCurrentReaderOn(false, false);
+        mDev->getMessageDispatcher()->turnVoltageReaderOn(true, false);
+        mDev->getMessageDispatcher()->turnCurrentStimulusOn(true, false);
+        mDev->getMessageDispatcher()->enableCcCompensations(true);
+
+        mDev->getMessageDispatcher()->setSourceForVoltageChannel(1, false);
+        mDev->getMessageDispatcher()->setSourceForCurrentChannel(1, false);
+
+        mDev->getMessageDispatcher()->setDebugBit(0, 7, true);
+        this->onCcCurrentRangeSelected(mDev->getCcCurrentRangeIdx());
+        this->onCcVoltageRangeSelected(mDev->getCcVoltageRangeIdx());
+    }
+
+    emit sigClampingModalitySelected(selectedClampingModalityIndex);
+}

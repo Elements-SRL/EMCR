@@ -173,7 +173,7 @@ ProtocolXSinItem::ProtocolXSinItem(ProtocolDropItem * item, double hold, int nex
     ProtocolDropXSinItem * castItem = static_cast <ProtocolDropXSinItem *> (item);
     x0 = castItem->getX0()+hold;
     xAmp = castItem->getXAmp();
-    freq = castItem->getFreq()/1000.0; /*! \todo FCON serve a portare la frequenza in kHz, non troppo elegante */
+    freq = castItem->getFreq();
 }
 
 ProtocolXSinItem::ProtocolXSinItem(ProtocolItem * item, int nextItem) :
