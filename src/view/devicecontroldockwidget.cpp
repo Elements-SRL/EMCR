@@ -190,7 +190,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
 
         vLayout->addWidget(this->clampingModalitiesGroupBox);
         for (int idx = 0; idx < clampingModalities.size(); idx++){
-            auto m = clampingModalities[idx];
             QRadioButton * qrb;
             switch (clampingModalities[idx]) {
             case ClampingModality_t::VOLTAGE_CLAMP:
