@@ -1637,7 +1637,7 @@ void CalibrationConsumer::updateCalibParams(){
             mDev->getMessageDispatcher()->setCalibVcCurrentOffset(allChannelIndexes, allOffsetAdcMeas[mDev->getVcCurrentRangeIdx()], true);
         }
 
-        if(deviceUnderCalibrationType == Device384PatchClamp
+        if(deviceUnderCalibrationType == Device384PatchClamp || deviceUnderCalibrationType == Device4x10MHz
         #ifdef DEBUG
             || deviceUnderCalibrationType == Device384FakePatchClamp
         #endif
