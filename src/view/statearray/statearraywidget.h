@@ -45,5 +45,6 @@ signals:
     void sigStateChanged(int, int, YAML::State);
     void sigDeleteButtonPressed(int);
     void sigInsertStateAfter(int);
+    void sigInitialStateChanged(int);
 };
 #endif // STATEARRAYWIDGET_H

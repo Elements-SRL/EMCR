@@ -37,6 +37,9 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialSt
     initialStateLayout ->addWidget(initialStateSpinbox);
     stateArrayConfigurationLayout->addLayout(initialStateLayout);
     initialStateSpinbox->setValue(initialState);
+    connect(initialStateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
+        emit this->sigInitialStateChanged(value);
+    });
 
     ///////////////// CRUD BUTTONS /////////////////
     QGroupBox *insertDeleteGroupBox = new QGroupBox(this);

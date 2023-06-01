@@ -27,6 +27,9 @@ ControllerStateArray::ControllerStateArray()
     connect(stateArrayWidget, &StateArrayWidget::sigInsertStateAfter, this, [=](int idx){
         insertState(idx, {});
     });
+    connect(stateArrayWidget, &StateArrayWidget::sigInitialStateChanged, this, [=](int idx){
+        stateArray.initialState = idx;
+    });
 }
 
 void ControllerStateArray::showWidget(){
