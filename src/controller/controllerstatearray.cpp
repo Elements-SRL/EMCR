@@ -16,8 +16,8 @@ ControllerStateArray::ControllerStateArray()
     connect(stateArrayWidget, &StateArrayWidget::sigSaveAsButtonPressed, this, [=](std::string s){
         this->writeToFile(s);
     });
-    connect(stateArrayWidget, &StateArrayWidget::sigStateChanged, this, [=](int idx, YAML::State state){
-        std::cout << state.voltage << std::endl;
+    connect(stateArrayWidget, &StateArrayWidget::sigStateChanged, this, [=](int idx, int oldIdx, YAML::State oldState){
+        stateArray.states[oldIdx] = oldState;
 //        TODO LROSSI USE AN INTERNAL VARIABLE FOR THE CURRENT STATE AND MODIFY IT HERE
         stateArrayWidget->setState(stateArray.states[idx]);
     });

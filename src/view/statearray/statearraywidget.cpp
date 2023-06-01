@@ -14,7 +14,8 @@
 StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
     : QWidget(parent)
 {
-
+//    TODO LROSSI get initial value from constructor
+    currentStateIdx = 0;
     // Constructor implementation
     QVBoxLayout * mainLayout = new QVBoxLayout(this);
 
@@ -69,17 +70,18 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s)
     QHBoxLayout *stateLayout = new QHBoxLayout();
     stateSpinBox = new QSpinBox(this);
     connect(stateSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
-        emit this->sigStateChanged(value, {activeTimeoutCheckbox->isChecked(),
-                                           timeoutLineEdit->text().toDouble(),
-                                           timeoutStateSpinBox->value(),
-                                           activeTriggerCheckbox->isChecked(),
-                                           deltaTriggerCheckbox->isChecked(),
-                                           minTrigLevelLineEdit->text().toDouble(),
-                                           maxTrigLevelLineEdit->text().toDouble(),
-                                           triggerStateSpinBox->value(),
-                                           getTriggerTypeFromString(triggerTypeComboBox->currentText().toStdString()),
-                                           voltageSpinbox->value()
-                                   });
+        emit this->sigStateChanged(value, currentStateIdx, {activeTimeoutCheckbox->isChecked(),
+                                                            timeoutLineEdit->text().toDouble(),
+                                                            timeoutStateSpinBox->value(),
+                                                            activeTriggerCheckbox->isChecked(),
+                                                            deltaTriggerCheckbox->isChecked(),
+                                                            minTrigLevelLineEdit->text().toDouble(),
+                                                            maxTrigLevelLineEdit->text().toDouble(),
+                                                            triggerStateSpinBox->value(),
+                                                            getTriggerTypeFromString(triggerTypeComboBox->currentText().toStdString()),
+                                                            voltageSpinbox->value()
+                                                            });
+        currentStateIdx = value;
 //        emit this->sigStateChanged(value, {});
 
     });

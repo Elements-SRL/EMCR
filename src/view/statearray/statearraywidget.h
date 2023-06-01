@@ -21,6 +21,7 @@ public:
     void setStateCount(int count);
 
 private:
+    int currentStateIdx;
     QSpinBox * insertStateSpinBox;
     QSpinBox * deleteStateSpinBox;
     QSpinBox *stateSpinBox;
@@ -41,7 +42,7 @@ private:
 signals:
     void sigOpenButtonPressed(std::string fname);
     void sigSaveAsButtonPressed(std::string fname);
-    void sigStateChanged(int, YAML::State);
+    void sigStateChanged(int, int, YAML::State);
     void sigDeleteButtonPressed(int);
 };
 #endif // STATEARRAYWIDGET_H
