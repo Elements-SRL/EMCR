@@ -153,7 +153,7 @@ void MainWindow::onDevicesListChanged(std::vector <std::string> devicesList) {
     }
 }
 
-StateArrayWidget * MainWindow::getStateArrayDockWidget(){
+StateArrayDockWidget * MainWindow::getStateArrayDockWidget(){
     return stateArrayDockWidget;
 }
 
@@ -246,7 +246,7 @@ void MainWindow::createGuiControls() {
     dockWidgets.append(bigPlotDw);
 
     //STATE ARRAY WIDGET
-    stateArrayDockWidget = new StateArrayWidget(this);
+    stateArrayDockWidget = new StateArrayDockWidget(this);
     stateArrayDockWidget->setObjectName("stateArrayDockWidget");
     this->addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
     dockWidgets.append(stateArrayDockWidget);

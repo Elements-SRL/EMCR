@@ -1,5 +1,5 @@
 #include "controller/controllerstatearray.h"
-#include "view/statearray/statearraywidget.h"
+#include "view/statearray/statearraydockwidget.h"
 #include <iostream>
 #include <fstream>
 #include "model/state.h"
@@ -12,30 +12,30 @@ ControllerStateArray::ControllerStateArray(ModelDevice * mDev)
     this->mDev = mDev;
 }
 
-void ControllerStateArray::setStateArrayWidget(StateArrayWidget * stateArrayWidget){
+void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArrayWidget){
     this->stateArrayWidget = stateArrayWidget;
     updateUI();
-    connect(stateArrayWidget, &StateArrayWidget::sigOpenButtonPressed, this, [=](std::string s){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigOpenButtonPressed, this, [=](std::string s){
         this->open(s);
     });
-    connect(stateArrayWidget, &StateArrayWidget::sigSaveAsButtonPressed, this, [=](std::string s){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigSaveAsButtonPressed, this, [=](std::string s){
         this->writeToFile(s);
     });
-    connect(stateArrayWidget, &StateArrayWidget::sigStateChanged, this, [=](int idx, int oldIdx, YAML::State oldState){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigStateChanged, this, [=](int idx, int oldIdx, YAML::State oldState){
         stateArray.states[oldIdx] = oldState;
         stateArrayWidget->setState(stateArray.states[idx], idx);
     });
-    connect(stateArrayWidget, &StateArrayWidget::sigDeleteButtonPressed, this, [=](int idx){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigDeleteButtonPressed, this, [=](int idx){
         deleteState(idx);
         updateUI();
     });
-    connect(stateArrayWidget, &StateArrayWidget::sigInsertStateAfter, this, [=](int idx){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigInsertStateAfter, this, [=](int idx){
         insertState(idx, {});
     });
-    connect(stateArrayWidget, &StateArrayWidget::sigInitialStateChanged, this, [=](int idx){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigInitialStateChanged, this, [=](int idx){
         stateArray.initialState = idx;
     });
-    connect(stateArrayWidget, &StateArrayWidget::sigStartButtonPressed, this, [=](){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigStartButtonPressed, this, [=](){
         auto md = mDev->getMessageDispatcher();
         md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState);
         for (int i = 0; i < stateArray.states.size(); i++){

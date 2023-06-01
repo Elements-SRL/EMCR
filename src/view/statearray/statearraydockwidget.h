@@ -1,5 +1,5 @@
-#ifndef STATEARRAYWIDGET_H
-#define STATEARRAYWIDGET_H
+#ifndef STATEARRAYDOCKWIDGET_H
+#define STATEARRAYDOCKWIDGET_H
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDockWidget>
@@ -8,13 +8,13 @@
 #include <QWidget>
 #include <model/state.h>
 
-class StateArrayWidget : public QDockWidget
+class StateArrayDockWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    StateArrayWidget(QWidget *parent = nullptr);
-    ~StateArrayWidget();
+    StateArrayDockWidget(QWidget *parent = nullptr);
+    ~StateArrayDockWidget();
 
     void setState(YAML::State, int);
     void setStateChecboxesRanges(int min, int max);
@@ -49,4 +49,4 @@ signals:
     void sigInitialStateChanged(int);
     void sigStartButtonPressed();
 };
-#endif // STATEARRAYWIDGET_H
+#endif // STATEARRAYDOCKWIDGET_H

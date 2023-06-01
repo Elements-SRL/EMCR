@@ -85,7 +85,7 @@ SOURCES += \
     src/model/modelboard.cpp \
     src/model/modelchannel.cpp \
     src/abf/axon.cpp \
-    src/view/statearray/statearraywidget.cpp
+    src/view/statearray/statearraydockwidget.cpp
 
 HEADERS += \
     src/controller/controllerstatearray.h \
@@ -154,7 +154,7 @@ HEADERS += \
     src/abf/axon.h \
     src/abf/axon_defs.h \
     src/abf/axon_structs.h \
-    src/view/statearray/statearraywidget.h
+    src/view/statearray/statearraydockwidget.h
 
 INCLUDEPATH += \
     ./src \

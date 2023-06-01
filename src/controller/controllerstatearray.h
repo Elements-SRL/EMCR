@@ -4,7 +4,7 @@
 #include "QObject"
 #include "model/state.h"
 #include "model/statearray.h"
-#include "view/statearray/statearraywidget.h"
+#include "view/statearray/statearraydockwidget.h"
 
 #include <modeldevice.h>
 
@@ -13,11 +13,11 @@ class ControllerStateArray : public QObject {
 
 public:
     ControllerStateArray(ModelDevice * mDev);
-    void setStateArrayWidget(StateArrayWidget * stateArrayWidget);
+    void setStateArrayWidget(StateArrayDockWidget * stateArrayWidget);
 
 private:
     ModelDevice *mDev;
-    StateArrayWidget * stateArrayWidget;
+    StateArrayDockWidget * stateArrayWidget;
     YAML::StateArray stateArray;
     QAction * actionOpenFile = nullptr;
     void updateUI();

@@ -1,4 +1,4 @@
-#include "statearray/statearraywidget.h"
+#include "statearray/statearraydockwidget.h"
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QSpinBox>
@@ -11,7 +11,7 @@
 #include <QFileDialog>
 #include "model/state.h"
 
-StateArrayWidget::StateArrayWidget(QWidget *parent)
+StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     : QDockWidget(parent)
 {
     QWidget * mainWg = new QWidget();
@@ -237,7 +237,7 @@ StateArrayWidget::StateArrayWidget(QWidget *parent)
     mainWg->setLayout(mainLayout);
 }
 
-void StateArrayWidget::setState(YAML::State s, int index){
+void StateArrayDockWidget::setState(YAML::State s, int index){
     stateSpinBox->setValue(index);
     numberOfStatesSpinbox->setEnabled(false);
     voltageSpinbox->setValue(s.voltage);
@@ -253,11 +253,11 @@ void StateArrayWidget::setState(YAML::State s, int index){
 //    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
 }
 
-void StateArrayWidget::setStateCount(int count){
+void StateArrayDockWidget::setStateCount(int count){
     numberOfStatesSpinbox->setValue(count);
 }
 
-void StateArrayWidget::setStateChecboxesRanges(int min, int max){
+void StateArrayDockWidget::setStateChecboxesRanges(int min, int max){
     initialStateSpinbox->setRange(min, max);
     insertStateSpinBox->setRange(min, max);
     deleteStateSpinBox->setRange(min, max);
@@ -266,11 +266,11 @@ void StateArrayWidget::setStateChecboxesRanges(int min, int max){
     triggerStateSpinBox->setRange(min, max);
 }
 
-void StateArrayWidget::setInitialState(int initialState){
+void StateArrayDockWidget::setInitialState(int initialState){
     initialStateSpinbox->setValue(initialState);
 }
 
-StateArrayWidget::~StateArrayWidget()
+StateArrayDockWidget::~StateArrayDockWidget()
 {
     // Destructor implementation
 }
