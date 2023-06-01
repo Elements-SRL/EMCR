@@ -15,7 +15,7 @@ public:
     StateArrayWidget(QWidget *parent = nullptr, YAML::State state = {}, int initialState = 0);
     ~StateArrayWidget();
 
-    void setState(YAML::State);
+    void setState(YAML::State, int);
     void insertStateAfter();
     void setStateChecboxesRanges(int min, int max);
     void setStateCount(int count);

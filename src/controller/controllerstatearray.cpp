@@ -18,7 +18,7 @@ ControllerStateArray::ControllerStateArray()
     });
     connect(stateArrayWidget, &StateArrayWidget::sigStateChanged, this, [=](int idx, int oldIdx, YAML::State oldState){
         stateArray.states[oldIdx] = oldState;
-        stateArrayWidget->setState(stateArray.states[idx]);
+        stateArrayWidget->setState(stateArray.states[idx], idx);
     });
     connect(stateArrayWidget, &StateArrayWidget::sigDeleteButtonPressed, this, [=](int idx){
         deleteState(idx);
@@ -54,7 +54,7 @@ void ControllerStateArray::writeToFile(std::string fname){
 void ControllerStateArray::insertState(int idx, YAML::State s){
     stateArray.states.insert(stateArray.states.begin()+idx, s);
     updateUI();
-    stateArrayWidget->setState(s);
+    stateArrayWidget->setState(s, idx);
 }
 
 void ControllerStateArray::deleteState(int idx){
@@ -68,5 +68,5 @@ void ControllerStateArray::deleteState(int idx){
 void ControllerStateArray::updateUI(){
     stateArrayWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
     stateArrayWidget->setStateCount(stateArray.states.size());
-    stateArrayWidget->setState(stateArray.states.front());
+    stateArrayWidget->setState(stateArray.states[0], 0);
 }

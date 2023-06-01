@@ -229,10 +229,11 @@ StateArrayWidget::StateArrayWidget(QWidget *parent, YAML::State s, int initialSt
     // Set the QVBoxLayout as the main layout of the widget
     setLayout(mainLayout);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    setState(s);
+    setState(s, initialState);
 }
 
-void StateArrayWidget::setState(YAML::State s){
+void StateArrayWidget::setState(YAML::State s, int index){
+    stateSpinBox->setValue(index);
     numberOfStatesSpinbox->setEnabled(false);
     voltageSpinbox->setValue(s.voltage);
     timeoutLineEdit->setText(QString::fromStdString(std::to_string(s.timeout)));
