@@ -25,6 +25,11 @@ ControllerStateArray::ControllerStateArray()
         deleteState(idx);
         updateUI();
     });
+    connect(stateArrayWidget, &StateArrayWidget::sigInsertStateAfter, this, [=](int idx){
+        insertState(idx, {});
+        updateUI();
+        stateArrayWidget->setState(stateArray.states[idx]);
+    });
 }
 
 void ControllerStateArray::showWidget(){
