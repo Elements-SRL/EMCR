@@ -76,7 +76,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     mainLayout->addLayout(stateArrayConfigurationLayout);
 
     // Create the QHBoxLayout and QDoubleSpinBox objects
-    QHBoxLayout *stateLayout = new QHBoxLayout();
+    QVBoxLayout *stateAndVoltageLayout = new QVBoxLayout();
     stateSpinbox = new QSpinBox(this);
     connect(stateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
         emit this->sigStateChanged(value, currentStateIdx, {activeTimeoutCheckbox->isChecked(),
@@ -97,22 +97,28 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     // Set the range and properties of the QDoubleSpinBox
 
     // Add the QDoubleSpinBox to the QHBoxLayout
+    QHBoxLayout * stateLayout = new QHBoxLayout();
+    stateLayout->addWidget(new QLabel("Current state"));
     stateLayout->addWidget(stateSpinbox);
 
+    stateAndVoltageLayout->addLayout(stateLayout);
     /////////// LINE THAT SEPARATES THE FIRST PART FROM THE SECOND ///////////
     QFrame *firstLine = new QFrame(this);
     firstLine->setFrameShape(QFrame::HLine);
     mainLayout->addWidget(firstLine);
 
+
+    ///////////////// STUFF BETWEEN LINES ///////////
+    QHBoxLayout * betweenLinesLayout = new QHBoxLayout();
     ////////////////// Voltage //////////////////
-    QVBoxLayout *voltageLayout = new QVBoxLayout();
+    QHBoxLayout *voltageLayout = new QHBoxLayout();
 
     QLabel *voltageLabel = new QLabel("Voltage (V)");
     voltageSpinbox = new QDoubleSpinBox();
     voltageLayout->addWidget(voltageLabel);
     voltageLayout->addWidget(voltageSpinbox);
 
-    stateLayout->addLayout(voltageLayout);
+    stateAndVoltageLayout->addLayout(voltageLayout);
 
     ////////////////// Timeout Layout //////////////////
     QGroupBox *timeoutGroupBox = new QGroupBox(this);
@@ -163,6 +169,8 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
     maxTrigLeveDoubleSpinbox = new QDoubleSpinBox();
 
+    minTrigLevelDoubleSpinbox->setDecimals(4);
+    maxTrigLeveDoubleSpinbox->setDecimals(4);
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
     triggerLevelsLayout->addWidget(minTrigLevelDoubleSpinbox);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
@@ -187,8 +195,9 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     controlLayout->addWidget(timeoutGroupBox);
     controlLayout->addWidget(triggersGroupBox);
 
-    stateLayout->addLayout(controlLayout);
-    mainLayout->addLayout(stateLayout);
+    betweenLinesLayout->addLayout(stateAndVoltageLayout);
+    betweenLinesLayout->addLayout(controlLayout);
+    mainLayout->addLayout(betweenLinesLayout);
 
 
     // Set the QHBoxLayout as the main layout of the widget
