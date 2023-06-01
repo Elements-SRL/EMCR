@@ -347,7 +347,7 @@ void CalibrationConsumer::run(){
             turnSomeCcSwOnOff(channelToCalibIdxs, someTrue);
             turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
             turnSomeVcCcSelOnOff(channelToCalibIdxs, someFalse);
-            setSourceForVoltageChannel(0);
+            setSourceForVoltageChannel(1);
             setSourceForCurrentChannel(0);
 
             /*! \note CCVgain ADC*/
@@ -1701,6 +1701,7 @@ void CalibrationConsumer::calibrateCcAdcGain(int thisActualRangeIdx){
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
         samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        QThread::sleep(2);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
