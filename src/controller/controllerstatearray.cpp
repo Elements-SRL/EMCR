@@ -22,7 +22,7 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     connect(stateArrayWidget, &StateArrayDockWidget::sigSaveAsButtonPressed, this, [=](std::string s){
         this->writeToFile(s);
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigStateChanged2, this, [=](int idx){
+    connect(stateArrayWidget, &StateArrayDockWidget::sigStateChanged, this, [=](int idx){
         stateArrayWidget->setState(stateArray.states[idx], idx);
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigDeleteButtonPressed, this, [=](int idx){
@@ -44,6 +44,8 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         }
         md->startStateArray();
     });
+
+
 
     connect(stateArrayWidget, &StateArrayDockWidget::sigMaxTrigLeveDoubleSpinbox, this, [=](double maxTrigLevel, int stateIdx){
         stateArray.states[stateIdx].maxTrigLevel = maxTrigLevel;

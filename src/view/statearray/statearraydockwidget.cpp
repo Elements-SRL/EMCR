@@ -80,21 +80,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QVBoxLayout *stateAndVoltageLayout = new QVBoxLayout();
     stateSpinbox = new QSpinBox(this);
     connect(stateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
-//        emit this->sigStateChanged(value, currentStateIdx, {activeTimeoutCheckbox->isChecked(),
-//                                                            timeoutDoubleSpinbox->text().toDouble(),
-//                                                            timeoutStateSpinbox->value(),
-//                                                            activeTriggerCheckbox->isChecked(),
-//                                                            deltaTriggerCheckbox->isChecked(),
-//                                                            minTrigLevelDoubleSpinbox->text().toDouble(),
-//                                                            maxTrigLevelDoubleSpinbox->text().toDouble(),
-//                                                            triggerStateSpinbox->value(),
-//                                                            getTriggerTypeFromString(triggerTypeComboBox->currentText().toStdString()),
-//                                                            voltageSpinbox->value()
-//                                                            });
-        emit sigStateChanged2(value);
-//        currentStateIdx = value;
-//        emit this->sigStateChanged(value, {});
-
+        emit sigStateChanged(value);
     });
     // Set the range and properties of the QDoubleSpinBox
 
@@ -239,7 +225,6 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
 
     connect(timeoutDoubleSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
         emit sigTimeoutDoubleSpinboxChanged(value, currentStateIdx);
-        std::cout << value << " fanculo" << std::endl;
     });
     connect(voltageSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
         emit sigvoltageSpinbox(value, currentStateIdx);

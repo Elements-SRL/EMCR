@@ -41,7 +41,7 @@ private:
     // Private member variables and functions
 
 signals:
-    void sigStateChanged2(int);
+    void sigStateChanged(int);
     void sigMaxTrigLeveDoubleSpinbox(double, int);
     void sigMinTrigLevelDoubleSpinbox(double, int);
     void sigvoltageSpinbox(double, int);
@@ -49,7 +49,6 @@ signals:
     void sigTimeoutDoubleSpinboxChanged(double, int);
     void sigOpenButtonPressed(std::string fname);
     void sigSaveAsButtonPressed(std::string fname);
-    void sigStateChanged(int, int, YAML::State);
     void sigDeleteButtonPressed(int);
     void sigInsertStateAfter(int);
     void sigInitialStateChanged(int);
