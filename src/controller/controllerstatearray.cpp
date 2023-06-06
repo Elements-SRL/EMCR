@@ -10,6 +10,7 @@
 ControllerStateArray::ControllerStateArray(ModelDevice * mDev)
 {
     this->mDev = mDev;
+    stateArray = {};
 }
 
 void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArrayWidget){
@@ -21,8 +22,7 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     connect(stateArrayWidget, &StateArrayDockWidget::sigSaveAsButtonPressed, this, [=](std::string s){
         this->writeToFile(s);
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigStateChanged, this, [=](int idx, int oldIdx, YAML::State oldState){
-        stateArray.states[oldIdx] = oldState;
+    connect(stateArrayWidget, &StateArrayDockWidget::sigStateChanged2, this, [=](int idx){
         stateArrayWidget->setState(stateArray.states[idx], idx);
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigDeleteButtonPressed, this, [=](int idx){
@@ -43,6 +43,24 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
             md->setSateArrayState(i, s.voltage, s.activeTimeout, s.timeout, s.timeoutState, s.minTrigLevel, s.maxTrigLevel, s.triggerState);
         }
         md->startStateArray();
+    });
+
+    connect(stateArrayWidget, &StateArrayDockWidget::sigMaxTrigLeveDoubleSpinbox, this, [=](double maxTrigLevel, int stateIdx){
+        stateArray.states[stateIdx].maxTrigLevel = maxTrigLevel;
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigMinTrigLevelDoubleSpinbox, this, [=](double minTrigLevel, int stateIdx){
+        stateArray.states[stateIdx].minTrigLevel = minTrigLevel;
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigvoltageSpinbox, this, [=](double voltage, int stateIdx){
+        stateArray.states[stateIdx].voltage = voltage;
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigTimeoutStateSpinboxChanged, this, [=](int newState, int stateIdx){
+        stateArray.states[stateIdx].timeoutState = newState;
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigTimeoutDoubleSpinboxChanged, this, [=](double timeout, int stateIdx){
+        stateArray.states[stateIdx].timeout = timeout;
+        std::cout << "fanculo2" << std::endl;
+
     });
 }
 

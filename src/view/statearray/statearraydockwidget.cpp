@@ -10,6 +10,7 @@
 #include <QString>
 #include <QFileDialog>
 #include "model/state.h"
+#include "iostream"
 
 StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     : QDockWidget(parent)
@@ -238,6 +239,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
 
     connect(timeoutDoubleSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
         emit sigTimeoutDoubleSpinboxChanged(value, currentStateIdx);
+        std::cout << value << " fanculo" << std::endl;
     });
     connect(voltageSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
         emit sigvoltageSpinbox(value, currentStateIdx);
@@ -266,18 +268,39 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
 }
 
 void StateArrayDockWidget::setState(YAML::State s, int index){
-    stateSpinbox->setValue(index);
+    numberOfStatesSpinbox->blockSignals(true);
     numberOfStatesSpinbox->setEnabled(false);
+    numberOfStatesSpinbox->blockSignals(false);
+    voltageSpinbox->blockSignals(true);
     voltageSpinbox->setValue(s.voltage);
+    voltageSpinbox->blockSignals(false);
+    timeoutDoubleSpinbox->blockSignals(true);
     timeoutDoubleSpinbox->setValue(s.timeout);
+    timeoutDoubleSpinbox->blockSignals(false);
+    activeTimeoutCheckbox->blockSignals(true);
     activeTimeoutCheckbox->setChecked(s.activeTimeout);
+    activeTimeoutCheckbox->blockSignals(false);
+    timeoutStateSpinbox->blockSignals(true);
     timeoutStateSpinbox->setValue(s.timeoutState);
+    timeoutStateSpinbox->blockSignals(false);
+    activeTriggerCheckbox->blockSignals(true);
     activeTriggerCheckbox ->setChecked(s.activeTrigger);
+    activeTriggerCheckbox->blockSignals(false);
+    deltaTriggerCheckbox->blockSignals(true);
     deltaTriggerCheckbox->setChecked(s.delta);
+    deltaTriggerCheckbox->blockSignals(false);
+    minTrigLevelDoubleSpinbox->blockSignals(true);
     minTrigLevelDoubleSpinbox->setValue(s.minTrigLevel);
+    minTrigLevelDoubleSpinbox->blockSignals(false);
+    maxTrigLevelDoubleSpinbox->blockSignals(true);
     maxTrigLevelDoubleSpinbox->setValue(s.maxTrigLevel);
+    maxTrigLevelDoubleSpinbox->blockSignals(false);
+    triggerStateSpinbox->blockSignals(true);
     triggerStateSpinbox->setValue(s.triggerState);
-
+    triggerStateSpinbox->blockSignals(false);
+    stateSpinbox->blockSignals(true);
+    stateSpinbox->setValue(index);
+    stateSpinbox->blockSignals(false);
     currentStateIdx = index;
 //    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
 }
