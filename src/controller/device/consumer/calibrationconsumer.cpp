@@ -37,30 +37,14 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     mDev->getMessageDispatcher()->getCalibDefaultCcDacGain(defaultCcDacGainValue); // 1.0;
     mDev->getMessageDispatcher()->getCalibDefaultCcDacOffset(defaultCcDacOffsetValue); // 0.0;
 
-    if(deviceUnderCalibrationType == Device384Nanopores
-        #ifdef DEBUG
-            || deviceUnderCalibrationType == Device384Fake
-        #endif
-            ){
-        mDev->getCalibDataFeatures(calibData);
-        calibrationVoltSteps = calibData.vcCalibStepsArrays;
-        calibratonResistances = calibData.vcCalibResArray;
-        areCalibResistOnBoard = calibData.areCalibResistOnBoard;
-    } else if (deviceUnderCalibrationType == Device384PatchClamp
-           #ifdef DEBUG
-               || deviceUnderCalibrationType == Device384FakePatchClamp
-           #endif
-               ){
-        /*! \todo add settings for PatchClamp in case we use this same class  */
-        mDev->getCalibDataFeatures(calibData);
-        calibrationVoltSteps = calibData.vcCalibStepsArrays;
-        calibratonResistances = calibData.vcCalibResArray;
-        areCalibResistOnBoard = calibData.areCalibResistOnBoard;
-        ccCalibrationVoltSteps = calibData.ccCalibVoltStepsArrays;
-        ccCalibrationCurrSteps = calibData.ccCalibCurrStepsArrays;
-        ccCalibratonResistances = calibData.ccCalibResArray;
-        ccCalibratonResisForCcAdcOffset = calibData.ccCalibResForCcAdcOffsetArray; // only for ccVoltageOffset (ADC)
-    }
+    mDev->getCalibDataFeatures(calibData);
+    calibrationVoltSteps = calibData.vcCalibStepsArrays;
+    calibratonResistances = calibData.vcCalibResArray;
+    areCalibResistOnBoard = calibData.areCalibResistOnBoard;
+    ccCalibrationVoltSteps = calibData.ccCalibVoltStepsArrays;
+    ccCalibrationCurrSteps = calibData.ccCalibCurrStepsArrays;
+    ccCalibratonResistances = calibData.ccCalibResArray;
+    ccCalibratonResisForCcAdcOffset = calibData.ccCalibResForCcAdcOffsetArray; // only for ccVoltageOffset (ADC)
 
     gainADC.resize(vcCurrentRangesArray.size());
     offsetADC.resize(vcCurrentRangesArray.size());
@@ -154,15 +138,13 @@ void CalibrationConsumer::run(){
 
 //    totalChannelsUnderCalibNum = 2*channelToCalibIdxs.size();
 
-    currentSum.resize(channelToCalibIdxs.size());
-    currentSum.fill(0.0);
-    currentMeans.resize(calibrationVoltSteps[0].size());
+    if(calibrationVoltSteps.size() > 0) {
+        currentSum.resize(channelToCalibIdxs.size());
+        currentSum.fill(0.0);
+        currentMeans.resize(calibrationVoltSteps[0].size());
+    }
 
-    if(deviceUnderCalibrationType == Device384PatchClamp
-        #ifdef DEBUG
-            || deviceUnderCalibrationType == Device384FakePatchClamp
-        #endif
-       ){
+    if(ccCalibrationCurrSteps.size() > 0) {
         voltageSum.resize(channelToCalibIdxs.size());
         voltageSum.fill(0.0);
         voltageMeans.resize(ccCalibrationCurrSteps[0].size());
@@ -192,13 +174,7 @@ void CalibrationConsumer::run(){
         uint16_t bbb; // buffer variable used sometimes.
 
         /*! MPAC imposto qui la condizione di VC se serve*/
-        if(deviceUnderCalibrationType == Device384PatchClamp
-            #ifdef DEBUG
-                || deviceUnderCalibrationType == Device384FakePatchClamp
-            #endif
-           ){
-            setVcConfiguration(channelToCalibIdxs, someTrue, someFalse);
-        }
+        setVcConfiguration(channelToCalibIdxs, someTrue, someFalse);
 
         /*! spegne lo stimolo e stacco il carico su tutti i canali per concentire all'utente di cambiare la model cell se c'è quella sbagliata*/
         turnAllStimulaOnOff(false);
@@ -207,6 +183,7 @@ void CalibrationConsumer::run(){
             turnAllCalSwOnOff(false);
         }
 
+        /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
         QString msg;
         if(deviceUnderCalibrationType == Device384PatchClamp
             #ifdef DEBUG
@@ -262,6 +239,7 @@ void CalibrationConsumer::run(){
             calibrateAdcOffset(vcCurrentRangesArray[rangeIdx]);
             /*! END CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             if(rangeIdx < vcCurrentRangesArray.size()-1){
+                /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
                 QString msg;
                 if(deviceUnderCalibrationType == Device384PatchClamp
                         #ifdef DEBUG
@@ -325,6 +303,7 @@ void CalibrationConsumer::run(){
 
         /*! Qui inizia la parte di calibrazione in CC*/
         /*! Open all IN_SW*/
+        /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
         if(deviceUnderCalibrationType == Device384PatchClamp
                 #ifdef DEBUG
                     || deviceUnderCalibrationType == Device384FakePatchClamp
@@ -978,6 +957,7 @@ void CalibrationConsumer::setSourceForCurrentChannel(uint16_t source){
 
 
 void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
+    /*! \todo FCON molto specifico per il patch clamp */
     mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
     mDev->getMessageDispatcher()->turnCurrentReaderOn(true, false);
     turnSomeCalSwOnOff(channelIndexes, someTrue);
@@ -990,6 +970,7 @@ void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexe
 }
 
 void CalibrationConsumer::setCcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
+    /*! \todo FCON molto specifico per il patch clamp */
     mDev->getMessageDispatcher()->turnCurrentReaderOn(false, false);
     mDev->getMessageDispatcher()->turnVoltageReaderOn(true, false);
     mDev->getMessageDispatcher()->setDebugBit(0, 7, true);
@@ -1078,6 +1059,7 @@ void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName
         }
     }
 
+    /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
     if(deviceUnderCalibrationType == Device384PatchClamp
             #ifdef DEBUG
                 || deviceUnderCalibrationType == Device384FakePatchClamp
@@ -1259,7 +1241,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
     std::vector<bool> calibratedWithDefaultParams;
     std::vector<bool> calibratedWithDefaultParamsCc;
 
-    /*! all'inizio devo caricare i valori di calibrazione per tutti i canali (o dai file se li trovo o dai valori di defalut)*/
+    /*! all'inizio devo caricare i valori di calibrazione per tutti i canali (o dai file se li trovo o dai valori di default) */
     channelToCalibIdxs.resize(currentChannelsNum);
     for(int i = 0; i< currentChannelsNum; i++){
         channelToCalibIdxs[i] = i;
@@ -1267,8 +1249,18 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
 
     CalibrationParams_t calibrationParams;
     std::vector<std::string> calibrationFileNames;
-    mDev->getMessageDispatcher()->getCalibParams(calibrationParams);
+    ErrorCodes_t error = mDev->getMessageDispatcher()->getCalibParams(calibrationParams);
     mDev->getMessageDispatcher()->getCalibFileNames(calibrationFileNames);
+    if (error != Success) {
+        if (error == ErrorCalibrationFileMissing || error == ErrorCalibrationFileCorrupted) {
+            /*! \todo FCON riempire la lista di file di calibrazione mancanti */
+            QString listOfBoardsMissing = "";
+            emit sigCalibLoadingMsg(listOfBoardsMissing);
+
+        } else {
+            emit sigCalibLoadingMsg(error);
+        }
+    }
 
     if(calibrationFileNames.size()){
         for(int i = 0; i < calibrationFileNames.size(); i++){
@@ -1559,24 +1551,18 @@ void CalibrationConsumer::convertToMeasurement(std::vector<std::vector<Measureme
         }
     }
 
-    if(deviceUnderCalibrationType == Device384PatchClamp
-    #ifdef DEBUG
-        || deviceUnderCalibrationType == Device384FakePatchClamp
-    #endif
-    ){
-        /*! loop over ranges */
-        for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
-            for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-                ccGainAdcMeas[iii].push_back({ccAllGainADC[iii][jjj], UnitPfxNone, ""});
-                ccOffsetAdcMeas[iii].push_back({ccAllOffsetADC[iii][jjj], UnitPfxNone, "V"});
-            }
+    /*! loop over ranges */
+    for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccGainAdcMeas[iii].push_back({ccAllGainADC[iii][jjj], UnitPfxNone, ""});
+            ccOffsetAdcMeas[iii].push_back({ccAllOffsetADC[iii][jjj], UnitPfxNone, "V"});
         }
+    }
 
-        for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
-            for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-                ccGainDacMeas[iii].push_back({ccAllGainDAC[iii][jjj], UnitPfxNone, ""});
-                ccOffsetDacMeas[iii].push_back({ccAllOffsetDAC[iii][jjj], UnitPfxNone, "A"});
-            }
+    for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccGainDacMeas[iii].push_back({ccAllGainDAC[iii][jjj], UnitPfxNone, ""});
+            ccOffsetDacMeas[iii].push_back({ccAllOffsetDAC[iii][jjj], UnitPfxNone, "A"});
         }
     }
 }
@@ -1625,44 +1611,38 @@ void CalibrationConsumer::convertFromMeasurement(std::vector<std::vector<Measure
         }
     }
 
-    if(deviceUnderCalibrationType == Device384PatchClamp
-    #ifdef DEBUG
-        || deviceUnderCalibrationType == Device384FakePatchClamp
-    #endif
-    ){
-        /*! loop over ranges */
-        ccAllGainADC.resize(ccVoltageRangesArray.size());
-        ccAllOffsetADC.resize(ccVoltageRangesArray.size());
-        ccGainADC.resize(ccVoltageRangesArray.size());
-        ccOffsetADC.resize(ccVoltageRangesArray.size());
-        for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
-            ccAllGainADC[iii].resize(currentChannelsNum);
-            ccAllOffsetADC[iii].resize(currentChannelsNum);
-            ccGainADC[iii].resize(currentChannelsNum);
-            ccOffsetADC[iii].resize(currentChannelsNum);
-            for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-                ccAllGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
-                ccAllOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
-                ccGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
-                ccOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
-            }
+    /*! loop over ranges */
+    ccAllGainADC.resize(ccVoltageRangesArray.size());
+    ccAllOffsetADC.resize(ccVoltageRangesArray.size());
+    ccGainADC.resize(ccVoltageRangesArray.size());
+    ccOffsetADC.resize(ccVoltageRangesArray.size());
+    for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
+        ccAllGainADC[iii].resize(currentChannelsNum);
+        ccAllOffsetADC[iii].resize(currentChannelsNum);
+        ccGainADC[iii].resize(currentChannelsNum);
+        ccOffsetADC[iii].resize(currentChannelsNum);
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccAllGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
+            ccAllOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
+            ccGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
+            ccOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
         }
+    }
 
-        ccAllGainDAC.resize(ccCurrentRangesArray.size());
-        ccAllOffsetDAC.resize(ccCurrentRangesArray.size());
-        ccGainDAC.resize(ccCurrentRangesArray.size());
-        ccOffsetDAC.resize(ccCurrentRangesArray.size());
-        for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
-            ccAllGainDAC[iii].resize(currentChannelsNum);
-            ccAllOffsetDAC[iii].resize(currentChannelsNum);
-            ccGainDAC[iii].resize(currentChannelsNum);
-            ccOffsetDAC[iii].resize(currentChannelsNum);
-            for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-                ccAllGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
-                ccAllOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
-                ccGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
-                ccOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
-            }
+    ccAllGainDAC.resize(ccCurrentRangesArray.size());
+    ccAllOffsetDAC.resize(ccCurrentRangesArray.size());
+    ccGainDAC.resize(ccCurrentRangesArray.size());
+    ccOffsetDAC.resize(ccCurrentRangesArray.size());
+    for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
+        ccAllGainDAC[iii].resize(currentChannelsNum);
+        ccAllOffsetDAC[iii].resize(currentChannelsNum);
+        ccGainDAC[iii].resize(currentChannelsNum);
+        ccOffsetDAC[iii].resize(currentChannelsNum);
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccAllGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
+            ccAllOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
+            ccGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
+            ccOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
         }
     }
 }
@@ -1672,16 +1652,10 @@ void CalibrationConsumer::copyToAllVectors() {
     allOffsetADC = offsetADC;
     allGainDAC = gainDAC;
     allOffsetDAC = offsetDAC;
-    if(deviceUnderCalibrationType == Device384PatchClamp
-    #ifdef DEBUG
-        || deviceUnderCalibrationType == Device384FakePatchClamp
-    #endif
-    ){
-        ccAllGainADC = ccGainADC;
-        ccAllOffsetADC = ccOffsetADC;
-        ccAllGainDAC = ccGainDAC;
-        ccAllOffsetDAC = ccOffsetDAC;
-    }
+    ccAllGainADC = ccGainADC;
+    ccAllOffsetADC = ccOffsetADC;
+    ccAllGainDAC = ccGainDAC;
+    ccAllOffsetDAC = ccOffsetDAC;
 }
 
 /*! \todo FCON recheck insieme a controllermain che updata calibration params quando si cambia range. Al momento funzion a perchè dopo la calibrazione di startup, non channelToCalibIdxs è mai vuoto
@@ -1736,25 +1710,17 @@ void CalibrationConsumer::updateCalibParams(){
         if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
             mDev->getMessageDispatcher()->setCalibVcCurrentGain(allChannelIndexes, allGainAdcMeas[mDev->getVcCurrentRangeIdx()], true);
             mDev->getMessageDispatcher()->setCalibVcCurrentOffset(allChannelIndexes, allOffsetAdcMeas[mDev->getVcCurrentRangeIdx()], true);
+
+            mDev->getMessageDispatcher()->setCalibVcVoltageGain(allChannelIndexes, allGainDacMeas[mDev->getVcVoltageRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibVcVoltageOffset(allChannelIndexes, allOffsetDacMeas[mDev->getVcVoltageRangeIdx()], true);
         }
 
-        if(deviceUnderCalibrationType == Device384PatchClamp || deviceUnderCalibrationType == Device4x10MHz
-        #ifdef DEBUG
-            || deviceUnderCalibrationType == Device384FakePatchClamp
-        #endif
-        ){
-            if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
-                mDev->getMessageDispatcher()->setCalibVcVoltageGain(allChannelIndexes, allGainDacMeas[mDev->getVcVoltageRangeIdx()], true);
-                mDev->getMessageDispatcher()->setCalibVcVoltageOffset(allChannelIndexes, allOffsetDacMeas[mDev->getVcVoltageRangeIdx()], true);
-            }
+        if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
+            mDev->getMessageDispatcher()->setCalibCcVoltageGain(allChannelIndexes, ccAllGainAdcMeas[mDev->getCcVoltageRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibCcVoltageOffset(allChannelIndexes, ccAllOffsetAdcMeas[mDev->getCcVoltageRangeIdx()], true);
 
-            if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
-                mDev->getMessageDispatcher()->setCalibCcVoltageGain(allChannelIndexes, ccAllGainAdcMeas[mDev->getCcVoltageRangeIdx()], true);
-                mDev->getMessageDispatcher()->setCalibCcVoltageOffset(allChannelIndexes, ccAllOffsetAdcMeas[mDev->getCcVoltageRangeIdx()], true);
-
-                mDev->getMessageDispatcher()->setCalibCcCurrentGain(allChannelIndexes, ccAllGainDacMeas[mDev->getCcCurrentRangeIdx()], true);
-                mDev->getMessageDispatcher()->setCalibCcCurrentOffset(allChannelIndexes, ccAllOffsetDacMeas[mDev->getCcCurrentRangeIdx()], true);
-            }
+            mDev->getMessageDispatcher()->setCalibCcCurrentGain(allChannelIndexes, ccAllGainDacMeas[mDev->getCcCurrentRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibCcCurrentOffset(allChannelIndexes, ccAllOffsetDacMeas[mDev->getCcCurrentRangeIdx()], true);
         }
     }
 }

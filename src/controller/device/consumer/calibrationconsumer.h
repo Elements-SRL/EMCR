@@ -193,6 +193,7 @@ signals:
     void sigManualCalibDoneMsg(QString manualCalibDoneMsg);
     void sigNeedToChangeModelCellMsg(QString needToChangeModelCellMsg);
     void sigNeedToCheckFirstModelCellMsg(QString needToCheckFirstModelCellMsg);
+    void sigCalibLoadingMsg(ErrorCodes_t errorCode);
 };
 
 #endif // CALIBRATIONCONSUMER_H

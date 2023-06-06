@@ -552,6 +552,10 @@ void MainWindow::onCalibLoadingMsg(QString msg){
     msgBox.about(this, "Calibration info", msg);
 }
 
+void MainWindow::onCalibLoadingMsg(ErrorCodes_t error) {
+    ErrorManager e(error);
+}
+
 void MainWindow::onManualCalibDoneMsg(QString msg){
     QMessageBox msgBox;
     msgBox.about(this, "Calibration info", msg);

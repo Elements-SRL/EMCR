@@ -45,6 +45,7 @@ public slots:
     void onSetConnectedDeviceIdx(int idx);
     void onConnect(bool flag, ErrorCodes_t err);
     void onCalibLoadingMsg(QString msg);
+    void onCalibLoadingMsg(ErrorCodes_t error);
     void onManualCalibDoneMsg(QString msg);
     void onNeedToChangeModelCellMsg(QString msg);
     void onNeedToCheckFirstModelCellMsg(QString msg);
