@@ -79,18 +79,19 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QVBoxLayout *stateAndVoltageLayout = new QVBoxLayout();
     stateSpinbox = new QSpinBox(this);
     connect(stateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
-        emit this->sigStateChanged(value, currentStateIdx, {activeTimeoutCheckbox->isChecked(),
-                                                            timeoutDoubleSpinbox->text().toDouble(),
-                                                            timeoutStateSpinbox->value(),
-                                                            activeTriggerCheckbox->isChecked(),
-                                                            deltaTriggerCheckbox->isChecked(),
-                                                            minTrigLevelDoubleSpinbox->text().toDouble(),
-                                                            maxTrigLeveDoubleSpinbox->text().toDouble(),
-                                                            triggerStateSpinbox->value(),
-                                                            getTriggerTypeFromString(triggerTypeComboBox->currentText().toStdString()),
-                                                            voltageSpinbox->value()
-                                                            });
-        currentStateIdx = value;
+//        emit this->sigStateChanged(value, currentStateIdx, {activeTimeoutCheckbox->isChecked(),
+//                                                            timeoutDoubleSpinbox->text().toDouble(),
+//                                                            timeoutStateSpinbox->value(),
+//                                                            activeTriggerCheckbox->isChecked(),
+//                                                            deltaTriggerCheckbox->isChecked(),
+//                                                            minTrigLevelDoubleSpinbox->text().toDouble(),
+//                                                            maxTrigLevelDoubleSpinbox->text().toDouble(),
+//                                                            triggerStateSpinbox->value(),
+//                                                            getTriggerTypeFromString(triggerTypeComboBox->currentText().toStdString()),
+//                                                            voltageSpinbox->value()
+//                                                            });
+        emit sigStateChanged2(value);
+//        currentStateIdx = value;
 //        emit this->sigStateChanged(value, {});
 
     });
@@ -115,6 +116,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
 
     QLabel *voltageLabel = new QLabel("Voltage (V)");
     voltageSpinbox = new QDoubleSpinBox();
+    voltageSpinbox->setDecimals(4);
     voltageLayout->addWidget(voltageLabel);
     voltageLayout->addWidget(voltageSpinbox);
 
@@ -167,14 +169,14 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level");
     minTrigLevelDoubleSpinbox = new QDoubleSpinBox();
     QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
-    maxTrigLeveDoubleSpinbox = new QDoubleSpinBox();
+    maxTrigLevelDoubleSpinbox = new QDoubleSpinBox();
 
     minTrigLevelDoubleSpinbox->setDecimals(4);
-    maxTrigLeveDoubleSpinbox->setDecimals(4);
+    maxTrigLevelDoubleSpinbox->setDecimals(4);
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
     triggerLevelsLayout->addWidget(minTrigLevelDoubleSpinbox);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
-    triggerLevelsLayout->addWidget(maxTrigLeveDoubleSpinbox);
+    triggerLevelsLayout->addWidget(maxTrigLevelDoubleSpinbox);
     triggerLayout->addLayout(triggerLevelsLayout);
 
     QVBoxLayout * triggerStateTypeLayout = new QVBoxLayout();
@@ -234,6 +236,23 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         emit this->sigSaveAsButtonPressed(filename.toStdString());
     });
 
+    connect(timeoutDoubleSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
+        emit sigTimeoutDoubleSpinboxChanged(value, currentStateIdx);
+    });
+    connect(voltageSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
+        emit sigvoltageSpinbox(value, currentStateIdx);
+    });
+    connect(maxTrigLevelDoubleSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
+        emit sigMaxTrigLeveDoubleSpinbox(value, currentStateIdx);
+    });
+    connect(minTrigLevelDoubleSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
+        emit sigMinTrigLevelDoubleSpinbox(value, currentStateIdx);
+    });
+
+    connect(timeoutStateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
+        emit sigTimeoutStateSpinboxChanged(value, currentStateIdx);
+    });
+
     buttonsLayout->addWidget(openButton);
     buttonsLayout->addWidget(saveAsButton);
     buttonsLayout->addItem(spacer);
@@ -256,9 +275,10 @@ void StateArrayDockWidget::setState(YAML::State s, int index){
     activeTriggerCheckbox ->setChecked(s.activeTrigger);
     deltaTriggerCheckbox->setChecked(s.delta);
     minTrigLevelDoubleSpinbox->setValue(s.minTrigLevel);
-    maxTrigLeveDoubleSpinbox->setValue(s.maxTrigLevel);
+    maxTrigLevelDoubleSpinbox->setValue(s.maxTrigLevel);
     triggerStateSpinbox->setValue(s.triggerState);
 
+    currentStateIdx = index;
 //    triggerTypeComboBox->setText(QString::fromStdString(std::to_string(s.getTriggerType())));
 }
 

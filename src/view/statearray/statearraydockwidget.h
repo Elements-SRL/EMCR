@@ -35,12 +35,18 @@ private:
     QCheckBox * activeTriggerCheckbox;
     QCheckBox * deltaTriggerCheckbox;
     QDoubleSpinBox * minTrigLevelDoubleSpinbox;
-    QDoubleSpinBox * maxTrigLeveDoubleSpinbox;
+    QDoubleSpinBox * maxTrigLevelDoubleSpinbox;
     QSpinBox * triggerStateSpinbox;
     QComboBox * triggerTypeComboBox;
     // Private member variables and functions
 
 signals:
+    void sigStateChanged2(int);
+    void sigMaxTrigLeveDoubleSpinbox(double, int);
+    void sigMinTrigLevelDoubleSpinbox(double, int);
+    void sigvoltageSpinbox(double, int);
+    void sigTimeoutStateSpinboxChanged(double, int);
+    void sigTimeoutDoubleSpinboxChanged(double, int);
     void sigOpenButtonPressed(std::string fname);
     void sigSaveAsButtonPressed(std::string fname);
     void sigStateChanged(int, int, YAML::State);
