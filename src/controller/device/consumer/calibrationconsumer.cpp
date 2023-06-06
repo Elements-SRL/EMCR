@@ -993,6 +993,8 @@ void CalibrationConsumer::setSourceForCurrentChannel(uint16_t source){
 
 
 void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
+    mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
+    mDev->getMessageDispatcher()->turnCurrentReaderOn(true, false);
     turnSomeCalSwOnOff(channelIndexes, someTrue);
     turnSomeVcSwOnOff(channelIndexes, someTrue);
     turnSomeCcSwOnOff(channelIndexes, someFalse);
@@ -1003,6 +1005,10 @@ void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexe
 }
 
 void CalibrationConsumer::setCcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
+    mDev->getMessageDispatcher()->turnCurrentReaderOn(false, false);
+    mDev->getMessageDispatcher()->turnVoltageReaderOn(true, false);
+    mDev->getMessageDispatcher()->setDebugBit(0, 7, true);
+
     turnSomeCalSwOnOff(channelIndexes, someTrue);
     turnSomeVcSwOnOff(channelIndexes, someFalse);
     turnSomeCcSwOnOff(channelIndexes, someTrue);
@@ -1726,8 +1732,14 @@ void CalibrationConsumer::calibrateCcAdcGain(int thisActualRangeIdx){
                     channelIdx = bufferIdx+voltageIdx + channelToCalibIdxs[0];
                 }
                 voltageSum[voltageIdx] += buffer[channelIdx]*multiplierVoltage;
+
+//                if(voltageIdx == 1){
+//                    qDebug() << buffer[channelIdx]*multiplierVoltage;
+//                }
+
             }
         }
+        qDebug() << "\n";
 
         for(int i = 0; i < voltageSum.size(); i++){
             voltageMeans[voltStepIdx][i] = voltageSum[i]/((double)timeSamples);
@@ -1779,11 +1791,14 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
     x.resize(ccCalibrationCurrSteps[thisActualRangeIdx].size());
     for(int i = 0; i< ccCalibrationCurrSteps[thisActualRangeIdx].size(); i++){
         x[i] = ccCalibrationCurrSteps[thisActualRangeIdx][i].getNoPrefixValue();
+        qDebug() << x[i];
+
     }
 
     /*! Ho settato la maggior parte degli switch prima di chiamare questafunzione, qui abilito
      *  solo lo stimolo in corrente e lo spengo alla fine della funzione*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someTrue);
+    turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
     /*! FOR: START ciclo sugli step di corrente*/
     for(int currStepIdx = 0; currStepIdx <ccCalibrationCurrSteps[thisActualRangeIdx].size(); currStepIdx++){
@@ -1803,6 +1818,7 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
         samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        QThread::sleep(2);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -1855,6 +1871,9 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
     for(int chIdx = 0; chIdx < channelToCalibIdxs.size(); chIdx++){
         for(int i = 0; i< ccCalibrationCurrSteps[thisActualRangeIdx].size(); i++){
             y[i] = voltageMeans[i][chIdx];
+            if(chIdx == 1){
+                qDebug() << y[i];
+            }
         }
         /*! calcolo slope con minimi quadrati che sarebbe VADC/Itest_ma_ancora_da_calibrare = Restim*/
         leastSquareSimple(x, y, usefulSlope, uselessOffset);
@@ -1874,6 +1893,8 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
 
     /*! spegne lo stimolo, i carichi erano già stati staccati fuori dalla funzione*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
+    turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
+
 
 }
 
@@ -1890,6 +1911,7 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
     /*! accende lo stimolo su tutti i canali  o su quelli della scheda selezionata*/
     /*! gli switch di ingresso sono staccati dal passo precedente*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someTrue);
+    turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
     voltageMeans[0].resize(channelToCalibIdxs.size());
 
@@ -1898,6 +1920,7 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
     sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
     minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
     samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+    QThread::sleep(2);
     hook->flush(); /*! Remove old buffered data */
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -1940,6 +1963,7 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
 
     /*! spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
+    turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
 }
 
 void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRange){
@@ -1961,6 +1985,7 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
 
     /*! accende lo stimolo, i CAL_SW erano stati attaccati fuori dalla funzione*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someTrue);
+    turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
     voltageMeans[0].resize(channelToCalibIdxs.size());
 
@@ -1973,6 +1998,7 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
         sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
         minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
         samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        QThread::sleep(2);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -2028,4 +2054,5 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
 
     /*!  spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
+    turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
 }
