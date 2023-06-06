@@ -156,7 +156,7 @@ private:
     void calibrateCcAdcGain(int thisActualRangeIdx);
     void calibrateCcDacGain(int thisActualRangeIdx);
     void calibrateCcAdcOffset(RangedMeasurement_t thisActualRange);
-    void calibrateCcDacOffset(RangedMeasurement_t thisActualRange);
+    void calibrateCcDacOffset(RangedMeasurement_t thisCcVoltageActualRange, int thisCcVoltageActualRangeIdx);
 
 
     /*! Interactions with CSV files*/

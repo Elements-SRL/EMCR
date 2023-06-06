@@ -441,7 +441,7 @@ void CalibrationConsumer::run(){
                 multiplierVoltage = rangeInfoAdditional[0].multiplier();
 
                 /*! START CALCOLO CC ADC OFFSET (CCVoffset)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-               calibrateCcDacOffset(ccCurrentRangesArray[rangeIdx]);
+               calibrateCcDacOffset(ccVoltageRangesArray[0], 0);
                /*! END CALCOLO CC ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             }
 
@@ -1281,7 +1281,19 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
     }
 
     CalibrationParams_t calibrationParams;
+    std::vector<std::string> calibrationFileNames;
     mDev->getMessageDispatcher()->getCalibParams(calibrationParams);
+    mDev->getMessageDispatcher()->getCalibFileNames(calibrationFileNames);
+
+    if(calibrationFileNames.size()){
+        for(int i = 0; i < calibrationFileNames.size(); i++){
+            boardSerialNums[i] = QString::fromStdString(calibrationFileNames[i]);
+        }
+    }else{
+        QString msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
+        emit sigCalibLoadingMsg(msg);
+    }
+
 
     convertFromMeasurement(calibrationParams.allGainDacMeas,
                            calibrationParams.allGainAdcMeas,
@@ -1978,7 +1990,7 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
 
         /*! il gain sarebbe slopeStimata/Rcalib = Restim/Rcalib, a cui devo moltiplicare la corrente applicata dal DAC, per avere il suo valore impostato da GUI*/
         /*! \todo FCON: recheck, diverso che in tabella*/
-        usefulCcDacGain[chIdx] = usefulSlope/ccCalibratonResistances[thisActualRangeIdx].getNoPrefixValue();
+        usefulCcDacGain[chIdx] = ccCalibratonResistances[thisActualRangeIdx].getNoPrefixValue()/usefulSlope;
         y.clear();
         y.resize(ccCalibrationCurrSteps[thisActualRangeIdx].size());
     }
@@ -2062,7 +2074,7 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
     turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
 }
 
-void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRange){
+void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRange, int thisCcVoltageActualRangeIdx){
     int numTries = 0;
     std::vector<bool> needsFurtherCalibration;
     needsFurtherCalibration.resize(channelToCalibIdxs.size());
@@ -2117,18 +2129,21 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
                     channelIdx = bufferIdx+currentIdx + channelToCalibIdxs[0];
                 };
                 voltageSum[currentIdx] += buffer[channelIdx]*multiplierVoltage;
+                if(currentIdx == 1){
+                    qDebug() << buffer[channelIdx]*multiplierVoltage;
+                }
             }
         }
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
 
-            adcCompensatedVoltage[i] = (ccGainADC[rangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + ccOffsetADC[rangeIdx][i];
+            adcCompensatedVoltage[i] = (ccGainADC[thisCcVoltageActualRangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + ccOffsetADC[thisCcVoltageActualRangeIdx][i];
             if (adcCompensatedVoltage[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
                /*! sottraggo allo step di corrente attualmente applicato*/
-                double poffi = ccCalibratonResistances[rangeIdx].getNoPrefixValue(); // Ohm
+                double poffi = ccCalibratonResistances[thisCcVoltageActualRangeIdx].getNoPrefixValue(); // Ohm
                 double bubbi = someCurrSteps[i].getNoPrefixValue() - adcCompensatedVoltage[i]/poffi; // A
                 someCurrSteps[i].value = bubbi/someCurrSteps[i].multiplier(); //nA perchè divido I per 1e-9
            }
