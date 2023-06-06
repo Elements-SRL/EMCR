@@ -33,3 +33,11 @@
 
 EMCR.pro.user
 Protocols/*
+.qmake.stash
+.vs/
+EMCR.vcxproj
+EMCR.vcxproj.filters
+EMCR.vcxproj.user
+EMCR_resource.rc
+debug/
+release/
