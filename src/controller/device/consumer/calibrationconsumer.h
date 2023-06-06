@@ -178,6 +178,16 @@ private:
                               std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
                               );
 
+    void convertFromMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
+                                std::vector<std::vector<Measurement_t>> &gainAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &offsetDacMeas,
+                                std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
+                                std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
+                                );
+
 signals:
     void sigCalibLoadingMsg(QString calibLoadMsg);
     void sigManualCalibDoneMsg(QString manualCalibDoneMsg);
