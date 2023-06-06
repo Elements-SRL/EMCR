@@ -67,8 +67,6 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigTimeoutDoubleSpinboxChanged, this, [=](double timeout, int stateIdx){
         stateArray.states[stateIdx].timeout = timeout;
-        std::cout << "fanculo2" << std::endl;
-
     });
 }
 
