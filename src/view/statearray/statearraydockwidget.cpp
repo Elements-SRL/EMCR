@@ -223,6 +223,16 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         emit this->sigSaveAsButtonPressed(filename.toStdString());
     });
 
+    connect(activeTimeoutCheckbox, &QCheckBox::clicked, this, [=](){
+        emit sigActiveTimeoutCheckbox(activeTimeoutCheckbox->isChecked(), currentStateIdx);
+    });
+    connect(deltaTriggerCheckbox, &QCheckBox::clicked, this, [=](){
+        emit sigDeltaTriggerCheckbox(deltaTriggerCheckbox->isChecked(), currentStateIdx);
+    });
+    connect(activeTriggerCheckbox, &QCheckBox::clicked, this, [=](){
+        emit sigActiveTriggerCheckbox(activeTriggerCheckbox->isChecked(), currentStateIdx);
+    });
+
     connect(timeoutDoubleSpinbox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double value){
         emit sigTimeoutDoubleSpinboxChanged(value, currentStateIdx);
     });

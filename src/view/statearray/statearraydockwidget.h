@@ -41,6 +41,9 @@ private:
     // Private member variables and functions
 
 signals:
+    void sigActiveTimeoutCheckbox(bool, int);
+    void sigDeltaTriggerCheckbox(bool, int);
+    void sigActiveTriggerCheckbox(bool, int);
     void sigStateChanged(int);
     void sigMaxTrigLeveDoubleSpinbox(double, int);
     void sigMinTrigLevelDoubleSpinbox(double, int);

@@ -44,9 +44,15 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         }
         md->startStateArray();
     });
-
-
-
+    connect(stateArrayWidget, &StateArrayDockWidget::sigActiveTimeoutCheckbox, this, [=](bool activeTimeout, int stateIdx){
+        stateArray.states[stateIdx].activeTimeout = activeTimeout;
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigDeltaTriggerCheckbox, this, [=](bool deltaTrigger, int stateIdx){
+        stateArray.states[stateIdx].delta = deltaTrigger;
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigActiveTriggerCheckbox, this, [=](bool activeTrigger, int stateIdx){
+        stateArray.states[stateIdx].activeTrigger = activeTrigger;
+    });
     connect(stateArrayWidget, &StateArrayDockWidget::sigMaxTrigLeveDoubleSpinbox, this, [=](double maxTrigLevel, int stateIdx){
         stateArray.states[stateIdx].maxTrigLevel = maxTrigLevel;
     });
