@@ -1240,6 +1240,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
     QStringList boardStringList;
     std::vector<bool> calibratedWithDefaultParams;
     std::vector<bool> calibratedWithDefaultParamsCc;
+    QString msg = "";
 
     /*! all'inizio devo caricare i valori di calibrazione per tutti i canali (o dai file se li trovo o dai valori di default) */
     channelToCalibIdxs.resize(currentChannelsNum);
@@ -1249,27 +1250,69 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
 
     CalibrationParams_t calibrationParams;
     std::vector<std::string> calibrationFileNames;
+    std::vector<std::vector<bool>> calibLoadOkFlags;
     ErrorCodes_t error = mDev->getMessageDispatcher()->getCalibParams(calibrationParams);
     mDev->getMessageDispatcher()->getCalibFileNames(calibrationFileNames);
+    mDev->getMessageDispatcher()->getCalibFilesFlags(calibLoadOkFlags);
+
+    for(int i = 0; i < calibrationFileNames.size(); i++){
+        boardSerialNums[i] = QString::fromStdString(calibrationFileNames[i]);
+    }
+
     if (error != Success) {
-        if (error == ErrorCalibrationFileMissing || error == ErrorCalibrationFileCorrupted) {
+        if(error == ErrorCalibrationDirMissing){
+            msg = "Calibration directory " + path + " not found.\nDefault calibration parameters were loaded.";
+            emit sigCalibLoadingMsg(msg);
+        } else if (error == ErrorCalibrationMappingCorrupted){
+            msg = "Wrong mapping in " + mappingFileName + ".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
+            emit sigCalibLoadingMsg(msg);
+        } else if(error == ErrorCalibrationMappingNotOpened){
+            msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
+            emit sigCalibLoadingMsg(msg);
+        } else if (error == ErrorCalibrationFileMissing || error == ErrorCalibrationFileCorrupted) {
             /*! \todo FCON riempire la lista di file di calibrazione mancanti */
-            QString listOfBoardsMissing = "";
-            emit sigCalibLoadingMsg(listOfBoardsMissing);
+
+
+           for(int k = 0; k < calibLoadOkFlags[0].size(); k++){
+               if(calibLoadOkFlags[0][k] == false){
+                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
+               } else {
+                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibration paramteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +".csv\n";
+               }
+           }
+
+           if(deviceUnderCalibrationType == Device384PatchClamp
+           #ifdef DEBUG
+               || deviceUnderCalibrationType == Device384FakePatchClamp
+           #endif
+           ){
+               for(int k = 0; k < calibLoadOkFlags[1].size(); k++){
+                   if(calibLoadOkFlags[1][k] == false){
+                       msg = msg + " CC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
+                   } else {
+                       msg = msg + " CC - Board " + QString("%1").arg(k+1) + " calibration paramteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +"_cc.csv\n";
+                   }
+               }
+           }
+            //QString listOfBoardsMissing = "";
+            emit sigCalibLoadingMsg(msg);
 
         } else {
             emit sigCalibLoadingMsg(error);
         }
-    }
-
-    if(calibrationFileNames.size()){
-        for(int i = 0; i < calibrationFileNames.size(); i++){
-            boardSerialNums[i] = QString::fromStdString(calibrationFileNames[i]);
-        }
-    }else{
-        QString msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
+    } else {
+        QString msg = "Calibration parameters loaded successfully.\n";
         emit sigCalibLoadingMsg(msg);
     }
+
+//    if(calibrationFileNames.size()){
+//        for(int i = 0; i < calibrationFileNames.size(); i++){
+//            boardSerialNums[i] = QString::fromStdString(calibrationFileNames[i]);
+//        }
+//    }else{
+//        QString msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
+//        emit sigCalibLoadingMsg(msg);
+//    }
 
 
     convertFromMeasurement(calibrationParams.allGainDacMeas,
@@ -1407,122 +1450,122 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
     // channelToCalibIdxs.clear();
 }
 
-void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream, bool vcTccF){
-    QString dump;
-    QString line;
-    QStringList tempList;
-    std::vector<double> tempVector;
+//void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream, bool vcTccF){
+//    QString dump;
+//    QString line;
+//    QStringList tempList;
+//    std::vector<double> tempVector;
 
-    // seriale della scheda, da buttare
-    dump = boardStream.readLine();
+//    // seriale della scheda, da buttare
+//    dump = boardStream.readLine();
 
-    if (vcTccF){
+//    if (vcTccF){
 
-        // leggo sui VC current range
-        for(int lineIdx = 0; lineIdx< vcCurrentRangesArray.size(); lineIdx++){
-            // valore VC current range, da buttare
-            dump = boardStream.readLine();
+//        // leggo sui VC current range
+//        for(int lineIdx = 0; lineIdx< vcCurrentRangesArray.size(); lineIdx++){
+//            // valore VC current range, da buttare
+//            dump = boardStream.readLine();
 
-            // linea con valori utili di ADC gain
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                gainADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
-            tempList.clear();
+//            // linea con valori utili di ADC gain
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                gainADC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
+//            tempList.clear();
 
-            // linea con valori utili di ADC offset
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                offsetADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
-            tempVector.clear();
-            tempList.clear();
-        }
+//            // linea con valori utili di ADC offset
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                offsetADC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
+//            tempVector.clear();
+//            tempList.clear();
+//        }
 
-        //leggo su VC Voltage range
-        for(int lineIdx = 0; lineIdx< vcVoltageRangesArray.size(); lineIdx++){
-            // valore VC voltage range, da buttare
-            dump = boardStream.readLine();
+//        //leggo su VC Voltage range
+//        for(int lineIdx = 0; lineIdx< vcVoltageRangesArray.size(); lineIdx++){
+//            // valore VC voltage range, da buttare
+//            dump = boardStream.readLine();
 
-            // linea con valori utili di DAC gain
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                gainDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
-            tempList.clear();
+//            // linea con valori utili di DAC gain
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                gainDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
+//            tempList.clear();
 
-            // linea con valori utili
+//            // linea con valori utili
 
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                offsetDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                offsetDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
 
-            tempVector.clear();
-            tempList.clear();
-        }
-    } else {
-        // leggo sui CC voltage range (ADC)
-        for(int lineIdx = 0; lineIdx< ccVoltageRangesArray.size(); lineIdx++){
-            // valore CC Voltage range, da buttare
-            dump = boardStream.readLine();
+//            tempVector.clear();
+//            tempList.clear();
+//        }
+//    } else {
+//        // leggo sui CC voltage range (ADC)
+//        for(int lineIdx = 0; lineIdx< ccVoltageRangesArray.size(); lineIdx++){
+//            // valore CC Voltage range, da buttare
+//            dump = boardStream.readLine();
 
-            // linea con valori utili di ADC gain
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                ccGainADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
-            tempList.clear();
+//            // linea con valori utili di ADC gain
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                ccGainADC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
+//            tempList.clear();
 
-            // linea con valori utili di ADC offset
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                ccOffsetADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
-            tempVector.clear();
-            tempList.clear();
-        }
+//            // linea con valori utili di ADC offset
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                ccOffsetADC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
+//            tempVector.clear();
+//            tempList.clear();
+//        }
 
-        // leggo sui CC current range (DAC)
-        for(int lineIdx = 0; lineIdx< ccCurrentRangesArray.size(); lineIdx++){
-            // valore CC Current range, da buttare
-            dump = boardStream.readLine();
+//        // leggo sui CC current range (DAC)
+//        for(int lineIdx = 0; lineIdx< ccCurrentRangesArray.size(); lineIdx++){
+//            // valore CC Current range, da buttare
+//            dump = boardStream.readLine();
 
-            // linea con valori utili di ADC gain
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                ccGainDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
-            tempList.clear();
+//            // linea con valori utili di ADC gain
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                ccGainDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
+//            tempList.clear();
 
-            // linea con valori utili di ADC offset
-            line = boardStream.readLine();
-            tempList.append(line.split(myCsvSeparator));
-            tempList.removeLast(); // remove the \n at the end of the line
-            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-                ccOffsetDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-            }
-            tempVector.clear();
-            tempList.clear();
-        }
-    }
+//            // linea con valori utili di ADC offset
+//            line = boardStream.readLine();
+//            tempList.append(line.split(myCsvSeparator));
+//            tempList.removeLast(); // remove the \n at the end of the line
+//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
+//                ccOffsetDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
+//            }
+//            tempVector.clear();
+//            tempList.clear();
+//        }
+//    }
 
 
-}
+//}
 
 /*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
 gainADC, offsetADC anf offsetDAC contain  the parameters corresponding to all the channels, despite a single board calibration was started.
