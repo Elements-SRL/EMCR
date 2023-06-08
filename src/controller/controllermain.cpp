@@ -304,7 +304,8 @@ void ControllerMain::onMainWindowCreated() {
     std::vector<bool> offValues(currentChannelsNumber, false);
     bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
 
-    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationPath(), "boardMapping.csv");
+//    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationPath(), "boardMapping.csv");
+    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationDir(), calibratorConsumer->getCalibrationMappingFilePath());
 
     /*! Start threads */
     this->startProducerConsumers();

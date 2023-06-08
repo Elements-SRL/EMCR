@@ -11,7 +11,14 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     std::vector <Measurement_t> aaa;
 //    DeviceTypes_t ccc;
 
-    calibrationFilesFolder = calibrationFilesFolder + mDev->getSerialNumber() + "/";
+//    calibrationFilesFolder = calibrationFilesFolder + mDev->getSerialNumber() + "/";
+    std::string tempString;
+    mDev->getMessageDispatcher()->getCalibMappingFileDir(tempString);
+    calibrationFilesFolder = QString().fromStdString(tempString);
+
+    mDev->getMessageDispatcher()->getCalibMappingFilePath(tempString);
+    calibrationMappingFilePath = QString().fromStdString(tempString);;
+
 
     mDev->getSamplingRatesFeatures(aaa);
     calibrationSamplingRate = aaa[0];
@@ -127,8 +134,12 @@ CalibrationConsumer::~CalibrationConsumer(){
 
 }
 
-QString CalibrationConsumer::getCalibrationPath(){
+QString CalibrationConsumer::getCalibrationDir(){
     return calibrationFilesFolder;
+}
+
+QString CalibrationConsumer::getCalibrationMappingFilePath(){
+    return calibrationMappingFilePath;
 }
 
 void CalibrationConsumer::run(){
@@ -1038,11 +1049,11 @@ QString CalibrationConsumer::suspectChannelsMsg(std::vector<uint16_t> chanToCali
     return msgSusp;
 }
 
-void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileNameRoot, std::vector<uint16_t> chanSubset){
+void CalibrationConsumer::prepareStuffToSaveOnCsv(QString dir, QString fileNameRoot, std::vector<uint16_t> chanSubset){
     QString fileName = fileNameRoot + QString(".csv");
-    QFile outFile(path + fileName);
+    QFile outFile(dir + fileName);
     QTextStream stream;
-    if (QDir().exists(path)) {
+    if (QDir().exists(dir)) {
         outFile.open(QFile::WriteOnly);
         if (outFile.isOpen()) {
             stream.setDevice(&outFile);
@@ -1050,7 +1061,7 @@ void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName
         }
         outFile.close();
     } else {
-        if (QDir().mkpath(path)) {
+        if (QDir().mkpath(dir)) {
             if (outFile.open(QFile::WriteOnly )) {
                 stream.setDevice(&outFile);
                 this->saveCsv(chanSubset, stream, true);
@@ -1066,9 +1077,9 @@ void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName
             #endif
             ){
         QString fileName = fileNameRoot + QString("_cc.csv");
-        QFile outFile(path + fileName);
+        QFile outFile(dir + fileName);
         QTextStream stream;
-        if (QDir().exists(path)) {
+        if (QDir().exists(dir)) {
             outFile.open(QFile::WriteOnly);
             if (outFile.isOpen()) {
                 stream.setDevice(&outFile);
@@ -1076,7 +1087,7 @@ void CalibrationConsumer::prepareStuffToSaveOnCsv(QString path, QString fileName
             }
             outFile.close();
         } else {
-            if (QDir().mkpath(path)) {
+            if (QDir().mkpath(dir)) {
                 if (outFile.open(QFile::WriteOnly )) {
                     stream.setDevice(&outFile);
                     this->saveCsv(chanSubset, stream, false);
@@ -1235,7 +1246,7 @@ void CalibrationConsumer::loadDefaultCalibParams(int channelsNum, bool forVc, bo
     }
 }
 
-void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFileName){
+void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFileName){
     QStringList mappingStringList;
     QStringList boardStringList;
     std::vector<bool> calibratedWithDefaultParams;
@@ -1261,7 +1272,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString path, QString mappingFi
 
     if (error != Success) {
         if(error == ErrorCalibrationDirMissing){
-            msg = "Calibration directory " + path + " not found.\nDefault calibration parameters were loaded.";
+            msg = "Calibration directory " + dir + " not found.\nDefault calibration parameters were loaded.";
             emit sigCalibLoadingMsg(msg);
         } else if (error == ErrorCalibrationMappingCorrupted){
             msg = "Wrong mapping in " + mappingFileName + ".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";

@@ -5,7 +5,7 @@
 #define CCS_CALIB_INTERVAL_TO_REMOVE_IN_S 0.1
 #define CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ 5
 #define CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY 1
-#define CCS_CALIBRATION_DEFAULT_PATH "C:/EMCR_calib_folder/"
+//#define CCS_CALIBRATION_DEFAULT_PATH "C:/EMCR_calib_folder/"
 
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
@@ -25,7 +25,8 @@ public:
     void loadInitialCalibParams(QString path, QString mappingFileName);
     void copyToAllVectors();
     void updateCalibParams();
-    QString getCalibrationPath();
+    QString getCalibrationDir();
+    QString getCalibrationMappingFilePath();
 
 public slots:
     void onStartConsuming() override;
@@ -95,7 +96,8 @@ private:
     Measurement_t defaultCcDacOffsetValue;
 
     std::vector<QString> boardSerialNums;
-    QString calibrationFilesFolder = CCS_CALIBRATION_DEFAULT_PATH;
+    QString calibrationFilesFolder;// = CCS_CALIBRATION_DEFAULT_PATH;
+    QString calibrationMappingFilePath;
     QString myCsvSeparator = ",";
 
     /*! \note MPAC new fields for calibration in current clamp*/
