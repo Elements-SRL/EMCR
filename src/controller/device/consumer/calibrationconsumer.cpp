@@ -9,9 +9,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     DeviceDataConsumer(mDev, producer){
 
     std::vector <Measurement_t> aaa;
-//    DeviceTypes_t ccc;
 
-//    calibrationFilesFolder = calibrationFilesFolder + mDev->getSerialNumber() + "/";
     std::string tempString;
     mDev->getMessageDispatcher()->getCalibMappingFileDir(tempString);
     calibrationFilesFolder = QString().fromStdString(tempString);
@@ -97,36 +95,32 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     }
 
     boardSerialNums.resize(numOfBoards);
-//    for(int i = 0; i < numOfBoards; i++){
-//        boardSerialNums[i] = QString("serial_%1").arg(i);
-//    }
-
 
     /*! EXAMPLE OF boardMapping.csv*/
-//    0,EL_board_1
-//    1,EL_board_2
-//    2,EL_board_3
-//    3,EL_board_4
-//    4,EL_board_5
-//    5,EL_board_6
-//    6,EL_board_7
-//    7,EL_board_8
-//    8,EL_board_9
-//    9,EL_board_10
-//    10,EL_board_11
-//    11,EL_board_12
-//    12,EL_board_13
-//    13,EL_board_14
-//    14,EL_board_15
-//    15,EL_board_16
-//    16,EL_board_17
-//    17,EL_board_18
-//    18,EL_board_19
-//    19,EL_board_20
-//    20,EL_board_21
-//    21,EL_board_22
-//    22,EL_board_23
-//    23,EL_board_24
+//    1,EL_board_1
+//    2,EL_board_2
+//    3,EL_board_3
+//    4,EL_board_4
+//    5,EL_board_5
+//    6,EL_board_6
+//    7,EL_board_7
+//    8,EL_board_8
+//    9,EL_board_9
+//    10,EL_board_10
+//    11,EL_board_11
+//    12,EL_board_12
+//    13,EL_board_13
+//    14,EL_board_14
+//    15,EL_board_15
+//    16,EL_board_16
+//    17,EL_board_17
+//    18,EL_board_18
+//    19,EL_board_19
+//    20,EL_board_20
+//    21,EL_board_21
+//    22,EL_board_22
+//    23,EL_board_23
+//    24,EL_board_24
 
 }
 
@@ -280,8 +274,6 @@ void CalibrationConsumer::run(){
         /*! FOR: END ciclo sui range*/
         }
 
-
-
         for(int jjj = 0; jjj <vcVoltageRangesArray.size(); jjj++){
             rangeIdx = jjj;
 
@@ -301,16 +293,12 @@ void CalibrationConsumer::run(){
             /*! \todo 20230529 MPAC: questa funzione è solo unpo stub che riempie la struttura gainDAC di 1.0*/
             calibrateDacGain();
             /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-//            calibrateDacOffset(vcVoltageRangesArray[rangeIdx]);
+
             /*! 20230529 MPAC: rengeIdx serve solo  a memorizzare nella posizione giusta del vettore offsetDac. Mi serve selezionare un range
             di VC Current (e relativo indice e resistenza di calibrazione) per la lettura della corrente dovuta alla tensione residua*/
             calibrateDacOffset(vcCurrentRangesArray[0], 0);
             /*! END CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         }
-
-
-
-
 
         /*! Qui inizia la parte di calibrazione in CC*/
         /*! Open all IN_SW*/
@@ -404,11 +392,6 @@ void CalibrationConsumer::run(){
             turnSomeCalSwOnOff(channelToCalibIdxs, someTrue);
             turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
 
-
-
-
-
-
             /*! \note CCIoffset DAC*/
             /*! FOR: START ciclo sui range di corrente in CC*/
             for(int jjj = 0; jjj <ccCurrentRangesArray.size(); jjj++){
@@ -433,15 +416,8 @@ void CalibrationConsumer::run(){
 
         }
 
-
-
-
-
-
         someFalse.clear();
         someTrue.clear();
-
-
 
         /*! AGGIORNO LE STRUTTURA IN CUI TENGO TUTTI I VALORI DI CALIBRAZIONE*/
         for(int zzz = 0; zzz < vcCurrentRangesArray.size(); zzz++){
@@ -643,8 +619,6 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     /*! gli switch di ingresso sono staccati dal passo precedente*/
     turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
 
-//    currentMeans[0].resize(channelToCalibIdxs.size());
-
     /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
     la cui struttura è ancora da definire */
     sweepSamplingRateHz = mDev->getSamplingRate().getNoPrefixValue();
@@ -682,7 +656,6 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
 
     /*! moltiplico la corrente media per i GAIN calacolati al passo precedente e dovrei avere già l'offset di ADC*/
     for(int i = 0; i < currentSum.size(); i++){
-//       usefulAdcOffset[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples); /*! \todo FCON la moltiplicazione per il gain non simula correttamente quello che accade in FPGA, meglio far fare il conto all'FPGA usando il comando del MessageDispatcher
         usefulAdcOffset[i] =-(gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
 
     }
@@ -778,8 +751,6 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
-//            (gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
-//            adcCompensatedCurrent[i] = gainADC[rangeIdx][i] * currentSum[i]/((double)timeSamples) + offsetADC[rangeIdx][i]; /*! \todo FCON vedi commento nel calcolo dell'offset dell'ADC: far fare la calibrazione parziale in FPGA invece che in SW */
             adcCompensatedCurrent[i] = (gainADC[thisVcCurrentActualRangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[thisVcCurrentActualRangeIdx][i];
 
             if (adcCompensatedCurrent[i] == 0.0){
@@ -1274,16 +1245,16 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
         if(error == ErrorCalibrationDirMissing){
             msg = "Calibration directory " + dir + " not found.\nDefault calibration parameters were loaded.";
             emit sigCalibLoadingMsg(msg);
-        } else if (error == ErrorCalibrationMappingCorrupted){
-            msg = "Wrong mapping in " + mappingFileName + ".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
-            emit sigCalibLoadingMsg(msg);
+//        } else if (error == ErrorCalibrationMappingCorrupted){
+//            msg = "Wrong mapping in " + mappingFileName + ".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
+//            emit sigCalibLoadingMsg(msg);
         } else if(error == ErrorCalibrationMappingNotOpened){
             msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
             emit sigCalibLoadingMsg(msg);
+        } else if(error == ErrorCalibrationMappingWrongNumbering){
+            msg = "Wrong board numbering in " + mappingFileName + ".\nBoards should be numbered from 1 to " + QString("%1").arg(numOfBoards) + ".\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
+            emit sigCalibLoadingMsg(msg);
         } else if (error == ErrorCalibrationFileMissing || error == ErrorCalibrationFileCorrupted) {
-            /*! \todo FCON riempire la lista di file di calibrazione mancanti */
-
-
            for(int k = 0; k < calibLoadOkFlags[0].size(); k++){
                if(calibLoadOkFlags[0][k] == false){
                    msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
@@ -1305,7 +1276,6 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
                    }
                }
            }
-            //QString listOfBoardsMissing = "";
             emit sigCalibLoadingMsg(msg);
 
         } else {
@@ -1316,16 +1286,6 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
         emit sigCalibLoadingMsg(msg);
     }
 
-//    if(calibrationFileNames.size()){
-//        for(int i = 0; i < calibrationFileNames.size(); i++){
-//            boardSerialNums[i] = QString::fromStdString(calibrationFileNames[i]);
-//        }
-//    }else{
-//        QString msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
-//        emit sigCalibLoadingMsg(msg);
-//    }
-
-
     convertFromMeasurement(calibrationParams.allGainDacMeas,
                            calibrationParams.allGainAdcMeas,
                            calibrationParams.allOffsetAdcMeas,
@@ -1334,249 +1294,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
                            calibrationParams.ccAllOffsetAdcMeas,
                            calibrationParams.ccAllGainDacMeas,
                            calibrationParams.ccAllOffsetDacMeas);
-
-//    if (!QDir().exists(path)) {
-//        this->loadDefaultCalibParams(currentChannelsNum, true, true);
-//        copyToAllVectors();
-//        updateCalibParams();
-//        QString msg = "Calibration directory " + path + " not found.\nDefault calibration parameters were loaded.";
-//        emit sigCalibLoadingMsg(msg);
-
-//    } else{
-//        calibrationFilesFolder = path;
-//        QFile boardMappingFile(path + mappingFileName);
-//        if(!boardMappingFile.exists()){
-//            this->loadDefaultCalibParams(currentChannelsNum, true, true);
-//            copyToAllVectors();
-//            updateCalibParams();
-//            QString msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
-//            emit sigCalibLoadingMsg(msg);
-//        } else {
-//            boardMappingFile.open(QFile::ReadOnly);
-//            if (boardMappingFile.isOpen()) {
-//                QTextStream mappingStream(&boardMappingFile);
-//                while(!mappingStream.atEnd()){
-//                    QString line = mappingStream.readLine();
-//                    mappingStringList.append(line.split(myCsvSeparator));
-//                    if(mappingStringList[0].toInt()<0 || mappingStringList[0].toInt()>=numOfBoards){
-//                        QString msg = "Wrong mapping in " + mappingFileName + " for board " + mappingStringList[1] +".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR and repeat the calibration procedure.";
-//                        emit sigCalibLoadingMsg(msg);
-//                        boardMappingFile.close();
-//                        /*! Mapping file corrupted, do not load any calibration info */
-//                        return;
-//                    }
-//                    boardSerialNums[mappingStringList[0].toInt()] = mappingStringList[1];
-//                    mappingStringList.clear();
-//                }
-//                boardMappingFile.close();
-
-//                for(int boardCalibFileIdx = 0; boardCalibFileIdx < boardSerialNums.size(); boardCalibFileIdx++){
-//                    QString boardCalibFileName = path + boardSerialNums[boardCalibFileIdx] + ".csv";
-//                    QFile boardCalibFile(boardCalibFileName);
-//                    if(!boardCalibFile.exists()){
-//                        /*! QUI DEVO CARICARE I VALORI DI DEFAULT PER QUESTA SCHEDA PERCHè IL FILE NON ESISTE*/
-//                        loadDefaultCalibParams(numOfChannelsOnBoard, true, false);
-//                        calibratedWithDefaultParams.push_back(true);
-////                        QString msg = "Calibration file " + boardCalibFileName + " not found.\nDefault calibration parameters were loaded for board: " + QString("%1").arg(boardCalibFileIdx+1);
-////                        emit sigCalibLoadingMsg(msg);
-//                    } else {
-//                        boardCalibFile.open(QFile::ReadOnly);
-//                        if (boardCalibFile.isOpen()) {
-//                            QTextStream boardStream(&boardCalibFile);
-//                            extractBoardCalibDataFromCsv(boardStream, true);
-//                            boardCalibFile.close();
-//                            calibratedWithDefaultParams.push_back(false);
-//                        } else {
-//                            /*! QUI DEVO CARICARE I VALORI DI DEFAULT PER QUESTA SCHEDA PERCHè IL FILE NON SI APRE*/
-//                            loadDefaultCalibParams(numOfChannelsOnBoard, true, false);
-//                            calibratedWithDefaultParams.push_back(true);
-//                            /*! manda ancora messaggio di erore per nn esser riuscito ad aprire questo file */
-////                            QString msg = "Cannot open calibration file " + boardCalibFileName + ".\nDefault calibration parameters were loaded for board: " + QString("%1").arg(boardCalibFileIdx+1);
-//                        }
-//                    }
-
-
-//                    if(deviceUnderCalibrationType == Device384PatchClamp
-//                        #ifdef DEBUG
-//                            || deviceUnderCalibrationType == Device384FakePatchClamp
-//                        #endif
-//                       ){
-//                        QString boardCalibFileNameCc = path + boardSerialNums[boardCalibFileIdx] + "_cc.csv";
-//                        QFile boardCalibFileCc(boardCalibFileNameCc);
-
-//                        if(!boardCalibFileCc.exists()){
-//                            /*! QUI DEVO CARICARE I VALORI DI DEFAULT PER QUESTA SCHEDA PERCHè IL FILE NON ESISTE*/
-//                            loadDefaultCalibParams(numOfChannelsOnBoard, false, true);
-//                            calibratedWithDefaultParamsCc.push_back(true);
-//    //                        QString msg = "Calibration file " + boardCalibFileName + " not found.\nDefault calibration parameters were loaded for board: " + QString("%1").arg(boardCalibFileIdx+1);
-//    //                        emit sigCalibLoadingMsg(msg);
-//                        } else {
-//                            boardCalibFileCc.open(QFile::ReadOnly);
-//                            if (boardCalibFileCc.isOpen()) {
-//                                QTextStream boardStreamCc(&boardCalibFileCc);
-//                                extractBoardCalibDataFromCsv(boardStreamCc, false);
-//                                boardCalibFileCc.close();
-//                                calibratedWithDefaultParamsCc.push_back(false);
-//                            } else {
-//                                /*! QUI DEVO CARICARE I VALORI DI DEFAULT PER QUESTA SCHEDA PERCHè IL FILE NON SI APRE*/
-//                                loadDefaultCalibParams(numOfChannelsOnBoard, false, true);
-//                                calibratedWithDefaultParamsCc.push_back(true);
-//                                /*! manda ancora messaggio di erore per nn esser riuscito ad aprire questo file */
-//    //                            QString msg = "Cannot open calibration file " + boardCalibFileName + ".\nDefault calibration parameters were loaded for board: " + QString("%1").arg(boardCalibFileIdx+1);
-//                            }
-//                        }
-
-//                    }
-
-
-//                }
-//                QString msg = "Calibration parameters loaded successfully.\n";
-
-//                for(int k = 0; k < calibratedWithDefaultParams.size(); k++){
-//                    if(calibratedWithDefaultParams[k]){
-//                        msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
-//                    }
-//                }
-
-//                for(int k = 0; k < calibratedWithDefaultParamsCc.size(); k++){
-//                    if(calibratedWithDefaultParamsCc[k]){
-//                        msg = msg + " CC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
-//                    }
-//                }
-////                msg = msg + "calibrated with default parameters";
-
-//                copyToAllVectors();
-
-//                /*! Invio dati a FPGA con massageDispatcher*/
-//                updateCalibParams();
-//                emit sigCalibLoadingMsg(msg);
-//            } else {
-//                QString msg = "Cannot open calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
-//                emit sigCalibLoadingMsg(msg);
-//            }
-//        }
-//    }
-
-    /*! tolto per problemi 12/04/2023 */
-    // channelToCalibIdxs.clear();
 }
-
-//void CalibrationConsumer::extractBoardCalibDataFromCsv(QTextStream &boardStream, bool vcTccF){
-//    QString dump;
-//    QString line;
-//    QStringList tempList;
-//    std::vector<double> tempVector;
-
-//    // seriale della scheda, da buttare
-//    dump = boardStream.readLine();
-
-//    if (vcTccF){
-
-//        // leggo sui VC current range
-//        for(int lineIdx = 0; lineIdx< vcCurrentRangesArray.size(); lineIdx++){
-//            // valore VC current range, da buttare
-//            dump = boardStream.readLine();
-
-//            // linea con valori utili di ADC gain
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                gainADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-//            tempList.clear();
-
-//            // linea con valori utili di ADC offset
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                offsetADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-//            tempVector.clear();
-//            tempList.clear();
-//        }
-
-//        //leggo su VC Voltage range
-//        for(int lineIdx = 0; lineIdx< vcVoltageRangesArray.size(); lineIdx++){
-//            // valore VC voltage range, da buttare
-//            dump = boardStream.readLine();
-
-//            // linea con valori utili di DAC gain
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                gainDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-//            tempList.clear();
-
-//            // linea con valori utili
-
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                offsetDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-
-//            tempVector.clear();
-//            tempList.clear();
-//        }
-//    } else {
-//        // leggo sui CC voltage range (ADC)
-//        for(int lineIdx = 0; lineIdx< ccVoltageRangesArray.size(); lineIdx++){
-//            // valore CC Voltage range, da buttare
-//            dump = boardStream.readLine();
-
-//            // linea con valori utili di ADC gain
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                ccGainADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-//            tempList.clear();
-
-//            // linea con valori utili di ADC offset
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                ccOffsetADC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-//            tempVector.clear();
-//            tempList.clear();
-//        }
-
-//        // leggo sui CC current range (DAC)
-//        for(int lineIdx = 0; lineIdx< ccCurrentRangesArray.size(); lineIdx++){
-//            // valore CC Current range, da buttare
-//            dump = boardStream.readLine();
-
-//            // linea con valori utili di ADC gain
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                ccGainDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-//            tempList.clear();
-
-//            // linea con valori utili di ADC offset
-//            line = boardStream.readLine();
-//            tempList.append(line.split(myCsvSeparator));
-//            tempList.removeLast(); // remove the \n at the end of the line
-//            for(int paramIdx = 0; paramIdx < tempList.size(); paramIdx++){
-//                ccOffsetDAC[lineIdx].push_back(tempList[paramIdx].toDouble());
-//            }
-//            tempVector.clear();
-//            tempList.clear();
-//        }
-//    }
-
-
-//}
 
 /*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
 gainADC, offsetADC anf offsetDAC contain  the parameters corresponding to all the channels, despite a single board calibration was started.

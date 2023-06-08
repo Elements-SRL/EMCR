@@ -166,7 +166,6 @@ private:
     void prepareStuffToSaveOnCsv(QString path, QString fileNameRoot, std::vector<uint16_t> chanSubset);
     void saveCsv(std::vector<uint16_t> chanSubset, QTextStream &stream, bool vcTccF);
     void loadDefaultCalibParams(int channelsNum, bool forVc, bool forCc);
-    void extractBoardCalibDataFromCsv(QTextStream &boardStream, bool vcTccF);
     QString getCsvData(std::vector<uint16_t> chanSubset, bool vcTccF);
     QString suspectChannelsMsg(std::vector<uint16_t> chanToCalibIdxs);
 
