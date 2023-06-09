@@ -18,9 +18,6 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     calibrationMappingFilePath = QString().fromStdString(tempString);;
 
 
-    mDev->getSamplingRatesFeatures(aaa);
-    calibrationSamplingRate = aaa[0];
-
     mDev->getVcCurrentRangesFeatures(vcCurrentRangesArray, defaultVcCurrRangeIdx);
     mDev->getVcVoltageRangesFeatures(vcVoltageRangesArray);
     mDev->getCcCurrentRangesFeatures(ccCurrentRangesArray);
@@ -46,6 +43,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     calibrationVoltSteps = calibData.vcCalibStepsArrays;
     calibratonResistances = calibData.vcCalibResArray;
     areCalibResistOnBoard = calibData.areCalibResistOnBoard;
+    canInputsBeOpened = calibData.canInputsBeOpened;
     ccCalibrationVoltSteps = calibData.ccCalibVoltStepsArrays;
     ccCalibrationCurrSteps = calibData.ccCalibCurrStepsArrays;
     ccCalibratonResistances = calibData.ccCalibResArray;
@@ -173,8 +171,8 @@ void CalibrationConsumer::run(){
         /*! seleziona la più bassa sampling rate possibile*/
         std::vector <Measurement_t> samplingRates;
         mDev->getSamplingRatesFeatures(samplingRates);
-        mDev->getMessageDispatcher()->setSamplingRate(0, true);
-        mDev->setSamplingRate(samplingRates[0]);
+        mDev->getMessageDispatcher()->setSamplingRate(calibData.samplingRateIdx, true);
+        mDev->setSamplingRate(samplingRates[calibData.samplingRateIdx]);
 
         uint16_t bbb; // buffer variable used sometimes.
 
@@ -290,7 +288,7 @@ void CalibrationConsumer::run(){
             multiplierCurrent = rangeInfoAdditional[0].multiplier();
             mDev->getMessageDispatcher()->setVCCurrentRange(0, true);
 
-            /*! \todo 20230529 MPAC: questa funzione è solo unpo stub che riempie la struttura gainDAC di 1.0*/
+            /*! \todo 20230529 MPAC: questa funzione è solo uno stub che riempie la struttura gainDAC di 1.0*/
             calibrateDacGain();
             /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 

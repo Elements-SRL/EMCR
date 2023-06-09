@@ -50,12 +50,12 @@ private:
     int numOfBoards;
     int numOfChannelsOnBoard;
     int numOfChannels;
-    Measurement_t calibrationSamplingRate;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
     std::vector <RangedMeasurement_t> vcVoltageRangesArray;
     std::vector <std::vector <Measurement_t>> calibrationVoltSteps;
     std::vector <Measurement_t> calibratonResistances;
     bool areCalibResistOnBoard;
+    bool canInputsBeOpened;
     CalibrationData_t calibData;
     std::vector<std::vector<double_t>> gainADC; // vettore di vettori_di_gain (Uno per range)
     std::vector<std::vector<double_t>> offsetADC; // vettore di vettori_di_offset (Uno per range)
