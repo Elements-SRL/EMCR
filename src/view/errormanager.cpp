@@ -5,6 +5,7 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
     QString error;
 
     switch (errorCode) {
+    /*! \todo FCON riempire la lista messaggi di errore e di info nella funzione sotto */
     case Success:
         error = "NONE";
         break;
