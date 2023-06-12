@@ -180,10 +180,11 @@ void ControllerMain::onMainWindowCreated() {
     connect(currentProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolSaveRequest);
 #endif
 
-    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,      controllerChannel, &ControllerChannel::onAllChannelsClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,           controllerChannel, &ControllerChannel::onOneRowClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,         controllerChannel, &ControllerChannel::onOneBoardClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked,    controllerChannel, &ControllerChannel::onSingleChannelClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,          controllerChannel, &ControllerChannel::onAllChannelsClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,               controllerChannel, &ControllerChannel::onOneRowClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,             controllerChannel, &ControllerChannel::onOneBoardClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked,        controllerChannel, &ControllerChannel::onSingleChannelClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnChannelOnOff,      controllerChannel, &ControllerChannel::onApplyTurnChannelOnOff);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff,      controllerChannel, &ControllerChannel::onApplyTurnStimulusOnOff);
@@ -262,14 +263,15 @@ void ControllerMain::onMainWindowCreated() {
     connect(liveNoiseConsumer, &LiveNoiseConsumer::sigResult,   mainWindow->getChessaboard(), &Chessboard::onNoiseValueUpdated);
 
     /*! \todo at the moment only for debug mode*/
-    connect(mainWindow, &MainWindow::sigPerformCalibration,              calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
-    connect(calibratorConsumer, QOverload <QString> ::of(&CalibrationConsumer::sigCalibLoadingMsg),   mainWindow, QOverload <QString> ::of(&MainWindow::onCalibLoadingMsg));
-    connect(calibratorConsumer, QOverload <ErrorCodes_t> ::of(&CalibrationConsumer::sigCalibLoadingMsg),   mainWindow, QOverload <ErrorCodes_t> ::of(&MainWindow::onCalibLoadingMsg));
-    connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,   mainWindow, &MainWindow::onManualCalibDoneMsg);
-    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,   mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
     connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
-    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToCheckFirstModelCellMsg,   mainWindow, &MainWindow::onNeedToCheckFirstModelCellMsg);
-    connect(mainWindow, &MainWindow::sigFirstModelMounted,   calibratorConsumer, &CalibrationConsumer::onFirstModelMounted);
+    connect(mainWindow, &MainWindow::sigPerformCalibration, calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
+    connect(mainWindow, &MainWindow::sigFirstModelMounted,  calibratorConsumer, &CalibrationConsumer::onFirstModelMounted);
+
+    connect(calibratorConsumer, QOverload <QString> ::of(&CalibrationConsumer::sigCalibLoadingMsg),         mainWindow, QOverload <QString> ::of(&MainWindow::onCalibLoadingMsg));
+    connect(calibratorConsumer, QOverload <ErrorCodes_t> ::of(&CalibrationConsumer::sigCalibLoadingMsg),    mainWindow, QOverload <ErrorCodes_t> ::of(&MainWindow::onCalibLoadingMsg));
+    connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,                                mainWindow, &MainWindow::onManualCalibDoneMsg);
+    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
+    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToCheckFirstModelCellMsg,                      mainWindow, &MainWindow::onNeedToCheckFirstModelCellMsg);
 
 
 

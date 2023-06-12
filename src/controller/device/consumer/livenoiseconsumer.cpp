@@ -1,6 +1,9 @@
 #include "livenoiseconsumer.h"
 
 #include <qmath.h>
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
 
 LiveNoiseConsumer::LiveNoiseConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
     DeviceDataConsumer(mDev, producer) {
@@ -50,6 +53,25 @@ void LiveNoiseConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
     QMutexLocker locker(&rangesMtx);
     pushedCurrentRange = range;
     pushedCurrentRangeFlag = true;
+}
+
+void LiveNoiseConsumer::onExportLiveNoiseEstimates() {
+    QString filename = "noise";
+    QString filedir = QDir::currentPath() + "/";
+    QString filepath = filedir + filename + ".csv";
+    while (QFile::exists(filepath)) {
+        filename += "_";
+        filepath = filedir + filename + ".csv";
+    }
+
+    QFile file(filepath);
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream stream(&file);
+    for (auto noise : res.stdCurrent) {
+        stream << noise << "\n";
+    }
+    file.close();
 }
 
 void LiveNoiseConsumer::run() {

@@ -24,7 +24,14 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     visualizationCbx->addItem("Plot Overview");
     visualizationCbx->addItem("Noise Overview");
 
-    mainGl->addWidget(visualizationCbx, 0, 0, 1, -1);
+    mainGl->addWidget(visualizationCbx, 0, 0, 1, (boardsNum+1)/2);
+
+    QPushButton * noiseExportBtn = new QPushButton("Export");
+    noiseExportBtn->setVisible(false);
+    noiseExportBtn->setCheckable(false);
+    connect(noiseExportBtn, &QPushButton::clicked, this, &Chessboard::sigExportLiveNoiseEstimates);
+
+    mainGl->addWidget(noiseExportBtn, 0, (boardsNum+1)/2, 1, (boardsNum+1)/2);
 
     allChannelsSelector = new MyLeftRightMousePushButton();
     allChannelsSelector->setText("ALL");
@@ -78,6 +85,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
 
         connect(visualizationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int idx) {
             wid->setVisualizationOption((ChannelOverviewWidget::VisualizationOption_t)idx);
+            noiseExportBtn->setVisible(idx == ChannelOverviewWidget::Noise);
         });
 
         mainGl->addWidget(wid, rowIdx+2, boardIdx+1);

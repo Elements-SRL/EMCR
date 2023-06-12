@@ -20,7 +20,6 @@ int main(int argc, char *argv[]) {
 
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
     QDir().mkpath(YAML_DEFAULT_FOLDER);
-    //QDir().mkpath(CCS_CALIBRATION_DEFAULT_PATH);
 
     ControllerMain c;
     MainWindow w;

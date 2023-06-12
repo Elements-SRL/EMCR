@@ -28,6 +28,8 @@ public slots:
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
+    void onExportLiveNoiseEstimates();
+
 protected:
     void run() override;
     void initAnalysis();

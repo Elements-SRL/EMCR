@@ -45,6 +45,7 @@ signals:
     void oneBoardClicked(uint16_t changedBoardIndex, bool newChannelState);
     void oneRowClicked(uint16_t changedRowIndex, bool newChannelState);
     void singleChannelClicked(uint16_t changedChannelIndex, bool newChannelState);
+    void sigExportLiveNoiseEstimates();
 };
 
 #endif // CHESSBOARD_H
