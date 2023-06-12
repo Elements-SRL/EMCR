@@ -1,7 +1,7 @@
 #ifndef LIVENOISECONSUMER_H
 #define LIVENOISECONSUMER_H
 
-#define LNC_MIN_INTERVAL_S 0.5
+#define LNC_MIN_INTERVAL_S 1.0
 
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
