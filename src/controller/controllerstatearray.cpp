@@ -40,6 +40,9 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState);
         for (int i = 0; i < stateArray.states.size(); i++){
             auto s = stateArray.states[i];
+            switch (s.triggerType) {
+
+            }
             md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel, UnitPfxNano, "A"},{s.maxTrigLevel, UnitPfxNano, "A"}, s.triggerState);
         }
         md->startStateArray();

@@ -13,7 +13,7 @@ typedef enum TriggerType {
     CURRENT,
 } TriggerType_t;
 
-static std::vector <std::string> triggerTypeStrings = {"Curren(pA)", "Conductance(pS)"};
+static std::vector <std::string> triggerTypeStrings = {"Current(pA)", "Conductance(pS)"};
 
 typedef struct State {
     bool activeTimeout = false;
