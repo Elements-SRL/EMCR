@@ -68,6 +68,10 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     connect(stateArrayWidget, &StateArrayDockWidget::sigTimeoutDoubleSpinboxChanged, this, [=](double timeout, int stateIdx){
         stateArray.states[stateIdx].timeout = timeout;
     });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigTriggerTypeChanged, this, [=](std::string triggerType, int stateIdx){
+        stateArray.states[stateIdx].triggerType = getTriggerTypeFromString(triggerType);
+        std::cout<<"the current trigger is " << triggerType << std::endl;
+    });
 }
 
 void ControllerStateArray::printYaml(){

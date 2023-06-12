@@ -222,7 +222,9 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         }
         emit this->sigSaveAsButtonPressed(filename.toStdString());
     });
-
+    connect(triggerTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int index){
+        emit sigTriggerTypeChanged(triggerTypeComboBox->itemText(index).toStdString(), currentStateIdx);
+    });
     connect(activeTimeoutCheckbox, &QCheckBox::clicked, this, [=](){
         emit sigActiveTimeoutCheckbox(activeTimeoutCheckbox->isChecked(), currentStateIdx);
     });
