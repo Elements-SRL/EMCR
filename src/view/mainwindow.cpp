@@ -578,13 +578,3 @@ void MainWindow::onNeedToChangeModelCellMsg(QString msg){
         emit sigModelCellChanged(true);
     }
 }
-
-void MainWindow::onNeedToCheckFirstModelCellMsg(QString msg){
-    QMessageBox msgBox;
-    msgBox.setText(msg);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    if(msgBox.exec() == QMessageBox::Ok){
-        emit sigFirstModelMounted(true);
-    }
-}
-

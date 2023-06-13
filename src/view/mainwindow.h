@@ -52,7 +52,6 @@ public slots:
     void onCalibLoadingMsg(ErrorCodes_t error);
     void onManualCalibDoneMsg(QString msg);
     void onNeedToChangeModelCellMsg(QString msg);
-    void onNeedToCheckFirstModelCellMsg(QString msg);
 
 private:
     void createGuiControls();
@@ -101,6 +100,5 @@ signals:
     void debugInitialization();
     void sigPerformCalibration(std::vector<std::uint16_t> channelsToCalibrateIdxs);
     void sigModelCellChanged(bool modelCellChanged);
-    void sigFirstModelMounted(bool modelCellChanged);
 };
 #endif // MAINWINDOW_H

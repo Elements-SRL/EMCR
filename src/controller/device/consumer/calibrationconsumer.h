@@ -33,7 +33,6 @@ public slots:
     void onStopConsuming() override;
     void onPerformCalibration(std::vector<uint16_t> channelsToCalibrateIdxs);
     void onModelCellChanged(bool modelCellChanged);
-    void onFirstModelMounted(bool firstModelCellMounted);
 
     /*! \todo not really needed */
     void onSamplingRateChanged(Measurement_t samplingRate) override;
@@ -41,92 +40,10 @@ public slots:
     void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
 private:
-    bool consumptionStopped = false;
-    bool exitedDataConsumingLoop = false;
-    QMutex consumptionMtx;
-    QWaitCondition exitedDataConsumingLoopCv;
-
-    DeviceTypes_t deviceUnderCalibrationType;
-    int numOfBoards;
-    int numOfChannelsOnBoard;
-    int numOfChannels;
-    std::vector <RangedMeasurement_t> vcCurrentRangesArray;
-    std::vector <RangedMeasurement_t> vcVoltageRangesArray;
-    std::vector <std::vector <Measurement_t>> calibrationVoltSteps;
-    std::vector <Measurement_t> calibratonResistances;
-    bool areCalibResistOnBoard;
-    bool canInputsBeOpened;
-    CalibrationData_t calibData;
-    std::vector<std::vector<double_t>> gainADC; // vettore di vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> offsetADC; // vettore di vettori_di_offset (Uno per range)
-    std::vector<std::vector<double_t>> gainDAC; // vettore di gain (Uno per range)
-    std::vector<std::vector<double_t>> offsetDAC; // vettore di offset (questo non dipende dal range)
-
-    std::vector<std::vector<double_t>> allGainADC; // vettore di vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> allOffsetADC; // vettore di vettori_di_offset (Uno per range)
-    std::vector<std::vector<double_t>> allGainDAC; // vettore di vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> allOffsetDAC; // vettore di offset (questo non dipende dal range)
-
-    std::vector<bool> suspectChannelIdxs;
-    double gainThreshForSuspect = 2.0;
-
-    std::vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
-    int totalChannelsUnderCalibNum;
-    QVector <double> buffer;
-    int samplesToremove;
-    QVector <double> currentSum;
-    QVector<QVector <double>> currentMeans;
-    int rangeIdx;
-    std::vector<bool> someTrue;
-    std::vector<bool> someFalse;
-    double multiplierCurrent = 1.0;
-    uint16_t defaultVcCurrRangeIdx;
-    bool waitForModelCellChanged = false;
-    bool waitForFirstModelCellChecked = false;
-    QMutex popUpWindowMtx;
-
-    /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
-    Measurement_t defaultAdcGainValue;
-    Measurement_t defaultAdcOffsetValue;
-    Measurement_t defaultDacGainValue;
-    Measurement_t defaultDacOffsetValue;
-    Measurement_t defaultCcAdcGainValue;
-    Measurement_t defaultCcAdcOffsetValue;
-    Measurement_t defaultCcDacGainValue;
-    Measurement_t defaultCcDacOffsetValue;
-
-    std::vector<QString> boardSerialNums;
-    QString calibrationFilesFolder;// = CCS_CALIBRATION_DEFAULT_PATH;
-    QString calibrationMappingFilePath;
-    QString myCsvSeparator = ",";
-
-    /*! \note MPAC new fields for calibration in current clamp*/
-    std::vector <RangedMeasurement_t> ccCurrentRangesArray;
-    std::vector <RangedMeasurement_t> ccVoltageRangesArray;
-    QVector <double> voltageSum;
-    QVector<QVector <double>> voltageMeans;
-    std::vector<std::vector<double_t>> ccGainADC; // vettore di vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> ccOffsetADC; // vettore di vettori_di_offset (Uno per range)
-    std::vector<std::vector<double_t>> ccGainDAC; // vettore di vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> ccOffsetDAC; // vettore di vettori_di_offset (Uno per range)
-
-    std::vector<std::vector<double_t>> ccAllGainADC; // vettore di vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> ccAllOffsetADC; // vettore di vettori_di_offset (Uno per range)
-    std::vector<std::vector<double_t>> ccAllGainDAC; // vettore di vettori_di_gain (Uno per range)
-    std::vector<std::vector<double_t>> ccAllOffsetDAC; // vettore di vettori_di_offset (Uno per range)
-
-    std::vector <std::vector <Measurement_t>> ccCalibrationVoltSteps;
-    std::vector <std::vector <Measurement_t>> ccCalibrationCurrSteps;
-    std::vector <Measurement_t> ccCalibratonResistances;
-    std::vector <Measurement_t> ccCalibratonResisForCcAdcOffset; // only for ccVoltageOffset (ADC)
-
-    double multiplierVoltage = 1.0;
-
-
-
     void run() override;
 
     /*! SOME UTILITY FUNCTIONS*/
+    void modelCellActionRequest(QString msg);
     void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
     void turnAllChannelsOnOff(bool onValue);
     void turnAllStimulaOnOff(bool onValue);
@@ -189,11 +106,91 @@ private:
                                 std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
                                 );
 
+
+    bool consumptionStopped = false;
+    bool exitedDataConsumingLoop = false;
+    QMutex consumptionMtx;
+    QWaitCondition exitedDataConsumingLoopCv;
+
+    DeviceTypes_t deviceUnderCalibrationType;
+    int numOfBoards;
+    int numOfChannelsOnBoard;
+    int numOfChannels;
+    std::vector <RangedMeasurement_t> vcCurrentRangesArray;
+    std::vector <RangedMeasurement_t> vcVoltageRangesArray;
+    std::vector <std::vector <Measurement_t>> calibrationVoltSteps;
+    std::vector <Measurement_t> calibratonResistances;
+    bool areCalibResistOnBoard;
+    bool canInputsBeOpened;
+    CalibrationData_t calibData;
+    std::vector<std::vector<double_t>> gainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> offsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> gainDAC; // vettore di gain (Uno per range)
+    std::vector<std::vector<double_t>> offsetDAC; // vettore di offset (questo non dipende dal range)
+
+    std::vector<std::vector<double_t>> allGainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> allOffsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> allGainDAC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> allOffsetDAC; // vettore di offset (questo non dipende dal range)
+
+    std::vector<bool> suspectChannelIdxs;
+    double gainThreshForSuspect = 2.0;
+
+    std::vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
+    int totalChannelsUnderCalibNum;
+    QVector <double> buffer;
+    int samplesToremove;
+    QVector <double> currentSum;
+    QVector<QVector <double>> currentMeans;
+    int rangeIdx;
+    std::vector<bool> someTrue;
+    std::vector<bool> someFalse;
+    double multiplierCurrent = 1.0;
+    uint16_t defaultVcCurrRangeIdx;
+    bool waitForModelCellChanged = false;
+    QMutex popUpWindowMtx;
+
+    /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
+    Measurement_t defaultAdcGainValue;
+    Measurement_t defaultAdcOffsetValue;
+    Measurement_t defaultDacGainValue;
+    Measurement_t defaultDacOffsetValue;
+    Measurement_t defaultCcAdcGainValue;
+    Measurement_t defaultCcAdcOffsetValue;
+    Measurement_t defaultCcDacGainValue;
+    Measurement_t defaultCcDacOffsetValue;
+
+    std::vector<QString> boardSerialNums;
+    QString calibrationFilesFolder;// = CCS_CALIBRATION_DEFAULT_PATH;
+    QString calibrationMappingFilePath;
+    QString myCsvSeparator = ",";
+
+    /*! \note MPAC new fields for calibration in current clamp*/
+    std::vector <RangedMeasurement_t> ccCurrentRangesArray;
+    std::vector <RangedMeasurement_t> ccVoltageRangesArray;
+    QVector <double> voltageSum;
+    QVector<QVector <double>> voltageMeans;
+    std::vector<std::vector<double_t>> ccGainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccOffsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> ccGainDAC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccOffsetDAC; // vettore di vettori_di_offset (Uno per range)
+
+    std::vector<std::vector<double_t>> ccAllGainADC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccAllOffsetADC; // vettore di vettori_di_offset (Uno per range)
+    std::vector<std::vector<double_t>> ccAllGainDAC; // vettore di vettori_di_gain (Uno per range)
+    std::vector<std::vector<double_t>> ccAllOffsetDAC; // vettore di vettori_di_offset (Uno per range)
+
+    std::vector <std::vector <Measurement_t>> ccCalibrationVoltSteps;
+    std::vector <std::vector <Measurement_t>> ccCalibrationCurrSteps;
+    std::vector <Measurement_t> ccCalibratonResistances;
+    std::vector <Measurement_t> ccCalibratonResisForCcAdcOffset; // only for ccVoltageOffset (ADC)
+
+    double multiplierVoltage = 1.0;
+
 signals:
     void sigCalibLoadingMsg(QString calibLoadMsg);
     void sigManualCalibDoneMsg(QString manualCalibDoneMsg);
     void sigNeedToChangeModelCellMsg(QString needToChangeModelCellMsg);
-    void sigNeedToCheckFirstModelCellMsg(QString needToCheckFirstModelCellMsg);
     void sigCalibLoadingMsg(ErrorCodes_t errorCode);
 };
 

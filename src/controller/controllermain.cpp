@@ -269,16 +269,11 @@ void ControllerMain::onMainWindowCreated() {
     /*! \todo at the moment only for debug mode*/
     connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
     connect(mainWindow, &MainWindow::sigPerformCalibration, calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
-    connect(mainWindow, &MainWindow::sigFirstModelMounted,  calibratorConsumer, &CalibrationConsumer::onFirstModelMounted);
 
     connect(calibratorConsumer, QOverload <QString> ::of(&CalibrationConsumer::sigCalibLoadingMsg),         mainWindow, QOverload <QString> ::of(&MainWindow::onCalibLoadingMsg));
     connect(calibratorConsumer, QOverload <ErrorCodes_t> ::of(&CalibrationConsumer::sigCalibLoadingMsg),    mainWindow, QOverload <ErrorCodes_t> ::of(&MainWindow::onCalibLoadingMsg));
     connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,                                mainWindow, &MainWindow::onManualCalibDoneMsg);
     connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
-    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToCheckFirstModelCellMsg,                      mainWindow, &MainWindow::onNeedToCheckFirstModelCellMsg);
-
-
-
 
     /*! Plots durations */
     /*! \todo FCON Capire come gestire le durate dei plot */

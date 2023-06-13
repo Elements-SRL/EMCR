@@ -353,9 +353,17 @@ void DeviceControlDockWidget::forceEmit() {
 
 void DeviceControlDockWidget::updateParameters() {
     if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
-        ccVoltageRangesGroupBox->setVisible(false);
-        ccCurrentRangesGroupBox->setVisible(false);
-        ccCurrentFiltersGroupBox->setVisible(false);
+        if (ccVoltageRangesGroupBox != nullptr) {
+            ccVoltageRangesGroupBox->setVisible(false);
+        }
+
+        if (ccCurrentRangesGroupBox != nullptr) {
+            ccCurrentRangesGroupBox->setVisible(false);
+        }
+
+        if (ccCurrentFiltersGroupBox != nullptr) {
+            ccCurrentFiltersGroupBox->setVisible(false);
+        }
 
         if (vcCurrentRangesRadioButtons.size()>0){
             vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
@@ -369,15 +377,31 @@ void DeviceControlDockWidget::updateParameters() {
             vcVoltageFiltersRadioButtons[mDev->getVcVoltageFilterIdx()]->setChecked(true);
         }
 
-        vcVoltageRangesGroupBox->setVisible(true);
-        vcCurrentRangesGroupBox->setVisible(true);
-        vcVoltageFiltersGroupBox->setVisible(true);
+        if (vcVoltageRangesGroupBox != nullptr) {
+            vcVoltageRangesGroupBox->setVisible(true);
+        }
+
+        if (vcCurrentRangesGroupBox != nullptr) {
+            vcCurrentRangesGroupBox->setVisible(true);
+        }
+
+        if (vcVoltageFiltersGroupBox != nullptr) {
+            vcVoltageFiltersGroupBox->setVisible(true);
+        }
     }
 
     if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
-        vcVoltageRangesGroupBox->setVisible(false);
-        vcCurrentRangesGroupBox->setVisible(false);
-        vcVoltageFiltersGroupBox->setVisible(false);
+        if (vcVoltageRangesGroupBox != nullptr) {
+            vcVoltageRangesGroupBox->setVisible(false);
+        }
+
+        if (vcCurrentRangesGroupBox != nullptr) {
+            vcCurrentRangesGroupBox->setVisible(false);
+        }
+
+        if (vcVoltageFiltersGroupBox != nullptr) {
+            vcVoltageFiltersGroupBox->setVisible(false);
+        }
 
         if (ccCurrentRangesRadioButtons.size()>0){
             ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
@@ -391,9 +415,17 @@ void DeviceControlDockWidget::updateParameters() {
             ccCurrentFiltersRadioButtons[mDev->getCcCurrentFilterIdx()]->setChecked(true);
         }
 
-        ccVoltageRangesGroupBox->setVisible(true);
-        ccCurrentRangesGroupBox->setVisible(true);
-        ccCurrentFiltersGroupBox->setVisible(true);
+        if (ccVoltageRangesGroupBox != nullptr) {
+            ccVoltageRangesGroupBox->setVisible(true);
+        }
+
+        if (ccCurrentRangesGroupBox != nullptr) {
+            ccCurrentRangesGroupBox->setVisible(true);
+        }
+
+        if (ccCurrentFiltersGroupBox != nullptr) {
+            ccCurrentFiltersGroupBox->setVisible(true);
+        }
     }
 
     if (samplingRatesRadioButtons.size()>0){

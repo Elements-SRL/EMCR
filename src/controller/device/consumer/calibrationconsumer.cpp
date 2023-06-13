@@ -179,7 +179,7 @@ void CalibrationConsumer::run(){
         /*! MPAC imposto qui la condizione di VC se serve*/
         setVcConfiguration(channelToCalibIdxs, someTrue, someFalse);
 
-        /*! spegne lo stimolo e stacco il carico su tutti i canali per concentire all'utente di cambiare la model cell se c'è quella sbagliata*/
+        /*! spegne lo stimolo e stacco il carico su tutti i canali per consentire all'utente di cambiare la model cell se c'è quella sbagliata*/
         turnAllStimulaOnOff(false);
         turnAllChannelsOnOff(false);
         if(areCalibResistOnBoard){
@@ -200,21 +200,18 @@ void CalibrationConsumer::run(){
                  #endif
                   ){
             msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you mounted the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cell.\nPress OK to continue.\n";
+        } else if(deviceUnderCalibrationType == Device4x10MHz
+          #ifdef DEBUG
+                  || deviceUnderCalibrationType == Device4x10MHzFake
+          #endif
+                  ){
+            msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you mounted the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cell.\nPress OK to continue.\n";
         }
 
-        waitForFirstModelCellChecked = true;
-        emit sigNeedToCheckFirstModelCellMsg(msg);
-        while(true){
-            QMutexLocker myLock(&popUpWindowMtx);
-            if(!waitForFirstModelCellChecked){
-                break;
-            }
-            myLock.unlock();
-            QThread::msleep(10);
-        }
+        this->modelCellActionRequest(msg);
 
         /*! FOR: START ciclo sui range di corrente in VC*/
-        for(int jjj = 0; jjj <vcCurrentRangesArray.size(); jjj++){
+        for (int jjj = 0; jjj < vcCurrentRangesArray.size(); jjj++) {
             rangeIdx = jjj;
 
             /*! setto il range di corrente per Voltage Clamp*/
@@ -227,7 +224,7 @@ void CalibrationConsumer::run(){
             /*! le condizioni di VC per 384PatchClamp erano state settate all'inizio*/
             turnAllStimulaOnOff(false);
             turnAllChannelsOnOff(false);
-            if(areCalibResistOnBoard){
+            if (areCalibResistOnBoard) {
                 turnAllCalSwOnOff(false);
             }
 
@@ -258,16 +255,7 @@ void CalibrationConsumer::run(){
                     msg = "Need to mount the model cell " + QString::fromStdString(calibratonResistances[rangeIdx+1].niceLabel()) + " for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx+1].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
                 }
 
-                waitForModelCellChanged = true;
-                emit sigNeedToChangeModelCellMsg(msg);
-                while(true){
-                    QMutexLocker myLock(&popUpWindowMtx);
-                    if(!waitForModelCellChanged){
-                        break;
-                    }
-                    myLock.unlock();
-                    QThread::msleep(10);
-                }
+                this->modelCellActionRequest(msg);
             }
         /*! FOR: END ciclo sui range*/
         }
@@ -797,24 +785,49 @@ void CalibrationConsumer::onSamplingRateChanged(Measurement_t samplingRate){};
 void CalibrationConsumer::onVoltageRangeChanged(RangedMeasurement_t range){};
 void CalibrationConsumer::onCurrentRangeChanged(RangedMeasurement_t range){};
 
-void CalibrationConsumer::selectAllChannels(bool selectValue){
+void CalibrationConsumer::modelCellActionRequest(QString msg) {
+    waitForModelCellChanged = true;
+    emit sigNeedToChangeModelCellMsg(msg);
+    while(true){
+        QMutexLocker myLock(&popUpWindowMtx);
+        if(!waitForModelCellChanged){
+            break;
+        }
+        myLock.unlock();
+        QThread::msleep(10);
+    }
+}
+
+void CalibrationConsumer::selectAllChannels(bool selectValue) {
     uint16_t numOfChannelsToUpadate = this->mDev->getChannels().size();
-    for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
+    for (uint16_t i = 0; i < numOfChannelsToUpadate; i++) {
         this->mDev->getChannels()[i]->setSelected(selectValue);
     }
 }
 
-void CalibrationConsumer::turnAllChannelsOnOff(bool onValue){
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    channelIndexes.resize(currentChannelsNum);
-    onValues.resize(currentChannelsNum);
-    for (int i = 0; i < currentChannelsNum; i++){
-        this->mDev->getChannels()[i]->setOn(onValue);
-        channelIndexes[i] = i;
-        onValues[i] = onValue;
+void CalibrationConsumer::turnAllChannelsOnOff(bool onValue) {
+    if (canInputsBeOpened) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        channelIndexes.resize(currentChannelsNum);
+        onValues.resize(currentChannelsNum);
+        for (int i = 0; i < currentChannelsNum; i++){
+            this->mDev->getChannels()[i]->setOn(onValue);
+            channelIndexes[i] = i;
+            onValues[i] = onValue;
+        }
+        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
+
+    } else {
+        QString msg;
+        if (onValue) {
+            msg = "Make sure the model cells are connected";
+
+        } else {
+            msg = "Make sure the model cells are removed";
+        }
+        this->modelCellActionRequest(msg);
     }
-    this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
 }
 
 void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
@@ -884,9 +897,21 @@ void CalibrationConsumer::selectSomeChannels(std::vector<uint16_t> channelIndexe
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
 void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
-    for (int i = 0; i < channelIndexes.size(); i++){
-        this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
+    if (canInputsBeOpened) {
+        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
+        for (int i = 0; i < channelIndexes.size(); i++){
+            this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
+        }
+
+    } else {
+        QString msg;
+        if (onValues[0]) { /*! \todo FCON this function is always called with all true or all false, so just check the first one */
+            msg = "Make sure the model cells are connected";
+
+        } else {
+            msg = "Make sure the model cells are removed";
+        }
+        this->modelCellActionRequest(msg);
     }
 }
 
@@ -1499,13 +1524,6 @@ void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
     if(modelCellChanged){
         QMutexLocker myLock(&popUpWindowMtx);
         waitForModelCellChanged = false;
-    }
-}
-
-void CalibrationConsumer::onFirstModelMounted(bool firstModelCellMounted){
-    if(firstModelCellMounted){
-        QMutexLocker myLock(&popUpWindowMtx);
-        waitForFirstModelCellChecked = false;
     }
 }
 
