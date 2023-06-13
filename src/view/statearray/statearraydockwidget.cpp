@@ -153,9 +153,9 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     triggerLayout->addLayout(triggerCheckboxesLayout);
 
     QVBoxLayout * triggerLevelsLayout = new QVBoxLayout();
-    QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level (nA)");
+    QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level");
     minTrigLevelDoubleSpinbox = new QDoubleSpinBox();
-    QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level (nA)");
+    QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
     maxTrigLevelDoubleSpinbox = new QDoubleSpinBox();
 
     minTrigLevelDoubleSpinbox->setDecimals(4);

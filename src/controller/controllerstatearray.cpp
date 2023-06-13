@@ -41,9 +41,15 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         for (int i = 0; i < stateArray.states.size(); i++){
             auto s = stateArray.states[i];
             switch (s.triggerType) {
-
+            case YAML::CURRENT:
+//                TODO CHANGE UNIT TO PICO?
+                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel, UnitPfxPico, "A"},{s.maxTrigLevel, UnitPfxPico, "A"}, s.triggerState);
+                break;
+            case YAML::CONDUCTANCE:
+//                TODO IMPLEMENT THIS
+                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel*s.voltage, UnitPfxPico, "A"},{s.maxTrigLevel*s.voltage, UnitPfxPico, "A"}, s.triggerState);
+                break;
             }
-            md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel, UnitPfxNano, "A"},{s.maxTrigLevel, UnitPfxNano, "A"}, s.triggerState);
         }
         md->startStateArray();
     });
@@ -73,7 +79,6 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigTriggerTypeChanged, this, [=](std::string triggerType, int stateIdx){
         stateArray.states[stateIdx].triggerType = getTriggerTypeFromString(triggerType);
-        std::cout<<"the current trigger is " << triggerType << std::endl;
     });
 }
 
