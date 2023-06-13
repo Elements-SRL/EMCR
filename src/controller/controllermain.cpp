@@ -164,6 +164,8 @@ void ControllerMain::onMainWindowCreated() {
     connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected,     this, &ControllerMain::onVcVoltageRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigCcCurrentRangeSelected,     this, &ControllerMain::onCcCurrentRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigCcVoltageRangeSelected,     this, &ControllerMain::onCcVoltageRangeSelected);
+    connect(controllerDevice, &ControllerDevice::sigVcVoltageFilterSelected,    this, &ControllerMain::onVcVoltageFilterSelected);
+    connect(controllerDevice, &ControllerDevice::sigCcCurrentFilterSelected,    this, &ControllerMain::onCcCurrentFilterSelected);
     connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected,       this, &ControllerMain::onSamplingRateSelected);
     connect(controllerDevice, &ControllerDevice::sigClampingModalitySelected,   this, &ControllerMain::onClampingModalitySelected);
 
@@ -202,6 +204,8 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onCcVoltageRangeSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageFilterSelected,    controllerDevice, &ControllerDevice::onVcVoltageFilterSelected);
+    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcCurrentFilterSelected,    controllerDevice, &ControllerDevice::onCcCurrentFilterSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected,       controllerDevice, &ControllerDevice::onSamplingRateSelected);
     connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigClampingModalitySelected,   controllerDevice, &ControllerDevice::onClampingModalitySelected);
 
@@ -224,7 +228,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
     connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
     connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  controllerDevice, &ControllerDevice::onCcVoltageRangeSelected);
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
     connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  controllerDevice, &ControllerDevice::onSamplingRateSelected);
 
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
@@ -410,6 +414,22 @@ void ControllerMain::onCcVoltageRangeSelected(int idx) {
     }
     mainWindow->getChessaboard()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
     mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
+}
+
+void ControllerMain::onVcVoltageFilterSelected(int idx) {
+    std::vector <Measurement_t> meas;
+    mDev->getVoltageStimulusLpfsFeatures(meas);
+
+    /*! update GUI */
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+}
+
+void ControllerMain::onCcCurrentFilterSelected(int idx) {
+    std::vector <Measurement_t> meas;
+    mDev->getCurrentStimulusLpfsFeatures(meas);
+
+    /*! update GUI */
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
 }
 
 void ControllerMain::onSamplingRateSelected(int idx) {

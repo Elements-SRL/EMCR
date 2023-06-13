@@ -10,12 +10,13 @@
 
 #define DCW_CURRENT_RANGE_TITLE "Current Ranges"
 #define DCW_VOLTAGE_RANGE_TITLE "Voltage Ranges"
+
+#define DCW_CC_CURRENT_RANGE_TITLE "Current Ranges"
+#define DCW_CC_VOLTAGE_RANGE_TITLE "Voltage Ranges"
+
+#define DCW_STIMULUS_FILTER_TITLE "Stimulus Filters"
+
 #define DCW_SAMPLING_RATE_TITLE "Sampling Rates"
-#define DCW_STIMULUS_FILTER_TITLE "Readout Filters"
-
-#define DCW_CC_CURRENT_RANGE_TITLE "CC Current Ranges"
-#define DCW_CC_VOLTAGE_RANGE_TITLE "CC Voltage Ranges"
-
 #define DCW_CLMAPINGMODALITY_TITLE "Clamping Modality"
 
 class DeviceControlDockWidget : public QDockWidget{
@@ -45,6 +46,12 @@ private:
     QGroupBox * ccVoltageRangesGroupBox = nullptr;
     std::vector<QRadioButton *> ccVoltageRangesRadioButtons;
     bool ccVoltageRangesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * vcVoltageFiltersGroupBox = nullptr;
+    std::vector<QRadioButton *> vcVoltageFiltersRadioButtons;
+    bool vcVoltageFiltersPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * ccCurrentFiltersGroupBox = nullptr;
+    std::vector<QRadioButton *> ccCurrentFiltersRadioButtons;
+    bool ccCurrentFiltersPrevioueEnableStateBeforeRecording = false;
     QGroupBox * samplingRatesGroupBox = nullptr;
     std::vector<QRadioButton *> samplingRatesRadioButtons;
     bool samplingRatesPrevioueEnableStateBeforeRecording = false;
@@ -60,6 +67,8 @@ signals:
     void sigVcVoltageRangeSelected(int idx);
     void sigCcCurrentRangeSelected(int idx);
     void sigCcVoltageRangeSelected(int idx);
+    void sigVcVoltageFilterSelected(int idx);
+    void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
     void sigClampingModalitySelected(int idx);
 };

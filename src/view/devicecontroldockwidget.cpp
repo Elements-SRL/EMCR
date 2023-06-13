@@ -22,6 +22,12 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
     std::vector <RangedMeasurement_t> ccVoltageRanges;
     mDev->getCcVoltageRangesFeatures(ccVoltageRanges);
 
+    std::vector <Measurement_t> vcVoltageFilters;
+    mDev->getVoltageStimulusLpfsFeatures(vcVoltageFilters);
+
+    std::vector <Measurement_t> ccCurrentFilters;
+    mDev->getCurrentStimulusLpfsFeatures(ccCurrentFilters);
+
     std::vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
 
@@ -121,7 +127,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
         }
     }
 
-
     /*! CC Voltage range */
     if (ccVoltageRanges.size() > 0) {
         this->ccVoltageRangesGroupBox = new QGroupBox(DCW_CC_VOLTAGE_RANGE_TITLE);
@@ -148,6 +153,64 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
         this->ccVoltageRangesGroupBox->setLayout(radioButtonsBoxLayout);
         if (ccVoltageRanges.size() == 1) {
             ccVoltageRangesGroupBox->setEnabled(false);
+        }
+    }
+
+    /*! VC Voltage filter */
+    if (vcVoltageFilters.size() > 0) {
+        this->vcVoltageFiltersGroupBox = new QGroupBox(DCW_STIMULUS_FILTER_TITLE);
+
+        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+        radioButtonsBoxLayout->setSpacing(2);
+
+        vLayout->addWidget(this->vcVoltageFiltersGroupBox);
+        for (int idx = 0; idx < vcVoltageFilters.size(); idx++){
+            auto f = vcVoltageFilters[idx];
+            QRadioButton * qrb = new QRadioButton(QString().fromStdString(f.niceLabel()));
+            radioButtonsBoxLayout->addWidget(qrb);
+            this->vcVoltageFiltersRadioButtons.push_back(qrb);
+            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigVcVoltageFilterSelected(idx);
+                }
+            });
+        }
+        if (this->vcVoltageFiltersRadioButtons.size() > 0) {
+            this->vcVoltageFiltersRadioButtons[0]->setChecked(true);
+        }
+        this->vcVoltageFiltersGroupBox->setLayout(radioButtonsBoxLayout);
+        if (vcVoltageFilters.size() == 1) {
+            vcVoltageFiltersGroupBox->setEnabled(false);
+        }
+    }
+
+    /*! CC Current filter */
+    if (ccCurrentFilters.size() > 0) {
+        this->ccCurrentFiltersGroupBox = new QGroupBox(DCW_STIMULUS_FILTER_TITLE);
+
+        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+        radioButtonsBoxLayout->setSpacing(2);
+
+        vLayout->addWidget(this->ccCurrentFiltersGroupBox);
+        for (int idx = 0; idx < ccCurrentFilters.size(); idx++){
+            auto f = ccCurrentFilters[idx];
+            QRadioButton * qrb = new QRadioButton(QString().fromStdString(f.niceLabel()));
+            radioButtonsBoxLayout->addWidget(qrb);
+            this->ccCurrentFiltersRadioButtons.push_back(qrb);
+            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigCcCurrentFilterSelected(idx);
+                }
+            });
+        }
+        if (this->ccCurrentFiltersRadioButtons.size() > 0) {
+            this->ccCurrentFiltersRadioButtons[0]->setChecked(true);
+        }
+        this->ccCurrentFiltersGroupBox->setLayout(radioButtonsBoxLayout);
+        if (ccCurrentFilters.size() == 1) {
+            ccCurrentFiltersGroupBox->setEnabled(false);
         }
     }
 
@@ -180,7 +243,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
         }
     }
 
-    /*! Sampling rate */
+    /*! Clamping modality */
     if (clampingModalities.size() > 0) {
         this->clampingModalitiesGroupBox = new QGroupBox(DCW_CLMAPINGMODALITY_TITLE);
 
@@ -248,6 +311,13 @@ void DeviceControlDockWidget::forceEmit() {
                 emit sigVcVoltageRangeSelected(idx);
             }
         }
+
+        for (int idx = 0; idx < vcVoltageFiltersRadioButtons.size(); idx++) {
+            QRadioButton* btn = vcVoltageFiltersRadioButtons[idx];
+            if (btn->isChecked()) {
+                emit sigVcVoltageFilterSelected(idx);
+            }
+        }
     }
 
     if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
@@ -264,6 +334,13 @@ void DeviceControlDockWidget::forceEmit() {
                 emit sigCcVoltageRangeSelected(idx);
             }
         }
+
+        for (int idx = 0; idx < ccCurrentFiltersRadioButtons.size(); idx++) {
+            QRadioButton* btn = ccCurrentFiltersRadioButtons[idx];
+            if (btn->isChecked()) {
+                emit sigCcCurrentFilterSelected(idx);
+            }
+        }
     }
 
     for (int idx = 0; idx < samplingRatesRadioButtons.size(); idx++) {
@@ -276,30 +353,54 @@ void DeviceControlDockWidget::forceEmit() {
 
 void DeviceControlDockWidget::updateParameters() {
     if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
-        if(vcCurrentRangesRadioButtons.size()>0){
+        ccVoltageRangesGroupBox->setVisible(false);
+        ccCurrentRangesGroupBox->setVisible(false);
+        ccCurrentFiltersGroupBox->setVisible(false);
+
+        if (vcCurrentRangesRadioButtons.size()>0){
             vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
         }
 
-        if(vcVoltageRangesRadioButtons.size()>0){
+        if (vcVoltageRangesRadioButtons.size()>0){
             vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
         }
+
+        if (vcVoltageFiltersRadioButtons.size()>0){
+            vcVoltageFiltersRadioButtons[mDev->getVcVoltageFilterIdx()]->setChecked(true);
+        }
+
+        vcVoltageRangesGroupBox->setVisible(true);
+        vcCurrentRangesGroupBox->setVisible(true);
+        vcVoltageFiltersGroupBox->setVisible(true);
     }
 
     if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
-        if(ccCurrentRangesRadioButtons.size()>0){
+        vcVoltageRangesGroupBox->setVisible(false);
+        vcCurrentRangesGroupBox->setVisible(false);
+        vcVoltageFiltersGroupBox->setVisible(false);
+
+        if (ccCurrentRangesRadioButtons.size()>0){
             ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
         }
 
-        if(ccVoltageRangesRadioButtons.size()>0){
+        if (ccVoltageRangesRadioButtons.size()>0){
             ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
         }
+
+        if (ccCurrentFiltersRadioButtons.size()>0){
+            ccCurrentFiltersRadioButtons[mDev->getCcCurrentFilterIdx()]->setChecked(true);
+        }
+
+        ccVoltageRangesGroupBox->setVisible(true);
+        ccCurrentRangesGroupBox->setVisible(true);
+        ccCurrentFiltersGroupBox->setVisible(true);
     }
 
-    if(samplingRatesRadioButtons.size()>0){
+    if (samplingRatesRadioButtons.size()>0){
         samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
     }
 
-    if(clampingModalitiesRadioButtons.size()>0){
+    if (clampingModalitiesRadioButtons.size()>0){
         clampingModalitiesRadioButtons[mDev->getOngoingClampingModalityIdx()]->setChecked(true);
     }
 
@@ -336,25 +437,27 @@ void DeviceControlDockWidget::onStartRecording(std::vector<uint16_t> channelInde
         this->vcCurrentRangesGroupBox->setEnabled(false);
     }
 
-    if(this->vcVoltageRangesGroupBox != nullptr){
+    if (this->vcVoltageRangesGroupBox != nullptr){
         vcVoltageRangesPrevioueEnableStateBeforeRecording = this->vcVoltageRangesGroupBox->isEnabled();
         this->vcVoltageRangesGroupBox->setEnabled(false);
     }
 
-    if(this->ccCurrentRangesGroupBox != nullptr){
+    if (this->ccCurrentRangesGroupBox != nullptr){
         ccCurrentRangesPrevioueEnableStateBeforeRecording = this->ccCurrentRangesGroupBox->isEnabled();
         this->ccCurrentRangesGroupBox->setEnabled(false);
     }
 
-    if(this->ccVoltageRangesGroupBox != nullptr){
+    if (this->ccVoltageRangesGroupBox != nullptr){
         ccVoltageRangesPrevioueEnableStateBeforeRecording = this->ccVoltageRangesGroupBox->isEnabled();
         this->ccVoltageRangesGroupBox->setEnabled(false);
     }
 
-    if(this->samplingRatesGroupBox != nullptr){
+    if (this->samplingRatesGroupBox != nullptr){
         samplingRatesPrevioueEnableStateBeforeRecording = this->samplingRatesGroupBox->isEnabled();
         this->samplingRatesGroupBox->setEnabled(false);
     }
+
+    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
 }
 
 void DeviceControlDockWidget::onStopRecording(){
@@ -377,4 +480,6 @@ void DeviceControlDockWidget::onStopRecording(){
     if(this->samplingRatesGroupBox != nullptr){
         this->samplingRatesGroupBox->setEnabled(samplingRatesPrevioueEnableStateBeforeRecording);
     }
+
+    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
 }
