@@ -5,7 +5,7 @@
 #define CCS_CALIB_INTERVAL_TO_REMOVE_IN_S 0.1
 #define CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ 5
 #define CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY 1
-#define CCS_CALIBRATION_DEFAULT_PATH "C:/EMCR_calib_folder/"
+//#define CCS_CALIBRATION_DEFAULT_PATH "C:/EMCR_calib_folder/"
 
 #include "modeldevice.h"
 #include "devicedataconsumer.h"
@@ -25,7 +25,8 @@ public:
     void loadInitialCalibParams(QString path, QString mappingFileName);
     void copyToAllVectors();
     void updateCalibParams();
-    QString getCalibrationPath();
+    QString getCalibrationDir();
+    QString getCalibrationMappingFilePath();
 
 public slots:
     void onStartConsuming() override;
@@ -95,7 +96,8 @@ private:
     Measurement_t defaultCcDacOffsetValue;
 
     std::vector<QString> boardSerialNums;
-    QString calibrationFilesFolder = CCS_CALIBRATION_DEFAULT_PATH;
+    QString calibrationFilesFolder;// = CCS_CALIBRATION_DEFAULT_PATH;
+    QString calibrationMappingFilePath;
     QString myCsvSeparator = ",";
 
     /*! \note MPAC new fields for calibration in current clamp*/
@@ -156,7 +158,7 @@ private:
     void calibrateCcAdcGain(int thisActualRangeIdx);
     void calibrateCcDacGain(int thisActualRangeIdx);
     void calibrateCcAdcOffset(RangedMeasurement_t thisActualRange);
-    void calibrateCcDacOffset(RangedMeasurement_t thisActualRange);
+    void calibrateCcDacOffset(RangedMeasurement_t thisCcVoltageActualRange, int thisCcVoltageActualRangeIdx);
 
 
     /*! Interactions with CSV files*/
@@ -164,7 +166,6 @@ private:
     void prepareStuffToSaveOnCsv(QString path, QString fileNameRoot, std::vector<uint16_t> chanSubset);
     void saveCsv(std::vector<uint16_t> chanSubset, QTextStream &stream, bool vcTccF);
     void loadDefaultCalibParams(int channelsNum, bool forVc, bool forCc);
-    void extractBoardCalibDataFromCsv(QTextStream &boardStream, bool vcTccF);
     QString getCsvData(std::vector<uint16_t> chanSubset, bool vcTccF);
     QString suspectChannelsMsg(std::vector<uint16_t> chanToCalibIdxs);
 
@@ -178,11 +179,22 @@ private:
                               std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
                               );
 
+    void convertFromMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
+                                std::vector<std::vector<Measurement_t>> &gainAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &offsetDacMeas,
+                                std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
+                                std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
+                                std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
+                                );
+
 signals:
     void sigCalibLoadingMsg(QString calibLoadMsg);
     void sigManualCalibDoneMsg(QString manualCalibDoneMsg);
     void sigNeedToChangeModelCellMsg(QString needToChangeModelCellMsg);
     void sigNeedToCheckFirstModelCellMsg(QString needToCheckFirstModelCellMsg);
+    void sigCalibLoadingMsg(ErrorCodes_t errorCode);
 };
 
 #endif // CALIBRATIONCONSUMER_H
