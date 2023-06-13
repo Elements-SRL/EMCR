@@ -74,6 +74,35 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         emit this->sigInsertStateAfter(insertStateSpinBox->value());
     });
     stateArrayConfigurationLayout->addWidget(insertDeleteGroupBox);
+
+    QGroupBox * enableStateArrayGroupBox = new QGroupBox(this);
+    enableStateArrayGroupBox->setTitle("Active channels");
+    QVBoxLayout * enableStateArrayLayout = new QVBoxLayout(enableStateArrayGroupBox);
+//    TODO this should become an array of QCheckBox
+    QCheckBox * ch0CheckBox = new QCheckBox("ch 0");
+    QCheckBox * ch1CheckBox = new QCheckBox("ch 1");
+    QCheckBox * ch2CheckBox = new QCheckBox("ch 2");
+    QCheckBox * ch3CheckBox = new QCheckBox("ch 3");
+
+    enableStateArrayLayout->addWidget(ch0CheckBox);
+    enableStateArrayLayout->addWidget(ch1CheckBox);
+    enableStateArrayLayout->addWidget(ch2CheckBox);
+    enableStateArrayLayout->addWidget(ch3CheckBox);
+
+    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
+        emit sigStateArrayCheckBoxClicked(0, ch0CheckBox->isChecked());
+    });
+    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
+        emit sigStateArrayCheckBoxClicked(1, ch1CheckBox->isChecked());
+    });
+    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
+        emit sigStateArrayCheckBoxClicked(2, ch2CheckBox->isChecked());
+    });
+    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
+        emit sigStateArrayCheckBoxClicked(3, ch3CheckBox->isChecked());
+    });
+
+    stateArrayConfigurationLayout->addWidget(enableStateArrayGroupBox);
     mainLayout->addLayout(stateArrayConfigurationLayout);
 
     // Create the QHBoxLayout and QDoubleSpinBox objects
