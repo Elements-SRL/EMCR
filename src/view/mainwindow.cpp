@@ -246,11 +246,13 @@ void MainWindow::createGuiControls() {
     dockWidgets.append(bigPlotDw);
 
     //STATE ARRAY WIDGET
-    stateArrayDockWidget = new StateArrayDockWidget(this);
-    stateArrayDockWidget->setObjectName("stateArrayDockWidget");
-    this->addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
-    dockWidgets.append(stateArrayDockWidget);
-    stateArrayDockWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    if (mDev->getMessageDispatcher()->isStateArrayAvailable()){
+        stateArrayDockWidget = new StateArrayDockWidget(this);
+        stateArrayDockWidget->setObjectName("stateArrayDockWidget");
+        this->addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
+        dockWidgets.append(stateArrayDockWidget);
+        stateArrayDockWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    }
 
     /**************\
      * debug dock *
