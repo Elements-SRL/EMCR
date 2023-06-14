@@ -81,7 +81,7 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         stateArray.states[stateIdx].triggerType = getTriggerTypeFromString(triggerType);
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
-        mDev->getMessageDispatcher()->setStateArrayEnabled(enableFlag, chIdx);
+        mDev->getMessageDispatcher()->setStateArrayEnabled(chIdx, enableFlag);
     });
 }
 
