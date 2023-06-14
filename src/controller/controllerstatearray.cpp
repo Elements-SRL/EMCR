@@ -81,10 +81,8 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         stateArray.states[stateIdx].triggerType = getTriggerTypeFromString(triggerType);
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
-//        TODO WHEN DO WE HAVE TO SEND THE ENABLE VALUES TO THE DEVICE? -> CHECK THE COMMLIB
         mDev->getMessageDispatcher()->setStateArrayEnabled(enableFlag, chIdx);
     });
-
 }
 
 void ControllerStateArray::printYaml(){

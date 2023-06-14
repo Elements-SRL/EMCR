@@ -78,29 +78,15 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QGroupBox * enableStateArrayGroupBox = new QGroupBox(this);
     enableStateArrayGroupBox->setTitle("Active channels");
     QVBoxLayout * enableStateArrayLayout = new QVBoxLayout(enableStateArrayGroupBox);
-//    TODO this should become an array of QCheckBox
-    QCheckBox * ch0CheckBox = new QCheckBox("ch 0");
-    QCheckBox * ch1CheckBox = new QCheckBox("ch 1");
-    QCheckBox * ch2CheckBox = new QCheckBox("ch 2");
-    QCheckBox * ch3CheckBox = new QCheckBox("ch 3");
-
-    enableStateArrayLayout->addWidget(ch0CheckBox);
-    enableStateArrayLayout->addWidget(ch1CheckBox);
-    enableStateArrayLayout->addWidget(ch2CheckBox);
-    enableStateArrayLayout->addWidget(ch3CheckBox);
-
-    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
-        emit sigStateArrayCheckBoxClicked(0, ch0CheckBox->isChecked());
-    });
-    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
-        emit sigStateArrayCheckBoxClicked(1, ch1CheckBox->isChecked());
-    });
-    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
-        emit sigStateArrayCheckBoxClicked(2, ch2CheckBox->isChecked());
-    });
-    connect(ch1CheckBox, &QCheckBox::clicked, this, [=](){
-        emit sigStateArrayCheckBoxClicked(3, ch3CheckBox->isChecked());
-    });
+    std::vector<QCheckBox *> checkboxes;
+    for(int i=0; i < 4; i++){
+        QCheckBox * ch = new QCheckBox("ch "+ QString::fromStdString(std::to_string(i)));
+        checkboxes.push_back(ch);
+        enableStateArrayLayout->addWidget(ch);
+        connect(ch, &QCheckBox::clicked, this, [=](bool enabledFlag){
+            emit sigStateArrayCheckBoxClicked(enabledFlag, i);
+        });
+    }
 
     stateArrayConfigurationLayout->addWidget(enableStateArrayGroupBox);
     mainLayout->addLayout(stateArrayConfigurationLayout);
