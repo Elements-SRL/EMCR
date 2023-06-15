@@ -22,6 +22,11 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     mDev->getVcCurrentRangesFeatures(vcCurrentRangesFeatures, _);
     mDev->getVcVoltageRangesFeatures(voltageRanges);
 
+    RangedMeasurement_t voltageRange = voltageRanges[0];
+    RangedMeasurement_t currentRange = vcCurrentRangesFeatures[0];
+    voltageRange.convertValues(UnitPfx::UnitPfxNone);
+    currentRange.convertValues(UnitPfx::UnitPfxPico);
+    stateArrayWidget->setRanges(voltageRange.min, voltageRange.max,currentRange.min, currentRange.max);
 
     connect(stateArrayWidget, &StateArrayDockWidget::sigOpenButtonPressed, this, [=](std::string s){
         open(s);

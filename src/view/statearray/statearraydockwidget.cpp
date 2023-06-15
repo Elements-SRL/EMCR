@@ -338,7 +338,20 @@ void StateArrayDockWidget::setInitialState(int initialState){
     initialStateSpinbox->setValue(initialState);
 }
 
-//void StateArrayDockWidget::setRanges(RangedMeasurement_t voltageRange, RangedMeasurement_t currentRange)
+void StateArrayDockWidget::setRanges(int minVoltage, int maxVoltage, int minCurrent, int maxCurrent){
+    minTrigLevelDoubleSpinbox->blockSignals(true);
+    minTrigLevelDoubleSpinbox->setMinimum(minCurrent);
+    minTrigLevelDoubleSpinbox->setMaximum(maxCurrent);
+    minTrigLevelDoubleSpinbox->blockSignals(false);
+    maxTrigLevelDoubleSpinbox->blockSignals(true);
+    maxTrigLevelDoubleSpinbox->setMinimum(minCurrent);
+    maxTrigLevelDoubleSpinbox->setMaximum(maxCurrent);
+    maxTrigLevelDoubleSpinbox->blockSignals(false);
+    voltageSpinbox->blockSignals(true);
+    voltageSpinbox->setMinimum(minVoltage);
+    voltageSpinbox->setMaximum(maxVoltage);
+    voltageSpinbox->blockSignals(false);
+}
 
 StateArrayDockWidget::~StateArrayDockWidget()
 {

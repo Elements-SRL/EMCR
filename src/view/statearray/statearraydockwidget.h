@@ -7,6 +7,7 @@
 #include <QSpinBox>
 #include <QWidget>
 #include <model/state.h>
+#include "e384commlib_global_addendum.h"
 
 class StateArrayDockWidget : public QDockWidget
 {
@@ -20,6 +21,7 @@ public:
     void setStateChecboxesRanges(int min, int max);
     void setStateCount(int count);    
     void setInitialState(int);
+    void setRanges(int minVoltage, int maxVoltage, int minCurrent, int maxCurrent);
 
 private:
     int currentStateIdx;
