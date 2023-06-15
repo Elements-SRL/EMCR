@@ -174,7 +174,11 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     maxTrigLevelDoubleSpinbox = new QDoubleSpinBox();
 
     minTrigLevelDoubleSpinbox->setDecimals(4);
+    minTrigLevelDoubleSpinbox->setMaximum(50000);
+    minTrigLevelDoubleSpinbox->setMinimum(-50000);
     maxTrigLevelDoubleSpinbox->setDecimals(4);
+    maxTrigLevelDoubleSpinbox->setMaximum(50000);
+    maxTrigLevelDoubleSpinbox->setMinimum(-50000);
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
     triggerLevelsLayout->addWidget(minTrigLevelDoubleSpinbox);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
@@ -333,6 +337,8 @@ void StateArrayDockWidget::setStateChecboxesRanges(int min, int max){
 void StateArrayDockWidget::setInitialState(int initialState){
     initialStateSpinbox->setValue(initialState);
 }
+
+//void StateArrayDockWidget::setRanges(RangedMeasurement_t voltageRange, RangedMeasurement_t currentRange)
 
 StateArrayDockWidget::~StateArrayDockWidget()
 {
