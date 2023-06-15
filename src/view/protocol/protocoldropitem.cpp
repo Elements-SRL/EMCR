@@ -31,7 +31,7 @@ ProtocolDropItem::ProtocolDropItem(ModelDevice *  mDev, ProtocolItemCtrlManager 
     propertyLo->addWidget(descriptionName, PDI_DESCRIPTION_ROW, 0, 1, -1);
     descriptionName->setVisible(false);
 
-    visible = true;
+    visible = false;
     visibleEdit = new QCheckBox("Receive Data");
     visibleEdit->setChecked(visible);
 
