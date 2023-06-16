@@ -74,6 +74,21 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         emit this->sigInsertStateAfter(insertStateSpinBox->value());
     });
     stateArrayConfigurationLayout->addWidget(insertDeleteGroupBox);
+
+    QGroupBox * enableStateArrayGroupBox = new QGroupBox(this);
+    enableStateArrayGroupBox->setTitle("Active channels");
+    QVBoxLayout * enableStateArrayLayout = new QVBoxLayout(enableStateArrayGroupBox);
+    std::vector<QCheckBox *> checkboxes;
+    for(int i=0; i < 4; i++){
+        QCheckBox * ch = new QCheckBox("ch "+ QString::fromStdString(std::to_string(i)));
+        checkboxes.push_back(ch);
+        enableStateArrayLayout->addWidget(ch);
+        connect(ch, &QCheckBox::clicked, this, [=](bool enabledFlag){
+            emit sigStateArrayCheckBoxClicked(enabledFlag, i);
+        });
+    }
+
+    stateArrayConfigurationLayout->addWidget(enableStateArrayGroupBox);
     mainLayout->addLayout(stateArrayConfigurationLayout);
 
     // Create the QHBoxLayout and QDoubleSpinBox objects
@@ -153,13 +168,17 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     triggerLayout->addLayout(triggerCheckboxesLayout);
 
     QVBoxLayout * triggerLevelsLayout = new QVBoxLayout();
-    QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level (nA)");
+    QLabel *minTriggerLevelLabel = new QLabel("Min Trig Level");
     minTrigLevelDoubleSpinbox = new QDoubleSpinBox();
-    QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level (nA)");
+    QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
     maxTrigLevelDoubleSpinbox = new QDoubleSpinBox();
 
     minTrigLevelDoubleSpinbox->setDecimals(4);
+    minTrigLevelDoubleSpinbox->setMaximum(50000);
+    minTrigLevelDoubleSpinbox->setMinimum(-50000);
     maxTrigLevelDoubleSpinbox->setDecimals(4);
+    maxTrigLevelDoubleSpinbox->setMaximum(50000);
+    maxTrigLevelDoubleSpinbox->setMinimum(-50000);
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
     triggerLevelsLayout->addWidget(minTrigLevelDoubleSpinbox);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
@@ -222,7 +241,9 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         }
         emit this->sigSaveAsButtonPressed(filename.toStdString());
     });
-
+    connect(triggerTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int index){
+        emit sigTriggerTypeChanged(triggerTypeComboBox->itemText(index).toStdString(), currentStateIdx);
+    });
     connect(activeTimeoutCheckbox, &QCheckBox::clicked, this, [=](){
         emit sigActiveTimeoutCheckbox(activeTimeoutCheckbox->isChecked(), currentStateIdx);
     });
@@ -315,6 +336,21 @@ void StateArrayDockWidget::setStateChecboxesRanges(int min, int max){
 
 void StateArrayDockWidget::setInitialState(int initialState){
     initialStateSpinbox->setValue(initialState);
+}
+
+void StateArrayDockWidget::setRanges(int minVoltage, int maxVoltage, int minCurrent, int maxCurrent){
+    minTrigLevelDoubleSpinbox->blockSignals(true);
+    minTrigLevelDoubleSpinbox->setMinimum(minCurrent);
+    minTrigLevelDoubleSpinbox->setMaximum(maxCurrent);
+    minTrigLevelDoubleSpinbox->blockSignals(false);
+    maxTrigLevelDoubleSpinbox->blockSignals(true);
+    maxTrigLevelDoubleSpinbox->setMinimum(minCurrent);
+    maxTrigLevelDoubleSpinbox->setMaximum(maxCurrent);
+    maxTrigLevelDoubleSpinbox->blockSignals(false);
+    voltageSpinbox->blockSignals(true);
+    voltageSpinbox->setMinimum(minVoltage);
+    voltageSpinbox->setMaximum(maxVoltage);
+    voltageSpinbox->blockSignals(false);
 }
 
 StateArrayDockWidget::~StateArrayDockWidget()

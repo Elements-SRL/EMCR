@@ -123,8 +123,10 @@ void ControllerMain::onMainWindowCreated() {
 
     voltageProtocolManager = new ProtocolManager(mDev);
     currentProtocolManager = new ProtocolManager(mDev);
-    controllerStateArray = new ControllerStateArray(mDev);
-    controllerStateArray->setStateArrayWidget(mainWindow->getStateArrayDockWidget());
+    if(mDev->getMessageDispatcher()->isStateArrayAvailable()){
+        controllerStateArray = new ControllerStateArray(mDev);
+        controllerStateArray->setStateArrayWidget(mainWindow->getStateArrayDockWidget());
+    }
     /************\
      * Producer *
     \************/

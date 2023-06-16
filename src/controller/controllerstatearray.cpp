@@ -16,11 +16,23 @@ ControllerStateArray::ControllerStateArray(ModelDevice * mDev)
 void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArrayWidget){
     this->stateArrayWidget = stateArrayWidget;
     updateUI();
+    std::vector <RangedMeasurement_t> vcCurrentRangesFeatures;
+    std::vector <RangedMeasurement_t> voltageRanges;
+    uint16_t _;
+    mDev->getVcCurrentRangesFeatures(vcCurrentRangesFeatures, _);
+    mDev->getVcVoltageRangesFeatures(voltageRanges);
+
+    RangedMeasurement_t voltageRange = voltageRanges[0];
+    RangedMeasurement_t currentRange = vcCurrentRangesFeatures[0];
+    voltageRange.convertValues(UnitPfx::UnitPfxNone);
+    currentRange.convertValues(UnitPfx::UnitPfxPico);
+    stateArrayWidget->setRanges(voltageRange.min, voltageRange.max,currentRange.min, currentRange.max);
+
     connect(stateArrayWidget, &StateArrayDockWidget::sigOpenButtonPressed, this, [=](std::string s){
-        this->open(s);
+        open(s);
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigSaveAsButtonPressed, this, [=](std::string s){
-        this->writeToFile(s);
+        writeToFile(s);
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigStateChanged, this, [=](int idx){
         stateArrayWidget->setState(stateArray.states[idx], idx);
@@ -40,7 +52,14 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState);
         for (int i = 0; i < stateArray.states.size(); i++){
             auto s = stateArray.states[i];
-            md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel, UnitPfxNano, "A"},{s.maxTrigLevel, UnitPfxNano, "A"}, s.triggerState);
+            switch (s.triggerType) {
+            case YAML::CURRENT:
+                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel, UnitPfxPico, "A"},{s.maxTrigLevel, UnitPfxPico, "A"}, s.triggerState, s.activeTrigger, s.delta);
+                break;
+            case YAML::CONDUCTANCE:
+                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel*s.voltage, UnitPfxPico, "A"},{s.maxTrigLevel*s.voltage, UnitPfxPico, "A"}, s.triggerState, s.activeTrigger, s.delta);
+                break;
+            }
         }
         md->startStateArray();
     });
@@ -67,6 +86,12 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     });
     connect(stateArrayWidget, &StateArrayDockWidget::sigTimeoutDoubleSpinboxChanged, this, [=](double timeout, int stateIdx){
         stateArray.states[stateIdx].timeout = timeout;
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigTriggerTypeChanged, this, [=](std::string triggerType, int stateIdx){
+        stateArray.states[stateIdx].triggerType = getTriggerTypeFromString(triggerType);
+    });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
+        mDev->getMessageDispatcher()->setStateArrayEnabled(chIdx, enableFlag);
     });
 }
 

@@ -11,9 +11,10 @@ namespace YAML {
 
 typedef enum TriggerType {
     CURRENT,
+    CONDUCTANCE,
 } TriggerType_t;
 
-static std::vector <std::string> triggerTypeStrings = {"Curren(pA)"};
+static std::vector <std::string> triggerTypeStrings = {"Current(pA)", "Conductance(pS)"};
 
 typedef struct State {
     bool activeTimeout = false;
