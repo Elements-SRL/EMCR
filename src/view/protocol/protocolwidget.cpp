@@ -15,20 +15,22 @@ ProtocolWidget::ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolProper
 
     this->setBackgroundColor(PROT_WIDGET_VALID_COLOR);
 
+    model = new ProtocolModel;
+
     if (type == ProtocolTypeGapfree) {
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-            protocolEditor = new GapfreeVoltageProtocolEditor(mDev, this, name);
+            protocolEditor = new GapfreeVoltageProtocolEditor(mDev, model, this, name);
 
         } else {
-            protocolEditor = new GapfreeCurrentProtocolEditor(mDev, this, name);
+            protocolEditor = new GapfreeCurrentProtocolEditor(mDev, model, this, name);
         }
 
     } else {
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-            protocolEditor = new EpisodicVoltageProtocolEditor(mDev, this, name);
+            protocolEditor = new EpisodicVoltageProtocolEditor(mDev, model, this, name);
 
         } else {
-            protocolEditor = new EpisodicCurrentProtocolEditor(mDev, this, name);
+            protocolEditor = new EpisodicCurrentProtocolEditor(mDev, model, this, name);
         }
     }
 
@@ -147,12 +149,8 @@ void ProtocolWidget::populatePropertyDialog() {
         double hold = holdEditOrig->value();
         copy(holdEditOrig, holdEdit);
         QString unitString;
-        if (clampingModality == VOLTAGE_CLAMP) {
-            unitString = QString::fromStdString(mDev->getVcVoltageRange().getFullUnit());
+        unitString = QString::fromStdString(model->getStimulusRange().getFullUnit());
 
-        } else {
-            unitString = QString::fromStdString(mDev->getCcVoltageRange().getFullUnit());
-        }
         QLabel * holdUnitLbl = new QLabel(unitString);
         ProtocolDoubleSpinBoxCtrlDispatcher * holdDispatcher = new ProtocolDoubleSpinBoxCtrlDispatcher();
         holdDispatcher->setEdit(holdEditOrig);
@@ -606,14 +604,7 @@ void ProtocolWidget::setHold(Measurement_t hold) {
 
 Measurement_t ProtocolWidget::getHold() {
     hold.value = holdEditOrig->value();
-    UnitPfx prefix;
-    if (clampingModality == VOLTAGE_CLAMP) {
-        prefix = mDev->getVcVoltageRange().prefix;
-
-    } else {
-        prefix = mDev->getCcCurrentRange().prefix;
-    }
-    hold.prefix = prefix;
+    hold.prefix = model->getStimulusRange().prefix;
     return hold;
 }
 
@@ -622,12 +613,7 @@ void ProtocolWidget::setHoldingDelta(Measurement_t &holdingDelta) {
 }
 
 UnitPfx_t ProtocolWidget::getStimulusPrefix() {
-    if (clampingModality == VOLTAGE_CLAMP) {
-        return mDev->getVcVoltageRange().prefix;
-
-    } else {
-        return mDev->getCcCurrentRange().prefix;
-    }
+    return model->getStimulusRange().prefix;
 }
 
 bool ProtocolWidget::getHoldRef() {

@@ -29,6 +29,7 @@ SOURCES += \
     src/controller/protocol/protocolutils.cpp \
     src/main.cpp \
     src/model/analysiscursor.cpp \
+    src/model/protocolmodel.cpp \
     src/model/state.cpp \
     src/view/compensationcontroldockwidget.cpp \
     src/model/statearray.cpp \
@@ -95,6 +96,7 @@ HEADERS += \
     src/controller/protocol/protocolutils.h \
     src/globaldefines.h \
     src/model/analysiscursor.h \
+    src/model/protocolmodel.h \
     src/model/state.h \
     src/view/compensationcontroldockwidget.h \
     src/model/statearray.h \

@@ -13,6 +13,7 @@
 #include "protocoldefs.h"
 #include "voltageprotocol.h"
 #include "currentprotocol.h"
+#include "protocolmodel.h"
 
 class ProtocolCtrlDispatcher;
 
@@ -102,7 +103,8 @@ protected:
     void updateText();
     void setValidityColor();
 
-    ModelDevice *  mDev;
+    ProtocolModel * model;
+    ModelDevice * mDev;
     QString name;
     ProtocolPropertyDialog * dialog;
     ProtocolType_t type;

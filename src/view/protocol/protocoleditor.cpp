@@ -4,8 +4,9 @@
 #include "protocolutils.h"
 #include "protocolwidget.h"
 
-ProtocolEditor::ProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
+ProtocolEditor::ProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
     mDev(mDev),
+    model(model),
     parentWidget(protocolWidget),
     name(name) {
 
@@ -554,6 +555,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     /*! Protocol previewer */
     RangedMeasurement_t stimulusRange;
     mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
+    model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
     RangedMeasurement_t timeRange;
     mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
@@ -585,14 +587,14 @@ QComboBox * VoltageProtocolEditor::getVoltageRangeEdit() {
 }
 
 void VoltageProtocolEditor::setHoldingRange() {
-    RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)(voltageRangeEdit->currentIndex()), stimulusRange);
+    RangedMeasurement_t stimulusRange = model->getStimulusRange();
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 }
 
 void VoltageProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     RangedMeasurement_t stimulusRange;
     mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+    model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 
     protocolPreview->setStimulusRange(stimulusRange);
@@ -793,6 +795,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     /*! Protocol previewer */
     RangedMeasurement_t stimulusRange;
     mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
+    model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
     RangedMeasurement_t timeRange;
     mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
@@ -824,17 +827,15 @@ QComboBox * CurrentProtocolEditor::getVoltageRangeEdit() {
 }
 
 void CurrentProtocolEditor::setHoldingRange() {
-    RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)(currentRangeEdit->currentIndex()), stimulusRange);
+    RangedMeasurement_t stimulusRange = model->getStimulusRange();
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
-//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 }
 
 void CurrentProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     RangedMeasurement_t stimulusRange;
     mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+    model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
-//    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
 
     protocolPreview->setStimulusRange(stimulusRange);
     parentWidget->getProtocolPreview()->setStimulusRange(stimulusRange);
@@ -869,8 +870,8 @@ EpisodicProtocolEditor::EpisodicProtocolEditor() {
     phasesVl->addWidget(phasesTitle);
 }
 
-GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, protocolWidget, name),
+GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, model, protocolWidget, name),
     VoltageProtocolEditor(),
     GapfreeProtocolEditor() {
 
@@ -881,8 +882,8 @@ GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(ModelDevice *  mDev, 
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, protocolWidget, name),
+EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, model, protocolWidget, name),
     VoltageProtocolEditor(),
     EpisodicProtocolEditor() {
 
@@ -893,8 +894,8 @@ EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(ModelDevice *  mDev
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, protocolWidget, name),
+GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, model, protocolWidget, name),
     CurrentProtocolEditor(),
     GapfreeProtocolEditor() {
 
@@ -905,8 +906,8 @@ GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(ModelDevice *  mDev, 
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-EpisodicCurrentProtocolEditor::EpisodicCurrentProtocolEditor(ModelDevice *  mDev, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, protocolWidget, name),
+EpisodicCurrentProtocolEditor::EpisodicCurrentProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(mDev, model, protocolWidget, name),
     CurrentProtocolEditor(),
     EpisodicProtocolEditor() {
 
