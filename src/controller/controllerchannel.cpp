@@ -7,16 +7,15 @@ ControllerChannel::ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow
 {
     channelControlsDw = new ChannelControlDockWidget(mDev);
     this->mainWindow = mainWindow;
-    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,                  this, &ControllerChannel::onAllChannelsClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,                       this, &ControllerChannel::onOneRowClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,                     this, &ControllerChannel::onOneBoardClicked);
-    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked,                this, &ControllerChannel::onSingleChannelClicked);
     connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnChannelOnOff,       this, &ControllerChannel::onApplyTurnChannelOnOff);
     connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff,       this, &ControllerChannel::onApplyTurnStimulusOnOff);
     connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnDocOnOff,           this, &ControllerChannel::onApplyTurnDocOnOff);
     connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedHoldValues,             this, &ControllerChannel::onApplyHoldValues);
+    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,                  this, &ControllerChannel::onAllChannelsClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,                       this, &ControllerChannel::onOneRowClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,                     this, &ControllerChannel::onOneBoardClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked,                this, &ControllerChannel::onSingleChannelClicked);
     connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied,    this, &ControllerChannel::onCompensationApplied);
-    connect(this, &ControllerChannel::sigCompValuesDispatched, mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::onCompValuesDispatched);
 }
 
 ChannelControlDockWidget * ControllerChannel::getDockWidget(){
@@ -155,10 +154,7 @@ void ControllerChannel::onCompensationApplied(std::vector<uint16_t> channelIndex
     this->mDev->getMessageDispatcher()->getCompFeatures(MessageDispatcher::U_RsCp, rsCpFeatures, defaultParamValue);
     this->mDev->getMessageDispatcher()->getCompFeatures(MessageDispatcher::U_RsPg, rsPgFeatures, defaultParamValue);
 
-    emit sigCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures, ccCfastFeatures);
-
-
-
+    mainWindow->getCompensationControlsDockWidget()->onCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures, ccCfastFeatures);
 }
 
 void ControllerChannel::updateView(){
