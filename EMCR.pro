@@ -22,6 +22,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/controllercompensation.cpp \
     src/controller/controllerstatearray.cpp \
     src/controller/protocol/cursorsmanager.cpp \
     src/controller/protocol/protocolitemctrlmanager.cpp \
@@ -89,6 +90,7 @@ SOURCES += \
     src/view/statearray/statearraydockwidget.cpp
 
 HEADERS += \
+    src/controller/controllercompensation.h \
     src/controller/controllerstatearray.h \
     src/controller/protocol/cursorsmanager.h \
     src/controller/protocol/protocolitemctrlmanager.h \

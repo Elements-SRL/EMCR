@@ -6,19 +6,21 @@
 #include <QDebug>
 
 #include "modeldevice.h"
-
+#include "channelcontroldockwidget.h"
+#include "mainwindow.h"
 
 class ControllerChannel : public QObject {
     Q_OBJECT
 
 public:
-    ControllerChannel(ModelDevice * mDev);
-
-    void setModelDevice(ModelDevice * mDev);
+    ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow);
+    ChannelControlDockWidget * getDockWidget();
 
 private:
     ModelDevice * mDev = nullptr;
-
+    MainWindow * mainWindow = nullptr;
+    ChannelControlDockWidget * channelControlsDw = nullptr;
+    void updateView();
 public slots:
     // To do on actions done on the chessboard
     void onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState);

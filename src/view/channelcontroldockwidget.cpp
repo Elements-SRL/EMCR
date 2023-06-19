@@ -11,9 +11,9 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    this->setWindowTitle("Channels controls");
-
-    this->setWidget(mainWg);
+    setWindowTitle("Channels controls");
+    setObjectName("channelControlsDw");
+    setWidget(mainWg);
 
     QVBoxLayout * mainVl = new QVBoxLayout();
     mainVl->setContentsMargins(0, 0, 0, 0);

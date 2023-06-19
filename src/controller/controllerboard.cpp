@@ -4,11 +4,11 @@
 ControllerBoard::ControllerBoard(ModelDevice * mDev) :
     mDev(mDev)
 {
-
+    boardControlDockWidget = new BoardControlDockWidget(mDev);
 }
 
-void ControllerBoard::setModelDevice(ModelDevice * mDev){
-    this->mDev = mDev;
+BoardControlDockWidget * ControllerBoard::getBoardControlDockWidget(){
+    return boardControlDockWidget;
 }
 
 void ControllerBoard::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){

@@ -3,12 +3,13 @@
 ControllerDevice::ControllerDevice(ModelDevice * mDev) :
     mDev(mDev)
 {
-
+    deviceControlDockWidget = new DeviceControlDockWidget(mDev);
 }
 
-void ControllerDevice::setModelDevice(ModelDevice * mDev){
-    this->mDev = mDev;
+DeviceControlDockWidget * ControllerDevice::getDeviceControlDockWidget(){
+    return deviceControlDockWidget;
 }
+
 
 // Slots (actionPerformed) for current and voltage ranges
 // ADC Current Range in VC

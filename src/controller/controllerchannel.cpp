@@ -1,18 +1,31 @@
 #include "controllerchannel.h"
+#include "channelcontroldockwidget.h"
+#include "mainwindow.h"
 
-ControllerChannel::ControllerChannel(ModelDevice * mDev) :
+ControllerChannel::ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow) :
     mDev(mDev)
 {
-
+    channelControlsDw = new ChannelControlDockWidget(mDev);
+    this->mainWindow = mainWindow;
+    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked,                  this, &ControllerChannel::onAllChannelsClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked,                       this, &ControllerChannel::onOneRowClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,                     this, &ControllerChannel::onOneBoardClicked);
+    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked,                this, &ControllerChannel::onSingleChannelClicked);
+    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnChannelOnOff,       this, &ControllerChannel::onApplyTurnChannelOnOff);
+    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff,       this, &ControllerChannel::onApplyTurnStimulusOnOff);
+    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnDocOnOff,           this, &ControllerChannel::onApplyTurnDocOnOff);
+    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedHoldValues,             this, &ControllerChannel::onApplyHoldValues);
+    connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied,    this, &ControllerChannel::onCompensationApplied);
+    connect(this, &ControllerChannel::sigCompValuesDispatched, mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::onCompValuesDispatched);
 }
 
-void ControllerChannel::setModelDevice(ModelDevice * mDev){
-    this->mDev = mDev;
+ChannelControlDockWidget * ControllerChannel::getDockWidget(){
+    return channelControlsDw;
 }
 
 void ControllerChannel::onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState){
     this->mDev->getChannels()[changedChannelIndexes]->setSelected(newChannelState);
-    emit sigSelectedChannelsUpdated();
+    updateView();
 }
 
 void ControllerChannel::onOneBoardClicked(uint16_t changedBoardIndex, bool newChannelState){
@@ -21,7 +34,7 @@ void ControllerChannel::onOneBoardClicked(uint16_t changedBoardIndex, bool newCh
     for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
         boardToUpdate->getChannelsOnBoard()[i]->setSelected(newChannelState);
     }
-    emit sigSelectedChannelsUpdated();
+    updateView();
 }
 
 void ControllerChannel::onOneRowClicked(uint16_t changedRowIndex, bool newChannelState){
@@ -29,7 +42,7 @@ void ControllerChannel::onOneRowClicked(uint16_t changedRowIndex, bool newChanne
     for(uint16_t i = 0; i < numOfBoardsToUpadate; i++){
         this->mDev->getBoards()[i]->getChannelsOnBoard()[changedRowIndex]->setSelected(newChannelState);
     }
-    emit sigSelectedChannelsUpdated();
+    updateView();
 }
 
 void ControllerChannel::onAllChannelsClicked(bool newChannelState){
@@ -37,7 +50,7 @@ void ControllerChannel::onAllChannelsClicked(bool newChannelState){
     for(uint16_t i = 0; i < numOfChannelsToUpadate; i++){
         this->mDev->getChannels()[i]->setSelected(newChannelState);
     }
-    emit sigSelectedChannelsUpdated();
+    updateView();
 }
 
 void ControllerChannel::onApplyTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
@@ -146,6 +159,11 @@ void ControllerChannel::onCompensationApplied(std::vector<uint16_t> channelIndex
 
 
 
+}
+
+void ControllerChannel::updateView(){
+    channelControlsDw->onUpdate();
+    mainWindow->getChessaboard()->onSelectedPlotsUdpated();
 }
 
 

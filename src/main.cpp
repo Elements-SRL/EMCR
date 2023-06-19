@@ -1,7 +1,6 @@
 #include <QApplication>
 
 #include "controllermain.h"
-#include "mainwindow.h"
 #include "globaldefines.h"
 
 int main(int argc, char *argv[]) {
@@ -22,8 +21,5 @@ int main(int argc, char *argv[]) {
     QDir().mkpath(YAML_DEFAULT_FOLDER);
 
     ControllerMain c;
-    MainWindow w;
-    c.setMainWindow(&w);
-    w.show();
     return a.exec();
 }

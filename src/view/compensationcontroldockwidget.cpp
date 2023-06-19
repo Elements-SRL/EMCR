@@ -33,6 +33,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     bigMainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     this->setWindowTitle("Compensation controls");
     this->setWidget(bigMainWg);
+    setObjectName("compensationControlsDw");
 
     vLayout->setContentsMargins(0, 0, 0, 2);
     vLayout->setSpacing(1);

@@ -134,7 +134,7 @@ CompensationControlDockWidget * MainWindow::getCompensationControlsDockWidget() 
     return compensationControlsDw;
 }
 
-void MainWindow::onDevicesListChanged(std::vector <std::string> devicesList) {
+void MainWindow::setDevicesList(std::vector <std::string> devicesList) {
     if (devicesList.size() > 0) {
         devicesComboBox->clear();
 
@@ -157,11 +157,11 @@ StateArrayDockWidget * MainWindow::getStateArrayDockWidget(){
     return stateArrayDockWidget;
 }
 
-void MainWindow::onSetConnectedDeviceIdx(int idx) {
+void MainWindow::setConnectedDeviceIdx(int idx) {
     devicesComboBox->setCurrentIndex(idx);
 }
 
-void MainWindow::onConnect(bool flag, ErrorCodes_t err) {
+void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
     QString serial = devicesComboBox->itemText(devicesComboBox->currentIndex());
 
     if (flag) {
@@ -186,6 +186,42 @@ void MainWindow::onConnect(bool flag, ErrorCodes_t err) {
     }
 }
 
+/*****************\
+ * controls dock *
+\*****************/
+void MainWindow::setCompensationControlsDw(CompensationControlDockWidget * ccdw){
+    compensationControlsDw = ccdw;
+    addDockWidget(Qt::RightDockWidgetArea, compensationControlsDw);
+    dockWidgets.append(compensationControlsDw);
+}
+
+void MainWindow::setChannelControlsDw(ChannelControlDockWidget * ccdw){
+    channelControlsDw = ccdw;
+    addDockWidget(Qt::RightDockWidgetArea, channelControlsDw);
+    dockWidgets.append(channelControlsDw);
+}
+
+void MainWindow::setBoardControlsDw(BoardControlDockWidget * bcdw){
+    boardControlsDw = bcdw;
+    addDockWidget(Qt::RightDockWidgetArea, boardControlsDw);
+    dockWidgets.append(boardControlsDw);
+}
+
+void MainWindow::setDeviceControlDw(DeviceControlDockWidget * dcdw){
+    deviceControlsDw = dcdw;
+    addDockWidget(Qt::RightDockWidgetArea, deviceControlsDw);
+    dockWidgets.append(deviceControlsDw);
+}
+
+/******************\
+ * protocols dock *
+\******************/
+void MainWindow::setProtocolDw(ProtocolDockWidget * pdw){
+    protocolDw = pdw;
+    addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
+    dockWidgets.append(protocolDw);
+}
+
 void MainWindow::createGuiControls() {
     QSettings settings;
 
@@ -197,34 +233,9 @@ void MainWindow::createGuiControls() {
 
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    /*****************\
-     * controls dock *
-    \*****************/
-
-    deviceControlsDw = new DeviceControlDockWidget(mDev);
-    deviceControlsDw->setObjectName("deviceControlsDw");
-    this->addDockWidget(Qt::RightDockWidgetArea, deviceControlsDw);
-    dockWidgets.append(deviceControlsDw);
-
-    boardControlsDw = new BoardControlDockWidget(mDev);
-    boardControlsDw->setObjectName("boardControlsDw");
-    this->addDockWidget(Qt::RightDockWidgetArea, boardControlsDw);
-    dockWidgets.append(boardControlsDw);
-
-    channelControlsDw = new ChannelControlDockWidget(mDev);
-    channelControlsDw->setObjectName("channelControlsDw");
-    this->addDockWidget(Qt::RightDockWidgetArea, channelControlsDw);
-    dockWidgets.append(channelControlsDw);
-
-    compensationControlsDw = new CompensationControlDockWidget(mDev);
-    compensationControlsDw->setObjectName("compensationControlsDw");
-    this->addDockWidget(Qt::RightDockWidgetArea, compensationControlsDw);
-    dockWidgets.append(compensationControlsDw);
-
     /******************\
      * protocols dock *
     \******************/
-
     protocolDw = new ProtocolDockWidget(mDev, e384CommLib::VOLTAGE_CLAMP);
     protocolDw->setObjectName("protocolDw");
     this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
