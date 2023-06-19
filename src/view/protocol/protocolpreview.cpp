@@ -47,6 +47,9 @@ ProtocolPreview::ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRan
     cursorsWid->setFrameStyle(QFrame::Box | QFrame::Sunken);
     cursorsWid->setLineWidth(1);
     cursorsWid->setMidLineWidth(0);
+#ifndef GLB_CURSORS_IN_PROTOCOL_EDITOR
+    cursorsWid->setVisible(false);
+#endif
 
     QHBoxLayout * cursorsHl = new QHBoxLayout;
     cursorsHl->setContentsMargins(0, 0, 0, 0);

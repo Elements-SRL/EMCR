@@ -74,6 +74,10 @@ BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, 
 
     this->canvas()->setCursor(Qt::CrossCursor);
 
+    connect(this, &BigPlot::zoomInRequest, this, &BigPlot::onZoomInRequest);
+    connect(this, &BigPlot::zoomOutRequest, this, &BigPlot::onZoomOutRequest);
+    connect(this, &BigPlot::zoomResetRequest, this, &BigPlot::onZoomResetRequest);
+
     xAxisMaxMajor = this->axisMaxMajor(xBottom);
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
 

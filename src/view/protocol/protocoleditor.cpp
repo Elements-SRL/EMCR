@@ -272,8 +272,10 @@ void ProtocolEditor::onUpdateCtrlItem() {
 }
 
 void ProtocolEditor::onUpdateHold(double value) {
-    phasesPidl->onUpdateHold(value);
-    this->onUpdateProtocol();
+    if (phasesPidl != nullptr) {
+        phasesPidl->onUpdateHold(value);
+        this->onUpdateProtocol();
+    }
 }
 
 void ProtocolEditor::onUpdateHoldRef() {
@@ -436,6 +438,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
 
+#ifdef GLB_ANALYSES_IN_PROTOCOL_EDITOR
     libraryPidl->addItem(new ProtocolDragSeparator());
     btn = libraryPidl->setSeparator("Analysis", PROT_EDITOR_ANALYSIS_SEPARATOR_COLOR);
     itemIdx++;
@@ -452,6 +455,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     itemIdxs.append(itemIdx++);
 
     libraryPidl->setSeparatorItems(btn, itemIdxs);
+#endif
 
     /*! Protocol wide controls */
     double hold = 0.0;
@@ -545,6 +549,11 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     analysisItemsVl->addWidget(analysisPidl);
 
     connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
+
+#ifndef GLB_ANALYSES_IN_PROTOCOL_EDITOR
+    analysisTitle->setVisible(false);
+    analysisPidl->setVisible(false);
+#endif
 
     connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
     connect(holdRefEdit, &QCheckBox::stateChanged, this, &ProtocolEditor::onUpdateHoldRef);
@@ -673,6 +682,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
 
+#ifdef GLB_ANALYSES_IN_PROTOCOL_EDITOR
     libraryPidl->addItem(new ProtocolDragSeparator());
     btn = libraryPidl->setSeparator("Analysis", PROT_EDITOR_ANALYSIS_SEPARATOR_COLOR);
     itemIdx++;
@@ -693,6 +703,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     itemIdxs.append(itemIdx++);
 
     libraryPidl->setSeparatorItems(btn, itemIdxs);
+#endif
 
     /*! Protocol wide controls */
     double hold = 0.0;
@@ -785,6 +796,11 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     analysisItemsVl->addWidget(analysisPidl);
 
     connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
+
+#ifndef GLB_ANALYSES_IN_PROTOCOL_EDITOR
+    analysisTitle->setVisible(false);
+    analysisPidl->setVisible(false);
+#endif
 
     connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
     connect(holdRefEdit, &QCheckBox::stateChanged, this, &ProtocolEditor::onUpdateHoldRef);

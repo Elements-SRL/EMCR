@@ -318,7 +318,7 @@ void ProtocolList::onAddProtocol() {
     /*! Get new protocol type (gap-free or episodic) */
     QComboBox * protocolTypeEdit = new QComboBox();
     protocolTypeEdit->addItem("Gap-Free");
-    protocolTypeEdit->addItem("Episodic");
+//    protocolTypeEdit->addItem("Episodic");
 
     dialogLo->addWidget(protocolTypeEdit);
 

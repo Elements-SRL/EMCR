@@ -79,6 +79,10 @@ ProtocolPlot::ProtocolPlot(ModelDevice * mDev, QString titleString, QString xUni
     zoomResetPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::RightButton);
     connect(zoomResetPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &ProtocolPlot::onZoomResetPickerSelected);
 
+    connect(this, &ProtocolPlot::zoomInRequest, this, &ProtocolPlot::onZoomInRequest);
+    connect(this, &ProtocolPlot::zoomOutRequest, this, &ProtocolPlot::onZoomOutRequest);
+    connect(this, &ProtocolPlot::zoomResetRequest, this, &ProtocolPlot::onZoomResetRequest);
+
     /*! Add cursor picker */
     cursorAddPicker = new QwtPlotPicker(this->canvas());
     cursorAddPicker->setStateMachine(new DoubleClickMachine(Qt::LeftButton));
