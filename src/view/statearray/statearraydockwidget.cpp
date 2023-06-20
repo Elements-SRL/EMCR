@@ -270,7 +270,9 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     connect(timeoutStateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
         emit sigTimeoutStateSpinboxChanged(value, currentStateIdx);
     });
-
+    connect(triggerStateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
+        emit sigTriggerStateCheckBoxClicked(value, currentStateIdx);
+    });
     buttonsLayout->addWidget(openButton);
     buttonsLayout->addWidget(saveAsButton);
     buttonsLayout->addItem(spacer);

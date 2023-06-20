@@ -93,6 +93,9 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     connect(stateArrayWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
         mDev->getMessageDispatcher()->setStateArrayEnabled(chIdx, enableFlag);
     });
+    connect(stateArrayWidget, &StateArrayDockWidget::sigTriggerStateCheckBoxClicked, this, [=](int value, int chIdx){
+        stateArray.states[chIdx].triggerState = value;
+    });
 }
 
 void ControllerStateArray::printYaml(){

@@ -60,5 +60,6 @@ signals:
     void sigStartButtonPressed();
     void sigTriggerTypeChanged(std::string, int);
     void sigStateArrayCheckBoxClicked(bool, int);
+    void sigTriggerStateCheckBoxClicked(int, int);
 };
 #endif // STATEARRAYDOCKWIDGET_H
