@@ -3,10 +3,10 @@
 #include "mainwindow.h"
 
 ControllerChannel::ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow) :
-    mDev(mDev)
+    mDev(mDev),
+    mainWindow(mainWindow)
 {
     channelControlsDw = new ChannelControlDockWidget(mDev);
-    this->mainWindow = mainWindow;
     connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnChannelOnOff, this, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
         onApplyTurnChannelOnOff(channelIndexes, onValues);
     });

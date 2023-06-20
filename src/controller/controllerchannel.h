@@ -41,7 +41,6 @@ public slots:
 
     signals:
     // signals sent to Channel Control Dock Widget (I've already done my stuff)
-    void sigSelectedChannelsUpdated();
 
     // signals sent to Compensation Control Widget
     void sigCompValuesDispatched(std::vector<std::vector<double>> compValueMatrix, std::vector<RangedMeasurement> cfastFeatures, std::vector<RangedMeasurement> cslowFeatures, std::vector<RangedMeasurement> rsFeatures, std::vector<RangedMeasurement> rsCpFeatures, std::vector<RangedMeasurement> rsPgFeatures, std::vector<RangedMeasurement> ccCfastFeatures);
