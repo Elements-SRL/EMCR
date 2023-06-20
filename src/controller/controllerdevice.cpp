@@ -50,8 +50,6 @@ ControllerDevice::ControllerDevice(ModelDevice * mDev, MainWindow * mainWindow) 
     connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex){
         onSamplingRateSelected(selectedSamplingRateIndex);
     });
-
-
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording, deviceControlDockWidget, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
         deviceControlDockWidget->onStartRecording(channelIndexes, onValues);
     });
