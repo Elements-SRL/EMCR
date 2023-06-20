@@ -182,8 +182,6 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChessaboard(), &Chessboard::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &ControllerMain::onStartRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &ControllerMain::onStopRecording);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::onStartRecording);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::onStopRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedPlotToBigPlot,         bigPlotConsumer, &PlotConsumer::onSelectChannels);
 
     connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {

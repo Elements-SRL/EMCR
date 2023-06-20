@@ -51,6 +51,13 @@ ControllerDevice::ControllerDevice(ModelDevice * mDev, MainWindow * mainWindow) 
         onSamplingRateSelected(selectedSamplingRateIndex);
     });
 
+
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording, deviceControlDockWidget, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+        deviceControlDockWidget->onStartRecording(channelIndexes, onValues);
+    });
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording, deviceControlDockWidget,[=](){
+        deviceControlDockWidget->onStopRecording();
+    });
 }
 
 // Slots (actionPerformed) for current and voltage ranges
