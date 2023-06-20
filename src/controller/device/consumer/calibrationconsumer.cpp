@@ -44,6 +44,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     calibratonResistances = calibData.vcCalibResArray;
     areCalibResistOnBoard = calibData.areCalibResistOnBoard;
     canInputsBeOpened = calibData.canInputsBeOpened;
+    adcCalibratedInOffsetBinary = calibData.adcCalibratedInOffsetBinary;
     ccCalibrationVoltSteps = calibData.ccCalibVoltStepsArrays;
     ccCalibrationCurrSteps = calibData.ccCalibCurrStepsArrays;
     ccCalibratonResistances = calibData.ccCalibResArray;
@@ -642,8 +643,12 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
 
     /*! moltiplico la corrente media per i GAIN calacolati al passo precedente e dovrei avere già l'offset di ADC*/
     for(int i = 0; i < currentSum.size(); i++){
-        usefulAdcOffset[i] =-(gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
+        if (adcCalibratedInOffsetBinary) {
+            usefulAdcOffset[i] = -(gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
 
+        } else {
+            usefulAdcOffset[i] = -gainADC[rangeIdx][i] * currentSum[i]/(double)timeSamples;
+        }
     }
 
     buffer.clear(); /*! is resized in getDataChunk()*/
@@ -737,7 +742,12 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
-            adcCompensatedCurrent[i] = (gainADC[thisVcCurrentActualRangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[thisVcCurrentActualRangeIdx][i];
+            if (adcCalibratedInOffsetBinary) {
+                adcCompensatedCurrent[i] = (gainADC[thisVcCurrentActualRangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[thisVcCurrentActualRangeIdx][i];
+
+            } else {
+                adcCompensatedCurrent[i] = gainADC[thisVcCurrentActualRangeIdx][i] * currentSum[i]/(double)timeSamples + offsetADC[thisVcCurrentActualRangeIdx][i];
+            }
 
             if (adcCompensatedCurrent[i] == 0.0){
                needsFurtherCalibration[i] = false;
@@ -1690,7 +1700,7 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
         for(int i = 0; i < voltageSum.size(); i++){
             // voltageSum conteine un element per canale, i.e. 384
             // qui compenso con i guadagni di tensione calcolati al punto precente
-            voltageMeans[currStepIdx][i] = ccGainADC[thisActualRangeIdx][i] * voltageSum[i]/((double)timeSamples);
+            voltageMeans[currStepIdx][i] = ccGainADC[thisActualRangeIdx][i] * voltageSum[i]/(double)timeSamples;
         }
 
         buffer.clear(); /*! is resized in getDataChunk()*/
@@ -1787,7 +1797,12 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
 
     /*! moltiplico la tensione media per i GAIN ADC calacolati al passo precedente e dovrei avere già l'offset di ADC*/
     for(int i = 0; i < voltageSum.size(); i++){
-        usefulAdcOffset[i] = -(ccGainADC[rangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()); //V
+        if (adcCalibratedInOffsetBinary) {
+            usefulAdcOffset[i] = -(ccGainADC[rangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()); //V
+
+        } else {
+            usefulAdcOffset[i] = -ccGainADC[rangeIdx][i] * voltageSum[i]/(double)timeSamples; //V
+        }
     }
 
     buffer.clear(); /*! is resized in getDataChunk()*/
@@ -1862,7 +1877,12 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
-            adcCompensatedVoltage[i] = (ccGainADC[thisCcVoltageActualRangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + ccOffsetADC[thisCcVoltageActualRangeIdx][i];
+            if (adcCalibratedInOffsetBinary) {
+                adcCompensatedVoltage[i] = (ccGainADC[thisCcVoltageActualRangeIdx][i] * (voltageSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + ccOffsetADC[thisCcVoltageActualRangeIdx][i];
+
+            } else {
+                adcCompensatedVoltage[i] = ccGainADC[thisCcVoltageActualRangeIdx][i] * voltageSum[i]/(double)timeSamples + ccOffsetADC[thisCcVoltageActualRangeIdx][i];
+            }
             if (adcCompensatedVoltage[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
