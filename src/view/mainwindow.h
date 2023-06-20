@@ -50,7 +50,7 @@ public:
     void setBoardControlsDw(BoardControlDockWidget * bcdw);
     void setDeviceControlDw(DeviceControlDockWidget * dcdw);
     void setProtocolDw(ProtocolDockWidget * pdw);
-
+    void setStateArrayDw(StateArrayDockWidget * sadw);
     QLabel * SRLbl = nullptr;
 
 public slots:

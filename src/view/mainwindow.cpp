@@ -213,6 +213,14 @@ void MainWindow::setDeviceControlDw(DeviceControlDockWidget * dcdw){
     dockWidgets.append(deviceControlsDw);
 }
 
+//STATE ARRAY WIDGET
+void MainWindow::setStateArrayDw(StateArrayDockWidget * sadw){
+    stateArrayDockWidget = sadw;
+    addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
+    dockWidgets.append(stateArrayDockWidget);
+    stateArrayDockWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+}
+
 /******************\
  * protocols dock *
 \******************/
@@ -255,15 +263,6 @@ void MainWindow::createGuiControls() {
     bigPlotDw->setObjectName("bigPlotDw");
     this->addDockWidget(Qt::BottomDockWidgetArea, bigPlotDw);
     dockWidgets.append(bigPlotDw);
-
-    //STATE ARRAY WIDGET
-    if (mDev->getMessageDispatcher()->isStateArrayAvailable()){
-        stateArrayDockWidget = new StateArrayDockWidget(this);
-        stateArrayDockWidget->setObjectName("stateArrayDockWidget");
-        this->addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
-        dockWidgets.append(stateArrayDockWidget);
-        stateArrayDockWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    }
 
     /**************\
      * debug dock *
@@ -330,8 +329,6 @@ void MainWindow::createGuiControls() {
     QPushButton * degugInitializeBtn = new QPushButton("Initialize");
     debugVl->addWidget(degugInitializeBtn);
     connect(degugInitializeBtn, &QPushButton::clicked, this, &MainWindow::debugInitialization);
-
-
 
     /*! ------------------------------------------------------------ */
     QDockWidget * calibrationDw = new QDockWidget();

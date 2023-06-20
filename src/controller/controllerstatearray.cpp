@@ -7,14 +7,17 @@
 #include <QAction>
 #include "iostream"
 
-ControllerStateArray::ControllerStateArray(ModelDevice * mDev)
+ControllerStateArray::ControllerStateArray(ModelDevice * mDev, MainWindow * mainWindow)
 {
+    if(!mDev->getMessageDispatcher()->isStateArrayAvailable()){
+//        TODO SHOULD THIS RETURN AN ERROR?
+        return;
+    }
     this->mDev = mDev;
     stateArray = {};
-}
-
-void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArrayWidget){
-    this->stateArrayWidget = stateArrayWidget;
+    this->mainWindow = mainWindow;
+    stateArrayDockWidget = new StateArrayDockWidget();
+    mainWindow->setStateArrayDw(stateArrayDockWidget);
     updateUI();
     std::vector <RangedMeasurement_t> vcCurrentRangesFeatures;
     std::vector <RangedMeasurement_t> voltageRanges;
@@ -26,28 +29,28 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
     RangedMeasurement_t currentRange = vcCurrentRangesFeatures[0];
     voltageRange.convertValues(UnitPfx::UnitPfxNone);
     currentRange.convertValues(UnitPfx::UnitPfxPico);
-    stateArrayWidget->setRanges(voltageRange.min, voltageRange.max,currentRange.min, currentRange.max);
+    stateArrayDockWidget->setRanges(voltageRange.min, voltageRange.max,currentRange.min, currentRange.max);
 
-    connect(stateArrayWidget, &StateArrayDockWidget::sigOpenButtonPressed, this, [=](std::string s){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigOpenButtonPressed, this, [=](std::string s){
         open(s);
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigSaveAsButtonPressed, this, [=](std::string s){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigSaveAsButtonPressed, this, [=](std::string s){
         writeToFile(s);
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigStateChanged, this, [=](int idx){
-        stateArrayWidget->setState(stateArray.states[idx], idx);
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigStateChanged, this, [=](int idx){
+        stateArrayDockWidget->setState(stateArray.states[idx], idx);
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigDeleteButtonPressed, this, [=](int idx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigDeleteButtonPressed, this, [=](int idx){
         deleteState(idx);
         updateUI();
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigInsertStateAfter, this, [=](int idx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigInsertStateAfter, this, [=](int idx){
         insertState(idx, {});
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigInitialStateChanged, this, [=](int idx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigInitialStateChanged, this, [=](int idx){
         stateArray.initialState = idx;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigStartButtonPressed, this, [=](){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigStartButtonPressed, this, [=](){
         auto md = mDev->getMessageDispatcher();
         md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState);
         for (int i = 0; i < stateArray.states.size(); i++){
@@ -63,34 +66,34 @@ void ControllerStateArray::setStateArrayWidget(StateArrayDockWidget * stateArray
         }
         md->startStateArray();
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigActiveTimeoutCheckbox, this, [=](bool activeTimeout, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigActiveTimeoutCheckbox, this, [=](bool activeTimeout, int stateIdx){
         stateArray.states[stateIdx].activeTimeout = activeTimeout;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigDeltaTriggerCheckbox, this, [=](bool deltaTrigger, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigDeltaTriggerCheckbox, this, [=](bool deltaTrigger, int stateIdx){
         stateArray.states[stateIdx].delta = deltaTrigger;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigActiveTriggerCheckbox, this, [=](bool activeTrigger, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigActiveTriggerCheckbox, this, [=](bool activeTrigger, int stateIdx){
         stateArray.states[stateIdx].activeTrigger = activeTrigger;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigMaxTrigLeveDoubleSpinbox, this, [=](double maxTrigLevel, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigMaxTrigLeveDoubleSpinbox, this, [=](double maxTrigLevel, int stateIdx){
         stateArray.states[stateIdx].maxTrigLevel = maxTrigLevel;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigMinTrigLevelDoubleSpinbox, this, [=](double minTrigLevel, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigMinTrigLevelDoubleSpinbox, this, [=](double minTrigLevel, int stateIdx){
         stateArray.states[stateIdx].minTrigLevel = minTrigLevel;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigvoltageSpinbox, this, [=](double voltage, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigvoltageSpinbox, this, [=](double voltage, int stateIdx){
         stateArray.states[stateIdx].voltage = voltage;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigTimeoutStateSpinboxChanged, this, [=](int newState, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigTimeoutStateSpinboxChanged, this, [=](int newState, int stateIdx){
         stateArray.states[stateIdx].timeoutState = newState;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigTimeoutDoubleSpinboxChanged, this, [=](double timeout, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigTimeoutDoubleSpinboxChanged, this, [=](double timeout, int stateIdx){
         stateArray.states[stateIdx].timeout = timeout;
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigTriggerTypeChanged, this, [=](std::string triggerType, int stateIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigTriggerTypeChanged, this, [=](std::string triggerType, int stateIdx){
         stateArray.states[stateIdx].triggerType = getTriggerTypeFromString(triggerType);
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
         mDev->getMessageDispatcher()->setStateArrayEnabled(chIdx, enableFlag);
     });
 }
@@ -114,7 +117,7 @@ void ControllerStateArray::insertState(int idx, YAML::State s){
     const int newIdx = idx+1;
     stateArray.states.insert(stateArray.states.begin()+newIdx, s);
     updateUI();
-    stateArrayWidget->setState(s, newIdx);
+    stateArrayDockWidget->setState(s, newIdx);
 }
 
 void ControllerStateArray::deleteState(int idx){
@@ -126,7 +129,7 @@ void ControllerStateArray::deleteState(int idx){
 }
 
 void ControllerStateArray::updateUI(){
-    stateArrayWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
-    stateArrayWidget->setStateCount(stateArray.states.size());
-    stateArrayWidget->setState(stateArray.states[0], 0);
+    stateArrayDockWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
+    stateArrayDockWidget->setStateCount(stateArray.states.size());
+    stateArrayDockWidget->setState(stateArray.states[0], 0);
 }

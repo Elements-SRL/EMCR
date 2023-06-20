@@ -20,7 +20,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     setWindowTitle("State Array");
 
     setWidget(mainWg);
-
+    setObjectName("stateArrayDockWidget");
     currentStateIdx = 0;
     // Constructor implementation
     QVBoxLayout * mainLayout = new QVBoxLayout();
