@@ -113,6 +113,8 @@ void ControllerMain::onMainWindowCreated() {
     /***************\
      * Controllers *
     \***************/
+//    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
+    controllerCompensation = new ControllerCompensation(mDev, mainWindow);
     controllerChannel = new ControllerChannel(mDev, mainWindow);
     controllerBoard = new ControllerBoard(mDev, mainWindow);
     controllerDevice = new ControllerDevice(mDev, mainWindow);
@@ -120,7 +122,6 @@ void ControllerMain::onMainWindowCreated() {
     currentProtocolManager = new ProtocolManager(mDev);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
-    controllerCompensation = new ControllerCompensation(mDev, mainWindow);
 
 //    mainWindow->setProtocolDw(voltageProtocolManager->getProtocolDockWidget());
 //    mainWindow->setProtocolDw(currentProtocolManager->getProtocolDockWidget());

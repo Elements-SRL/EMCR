@@ -18,7 +18,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWindowTitle("State Array");
-
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWidget(mainWg);
     setObjectName("stateArrayDockWidget");
     currentStateIdx = 0;

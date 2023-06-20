@@ -218,7 +218,6 @@ void MainWindow::setStateArrayDw(StateArrayDockWidget * sadw){
     stateArrayDockWidget = sadw;
     addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
     dockWidgets.append(stateArrayDockWidget);
-    stateArrayDockWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
 /******************\
