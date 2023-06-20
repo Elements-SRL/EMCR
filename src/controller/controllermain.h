@@ -17,6 +17,7 @@
 #include "calibrationconsumer.h"
 #include "protocolmanager.h"
 #include "controllerstatearray.h"
+#include "controllercompensation.h"
 
 class ControllerMain : public QObject {
     Q_OBJECT
@@ -69,6 +70,7 @@ private:
     ControllerBoard * controllerBoard = nullptr;
     ControllerDevice * controllerDevice = nullptr;
     ControllerStateArray * controllerStateArray;
+    ControllerCompensation * controllerCompensation;
 
     ProtocolManager * voltageProtocolManager = nullptr;
     ProtocolManager * currentProtocolManager = nullptr;

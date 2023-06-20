@@ -18,6 +18,7 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     QWidget * bigMainWg = new QWidget();
     bigMainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     this->setWindowTitle("Board controls");
+    setObjectName("boardControlsDw");
 
     QWidget * mainWg = new QWidget();
 

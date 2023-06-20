@@ -1,13 +1,61 @@
 #include "controllerdevice.h"
 
-ControllerDevice::ControllerDevice(ModelDevice * mDev) :
+ControllerDevice::ControllerDevice(ModelDevice * mDev, MainWindow * mainWindow) :
     mDev(mDev)
 {
+    deviceControlDockWidget = new DeviceControlDockWidget(mDev);
+    this->mainWindow = mainWindow;
+    mainWindow->setDeviceControlDw(deviceControlDockWidget);
 
-}
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcCurrentRangeSelected,     this, [=](uint16_t selectedVcCurrentRangeIndex){
+        onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
+    });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcVoltageRangeSelected,     this, [=](uint16_t selectedVcVoltageRangeIndex){
+        onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+    });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcCurrentRangeSelected,     this, [=](uint16_t selectedCcCurrentRangeIndex){
+        onCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
+    });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcVoltageRangeSelected,     this, [=](uint16_t selectedCcVoltageRangeIndex){
+        onCcVoltageRangeSelected(selectedCcVoltageRangeIndex);
+    });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcVoltageFilterSelected,    this, [=](uint16_t selectedVcVoltageFilterIndex){
+        onVcVoltageFilterSelected(selectedVcVoltageFilterIndex);
+    });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcCurrentFilterSelected,    this, [=](uint16_t selectedCcCurrentFilterIndex){
+        onCcCurrentFilterSelected(selectedCcCurrentFilterIndex);
+    });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigSamplingRateSelected,       this, [=](uint16_t selectedSamplingRateIndex){
+        onSamplingRateSelected(selectedSamplingRateIndex);
+    });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](uint16_t selectedClampingModalityIndex){
+        onClampingModalitySelected(selectedClampingModalityIndex);
+    });
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedCcCurrentRangeIndex){
+        onCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
+    });
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex){
+        onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+    });
+    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex){
+        onSamplingRateSelected(selectedSamplingRateIndex);
+    });
 
-void ControllerDevice::setModelDevice(ModelDevice * mDev){
-    this->mDev = mDev;
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedVcCurrentRangeIndex){
+        onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
+    } );
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex){
+        onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+    });
+    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex){
+        onSamplingRateSelected(selectedSamplingRateIndex);
+    });
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording, deviceControlDockWidget, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+        deviceControlDockWidget->onStartRecording(channelIndexes, onValues);
+    });
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording, deviceControlDockWidget,[=](){
+        deviceControlDockWidget->onStopRecording();
+    });
 }
 
 // Slots (actionPerformed) for current and voltage ranges

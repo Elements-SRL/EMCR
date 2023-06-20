@@ -6,6 +6,7 @@
 DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidget() {
     this->mDev = mDev;
 
+    setObjectName("deviceControlsDw");
     std::vector<int> clampingModalities;
     mDev->getClampingModalitiesFeatures(clampingModalities);
 

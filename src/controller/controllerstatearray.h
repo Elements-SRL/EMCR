@@ -7,17 +7,18 @@
 #include "view/statearray/statearraydockwidget.h"
 
 #include <modeldevice.h>
+#include "mainwindow.h"
 
 class ControllerStateArray : public QObject {
     Q_OBJECT
 
 public:
-    ControllerStateArray(ModelDevice * mDev);
-    void setStateArrayWidget(StateArrayDockWidget * stateArrayWidget);
+    ControllerStateArray(ModelDevice * mDev, MainWindow * mainWindow);
 
 private:
     ModelDevice *mDev;
-    StateArrayDockWidget * stateArrayWidget;
+    MainWindow * mainWindow;
+    StateArrayDockWidget * stateArrayDockWidget;
     YAML::StateArray stateArray;
     QAction * actionOpenFile = nullptr;
     void updateUI();

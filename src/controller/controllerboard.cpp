@@ -1,14 +1,15 @@
 #include "controllerboard.h"
 
 
-ControllerBoard::ControllerBoard(ModelDevice * mDev) :
+ControllerBoard::ControllerBoard(ModelDevice * mDev, MainWindow * mainWindow) :
     mDev(mDev)
 {
-
-}
-
-void ControllerBoard::setModelDevice(ModelDevice * mDev){
-    this->mDev = mDev;
+    boardControlDockWidget = new BoardControlDockWidget(mDev);
+    this->mainWindow = mainWindow;
+    mainWindow->setBoardControlsDw(boardControlDockWidget);
+    connect(boardControlDockWidget, &BoardControlDockWidget::sigGateSourceVoltagesApplied, this, [=](std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
+        onGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);
+    });
 }
 
 void ControllerBoard::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){

@@ -6,19 +6,20 @@
 #include <QDebug>
 
 #include "modeldevice.h"
-
+#include "channelcontroldockwidget.h"
+#include "mainwindow.h"
 
 class ControllerChannel : public QObject {
     Q_OBJECT
 
 public:
-    ControllerChannel(ModelDevice * mDev);
-
-    void setModelDevice(ModelDevice * mDev);
+    ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow);
 
 private:
     ModelDevice * mDev = nullptr;
-
+    MainWindow * mainWindow = nullptr;
+    ChannelControlDockWidget * channelControlsDw = nullptr;
+    void updateView();
 public slots:
     // To do on actions done on the chessboard
     void onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState);
@@ -40,7 +41,6 @@ public slots:
 
     signals:
     // signals sent to Channel Control Dock Widget (I've already done my stuff)
-    void sigSelectedChannelsUpdated();
 
     // signals sent to Compensation Control Widget
     void sigCompValuesDispatched(std::vector<std::vector<double>> compValueMatrix, std::vector<RangedMeasurement> cfastFeatures, std::vector<RangedMeasurement> cslowFeatures, std::vector<RangedMeasurement> rsFeatures, std::vector<RangedMeasurement> rsCpFeatures, std::vector<RangedMeasurement> rsPgFeatures, std::vector<RangedMeasurement> ccCfastFeatures);

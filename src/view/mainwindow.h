@@ -41,13 +41,19 @@ public:
     RecordSettingsDialog * getRecordSettingsDialog();
     CompensationControlDockWidget * getCompensationControlsDockWidget();
     StateArrayDockWidget * getStateArrayDockWidget();
+    void setDevicesList(std::vector <std::string> devicesList);
+    void setConnectedDeviceIdx(int idx);
+    void connectDevice(bool flag, ErrorCodes_t err);
 
+    void setCompensationControlsDw(CompensationControlDockWidget * ccdw);
+    void setChannelControlsDw(ChannelControlDockWidget * ccdw);
+    void setBoardControlsDw(BoardControlDockWidget * bcdw);
+    void setDeviceControlDw(DeviceControlDockWidget * dcdw);
+    void setProtocolDw(ProtocolDockWidget * pdw);
+    void setStateArrayDw(StateArrayDockWidget * sadw);
     QLabel * SRLbl = nullptr;
 
 public slots:
-    void onDevicesListChanged(std::vector <std::string> devicesList);
-    void onSetConnectedDeviceIdx(int idx);
-    void onConnect(bool flag, ErrorCodes_t err);
     void onCalibLoadingMsg(QString msg);
     void onCalibLoadingMsg(ErrorCodes_t error);
     void onManualCalibDoneMsg(QString msg);
