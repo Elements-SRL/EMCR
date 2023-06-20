@@ -16,10 +16,7 @@ ControllerChannel::ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow
     connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked,                     this, &ControllerChannel::onOneBoardClicked);
     connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked,                this, &ControllerChannel::onSingleChannelClicked);
     connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied,    this, &ControllerChannel::onCompensationApplied);
-}
-
-ChannelControlDockWidget * ControllerChannel::getDockWidget(){
-    return channelControlsDw;
+    mainWindow->setChannelControlsDw(channelControlsDw);
 }
 
 void ControllerChannel::onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState){

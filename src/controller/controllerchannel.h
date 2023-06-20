@@ -14,7 +14,6 @@ class ControllerChannel : public QObject {
 
 public:
     ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow);
-    ChannelControlDockWidget * getDockWidget();
 
 private:
     ModelDevice * mDev = nullptr;
