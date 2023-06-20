@@ -174,8 +174,8 @@ YAML::CurrentProtocol ProtocolEditor::getYamlCurrentProtocol() {
 
     yamlProtocol.name = name.toStdString();
     yamlProtocol.operationmode = (type == "Gap Free" ? YAML::GapFree : YAML::Episodic);
-    yamlProtocol.vhold = holdEdit->value();
-    yamlProtocol.vholdref = holdRefEdit->isChecked();
+    yamlProtocol.ihold = holdEdit->value();
+    yamlProtocol.iholdref = holdRefEdit->isChecked();
     yamlProtocol.sweeps = sweepsNumEdit->value();
     yamlProtocol.currentrange = currentRangeEdit->currentText().toStdString();
     yamlProtocol.voltagerange = voltageRangeEdit->currentText().toStdString();
@@ -233,7 +233,7 @@ void ProtocolEditor::setProtocolFromYaml(const YAML::CurrentProtocol_t &yamlProt
     QString voltageRangeStr = QString::fromStdString(yamlProtocol.voltagerange);
     QString samplingRateStr = QString::fromStdString(yamlProtocol.samplingrate);
 
-    holdRefEdit->setChecked(yamlProtocol.vholdref);
+    holdRefEdit->setChecked(yamlProtocol.iholdref);
     sweepsNumEdit->setValue(yamlProtocol.sweeps);
     /*! Accept also similar values by checking all characters except for the first one, so 200pA can be matched with 300pA */
     int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegExp);
@@ -252,7 +252,7 @@ void ProtocolEditor::setProtocolFromYaml(const YAML::CurrentProtocol_t &yamlProt
     }
     samplingRateEdit->setCurrentText(samplingRateStr);
     this->setHoldingRange();
-    holdEdit->setValue(yamlProtocol.vhold);
+    holdEdit->setValue(yamlProtocol.ihold);
 
     ctrlPidl->setControlsFromYaml(yamlProtocol.controls, voltageRangeIdx, currentRangeIdx);
     phasesPidl->setPhasesFromYaml(yamlProtocol.phases, voltageRangeIdx, currentRangeIdx);
