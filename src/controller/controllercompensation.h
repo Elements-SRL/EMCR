@@ -6,16 +6,18 @@
 
 #include "modeldevice.h"
 #include "compensationcontroldockwidget.h"
+#include "mainwindow.h"
 
 class ControllerCompensation : public QObject {
     Q_OBJECT
 
 public:
-    ControllerCompensation(ModelDevice * mDev);
+    ControllerCompensation(ModelDevice * mDev, MainWindow * mainWindow);
     CompensationControlDockWidget * getCompensationDockWidget();
 
 private:
     ModelDevice * mDev = nullptr;
+    MainWindow * mainWindow = nullptr;
     CompensationControlDockWidget * compensationControlDockWidget = nullptr;
 };
 #endif // CONTROLLERCOMPENSATION_H

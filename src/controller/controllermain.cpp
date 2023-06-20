@@ -114,20 +114,16 @@ void ControllerMain::onMainWindowCreated() {
      * Controllers *
     \***************/
     controllerChannel = new ControllerChannel(mDev, mainWindow);
-    controllerBoard = new ControllerBoard(mDev);
-    controllerDevice = new ControllerDevice(mDev);
+    controllerBoard = new ControllerBoard(mDev, mainWindow);
+    controllerDevice = new ControllerDevice(mDev, mainWindow);
     voltageProtocolManager = new ProtocolManager(mDev);
     currentProtocolManager = new ProtocolManager(mDev);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
-    controllerCompensation = new ControllerCompensation(mDev);
+    controllerCompensation = new ControllerCompensation(mDev, mainWindow);
 
-    mainWindow->setChannelControlsDw(controllerChannel->getDockWidget());
-    mainWindow->setBoardControlsDw(controllerBoard->getBoardControlDockWidget());
-    mainWindow->setDeviceControlDw(controllerDevice->getDeviceControlDockWidget());
 //    mainWindow->setProtocolDw(voltageProtocolManager->getProtocolDockWidget());
 //    mainWindow->setProtocolDw(currentProtocolManager->getProtocolDockWidget());
-    mainWindow->setCompensationControlsDw(controllerCompensation->getCompensationDockWidget());
 
     if(mDev->getMessageDispatcher()->isStateArrayAvailable()){
         controllerStateArray = new ControllerStateArray(mDev);
@@ -162,11 +158,6 @@ void ControllerMain::onMainWindowCreated() {
     /***********\
      * Connect *
     \***********/
-
-    connect(controllerChannel, &ControllerChannel::sigSelectedChannelsUpdated,   mainWindow->getChessaboard(), &Chessboard::onSelectedPlotsUdpated);
-
-    /*! No signals from controllerBoard */
-
     connect(controllerDevice, &ControllerDevice::sigVcCurrentRangeSelected,     this, &ControllerMain::onVcCurrentRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected,     this, &ControllerMain::onVcVoltageRangeSelected);
     connect(controllerDevice, &ControllerDevice::sigCcCurrentRangeSelected,     this, &ControllerMain::onCcCurrentRangeSelected);
@@ -195,18 +186,6 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::onStopRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedPlotToBigPlot,         bigPlotConsumer, &PlotConsumer::onSelectChannels);
 
-    connect(mainWindow->getBoardControlsDockWidget(), &BoardControlDockWidget::sigGateSourceVoltagesApplied,    controllerBoard, &ControllerBoard::onGateSourceVoltagesApplied);
-
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcCurrentRangeSelected,     controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcVoltageRangeSelected,     controllerDevice, &ControllerDevice::onCcVoltageRangeSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigVcVoltageFilterSelected,    controllerDevice, &ControllerDevice::onVcVoltageFilterSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigCcCurrentFilterSelected,    controllerDevice, &ControllerDevice::onCcCurrentFilterSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigSamplingRateSelected,       controllerDevice, &ControllerDevice::onSamplingRateSelected);
-    connect(mainWindow->getDeviceControlsDockWidget(), &DeviceControlDockWidget::sigClampingModalitySelected,   controllerDevice, &ControllerDevice::onClampingModalitySelected);
-
-
     connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
         mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
     });
@@ -218,15 +197,8 @@ void ControllerMain::onMainWindowCreated() {
 
     connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
     connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestCurrentRange,  controllerDevice, &ControllerDevice::onVcCurrentRangeSelected);
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestVoltageRange,  controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestSamplingRate,  controllerDevice, &ControllerDevice::onSamplingRateSelected);
-
     connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
     connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  controllerDevice, &ControllerDevice::onCcCurrentRangeSelected);
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  controllerDevice, &ControllerDevice::onVcVoltageRangeSelected);
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  controllerDevice, &ControllerDevice::onSamplingRateSelected);
 
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 

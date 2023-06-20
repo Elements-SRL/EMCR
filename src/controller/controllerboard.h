@@ -6,16 +6,17 @@
 
 #include "modeldevice.h"
 #include "boardcontroldockwidget.h"
+#include "mainwindow.h"
 
 class ControllerBoard : public QObject {
     Q_OBJECT
 
 public:
-    ControllerBoard(ModelDevice * mDev);
-    BoardControlDockWidget * getBoardControlDockWidget();
+    ControllerBoard(ModelDevice * mDev, MainWindow * mainWindow);
 private:
     ModelDevice * mDev = nullptr;
     BoardControlDockWidget * boardControlDockWidget = nullptr;
+    MainWindow * mainWindow = nullptr;
 
 public slots:
     void onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages);

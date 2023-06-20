@@ -6,13 +6,14 @@
 
 #include "modeldevice.h"
 #include "devicecontroldockwidget.h"
+#include "mainwindow.h"
 
 class ControllerDevice : public QObject {
     Q_OBJECT
 
 public:
-    ControllerDevice(ModelDevice * mDev);
-    DeviceControlDockWidget * getDeviceControlDockWidget();
+    ControllerDevice(ModelDevice * mDev, MainWindow * mainWindow);
+
 public slots:
     void onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex);
     void onVcVoltageRangeSelected(uint16_t selectedVcCurrentRangeIndex);
@@ -25,6 +26,7 @@ public slots:
 
 private:
     ModelDevice * mDev = nullptr;
+    MainWindow * mainWindow;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
 
 signals:
