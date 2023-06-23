@@ -189,10 +189,9 @@ DEPENDPATH += \
 RC_ICONS = imgs/Elements.ico
 ICON = imgs/Elements.ico.icns
 
-include(../e384commLib/frontPanel/includefrontpanel.pri)
-include(../e384commLib/includecommlib.pri)
-include(../qwt-6.1.4/includeqwt.pri)
-include(C:/protocol-serializer/includeprotocolserializer.pri)
+include($$(E384COMMLIB_PATH)includecommlib.pri)
+include($$(QWT_PATH)includeqwt.pri)
+include($$(PROTOCOL_SERIALIZER_PATH)includeprotocolserializer.pri)
 
 RESOURCES += \
     resources.qrc
