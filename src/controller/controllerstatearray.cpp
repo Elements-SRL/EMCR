@@ -96,7 +96,7 @@ ControllerStateArray::ControllerStateArray(ModelDevice * mDev, MainWindow * main
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
         mDev->getMessageDispatcher()->setStateArrayEnabled(chIdx, enableFlag);
     });
-    connect(stateArrayWidget, &StateArrayDockWidget::sigTriggerStateCheckBoxClicked, this, [=](int value, int chIdx){
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigTriggerStateCheckBoxClicked, this, [=](int value, int chIdx){
         stateArray.states[chIdx].triggerState = value;
     });
 }

@@ -80,6 +80,12 @@ void PlotConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     pushedSamplingRateFlag = true;
 }
 
+void PlotConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
+    QMutexLocker locker(&timeAxisMtx);
+    pushedDownsamplingRatio = ratio;
+    pushedDownsamplingRatioFlag = true;
+}
+
 void PlotConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
     QMutexLocker locker(&rangeAxisMtx);
     pushedVoltageRange = range;
@@ -127,9 +133,10 @@ void PlotConsumer::updateTimeAxis() {
             sweepDuration = pushedDuration;
         }
 
-        if (pushedSamplingRateFlag) {
+        if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
             pushedSamplingRateFlag = false;
-            sweepSamplingRateHz = pushedSamplingRateHz;
+            pushedDownsamplingRatioFlag = false;
+            sweepSamplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
         }
 
         locker.unlock();

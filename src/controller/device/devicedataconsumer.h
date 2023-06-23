@@ -20,6 +20,7 @@ public slots:
     virtual void onResetConsuming();
 
     virtual void onSamplingRateChanged(Measurement_t samplingRate) = 0;
+    virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) = 0;
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) = 0;
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) = 0;
 
@@ -35,12 +36,16 @@ protected:
     int bytesPerChannel = 1;
 
     bool pushedSamplingRateFlag = false;
+    bool pushedDownsamplingRatioFlag = false;
     bool pushedVoltageRangeFlag = false;
     bool pushedCurrentRangeFlag = false;
 
     unsigned int minDataBatchSize = 0;
     double pushedSamplingRateHz = 1.0;
     double sweepSamplingRateHz = 1.0;
+
+    unsigned int pushedDownsamplingRatio = 1;
+    unsigned int downsamplingRatio = 1;
 
     RangedMeasurement_t pushedVoltageRange;
     RangedMeasurement_t voltageRange = {0.0, 1.0, 1.0, UnitPfxNone, "V"};

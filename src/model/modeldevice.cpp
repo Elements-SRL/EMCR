@@ -40,6 +40,10 @@ int ModelDevice::getSamplingRateIdx(){
     return this->samplingRateIdx;
 }
 
+int ModelDevice::getDownsamplingRatioIdx(){
+    return this->downsamplingRatioIdx;
+}
+
 int ModelDevice::getVcCurrentRangeIdx(){
     return this->vcCurrentRangeIdx;
 }
@@ -58,6 +62,10 @@ int ModelDevice::getCcVoltageRangeIdx(){
 
 Measurement_t ModelDevice::getSamplingRate(){
     return this->samplingRate;
+}
+
+unsigned int ModelDevice::getDownsamplingRatio() {
+    return this->downsamplingRatio;
 }
 
 RangedMeasurement_t ModelDevice::getVcCurrentRange(){
@@ -140,6 +148,10 @@ void ModelDevice::setSamplingRate(int idx){
     this->samplingRateIdx = idx;
 }
 
+void ModelDevice::setDownsamplingRatio(int idx) {
+    this->downsamplingRatioIdx = idx;
+}
+
 void ModelDevice::setVcCurrentRange(int idx){
     this->vcCurrentRangeIdx = idx;
 }
@@ -158,6 +170,10 @@ void ModelDevice::setCcVoltageRange(int idx){
 
 void ModelDevice::setSamplingRate(Measurement_t samplingRate){
     this->samplingRate = samplingRate;
+}
+
+void ModelDevice::setDownsamplingRatio(unsigned int downsamplingRatio) {
+    this->downsamplingRatio = downsamplingRatio;
 }
 
 void ModelDevice::setVcCurrentRange(RangedMeasurement_t vcCurrentRange){
@@ -333,6 +349,10 @@ ErrorCodes_t ModelDevice::getCcVoltageRangesFeatures(std::vector <RangedMeasurem
 
 ErrorCodes_t ModelDevice::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRatesFeatures) {
     return this->messageDispatcher->getSamplingRatesFeatures(samplingRatesFeatures);
+}
+
+ErrorCodes_t ModelDevice::getDownsamplingRatiosFeatures(std::vector <unsigned int> &downsamplingRatios) {
+    return this->messageDispatcher->getDownsamplingRatiosFeatures(downsamplingRatios);
 }
 
 ErrorCodes_t ModelDevice::getVoltageStimulusLpfsFeatures(std::vector <Measurement_t> &voltageFilterOptions){

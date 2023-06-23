@@ -36,6 +36,7 @@ public slots:
 
     /*! \todo not really needed */
     void onSamplingRateChanged(Measurement_t samplingRate) override;
+    void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
     void onCurrentRangeChanged(RangedMeasurement_t range) override;
 

@@ -40,6 +40,7 @@ public slots:
     void onVcVoltageFilterSelected(int idx);
     void onCcCurrentFilterSelected(int idx);
     void onSamplingRateSelected(int idx);
+    void onDownsamplingRatioSelected(int idx);
     void onClampingModalitySelected(int idx);
     void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onStopRecording();

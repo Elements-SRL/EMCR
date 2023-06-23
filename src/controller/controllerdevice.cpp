@@ -28,6 +28,9 @@ ControllerDevice::ControllerDevice(ModelDevice * mDev, MainWindow * mainWindow) 
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigSamplingRateSelected,       this, [=](uint16_t selectedSamplingRateIndex){
         onSamplingRateSelected(selectedSamplingRateIndex);
     });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigDownsamplingRatioSelected,  this, [=](uint16_t selectedDownSamplingRatioIndex){
+        onDownsamplingRatioSelected(selectedDownSamplingRatioIndex);
+    });
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](uint16_t selectedClampingModalityIndex){
         onClampingModalitySelected(selectedClampingModalityIndex);
     });
@@ -145,6 +148,18 @@ void ControllerDevice::onSamplingRateSelected(uint16_t selectedSamplingRateIndex
     this->mDev->getMessageDispatcher()->setSamplingRate(selectedSamplingRateIndex, true);
 
     emit sigSamplingRateSelected(selectedSamplingRateIndex);
+}
+
+// Downsampling ratio
+void ControllerDevice::onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex){
+    std::vector <unsigned int> downsamplingRatios;
+    mDev->getDownsamplingRatiosFeatures(downsamplingRatios);
+
+    this->mDev->setDownsamplingRatio(selectedDownsamplingRatioIndex);
+    this->mDev->setDownsamplingRatio(downsamplingRatios[selectedDownsamplingRatioIndex]);
+    this->mDev->getMessageDispatcher()->setDownsamplingRatio(selectedDownsamplingRatioIndex);
+
+    emit sigDownsamplingRatioSelected(selectedDownsamplingRatioIndex);
 }
 // ADC Voltage Filter in CC set by Sampling rate
 
