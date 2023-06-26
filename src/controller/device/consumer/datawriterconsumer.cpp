@@ -94,7 +94,7 @@ void DataWriterConsumer::onRecordSelectedChannels(std::vector<uint16_t> channelI
 
     for (int idx = 0; idx < channelIndexes.size(); idx++) {
         if (onValues[idx]) {
-            pushedActiveChannels.push_back(idx);
+            pushedActiveChannels.push_back(channelIndexes[idx]);
             pushedActiveChannelsFlag[channelIndexes[idx]] = true;
             pushedActiveChannelsNum++;
         }
