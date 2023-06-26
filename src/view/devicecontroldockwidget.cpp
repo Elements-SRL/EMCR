@@ -248,7 +248,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
     }
 
     /*! Downsampling ratio */
-    this->downsamplingRatiosGroupBox = new QGroupBox(DCW_SAMPLING_RATE_TITLE);
+    this->downsamplingRatiosGroupBox = new QGroupBox(DCW_DOWNSAMPLING_RATIO_TITLE);
 
     QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
     radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);

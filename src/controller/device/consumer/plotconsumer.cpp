@@ -48,7 +48,6 @@ void PlotConsumer::setMaxSamplesPerPlot(int samples) {
     if(wasThisRunning){
         this->onStartConsuming();
     }
-
 }
 
 void PlotConsumer::onStartConsuming() {
@@ -127,7 +126,7 @@ void PlotConsumer::onSelectChannels(std::vector<uint16_t> channelIndexes, std::v
 
 void PlotConsumer::updateTimeAxis() {
     QMutexLocker locker(&timeAxisMtx);
-    if (pushedDurationFlag || pushedSamplingRateFlag) {
+    if (pushedDurationFlag || pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
         if (pushedDurationFlag) {
             pushedDurationFlag = false;
             sweepDuration = pushedDuration;

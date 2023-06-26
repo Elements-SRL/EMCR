@@ -17,6 +17,7 @@
 #define DCW_STIMULUS_FILTER_TITLE "Stimulus Filters"
 
 #define DCW_SAMPLING_RATE_TITLE "Sampling Rates"
+#define DCW_DOWNSAMPLING_RATIO_TITLE "Downsampling"
 #define DCW_CLMAPINGMODALITY_TITLE "Clamping Modality"
 
 class DeviceControlDockWidget : public QDockWidget{
