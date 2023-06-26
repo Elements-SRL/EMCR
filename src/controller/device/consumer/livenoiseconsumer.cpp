@@ -43,6 +43,12 @@ void LiveNoiseConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     pushedSamplingRateFlag = true;
 }
 
+void LiveNoiseConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
+    QMutexLocker locker(&samplingRateMtx);
+    pushedDownsamplingRatio = ratio;
+    pushedDownsamplingRatioFlag = true;
+}
+
 void LiveNoiseConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
     QMutexLocker locker(&rangesMtx);
     pushedVoltageRange = range;
@@ -85,6 +91,7 @@ void LiveNoiseConsumer::run() {
     pushedVoltageRangeFlag = true;
     pushedCurrentRangeFlag = true;
     pushedSamplingRateFlag = true;
+    pushedDownsamplingRatioFlag = true;
 
     while (true) {
         consumptionLock.relock();
@@ -177,9 +184,10 @@ void LiveNoiseConsumer::performAnalysis() {
 
 void LiveNoiseConsumer::updateSamplingRate() {
     QMutexLocker locker(&samplingRateMtx);
-    if (pushedSamplingRateFlag) {
+    if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
         pushedSamplingRateFlag = false;
-        sweepSamplingRate = pushedSamplingRate;
+        pushedDownsamplingRatioFlag = false;
+        sweepSamplingRate = pushedSamplingRate/(double)pushedDownsamplingRatio;
         minDataBatchSize = qRound(sweepSamplingRate*0.05);
         this->lockAndResetAnalysis(currentChannelsNum);
     }

@@ -792,6 +792,7 @@ void CalibrationConsumer::onPerformCalibration(std::vector<uint16_t> channelsToC
 }
 
 void CalibrationConsumer::onSamplingRateChanged(Measurement_t samplingRate){};
+void CalibrationConsumer::onDownsamplingRatioChanged(unsigned int downsamplingRatio){};
 void CalibrationConsumer::onVoltageRangeChanged(RangedMeasurement_t range){};
 void CalibrationConsumer::onCurrentRangeChanged(RangedMeasurement_t range){};
 

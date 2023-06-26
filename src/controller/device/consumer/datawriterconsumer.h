@@ -26,6 +26,7 @@ public slots:
     void onRecordSelectedChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 
     virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
+    virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 //    virtual void onMarkTagTime();

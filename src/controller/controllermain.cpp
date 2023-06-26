@@ -163,6 +163,7 @@ void ControllerMain::onMainWindowCreated() {
     connect(controllerDevice, &ControllerDevice::sigVcVoltageFilterSelected,    this, &ControllerMain::onVcVoltageFilterSelected);
     connect(controllerDevice, &ControllerDevice::sigCcCurrentFilterSelected,    this, &ControllerMain::onCcCurrentFilterSelected);
     connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected,       this, &ControllerMain::onSamplingRateSelected);
+    connect(controllerDevice, &ControllerDevice::sigDownsamplingRatioSelected,  this, &ControllerMain::onDownsamplingRatioSelected);
     connect(controllerDevice, &ControllerDevice::sigClampingModalitySelected,   this, &ControllerMain::onClampingModalitySelected);
 
     connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
@@ -396,6 +397,16 @@ void ControllerMain::onSamplingRateSelected(int idx) {
 
     for (auto consumer : consumers) {
         consumer->onSamplingRateChanged(mDev->getSamplingRate());
+    }
+}
+
+void ControllerMain::onDownsamplingRatioSelected(int idx) {
+
+    /*! update GUI */
+    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+
+    for (auto consumer : consumers) {
+        consumer->onDownsamplingRatioChanged(mDev->getDownsamplingRatio());
     }
 }
 

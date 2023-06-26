@@ -104,17 +104,29 @@ void DataWriterConsumer::onRecordSelectedChannels(std::vector<uint16_t> channelI
 
 void DataWriterConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     pushedSamplingRateHz = samplingRate.getNoPrefixValue();
+    pushedSamplingRateFlag = true;
     if (!this->isRunning()){
-        sweepSamplingRateHz = pushedSamplingRateHz;
+        sweepSamplingRateHz = pushedSamplingRateHz/(double)downsamplingRatio;
+    }
+}
+
+void DataWriterConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
+    pushedDownsamplingRatio = ratio;
+    pushedDownsamplingRatioFlag = true;
+    pushedSamplingRateFlag = true;
+    if (!this->isRunning()){
+        sweepSamplingRateHz = pushedSamplingRateHz/(double)ratio;
     }
 }
 
 void DataWriterConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
     pushedVoltageRange = range;
+    pushedVoltageRangeFlag = true;
 }
 
 void DataWriterConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
     pushedCurrentRange = range;
+    pushedCurrentRangeFlag = true;
 }
 
 void DataWriterConsumer::manageConsumptionBegin() {

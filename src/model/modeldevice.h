@@ -21,11 +21,13 @@ public:
     std::vector<ModelBoard*> getBoards();
     std::vector<ModelChannel*> getChannels();
     int getSamplingRateIdx();
+    int getDownsamplingRatioIdx();
     int getVcCurrentRangeIdx();
     int getVcVoltageRangeIdx();
     int getCcCurrentRangeIdx();
     int getCcVoltageRangeIdx();
     Measurement_t getSamplingRate();
+    unsigned int getDownsamplingRatio();
     RangedMeasurement_t getVcCurrentRange();
     RangedMeasurement_t getVcVoltageRange();
     RangedMeasurement_t getCcCurrentRange();
@@ -48,11 +50,13 @@ public:
     void setBoards(std::vector<ModelBoard*> boards);
     void setChannels(std::vector<ModelChannel*> channels);
     void setSamplingRate(int idx);
+    void setDownsamplingRatio(int idx);
     void setVcCurrentRange(int idx);
     void setVcVoltageRange(int idx);
     void setCcCurrentRange(int idx);
     void setCcVoltageRange(int idx);
     void setSamplingRate(Measurement_t samplingRate);
+    void setDownsamplingRatio(unsigned int downsamplingRatio);
     void setVcCurrentRange(RangedMeasurement_t vCcurrentRange);
     void setVcVoltageRange(RangedMeasurement_t vCvoltageRange);
     void setCcCurrentRange(RangedMeasurement_t cCcurrentRange);
@@ -92,6 +96,7 @@ public:
     ErrorCodes_t getCcVoltageRangesFeatures(std::vector <RangedMeasurement_t> &ccVoltageRangesFeatures);
 
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRatesFeatures);
+    ErrorCodes_t getDownsamplingRatiosFeatures(std::vector <unsigned int> &downsamplingRatios);
 
     ErrorCodes_t getVoltageStimulusLpfsFeatures(std::vector <Measurement_t> &filterOptions);
     ErrorCodes_t getCurrentStimulusLpfsFeatures(std::vector <Measurement_t> &filterOptions);
@@ -112,11 +117,13 @@ private:
     std::vector<ModelBoard*> myBoards;
     std::vector<ModelChannel*> myChannels;
     int samplingRateIdx = 0;
+    int downsamplingRatioIdx = 0;
     int vcCurrentRangeIdx = 0;
     int vcVoltageRangeIdx = 0;
     int ccCurrentRangeIdx = 0;
     int ccVoltageRangeIdx = 0;
     Measurement_t samplingRate = {0.0, UnitPfxNone, "Hz"};
+    unsigned int downsamplingRatio = 1;
     RangedMeasurement_t vcCurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
     RangedMeasurement_t vcVoltageRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};
     RangedMeasurement_t ccCurrentRange = {0.0, 0.0, 0.0, UnitPfxMilli, "V"};

@@ -48,7 +48,6 @@ void PlotConsumer::setMaxSamplesPerPlot(int samples) {
     if(wasThisRunning){
         this->onStartConsuming();
     }
-
 }
 
 void PlotConsumer::onStartConsuming() {
@@ -78,6 +77,12 @@ void PlotConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     samplingRate.convertValue(UnitPfxNone);
     pushedSamplingRateHz = samplingRate.value;
     pushedSamplingRateFlag = true;
+}
+
+void PlotConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
+    QMutexLocker locker(&timeAxisMtx);
+    pushedDownsamplingRatio = ratio;
+    pushedDownsamplingRatioFlag = true;
 }
 
 void PlotConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
@@ -121,15 +126,16 @@ void PlotConsumer::onSelectChannels(std::vector<uint16_t> channelIndexes, std::v
 
 void PlotConsumer::updateTimeAxis() {
     QMutexLocker locker(&timeAxisMtx);
-    if (pushedDurationFlag || pushedSamplingRateFlag) {
+    if (pushedDurationFlag || pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
         if (pushedDurationFlag) {
             pushedDurationFlag = false;
             sweepDuration = pushedDuration;
         }
 
-        if (pushedSamplingRateFlag) {
+        if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
             pushedSamplingRateFlag = false;
-            sweepSamplingRateHz = pushedSamplingRateHz;
+            pushedDownsamplingRatioFlag = false;
+            sweepSamplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
         }
 
         locker.unlock();

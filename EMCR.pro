@@ -9,6 +9,7 @@ CONFIG(debug, debug|release) {
 
 CONFIG(release, debug|release) {
     DEFINES += GLB_SHOW_DEBUG_CTRLS
+    DEFINES += DEBUG
 }
 
 #DEFINES += GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET

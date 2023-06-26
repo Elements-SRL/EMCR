@@ -32,6 +32,9 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
     std::vector <Measurement_t> samplingRates;
     mDev->getSamplingRatesFeatures(samplingRates);
 
+    std::vector <unsigned int> downsamplingRatios;
+    mDev->getDownsamplingRatiosFeatures(downsamplingRatios);
+
     QWidget *window = new QWidget;
     this->setWidget(window);
     QVBoxLayout * vLayout = new QVBoxLayout(window);
@@ -244,6 +247,33 @@ DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidge
         }
     }
 
+    /*! Downsampling ratio */
+    this->downsamplingRatiosGroupBox = new QGroupBox(DCW_DOWNSAMPLING_RATIO_TITLE);
+
+    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+    radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+    radioButtonsBoxLayout->setSpacing(2);
+
+    vLayout->addWidget(this->downsamplingRatiosGroupBox);
+    for (int idx = 0; idx < downsamplingRatios.size(); idx++){
+        auto m = downsamplingRatios[idx];
+        QRadioButton * qrb = new QRadioButton(QString("%1").arg(m));
+        radioButtonsBoxLayout->addWidget(qrb);
+        this->downsamplingRatiosRadioButtons.push_back(qrb);
+        connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigDownsamplingRatioSelected(idx);
+            }
+        });
+    }
+    if (this->downsamplingRatiosRadioButtons.size() > 0) {
+        this->downsamplingRatiosRadioButtons[0]->setChecked(true);
+    }
+    this->downsamplingRatiosGroupBox->setLayout(radioButtonsBoxLayout);
+    if (downsamplingRatios.size() == 1) {
+        downsamplingRatiosGroupBox->setEnabled(false);
+    }
+
     /*! Clamping modality */
     if (clampingModalities.size() > 0) {
         this->clampingModalitiesGroupBox = new QGroupBox(DCW_CLMAPINGMODALITY_TITLE);
@@ -350,6 +380,13 @@ void DeviceControlDockWidget::forceEmit() {
             emit sigSamplingRateSelected(idx);
         }
     }
+
+    for (int idx = 0; idx < downsamplingRatiosRadioButtons.size(); idx++) {
+        QRadioButton* btn = downsamplingRatiosRadioButtons[idx];
+        if (btn->isChecked()) {
+            emit sigDownsamplingRatioSelected(idx);
+        }
+    }
 }
 
 void DeviceControlDockWidget::updateParameters() {
@@ -431,6 +468,10 @@ void DeviceControlDockWidget::updateParameters() {
 
     if (samplingRatesRadioButtons.size()>0){
         samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+    }
+
+    if (downsamplingRatiosRadioButtons.size()>0){
+        downsamplingRatiosRadioButtons[mDev->getDownsamplingRatioIdx()]->setChecked(true);
     }
 
     if (clampingModalitiesRadioButtons.size()>0){
