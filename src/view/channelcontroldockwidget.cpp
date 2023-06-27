@@ -63,6 +63,8 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     mainVl->addLayout(applyBtnGridLayout);
 
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &ChannelControlDockWidget::onOperationSelected);
+
+    this->installEventFilter(this);
 }
 
 void ChannelControlDockWidget::onUpdate() {
@@ -317,6 +319,16 @@ void ChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     }
 
     this->onApplyButtonClicked(OperationHoldingStimulus, true);
+}
+
+bool ChannelControlDockWidget::eventFilter(QObject * obj, QEvent * event) {
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent * keyEvent = static_cast <QKeyEvent *> (event);
+        if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
+            this->onApplyButtonClicked();
+        }
+    }
+    return QObject::eventFilter(obj, event);
 }
 
 QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {

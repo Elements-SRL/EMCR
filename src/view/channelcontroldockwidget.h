@@ -26,6 +26,9 @@ public slots:
     void onVcVoltageRangeSelected(int idx);
     void onCcCurrentRangeSelected(int idx);
 
+protected:
+    bool eventFilter(QObject * obj, QEvent * event);
+
 private:
     typedef enum Operations {
         OperationTurnChannelsOnOff,
