@@ -1197,11 +1197,16 @@ VoltageProtocolList::VoltageProtocolList(ModelDevice * mDev, ProtocolPropertyDia
 
     clampingModality = ClampingModality_t::VOLTAGE_CLAMP;
     protocolsGroupName = "voltageprotocols";
-    this->importNullProtocol();
-    this->importVhold0Protocol();
-    this->importLastProtocols();
-    this->onStopProtocol();
-    QThread::msleep(100);
+
+    std::vector <int> clampingModalities;
+    mDev->getClampingModalitiesFeatures(clampingModalities);
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::VOLTAGE_CLAMP) != clampingModalities.end()) {
+        this->importNullProtocol();
+        this->importVhold0Protocol();
+        this->importLastProtocols();
+        this->onStopProtocol();
+        QThread::msleep(100);
+    }
 }
 
 VoltageProtocolList::~VoltageProtocolList() {
@@ -1224,11 +1229,15 @@ CurrentProtocolList::CurrentProtocolList(ModelDevice * mDev, ProtocolPropertyDia
     clampingModality = ClampingModality_t::CURRENT_CLAMP;
     protocolsGroupName = "currentprotocols";
 
-    this->importNullProtocol();
-    this->importIhold0Protocol();
-    this->importLastProtocols();
-    this->onStopProtocol();
-    QThread::msleep(100);
+    std::vector <int> clampingModalities;
+    mDev->getClampingModalitiesFeatures(clampingModalities);
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::CURRENT_CLAMP) != clampingModalities.end()) {
+        this->importNullProtocol();
+        this->importIhold0Protocol();
+        this->importLastProtocols();
+        this->onStopProtocol();
+        QThread::msleep(100);
+    }
 }
 
 CurrentProtocolList::~CurrentProtocolList() {
