@@ -519,6 +519,9 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     } /*! \todo FCON gestire l'errore */
 
     /*! setHoldingRange inherits the range from the current range, so it has to be defined after the creation of its control */
+    RangedMeasurement_t stimulusRange;
+    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
+    model->setStimulusRange(stimulusRange);
     this->setHoldingRange();
     holdEdit->setValue(hold);
 
@@ -562,9 +565,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     connect(ctrlPidl, &CtrlProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateCtrlItem);
 
     /*! Protocol previewer */
-    RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
-    model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
     RangedMeasurement_t timeRange;
     mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
@@ -766,6 +766,9 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     } /*! \todo FCON gestire l'errore */
 
     /*! setHoldingRange inherits the range from the current range, so it has to be defined after the creation of its control */
+    RangedMeasurement_t stimulusRange;
+    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
+    model->setStimulusRange(stimulusRange);
     this->setHoldingRange();
     holdEdit->setValue(hold);
 
@@ -809,9 +812,6 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     connect(ctrlPidl, &CtrlProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateCtrlItem);
 
     /*! Protocol previewer */
-    RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
-    model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
     RangedMeasurement_t timeRange;
     mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);

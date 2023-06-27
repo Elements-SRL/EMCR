@@ -66,6 +66,10 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "Disconnection from device failed";
         break;
 
+    case ErrorDeviceFwLoadingFailed:
+        error = "Failed to load amplifier's FW";
+        break;
+
     case ErrorSendMessageFailed:
         error = "Failed to send message to the device";
         break;
@@ -165,6 +169,11 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorDeviceDisconnectionFailed:
         info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
+        break;
+
+    case ErrorDeviceFwLoadingFailed:
+        info = "Please, contact support@elements-ic.com for support, telling that you are using\n"
+               + GLB_SOFTWARE_NAME + ", and reporting this problem together with the S/N of the maplifier.";
         break;
 
     case ErrorSendMessageFailed:
