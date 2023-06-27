@@ -15,25 +15,13 @@ ControllerMain::ControllerMain() {
     setMainWindow(new MainWindow());
 }
 
-void ControllerMain::setMainWindow(MainWindow * mainWindow) {
-    this->mainWindow = mainWindow;
-
-    mainWindow->setModelDevice(mDev);
-    connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &ControllerMain::onDevicesListChanged);
-    connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &ControllerMain::onConnect);
-
-    connect(mainWindow, &MainWindow::widgetsCreated, this, &ControllerMain::onMainWindowCreated);
-    mainWindow->show();
-    emit startDetecting();
-}
-
 ControllerMain::~ControllerMain() {
     deviceDetectorThread.quit();
     deviceDetectorThread.wait();
 
-    delete mainWindow;
+    this->onConnect(false);
 
-    this->onMainWindowDestroyed();
+    delete mainWindow;
 
     if (deviceDetector != nullptr) {
         delete deviceDetector;
@@ -43,6 +31,17 @@ ControllerMain::~ControllerMain() {
     if (mDev->isConnected()) {
         mDev->getMessageDispatcher()->disconnectDevice();
     }
+}
+
+void ControllerMain::setMainWindow(MainWindow * mainWindow) {
+    this->mainWindow = mainWindow;
+
+    mainWindow->setModelDevice(mDev);
+    connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &ControllerMain::onDevicesListChanged);
+    connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &ControllerMain::onConnect);
+
+    mainWindow->show();
+    emit startDetecting();
 }
 
 void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList) {
@@ -61,8 +60,10 @@ void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList)
 
             if (connectedDeviceIdx >= 0) {
                 mainWindow->setConnectedDeviceIdx(connectedDeviceIdx);
+
             } else {
                 mainWindow->connectDevice(false, Success);
+                this->onMainWindowDestroyed();
             }
         }
     }
@@ -86,6 +87,9 @@ void ControllerMain::onConnect(bool flag) {
         }
 
         mainWindow->connectDevice(true, ret);
+        if (connectionSuccessful) {
+            this->onMainWindowCreated();
+        }
         mDev->setConnected(connectionSuccessful);
 
         if (!connectionSuccessful) {
@@ -96,6 +100,8 @@ void ControllerMain::onConnect(bool flag) {
         this->stopAndDestroyProducerConsumers();
 
         mainWindow->connectDevice(false, Success);
+        this->onMainWindowDestroyed();
+        mDev->flushBoardList();
         mDev->setConnected(false);
 
         if (mDev->getMessageDispatcher() != nullptr) {
@@ -303,12 +309,6 @@ void ControllerMain::onMainWindowDestroyed() {
         delete currentProtocolManager;
         currentProtocolManager = nullptr;
     }
-
-    this->stopAndDestroyProducerConsumers();
-
-    mDev->flushBoardList();
-
-    emit startDetecting();
 }
 
 /*! Message forward from ControllerMain to other consumers */

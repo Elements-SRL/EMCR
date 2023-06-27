@@ -243,6 +243,7 @@ void MainWindow::createGuiControls() {
     /******************\
      * protocols dock *
     \******************/
+
     protocolDw = new ProtocolDockWidget(mDev, e384CommLib::VOLTAGE_CLAMP);
     protocolDw->setObjectName("protocolDw");
     this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
@@ -397,8 +398,6 @@ void MainWindow::createGuiControls() {
 
     this->restoreUISettings();
     interfaceCreated = true;
-
-    emit widgetsCreated();
 }
 
 void MainWindow::destroyGuiControls() {
@@ -470,6 +469,8 @@ void MainWindow::destroyGuiControls() {
         chessboard = nullptr;
     }
 
+    SRLbl->setText("");
+
 //    for (int shortcutIdx = 0; shortcutIdx < shortcuts.size(); shortcutIdx++) {
 //        if (shortcuts[shortcutIdx] != nullptr) {
 //            delete shortcuts[shortcutIdx];
@@ -482,8 +483,6 @@ void MainWindow::destroyGuiControls() {
     this->addDockWidget(Qt::TopDockWidgetArea, deviceDetectorDw);
     deviceDetectorDw->setVisible(true);
     interfaceCreated = false;
-
-    emit widgetsDestroyed();
 }
 
 void MainWindow::addViewActions() {

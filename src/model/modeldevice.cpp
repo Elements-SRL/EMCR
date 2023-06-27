@@ -231,6 +231,7 @@ void ModelDevice::setOngoingClampingModality(int mode) {
 void ModelDevice::setOngoingClampingModalityIdx(int idx) {
     ongoingClampingModalityIdx = idx;
 }
+
 void ModelDevice::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
     this->myBoards.resize(numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
