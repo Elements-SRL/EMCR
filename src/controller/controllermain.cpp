@@ -31,6 +31,8 @@ ControllerMain::~ControllerMain() {
     deviceDetectorThread.quit();
     deviceDetectorThread.wait();
 
+    delete mainWindow;
+
     this->onMainWindowDestroyed();
 
     if (deviceDetector != nullptr) {
@@ -316,7 +318,9 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
-    calibratorConsumer->updateCalibParams();
+    if (calibratorConsumer != nullptr) {
+        calibratorConsumer->updateCalibParams();
+    }
 
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
@@ -331,7 +335,9 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
-    calibratorConsumer->updateCalibParams();
+    if (calibratorConsumer != nullptr) {
+        calibratorConsumer->updateCalibParams();
+    }
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
@@ -346,7 +352,9 @@ void ControllerMain::onCcCurrentRangeSelected(int idx) {
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
-    calibratorConsumer->updateCalibParams();
+    if (calibratorConsumer != nullptr) {
+        calibratorConsumer->updateCalibParams();
+    }
 
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
@@ -365,7 +373,9 @@ void ControllerMain::onCcVoltageRangeSelected(int idx) {
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
-    calibratorConsumer->updateCalibParams();
+    if (calibratorConsumer != nullptr) {
+        calibratorConsumer->updateCalibParams();
+    }
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(mDev->getCcVoltageRange());
@@ -415,7 +425,9 @@ void ControllerMain::onClampingModalitySelected(int idx) {
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
     /*! Invio dati a FPGA con massageDispatcher*/
-    calibratorConsumer->updateCalibParams();
+    if (calibratorConsumer != nullptr) {
+        calibratorConsumer->updateCalibParams();
+    }
 
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
@@ -475,4 +487,6 @@ void ControllerMain::stopAndDestroyProducerConsumers() {
         delete deviceDataProducer;
         deviceDataProducer = nullptr;
     }
+    consumers.clear();
+    dataWriterConsumers.clear();
 }
