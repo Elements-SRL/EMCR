@@ -331,6 +331,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
                 item = new ProtocolDropVHoldItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VHold_t> (yamlPhase));
+                connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             }
             break;
 
@@ -379,6 +380,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
                 item = new ProtocolDropIHoldItem(mDev, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IHold_t> (yamlPhase));
+                connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             }
             break;
 
@@ -432,6 +434,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::RepSeq_t> (yamlPhase));
+            connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case YAML::RepSeqWithStepsIdx:
@@ -444,6 +447,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::RepSeqWithSteps_t> (yamlPhase));
+            connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case YAML::RepSeqScaledIdx:
@@ -456,6 +460,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::RepSeqScaled_t> (yamlPhase));
+            connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case YAML::InfRepSeqIdx:
@@ -468,6 +473,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropXRepSeqScaledItem *> (item)->setPhaseFromYaml(std::get <YAML::InfRepSeq_t> (yamlPhase));
+            connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
         }
 
