@@ -72,16 +72,9 @@ void StampPlot::setSelected(bool flag) {
 void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
     if (rangeInitialized[axisIdx]) {
         if (newRange != currentRange[axisIdx]) {
-            currentRange[axisIdx].max = 1.0;
-            currentRange[axisIdx].convertValues(newRange.prefix);
-            double coeff = currentRange[axisIdx].max;
-            currentRange[axisIdx].max = newRange.max;
-            currentRange[axisIdx].min = newRange.min;
+            currentRange[axisIdx] = newRange;
 
-            double min = coeff*this->axisInterval(axisIdx).minValue();
-            double max = coeff*this->axisInterval(axisIdx).maxValue();
-
-            this->setAxisScale(axisIdx, min, max);
+            this->setAxisScale(axisIdx, newRange.min, newRange.max);
         }
 
     } else {
