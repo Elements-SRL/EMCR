@@ -865,8 +865,6 @@ void ProtocolList::importLastProtocols() {
 }
 
 bool ProtocolList::importProtocols(QString fullFileName) {
-    bool ret = true;
-
     QString yamlFileName = fullFileName;
     if (QFile::exists(yamlFileName)) {
         fullFileName = yamlFileName;
@@ -884,9 +882,11 @@ bool ProtocolList::importProtocols(QString fullFileName) {
                 this->importProtocol(yamlProtocol);
             }
         }
-        return ret;
+        return true;
+
+    } else {
+        return false;
     }
-    return ret;
 }
 
 bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {

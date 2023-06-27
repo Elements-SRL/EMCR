@@ -351,7 +351,7 @@ QString protocolListCode2error(ProtocolList::ProtocolListStatus_t errorCode) {
         break;
 
     case ProtocolList::ErrorLoadLastExecutionProtocolsFail:
-        error = "No file protocols from last EZ Patch execution " + YAML_LAST_FULL_FILE + " found";
+        error = "No file protocols from last " + GLB_SOFTWARE_NAME + " execution " + YAML_LAST_FULL_FILE + " found";
         break;
 
     case ProtocolList::ErrorLoadDefaultProtocolsFail:
@@ -380,17 +380,17 @@ QString protocolListCode2info(ProtocolList::ProtocolListStatus_t errorCode) {
 
     case ProtocolList::ErrorLoadNullProtocolsFail:
         info = "Check that the file " + YAML_NULL_FULL_FILE +
-                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+                " exists.\nIf it doesn't please copy it from Protocols folder within " + GLB_SOFTWARE_NAME + " installation path.";
         break;
 
     case ProtocolList::ErrorLoadOffsetCompensationProtocolFail:
         info = "Check that the file " + YAML_VHOLD0_FULL_FILE +
-                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+                " exists.\nIf it doesn't please copy it from Protocols folder within " + GLB_SOFTWARE_NAME + " installation path.";
         break;
 
     case ProtocolList::ErrorLoadRestingPotentialProtocolFail:
         info = "Check that the file " + YAML_IHOLD0_FULL_FILE +
-                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+                " exists.\nIf it doesn't please copy it from Protocols folder within " + GLB_SOFTWARE_NAME + " installation path.";
         break;
 
     case ProtocolList::ErrorLoadLastExecutedProtocolFail:
@@ -404,7 +404,7 @@ QString protocolListCode2info(ProtocolList::ProtocolListStatus_t errorCode) {
 
     case ProtocolList::ErrorLoadDefaultProtocolsFail:
         info = "Check that the file " + YAML_DEFAULT_FULL_FILE +
-                " exists.\nIf it doesn't please copy it from Protocols folder within EZ Patch installation path.";
+                " exists.\nIf it doesn't please copy it from Protocols folder within " + GLB_SOFTWARE_NAME + " installation path.";
         break;
     }
     return info;

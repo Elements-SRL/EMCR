@@ -89,7 +89,7 @@ protected:
     void importIhold0Protocol();
     void importLastRunProtocol();
     void importLastProtocols();
-    bool importProtocols(QString fullFileName = YAML_DEFAULT_FILE);
+    bool importProtocols(QString fullFileName = YAML_DEFAULT_FULL_FILE);
     bool importProtocols(ImportProtocolDialog * ipd);
     void importProtocol(const YAML::VoltageProtocol &yamlProtocol);
     void importProtocol(const YAML::CurrentProtocol &yamlProtocol);
