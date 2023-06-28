@@ -15,7 +15,7 @@ CalibrationConsumer::CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer 
     calibrationFilesFolder = QString().fromStdString(tempString);
 
     mDev->getMessageDispatcher()->getCalibMappingFilePath(tempString);
-    calibrationMappingFilePath = QString().fromStdString(tempString);;
+    calibrationMappingFilePath = QString().fromStdString(tempString);
 
 
     mDev->getVcCurrentRangesFeatures(vcCurrentRangesArray, defaultVcCurrRangeIdx);
@@ -322,7 +322,6 @@ void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
 void CalibrationConsumer::run(){
     consumptionStopped = false;
     exitedDataConsumingLoop = false;
-
 
 //    totalChannelsUnderCalibNum = 2*channelToCalibIdxs.size();
 
