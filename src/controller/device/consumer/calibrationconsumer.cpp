@@ -373,23 +373,26 @@ void CalibrationConsumer::run(){
         /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
         QString msg;
         if(deviceUnderCalibrationType == Device384PatchClamp
-            #ifdef DEBUG
+        #ifdef DEBUG
                 || deviceUnderCalibrationType == Device384FakePatchClamp
-            #endif
-           ){
-             msg = "Make sure you mounted the " + QString::fromStdString(ccCalibratonResisForCcAdcOffset[0].niceLabel()) + " model cell for the CCVoffset calibration.\nPress OK to continue.\n";
+        #endif
+                ){
+            msg = "Make sure you mounted the " + QString::fromStdString(ccCalibratonResisForCcAdcOffset[0].niceLabel()) + " model cell for the CCVoffset calibration.\nPress OK to continue.\n";
+
         } else if(deviceUnderCalibrationType == Device384Nanopores
-                 #ifdef DEBUG
-                      || deviceUnderCalibrationType == Device384Fake
-                 #endif
+          #ifdef DEBUG
+                  || deviceUnderCalibrationType == Device384Fake
+          #endif
                   ){
             msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you mounted the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cell.\nPress OK to continue.\n";
+
         } else if(deviceUnderCalibrationType == Device4x10MHz
+                  || deviceUnderCalibrationType == Device2x10MHz
           #ifdef DEBUG
                   || deviceUnderCalibrationType == Device4x10MHzFake
           #endif
                   ){
-            msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you mounted the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cell.\nPress OK to continue.\n";
+            msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you have the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cells available.\nPress OK to continue.\n";
         }
 
         this->modelCellActionRequest(msg);
@@ -404,44 +407,44 @@ void CalibrationConsumer::run(){
             mDev->getMessageDispatcher()->setVCCurrentRange(rangeIdx, true);
             multiplierCurrent = rangeInfo[rangeIdx].multiplier();
 
-            /*! spegne lo stimolo e stacco il carico su tutti i canali */
-            /*! le condizioni di VC per 384PatchClamp erano state settate all'inizio*/
-            turnAllStimulaOnOff(false);
-            turnAllChannelsOnOff(false);
-            if (areCalibResistOnBoard) {
-                turnAllCalSwOnOff(false);
-            }
-
-             /*! START CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+            /*! START CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             calibrateAdcGain(rangeIdx);
             /*! END CALCOLO ADC GAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
-            /*! a questo punto tutti i canali hanno carico staccato  e stimolo spento*/
-
-            /*! START CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    qui il carico deve essere staccato, staccato al  punto precedente, lo si può fare anche in maniera esplicita qui */
-            calibrateAdcOffset(vcCurrentRangesArray[rangeIdx]);
-            /*! END CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
             if(rangeIdx < vcCurrentRangesArray.size()-1){
                 /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
                 QString msg;
                 if(deviceUnderCalibrationType == Device384PatchClamp
-                        #ifdef DEBUG
-                            || deviceUnderCalibrationType == Device384FakePatchClamp
-                        #endif
+        #ifdef DEBUG
+                        || deviceUnderCalibrationType == Device384FakePatchClamp
+        #endif
                         ){
-                     msg= "The next current range for VC calibration is " + QString::fromStdString(vcCurrentRangesArray[rangeIdx+1].niceLabel())+"\nPress OK.";
+                    msg= "The next current range for VC calibration is " + QString::fromStdString(vcCurrentRangesArray[rangeIdx+1].niceLabel())+"\nPress OK.";
+
                 } else if(deviceUnderCalibrationType == Device384Nanopores
-                         #ifdef DEBUG
-                              || deviceUnderCalibrationType == Device384Fake
-                         #endif
-                         ){
+          #ifdef DEBUG
+                          || deviceUnderCalibrationType == Device384Fake
+          #endif
+                          ){
                     msg = "Need to mount the model cell " + QString::fromStdString(calibratonResistances[rangeIdx+1].niceLabel()) + " for current range " + QString::fromStdString(vcCurrentRangesArray[rangeIdx+1].niceLabel())+"\nPress OK only once the model cell has been changed.\n";
                 }
 
                 this->modelCellActionRequest(msg);
             }
-        /*! FOR: END ciclo sui range*/
+        }
+
+        /*! FOR: START ciclo sui range di corrente in VC*/
+        for (int jjj = 0; jjj < vcCurrentRangesArray.size(); jjj++) {
+            rangeIdx = jjj;
+
+            /*! setto il range di corrente per Voltage Clamp*/
+            std::vector <RangedMeasurement_t> rangeInfo;
+            mDev->getVcCurrentRangesFeatures(rangeInfo, bbb);
+            mDev->getMessageDispatcher()->setVCCurrentRange(rangeIdx, true);
+            multiplierCurrent = rangeInfo[rangeIdx].multiplier();
+
+            calibrateAdcOffset(vcCurrentRangesArray[rangeIdx]);
+            /*! END CALCOLO ADC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         }
 
         for(int jjj = 0; jjj <vcVoltageRangesArray.size(); jjj++){
@@ -462,6 +465,24 @@ void CalibrationConsumer::run(){
 
             /*! \todo 20230529 MPAC: questa funzione è solo uno stub che riempie la struttura gainDAC di 1.0*/
             calibrateDacGain();
+        }
+
+        for(int jjj = 0; jjj <vcVoltageRangesArray.size(); jjj++){
+            rangeIdx = jjj;
+
+            /*! setto il range di tensione per Voltage Clamp*/
+            std::vector <RangedMeasurement_t> rangeInfo;
+            mDev->getVcVoltageRangesFeatures(rangeInfo);
+            mDev->getMessageDispatcher()->setVCVoltageRange(rangeIdx, true);
+            multiplierVoltage = rangeInfo[rangeIdx].multiplier();
+
+            /*! \note MPAC: qui ho bisogno anche di un multiplier di corrente, visto che leggerò
+             *  correnti dall'ADC in VC. Per comodità prendo il primo range di vcCurrentRanges*/
+            std::vector <RangedMeasurement_t> rangeInfoAdditional;
+            mDev->getVcCurrentRangesFeatures(rangeInfoAdditional, bbb);
+            multiplierCurrent = rangeInfoAdditional[0].multiplier();
+            mDev->getMessageDispatcher()->setVCCurrentRange(0, true);
+
             /*! START CALCOLO DAC OFFSET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
             /*! 20230529 MPAC: rengeIdx serve solo  a memorizzare nella posizione giusta del vettore offsetDac. Mi serve selezionare un range
@@ -667,7 +688,7 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
         x[i] = calibrationVoltSteps[thisActualRangeIdx][i].getNoPrefixValue();
     }
 
-    /*! attacca il carico  e accende lo stimolo su tutti i canali  o quelli della scheda selezionata*/
+    /*! attacca il carico e accende lo stimolo su tutti i canali  o quelli della scheda selezionata*/
     if(areCalibResistOnBoard){
         turnSomeCalSwOnOff(channelToCalibIdxs, someTrue);
     } else {
@@ -757,15 +778,6 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
     for(int i = 0; i< calibrationVoltSteps[thisActualRangeIdx].size(); i++){
         currentMeans[i].clear();
     }
-
-    /*! spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
-    if(areCalibResistOnBoard){
-        turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
-    } else {
-        turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
-    }
-    turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
-
 }
 
 void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange){
@@ -777,9 +789,13 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     }
     mDev->getMessageDispatcher()->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
 
-    /*! accende lo stimolo su tutti i canali  o su quelli della scheda selezionata*/
-    /*! gli switch di ingresso sono staccati dal passo precedente*/
-    turnSomeStimulaOnOff(channelToCalibIdxs, someTrue);
+    if(areCalibResistOnBoard){
+        turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
+    } else {
+        turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
+    }
+
+    turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
 
     /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
     la cui struttura è ancora da definire */
@@ -945,14 +961,6 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         offsetDAC[rangeIdx] = usefulDacOffset;
 
         numTries++;
-    }
-
-    /*!  spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
-    turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
-    if(areCalibResistOnBoard){
-        turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
-    } else {
-        turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
     }
 }
 
@@ -1352,27 +1360,30 @@ void CalibrationConsumer::selectAllChannels(bool selectValue) {
 }
 
 void CalibrationConsumer::turnAllChannelsOnOff(bool onValue) {
-    if (canInputsBeOpened) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        channelIndexes.resize(currentChannelsNum);
-        onValues.resize(currentChannelsNum);
-        for (int i = 0; i < currentChannelsNum; i++){
-            this->mDev->getChannels()[i]->setOn(onValue);
-            channelIndexes[i] = i;
-            onValues[i] = onValue;
-        }
-        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
-
-    } else {
-        QString msg;
-        if (onValue) {
-            msg = "Make sure the model cells are connected";
+    if (areInputsBeOpened == onValue) {
+        if (canInputsBeOpened) {
+            std::vector<uint16_t> channelIndexes;
+            std::vector<bool> onValues;
+            channelIndexes.resize(currentChannelsNum);
+            onValues.resize(currentChannelsNum);
+            for (int i = 0; i < currentChannelsNum; i++){
+                this->mDev->getChannels()[i]->setOn(onValue);
+                channelIndexes[i] = i;
+                onValues[i] = onValue;
+            }
+            this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
 
         } else {
-            msg = "Make sure the model cells are removed";
+            QString msg;
+            if (onValue) {
+                msg = "Make sure the model cells are connected";
+
+            } else {
+                msg = "Make sure the model cells are removed";
+            }
+            this->modelCellActionRequest(msg);
         }
-        this->modelCellActionRequest(msg);
+        areInputsBeOpened = !onValue;
     }
 }
 
@@ -1443,21 +1454,24 @@ void CalibrationConsumer::selectSomeChannels(std::vector<uint16_t> channelIndexe
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
 void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    if (canInputsBeOpened) {
-        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
-        for (int i = 0; i < channelIndexes.size(); i++){
-            this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
-        }
-
-    } else {
-        QString msg;
-        if (onValues[0]) { /*! \todo FCON this function is always called with all true or all false, so just check the first one */
-            msg = "Make sure the model cells are connected";
+    if (areInputsBeOpened == onValues[0]) {
+        if (canInputsBeOpened) {
+            this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
+            for (int i = 0; i < channelIndexes.size(); i++){
+                this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
+            }
 
         } else {
-            msg = "Make sure the model cells are removed";
+            QString msg;
+            if (onValues[0]) { /*! \todo FCON this function is always called with all true or all false, so just check the first one */
+                msg = "Make sure the model cells are connected";
+
+            } else {
+                msg = "Make sure the model cells are removed";
+            }
+            this->modelCellActionRequest(msg);
         }
-        this->modelCellActionRequest(msg);
+        areInputsBeOpened = !onValues[0];
     }
 }
 
