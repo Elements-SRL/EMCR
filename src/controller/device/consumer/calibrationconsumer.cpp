@@ -127,12 +127,196 @@ CalibrationConsumer::~CalibrationConsumer(){
 
 }
 
+void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFileName){
+    QStringList mappingStringList;
+    QStringList boardStringList;
+    std::vector<bool> calibratedWithDefaultParams;
+    std::vector<bool> calibratedWithDefaultParamsCc;
+    QString msg = "";
+
+    /*! all'inizio devo caricare i valori di calibrazione per tutti i canali (o dai file se li trovo o dai valori di default) */
+    channelToCalibIdxs.resize(currentChannelsNum);
+    for(int i = 0; i< currentChannelsNum; i++){
+        channelToCalibIdxs[i] = i;
+    }
+
+    CalibrationParams_t calibrationParams;
+    std::vector<std::string> calibrationFileNames;
+    std::vector<std::vector<bool>> calibLoadOkFlags;
+    ErrorCodes_t error = mDev->getMessageDispatcher()->getCalibParams(calibrationParams);
+    mDev->getMessageDispatcher()->getCalibFileNames(calibrationFileNames);
+    mDev->getMessageDispatcher()->getCalibFilesFlags(calibLoadOkFlags);
+
+    for(int i = 0; i < calibrationFileNames.size(); i++){
+        boardSerialNums[i] = QString::fromStdString(calibrationFileNames[i]);
+    }
+
+    if (error != Success) {
+        if(error == ErrorCalibrationDirMissing){
+            msg = "Calibration directory " + dir + " not found.\nDefault calibration parameters were loaded.";
+            emit sigCalibLoadingMsg(msg);
+//        } else if (error == ErrorCalibrationMappingCorrupted){
+//            msg = "Wrong mapping in " + mappingFileName + ".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
+//            emit sigCalibLoadingMsg(msg);
+        } else if(error == ErrorCalibrationMappingNotOpened){
+            msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
+            emit sigCalibLoadingMsg(msg);
+        } else if(error == ErrorCalibrationMappingWrongNumbering){
+            msg = "Wrong board numbering in " + mappingFileName + ".\nBoards should be numbered from 1 to " + QString("%1").arg(numOfBoards) + ".\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
+            emit sigCalibLoadingMsg(msg);
+        } else if (error == ErrorCalibrationFileMissing || error == ErrorCalibrationFileCorrupted) {
+           for(int k = 0; k < calibLoadOkFlags[0].size(); k++){
+               if(calibLoadOkFlags[0][k] == false){
+                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
+               } else {
+                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibration paramteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +".csv\n";
+               }
+           }
+
+           if(deviceUnderCalibrationType == Device384PatchClamp
+           #ifdef DEBUG
+               || deviceUnderCalibrationType == Device384FakePatchClamp
+           #endif
+           ){
+               for(int k = 0; k < calibLoadOkFlags[1].size(); k++){
+                   if(calibLoadOkFlags[1][k] == false){
+                       msg = msg + " CC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
+                   } else {
+                       msg = msg + " CC - Board " + QString("%1").arg(k+1) + " calibration paramteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +"_cc.csv\n";
+                   }
+               }
+           }
+            emit sigCalibLoadingMsg(msg);
+
+        } else {
+            emit sigCalibLoadingMsg(error);
+        }
+    } else {
+        QString msg = "Calibration parameters loaded successfully.\n";
+        emit sigCalibLoadingMsg(msg);
+    }
+
+    convertFromMeasurement(calibrationParams.allGainDacMeas,
+                           calibrationParams.allGainAdcMeas,
+                           calibrationParams.allOffsetAdcMeas,
+                           calibrationParams.allOffsetDacMeas,
+                           calibrationParams.ccAllGainAdcMeas,
+                           calibrationParams.ccAllOffsetAdcMeas,
+                           calibrationParams.ccAllGainDacMeas,
+                           calibrationParams.ccAllOffsetDacMeas);
+}
+
+/*! \todo FCON recheck insieme a controllermain che updata calibration params quando si cambia range. Al momento funzion a perchè dopo la calibrazione di startup, non channelToCalibIdxs è mai vuoto
+Ricontrollare se ci sono problemi alla prima chiamata controllerMain in onVcCurrentRangeSelected
+*/
+void CalibrationConsumer::updateCalibParams(){
+    /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT PER TUTTI I CANALI*/
+    if(channelToCalibIdxs.size()==0){
+        return;
+    } else {
+        std::vector<std::vector<Measurement_t>> allGainAdcMeas;
+        std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
+        std::vector<std::vector<Measurement_t>> allGainDacMeas;
+        std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
+        std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
+        std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
+        std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
+        std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
+        std::vector<uint16_t> allChannelIndexes;
+
+        /*! \note 20230524 MPAC: we convert ALL the calib params for ALL the channels into Measurements_t
+        despite we could've calibrated a single board. We send to FPGA EVERYTHING EVERYTIME*/
+        allGainAdcMeas.resize(vcCurrentRangesArray.size());
+        allGainDacMeas.resize(vcVoltageRangesArray.size());
+        allOffsetAdcMeas.resize(vcCurrentRangesArray.size());
+        allOffsetDacMeas.resize(vcVoltageRangesArray.size());
+        ccAllGainAdcMeas.resize(ccVoltageRangesArray.size());
+        ccAllOffsetAdcMeas.resize(ccVoltageRangesArray.size());
+        ccAllGainDacMeas.resize(ccCurrentRangesArray.size());
+        ccAllOffsetDacMeas.resize(ccCurrentRangesArray.size());
+        convertToMeasurement(allGainDacMeas, allGainAdcMeas, allOffsetAdcMeas, allOffsetDacMeas, ccAllGainAdcMeas, ccAllOffsetAdcMeas, ccAllGainDacMeas, ccAllOffsetDacMeas);
+
+
+        /*! \note 20230524 MPAC: sends the updated params to the message dispatcher, for all the 384 channels, despite I could hae calibrated only one board*/
+        CalibrationParams_t calibParamsForMesDis;
+        calibParamsForMesDis.allGainDacMeas =     allGainDacMeas;
+        calibParamsForMesDis.allGainAdcMeas =     allGainAdcMeas;
+        calibParamsForMesDis.allOffsetAdcMeas =   allOffsetAdcMeas;
+        calibParamsForMesDis.allOffsetDacMeas =   allOffsetDacMeas;
+        calibParamsForMesDis.ccAllGainAdcMeas =   ccAllGainAdcMeas;
+        calibParamsForMesDis.ccAllOffsetAdcMeas = ccAllOffsetAdcMeas;
+        calibParamsForMesDis.ccAllGainDacMeas =   ccAllGainDacMeas;
+        calibParamsForMesDis.ccAllOffsetDacMeas = ccAllOffsetDacMeas;
+
+        mDev->getMessageDispatcher()->setCalibParams(calibParamsForMesDis);
+
+        /*! \note MPAC: sends calib params to FPGA. This part could also be moved to the message dispatcher,as now it has an internal copy of the updated calib params*/
+        for(int i = 0; i< currentChannelsNum; i++){
+            allChannelIndexes.push_back(i);
+        }
+
+        if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
+            mDev->getMessageDispatcher()->setCalibVcCurrentGain(allChannelIndexes, allGainAdcMeas[mDev->getVcCurrentRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibVcCurrentOffset(allChannelIndexes, allOffsetAdcMeas[mDev->getVcCurrentRangeIdx()], true);
+
+            mDev->getMessageDispatcher()->setCalibVcVoltageGain(allChannelIndexes, allGainDacMeas[mDev->getVcVoltageRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibVcVoltageOffset(allChannelIndexes, allOffsetDacMeas[mDev->getVcVoltageRangeIdx()], true);
+        }
+
+        if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
+            mDev->getMessageDispatcher()->setCalibCcVoltageGain(allChannelIndexes, ccAllGainAdcMeas[mDev->getCcVoltageRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibCcVoltageOffset(allChannelIndexes, ccAllOffsetAdcMeas[mDev->getCcVoltageRangeIdx()], true);
+
+            mDev->getMessageDispatcher()->setCalibCcCurrentGain(allChannelIndexes, ccAllGainDacMeas[mDev->getCcCurrentRangeIdx()], true);
+            mDev->getMessageDispatcher()->setCalibCcCurrentOffset(allChannelIndexes, ccAllOffsetDacMeas[mDev->getCcCurrentRangeIdx()], true);
+        }
+    }
+}
+
 QString CalibrationConsumer::getCalibrationDir(){
     return calibrationFilesFolder;
 }
 
 QString CalibrationConsumer::getCalibrationMappingFilePath(){
     return calibrationMappingFilePath;
+}
+
+void CalibrationConsumer::onStartConsuming() {
+    hook = producer->getDataHook();
+    if (hook != nullptr) {
+        this->start();
+    }
+}
+
+void CalibrationConsumer::onStopConsuming() {
+    if (this->isRunning()) {
+        QMutexLocker consumptionLock(&consumptionMtx);
+        consumptionStopped = true;
+        while (!exitedDataConsumingLoop) {
+            exitedDataConsumingLoopCv.wait(&consumptionMtx, 100); // recheck
+        }
+    }
+
+    if (hook != nullptr) {
+        delete hook;
+        hook = nullptr;
+    }
+}
+
+/*! RECHECK: this can be used to pass specific params from the calibration GUI to the calibration thread, e.g. calibrate only one board
+More functions will be needed, e.g. to load calibration from  a csv file */
+void CalibrationConsumer::onPerformCalibration(std::vector<uint16_t> channelsToCalibrateIdxs){
+    /*! \todo usa come esempio l'abf writer*/
+    this->onStopConsuming();
+    this->channelToCalibIdxs = channelsToCalibrateIdxs;
+    this->onStartConsuming();
+}
+
+void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
+    if(modelCellChanged){
+        QMutexLocker myLock(&popUpWindowMtx);
+        waitForModelCellChanged = false;
+    }
 }
 
 void CalibrationConsumer::run(){
@@ -462,26 +646,18 @@ void CalibrationConsumer::run(){
     exitedDataConsumingLoopCv.wakeAll();
 }
 
-void CalibrationConsumer::onStartConsuming() {
-    hook = producer->getDataHook();
-    if (hook != nullptr) {
-        this->start();
+void CalibrationConsumer::leastSquareSimple(std::vector<double> x, std::vector<double> y, double &slope, double &offset){
+    double xsum=0,x2sum=0,ysum=0,xysum=0;                //variables for sums/sigma of xi,yi,xi^2,xiyi etc
+    int n = x.size();
+    for (int i = 0 ; i < x.size(); i++){
+        xsum=xsum+x[i];                        //calculate sigma(xi)
+        ysum=ysum+y[i];                        //calculate sigma(yi)
+        x2sum=x2sum+pow(x[i],2);                //calculate sigma(x^2i)
+        xysum=xysum+x[i]*y[i];                    //calculate sigma(xi*yi)
     }
-}
+    slope=(n*xysum-xsum*ysum)/(n*x2sum-xsum*xsum);            //calculate slope
+    offset=(x2sum*ysum-xsum*xysum)/(x2sum*n-xsum*xsum);            //calculate intercept
 
-void CalibrationConsumer::onStopConsuming() {
-    if (this->isRunning()) {
-        QMutexLocker consumptionLock(&consumptionMtx);
-        consumptionStopped = true;
-        while (!exitedDataConsumingLoop) {
-            exitedDataConsumingLoopCv.wait(&consumptionMtx, 100); // recheck
-        }
-    }
-
-    if (hook != nullptr) {
-        delete hook;
-        hook = nullptr;
-    }
 }
 
 void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
@@ -778,763 +954,6 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         turnSomeCalSwOnOff(channelToCalibIdxs, someFalse);
     } else {
         turnSomeChannelsOnOff(channelToCalibIdxs, someFalse);
-    }
-}
-
-
-/*! RECHECK: this can be used to pass specific params from the calibration GUI to the calibration thread, e.g. calibrate only one board
-More functions will be needed, e.g. to load calibration from  a csv file */
-void CalibrationConsumer::onPerformCalibration(std::vector<uint16_t> channelsToCalibrateIdxs){
-    /*! \todo usa come esempio l'abf writer*/
-    this->onStopConsuming();
-    this->channelToCalibIdxs = channelsToCalibrateIdxs;
-    this->onStartConsuming();
-}
-
-void CalibrationConsumer::onSamplingRateChanged(Measurement_t samplingRate){};
-void CalibrationConsumer::onDownsamplingRatioChanged(unsigned int downsamplingRatio){};
-void CalibrationConsumer::onVoltageRangeChanged(RangedMeasurement_t range){};
-void CalibrationConsumer::onCurrentRangeChanged(RangedMeasurement_t range){};
-
-void CalibrationConsumer::modelCellActionRequest(QString msg) {
-    waitForModelCellChanged = true;
-    emit sigNeedToChangeModelCellMsg(msg);
-    while(true){
-        QMutexLocker myLock(&popUpWindowMtx);
-        if(!waitForModelCellChanged){
-            break;
-        }
-        myLock.unlock();
-        QThread::msleep(10);
-    }
-}
-
-void CalibrationConsumer::selectAllChannels(bool selectValue) {
-    uint16_t numOfChannelsToUpadate = this->mDev->getChannels().size();
-    for (uint16_t i = 0; i < numOfChannelsToUpadate; i++) {
-        this->mDev->getChannels()[i]->setSelected(selectValue);
-    }
-}
-
-void CalibrationConsumer::turnAllChannelsOnOff(bool onValue) {
-    if (canInputsBeOpened) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        channelIndexes.resize(currentChannelsNum);
-        onValues.resize(currentChannelsNum);
-        for (int i = 0; i < currentChannelsNum; i++){
-            this->mDev->getChannels()[i]->setOn(onValue);
-            channelIndexes[i] = i;
-            onValues[i] = onValue;
-        }
-        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
-
-    } else {
-        QString msg;
-        if (onValue) {
-            msg = "Make sure the model cells are connected";
-
-        } else {
-            msg = "Make sure the model cells are removed";
-        }
-        this->modelCellActionRequest(msg);
-    }
-}
-
-void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    channelIndexes.resize(currentChannelsNum);
-    onValues.resize(currentChannelsNum);
-    for (int i = 0; i < currentChannelsNum; i++){
-        this->mDev->getChannels()[i]->setInStimActive(onValue);
-        channelIndexes[i] = i;
-        onValues[i] = onValue;
-    }
-    this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllCalSwOnOff(bool onValue){
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    channelIndexes.resize(currentChannelsNum);
-    onValues.resize(currentChannelsNum);
-    this->mDev->getMessageDispatcher()->turnCalSwOn(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllVcSwOnOff(bool onValue){
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    channelIndexes.resize(currentChannelsNum);
-    onValues.resize(currentChannelsNum);
-    this->mDev->getMessageDispatcher()->turnVcSwOn(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllCcSwOnOff(bool onValue){
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    channelIndexes.resize(currentChannelsNum);
-    onValues.resize(currentChannelsNum);
-    this->mDev->getMessageDispatcher()->turnCcSwOn(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllVcCcSelOnOff(bool onValue){
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    channelIndexes.resize(currentChannelsNum);
-    onValues.resize(currentChannelsNum);
-    this->mDev->getMessageDispatcher()->turnVcCcSelOn(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllCcStimulaOnOff(bool onValue){
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    channelIndexes.resize(currentChannelsNum);
-    onValues.resize(currentChannelsNum);
-    this->mDev->getMessageDispatcher()->enableCcStimulus(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::selectSomeChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> selectValues){
-    for (int i = 0; i < channelIndexes.size(); i++){
-        this->mDev->getChannels()[channelIndexes[i]]->setSelected(selectValues[i]);
-    }
-}
-
-/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    if (canInputsBeOpened) {
-        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
-        for (int i = 0; i < channelIndexes.size(); i++){
-            this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
-        }
-
-    } else {
-        QString msg;
-        if (onValues[0]) { /*! \todo FCON this function is always called with all true or all false, so just check the first one */
-            msg = "Make sure the model cells are connected";
-
-        } else {
-            msg = "Make sure the model cells are removed";
-        }
-        this->modelCellActionRequest(msg);
-    }
-}
-
-void CalibrationConsumer::turnSomeStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
-    for (int i = 0; i < channelIndexes.size(); i++){
-        this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
-    }
-}
-
-/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
-void CalibrationConsumer::turnSomeCalSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->turnCalSwOn(channelIndexes, onValues, true);
-//    for (int i = 0; i < channelIndexes.size(); i++){
-//        this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
-//        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
-//    }
-}
-
-/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
-void CalibrationConsumer::turnSomeVcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->turnVcSwOn(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
-void CalibrationConsumer::turnSomeCcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->turnCcSwOn(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
-void CalibrationConsumer::turnSomeVcCcSelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->turnVcCcSelOn(channelIndexes, onValues, true);
-}
-
-/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
-void CalibrationConsumer::turnSomeCcStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->mDev->getMessageDispatcher()->enableCcStimulus(channelIndexes, onValues, true);
-}
-
-void CalibrationConsumer::setSourceForVoltageChannel(uint16_t source){
-    this->mDev->getMessageDispatcher()->setSourceForVoltageChannel(source, true);
-}
-
-void CalibrationConsumer::setSourceForCurrentChannel(uint16_t source){
-    this->mDev->getMessageDispatcher()->setSourceForCurrentChannel(source, true);
-}
-
-
-
-void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
-    /*! \todo FCON molto specifico per il patch clamp */
-    mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
-    mDev->getMessageDispatcher()->turnCurrentReaderOn(true, false);
-    turnSomeCalSwOnOff(channelIndexes, someTrue);
-    turnSomeVcSwOnOff(channelIndexes, someTrue);
-    turnSomeCcSwOnOff(channelIndexes, someFalse);
-    turnSomeCcStimulaOnOff(channelIndexes, someFalse);
-    turnSomeVcCcSelOnOff(channelIndexes, someTrue);
-    setSourceForVoltageChannel(0);
-    setSourceForCurrentChannel(0);
-}
-
-void CalibrationConsumer::setCcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
-    /*! \todo FCON molto specifico per il patch clamp */
-    mDev->getMessageDispatcher()->turnCurrentReaderOn(false, false);
-    mDev->getMessageDispatcher()->turnVoltageReaderOn(true, false);
-    mDev->getMessageDispatcher()->setDebugBit(0, 7, true);
-
-    turnSomeCalSwOnOff(channelIndexes, someTrue);
-    turnSomeVcSwOnOff(channelIndexes, someFalse);
-    turnSomeCcSwOnOff(channelIndexes, someTrue);
-    turnSomeCcStimulaOnOff(channelIndexes, someTrue);
-    turnSomeVcCcSelOnOff(channelIndexes, someFalse);
-    setSourceForVoltageChannel(1);
-    setSourceForCurrentChannel(1);
-}
-
-void CalibrationConsumer::leastSquareSimple(std::vector<double> x, std::vector<double> y, double &slope, double &offset){
-    double xsum=0,x2sum=0,ysum=0,xysum=0;                //variables for sums/sigma of xi,yi,xi^2,xiyi etc
-    int n = x.size();
-    for (int i = 0 ; i < x.size(); i++){
-        xsum=xsum+x[i];                        //calculate sigma(xi)
-        ysum=ysum+y[i];                        //calculate sigma(yi)
-        x2sum=x2sum+pow(x[i],2);                //calculate sigma(x^2i)
-        xysum=xysum+x[i]*y[i];                    //calculate sigma(xi*yi)
-    }
-    slope=(n*xysum-xsum*ysum)/(n*x2sum-xsum*xsum);            //calculate slope
-    offset=(x2sum*ysum-xsum*xysum)/(x2sum*n-xsum*xsum);            //calculate intercept
-
-}
-
-void CalibrationConsumer::mainSaveOnCsv(){
-    QString fileName;
-    QString msg;
-    if(channelToCalibIdxs.size() == currentChannelsNum){
-        for(int i = 0; i < numOfBoards; i++){
-            /*! calibro tutte le board*/
-            std::vector<uint16_t>::iterator first = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i; // incluso
-            std::vector<uint16_t>::iterator last = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i + (numOfChannelsOnBoard); // escluso
-            std::vector<uint16_t> chanSubsetToCalibIdxs(first, last);
-            fileName = boardSerialNums[i];// + QString(".csv");
-            prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, chanSubsetToCalibIdxs);
-        }
-        msg = "All boards manual calibration successfull!\n";
-
-    } else {
-        /*! calibro solo una board*/
-        fileName = boardSerialNums[channelToCalibIdxs[0]/numOfChannelsOnBoard];// + QString(".csv");
-        prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, channelToCalibIdxs);
-        msg = "Board " + QString("%1").arg(1+channelToCalibIdxs[0]/numOfChannelsOnBoard) +" manual calibration successfull!\n";
-    }
-    msg = msg + suspectChannelsMsg(channelToCalibIdxs);
-    emit sigManualCalibDoneMsg(msg);
-}
-
-QString CalibrationConsumer::suspectChannelsMsg(std::vector<uint16_t> chanToCalibIdxs){
-    QString msgSusp = "";
-    std::vector<int> listOfSuspectIdxs;
-    for(int j = 0; j < chanToCalibIdxs.size(); j++){
-        if (suspectChannelIdxs[chanToCalibIdxs[j]]){
-            listOfSuspectIdxs.push_back(chanToCalibIdxs[j]);
-            msgSusp = msgSusp + QString("%1").arg(chanToCalibIdxs[j]+1) + ", ";
-        }
-    }
-    if(listOfSuspectIdxs.size() > 0){
-        msgSusp.chop(2);
-        msgSusp = QString("Recheck the following channels: ")+ msgSusp;
-    }
-    return msgSusp;
-}
-
-void CalibrationConsumer::prepareStuffToSaveOnCsv(QString dir, QString fileNameRoot, std::vector<uint16_t> chanSubset){
-    QString fileName = fileNameRoot + QString(".csv");
-    QFile outFile(dir + fileName);
-    QTextStream stream;
-    if (QDir().exists(dir)) {
-        outFile.open(QFile::WriteOnly);
-        if (outFile.isOpen()) {
-            stream.setDevice(&outFile);
-            this->saveCsv(chanSubset, stream, true);
-        }
-        outFile.close();
-    } else {
-        if (QDir().mkpath(dir)) {
-            if (outFile.open(QFile::WriteOnly )) {
-                stream.setDevice(&outFile);
-                this->saveCsv(chanSubset, stream, true);
-                outFile.close();
-            }
-        }
-    }
-
-    /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
-    if(deviceUnderCalibrationType == Device384PatchClamp
-            #ifdef DEBUG
-                || deviceUnderCalibrationType == Device384FakePatchClamp
-            #endif
-            ){
-        QString fileName = fileNameRoot + QString("_cc.csv");
-        QFile outFile(dir + fileName);
-        QTextStream stream;
-        if (QDir().exists(dir)) {
-            outFile.open(QFile::WriteOnly);
-            if (outFile.isOpen()) {
-                stream.setDevice(&outFile);
-                this->saveCsv(chanSubset, stream, false);
-            }
-            outFile.close();
-        } else {
-            if (QDir().mkpath(dir)) {
-                if (outFile.open(QFile::WriteOnly )) {
-                    stream.setDevice(&outFile);
-                    this->saveCsv(chanSubset, stream, false);
-                    outFile.close();
-                }
-            }
-        }
-    }
-}
-
-void CalibrationConsumer::saveCsv(std::vector<uint16_t> chanSubset, QTextStream &stream, bool vcTccF){
-    stream << this->getCsvData(chanSubset, vcTccF);
-}
-
-QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset, bool vcTccF){
-    QString ret;
-    QTextStream stream(&ret);
-
-
-    if(vcTccF){
-        stream << QString("%1").arg(boardSerialNums[chanSubset[0]/numOfChannelsOnBoard]) << " Voltage Clamp\n";
-        /*! loop on VC current ranges*/
-        for(int i = 0; i < vcCurrentRangesArray.size(); i++){
-            stream << QString("%1").arg(vcCurrentRangesArray[i].max) << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(gainADC[i].size()==currentChannelsNum){
-                    /*! All channels calibration*/
-                    stream << QString("%1").arg(gainADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    /*! One board channels calibration*/
-                    stream << QString("%1").arg(gainADC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(offsetADC[i].size()==currentChannelsNum){
-                    /*! All channels calibration*/
-                    stream << QString("%1").arg(offsetADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    /*! One board channels calibration*/
-                    stream << QString("%1").arg(offsetADC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-        }
-
-        /*! loop on VC voltage ranges*/
-        for(int i = 0; i < vcVoltageRangesArray.size(); i++){
-            stream << QString("%1").arg(vcVoltageRangesArray[i].max) << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(gainDAC[i].size()==currentChannelsNum){
-                    /*! All channels calibration*/
-                    stream << QString("%1").arg(gainDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    /*! One board channels calibration*/
-                    stream << QString("%1").arg(gainDAC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(offsetDAC[i].size()==currentChannelsNum){
-                    stream << QString("%1").arg(offsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    stream << QString("%1").arg(offsetDAC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-        }
-    } else {
-        stream << QString("%1").arg(boardSerialNums[chanSubset[0]/numOfChannelsOnBoard]) << " Current Clamp\n";
-        /*! loop on CC voltage ranges (ADC)*/
-        for(int i = 0; i < ccVoltageRangesArray.size(); i++){
-            stream << QString("%1").arg(ccVoltageRangesArray[i].max) << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(ccGainADC[i].size()==currentChannelsNum){
-                    /*! All channels calibration*/
-                    stream << QString("%1").arg(ccGainADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccGainADC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(ccOffsetADC[i].size()==currentChannelsNum){
-                    /*! All channels calibration*/
-                    stream << QString("%1").arg(ccOffsetADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccOffsetADC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-        }
-
-        /*! loop on CC current ranges (DAC)*/
-        for(int i = 0; i < ccCurrentRangesArray.size(); i++){
-            stream << QString("%1").arg(ccCurrentRangesArray[i].max) << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(ccGainDAC[i].size()==currentChannelsNum){
-                    /*! All channels calibration*/
-                    stream << QString("%1").arg(ccGainDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccGainDAC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-            for(int j = 0; j < chanSubset.size(); j++){
-                if(ccOffsetDAC[i].size()==currentChannelsNum){
-                    /*! All channels calibration*/
-                    stream << QString("%1").arg(ccOffsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
-                } else {
-                    /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccOffsetDAC[i][j], 0, 'e', 3) << myCsvSeparator;
-                }
-            }
-            stream << "\n";
-        }
-    }
-
-    return ret;
-}
-
-void CalibrationConsumer::loadDefaultCalibParams(int channelsNum, bool forVc, bool forCc){
-    if(forVc){
-        for(int i = 0; i < vcCurrentRangesArray.size(); i++){
-            for(int j = 0; j < channelsNum; j++){
-                gainADC[i].push_back(defaultAdcGainValue.getNoPrefixValue());
-                offsetADC[i].push_back(defaultAdcOffsetValue.getNoPrefixValue());
-            }
-        }
-
-        for(int i = 0; i < vcVoltageRangesArray.size(); i++){
-            for(int j = 0; j < channelsNum; j++){
-                gainDAC[i].push_back(defaultDacGainValue.getNoPrefixValue());
-                offsetDAC[i].push_back(defaultDacOffsetValue.getNoPrefixValue());
-            }
-        }
-    }
-
-    if(forCc){
-        for(int i = 0; i < ccVoltageRangesArray.size(); i++){
-            for(int j = 0; j < channelsNum; j++){
-                ccGainADC[i].push_back(defaultCcAdcGainValue.getNoPrefixValue());
-                ccOffsetADC[i].push_back(defaultCcAdcOffsetValue.getNoPrefixValue());
-            }
-        }
-
-        for(int i = 0; i < ccCurrentRangesArray.size(); i++){
-            for(int j = 0; j < channelsNum; j++){
-                ccGainDAC[i].push_back(defaultCcDacGainValue.getNoPrefixValue());
-                ccOffsetDAC[i].push_back(defaultCcDacOffsetValue.getNoPrefixValue());
-            }
-        }
-    }
-}
-
-void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFileName){
-    QStringList mappingStringList;
-    QStringList boardStringList;
-    std::vector<bool> calibratedWithDefaultParams;
-    std::vector<bool> calibratedWithDefaultParamsCc;
-    QString msg = "";
-
-    /*! all'inizio devo caricare i valori di calibrazione per tutti i canali (o dai file se li trovo o dai valori di default) */
-    channelToCalibIdxs.resize(currentChannelsNum);
-    for(int i = 0; i< currentChannelsNum; i++){
-        channelToCalibIdxs[i] = i;
-    }
-
-    CalibrationParams_t calibrationParams;
-    std::vector<std::string> calibrationFileNames;
-    std::vector<std::vector<bool>> calibLoadOkFlags;
-    ErrorCodes_t error = mDev->getMessageDispatcher()->getCalibParams(calibrationParams);
-    mDev->getMessageDispatcher()->getCalibFileNames(calibrationFileNames);
-    mDev->getMessageDispatcher()->getCalibFilesFlags(calibLoadOkFlags);
-
-    for(int i = 0; i < calibrationFileNames.size(); i++){
-        boardSerialNums[i] = QString::fromStdString(calibrationFileNames[i]);
-    }
-
-    if (error != Success) {
-        if(error == ErrorCalibrationDirMissing){
-            msg = "Calibration directory " + dir + " not found.\nDefault calibration parameters were loaded.";
-            emit sigCalibLoadingMsg(msg);
-//        } else if (error == ErrorCalibrationMappingCorrupted){
-//            msg = "Wrong mapping in " + mappingFileName + ".\nCalibration is in an unstable state.\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
-//            emit sigCalibLoadingMsg(msg);
-        } else if(error == ErrorCalibrationMappingNotOpened){
-            msg = "Calibration mapping file " + mappingFileName + " not found.\nDefault calibration parameters were loaded.";
-            emit sigCalibLoadingMsg(msg);
-        } else if(error == ErrorCalibrationMappingWrongNumbering){
-            msg = "Wrong board numbering in " + mappingFileName + ".\nBoards should be numbered from 1 to " + QString("%1").arg(numOfBoards) + ".\nRecheck the mapping file, push disconnect, close and restart, EMCR.\nIf needed, repeat the calibration procedure.";
-            emit sigCalibLoadingMsg(msg);
-        } else if (error == ErrorCalibrationFileMissing || error == ErrorCalibrationFileCorrupted) {
-           for(int k = 0; k < calibLoadOkFlags[0].size(); k++){
-               if(calibLoadOkFlags[0][k] == false){
-                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
-               } else {
-                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibration paramteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +".csv\n";
-               }
-           }
-
-           if(deviceUnderCalibrationType == Device384PatchClamp
-           #ifdef DEBUG
-               || deviceUnderCalibrationType == Device384FakePatchClamp
-           #endif
-           ){
-               for(int k = 0; k < calibLoadOkFlags[1].size(); k++){
-                   if(calibLoadOkFlags[1][k] == false){
-                       msg = msg + " CC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
-                   } else {
-                       msg = msg + " CC - Board " + QString("%1").arg(k+1) + " calibration paramteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +"_cc.csv\n";
-                   }
-               }
-           }
-            emit sigCalibLoadingMsg(msg);
-
-        } else {
-            emit sigCalibLoadingMsg(error);
-        }
-    } else {
-        QString msg = "Calibration parameters loaded successfully.\n";
-        emit sigCalibLoadingMsg(msg);
-    }
-
-    convertFromMeasurement(calibrationParams.allGainDacMeas,
-                           calibrationParams.allGainAdcMeas,
-                           calibrationParams.allOffsetAdcMeas,
-                           calibrationParams.allOffsetDacMeas,
-                           calibrationParams.ccAllGainAdcMeas,
-                           calibrationParams.ccAllOffsetAdcMeas,
-                           calibrationParams.ccAllGainDacMeas,
-                           calibrationParams.ccAllOffsetDacMeas);
-}
-
-/*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
-gainADC, offsetADC anf offsetDAC contain  the parameters corresponding to all the channels, despite a single board calibration was started.
- WE PREPARE AS MEASUREMENTS THE CALIB PARAMS FOR ALL THA CHANNELS*/
-void CalibrationConsumer::convertToMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
-                                               std::vector<std::vector<Measurement_t>> &gainAdcMeas,
-                                               std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
-                                               std::vector<std::vector<Measurement_t>> &offsetDacMeas,
-                                               std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
-                                               std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
-                                               std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
-                                               std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
-                                               ){
-    /*! loop over ranges */
-    for(int iii = 0; iii < vcCurrentRangesArray.size(); iii++){
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            gainAdcMeas[iii].push_back({allGainADC[iii][jjj], UnitPfxNone, ""});
-            offsetAdcMeas[iii].push_back({allOffsetADC[iii][jjj], UnitPfxNone, "A"});
-        }
-    }
-
-    for(int iii = 0; iii < vcVoltageRangesArray.size(); iii++){
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            gainDacMeas[iii].push_back({allGainDAC[iii][jjj], UnitPfxNone, ""});
-            offsetDacMeas[iii].push_back({allOffsetDAC[iii][jjj], UnitPfxNone, "V"});
-        }
-    }
-
-    /*! loop over ranges */
-    for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            ccGainAdcMeas[iii].push_back({ccAllGainADC[iii][jjj], UnitPfxNone, ""});
-            ccOffsetAdcMeas[iii].push_back({ccAllOffsetADC[iii][jjj], UnitPfxNone, "V"});
-        }
-    }
-
-    for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            ccGainDacMeas[iii].push_back({ccAllGainDAC[iii][jjj], UnitPfxNone, ""});
-            ccOffsetDacMeas[iii].push_back({ccAllOffsetDAC[iii][jjj], UnitPfxNone, "A"});
-        }
-    }
-}
-
-void CalibrationConsumer::convertFromMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
-                                                 std::vector<std::vector<Measurement_t>> &gainAdcMeas,
-                                                 std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
-                                                 std::vector<std::vector<Measurement_t>> &offsetDacMeas,
-                                                 std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
-                                                 std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
-                                                 std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
-                                                 std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
-                                                 ){
-    /*! loop over ranges */
-    allGainADC.resize(vcCurrentRangesArray.size());
-    allOffsetADC.resize(vcCurrentRangesArray.size());
-    gainADC.resize(vcCurrentRangesArray.size());
-    offsetADC.resize(vcCurrentRangesArray.size());
-    for(int iii = 0; iii < vcCurrentRangesArray.size(); iii++){
-        allGainADC[iii].resize(currentChannelsNum);
-        allOffsetADC[iii].resize(currentChannelsNum);
-        gainADC[iii].resize(currentChannelsNum);
-        offsetADC[iii].resize(currentChannelsNum);
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            allGainADC[iii][jjj] = gainAdcMeas[iii][jjj].getNoPrefixValue();
-            allOffsetADC[iii][jjj] = offsetAdcMeas[iii][jjj].getNoPrefixValue();
-            gainADC[iii][jjj] = gainAdcMeas[iii][jjj].getNoPrefixValue();
-            offsetADC[iii][jjj] = offsetAdcMeas[iii][jjj].getNoPrefixValue();
-        }
-    }
-
-    allGainDAC.resize(vcVoltageRangesArray.size());
-    allOffsetDAC.resize(vcVoltageRangesArray.size());
-    gainDAC.resize(vcVoltageRangesArray.size());
-    offsetDAC.resize(vcVoltageRangesArray.size());
-    for(int iii = 0; iii < vcVoltageRangesArray.size(); iii++){
-        allGainDAC[iii].resize(currentChannelsNum);
-        allOffsetDAC[iii].resize(currentChannelsNum);
-        gainDAC[iii].resize(currentChannelsNum);
-        offsetDAC[iii].resize(currentChannelsNum);
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            allGainDAC[iii][jjj] = gainDacMeas[iii][jjj].getNoPrefixValue();
-            allOffsetDAC[iii][jjj] = offsetDacMeas[iii][jjj].getNoPrefixValue();
-            gainDAC[iii][jjj] = gainDacMeas[iii][jjj].getNoPrefixValue();
-            offsetDAC[iii][jjj] = offsetDacMeas[iii][jjj].getNoPrefixValue();
-        }
-    }
-
-    /*! loop over ranges */
-    ccAllGainADC.resize(ccVoltageRangesArray.size());
-    ccAllOffsetADC.resize(ccVoltageRangesArray.size());
-    ccGainADC.resize(ccVoltageRangesArray.size());
-    ccOffsetADC.resize(ccVoltageRangesArray.size());
-    for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
-        ccAllGainADC[iii].resize(currentChannelsNum);
-        ccAllOffsetADC[iii].resize(currentChannelsNum);
-        ccGainADC[iii].resize(currentChannelsNum);
-        ccOffsetADC[iii].resize(currentChannelsNum);
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            ccAllGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
-            ccAllOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
-            ccGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
-            ccOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
-        }
-    }
-
-    ccAllGainDAC.resize(ccCurrentRangesArray.size());
-    ccAllOffsetDAC.resize(ccCurrentRangesArray.size());
-    ccGainDAC.resize(ccCurrentRangesArray.size());
-    ccOffsetDAC.resize(ccCurrentRangesArray.size());
-    for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
-        ccAllGainDAC[iii].resize(currentChannelsNum);
-        ccAllOffsetDAC[iii].resize(currentChannelsNum);
-        ccGainDAC[iii].resize(currentChannelsNum);
-        ccOffsetDAC[iii].resize(currentChannelsNum);
-        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
-            ccAllGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
-            ccAllOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
-            ccGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
-            ccOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
-        }
-    }
-}
-
-void CalibrationConsumer::copyToAllVectors() {
-    allGainADC = gainADC;
-    allOffsetADC = offsetADC;
-    allGainDAC = gainDAC;
-    allOffsetDAC = offsetDAC;
-    ccAllGainADC = ccGainADC;
-    ccAllOffsetADC = ccOffsetADC;
-    ccAllGainDAC = ccGainDAC;
-    ccAllOffsetDAC = ccOffsetDAC;
-}
-
-/*! \todo FCON recheck insieme a controllermain che updata calibration params quando si cambia range. Al momento funzion a perchè dopo la calibrazione di startup, non channelToCalibIdxs è mai vuoto
-Ricontrollare se ci sono problemi alla prima chiamata controllerMain in onVcCurrentRangeSelected
-*/
-void CalibrationConsumer::updateCalibParams(){
-    /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT PER TUTTI I CANALI*/
-    if(channelToCalibIdxs.size()==0){
-        return;
-    } else {
-        std::vector<std::vector<Measurement_t>> allGainAdcMeas;
-        std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
-        std::vector<std::vector<Measurement_t>> allGainDacMeas;
-        std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
-        std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
-        std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
-        std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
-        std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
-        std::vector<uint16_t> allChannelIndexes;
-
-        /*! \note 20230524 MPAC: we convert ALL the calib params for ALL the channels into Measurements_t
-        despite we could've calibrated a single board. We send to FPGA EVERYTHING EVERYTIME*/
-        allGainAdcMeas.resize(vcCurrentRangesArray.size());
-        allGainDacMeas.resize(vcVoltageRangesArray.size());
-        allOffsetAdcMeas.resize(vcCurrentRangesArray.size());
-        allOffsetDacMeas.resize(vcVoltageRangesArray.size());
-        ccAllGainAdcMeas.resize(ccVoltageRangesArray.size());
-        ccAllOffsetAdcMeas.resize(ccVoltageRangesArray.size());
-        ccAllGainDacMeas.resize(ccCurrentRangesArray.size());
-        ccAllOffsetDacMeas.resize(ccCurrentRangesArray.size());
-        convertToMeasurement(allGainDacMeas, allGainAdcMeas, allOffsetAdcMeas, allOffsetDacMeas, ccAllGainAdcMeas, ccAllOffsetAdcMeas, ccAllGainDacMeas, ccAllOffsetDacMeas);
-
-
-        /*! \note 20230524 MPAC: sends the updated params to the message dispatcher, for all the 384 channels, despite I could hae calibrated only one board*/
-        CalibrationParams_t calibParamsForMesDis;
-        calibParamsForMesDis.allGainDacMeas =     allGainDacMeas;
-        calibParamsForMesDis.allGainAdcMeas =     allGainAdcMeas;
-        calibParamsForMesDis.allOffsetAdcMeas =   allOffsetAdcMeas;
-        calibParamsForMesDis.allOffsetDacMeas =   allOffsetDacMeas;
-        calibParamsForMesDis.ccAllGainAdcMeas =   ccAllGainAdcMeas;
-        calibParamsForMesDis.ccAllOffsetAdcMeas = ccAllOffsetAdcMeas;
-        calibParamsForMesDis.ccAllGainDacMeas =   ccAllGainDacMeas;
-        calibParamsForMesDis.ccAllOffsetDacMeas = ccAllOffsetDacMeas;
-
-        mDev->getMessageDispatcher()->setCalibParams(calibParamsForMesDis);
-
-        /*! \note MPAC: sends calib params to FPGA. This part could also be moved to the message dispatcher,as now it has an internal copy of the updated calib params*/
-        for(int i = 0; i< currentChannelsNum; i++){
-            allChannelIndexes.push_back(i);
-        }
-
-        if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
-            mDev->getMessageDispatcher()->setCalibVcCurrentGain(allChannelIndexes, allGainAdcMeas[mDev->getVcCurrentRangeIdx()], true);
-            mDev->getMessageDispatcher()->setCalibVcCurrentOffset(allChannelIndexes, allOffsetAdcMeas[mDev->getVcCurrentRangeIdx()], true);
-
-            mDev->getMessageDispatcher()->setCalibVcVoltageGain(allChannelIndexes, allGainDacMeas[mDev->getVcVoltageRangeIdx()], true);
-            mDev->getMessageDispatcher()->setCalibVcVoltageOffset(allChannelIndexes, allOffsetDacMeas[mDev->getVcVoltageRangeIdx()], true);
-        }
-
-        if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
-            mDev->getMessageDispatcher()->setCalibCcVoltageGain(allChannelIndexes, ccAllGainAdcMeas[mDev->getCcVoltageRangeIdx()], true);
-            mDev->getMessageDispatcher()->setCalibCcVoltageOffset(allChannelIndexes, ccAllOffsetAdcMeas[mDev->getCcVoltageRangeIdx()], true);
-
-            mDev->getMessageDispatcher()->setCalibCcCurrentGain(allChannelIndexes, ccAllGainDacMeas[mDev->getCcCurrentRangeIdx()], true);
-            mDev->getMessageDispatcher()->setCalibCcCurrentOffset(allChannelIndexes, ccAllOffsetDacMeas[mDev->getCcCurrentRangeIdx()], true);
-        }
-    }
-}
-
-void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
-    if(modelCellChanged){
-        QMutexLocker myLock(&popUpWindowMtx);
-        waitForModelCellChanged = false;
     }
 }
 
@@ -1911,4 +1330,568 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
     /*!  spegne lo stimolo e stacca il carico su tutti i canali  o quelli della scheda selezionata*/
     turnSomeCcStimulaOnOff(channelToCalibIdxs, someFalse);
     turnSomeStimulaOnOff(channelToCalibIdxs, someFalse);
+}
+
+void CalibrationConsumer::modelCellActionRequest(QString msg) {
+    waitForModelCellChanged = true;
+    emit sigNeedToChangeModelCellMsg(msg);
+    while(true){
+        QMutexLocker myLock(&popUpWindowMtx);
+        if(!waitForModelCellChanged){
+            break;
+        }
+        myLock.unlock();
+        QThread::msleep(10);
+    }
+}
+
+void CalibrationConsumer::selectAllChannels(bool selectValue) {
+    uint16_t numOfChannelsToUpadate = this->mDev->getChannels().size();
+    for (uint16_t i = 0; i < numOfChannelsToUpadate; i++) {
+        this->mDev->getChannels()[i]->setSelected(selectValue);
+    }
+}
+
+void CalibrationConsumer::turnAllChannelsOnOff(bool onValue) {
+    if (canInputsBeOpened) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        channelIndexes.resize(currentChannelsNum);
+        onValues.resize(currentChannelsNum);
+        for (int i = 0; i < currentChannelsNum; i++){
+            this->mDev->getChannels()[i]->setOn(onValue);
+            channelIndexes[i] = i;
+            onValues[i] = onValue;
+        }
+        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
+
+    } else {
+        QString msg;
+        if (onValue) {
+            msg = "Make sure the model cells are connected";
+
+        } else {
+            msg = "Make sure the model cells are removed";
+        }
+        this->modelCellActionRequest(msg);
+    }
+}
+
+void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    for (int i = 0; i < currentChannelsNum; i++){
+        this->mDev->getChannels()[i]->setInStimActive(onValue);
+        channelIndexes[i] = i;
+        onValues[i] = onValue;
+    }
+    this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::turnAllCalSwOnOff(bool onValue){
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    this->mDev->getMessageDispatcher()->turnCalSwOn(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::turnAllVcSwOnOff(bool onValue){
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    this->mDev->getMessageDispatcher()->turnVcSwOn(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::turnAllCcSwOnOff(bool onValue){
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    this->mDev->getMessageDispatcher()->turnCcSwOn(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::turnAllVcCcSelOnOff(bool onValue){
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    this->mDev->getMessageDispatcher()->turnVcCcSelOn(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::turnAllCcStimulaOnOff(bool onValue){
+    std::vector<uint16_t> channelIndexes;
+    std::vector<bool> onValues;
+    channelIndexes.resize(currentChannelsNum);
+    onValues.resize(currentChannelsNum);
+    this->mDev->getMessageDispatcher()->enableCcStimulus(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::selectSomeChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> selectValues){
+    for (int i = 0; i < channelIndexes.size(); i++){
+        this->mDev->getChannels()[channelIndexes[i]]->setSelected(selectValues[i]);
+    }
+}
+
+/*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
+void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    if (canInputsBeOpened) {
+        this->mDev->getMessageDispatcher()->turnChannelsOn(channelIndexes, onValues, true);
+        for (int i = 0; i < channelIndexes.size(); i++){
+            this->mDev->getChannels()[channelIndexes[i]]->setOn(onValues[i]);
+        }
+
+    } else {
+        QString msg;
+        if (onValues[0]) { /*! \todo FCON this function is always called with all true or all false, so just check the first one */
+            msg = "Make sure the model cells are connected";
+
+        } else {
+            msg = "Make sure the model cells are removed";
+        }
+        this->modelCellActionRequest(msg);
+    }
+}
+
+void CalibrationConsumer::turnSomeStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->enableStimulus(channelIndexes, onValues, true);
+    for (int i = 0; i < channelIndexes.size(); i++){
+        this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
+    }
+}
+
+/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
+void CalibrationConsumer::turnSomeCalSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->turnCalSwOn(channelIndexes, onValues, true);
+//    for (int i = 0; i < channelIndexes.size(); i++){
+//        this->mDev->getChannels()[channelIndexes[i]]->setInStimActive(onValues[i]);
+//        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
+//    }
+}
+
+/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
+void CalibrationConsumer::turnSomeVcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->turnVcSwOn(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
+void CalibrationConsumer::turnSomeCcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->turnCcSwOn(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
+void CalibrationConsumer::turnSomeVcCcSelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->turnVcCcSelOn(channelIndexes, onValues, true);
+}
+
+/*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
+void CalibrationConsumer::turnSomeCcStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    this->mDev->getMessageDispatcher()->enableCcStimulus(channelIndexes, onValues, true);
+}
+
+void CalibrationConsumer::setSourceForVoltageChannel(uint16_t source){
+    this->mDev->getMessageDispatcher()->setSourceForVoltageChannel(source, true);
+}
+
+void CalibrationConsumer::setSourceForCurrentChannel(uint16_t source){
+    this->mDev->getMessageDispatcher()->setSourceForCurrentChannel(source, true);
+}
+
+
+
+void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
+    /*! \todo FCON molto specifico per il patch clamp */
+    mDev->getMessageDispatcher()->turnVoltageReaderOn(false, false);
+    mDev->getMessageDispatcher()->turnCurrentReaderOn(true, false);
+    turnSomeCalSwOnOff(channelIndexes, someTrue);
+    turnSomeVcSwOnOff(channelIndexes, someTrue);
+    turnSomeCcSwOnOff(channelIndexes, someFalse);
+    turnSomeCcStimulaOnOff(channelIndexes, someFalse);
+    turnSomeVcCcSelOnOff(channelIndexes, someTrue);
+    setSourceForVoltageChannel(0);
+    setSourceForCurrentChannel(0);
+}
+
+void CalibrationConsumer::setCcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
+    /*! \todo FCON molto specifico per il patch clamp */
+    mDev->getMessageDispatcher()->turnCurrentReaderOn(false, false);
+    mDev->getMessageDispatcher()->turnVoltageReaderOn(true, false);
+    mDev->getMessageDispatcher()->setDebugBit(0, 7, true);
+
+    turnSomeCalSwOnOff(channelIndexes, someTrue);
+    turnSomeVcSwOnOff(channelIndexes, someFalse);
+    turnSomeCcSwOnOff(channelIndexes, someTrue);
+    turnSomeCcStimulaOnOff(channelIndexes, someTrue);
+    turnSomeVcCcSelOnOff(channelIndexes, someFalse);
+    setSourceForVoltageChannel(1);
+    setSourceForCurrentChannel(1);
+}
+
+void CalibrationConsumer::mainSaveOnCsv(){
+    QString fileName;
+    QString msg;
+    if(channelToCalibIdxs.size() == currentChannelsNum){
+        for(int i = 0; i < numOfBoards; i++){
+            /*! calibro tutte le board*/
+            std::vector<uint16_t>::iterator first = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i; // incluso
+            std::vector<uint16_t>::iterator last = channelToCalibIdxs.begin() + numOfChannelsOnBoard*i + (numOfChannelsOnBoard); // escluso
+            std::vector<uint16_t> chanSubsetToCalibIdxs(first, last);
+            fileName = boardSerialNums[i];// + QString(".csv");
+            prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, chanSubsetToCalibIdxs);
+        }
+        msg = "All boards manual calibration successfull!\n";
+
+    } else {
+        /*! calibro solo una board*/
+        fileName = boardSerialNums[channelToCalibIdxs[0]/numOfChannelsOnBoard];// + QString(".csv");
+        prepareStuffToSaveOnCsv(calibrationFilesFolder, fileName, channelToCalibIdxs);
+        msg = "Board " + QString("%1").arg(1+channelToCalibIdxs[0]/numOfChannelsOnBoard) +" manual calibration successfull!\n";
+    }
+    msg = msg + suspectChannelsMsg(channelToCalibIdxs);
+    emit sigManualCalibDoneMsg(msg);
+}
+
+void CalibrationConsumer::prepareStuffToSaveOnCsv(QString dir, QString fileNameRoot, std::vector<uint16_t> chanSubset){
+    QString fileName = fileNameRoot + QString(".csv");
+    QFile outFile(dir + fileName);
+    QTextStream stream;
+    if (QDir().exists(dir)) {
+        outFile.open(QFile::WriteOnly);
+        if (outFile.isOpen()) {
+            stream.setDevice(&outFile);
+            this->saveCsv(chanSubset, stream, true);
+        }
+        outFile.close();
+    } else {
+        if (QDir().mkpath(dir)) {
+            if (outFile.open(QFile::WriteOnly )) {
+                stream.setDevice(&outFile);
+                this->saveCsv(chanSubset, stream, true);
+                outFile.close();
+            }
+        }
+    }
+
+    /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
+    if(deviceUnderCalibrationType == Device384PatchClamp
+            #ifdef DEBUG
+                || deviceUnderCalibrationType == Device384FakePatchClamp
+            #endif
+            ){
+        QString fileName = fileNameRoot + QString("_cc.csv");
+        QFile outFile(dir + fileName);
+        QTextStream stream;
+        if (QDir().exists(dir)) {
+            outFile.open(QFile::WriteOnly);
+            if (outFile.isOpen()) {
+                stream.setDevice(&outFile);
+                this->saveCsv(chanSubset, stream, false);
+            }
+            outFile.close();
+        } else {
+            if (QDir().mkpath(dir)) {
+                if (outFile.open(QFile::WriteOnly )) {
+                    stream.setDevice(&outFile);
+                    this->saveCsv(chanSubset, stream, false);
+                    outFile.close();
+                }
+            }
+        }
+    }
+}
+
+void CalibrationConsumer::saveCsv(std::vector<uint16_t> chanSubset, QTextStream &stream, bool vcTccF){
+    stream << this->getCsvData(chanSubset, vcTccF);
+}
+
+QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset, bool vcTccF){
+    QString ret;
+    QTextStream stream(&ret);
+
+
+    if(vcTccF){
+        stream << QString("%1").arg(boardSerialNums[chanSubset[0]/numOfChannelsOnBoard]) << " Voltage Clamp\n";
+        /*! loop on VC current ranges*/
+        for(int i = 0; i < vcCurrentRangesArray.size(); i++){
+            stream << QString("%1").arg(vcCurrentRangesArray[i].max) << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(gainADC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(gainADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(gainADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(offsetADC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(offsetADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(offsetADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+        }
+
+        /*! loop on VC voltage ranges*/
+        for(int i = 0; i < vcVoltageRangesArray.size(); i++){
+            stream << QString("%1").arg(vcVoltageRangesArray[i].max) << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(gainDAC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(gainDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(gainDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(offsetDAC[i].size()==currentChannelsNum){
+                    stream << QString("%1").arg(offsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    stream << QString("%1").arg(offsetDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+        }
+    } else {
+        stream << QString("%1").arg(boardSerialNums[chanSubset[0]/numOfChannelsOnBoard]) << " Current Clamp\n";
+        /*! loop on CC voltage ranges (ADC)*/
+        for(int i = 0; i < ccVoltageRangesArray.size(); i++){
+            stream << QString("%1").arg(ccVoltageRangesArray[i].max) << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(ccGainADC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(ccGainADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(ccGainADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(ccOffsetADC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(ccOffsetADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(ccOffsetADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+        }
+
+        /*! loop on CC current ranges (DAC)*/
+        for(int i = 0; i < ccCurrentRangesArray.size(); i++){
+            stream << QString("%1").arg(ccCurrentRangesArray[i].max) << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(ccGainDAC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(ccGainDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(ccGainDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+            for(int j = 0; j < chanSubset.size(); j++){
+                if(ccOffsetDAC[i].size()==currentChannelsNum){
+                    /*! All channels calibration*/
+                    stream << QString("%1").arg(ccOffsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                } else {
+                    /*! One board channels calibration*/
+                    stream << QString("%1").arg(ccOffsetDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                }
+            }
+            stream << "\n";
+        }
+    }
+
+    return ret;
+}
+
+void CalibrationConsumer::loadDefaultCalibParams(int channelsNum, bool forVc, bool forCc){
+    if(forVc){
+        for(int i = 0; i < vcCurrentRangesArray.size(); i++){
+            for(int j = 0; j < channelsNum; j++){
+                gainADC[i].push_back(defaultAdcGainValue.getNoPrefixValue());
+                offsetADC[i].push_back(defaultAdcOffsetValue.getNoPrefixValue());
+            }
+        }
+
+        for(int i = 0; i < vcVoltageRangesArray.size(); i++){
+            for(int j = 0; j < channelsNum; j++){
+                gainDAC[i].push_back(defaultDacGainValue.getNoPrefixValue());
+                offsetDAC[i].push_back(defaultDacOffsetValue.getNoPrefixValue());
+            }
+        }
+    }
+
+    if(forCc){
+        for(int i = 0; i < ccVoltageRangesArray.size(); i++){
+            for(int j = 0; j < channelsNum; j++){
+                ccGainADC[i].push_back(defaultCcAdcGainValue.getNoPrefixValue());
+                ccOffsetADC[i].push_back(defaultCcAdcOffsetValue.getNoPrefixValue());
+            }
+        }
+
+        for(int i = 0; i < ccCurrentRangesArray.size(); i++){
+            for(int j = 0; j < channelsNum; j++){
+                ccGainDAC[i].push_back(defaultCcDacGainValue.getNoPrefixValue());
+                ccOffsetDAC[i].push_back(defaultCcDacOffsetValue.getNoPrefixValue());
+            }
+        }
+    }
+}
+
+QString CalibrationConsumer::suspectChannelsMsg(std::vector<uint16_t> chanToCalibIdxs){
+    QString msgSusp = "";
+    std::vector<int> listOfSuspectIdxs;
+    for(int j = 0; j < chanToCalibIdxs.size(); j++){
+        if (suspectChannelIdxs[chanToCalibIdxs[j]]){
+            listOfSuspectIdxs.push_back(chanToCalibIdxs[j]);
+            msgSusp = msgSusp + QString("%1").arg(chanToCalibIdxs[j]+1) + ", ";
+        }
+    }
+    if(listOfSuspectIdxs.size() > 0){
+        msgSusp.chop(2);
+        msgSusp = QString("Recheck the following channels: ")+ msgSusp;
+    }
+    return msgSusp;
+}
+
+/*! This conversion is needed to send the calibration parameters contained in gainADC, offsetADC anf offsetDAC to the FPGA via MessageDispatcher
+gainADC, offsetADC anf offsetDAC contain  the parameters corresponding to all the channels, despite a single board calibration was started.
+ WE PREPARE AS MEASUREMENTS THE CALIB PARAMS FOR ALL THA CHANNELS*/
+void CalibrationConsumer::convertToMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
+                                               std::vector<std::vector<Measurement_t>> &gainAdcMeas,
+                                               std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
+                                               std::vector<std::vector<Measurement_t>> &offsetDacMeas,
+                                               std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
+                                               std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
+                                               std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
+                                               std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
+                                               ){
+    /*! loop over ranges */
+    for(int iii = 0; iii < vcCurrentRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            gainAdcMeas[iii].push_back({allGainADC[iii][jjj], UnitPfxNone, ""});
+            offsetAdcMeas[iii].push_back({allOffsetADC[iii][jjj], UnitPfxNone, "A"});
+        }
+    }
+
+    for(int iii = 0; iii < vcVoltageRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            gainDacMeas[iii].push_back({allGainDAC[iii][jjj], UnitPfxNone, ""});
+            offsetDacMeas[iii].push_back({allOffsetDAC[iii][jjj], UnitPfxNone, "V"});
+        }
+    }
+
+    /*! loop over ranges */
+    for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccGainAdcMeas[iii].push_back({ccAllGainADC[iii][jjj], UnitPfxNone, ""});
+            ccOffsetAdcMeas[iii].push_back({ccAllOffsetADC[iii][jjj], UnitPfxNone, "V"});
+        }
+    }
+
+    for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccGainDacMeas[iii].push_back({ccAllGainDAC[iii][jjj], UnitPfxNone, ""});
+            ccOffsetDacMeas[iii].push_back({ccAllOffsetDAC[iii][jjj], UnitPfxNone, "A"});
+        }
+    }
+}
+
+void CalibrationConsumer::convertFromMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
+                                                 std::vector<std::vector<Measurement_t>> &gainAdcMeas,
+                                                 std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
+                                                 std::vector<std::vector<Measurement_t>> &offsetDacMeas,
+                                                 std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
+                                                 std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
+                                                 std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
+                                                 std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
+                                                 ){
+    /*! loop over ranges */
+    allGainADC.resize(vcCurrentRangesArray.size());
+    allOffsetADC.resize(vcCurrentRangesArray.size());
+    gainADC.resize(vcCurrentRangesArray.size());
+    offsetADC.resize(vcCurrentRangesArray.size());
+    for(int iii = 0; iii < vcCurrentRangesArray.size(); iii++){
+        allGainADC[iii].resize(currentChannelsNum);
+        allOffsetADC[iii].resize(currentChannelsNum);
+        gainADC[iii].resize(currentChannelsNum);
+        offsetADC[iii].resize(currentChannelsNum);
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            allGainADC[iii][jjj] = gainAdcMeas[iii][jjj].getNoPrefixValue();
+            allOffsetADC[iii][jjj] = offsetAdcMeas[iii][jjj].getNoPrefixValue();
+            gainADC[iii][jjj] = gainAdcMeas[iii][jjj].getNoPrefixValue();
+            offsetADC[iii][jjj] = offsetAdcMeas[iii][jjj].getNoPrefixValue();
+        }
+    }
+
+    allGainDAC.resize(vcVoltageRangesArray.size());
+    allOffsetDAC.resize(vcVoltageRangesArray.size());
+    gainDAC.resize(vcVoltageRangesArray.size());
+    offsetDAC.resize(vcVoltageRangesArray.size());
+    for(int iii = 0; iii < vcVoltageRangesArray.size(); iii++){
+        allGainDAC[iii].resize(currentChannelsNum);
+        allOffsetDAC[iii].resize(currentChannelsNum);
+        gainDAC[iii].resize(currentChannelsNum);
+        offsetDAC[iii].resize(currentChannelsNum);
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            allGainDAC[iii][jjj] = gainDacMeas[iii][jjj].getNoPrefixValue();
+            allOffsetDAC[iii][jjj] = offsetDacMeas[iii][jjj].getNoPrefixValue();
+            gainDAC[iii][jjj] = gainDacMeas[iii][jjj].getNoPrefixValue();
+            offsetDAC[iii][jjj] = offsetDacMeas[iii][jjj].getNoPrefixValue();
+        }
+    }
+
+    /*! loop over ranges */
+    ccAllGainADC.resize(ccVoltageRangesArray.size());
+    ccAllOffsetADC.resize(ccVoltageRangesArray.size());
+    ccGainADC.resize(ccVoltageRangesArray.size());
+    ccOffsetADC.resize(ccVoltageRangesArray.size());
+    for(int iii = 0; iii < ccVoltageRangesArray.size(); iii++){
+        ccAllGainADC[iii].resize(currentChannelsNum);
+        ccAllOffsetADC[iii].resize(currentChannelsNum);
+        ccGainADC[iii].resize(currentChannelsNum);
+        ccOffsetADC[iii].resize(currentChannelsNum);
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccAllGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
+            ccAllOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
+            ccGainADC[iii][jjj] = ccGainAdcMeas[iii][jjj].getNoPrefixValue();
+            ccOffsetADC[iii][jjj] = ccOffsetAdcMeas[iii][jjj].getNoPrefixValue();
+        }
+    }
+
+    ccAllGainDAC.resize(ccCurrentRangesArray.size());
+    ccAllOffsetDAC.resize(ccCurrentRangesArray.size());
+    ccGainDAC.resize(ccCurrentRangesArray.size());
+    ccOffsetDAC.resize(ccCurrentRangesArray.size());
+    for(int iii = 0; iii < ccCurrentRangesArray.size(); iii++){
+        ccAllGainDAC[iii].resize(currentChannelsNum);
+        ccAllOffsetDAC[iii].resize(currentChannelsNum);
+        ccGainDAC[iii].resize(currentChannelsNum);
+        ccOffsetDAC[iii].resize(currentChannelsNum);
+        for(int jjj = 0; jjj < currentChannelsNum; jjj++){
+            ccAllGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
+            ccAllOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
+            ccGainDAC[iii][jjj] = ccGainDacMeas[iii][jjj].getNoPrefixValue();
+            ccOffsetDAC[iii][jjj] = ccOffsetDacMeas[iii][jjj].getNoPrefixValue();
+        }
+    }
 }

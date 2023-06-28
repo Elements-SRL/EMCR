@@ -23,7 +23,6 @@ public:
     ~CalibrationConsumer();
 
     void loadInitialCalibParams(QString path, QString mappingFileName);
-    void copyToAllVectors();
     void updateCalibParams();
     QString getCalibrationDir();
     QString getCalibrationMappingFilePath();
@@ -35,36 +34,13 @@ public slots:
     void onModelCellChanged(bool modelCellChanged);
 
     /*! \todo not really needed */
-    void onSamplingRateChanged(Measurement_t samplingRate) override;
-    void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
-    void onVoltageRangeChanged(RangedMeasurement_t range) override;
-    void onCurrentRangeChanged(RangedMeasurement_t range) override;
+    void onSamplingRateChanged(Measurement_t samplingRate) override {};
+    void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override {};
+    void onVoltageRangeChanged(RangedMeasurement_t range) override {};
+    void onCurrentRangeChanged(RangedMeasurement_t range) override {};
 
 private:
     void run() override;
-
-    /*! SOME UTILITY FUNCTIONS*/
-    void modelCellActionRequest(QString msg);
-    void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
-    void turnAllChannelsOnOff(bool onValue);
-    void turnAllStimulaOnOff(bool onValue);
-    void selectSomeChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
-    void turnAllCalSwOnOff(bool onValue);
-    void turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void turnSomeStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void turnSomeCalSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-
-    void turnAllVcSwOnOff(bool onValue);
-    void turnAllCcSwOnOff(bool onValue);
-    void turnAllVcCcSelOnOff(bool onValue);
-    void turnAllCcStimulaOnOff(bool onValue);
-    void turnSomeVcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void turnSomeCcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void turnSomeVcCcSelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void turnSomeCcStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void setSourceForVoltageChannel(uint16_t source);
-    void setSourceForCurrentChannel(uint16_t source);    void setVcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse);
-    void setCcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse);
 
     /*! REAL CALIBRATION FUNCITIONS*/
     void leastSquareSimple(std::vector<double> x, std::vector<double> y, double &slope, double &offset);
@@ -78,24 +54,38 @@ private:
     void calibrateCcAdcOffset(RangedMeasurement_t thisActualRange);
     void calibrateCcDacOffset(RangedMeasurement_t thisCcVoltageActualRange, int thisCcVoltageActualRangeIdx);
 
+    /*! SOME UTILITY FUNCTIONS*/
+    void modelCellActionRequest(QString msg);
+    void selectAllChannels(bool selectValue); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Almmento la lasciamo */
+    void turnAllChannelsOnOff(bool onValue);
+    void turnAllStimulaOnOff(bool onValue);
+    void turnAllCalSwOnOff(bool onValue);
+    void turnAllVcSwOnOff(bool onValue);
+    void turnAllCcSwOnOff(bool onValue);
+    void turnAllVcCcSelOnOff(bool onValue);
+    void turnAllCcStimulaOnOff(bool onValue);
+
+    void selectSomeChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> selectValues); /*! \todo probabilmente non serve, non selezioniamo roba da GUI. Al momento la lasciamo */
+    void turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void turnSomeStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void turnSomeCalSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void turnSomeVcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void turnSomeCcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void turnSomeVcCcSelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void turnSomeCcStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void setSourceForVoltageChannel(uint16_t source);
+    void setSourceForCurrentChannel(uint16_t source);
+
+    void setVcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse);
+    void setCcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse);
 
     /*! Interactions with CSV files*/
     void mainSaveOnCsv();
     void prepareStuffToSaveOnCsv(QString path, QString fileNameRoot, std::vector<uint16_t> chanSubset);
     void saveCsv(std::vector<uint16_t> chanSubset, QTextStream &stream, bool vcTccF);
-    void loadDefaultCalibParams(int channelsNum, bool forVc, bool forCc);
     QString getCsvData(std::vector<uint16_t> chanSubset, bool vcTccF);
+    void loadDefaultCalibParams(int channelsNum, bool forVc, bool forCc);
     QString suspectChannelsMsg(std::vector<uint16_t> chanToCalibIdxs);
-
-    void convertToMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
-                              std::vector<std::vector<Measurement_t>> &gainAdcMeas,
-                              std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
-                              std::vector<std::vector<Measurement_t>> &offsetDacMeas,
-                              std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
-                              std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
-                              std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
-                              std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
-                              );
 
     void convertFromMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
                                 std::vector<std::vector<Measurement_t>> &gainAdcMeas,
@@ -107,6 +97,15 @@ private:
                                 std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
                                 );
 
+    void convertToMeasurement(std::vector<std::vector<Measurement_t>> &gainDacMeas,
+                              std::vector<std::vector<Measurement_t>> &gainAdcMeas,
+                              std::vector<std::vector<Measurement_t>> &offsetAdcMeas,
+                              std::vector<std::vector<Measurement_t>> &offsetDacMeas,
+                              std::vector<std::vector<Measurement_t>> &ccGainAdcMeas,
+                              std::vector<std::vector<Measurement_t>> &ccOffsetAdcMeas,
+                              std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
+                              std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
+                              );
 
     bool consumptionStopped = false;
     bool exitedDataConsumingLoop = false;
