@@ -51,6 +51,9 @@ public:
     void setDeviceControlDw(DeviceControlDockWidget * dcdw);
     void setProtocolDw(ProtocolDockWidget * pdw);
     void setStateArrayDw(StateArrayDockWidget * sadw);
+    void addViewActions();
+    void removeViewActions();
+
     QLabel * SRLbl = nullptr;
 
 public slots:
@@ -62,8 +65,6 @@ public slots:
 private:
     void createGuiControls();
     void destroyGuiControls();
-    void addViewActions();
-    void removeViewActions();
     void restoreUISettings();
     void saveUISettings();
 

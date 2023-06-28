@@ -135,6 +135,9 @@ void ControllerMain::onMainWindowCreated() {
 //    mainWindow->setProtocolDw(currentProtocolManager->getProtocolDockWidget());
 
     controllerStateArray = new ControllerStateArray(mDev, mainWindow);
+
+    mainWindow->addViewActions();
+
     /************\
      * Producer *
     \************/

@@ -189,6 +189,7 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
 /*****************\
  * controls dock *
 \*****************/
+
 void MainWindow::setCompensationControlsDw(CompensationControlDockWidget * ccdw){
     compensationControlsDw = ccdw;
     addDockWidget(Qt::RightDockWidgetArea, compensationControlsDw);
@@ -218,6 +219,27 @@ void MainWindow::setStateArrayDw(StateArrayDockWidget * sadw){
     stateArrayDockWidget = sadw;
     addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
     dockWidgets.append(stateArrayDockWidget);
+}
+
+void MainWindow::addViewActions() {
+    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+        menuView->addAction(dockWidgets[dockIdx]->toggleViewAction());
+    }
+
+//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
+//        analysisMenus[dockIdx]->addAction(analysisWidgets[dockIdx]->toggleViewAction());
+//        analysisMenus[dockIdx]->actions().at(analysisMenus[dockIdx]->actions().size()-1)->setText(analysisActionNames[dockIdx]);
+//    }
+}
+
+void MainWindow::removeViewActions() {
+    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+        menuView->removeAction(dockWidgets[dockIdx]->toggleViewAction());
+    }
+
+//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
+//        menuAnalysis->removeAction(analysisWidgets[dockIdx]->toggleViewAction());
+//    }
 }
 
 /******************\
@@ -473,27 +495,6 @@ void MainWindow::destroyGuiControls() {
     this->addDockWidget(Qt::TopDockWidgetArea, deviceDetectorDw);
     deviceDetectorDw->setVisible(true);
     interfaceCreated = false;
-}
-
-void MainWindow::addViewActions() {
-    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-        menuView->addAction(dockWidgets[dockIdx]->toggleViewAction());
-    }
-
-//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
-//        analysisMenus[dockIdx]->addAction(analysisWidgets[dockIdx]->toggleViewAction());
-//        analysisMenus[dockIdx]->actions().at(analysisMenus[dockIdx]->actions().size()-1)->setText(analysisActionNames[dockIdx]);
-//    }
-}
-
-void MainWindow::removeViewActions() {
-    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-        menuView->removeAction(dockWidgets[dockIdx]->toggleViewAction());
-    }
-
-//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
-//        menuAnalysis->removeAction(analysisWidgets[dockIdx]->toggleViewAction());
-//    }
 }
 
 void MainWindow::restoreUISettings() {
