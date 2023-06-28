@@ -33,37 +33,49 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
 
     mainGl->addWidget(noiseExportBtn, 0, (boardsNum+1)/2, 1, (boardsNum+1)/2);
 
-    allChannelsSelector = new MyLeftRightMousePushButton();
-    allChannelsSelector->setText("ALL");
-    allChannelsSelector->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
-    connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &Chessboard::allChannelsClicked);
+    int idealPlotHeight = qMax(300/channelsPerBoard, STAMP_PLOT_SIZE);
+    int idealPlotWidth = qMax(450/boardsNum, STAMP_PLOT_SIZE);
 
-    mainGl->addWidget(allChannelsSelector, 1, 0);
+    if (currentChannelsNum > 1) {
+        allChannelsSelector = new MyLeftRightMousePushButton();
+        allChannelsSelector->setText("ALL");
+        if (boardsNum > 1) {
+            allChannelsSelector->setFixedSize(STAMP_PLOT_SIZE, idealPlotHeight);
 
-    boardSelectors.resize(boardsNum);
-    for (int boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
-        MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
-        btn->setText(QString("%1").arg(boardIdx+1));
-        btn->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
-        connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
-            emit oneBoardClicked(boardIdx, selected);
-        });
+        } else {
+            allChannelsSelector->setFixedSize(idealPlotWidth, STAMP_PLOT_SIZE);
+        }
+        connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &Chessboard::allChannelsClicked);
 
-        mainGl->addWidget(btn, 1, boardIdx+1);
-        boardSelectors[boardIdx] = btn;
+        mainGl->addWidget(allChannelsSelector, 1, 0);
     }
 
-    rowSelectors.resize(channelsPerBoard);
-    for (int rowIdx = 0; rowIdx < channelsPerBoard; rowIdx++) {
-        MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
-        btn->setText(QString("%1").arg(rowIdx+1));
-        btn->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
-        connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
-            emit oneRowClicked(rowIdx, selected);
-        });
+    if (boardsNum > 1 && channelsPerBoard > 1) {
+        boardSelectors.resize(boardsNum);
+        for (int boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
+            MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
+            btn->setText(QString("%1").arg(boardIdx+1));
+            btn->setFixedSize(idealPlotWidth, STAMP_PLOT_SIZE);
+            connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
+                emit oneBoardClicked(boardIdx, selected);
+            });
 
-        mainGl->addWidget(btn, rowIdx+2, 0);
-        rowSelectors[rowIdx] = btn;
+            mainGl->addWidget(btn, 1, boardIdx+1);
+            boardSelectors[boardIdx] = btn;
+        }
+
+        rowSelectors.resize(channelsPerBoard);
+        for (int rowIdx = 0; rowIdx < channelsPerBoard; rowIdx++) {
+            MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
+            btn->setText(QString("%1").arg(rowIdx+1));
+            btn->setFixedSize(STAMP_PLOT_SIZE, idealPlotHeight);
+            connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
+                emit oneRowClicked(rowIdx, selected);
+            });
+
+            mainGl->addWidget(btn, rowIdx+2, 0);
+            rowSelectors[rowIdx] = btn;
+        }
     }
 
     int boardIdx = 0;
@@ -75,7 +87,7 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
     currentCurves.resize(currentChannelsNum);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         ChannelOverviewWidget * wid = new ChannelOverviewWidget;
-        wid->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+        wid->setFixedSize(idealPlotWidth, idealPlotHeight);
         wid->setChannelIndex(channelIdx);
 
 
@@ -88,7 +100,19 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
             noiseExportBtn->setVisible(idx == ChannelOverviewWidget::Noise);
         });
 
-        mainGl->addWidget(wid, rowIdx+2, boardIdx+1);
+        if (boardsNum > 1 && channelsPerBoard > 1) {
+            mainGl->addWidget(wid, rowIdx+2, boardIdx+1);
+
+        } else if (boardsNum > 1) {
+            mainGl->addWidget(wid, rowIdx+1, boardIdx+1);
+
+        } else if (channelsPerBoard > 1) {
+            mainGl->addWidget(wid, rowIdx+2, boardIdx);
+
+        } else {
+            mainGl->addWidget(wid, rowIdx+1, boardIdx);
+        }
+
         rowIdx++;
         if (rowIdx == channelsPerBoard) {
             rowIdx = 0;
@@ -96,11 +120,9 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
         }
         overviewWidgets[channelIdx] = wid;
 
-
-
-        /*! buttare in una funziioncina di creazione del plot*/
-        StampPlot * plot = new StampPlot();
-        plot->setFixedSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+        /*! buttare in una funzioncina di creazione del plot*/
+        StampPlot * plot = new StampPlot(idealPlotWidth, idealPlotHeight);
+        plot->setFixedSize(idealPlotWidth, idealPlotHeight);
         plot->setToolTip(QString("Ch %1\nRight click: select\nLeft click: deselect").arg(channelIdx+1));
         plot->setSelected(false);
 
@@ -112,9 +134,6 @@ Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
         currentCurves[channelIdx] = curve;
 
         wid->setStampPlot(plot);
-
-
-
 
         wid->setVisualizationOption(ChannelOverviewWidget::Plot);
     }

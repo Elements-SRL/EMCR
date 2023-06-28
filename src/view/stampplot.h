@@ -18,7 +18,7 @@ class StampPlot : public QwtPlot {
     Q_OBJECT
 
 public:
-    StampPlot(QWidget * parent = nullptr);
+    StampPlot(int idealPlotWidth, int idealPlotHeight, QWidget * parent = nullptr);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -30,6 +30,9 @@ public slots:
     void onDurationUpdated(Measurement_t duration);
 
 private:
+    int idealPlotWidth;
+    int idealPlotHeight;
+
     QwtPlotPicker * selectPicker;
     QwtPlotPicker * deselectPicker;
 

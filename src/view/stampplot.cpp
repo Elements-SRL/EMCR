@@ -5,8 +5,10 @@
 
 #include "globaldefines.h"
 
-StampPlot::StampPlot(QWidget * parent) :
-    QwtPlot(parent) {
+StampPlot::StampPlot(int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
+    QwtPlot(parent),
+    idealPlotWidth(idealPlotWidth),
+    idealPlotHeight(idealPlotHeight) {
 
     this->plotLayout()->setAlignCanvasToScales(true);
 
@@ -50,7 +52,7 @@ void StampPlot::onUnclicked() {
 }
 
 QSize StampPlot::sizeHint() const {
-    return QSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+    return QSize(idealPlotWidth, idealPlotHeight);
 }
 
 QSize StampPlot::minimumSizeHint() const {
