@@ -1488,6 +1488,8 @@ ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(ModelDevice *  mDev
         editWidgets.push_back(editWidget);
         dropItemParams.push_back(restStimulusParam);
         restStimulusEditWidget = editWidget;
+
+        restStimulusParam->setVisible(false);
     }
 
     /*! Param restTime */ {
@@ -1510,6 +1512,8 @@ ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(ModelDevice *  mDev
 
         editWidgets.push_back(editWidget);
         dropItemParams.push_back(restTimeParam);
+
+        restTimeParam->setVisible(false);
     }
 
     preceding = false;
