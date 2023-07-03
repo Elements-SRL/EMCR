@@ -6,7 +6,7 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 
 #define DCW_CURRENT_RANGE_TITLE "Current Ranges"
 #define DCW_VOLTAGE_RANGE_TITLE "Voltage Ranges"
@@ -24,7 +24,7 @@ class DeviceControlDockWidget : public QDockWidget{
     Q_OBJECT
 
 public:
-    DeviceControlDockWidget(ModelDevice * mDev);
+    DeviceControlDockWidget(MessageDispatcher * msgDisp);
 
     void forceEmit();
     void updateParameters();
@@ -34,7 +34,7 @@ public slots:
     void onStopRecording();
 
 private:
-    ModelDevice * mDev;
+    MessageDispatcher * msgDisp = nullptr;
     QGroupBox * vcCurrentRangesGroupBox = nullptr;
     std::vector<QRadioButton *> vcCurrentRangesRadioButtons;
     bool vcCurrentRangesPrevioueEnableStateBeforeRecording = false;

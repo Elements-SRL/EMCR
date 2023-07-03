@@ -12,12 +12,13 @@
 #include "phase.h"
 #include "cursor.h"
 #include "analysis.h"
+#include "messagedispatcher.h"
 
 class ProtocolItemDropList : public QListWidget {
     Q_OBJECT
 
 public:
-    ProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
+    ProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
     virtual ~ProtocolItemDropList();
 
     void setCtrlManager(ProtocolItemCtrlManager * cm);
@@ -68,7 +69,7 @@ protected:
     void manageAnalysisDelete(ProtocolDropItem * item);
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) = 0;
 
-    ModelDevice * mDev;
+    MessageDispatcher * msgDisp = nullptr;
     QDoubleSpinBox * holdEdit;
     ClampingModality_t clampingModality;
     QVector <ProtocolDropItem *> * items;
@@ -99,7 +100,7 @@ class GapfreeProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    GapfreeProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
+    GapfreeProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
 protected:
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;
@@ -109,7 +110,7 @@ class EpisodicProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    EpisodicProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
+    EpisodicProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
 protected:
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;
@@ -119,7 +120,7 @@ class CtrlProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    CtrlProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
+    CtrlProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
 protected:
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;
@@ -129,7 +130,7 @@ class AnalysisProtocolItemDropList : public ProtocolItemDropList {
     Q_OBJECT
 
 public:
-    AnalysisProtocolItemDropList(ModelDevice * mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
+    AnalysisProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
 
     void addCursors(QVector <ProtocolCursor *> * cursors);
     void removeCursors(QVector <ProtocolCursor *> * cursors, QVector <int> cursorsMap);

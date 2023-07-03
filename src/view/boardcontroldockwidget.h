@@ -4,19 +4,19 @@
 #include <QDockWidget>
 #include <QHBoxLayout>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "myspinbox.h"
 
 class BoardControlDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    BoardControlDockWidget(ModelDevice * mDev, QWidget * parent = nullptr);
+    BoardControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
 private:
     QGridLayout * getLayoutWithScrollBar(QWidget * widget);
 
-    ModelDevice * mDev;
+    MessageDispatcher * msgDisp = nullptr;
     std::vector<double> previousGateSpinBoxValues;
     std::vector<double> previousSourceSpinBoxValues;
     std::vector<MySpinBox*>  gateSpinBoxes;

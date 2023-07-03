@@ -5,7 +5,7 @@
 
 #include "qwt_plot_textlabel.h"
 
-#include "protocol/protocolplot.h"
+#include "protocolplot.h"
 #include "protocoldropitem.h"
 #include "protocolitem.h"
 #include "protocolsection.h"
@@ -13,6 +13,7 @@
 #include "cursorsmanager.h"
 #include "cursor.h"
 #include "curve.h"
+#include "messagedispatcher.h"
 
 #define PPW_MAX_PLOT_DATA 1024
 #define PPW_MAX_PTS_PER_ITEM 21
@@ -37,7 +38,7 @@ class ProtocolPreview : public QWidget {
     Q_OBJECT
 
 public:
-    ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
+    ProtocolPreview(MessageDispatcher * msgDisp, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
     ~ProtocolPreview();
 
     void setProtocol(ProtocolWidget * protocol);
@@ -54,7 +55,7 @@ public slots:
     void updateView();
 
 protected:
-    ModelDevice * mDev;
+    MessageDispatcher * msgDisp = nullptr;
     QVector <ProtocolItem *> protocolItems;
     QFrame * cursorsWid;
     QPushButton * manageCursorBtn;
@@ -90,7 +91,7 @@ class MinimalProtocolPreview : public ProtocolPreview {
     Q_OBJECT
 
 public:
-    MinimalProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
+    MinimalProtocolPreview(MessageDispatcher * msgDisp, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title = "Protocol preview");
 };
 
 #endif // PROTOCOLPREVIEW_H

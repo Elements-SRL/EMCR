@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QPushButton>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "stampplot.h"
 #include "curve.h"
 #include "myleftrightmousepushbutton.h"
@@ -15,7 +15,7 @@ class Chessboard : public QWidget {
     Q_OBJECT
 
 public:
-    Chessboard(ModelDevice * mDev, QWidget * parent = nullptr);
+    Chessboard(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
     void clearCurves();
 
@@ -28,7 +28,7 @@ public slots:
     void onNoiseValueUpdated(LiveNoiseConsumer::Result_t result);
 
 private:
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
 
     MyLeftRightMousePushButton * allChannelsSelector = nullptr;
     QVector <MyLeftRightMousePushButton *> boardSelectors;

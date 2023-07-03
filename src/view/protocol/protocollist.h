@@ -12,6 +12,7 @@
 #include "impexpprotocoldialog.h"
 #include "protocolssettingsdialog.h"
 #include "protocols.h"
+#include "messagedispatcher.h"
 
 class ProtocolList : public QListWidget {
     Q_OBJECT
@@ -29,7 +30,7 @@ public:
         ErrorLoadDefaultProtocolsFail
     } ProtocolListStatus_t;
 
-    ProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
+    ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
     virtual ~ProtocolList();
 
     QVector <ProtocolWidget *> * getProtocols();
@@ -110,7 +111,7 @@ protected:
 
     YAML::Protocols_t getYamlProtocols();
 
-    ModelDevice * mDev;
+    MessageDispatcher * msgDisp = nullptr;
     ProtocolPropertyDialog * protocolPropertyDialog;
     QWidget * parent;
     QVector <ProtocolWidget *> * protocols;
@@ -175,7 +176,7 @@ class VoltageProtocolList : public ProtocolList {
     Q_OBJECT
 
 public:
-    VoltageProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
+    VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
     ~VoltageProtocolList();
 
     ProtocolWidget * newGapfreeProtocol(QString name) override;
@@ -186,7 +187,7 @@ class CurrentProtocolList : public ProtocolList {
     Q_OBJECT
 
 public:
-    CurrentProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
+    CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
     ~CurrentProtocolList();
 
     ProtocolWidget * newGapfreeProtocol(QString name) override;

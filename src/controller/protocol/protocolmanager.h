@@ -11,7 +11,7 @@ class ProtocolManager : public QObject {
     Q_OBJECT
 
 public:
-    ProtocolManager(ModelDevice *  mDev);
+    ProtocolManager(MessageDispatcher * msgDisp);
 
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     void saveLast(ProtocolWidget * protocol);
@@ -25,7 +25,7 @@ private:
     ProtocolApplicationStatus_t startProtocol(ProtocolWidget * protocol, bool recordFlag = false);
     ProtocolApplicationStatus_t toProtocolApplicationStatus(ItemsProcStatus_t status);
 
-    ModelDevice *  mDev;
+    MessageDispatcher * msgDisp = nullptr;
 
     unsigned short protocolId = 0;
     unsigned short lastRunProtocolId = 0;

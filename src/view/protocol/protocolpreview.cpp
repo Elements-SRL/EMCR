@@ -6,9 +6,9 @@
 
 static double sinTable[PPW_MAX_PTS_PER_ITEM];
 
-ProtocolPreview::ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title) :
+ProtocolPreview::ProtocolPreview(MessageDispatcher * msgDisp, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title) :
     QWidget(),
-    mDev(mDev),
+    msgDisp(msgDisp),
     timeRange(timeRange) {
 
     QVBoxLayout * mainVl = new QVBoxLayout();
@@ -17,7 +17,7 @@ ProtocolPreview::ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRan
     this->setLayout(mainVl);
 
     /*! Plot */
-    protocolPlot = new ProtocolPlot(mDev, title, QString::fromStdString(timeRange.getFullUnit()), "");
+    protocolPlot = new ProtocolPlot(msgDisp, title, QString::fromStdString(timeRange.getFullUnit()), "");
     /*! y unit is set in setStimulusRange */
     protocolPlot->setAxisAutoScale(QwtPlot::yLeft);
     protocolPlot->setAxisAutoScale(QwtPlot::xBottom);
@@ -153,7 +153,7 @@ ProtocolPreview::ProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRan
         sinTable[ptsIdx] = sin(((double)ptsIdx)*2.0*M_PI/(double)(PPW_MAX_PTS_PER_ITEM-1));
     }
 
-    mDev->getMessageDispatcher()->getMaxProtocolItemsFeature(maxProtocolItems);
+    msgDisp->getMaxProtocolItemsFeature(maxProtocolItems);
 
     /*! stimulusUnit is set in setStimulusRange */
     timeUnit = QString::fromStdString(timeRange.getFullUnit());
@@ -795,8 +795,8 @@ ItemsProcStatus_t ProtocolPreview::interpretProtocolItems(ProtocolWidget * proto
     return status;
 }
 
-MinimalProtocolPreview::MinimalProtocolPreview(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title) :
-    ProtocolPreview(mDev, timeRange, stimulusRange, title) {
+MinimalProtocolPreview::MinimalProtocolPreview(MessageDispatcher * msgDisp, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange, QString title) :
+    ProtocolPreview(msgDisp, timeRange, stimulusRange, title) {
 
     cursorsWid->setVisible(false);
     minimal = true;

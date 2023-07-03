@@ -8,9 +8,9 @@
 
 #include "protocolwidget.h"
 
-ProtocolPlot::ProtocolPlot(ModelDevice * mDev, QString titleString, QString xUnitString, QString yUnitString, QWidget * parent) :
+ProtocolPlot::ProtocolPlot(MessageDispatcher * msgDisp, QString titleString, QString xUnitString, QString yUnitString, QWidget * parent) :
     QwtPlot(parent),
-    mDev(mDev) {
+    msgDisp(msgDisp) {
 
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -393,7 +393,7 @@ void ProtocolPlot::onEnableCursorManagement(bool enabled) {
 }
 
 void ProtocolPlot::onCursorAddRequest(QPointF p) {
-    protocolCursors->append(new ProtocolCursor(mDev, this, p.x(), protocolCursors->size()+1));
+    protocolCursors->append(new ProtocolCursor(msgDisp, this, p.x(), protocolCursors->size()+1));
     double offset;
     ProtocolSection * section = protocol->getItemAtTime(p.x(), 0, offset);
     protocolCursors->back()->setSection(section, offset, protocol->getType());
@@ -572,7 +572,7 @@ bool ProtocolPlot::importCursor(const YAML::Cursor &yamlCursor) {
     double xvalue = yamlCursor.xvalue;
     int itemIdx = yamlCursor.itemidx;
 
-    protocolCursors->append(new ProtocolCursor(mDev, this, xvalue, protocolCursors->size()+1));
+    protocolCursors->append(new ProtocolCursor(msgDisp, this, xvalue, protocolCursors->size()+1));
     protocolCursors->back()->setCursorFromYaml(yamlCursor);
 
     double offset;

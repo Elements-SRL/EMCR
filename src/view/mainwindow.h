@@ -9,7 +9,7 @@
 #include <QPushButton>
 
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "chessboard.h"
 #include "devicecontroldockwidget.h"
 #include "channelcontroldockwidget.h"
@@ -29,7 +29,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void setModelDevice(ModelDevice * modelDevice);
+    void setMessageDispatcher(MessageDispatcher * msgDisp);
     QPushButton * getConnectButton();
     QString getSelectedSerialNumber();
     Chessboard * getChessaboard();
@@ -68,7 +68,7 @@ private:
     void restoreUISettings();
     void saveUISettings();
 
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
     QMenu * menuView = nullptr;
     QMenu * menuRecordings = nullptr;
 

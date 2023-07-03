@@ -90,8 +90,8 @@ MainWindow::~MainWindow() {
     this->destroyGuiControls();
 }
 
-void MainWindow::setModelDevice(ModelDevice * modelDevice) {
-    mDev = modelDevice;
+void MainWindow::setMessageDispatcher(MessageDispatcher * msgDisp) {
+    this->msgDisp = msgDisp;
 }
 
 QPushButton * MainWindow::getConnectButton() {
@@ -256,7 +256,7 @@ void MainWindow::createGuiControls() {
 
     this->setStyleSheet("QSplitter::handle{image: url(:/imgs/splitter handle.png)}");
 
-    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     dockWidgets.clear();
 
@@ -266,7 +266,7 @@ void MainWindow::createGuiControls() {
      * protocols dock *
     \******************/
 
-    protocolDw = new ProtocolDockWidget(mDev, e384CommLib::VOLTAGE_CLAMP);
+    protocolDw = new ProtocolDockWidget(msgDisp, e384CommLib::VOLTAGE_CLAMP);
     protocolDw->setObjectName("protocolDw");
     this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
     dockWidgets.append(protocolDw);
@@ -275,13 +275,13 @@ void MainWindow::createGuiControls() {
      * plots *
     \*********/
 
-    chessboard = new Chessboard(mDev);
+    chessboard = new Chessboard(msgDisp);
     chessboard->setObjectName("chessboard");
     delete this->takeCentralWidget();
     this->setCentralWidget(chessboard);
     this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    bigPlotDw = new BigPlotDockWidget(mDev);
+    bigPlotDw = new BigPlotDockWidget(msgDisp);
     bigPlotDw->setObjectName("bigPlotDw");
     this->addDockWidget(Qt::BottomDockWidgetArea, bigPlotDw);
     dockWidgets.append(bigPlotDw);
@@ -368,7 +368,7 @@ void MainWindow::createGuiControls() {
     calibrationWid->setLayout(calibrationVl);
 
     int boardsNum;
-    mDev->getBoardsNumberFeatures(boardsNum);
+    msgDisp->getBoardsNumberFeatures(boardsNum);
     QSpinBox * boardCalibSbx = new QSpinBox;
     if (boardsNum > 1) {
         boardCalibSbx->setRange(0, boardsNum);

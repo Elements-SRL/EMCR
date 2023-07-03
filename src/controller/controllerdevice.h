@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDebug>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "devicecontroldockwidget.h"
 #include "mainwindow.h"
 
@@ -12,7 +12,7 @@ class ControllerDevice : public QObject {
     Q_OBJECT
 
 public:
-    ControllerDevice(ModelDevice * mDev, MainWindow * mainWindow);
+    ControllerDevice(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 public slots:
     void onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex);
@@ -26,7 +26,7 @@ public slots:
     void onClampingModalitySelected(uint16_t selectedClampingModalityIndex);
 
 private:
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
 

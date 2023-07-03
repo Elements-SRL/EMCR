@@ -4,7 +4,7 @@
 #include <QFile>
 #include <QTextStream>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "devicedataconsumer.h"
 
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
@@ -14,7 +14,7 @@ class PlotConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer);
+    PlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
     virtual ~PlotConsumer();
 
     void forceAxisUpdate();
@@ -101,7 +101,7 @@ class GapFreePlotConsumer : public PlotConsumer {
     Q_OBJECT
 
 public:
-    GapFreePlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer);
+    GapFreePlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
     ~GapFreePlotConsumer();
 
 protected:

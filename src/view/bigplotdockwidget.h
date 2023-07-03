@@ -3,7 +3,7 @@
 
 #include <QDockWidget>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "bigplot.h"
 #include "curve.h"
 
@@ -11,7 +11,7 @@ class BigPlotDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    BigPlotDockWidget(ModelDevice * mDev, QWidget * parent = nullptr);
+    BigPlotDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
     void clearCurves();
 

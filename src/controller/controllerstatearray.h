@@ -13,10 +13,10 @@ class ControllerStateArray : public QObject {
     Q_OBJECT
 
 public:
-    ControllerStateArray(ModelDevice * mDev, MainWindow * mainWindow);
+    ControllerStateArray(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 private:
-    ModelDevice *mDev;
+    MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow;
     StateArrayDockWidget * stateArrayDockWidget;
     YAML::StateArray stateArray;

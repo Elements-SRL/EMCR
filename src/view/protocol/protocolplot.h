@@ -15,7 +15,7 @@
 #include "qwt_picker_machine.h"
 #include "qwt_plot_histogram.h"
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "protocolcursor.h"
 #include "cursor.h"
 #include "conversionscaledraw.h"
@@ -32,7 +32,7 @@ class ProtocolPlot : public QwtPlot {
     Q_OBJECT
 
 public:
-    ProtocolPlot(ModelDevice * mDev, QString titleString, QString xUnitString, QString yUnitString, QWidget * parent = nullptr);
+    ProtocolPlot(MessageDispatcher * msgDisp, QString titleString, QString xUnitString, QString yUnitString, QWidget * parent = nullptr);
     ~ProtocolPlot();
 
     QSize sizeHint() const override;
@@ -99,7 +99,7 @@ private:
     inline bool getClosestCursor(QPointF p, int &cursorIdx);
     inline bool checkOnCursorBin(double x, double y);
 
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
 
     QwtPlotPicker * zoomInPicker;
     QwtPlotPicker * zoomOutPicker;

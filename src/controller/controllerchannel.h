@@ -5,7 +5,7 @@
 #include <QVector>
 #include <QDebug>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "channelcontroldockwidget.h"
 #include "mainwindow.h"
 
@@ -13,19 +13,20 @@ class ControllerChannel : public QObject {
     Q_OBJECT
 
 public:
-    ControllerChannel(ModelDevice * mDev, MainWindow * mainWindow);
+    ControllerChannel(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 private:
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     ChannelControlDockWidget * channelControlsDw = nullptr;
     void updateView();
+
 public slots:
     // To do on actions done on the chessboard
-    void onSingleChannelClicked(uint16_t changedChannelIndexes, bool newChannelState);
-    void onOneBoardClicked(uint16_t changedBoardIndex, bool newChannelState);
-    void onOneRowClicked(uint16_t changedRowIndexes, bool newChannelState);
-    void onAllChannelsClicked(bool newChannelState);
+    void onSingleChannelClicked(uint16_t chIdx, bool newState);
+    void onOneBoardClicked(uint16_t brdIdx, bool newState);
+    void onOneRowClicked(uint16_t rowIdx, bool newState);
+    void onAllChannelsClicked(bool newState);
 
     // To do on apply pushed on the Channel Control Dock Widget
     void onApplyTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);

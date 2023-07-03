@@ -5,9 +5,9 @@
 
 #include "protocolutils.h"
 
-ProtocolWidget::ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
+ProtocolWidget::ProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
     QListWidgetItem(),
-    mDev(mDev),
+    msgDisp(msgDisp),
     name(name),
     dialog(dialog),
     type(type),
@@ -19,18 +19,18 @@ ProtocolWidget::ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolProper
 
     if (type == ProtocolTypeGapfree) {
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-            protocolEditor = new GapfreeVoltageProtocolEditor(mDev, model, this, name);
+            protocolEditor = new GapfreeVoltageProtocolEditor(msgDisp, model, this, name);
 
         } else {
-            protocolEditor = new GapfreeCurrentProtocolEditor(mDev, model, this, name);
+            protocolEditor = new GapfreeCurrentProtocolEditor(msgDisp, model, this, name);
         }
 
     } else {
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-            protocolEditor = new EpisodicVoltageProtocolEditor(mDev, model, this, name);
+            protocolEditor = new EpisodicVoltageProtocolEditor(msgDisp, model, this, name);
 
         } else {
-            protocolEditor = new EpisodicCurrentProtocolEditor(mDev, model, this, name);
+            protocolEditor = new EpisodicCurrentProtocolEditor(msgDisp, model, this, name);
         }
     }
 
@@ -217,7 +217,7 @@ void ProtocolWidget::populatePropertyDialog() {
                 if (clampingModality == ClampingModality_t::CURRENT_CLAMP) {
                     protocolEditor->onStimulusRangeSelected(rangeIdx);
                     RangedMeasurement_t stimulusRange;
-                    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+                    msgDisp->getCurrentProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
                     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 //                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
                     holdUnitLbl->setText(QString::fromStdString(stimulusRange.getFullUnit()));
@@ -255,7 +255,7 @@ void ProtocolWidget::populatePropertyDialog() {
                 if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
                     protocolEditor->onStimulusRangeSelected(rangeIdx);
                     RangedMeasurement_t stimulusRange;
-                    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+                    msgDisp->getVoltageProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
                     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 //                    holdEdit->setRangedMeasurement(stimulusRange, QDoubleSpinBox::MinMaxRange);
                     holdUnitLbl->setText(QString::fromStdString(stimulusRange.getFullUnit()));
@@ -366,12 +366,12 @@ void ProtocolWidget::populatePropertyDialog() {
 
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             RangedMeasurement_t stimulusRange;
-            mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)voltageRangeEditOrig->currentIndex(), stimulusRange);
+            msgDisp->getVoltageProtocolRangeFeature((unsigned int)voltageRangeEditOrig->currentIndex(), stimulusRange);
             dialog->getProtocolPreview()->setStimulusRange(stimulusRange);
 
         } else {
             RangedMeasurement_t stimulusRange;
-            mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)currentRangeEditOrig->currentIndex(), stimulusRange);
+            msgDisp->getCurrentProtocolRangeFeature((unsigned int)currentRangeEditOrig->currentIndex(), stimulusRange);
             dialog->getProtocolPreview()->setStimulusRange(stimulusRange);
         }
 
@@ -1152,29 +1152,29 @@ ProtocolSection * EpisodicProtocolWidget::getItemAtTime(double time, int itemIdx
     return protocolSections->at(sectionIdx);
 }
 
-GapfreeVoltageProtocolWidget::GapfreeVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(mDev, name, dialog, ProtocolTypeGapfree, ClampingModality_t::VOLTAGE_CLAMP),
+GapfreeVoltageProtocolWidget::GapfreeVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeGapfree, ClampingModality_t::VOLTAGE_CLAMP),
     VoltageProtocolWidget(),
     GapfreeProtocolWidget() {
 
 }
 
-EpisodicVoltageProtocolWidget::EpisodicVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(mDev, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::VOLTAGE_CLAMP),
+EpisodicVoltageProtocolWidget::EpisodicVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::VOLTAGE_CLAMP),
     VoltageProtocolWidget(),
     EpisodicProtocolWidget() {
 
 }
 
-GapfreeCurrentProtocolWidget::GapfreeCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(mDev, name, dialog, ProtocolTypeGapfree, ClampingModality_t::CURRENT_CLAMP),
+GapfreeCurrentProtocolWidget::GapfreeCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeGapfree, ClampingModality_t::CURRENT_CLAMP),
     CurrentProtocolWidget(),
     GapfreeProtocolWidget() {
 
 }
 
-EpisodicCurrentProtocolWidget::EpisodicCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(mDev, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::CURRENT_CLAMP),
+EpisodicCurrentProtocolWidget::EpisodicCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
+    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::CURRENT_CLAMP),
     CurrentProtocolWidget(),
     EpisodicProtocolWidget() {
 

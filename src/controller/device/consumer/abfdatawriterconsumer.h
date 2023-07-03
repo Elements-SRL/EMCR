@@ -8,12 +8,13 @@
 #include <QUuid>
 
 #include "datawriterconsumer.h"
+#include "messagedispatcher.h"
 
 class AbfDataWriterConsumer : public DataWriterConsumer {
     Q_OBJECT
 
 public:
-    AbfDataWriterConsumer(ModelDevice * mDev, DeviceDataProducer * producer);
+    AbfDataWriterConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
     ~AbfDataWriterConsumer();
 
 public slots:

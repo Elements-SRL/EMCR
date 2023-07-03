@@ -4,9 +4,9 @@
 #include <QPushButton>
 #include <QLabel>
 
-ProtocolCursor::ProtocolCursor(ModelDevice * mDev, QwtPlot * plot, double x, int cursorIdx) :
+ProtocolCursor::ProtocolCursor(MessageDispatcher * msgDisp, QwtPlot * plot, double x, int cursorIdx) :
     QObject(),
-    mDev(mDev),
+    msgDisp(msgDisp),
     cursorIdx(cursorIdx) {
 
     marker = new QwtPlotMarker();

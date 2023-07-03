@@ -5,8 +5,8 @@
 #include <QDir>
 #include <QTextStream>
 
-LiveNoiseConsumer::LiveNoiseConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
-    DeviceDataConsumer(mDev, producer) {
+LiveNoiseConsumer::LiveNoiseConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+    DeviceDataConsumer(msgDisp, producer) {
 
 }
 

@@ -2,8 +2,8 @@
 
 #include <QTime>
 
-PlotConsumer::PlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
-    DeviceDataConsumer(mDev, producer) {
+PlotConsumer::PlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+    DeviceDataConsumer(msgDisp, producer) {
 
     voltageRange.prefix = UnitPfxNone;
     currentRange.prefix = UnitPfxNone;
@@ -215,8 +215,8 @@ void PlotConsumer::updateRangeAxis() {
     }
 }
 
-GapFreePlotConsumer::GapFreePlotConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
-    PlotConsumer(mDev, producer) {
+GapFreePlotConsumer::GapFreePlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+    PlotConsumer(msgDisp, producer) {
 
     this->allocateData();
     this->updateTimeAxis();

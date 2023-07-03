@@ -3,14 +3,14 @@
 
 #define LNC_MIN_INTERVAL_S 1.0
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "devicedataconsumer.h"
 
 class LiveNoiseConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    LiveNoiseConsumer(ModelDevice * mDev, DeviceDataProducer * producer);
+    LiveNoiseConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
     virtual ~LiveNoiseConsumer();
 
     typedef struct {

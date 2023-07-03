@@ -9,13 +9,14 @@
 
 #include "devicedataconsumer.h"
 #include "recordsettingsdialog.h"
+#include "messagedispatcher.h"
 #include "axon.h"
 
 class DataWriterConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    DataWriterConsumer(ModelDevice * mDev, DeviceDataProducer * producer);
+    DataWriterConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
     virtual ~DataWriterConsumer();
 
 public slots:

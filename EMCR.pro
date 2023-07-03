@@ -88,9 +88,6 @@ SOURCES += \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
     src/controller/device/consumer/livenoiseconsumer.cpp \
     src/controller/device/consumer/calibrationconsumer.cpp \
-    src/model/modeldevice.cpp \
-    src/model/modelboard.cpp \
-    src/model/modelchannel.cpp \
     src/abf/axon.cpp \
     src/view/statearray/statearraydockwidget.cpp
 
@@ -157,9 +154,6 @@ HEADERS += \
     src/controller/device/consumer/abfdatawriterconsumer.h \
     src/controller/device/consumer/livenoiseconsumer.h \
     src/controller/device/consumer/calibrationconsumer.h \
-    src/model/modeldevice.h \
-    src/model/modelboard.h \
-    src/model/modelchannel.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
     src/abf/axon_structs.h \

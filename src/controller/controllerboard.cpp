@@ -1,10 +1,10 @@
 #include "controllerboard.h"
 
 
-ControllerBoard::ControllerBoard(ModelDevice * mDev, MainWindow * mainWindow) :
-    mDev(mDev)
-{
-    boardControlDockWidget = new BoardControlDockWidget(mDev);
+ControllerBoard::ControllerBoard(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+    msgDisp(msgDisp) {
+
+    boardControlDockWidget = new BoardControlDockWidget(msgDisp);
     this->mainWindow = mainWindow;
     mainWindow->setBoardControlsDw(boardControlDockWidget);
     connect(boardControlDockWidget, &BoardControlDockWidget::sigGateSourceVoltagesApplied, this, [=](std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
@@ -14,11 +14,12 @@ ControllerBoard::ControllerBoard(ModelDevice * mDev, MainWindow * mainWindow) :
 
 void ControllerBoard::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
     /*Set gate and source voltages in messageDispatcher*/
-    this->mDev->getMessageDispatcher()->setGateVoltagesTuner(gateVoltageBoardIndexes, gateVoltages, true);
-    this->mDev->getMessageDispatcher()->setSourceVoltagesTuner(sourceVoltageBoardIndexes, sourceVoltages, true);
+    msgDisp->setGateVoltagesTuner(gateVoltageBoardIndexes, gateVoltages, true);
+    msgDisp->setSourceVoltagesTuner(sourceVoltageBoardIndexes, sourceVoltages, true);
 
     /*Set gate and source voltages in the model*/
-    std::vector<ModelBoard*> myBoards = this->mDev->getBoards();
+    std::vector <ModelBoard *> myBoards;
+    msgDisp->getBoards(myBoards);
     for(int i = 0; i<gateVoltageBoardIndexes.size(); i++){
         myBoards[gateVoltageBoardIndexes[i]]->setGateVoltage(gateVoltages[i]);
     }
@@ -28,16 +29,4 @@ void ControllerBoard::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVolt
     }
 
     emit sigGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);
-
-//    qDebug() << "numero di gate voltage cambiati: " << gateVoltageBoardIndexes.size() << "";
-//    for(int i = 0; i < gateVoltageBoardIndexes.size(); i++){
-//        qDebug() << "[Gate channel" << gateVoltageBoardIndexes[i] + 1 << "]: " << " now has value " << gateVoltages[i].value;
-//    }
-
-
-//    qDebug() << "numero di source voltage cambiati: " << sourceVoltageBoardIndexes.size() << "";
-//    for(int i = 0; i < sourceVoltageBoardIndexes.size(); i++){
-//        qDebug() << "[Source channel" << sourceVoltageBoardIndexes[i] + 1 << "]: " << " now has value " << sourceVoltages[i].value;
-//    }
-
 }

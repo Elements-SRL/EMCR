@@ -1,39 +1,41 @@
 #define TITLE "Device controls"
 
-#include "devicecontroldockwidget.h"
 #include <QVBoxLayout>
 
-DeviceControlDockWidget::DeviceControlDockWidget(ModelDevice * mDev): QDockWidget() {
-    this->mDev = mDev;
+#include "devicecontroldockwidget.h"
+
+DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
+    QDockWidget(),
+    msgDisp(msgDisp) {
 
     setObjectName("deviceControlsDw");
-    std::vector<int> clampingModalities;
-    mDev->getClampingModalitiesFeatures(clampingModalities);
+    std::vector<ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
 
     std::vector <RangedMeasurement_t> vcCurrentRanges;
     uint16_t defaultVcCurrRangeIdx;
-    mDev->getVcCurrentRangesFeatures(vcCurrentRanges,defaultVcCurrRangeIdx);
+    msgDisp->getVCCurrentRanges(vcCurrentRanges,defaultVcCurrRangeIdx);
 
     std::vector <RangedMeasurement_t> vcVoltageRanges;
-    mDev->getVcVoltageRangesFeatures(vcVoltageRanges);
+    msgDisp->getVCVoltageRanges(vcVoltageRanges);
 
     std::vector <RangedMeasurement_t> ccCurrentRanges;
-    mDev->getCcCurrentRangesFeatures(ccCurrentRanges);
+    msgDisp->getCCCurrentRanges(ccCurrentRanges);
 
     std::vector <RangedMeasurement_t> ccVoltageRanges;
-    mDev->getCcVoltageRangesFeatures(ccVoltageRanges);
+    msgDisp->getCCVoltageRanges(ccVoltageRanges);
 
     std::vector <Measurement_t> vcVoltageFilters;
-    mDev->getVoltageStimulusLpfsFeatures(vcVoltageFilters);
+    msgDisp->getVCVoltageFilters(vcVoltageFilters);
 
     std::vector <Measurement_t> ccCurrentFilters;
-    mDev->getCurrentStimulusLpfsFeatures(ccCurrentFilters);
+    msgDisp->getCCCurrentFilters(ccCurrentFilters);
 
     std::vector <Measurement_t> samplingRates;
-    mDev->getSamplingRatesFeatures(samplingRates);
+    msgDisp->getSamplingRatesFeatures(samplingRates);
 
     std::vector <unsigned int> downsamplingRatios;
-    mDev->getDownsamplingRatiosFeatures(downsamplingRatios);
+    msgDisp->getDownsamplingRatiosFeatures(downsamplingRatios);
 
     QWidget *window = new QWidget;
     this->setWidget(window);
@@ -328,7 +330,10 @@ void DeviceControlDockWidget::forceEmit() {
         }
     }
 
-    if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
+    ClampingModality_t mode;
+    msgDisp->getClampingModality(mode);
+
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
         for (int idx = 0; idx < vcCurrentRangesRadioButtons.size(); idx++) {
             QRadioButton* btn = vcCurrentRangesRadioButtons[idx];
             if (btn->isChecked()) {
@@ -351,7 +356,7 @@ void DeviceControlDockWidget::forceEmit() {
         }
     }
 
-    if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
+    if (mode == ClampingModality_t::CURRENT_CLAMP) {
         for (int idx = 0; idx < ccCurrentRangesRadioButtons.size(); idx++) {
             QRadioButton* btn = ccCurrentRangesRadioButtons[idx];
             if (btn->isChecked()) {
@@ -390,7 +395,9 @@ void DeviceControlDockWidget::forceEmit() {
 }
 
 void DeviceControlDockWidget::updateParameters() {
-    if (mDev->getOngoingClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
+    ClampingModality_t mode;
+    msgDisp->getClampingModality(mode);
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
         if (ccVoltageRangesGroupBox != nullptr) {
             ccVoltageRangesGroupBox->setVisible(false);
         }
@@ -404,15 +411,21 @@ void DeviceControlDockWidget::updateParameters() {
         }
 
         if (vcCurrentRangesRadioButtons.size()>0){
-            vcCurrentRangesRadioButtons[mDev->getVcCurrentRangeIdx()]->setChecked(true);
+            uint32_t idx;
+            msgDisp->getVCCurrentRangeIdx(idx);
+            vcCurrentRangesRadioButtons[idx]->setChecked(true);
         }
 
         if (vcVoltageRangesRadioButtons.size()>0){
-            vcVoltageRangesRadioButtons[mDev->getVcVoltageRangeIdx()]->setChecked(true);
+            uint32_t idx;
+            msgDisp->getVCVoltageRangeIdx(idx);
+            vcVoltageRangesRadioButtons[idx]->setChecked(true);
         }
 
         if (vcVoltageFiltersRadioButtons.size()>0){
-            vcVoltageFiltersRadioButtons[mDev->getVcVoltageFilterIdx()]->setChecked(true);
+            uint32_t idx;
+            msgDisp->getVCVoltageFilterIdx(idx);
+            vcVoltageFiltersRadioButtons[idx]->setChecked(true);
         }
 
         if (vcVoltageRangesGroupBox != nullptr) {
@@ -428,7 +441,7 @@ void DeviceControlDockWidget::updateParameters() {
         }
     }
 
-    if (mDev->getOngoingClampingModality() == ClampingModality_t::CURRENT_CLAMP) {
+    if (mode == ClampingModality_t::CURRENT_CLAMP) {
         if (vcVoltageRangesGroupBox != nullptr) {
             vcVoltageRangesGroupBox->setVisible(false);
         }
@@ -442,15 +455,21 @@ void DeviceControlDockWidget::updateParameters() {
         }
 
         if (ccCurrentRangesRadioButtons.size()>0){
-            ccCurrentRangesRadioButtons[mDev->getCcCurrentRangeIdx()]->setChecked(true);
+            uint32_t idx;
+            msgDisp->getCCCurrentRangeIdx(idx);
+            ccCurrentRangesRadioButtons[idx]->setChecked(true);
         }
 
         if (ccVoltageRangesRadioButtons.size()>0){
-            ccVoltageRangesRadioButtons[mDev->getCcVoltageRangeIdx()]->setChecked(true);
+            uint32_t idx;
+            msgDisp->getCCVoltageRangeIdx(idx);
+            ccVoltageRangesRadioButtons[idx]->setChecked(true);
         }
 
         if (ccCurrentFiltersRadioButtons.size()>0){
-            ccCurrentFiltersRadioButtons[mDev->getCcCurrentFilterIdx()]->setChecked(true);
+            uint32_t idx;
+            msgDisp->getCCCurrentFilterIdx(idx);
+            ccCurrentFiltersRadioButtons[idx]->setChecked(true);
         }
 
         if (ccVoltageRangesGroupBox != nullptr) {
@@ -466,16 +485,22 @@ void DeviceControlDockWidget::updateParameters() {
         }
     }
 
-    if (samplingRatesRadioButtons.size()>0){
-        samplingRatesRadioButtons[mDev->getSamplingRateIdx()]->setChecked(true);
+    if (samplingRatesRadioButtons.size()>0) {
+        uint32_t idx;
+        msgDisp->getSamplingRateIdx(idx);
+        samplingRatesRadioButtons[idx]->setChecked(true);
     }
 
-    if (downsamplingRatiosRadioButtons.size()>0){
-        downsamplingRatiosRadioButtons[mDev->getDownsamplingRatioIdx()]->setChecked(true);
+    if (downsamplingRatiosRadioButtons.size()>0) {
+        uint32_t idx;
+        msgDisp->getDownsamplingRatioIdx(idx);
+        downsamplingRatiosRadioButtons[idx]->setChecked(true);
     }
 
-    if (clampingModalitiesRadioButtons.size()>0){
-        clampingModalitiesRadioButtons[mDev->getOngoingClampingModalityIdx()]->setChecked(true);
+    if (clampingModalitiesRadioButtons.size()>0) {
+        uint32_t idx;
+        msgDisp->getClampingModalityIdx(idx);
+        clampingModalitiesRadioButtons[idx]->setChecked(true);
     }
 
     /*! \todo FCON aggiungere controlli per DAC filters */

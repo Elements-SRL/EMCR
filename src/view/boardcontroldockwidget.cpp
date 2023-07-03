@@ -1,17 +1,18 @@
 #include "boardcontroldockwidget.h"
 
 #include <vector>
+
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QLabel>
 #include <QPushButton>
 
-BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * parent) :
+BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
-    mDev(mDev) {
+    msgDisp(msgDisp) {
 
     int localNumOfBoards;
-    mDev->getBoardsNumberFeatures(localNumOfBoards);
+    msgDisp->getBoardsNumberFeatures(localNumOfBoards);
 
     bool anyControlFlag = false;
 
@@ -41,7 +42,7 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
     }
 
     RangedMeasurement_t gateRange;
-    if (mDev->getGateVoltagesTunerFeatures(gateRange) == Success) {
+    if (msgDisp->getGateVoltagesTunerFeatures(gateRange) == Success) {
         anyControlFlag = true;
 
         MySpinBox* gateSpinBox;
@@ -61,7 +62,7 @@ BoardControlDockWidget::BoardControlDockWidget(ModelDevice * mDev, QWidget * par
 
 
     RangedMeasurement_t sourceRange;
-    if (mDev->getSourceVoltagesTunerFeatures(sourceRange) == Success) {
+    if (msgDisp->getSourceVoltagesTunerFeatures(sourceRange) == Success) {
         anyControlFlag = true;
 
         MySpinBox* sourceSpinBox;
@@ -127,7 +128,7 @@ std::vector<uint16_t> BoardControlDockWidget::getChangedChannelIndexes(std::vect
 
 void BoardControlDockWidget::onApplyButtonClicked(){
     RangedMeasurement_t range;
-    this->mDev->getGateVoltagesTunerFeatures(range);
+    msgDisp->getGateVoltagesTunerFeatures(range);
     std::vector<Measurement_t> gateChangedVoltages;
     std::vector<uint16_t> gateChangedChannelIndexes = this->getChangedChannelIndexes(this->gateSpinBoxes, this->previousGateSpinBoxValues);
     gateChangedVoltages.resize(gateChangedChannelIndexes.size());
@@ -137,7 +138,7 @@ void BoardControlDockWidget::onApplyButtonClicked(){
         gateChangedVoltages[i] = {changedValue, range.prefix, range.unit};
     }
 
-    this->mDev->getSourceVoltagesTunerFeatures(range);
+    msgDisp->getSourceVoltagesTunerFeatures(range);
     std::vector<Measurement_t> sourceChangedVoltages;
     std::vector<uint16_t> sourceChangedChannelIndexes = this->getChangedChannelIndexes(this->sourceSpinBoxes, this->previousSourceSpinBoxValues);
     sourceChangedVoltages.resize(sourceChangedChannelIndexes.size());

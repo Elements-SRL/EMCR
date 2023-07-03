@@ -7,13 +7,12 @@
 #include <QAction>
 #include "iostream"
 
-ControllerStateArray::ControllerStateArray(ModelDevice * mDev, MainWindow * mainWindow)
-{
-    if(!mDev->getMessageDispatcher()->isStateArrayAvailable()){
+ControllerStateArray::ControllerStateArray(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+    msgDisp(msgDisp) {
+    if(!msgDisp->isStateArrayAvailable()){
 //        TODO SHOULD THIS RETURN AN ERROR?
         return;
     }
-    this->mDev = mDev;
     stateArray = {};
     this->mainWindow = mainWindow;
     stateArrayDockWidget = new StateArrayDockWidget();
@@ -22,8 +21,8 @@ ControllerStateArray::ControllerStateArray(ModelDevice * mDev, MainWindow * main
     std::vector <RangedMeasurement_t> vcCurrentRangesFeatures;
     std::vector <RangedMeasurement_t> voltageRanges;
     uint16_t _;
-    mDev->getVcCurrentRangesFeatures(vcCurrentRangesFeatures, _);
-    mDev->getVcVoltageRangesFeatures(voltageRanges);
+    msgDisp->getVCCurrentRanges(vcCurrentRangesFeatures, _);
+    msgDisp->getVCVoltageRanges(voltageRanges);
 
     RangedMeasurement_t voltageRange = voltageRanges[0];
     RangedMeasurement_t currentRange = vcCurrentRangesFeatures[0];
@@ -51,7 +50,7 @@ ControllerStateArray::ControllerStateArray(ModelDevice * mDev, MainWindow * main
         stateArray.initialState = idx;
     });
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigStartButtonPressed, this, [=](){
-        auto md = mDev->getMessageDispatcher();
+        auto md = msgDisp;
         md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState);
         for (int i = 0; i < stateArray.states.size(); i++){
             auto s = stateArray.states[i];
@@ -94,7 +93,7 @@ ControllerStateArray::ControllerStateArray(ModelDevice * mDev, MainWindow * main
         stateArray.states[stateIdx].triggerType = getTriggerTypeFromString(triggerType);
     });
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigStateArrayCheckBoxClicked, this, [=](bool enableFlag, int chIdx){
-        mDev->getMessageDispatcher()->setStateArrayEnabled(chIdx, enableFlag);
+        msgDisp->setStateArrayEnabled(chIdx, enableFlag);
     });
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigTriggerStateCheckBoxClicked, this, [=](int value, int chIdx){
         stateArray.states[chIdx].triggerState = value;

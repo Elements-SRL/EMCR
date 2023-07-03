@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 
 #include "protocolpreview.h"
+#include "messagedispatcher.h"
 
 #define PPD_MAX_PARAMS 32
 #define PPD_NAME_ROW 0
@@ -33,7 +34,7 @@ class ProtocolWidget;
 
 class ProtocolPropertyDialog : public QWidget {
 public:
-    ProtocolPropertyDialog(ModelDevice * mDev, RangedMeasurement_t timeRange,RangedMeasurement_t stimulusRange);
+    ProtocolPropertyDialog(MessageDispatcher * msgDisp, RangedMeasurement_t timeRange,RangedMeasurement_t stimulusRange);
     ~ProtocolPropertyDialog();
 
     QGridLayout * getControlsLayout();

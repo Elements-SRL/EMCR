@@ -14,6 +14,7 @@
 #include "voltageprotocol.h"
 #include "currentprotocol.h"
 #include "protocolmodel.h"
+#include "messagedispatcher.h"
 
 class ProtocolCtrlDispatcher;
 
@@ -27,7 +28,7 @@ public:
         ClosureRequestRejected
     } ClosureRequestReply_t;
 
-    ProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality);
+    ProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality);
     ProtocolWidget();
     ~ProtocolWidget();
 
@@ -103,8 +104,8 @@ protected:
     void updateText();
     void setValidityColor();
 
-    ProtocolModel * model;
-    ModelDevice * mDev;
+    ProtocolModel * model = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
     QString name;
     ProtocolPropertyDialog * dialog;
     ProtocolType_t type;
@@ -221,28 +222,28 @@ class GapfreeVoltageProtocolWidget : public VoltageProtocolWidget, public Gapfre
     Q_OBJECT
 
 public:
-    GapfreeVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
+    GapfreeVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class EpisodicVoltageProtocolWidget : public VoltageProtocolWidget, public EpisodicProtocolWidget {
     Q_OBJECT
 
 public:
-    EpisodicVoltageProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
+    EpisodicVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class GapfreeCurrentProtocolWidget : public CurrentProtocolWidget, public GapfreeProtocolWidget {
     Q_OBJECT
 
 public:
-    GapfreeCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
+    GapfreeCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class EpisodicCurrentProtocolWidget : public CurrentProtocolWidget, public EpisodicProtocolWidget {
     Q_OBJECT
 
 public:
-    EpisodicCurrentProtocolWidget(ModelDevice *  mDev, QString name, ProtocolPropertyDialog * dialog);
+    EpisodicCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
 };
 
 class ProtocolCtrlDispatcher : public QObject {

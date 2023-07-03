@@ -6,9 +6,9 @@
 #include <QLabel>
 #include <QSettings>
 
-ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t clampingModality, QWidget * parent) :
+ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModality_t clampingModality, QWidget * parent) :
     QDockWidget(),
-    mDev(mDev),
+    msgDisp(msgDisp),
     clampingModality(clampingModality) {
 
     QWidget * mainW = new QWidget;
@@ -29,19 +29,19 @@ ProtocolDockWidget::ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t cl
 
     e384CommLib::RangedMeasurement_t stimulusRange;
     if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-        mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
+        msgDisp->getVoltageProtocolRangeFeature(0, stimulusRange);
 
     } else {
-        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
+        msgDisp->getCurrentProtocolRangeFeature(0, stimulusRange);
     }
 
     e384CommLib::RangedMeasurement_t timeRange;
-    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
+    msgDisp->getTimeProtocolRangeFeature(timeRange);
     timeRange.convertValues(e384CommLib::UnitPfxMilli);
-    protocolPropertyDialog = new ProtocolPropertyDialog(mDev, timeRange, stimulusRange);
+    protocolPropertyDialog = new ProtocolPropertyDialog(msgDisp, timeRange, stimulusRange);
 
-    voltageProtocolList = new VoltageProtocolList(mDev, protocolPropertyDialog, parent);
-    currentProtocolList = new CurrentProtocolList(mDev, protocolPropertyDialog, parent);
+    voltageProtocolList = new VoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
+    currentProtocolList = new CurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
 
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     recordFileBtn = new QPushButton();

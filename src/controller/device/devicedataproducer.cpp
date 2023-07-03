@@ -11,9 +11,9 @@ static int16_t ** dataSamplesBuffer;
 static double ** floatDataSamplesBuffer;
 static unsigned int dataPacketsIdx = 0;
 
-DeviceDataProducer::DeviceDataProducer(ModelDevice * mDev, QObject * parent) :
+DeviceDataProducer::DeviceDataProducer(MessageDispatcher * msgDisp, QObject * parent) :
     QThread(parent),
-    mDev(mDev) {
+    msgDisp(msgDisp) {
 
     bitRateTmr = new QTimer();
     bitRateTmr->setSingleShot(false);
@@ -22,7 +22,7 @@ DeviceDataProducer::DeviceDataProducer(ModelDevice * mDev, QObject * parent) :
     bitRateTmr->start();
     samplesReceived = 0;
 
-    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
     dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_SAMPLES_FOR_BUFFER/(double)totalChannelsNum));
@@ -73,11 +73,10 @@ void DeviceDataProducer::onStopProducing() {
             exitedDataProducingLoopCv.wait(&connectionMtx);
         }
     }
-    mDev->getMessageDispatcher()->deallocateRxDataBuffer(datain);
+    msgDisp->deallocateRxDataBuffer(datain);
 }
 
 void DeviceDataProducer::run() {
-    MessageDispatcher * messageDispather = mDev->getMessageDispatcher();
     RxOutput dataHeader;
 
     QMutexLocker connectionLock(&connectionMtx);
@@ -85,7 +84,7 @@ void DeviceDataProducer::run() {
     exitedDataProducingLoop = false;
 
     ErrorCodes_t ret;
-    ret = messageDispather->allocateRxDataBuffer(datain);
+    ret = msgDisp->allocateRxDataBuffer(datain);
     /*! \todo what to do if the memory is not initialized? */
 
     int chIdx;
@@ -106,7 +105,7 @@ void DeviceDataProducer::run() {
         }
         connectionLock.unlock();
 
-        ret = messageDispather->getNextMessage(dataHeader, datain);
+        ret = msgDisp->getNextMessage(dataHeader, datain);
 
         if (ret == Success) {
             dataSampleBufferIdx = dataPacketsIdx;
@@ -114,12 +113,12 @@ void DeviceDataProducer::run() {
                 for (chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
                     dataSamplesBuffer[dataSampleBufferIdx][chIdx] = datain[wordsIdx+chIdx];
                 }
-                messageDispather->convertVoltageValues(datain+wordsIdx, floatDataSamplesBuffer[dataSampleBufferIdx], voltageChannelsNum);
+                msgDisp->convertVoltageValues(datain+wordsIdx, floatDataSamplesBuffer[dataSampleBufferIdx], voltageChannelsNum);
 
                 for (; chIdx < totalChannelsNum; chIdx++) {
                     dataSamplesBuffer[dataSampleBufferIdx][chIdx] = datain[wordsIdx+chIdx];
                 }
-                messageDispather->convertCurrentValues(datain+wordsIdx+voltageChannelsNum, floatDataSamplesBuffer[dataSampleBufferIdx]+voltageChannelsNum, currentChannelsNum);
+                msgDisp->convertCurrentValues(datain+wordsIdx+voltageChannelsNum, floatDataSamplesBuffer[dataSampleBufferIdx]+voltageChannelsNum, currentChannelsNum);
 
                 dataSampleBufferIdx = (dataSampleBufferIdx+1) & dataPacketsBufferMask;
             }

@@ -2,8 +2,8 @@
 
 #include <qmath.h>
 
-AbfDataWriterConsumer::AbfDataWriterConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
-    DataWriterConsumer(mDev, producer) {
+AbfDataWriterConsumer::AbfDataWriterConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+    DataWriterConsumer(msgDisp, producer) {
 
     dataFormat = RecordSettingsDialog::RecordFileAbf;
     fileNameExtension = ".abf";

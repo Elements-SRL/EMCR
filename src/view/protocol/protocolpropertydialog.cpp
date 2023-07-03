@@ -6,7 +6,7 @@
 
 #include "protocolwidget.h"
 
-ProtocolPropertyDialog::ProtocolPropertyDialog(ModelDevice * mDev, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange) {
+ProtocolPropertyDialog::ProtocolPropertyDialog(MessageDispatcher * msgDisp, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange) {
     QVBoxLayout * mainVl = new QVBoxLayout;
     mainVl->setContentsMargins(0, 0, 0, 0);
     this->setLayout(mainVl);
@@ -49,7 +49,7 @@ ProtocolPropertyDialog::ProtocolPropertyDialog(ModelDevice * mDev, RangedMeasure
     controlsLo->setColumnStretch(2, 1);
 
     /*! Protocol preview */
-    preview = new MinimalProtocolPreview(mDev, timeRange, stimulusRange, "Preview");
+    preview = new MinimalProtocolPreview(msgDisp, timeRange, stimulusRange, "Preview");
     preview->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     mainSpl->addWidget(preview);
 

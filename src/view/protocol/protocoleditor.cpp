@@ -4,8 +4,8 @@
 #include "protocolutils.h"
 #include "protocolwidget.h"
 
-ProtocolEditor::ProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    mDev(mDev),
+ProtocolEditor::ProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    msgDisp(msgDisp),
     model(model),
     parentWidget(protocolWidget),
     name(name) {
@@ -55,7 +55,7 @@ ProtocolEditor::ProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, Proto
     ErrorCodes_t ret = Success;
 
     std::vector <Measurement_t> availableSamplingRates;
-    ret = mDev->getSamplingRatesFeatures(availableSamplingRates);
+    ret = msgDisp->getSamplingRatesFeatures(availableSamplingRates);
 
     if (ret == Success) {
         uint32_t samplingRatesNum = availableSamplingRates.size();
@@ -379,7 +379,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     btn = libraryPidl->setSeparator("Protocol items", PROT_EDITOR_STIMULUS_SEPARATOR_COLOR);
     itemIdx++;
 
-    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
+    if (msgDisp->hasProtocolStepFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragVHoldItem());
         itemIdxs.append(itemIdx++);
         libraryPidl->addItem(new ProtocolDragVConstItem());
@@ -388,17 +388,17 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
+    if (msgDisp->hasProtocolRampFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragVRampItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
+    if (msgDisp->hasProtocolSinFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragVSinItem());
         itemIdxs.append(itemIdx++);
     }
 
-//    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
+//    if (msgDisp->hasProtocolStepFeature() == Success) {
 //        libraryPidl->addItem(new ProtocolDragVRestItem());
 //        itemIdxs.append(itemIdx++);
 //    }
@@ -477,7 +477,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
 
     std::vector <RangedMeasurement_t> availableCurrentRanges;
     uint16_t defaultRange;
-    ret = mDev->getVcCurrentRangesFeatures(availableCurrentRanges, defaultRange);
+    ret = msgDisp->getVCCurrentRanges(availableCurrentRanges, defaultRange);
 
     if (ret == Success) {
         uint32_t currentRangesNum = availableCurrentRanges.size();
@@ -497,7 +497,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     } /*! \todo FCON gestire l'errore */
 
     std::vector <RangedMeasurement_t> availableVoltageRanges;
-    ret = mDev->getVcVoltageRangesFeatures(availableVoltageRanges);
+    ret = msgDisp->getVCVoltageRanges(availableVoltageRanges);
 
     if (ret == Success) {
         uint32_t voltageRangesNum = availableVoltageRanges.size();
@@ -520,7 +520,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
 
     /*! setHoldingRange inherits the range from the current range, so it has to be defined after the creation of its control */
     RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
+    msgDisp->getVoltageProtocolRangeFeature(0, stimulusRange);
     model->setStimulusRange(stimulusRange);
     this->setHoldingRange();
     holdEdit->setValue(hold);
@@ -533,7 +533,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     ctrlTitle->setFont(titlesFont);
     ctrlItemsVl->addWidget(ctrlTitle);
 
-    ctrlPidl = new CtrlProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
+    ctrlPidl = new CtrlProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     ctrlItemsVl->addWidget(ctrlPidl);
 
     protocolItemCtrlManager = new ProtocolItemCtrlManager(ctrlPidl);
@@ -548,7 +548,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     analysisTitle->setFont(titlesFont);
     analysisItemsVl->addWidget(analysisTitle);
 
-    analysisPidl = new AnalysisProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
+    analysisPidl = new AnalysisProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     analysisItemsVl->addWidget(analysisPidl);
 
     connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
@@ -567,9 +567,9 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     /*! Protocol previewer */
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
     RangedMeasurement_t timeRange;
-    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
+    msgDisp->getTimeProtocolRangeFeature(timeRange);
     timeRange.convertValues(UnitPfxMilli);
-    protocolPreview = new ProtocolPreview(mDev, timeRange, stimulusRange, "Protocol Preview");
+    protocolPreview = new ProtocolPreview(msgDisp, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
     protocolPreview->setAnalysisPidl(static_cast <AnalysisProtocolItemDropList *> (analysisPidl));
 
@@ -602,7 +602,7 @@ void VoltageProtocolEditor::setHoldingRange() {
 
 void VoltageProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+    msgDisp->getVoltageProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
     model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 
@@ -625,7 +625,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     btn = libraryPidl->setSeparator("Protocol items", PROT_EDITOR_STIMULUS_SEPARATOR_COLOR);
     itemIdx++;
 
-    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
+    if (msgDisp->hasProtocolStepFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragIHoldItem());
         itemIdxs.append(itemIdx++);
         libraryPidl->addItem(new ProtocolDragIConstItem());
@@ -634,17 +634,17 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
+    if (msgDisp->hasProtocolRampFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragIRampItem());
         itemIdxs.append(itemIdx++);
     }
 
-    if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
+    if (msgDisp->hasProtocolSinFeature() == Success) {
         libraryPidl->addItem(new ProtocolDragISinItem());
         itemIdxs.append(itemIdx++);
     }
 
-//    if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
+//    if (msgDisp->hasProtocolStepFeature() == Success) {
 //        libraryPidl->addItem(new ProtocolDragIRestItem());
 //        itemIdxs.append(itemIdx++);
 //    }
@@ -724,7 +724,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     ErrorCodes_t ret = Success;
 
     std::vector <RangedMeasurement_t> availableCurrentRanges;
-    ret = mDev->getCcCurrentRangesFeatures(availableCurrentRanges);
+    ret = msgDisp->getCCCurrentRanges(availableCurrentRanges);
 
     if (ret == Success) {
         uint32_t currentRangesNum = availableCurrentRanges.size();
@@ -746,7 +746,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     } /*! \todo FCON gestire l'errore */
 
     std::vector <RangedMeasurement_t> availableVoltageRanges;
-    ret = mDev->getCcVoltageRangesFeatures(availableVoltageRanges);
+    ret = msgDisp->getCCVoltageRanges(availableVoltageRanges);
 
     if (ret == Success) {
         uint32_t voltageRangesNum = availableVoltageRanges.size();
@@ -767,7 +767,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
 
     /*! setHoldingRange inherits the range from the current range, so it has to be defined after the creation of its control */
     RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
+    msgDisp->getCurrentProtocolRangeFeature(0, stimulusRange);
     model->setStimulusRange(stimulusRange);
     this->setHoldingRange();
     holdEdit->setValue(hold);
@@ -780,7 +780,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     ctrlTitle->setFont(titlesFont);
     ctrlItemsVl->addWidget(ctrlTitle);
 
-    ctrlPidl = new CtrlProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
+    ctrlPidl = new CtrlProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     ctrlItemsVl->addWidget(ctrlPidl);
 
     protocolItemCtrlManager = new ProtocolItemCtrlManager(ctrlPidl);
@@ -795,7 +795,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     analysisTitle->setFont(titlesFont);
     analysisItemsVl->addWidget(analysisTitle);
 
-    analysisPidl = new AnalysisProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
+    analysisPidl = new AnalysisProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     analysisItemsVl->addWidget(analysisPidl);
 
     connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
@@ -814,9 +814,9 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     /*! Protocol previewer */
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
     RangedMeasurement_t timeRange;
-    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
+    msgDisp->getTimeProtocolRangeFeature(timeRange);
     timeRange.convertValues(UnitPfxMilli);
-    protocolPreview = new ProtocolPreview(mDev, timeRange, stimulusRange, "Protocol Preview");
+    protocolPreview = new ProtocolPreview(msgDisp, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
     protocolPreview->setAnalysisPidl(static_cast <AnalysisProtocolItemDropList *> (analysisPidl));
 
@@ -849,7 +849,7 @@ void CurrentProtocolEditor::setHoldingRange() {
 
 void CurrentProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     RangedMeasurement_t stimulusRange;
-    mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
+    msgDisp->getCurrentProtocolRangeFeature((unsigned int)rangeIdx, stimulusRange);
     model->setStimulusRange(stimulusRange);
     initQdoubleSpinBox(holdEdit, stimulusRange, RangedQDoubleSpinBox_t::MIN_MAX);
 
@@ -886,48 +886,48 @@ EpisodicProtocolEditor::EpisodicProtocolEditor() {
     phasesVl->addWidget(phasesTitle);
 }
 
-GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, model, protocolWidget, name),
+GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(msgDisp, model, protocolWidget, name),
     VoltageProtocolEditor(),
     GapfreeProtocolEditor() {
 
-    phasesPidl = new GapfreeProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
+    phasesPidl = new GapfreeProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, model, protocolWidget, name),
+EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(msgDisp, model, protocolWidget, name),
     VoltageProtocolEditor(),
     EpisodicProtocolEditor() {
 
-    phasesPidl = new EpisodicProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
+    phasesPidl = new EpisodicProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, model, protocolWidget, name),
+GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(msgDisp, model, protocolWidget, name),
     CurrentProtocolEditor(),
     GapfreeProtocolEditor() {
 
-    phasesPidl = new GapfreeProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
+    phasesPidl = new GapfreeProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);
     connect(phasesPidl, &ProtocolItemDropList::updateProtocol, this, &ProtocolEditor::onUpdateProtocol);
 }
 
-EpisodicCurrentProtocolEditor::EpisodicCurrentProtocolEditor(ModelDevice *  mDev, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(mDev, model, protocolWidget, name),
+EpisodicCurrentProtocolEditor::EpisodicCurrentProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(msgDisp, model, protocolWidget, name),
     CurrentProtocolEditor(),
     EpisodicProtocolEditor() {
 
-    phasesPidl = new EpisodicProtocolItemDropList(mDev, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
+    phasesPidl = new EpisodicProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     phasesVl->addWidget(phasesPidl);
 
     phasesPidl->setCtrlManager(protocolItemCtrlManager);

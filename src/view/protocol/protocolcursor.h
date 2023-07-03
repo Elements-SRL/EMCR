@@ -12,7 +12,7 @@
 #include "protocolsection.h"
 #include "protocoldefs.h"
 #include "cursor.h"
-#include "model/modeldevice.h"
+#include "messagedispatcher.h"
 
 class ProtocolWidget;
 
@@ -43,7 +43,7 @@ public:
         TriggerFalling
     } TriggerType_t;
 
-    ProtocolCursor(ModelDevice * mDev, QwtPlot * plot, double x, int cursorIdx);
+    ProtocolCursor(MessageDispatcher * msgDisp, QwtPlot * plot, double x, int cursorIdx);
     ~ProtocolCursor();
 
     void openPropertyDialog();
@@ -94,7 +94,7 @@ private:
     bool precedesItemLevel(ProtocolCursor * cursor, int sweepIter, int repetitionIter);
     bool sameRepetitionsLoopLevel(ProtocolCursor * cursor);
 
-    ModelDevice * mDev;
+    MessageDispatcher * msgDisp = nullptr;
     int cursorIdx;
     ProtocolType_t protocolType;
 

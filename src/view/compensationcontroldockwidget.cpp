@@ -7,12 +7,12 @@
 #include <QLabel>
 #include <QPushButton>
 
-CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev, QWidget * parent) :
+CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
-    mDev(mDev) {
+    msgDisp(msgDisp) {
     int localNumOfVoltChans;
     int localNumOfCurrChans;
-    mDev->getChannelsNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
+    msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
 
     bool anyControlFlag = false;
 
@@ -79,7 +79,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! Cfast checkboxes and spinboxes*/
-    if (mDev->getCompFeatures(MessageDispatcher::U_CpVc, compensationFeatures, defaultParamValue) == Success) {
+    if (msgDisp->getCompFeatures(MessageDispatcher::U_CpVc, compensationFeatures, defaultParamValue) == Success) {
         anyControlFlag = true;
         QCheckBox* cfastEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -110,7 +110,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! Cslow and Rs checkboxes and spinboxes*/
-    if (mDev->getCompFeatures(MessageDispatcher::U_Cm, compensationFeatures, defaultParamValue) == Success && mDev->getCompFeatures(MessageDispatcher::U_Rs, compensationFeaturesBis, defaultParamValueBis) == Success) {
+    if (msgDisp->getCompFeatures(MessageDispatcher::U_Cm, compensationFeatures, defaultParamValue) == Success && msgDisp->getCompFeatures(MessageDispatcher::U_Rs, compensationFeaturesBis, defaultParamValueBis) == Success) {
         anyControlFlag = true;
         QCheckBox* cslowRsEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -153,7 +153,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! RsCp checkboxes and spinboxes*/
-    if (mDev->getCompFeatures(MessageDispatcher::U_RsCp, compensationFeatures, defaultParamValue) == Success) {
+    if (msgDisp->getCompFeatures(MessageDispatcher::U_RsCp, compensationFeatures, defaultParamValue) == Success) {
         anyControlFlag = true;
         QCheckBox* rsCpEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -184,7 +184,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
     }
 
     /*! RsPg checkboxes and spinboxes*/
-    if (mDev->getCompFeatures(MessageDispatcher::U_RsPg, compensationFeatures, defaultParamValue) == Success) {
+    if (msgDisp->getCompFeatures(MessageDispatcher::U_RsPg, compensationFeatures, defaultParamValue) == Success) {
         anyControlFlag = true;
 
         QCheckBox* rsPgEnableCb;
@@ -234,7 +234,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
 
     /*! RsBW comboboxes*/
     std::vector <std::string> rsBwStringArray;
-    if (mDev->getCompOptionsFeatures(MessageDispatcher::CompRsCorr, rsBwStringArray) == Success) {
+    if (msgDisp->getCompOptionsFeatures(MessageDispatcher::CompRsCorr, rsBwStringArray) == Success) {
         anyControlFlag = true;
         QComboBox* rsBwCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -327,7 +327,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(ModelDevice * mDev,
         hbsCcCfast[i-1]->setSpacing(1);
     }
 
-    if (mDev->getCompFeatures(MessageDispatcher::U_CpCc, compensationFeatures, defaultParamValue) == Success) {
+    if (msgDisp->getCompFeatures(MessageDispatcher::U_CpCc, compensationFeatures, defaultParamValue) == Success) {
         anyControlFlag = true;
         QCheckBox* ccCfastEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
@@ -444,7 +444,7 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
 
     int localNumOfVoltChans;
     int localNumOfCurrChans;
-    mDev->getChannelsNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
+    msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
     for(int i = 0; i < localNumOfCurrChans; i++){
         channelIndexes.push_back(i);
         cfastEn.push_back(cfastCheckBoxes[i]->isChecked());
@@ -469,9 +469,9 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
 void CompensationControlDockWidget::onCompValuesDispatched(std::vector<std::vector<double>> compValueMatrix, std::vector<RangedMeasurement> cfastFeatures, std::vector<RangedMeasurement> cslowFeatures, std::vector<RangedMeasurement> rsFeatures, std::vector<RangedMeasurement> rsCpFeatures, std::vector<RangedMeasurement> rsPgFeatures, std::vector<RangedMeasurement> ccCfastFeatures){
     int localNumOfVoltChans;
     int localNumOfCurrChans;
-    int ongoingClampingMode;
-    mDev->getChannelsNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
-    ongoingClampingMode = mDev->getOngoingClampingModality();
+    ClampingModality_t mode;
+    msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
+    msgDisp->getClampingModality(mode);
     for (int i = 0; i < localNumOfCurrChans; i++){
         cfastSpinBoxes[i]->setRange(cfastFeatures[i].min, cfastFeatures[i].max);
         cfastSpinBoxes[i]->setDecimals(cfastFeatures[i].decimals());
@@ -479,9 +479,9 @@ void CompensationControlDockWidget::onCompValuesDispatched(std::vector<std::vect
         ccCfastSpinBoxes[i]->setRange(ccCfastFeatures[i].min, ccCfastFeatures[i].max);
         ccCfastSpinBoxes[i]->setDecimals(ccCfastFeatures[i].decimals());
 
-        if(ongoingClampingMode == ClampingModality_t::VOLTAGE_CLAMP){
+        if(mode == ClampingModality_t::VOLTAGE_CLAMP){
             cfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpVc]);
-        } else if(ongoingClampingMode == ClampingModality_t::ZERO_CURRENT_CLAMP || ongoingClampingMode == ClampingModality_t::CURRENT_CLAMP) {
+        } else if(mode == ClampingModality_t::ZERO_CURRENT_CLAMP || mode == ClampingModality_t::CURRENT_CLAMP) {
             ccCfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpCc]);
         } else {
             /*! \todo MPAC ancora da fare*/

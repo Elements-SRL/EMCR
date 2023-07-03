@@ -7,9 +7,9 @@ static int timeControlItemIdx = 0;
 static int frequencyControlItemIdx = 0;
 static int naturalNumControlItemIdx = 0;
 
-ProtocolDropItem::ProtocolDropItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+ProtocolDropItem::ProtocolDropItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
     QObject(), QListWidgetItem(QString("Drop"), nullptr, type),
-    mDev(mDev),
+    msgDisp(msgDisp),
     ctrlManager(ctrlManager),
     hold(hold0) {
 
@@ -67,22 +67,22 @@ ProtocolDropItem::ProtocolDropItem(ModelDevice *  mDev, ProtocolItemCtrlManager 
         stimulusName = "Voltage";
         stimulusCtrlType = ProtocolItemCtrlVoltage;
 
-        /*! Collect protocol information from mDev */
-        mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature(0, stimulusRange);
+        /*! Collect protocol information from msgDisp */
+        msgDisp->getVoltageProtocolRangeFeature(0, stimulusRange);
 
     } else {
         stimulusAbbrName = "I";
         stimulusName = "Current";
         stimulusCtrlType = ProtocolItemCtrlCurrent;
 
-        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature(0, stimulusRange);
+        msgDisp->getCurrentProtocolRangeFeature(0, stimulusRange);
     }
 
-    mDev->getMessageDispatcher()->getTimeProtocolRangeFeature(timeRange);
+    msgDisp->getTimeProtocolRangeFeature(timeRange);
     timeRange.convertValues(UnitPfxMilli);
     timeDecimals = timeRange.decimals();
 
-    mDev->getMessageDispatcher()->getFrequencyProtocolRangeFeature(frequencyRange);
+    msgDisp->getFrequencyProtocolRangeFeature(frequencyRange);
     frequencyRange.convertValues(UnitPfxNone);
     frequencyDecimals = frequencyRange.decimals();
 
@@ -142,8 +142,8 @@ void ProtocolDropItem::onRejectPropertyDialog() {
     }
 }
 
-ProtocolDropStimulusItem::ProtocolDropStimulusItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropStimulusItem::ProtocolDropStimulusItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
     this->setBackground(PROT_EDITOR_STIMULUS_ITEM_COLOR);
 
     propertyLo->setColumnStretch(0, 2);
@@ -157,8 +157,8 @@ QString ProtocolDropStimulusItem::getName() {
     return "";
 }
 
-ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropStimulusItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropStimulusItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus step time step.png";
     QIcon icon;
@@ -566,20 +566,20 @@ void ProtocolDropXStepTStepItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVStepTStepItem::ProtocolDropVStepTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVStepTStepItem::ProtocolDropVStepTStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepTStepItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIStepTStepItem::ProtocolDropIStepTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIStepTStepItem::ProtocolDropIStepTStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepTStepItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXStepItem::ProtocolDropXStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXStepItem::ProtocolDropXStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus step.png";
     QIcon icon;
@@ -625,20 +625,20 @@ void ProtocolDropXStepItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVStepItem::ProtocolDropVStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVStepItem::ProtocolDropVStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIStepItem::ProtocolDropIStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXStepItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIStepItem::ProtocolDropIStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXStepItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXTStepItem::ProtocolDropXTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXTStepItem::ProtocolDropXTStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/time step.png";
     QIcon icon;
@@ -684,20 +684,20 @@ void ProtocolDropXTStepItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVTStepItem::ProtocolDropVTStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVTStepItem::ProtocolDropVTStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXTStepItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropITStepItem::ProtocolDropITStepItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXTStepItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropITStepItem::ProtocolDropITStepItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXTStepItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXConstItem::ProtocolDropXConstItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXConstItem::ProtocolDropXConstItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/constant stimulus.png";
     QIcon icon;
@@ -746,20 +746,20 @@ void ProtocolDropXConstItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVConstItem::ProtocolDropVConstItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXConstItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVConstItem::ProtocolDropVConstItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXConstItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIConstItem::ProtocolDropIConstItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXConstItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIConstItem::ProtocolDropIConstItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXConstItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXHoldItem::ProtocolDropXHoldItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXHoldItem::ProtocolDropXHoldItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/holding stimulus.png";
     QIcon icon;
@@ -808,18 +808,18 @@ void ProtocolDropXHoldItem::onUpdateHold(double value) {
     x0Param->setValue(hold);
 }
 
-ProtocolDropVHoldItem::ProtocolDropVHoldItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXHoldItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVHoldItem::ProtocolDropVHoldItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXHoldItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIHoldItem::ProtocolDropIHoldItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXHoldItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIHoldItem::ProtocolDropIHoldItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXHoldItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropXRestItem::ProtocolDropXRestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXStepTStepItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRestItem::ProtocolDropXRestItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXStepTStepItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/rest.png";
     QIcon icon;
@@ -874,20 +874,20 @@ void ProtocolDropXRestItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVRestItem::ProtocolDropVRestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRestItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVRestItem::ProtocolDropVRestItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRestItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRestItem::ProtocolDropIRestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRestItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIRestItem::ProtocolDropIRestItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRestItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     x0Param->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXRampItem::ProtocolDropXRampItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropStimulusItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRampItem::ProtocolDropXRampItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropStimulusItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus ramp.png";
     QIcon icon;
@@ -1108,20 +1108,20 @@ void ProtocolDropXRampItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVRampItem::ProtocolDropVRampItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRampItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVRampItem::ProtocolDropVRampItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRampItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRampItem::ProtocolDropIRampItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRampItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIRampItem::ProtocolDropIRampItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRampItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     xFinalParam->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropXSinItem::ProtocolDropXSinItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropStimulusItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXSinItem::ProtocolDropXSinItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropStimulusItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/stimulus sin.png";
     QIcon icon;
@@ -1342,20 +1342,20 @@ void ProtocolDropXSinItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVSinItem::ProtocolDropVSinItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXSinItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVSinItem::ProtocolDropVSinItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXSinItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropISinItem::ProtocolDropISinItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXSinItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropISinItem::ProtocolDropISinItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXSinItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     xAmpParam->setValue(hold+1.0);
     this->onSetString();
 }
 
-ProtocolDropLoopsItem::ProtocolDropLoopsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropLoopsItem::ProtocolDropLoopsItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     this->setBackground(PROT_EDITOR_LOOPS_ITEM_COLOR);
 
@@ -1370,8 +1370,8 @@ QString ProtocolDropLoopsItem::getName() {
     return "";
 }
 
-ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropLoopsItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRepSeqScaledItem::ProtocolDropXRepSeqScaledItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropLoopsItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/P over N.png";
     QIcon icon;
@@ -1824,20 +1824,20 @@ void ProtocolDropXRepSeqScaledItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropVRepSeqScaledItem::ProtocolDropVRepSeqScaledItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVRepSeqScaledItem::ProtocolDropVRepSeqScaledItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqScaledItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRepSeqScaledItem::ProtocolDropIRepSeqScaledItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIRepSeqScaledItem::ProtocolDropIRepSeqScaledItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqScaledItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     holdLeakParam->setValue(hold-1.0);
     this->onSetString();
 }
 
-ProtocolDropXRepSeqItem::ProtocolDropXRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRepSeqItem::ProtocolDropXRepSeqItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXRepSeqScaledItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/repeat sequence.png";
     QIcon icon;
@@ -1907,18 +1907,18 @@ void ProtocolDropXRepSeqItem::onUpdateHold(double value) {
     holdLeakParam->setValue(hold);
 }
 
-ProtocolDropVRepSeqItem::ProtocolDropVRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVRepSeqItem::ProtocolDropVRepSeqItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRepSeqItem::ProtocolDropIRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIRepSeqItem::ProtocolDropIRepSeqItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropXRepSeqWithStepsItem::ProtocolDropXRepSeqWithStepsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXRepSeqWithStepsItem::ProtocolDropXRepSeqWithStepsItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXRepSeqScaledItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/repeat with steps.png";
     QIcon icon;
@@ -1988,18 +1988,18 @@ void ProtocolDropXRepSeqWithStepsItem::onUpdateHold(double value) {
     holdLeakParam->setValue(hold);
 }
 
-ProtocolDropVRepSeqWithStepsItem::ProtocolDropVRepSeqWithStepsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqWithStepsItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVRepSeqWithStepsItem::ProtocolDropVRepSeqWithStepsItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqWithStepsItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIRepSeqWithStepsItem::ProtocolDropIRepSeqWithStepsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXRepSeqWithStepsItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIRepSeqWithStepsItem::ProtocolDropIRepSeqWithStepsItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXRepSeqWithStepsItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropXInfRepSeqItem::ProtocolDropXInfRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropXRepSeqScaledItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropXInfRepSeqItem::ProtocolDropXInfRepSeqItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropXRepSeqScaledItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     QString iconString = ":imgs/infinite repeat sequence.png";
     QIcon icon;
@@ -2069,18 +2069,18 @@ void ProtocolDropXInfRepSeqItem::onUpdateHold(double value) {
     holdLeakParam->setValue(hold);
 }
 
-ProtocolDropVInfRepSeqItem::ProtocolDropVInfRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXInfRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVInfRepSeqItem::ProtocolDropVInfRepSeqItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXInfRepSeqItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
 }
 
-ProtocolDropIInfRepSeqItem::ProtocolDropIInfRepSeqItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropXInfRepSeqItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropIInfRepSeqItem::ProtocolDropIInfRepSeqItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropXInfRepSeqItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 }
 
-ProtocolDropControlItem::ProtocolDropControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropControlItem::ProtocolDropControlItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     visible = false;
     visibleEdit->setVisible(false);
@@ -2202,8 +2202,8 @@ void ProtocolDropControlItem::setCtrlFromYaml(const YAML::NaturalNumCtrl &yamlCt
     this->onAcceptPropertyDialog();
 }
 
-ProtocolDropVoltageControlItem::ProtocolDropVoltageControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropVoltageControlItem::ProtocolDropVoltageControlItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/voltage control.png";
     QIcon icon;
@@ -2273,8 +2273,8 @@ void ProtocolDropVoltageControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropCurrentControlItem::ProtocolDropCurrentControlItem(ModelDevice * mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropCurrentControlItem::ProtocolDropCurrentControlItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     QString iconString = ":imgs/current control.png";
     QIcon icon;
@@ -2343,8 +2343,8 @@ void ProtocolDropCurrentControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropTimeControlItem::ProtocolDropTimeControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropTimeControlItem::ProtocolDropTimeControlItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/time control.png";
     QIcon icon;
@@ -2409,8 +2409,8 @@ void ProtocolDropTimeControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropFrequencyControlItem::ProtocolDropFrequencyControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropFrequencyControlItem::ProtocolDropFrequencyControlItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/frequency control.png";
     QIcon icon;
@@ -2475,8 +2475,8 @@ void ProtocolDropFrequencyControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropNaturalNumControlItem::ProtocolDropNaturalNumControlItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropControlItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropNaturalNumControlItem::ProtocolDropNaturalNumControlItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropControlItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     QString iconString = ":imgs/number control.png";
     QIcon icon;
@@ -2538,8 +2538,8 @@ void ProtocolDropNaturalNumControlItem::onUpdateHold(double value) {
     hold = value;
 }
 
-ProtocolDropAnalysisItem::ProtocolDropAnalysisItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
-    ProtocolDropItem(mDev, ctrlManager, hold0, clampingModality, type) {
+ProtocolDropAnalysisItem::ProtocolDropAnalysisItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type) :
+    ProtocolDropItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
 
     visible = false;
     visibleEdit->setVisible(false);
@@ -2729,8 +2729,8 @@ void ProtocolDropAnalysisItem::setInvalidLoopsToolTip() {
                      "can't be active only on 1 repetition.");
 }
 
-ProtocolDropNoiseReportItem::ProtocolDropNoiseReportItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropNoiseReportItem::ProtocolDropNoiseReportItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::NoiseReport;
     QString iconString = ":imgs/analysis noise report.png";
@@ -2800,8 +2800,8 @@ QString ProtocolDropNoiseReportItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropHistogramItem::ProtocolDropHistogramItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropHistogramItem::ProtocolDropHistogramItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::Histogram;
     QString iconString = ":imgs/analysis histogram.png";
@@ -2870,8 +2870,8 @@ QString ProtocolDropHistogramItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropSpectrumItem::ProtocolDropSpectrumItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropSpectrumItem::ProtocolDropSpectrumItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::Spectrum;
     QString iconString = ":imgs/analysis spectrum.png";
@@ -2940,8 +2940,8 @@ QString ProtocolDropSpectrumItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropResistanceEstimationItem::ProtocolDropResistanceEstimationItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropResistanceEstimationItem::ProtocolDropResistanceEstimationItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::ResistanceEstimation;
     QString iconString = ":imgs/analysis resistance estimation.png";
@@ -3040,8 +3040,8 @@ QString ProtocolDropResistanceEstimationItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropMembraneTestItem::ProtocolDropMembraneTestItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropMembraneTestItem::ProtocolDropMembraneTestItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::MembraneTest;
     QString iconString = ":imgs/analysis membrane test.png";
@@ -3143,8 +3143,8 @@ QString ProtocolDropMembraneTestItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropIvGraphItem::ProtocolDropIvGraphItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
+ProtocolDropIvGraphItem::ProtocolDropIvGraphItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::VOLTAGE_CLAMP, type) {
 
     analysisType = YAML::IVGraph;
     QString iconString = ":imgs/analysis iv graph.png";
@@ -3303,8 +3303,8 @@ void ProtocolDropIvGraphItem::updateTimePointsNumHouseKeeping() {
     this->onSetString();
 }
 
-ProtocolDropVoltageTrackingItem::ProtocolDropVoltageTrackingItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropVoltageTrackingItem::ProtocolDropVoltageTrackingItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
 //    analysisType = YAML::Histogram;
     QString iconString = ":imgs/analysis voltage tracking.png";
@@ -3373,8 +3373,8 @@ QString ProtocolDropVoltageTrackingItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropApThresholdItem::ProtocolDropApThresholdItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropApThresholdItem::ProtocolDropApThresholdItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     analysisType = YAML::APThreshold;
     QString iconString = ":imgs/analysis ap threshold.png";
@@ -3443,8 +3443,8 @@ QString ProtocolDropApThresholdItem::onCheckCursorsValidity() {
     return "OK";
 }
 
-ProtocolDropApStatisticsItem::ProtocolDropApStatisticsItem(ModelDevice *  mDev, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
-    ProtocolDropAnalysisItem(mDev, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
+ProtocolDropApStatisticsItem::ProtocolDropApStatisticsItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type) :
+    ProtocolDropAnalysisItem(msgDisp, ctrlManager, hold0, ClampingModality_t::CURRENT_CLAMP, type) {
 
     analysisType = YAML::APStatistics;
     QString iconString = ":imgs/analysis ap statistics.png";

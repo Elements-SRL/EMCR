@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDebug>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "compensationcontroldockwidget.h"
 #include "mainwindow.h"
 
@@ -12,11 +12,11 @@ class ControllerCompensation : public QObject {
     Q_OBJECT
 
 public:
-    ControllerCompensation(ModelDevice * mDev, MainWindow * mainWindow);
+    ControllerCompensation(MessageDispatcher * msgDisp, MainWindow * mainWindow);
     CompensationControlDockWidget * getCompensationDockWidget();
 
 private:
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     CompensationControlDockWidget * compensationControlDockWidget = nullptr;
 };

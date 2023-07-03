@@ -5,14 +5,14 @@
 
 #include "globaldefines.h"
 
-Chessboard::Chessboard(ModelDevice * mDev, QWidget * parent) :
+Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
     QWidget(parent),
-    mDev(mDev) {
+    msgDisp(msgDisp) {
 
     int boardsNum;
 
-    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
-    mDev->getBoardsNumberFeatures(boardsNum);
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    msgDisp->getBoardsNumberFeatures(boardsNum);
     int channelsPerBoard = currentChannelsNum/boardsNum;
 
     QGridLayout * mainGl = new QGridLayout;
@@ -174,7 +174,8 @@ void Chessboard::onReplot() {
 }
 
 void Chessboard::onSelectedPlotsUdpated() {
-    QVector <bool> selectedChannels = mDev->getSelectedChannelsIdxs();
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
     for(int ii = 0; ii < currentChannelsNum; ii++){
         plots[ii]->setSelected(selectedChannels[ii]);
     }

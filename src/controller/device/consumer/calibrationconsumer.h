@@ -7,8 +7,6 @@
 #define CCS_DAC_OFFSET_MINIMIZATION_MAX_TRY 1
 //#define CCS_CALIBRATION_DEFAULT_PATH "C:/EMCR_calib_folder/"
 
-#include "modeldevice.h"
-#include "devicedataconsumer.h"
 #include <QTextStream>
 #include <QFile>
 #include <QDir>
@@ -16,10 +14,13 @@
 #include <QMutex>
 #include <QMutexLocker>
 
+#include "messagedispatcher.h"
+#include "devicedataconsumer.h"
+
 class CalibrationConsumer : public DeviceDataConsumer {
     Q_OBJECT
 public:
-    CalibrationConsumer(ModelDevice * mDev, DeviceDataProducer * producer);
+    CalibrationConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
     ~CalibrationConsumer();
 
     void loadInitialCalibParams(QString path, QString mappingFileName);
@@ -106,6 +107,8 @@ private:
                               std::vector<std::vector<Measurement_t>> &ccGainDacMeas,
                               std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
                               );
+
+    std::vector <ModelChannel *> channels;
 
     bool consumptionStopped = false;
     bool exitedDataConsumingLoop = false;

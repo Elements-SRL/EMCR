@@ -1,12 +1,13 @@
 #ifndef DEVICEDATAPRODUCER_H
 #define DEVICEDATAPRODUCER_H
 
+#include <QVector>
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
 #include <QTimer>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 
 #define DDP_MAX_SAMPLES_FOR_BUFFER 0x2000000 // 32M
 #define DDP_MAX_WAIT_COUNT (10)
@@ -17,7 +18,7 @@ class DeviceDataProducer : public QThread {
     Q_OBJECT
 
 public:
-    DeviceDataProducer(ModelDevice * mDev, QObject * parent = nullptr);
+    DeviceDataProducer(MessageDispatcher * msgDisp, QObject * parent = nullptr);
     virtual ~DeviceDataProducer();
 
     unsigned int getDataPacketsBufferLen();
@@ -30,7 +31,7 @@ protected:
     virtual void run() override;
 
 private:
-    ModelDevice * mDev;
+    MessageDispatcher * msgDisp = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;

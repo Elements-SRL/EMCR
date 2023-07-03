@@ -4,7 +4,7 @@
 #include <QObject>
 #include<QDebug>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "boardcontroldockwidget.h"
 #include "mainwindow.h"
 
@@ -12,9 +12,10 @@ class ControllerBoard : public QObject {
     Q_OBJECT
 
 public:
-    ControllerBoard(ModelDevice * mDev, MainWindow * mainWindow);
+    ControllerBoard(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+
 private:
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
     BoardControlDockWidget * boardControlDockWidget = nullptr;
     MainWindow * mainWindow = nullptr;
 

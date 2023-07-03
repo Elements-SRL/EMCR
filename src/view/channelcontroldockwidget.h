@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "myspinbox.h"
 #include "errormanager.h"
 
@@ -18,7 +18,7 @@ class ChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    ChannelControlDockWidget(ModelDevice * mDev, QWidget * parent = nullptr);
+    ChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
 public slots:
     void onUpdate();
@@ -47,7 +47,7 @@ private:
     QWidget * createOperationButtonWidget(int idx);
     QVBoxLayout * getLayoutWithScrollBar(QWidget * widget);
 
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;

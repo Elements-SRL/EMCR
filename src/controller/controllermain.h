@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QThread>
 
-#include "modeldevice.h"
 #include "mainwindow.h"
 #include "devicedetector.h"
 #include "controllerchannel.h"
@@ -50,7 +49,7 @@ private:
     void startProducerConsumers();
     void stopAndDestroyProducerConsumers();
 
-    ModelDevice * mDev = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
 
     MainWindow * mainWindow = nullptr;
 

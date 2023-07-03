@@ -5,9 +5,9 @@
 #include <QPushButton>
 #include <iostream>
 
-ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget * parent) :
+ChannelControlDockWidget::ChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
-    mDev(mDev) {
+    msgDisp(msgDisp) {
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -20,7 +20,7 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
     mainVl->setSpacing(1);
     mainWg->setLayout(mainVl);
 
-    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     operationTitles.resize(OperationsNum);
     operationTitles[OperationTurnChannelsOnOff] = "Turn channels on/off";
@@ -68,7 +68,8 @@ ChannelControlDockWidget::ChannelControlDockWidget(ModelDevice * mDev, QWidget *
 }
 
 void ChannelControlDockWidget::onUpdate() {
-    QVector <bool> selectedChannels = mDev->getSelectedChannelsIdxs();
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         for (int idx = 0; idx < OperationsNum; idx++) {
             operationEdits[idx][channelIdx]->setVisible(selectedChannels[channelIdx]);
@@ -82,24 +83,20 @@ void ChannelControlDockWidget::onApplyButtonClicked() {
 }
 
 void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool applyAll) {
+    std::vector <bool> selectedChannels(currentChannelsNum, true);
+    if (!applyAll) {
+        msgDisp->getSelectedChannels(selectedChannels);
+    }
+
     switch (operationIdx) {
     case OperationTurnChannelsOnOff: {
         QCheckBox * cb;
         std::vector<bool> values;
         std::vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes;
-        if (applyAll) {
-            selectedIndexes.resize(currentChannelsNum);
-            selectedIndexes.fill(true);
-
-        } else {
-            selectedIndexes = mDev->getSelectedChannelsIdxs();
-        }
-
-        for (int i = 0; i<selectedIndexes.size(); i++) {
+        for (int i = 0; i<selectedChannels.size(); i++) {
             cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedIndexes.at(i)) {
+            if (selectedChannels.at(i)) {
                 values.push_back(cb->isChecked());
                 indexes.push_back(i);
             }
@@ -113,11 +110,9 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
         std::vector<bool> values;
         std::vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-        for (int i = 0; i<selectedIndexes.size(); i++) {
+        for (int i = 0; i<selectedChannels.size(); i++) {
             cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedIndexes.at(i)) {
+            if (selectedChannels.at(i)) {
                 values.push_back(cb->isChecked());
                 indexes.push_back(i);
             }
@@ -131,11 +126,9 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
         std::vector<bool> values;
         std::vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-        for (int i = 0; i<selectedIndexes.size(); i++) {
+        for (int i = 0; i<selectedChannels.size(); i++) {
             cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedIndexes.at(i)) {
+            if (selectedChannels.at(i)) {
                 values.push_back(cb->isChecked());
                 indexes.push_back(i);
             }
@@ -149,11 +142,9 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
         std::vector<Measurement_t> values;
         std::vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-        for (int i = 0; i<selectedIndexes.size(); i++) {
+        for (int i = 0; i<selectedChannels.size(); i++) {
             sbx = static_cast<SpinBoxWithChannel *>(operationEdits[operationIdx][i]);
-            if (selectedIndexes.at(i)) {
+            if (selectedChannels.at(i)) {
                 Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), holdingTunerRange.prefix, holdingTunerRange.unit};
                 values.push_back(myMeasurementValue);
                 indexes.push_back(i);
@@ -172,11 +163,9 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
         std::vector<bool> values;
         std::vector<uint16_t> indexes;
 
-        QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-        for (int i = 0; i<selectedIndexes.size(); i++) {
+        for (int i = 0; i<selectedChannels.size(); i++) {
             cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedIndexes.at(i)) {
+            if (selectedChannels.at(i)) {
                 values.push_back(cb->isChecked());
                 indexes.push_back(i);
             }
@@ -194,12 +183,11 @@ void ChannelControlDockWidget::onCheckAllButtonClicked() {
     QCheckBox * cb;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
-
-    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-    for (int i = 0; i<selectedIndexes.size(); i++) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (int i = 0; i<selectedChannels.size(); i++) {
         cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
-        if (selectedIndexes.at(i)) {
+        if (selectedChannels.at(i)) {
             cb->setChecked(true);
         }
     }
@@ -209,12 +197,11 @@ void ChannelControlDockWidget::onUncheckAllButtonClicked() {
     QCheckBox * cb;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
-
-    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-    for (int i = 0; i<selectedIndexes.size(); i++) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (int i = 0; i<selectedChannels.size(); i++) {
         cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
-        if (selectedIndexes.at(i)) {
+        if (selectedChannels.at(i)) {
             cb->setChecked(false);
         }
     }
@@ -224,12 +211,11 @@ void ChannelControlDockWidget::onSetAllButtonClicked() {
     SpinBoxWithChannel * spinBox;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
-
-    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-    for (int i = 0; i<selectedIndexes.size(); i++) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (int i = 0; i<selectedChannels.size(); i++) {
         spinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationCbx->currentIndex()][i]);
-        if (selectedIndexes.at(i)) {
+        if (selectedChannels.at(i)) {
             spinBox->getSpinBox()->setValue(this->setAllVholdSpinBox->getSpinBox()->value());
         }
     }
@@ -240,12 +226,11 @@ void ChannelControlDockWidget::onStartRecordingButtonClicked() {
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
     bool isAtLeastOneChannelChecked = false;
-
-    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
-    for (int i = 0; i<selectedIndexes.size(); i++) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (int i = 0; i<selectedChannels.size(); i++) {
         cb = static_cast<QCheckBox *>(operationEdits[OperationRecordToFile][i]);
-        if (selectedIndexes.at(i)) {
+        if (selectedChannels.at(i)) {
             values.push_back(cb->isChecked());
             indexes.push_back(i);
             if(cb->isChecked()){
@@ -271,9 +256,6 @@ void ChannelControlDockWidget::onStopRecordingButtonClicked() {
     QPixmap pixmapRecors("://imgs/record protocol.png");
     QIcon recordIcon(pixmapRecors);
     startRecordingBtn->setIcon(recordIcon);
-
-    QVector <bool> selectedIndexes = mDev->getSelectedChannelsIdxs();
-
     operationWidgets[OperationRecordToFile]->setEnabled(true);
 
     emit sigStopRecording();
@@ -287,7 +269,7 @@ void ChannelControlDockWidget::onSigRecording(bool state){
 
 void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
-    mDev->getVoltageHoldTunerFeatures(ranges);
+    msgDisp->getVoltageHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
     setAllChannelsSbx->setSuffix(QString(" ") + unit);
@@ -305,7 +287,7 @@ void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
 
 void ChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
-    mDev->getCurrentHoldTunerFeatures(ranges);
+    msgDisp->getCurrentHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
     setAllChannelsSbx->setSuffix(QString(" ") + unit);
@@ -335,6 +317,9 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     operationWidgets[idx] = new QWidget;
     QVBoxLayout * scrollVl = getLayoutWithScrollBar(operationWidgets[idx]);
 
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+
     operationEdits[idx].resize(currentChannelsNum);
     switch (idx) {
     case OperationTurnChannelsOnOff:
@@ -345,7 +330,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             QCheckBox * btn = new QCheckBox(QString(operationString[idx]).arg(channelIdx+1));
             btn->setChecked(false);
-            btn->setVisible(mDev->getSelectedChannelsIdxs()[channelIdx]);
+            btn->setVisible(selectedChannels[channelIdx]);
             scrollVl->addWidget(btn);
             operationEdits[idx][channelIdx] = btn;
         }
@@ -354,7 +339,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     case OperationHoldingStimulus: {
         std::vector <RangedMeasurement_t> ranges;
         /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
-        mDev->getVoltageHoldTunerFeatures(ranges);
+        msgDisp->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             MySpinBox * sbx = new MySpinBox;
@@ -363,7 +348,7 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
             sbx->setValue(0.0);
             sbx->setDecimals(ranges[0].decimals());
             SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
-            widget->setVisible(mDev->getSelectedChannelsIdxs()[channelIdx]);
+            widget->setVisible(selectedChannels[channelIdx]);
 
             scrollVl->addWidget(widget);
             operationEdits[idx][channelIdx] = widget;
@@ -408,7 +393,7 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
         std::vector <RangedMeasurement_t> ranges;
         /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
-        mDev->getVoltageHoldTunerFeatures(ranges);
+        msgDisp->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
         setAllChannelsSbx = new MySpinBox;
         setAllChannelsSbx->setSuffix(QString(" ") + unit);

@@ -2,9 +2,9 @@
 
 #include <QtWidgets>
 
-ProtocolItemDropList::ProtocolItemDropList(ModelDevice *  mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
+ProtocolItemDropList::ProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
     QListWidget(),
-    mDev(mDev),
+    msgDisp(msgDisp),
     holdEdit(holdEdit),
     clampingModality(clampingModality) {
 
@@ -265,41 +265,41 @@ void ProtocolItemDropList::setControlsFromYaml(const std::vector <YAML::Control_
     /*! Get the simulus range and set it before importing numeric values into the items */
     RangedMeasurement_t stimulusRange;
     if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)voltageRangeIdx, stimulusRange);
+        msgDisp->getVoltageProtocolRangeFeature((unsigned int)voltageRangeIdx, stimulusRange);
 
     } else {
-        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)currentRangeIdx, stimulusRange);
+        msgDisp->getCurrentProtocolRangeFeature((unsigned int)currentRangeIdx, stimulusRange);
     }
 
     for (auto yamlControl : yamlControls) {
         ProtocolDropItem * item = nullptr;
         switch (yamlControl.index()) {
         case YAML::VoltageCtrlIdx:
-            item = new ProtocolDropVoltageControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVoltageControlItem(msgDisp, ctrlManager, holdEdit->value());
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::VoltageCtrl> (yamlControl));
             break;
 
         case YAML::CurrentCtrlIdx:
-            item = new ProtocolDropCurrentControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropCurrentControlItem(msgDisp, ctrlManager, holdEdit->value());
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::CurrentCtrl> (yamlControl));
             break;
 
         case YAML::TimeCtrlIdx:
-            item = new ProtocolDropTimeControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropTimeControlItem(msgDisp, ctrlManager, holdEdit->value());
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::TimeCtrl> (yamlControl));
             break;
 
         case YAML::FrequencyCtrlIdx:
-            item = new ProtocolDropFrequencyControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropFrequencyControlItem(msgDisp, ctrlManager, holdEdit->value());
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::FrequencyCtrl> (yamlControl));
             break;
 
         case YAML::NaturalNumCtrlIdx:
-            item = new ProtocolDropNaturalNumControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropNaturalNumControlItem(msgDisp, ctrlManager, holdEdit->value());
             item->setStimulusRange(stimulusRange);
             static_cast <ProtocolDropControlItem *> (item)->setCtrlFromYaml(std::get <YAML::NaturalNumCtrl> (yamlControl));
             break;
@@ -317,18 +317,18 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
     /*! Get the simulus range and set it before importing numeric values into the items */
     RangedMeasurement_t stimulusRange;
     if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        mDev->getMessageDispatcher()->getVoltageProtocolRangeFeature((unsigned int)voltageRangeIdx, stimulusRange);
+        msgDisp->getVoltageProtocolRangeFeature((unsigned int)voltageRangeIdx, stimulusRange);
 
     } else {
-        mDev->getMessageDispatcher()->getCurrentProtocolRangeFeature((unsigned int)currentRangeIdx, stimulusRange);
+        msgDisp->getCurrentProtocolRangeFeature((unsigned int)currentRangeIdx, stimulusRange);
     }
 
     for (auto yamlPhase : yamlPhases) {
         ProtocolDropItem * item = nullptr;
         switch (yamlPhase.index()) {
         case YAML::VHoldIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropVHoldItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropVHoldItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VHold_t> (yamlPhase));
                 connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
@@ -336,48 +336,48 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::VConstIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropVConstItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropVConstItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VConst_t> (yamlPhase));
             }
             break;
 
         case YAML::VStepTStepIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropVStepTStepItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropVStepTStepItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VStepTStep_t> (yamlPhase));
             }
             break;
 
         case YAML::VRestIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropVRestItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropVRestItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::VRest_t> (yamlPhase));
             }
             break;
 
         case YAML::VRampIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
-                item = new ProtocolDropVRampItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolRampFeature() == Success) {
+                item = new ProtocolDropVRampItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::VRamp_t> (yamlPhase));
             }
             break;
 
         case YAML::VSinIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
-                item = new ProtocolDropVSinItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolSinFeature() == Success) {
+                item = new ProtocolDropVSinItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXSinItem *> (item)->setPhaseFromYaml(std::get <YAML::VSin_t> (yamlPhase));
             }
             break;
 
         case YAML::IHoldIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropIHoldItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropIHoldItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IHold_t> (yamlPhase));
                 connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
@@ -385,40 +385,40 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             break;
 
         case YAML::IConstIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropIConstItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropIConstItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IConst_t> (yamlPhase));
             }
             break;
 
         case YAML::IStepTStepIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropIStepTStepItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropIStepTStepItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IStepTStep_t> (yamlPhase));
             }
             break;
 
         case YAML::IRestIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolStepFeature() == Success) {
-                item = new ProtocolDropIRestItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolStepFeature() == Success) {
+                item = new ProtocolDropIRestItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXStepTStepItem *> (item)->setPhaseFromYaml(std::get <YAML::IRest_t> (yamlPhase));
             }
             break;
 
         case YAML::IRampIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolRampFeature() == Success) {
-                item = new ProtocolDropIRampItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolRampFeature() == Success) {
+                item = new ProtocolDropIRampItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::VRamp_t> (yamlPhase));
             }
             break;
 
         case YAML::ISinIdx:
-            if (mDev->getMessageDispatcher()->hasProtocolSinFeature() == Success) {
-                item = new ProtocolDropISinItem(mDev, ctrlManager, holdEdit->value());
+            if (msgDisp->hasProtocolSinFeature() == Success) {
+                item = new ProtocolDropISinItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
                 static_cast <ProtocolDropXSinItem *> (item)->setPhaseFromYaml(std::get <YAML::ISin_t> (yamlPhase));
             }
@@ -426,10 +426,10 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
         case YAML::RepSeqIdx:
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                item = new ProtocolDropVRepSeqItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropVRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
 
             } else {
-                item = new ProtocolDropIRepSeqItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropIRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
             }
 
             item->setStimulusRange(stimulusRange);
@@ -439,10 +439,10 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
         case YAML::RepSeqWithStepsIdx:
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                item = new ProtocolDropVRepSeqWithStepsItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropVRepSeqWithStepsItem(msgDisp, ctrlManager, holdEdit->value());
 
             } else {
-                item = new ProtocolDropIRepSeqWithStepsItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropIRepSeqWithStepsItem(msgDisp, ctrlManager, holdEdit->value());
             }
 
             item->setStimulusRange(stimulusRange);
@@ -452,10 +452,10 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
         case YAML::RepSeqScaledIdx:
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                item = new ProtocolDropVRepSeqScaledItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropVRepSeqScaledItem(msgDisp, ctrlManager, holdEdit->value());
 
             } else {
-                item = new ProtocolDropIRepSeqScaledItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropIRepSeqScaledItem(msgDisp, ctrlManager, holdEdit->value());
             }
 
             item->setStimulusRange(stimulusRange);
@@ -465,10 +465,10 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
 
         case YAML::InfRepSeqIdx:
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                item = new ProtocolDropVInfRepSeqItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropVInfRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
 
             } else {
-                item = new ProtocolDropIInfRepSeqItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropIInfRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
             }
 
             item->setStimulusRange(stimulusRange);
@@ -490,7 +490,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
         ProtocolDropItem * item = nullptr;
         switch (yamlAnalysis.type) {
         case YAML::NoiseReport: {
-            item = new ProtocolDropNoiseReportItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropNoiseReportItem(msgDisp, ctrlManager, holdEdit->value());
             ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
             this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
             emit requestCursors(castItem);
@@ -502,7 +502,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
 
         case YAML::Histogram: {
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                item = new ProtocolDropNoiseReportItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropNoiseReportItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
                 emit requestCursors(castItem);
@@ -515,7 +515,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
 
         case YAML::Spectrum: {
             if (!(this->analysisRequested(ProtocolConsumerSpectrum))) {
-                item = new ProtocolDropSpectrumItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropSpectrumItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerSpectrum, castItem);
                 emit requestCursors(castItem);
@@ -529,7 +529,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
         case YAML::MembraneTest: {
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
                 if (!(this->analysisRequested(ProtocolConsumerMembraneTest))) {
-                    item = new ProtocolDropMembraneTestItem(mDev, ctrlManager, holdEdit->value());
+                    item = new ProtocolDropMembraneTestItem(msgDisp, ctrlManager, holdEdit->value());
                     ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                     this->setAnalysis(ProtocolConsumerMembraneTest, castItem);
                     emit requestCursors(castItem);
@@ -546,7 +546,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
 
         case YAML::IVGraph: {
             if (!(this->analysisRequested(ProtocolConsumerIvGraph))) {
-                item = new ProtocolDropIvGraphItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropIvGraphItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerIvGraph, castItem);
                 emit requestCursors(castItem);
@@ -563,7 +563,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
 
             } else {
                 if (!(this->analysisRequested(ProtocolConsumerResistanceEstimation))) {
-                    item = new ProtocolDropResistanceEstimationItem(mDev, ctrlManager, holdEdit->value());
+                    item = new ProtocolDropResistanceEstimationItem(msgDisp, ctrlManager, holdEdit->value());
                     ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                     this->setAnalysis(ProtocolConsumerResistanceEstimation, castItem);
                     emit requestCursors(castItem);
@@ -581,7 +581,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
 
             } else {
                 if (!(this->analysisRequested(ProtocolConsumerApThreshold))) {
-                    item = new ProtocolDropApThresholdItem(mDev, ctrlManager, holdEdit->value());
+                    item = new ProtocolDropApThresholdItem(msgDisp, ctrlManager, holdEdit->value());
                     ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                     this->setAnalysis(ProtocolConsumerApThreshold, castItem);
                     emit requestCursors(castItem);
@@ -599,7 +599,7 @@ void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis
 
             } else {
                 if (!(this->analysisRequested(ProtocolConsumerApStatistics))) {
-                    item = new ProtocolDropApStatisticsItem(mDev, ctrlManager, holdEdit->value());
+                    item = new ProtocolDropApStatisticsItem(msgDisp, ctrlManager, holdEdit->value());
                     ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                     this->setAnalysis(ProtocolConsumerApStatistics, castItem);
                     emit requestCursors(castItem);
@@ -771,132 +771,132 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         switch (type) {
         case PROT_DRAG_LIST_VSTEP_TSTEP_ITEM_TYPE:
-            item = new ProtocolDropVStepTStepItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVStepTStepItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_ISTEP_TSTEP_ITEM_TYPE:
-            item = new ProtocolDropIStepTStepItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIStepTStepItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VSTEP_ITEM_TYPE:
-            item = new ProtocolDropVStepItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVStepItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_ISTEP_ITEM_TYPE:
-            item = new ProtocolDropIStepItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIStepItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VTSTEP_ITEM_TYPE:
-            item = new ProtocolDropVTStepItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVTStepItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_ITSTEP_ITEM_TYPE:
-            item = new ProtocolDropITStepItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropITStepItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VCONST_ITEM_TYPE:
-            item = new ProtocolDropVConstItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVConstItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_ICONST_ITEM_TYPE:
-            item = new ProtocolDropIConstItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIConstItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VHOLD_ITEM_TYPE:
-            item = new ProtocolDropVHoldItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVHoldItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_IHOLD_ITEM_TYPE:
-            item = new ProtocolDropIHoldItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIHoldItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_VREST_ITEM_TYPE:
-            item = new ProtocolDropVRestItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVRestItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_IREST_ITEM_TYPE:
-            item = new ProtocolDropIRestItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIRestItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VRAMP_ITEM_TYPE:
-            item = new ProtocolDropVRampItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVRampItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_IRAMP_ITEM_TYPE:
-            item = new ProtocolDropIRampItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIRampItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VSIN_ITEM_TYPE:
-            item = new ProtocolDropVSinItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVSinItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_ISIN_ITEM_TYPE:
-            item = new ProtocolDropISinItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropISinItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VREP_SEQ_SCALED_ITEM_TYPE:
-            item = new ProtocolDropVRepSeqScaledItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVRepSeqScaledItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_IREP_SEQ_SCALED_ITEM_TYPE:
-            item = new ProtocolDropIRepSeqScaledItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIRepSeqScaledItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_VREP_SEQ_ITEM_TYPE:
-            item = new ProtocolDropVRepSeqItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_IREP_SEQ_ITEM_TYPE:
-            item = new ProtocolDropIRepSeqItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_VREP_SEQ_WITH_STEPS_ITEM_TYPE:
-            item = new ProtocolDropVRepSeqWithStepsItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVRepSeqWithStepsItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_IREP_SEQ_WITH_STEPS_ITEM_TYPE:
-            item = new ProtocolDropIRepSeqWithStepsItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIRepSeqWithStepsItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_VINF_REP_SEQ_ITEM_TYPE:
-            item = new ProtocolDropVInfRepSeqItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVInfRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_IINF_REP_SEQ_ITEM_TYPE:
-            item = new ProtocolDropIInfRepSeqItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropIInfRepSeqItem(msgDisp, ctrlManager, holdEdit->value());
             connect(this, &ProtocolItemDropList::updateHold, item, &ProtocolDropItem::onUpdateHold);
             break;
 
         case PROT_DRAG_LIST_VOLTAGE_CONTROL_ITEM_TYPE:
-            item = new ProtocolDropVoltageControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropVoltageControlItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_CURRENT_CONTROL_ITEM_TYPE:
-            item = new ProtocolDropCurrentControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropCurrentControlItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_TIME_CONTROL_ITEM_TYPE:
-            item = new ProtocolDropTimeControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropTimeControlItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_FREQUENCY_CONTROL_ITEM_TYPE:
-            item = new ProtocolDropFrequencyControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropFrequencyControlItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_NATURAL_NUM_CONTROL_ITEM_TYPE:
-            item = new ProtocolDropNaturalNumControlItem(mDev, ctrlManager, holdEdit->value());
+            item = new ProtocolDropNaturalNumControlItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
         case PROT_DRAG_LIST_NOISE_REPORT_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerNoiseReport))) {
-                item = new ProtocolDropNoiseReportItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropNoiseReportItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
                 emit requestCursors(castItem);
@@ -910,7 +910,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_HISTOGRAM_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerHistogram))) {
-                item = new ProtocolDropHistogramItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropHistogramItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerHistogram, castItem);
                 emit requestCursors(castItem);
@@ -924,7 +924,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_SPECTRUM_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerSpectrum))) {
-                item = new ProtocolDropSpectrumItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropSpectrumItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerSpectrum, castItem);
                 emit requestCursors(castItem);
@@ -938,7 +938,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerResistanceEstimation))) {
-                item = new ProtocolDropResistanceEstimationItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropResistanceEstimationItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerResistanceEstimation, castItem);
                 emit requestCursors(castItem);
@@ -952,7 +952,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_MEMBRANE_TEST_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerMembraneTest))) {
-                item = new ProtocolDropMembraneTestItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropMembraneTestItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerMembraneTest, castItem);
                 emit requestCursors(castItem);
@@ -966,7 +966,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_IV_GRAPH_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerIvGraph))) {
-                item = new ProtocolDropIvGraphItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropIvGraphItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerIvGraph, castItem);
                 emit requestCursors(castItem);
@@ -980,7 +980,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_VOLTAGE_TRACKING_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerVoltageTracking))) {
-                item = new ProtocolDropVoltageTrackingItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropVoltageTrackingItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerVoltageTracking, castItem);
                 emit requestCursors(castItem);
@@ -994,7 +994,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_AP_THRESHOLD_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerApThreshold))) {
-                item = new ProtocolDropApThresholdItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropApThresholdItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerApThreshold, castItem);
                 emit requestCursors(castItem);
@@ -1008,7 +1008,7 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
 
         case PROT_DRAG_LIST_AP_STATISTICS_ITEM_TYPE:
             if (!(this->analysisRequested(ProtocolConsumerApStatistics))) {
-                item = new ProtocolDropApStatisticsItem(mDev, ctrlManager, holdEdit->value());
+                item = new ProtocolDropApStatisticsItem(msgDisp, ctrlManager, holdEdit->value());
                 ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
                 this->setAnalysis(ProtocolConsumerApStatistics, castItem);
                 emit requestCursors(castItem);
@@ -1162,8 +1162,8 @@ void ProtocolItemDropList::createActions() {
     });
 }
 
-GapfreeProtocolItemDropList::GapfreeProtocolItemDropList(ModelDevice *  mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
-    ProtocolItemDropList(mDev, holdEdit, clampingModality) {
+GapfreeProtocolItemDropList::GapfreeProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
+    ProtocolItemDropList(msgDisp, holdEdit, clampingModality) {
 
 }
 
@@ -1197,8 +1197,8 @@ bool GapfreeProtocolItemDropList::acceptedMimeDataFormat(const QMimeData * mimeD
     }
 }
 
-EpisodicProtocolItemDropList::EpisodicProtocolItemDropList(ModelDevice *  mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
-    ProtocolItemDropList(mDev, holdEdit, clampingModality) {
+EpisodicProtocolItemDropList::EpisodicProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
+    ProtocolItemDropList(msgDisp, holdEdit, clampingModality) {
 
 }
 
@@ -1229,8 +1229,8 @@ bool EpisodicProtocolItemDropList::acceptedMimeDataFormat(const QMimeData * mime
     }
 }
 
-CtrlProtocolItemDropList::CtrlProtocolItemDropList(ModelDevice *  mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
-    ProtocolItemDropList(mDev, holdEdit, clampingModality) {
+CtrlProtocolItemDropList::CtrlProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
+    ProtocolItemDropList(msgDisp, holdEdit, clampingModality) {
 
 }
 
@@ -1248,8 +1248,8 @@ bool CtrlProtocolItemDropList::acceptedMimeDataFormat(const QMimeData * mimeData
     }
 }
 
-AnalysisProtocolItemDropList::AnalysisProtocolItemDropList(ModelDevice *  mDev, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
-    ProtocolItemDropList(mDev, holdEdit, clampingModality) {
+AnalysisProtocolItemDropList::AnalysisProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
+    ProtocolItemDropList(msgDisp, holdEdit, clampingModality) {
 
 }
 

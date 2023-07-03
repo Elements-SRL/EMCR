@@ -3,10 +3,10 @@
 #include <QBoxLayout>
 
 
-BigPlotDockWidget::BigPlotDockWidget(ModelDevice * mDev, QWidget * parent) :
+BigPlotDockWidget::BigPlotDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent) {
 
-    mDev->getChannelsNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);

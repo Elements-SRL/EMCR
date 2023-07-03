@@ -3,7 +3,6 @@
 #include "mainwindow.h"
 
 ControllerMain::ControllerMain() {
-    mDev = new ModelDevice();
     /*! Set up device detector */
     deviceDetector = new DeviceDetector;
     deviceDetector->moveToThread(&deviceDetectorThread);
@@ -28,15 +27,15 @@ ControllerMain::~ControllerMain() {
         deviceDetector = nullptr;
     }
 
-    if (mDev->isConnected()) {
-        mDev->getMessageDispatcher()->disconnectDevice();
+    if (msgDisp != nullptr) {
+        msgDisp->disconnectDevice();
     }
 }
 
 void ControllerMain::setMainWindow(MainWindow * mainWindow) {
     this->mainWindow = mainWindow;
 
-    mainWindow->setModelDevice(mDev);
+    mainWindow->setMessageDispatcher(msgDisp);
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &ControllerMain::onDevicesListChanged);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &ControllerMain::onConnect);
 
@@ -47,8 +46,10 @@ void ControllerMain::setMainWindow(MainWindow * mainWindow) {
 void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList) {
     this->mainWindow->setDevicesList(devicesList);
     if (devicesList.size() > 0) {
-        if (mDev->isConnected()) {
-            QString connectedDeviceName = mDev->getSerialNumber();
+        if (msgDisp != nullptr) {
+            std::string sn;
+            msgDisp->getSerialNumber(sn);
+            QString connectedDeviceName = QString::fromStdString(sn);
 
             int connectedDeviceIdx = -1;
             for (unsigned int idx = 0; idx < devicesList.size(); idx++) {
@@ -72,7 +73,6 @@ void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList)
 void ControllerMain::onConnect(bool flag) {
     emit stopDetecting();
     QString serial = mainWindow->getSelectedSerialNumber();
-    mDev->setSerialNumber(serial);
 
     if (flag) {
         MessageDispatcher * messageDispatcher;
@@ -80,17 +80,14 @@ void ControllerMain::onConnect(bool flag) {
         bool connectionSuccessful = ret == Success;
 
         if (connectionSuccessful) {
-            mDev->setMessageDispatcher(messageDispatcher);
-            mDev->getChannelsNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
-            mDev->getBoardsNumberFeatures(boardsNumber);
-            mDev->fillChannelList(boardsNumber, currentChannelsNumber/boardsNumber);
+            msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
+            msgDisp->getBoardsNumberFeatures(boardsNumber);
         }
 
         mainWindow->connectDevice(true, ret);
         if (connectionSuccessful) {
             this->onMainWindowCreated();
         }
-        mDev->setConnected(connectionSuccessful);
 
         if (!connectionSuccessful) {
             emit startDetecting();
@@ -101,13 +98,11 @@ void ControllerMain::onConnect(bool flag) {
 
         mainWindow->connectDevice(false, Success);
         this->onMainWindowDestroyed();
-        mDev->flushBoardList();
-        mDev->setConnected(false);
 
-        if (mDev->getMessageDispatcher() != nullptr) {
-            mDev->getMessageDispatcher()->disconnect();
-            delete mDev->getMessageDispatcher();
-            mDev->setMessageDispatcher(nullptr);
+        if (msgDisp != nullptr) {
+            msgDisp->disconnectDevice();
+            delete msgDisp;
+            msgDisp = nullptr;
         }
 
         emit startDetecting();
@@ -122,19 +117,19 @@ void ControllerMain::onMainWindowCreated() {
      * Controllers *
     \***************/
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
-    controllerCompensation = new ControllerCompensation(mDev, mainWindow);
-    controllerChannel = new ControllerChannel(mDev, mainWindow);
-    controllerBoard = new ControllerBoard(mDev, mainWindow);
-    controllerDevice = new ControllerDevice(mDev, mainWindow);
-    voltageProtocolManager = new ProtocolManager(mDev);
-    currentProtocolManager = new ProtocolManager(mDev);
+    controllerCompensation = new ControllerCompensation(msgDisp, mainWindow);
+    controllerChannel = new ControllerChannel(msgDisp, mainWindow);
+    controllerBoard = new ControllerBoard(msgDisp, mainWindow);
+    controllerDevice = new ControllerDevice(msgDisp, mainWindow);
+    voltageProtocolManager = new ProtocolManager(msgDisp);
+    currentProtocolManager = new ProtocolManager(msgDisp);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
 
 //    mainWindow->setProtocolDw(voltageProtocolManager->getProtocolDockWidget());
 //    mainWindow->setProtocolDw(currentProtocolManager->getProtocolDockWidget());
 
-    controllerStateArray = new ControllerStateArray(mDev, mainWindow);
+    controllerStateArray = new ControllerStateArray(msgDisp, mainWindow);
 
     mainWindow->addViewActions();
 
@@ -142,26 +137,26 @@ void ControllerMain::onMainWindowCreated() {
      * Producer *
     \************/
 
-    deviceDataProducer = new DeviceDataProducer(mDev);
+    deviceDataProducer = new DeviceDataProducer(msgDisp);
 
     /*************\
      * Consumers *
     \*************/
 
-    stampPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+    stampPlotConsumer = new GapFreePlotConsumer(msgDisp, deviceDataProducer);
     consumers.append(stampPlotConsumer);
 
-    bigPlotConsumer = new GapFreePlotConsumer(mDev, deviceDataProducer);
+    bigPlotConsumer = new GapFreePlotConsumer(msgDisp, deviceDataProducer);
     consumers.append(bigPlotConsumer);
 
-    abfDataWriterConsumer = new AbfDataWriterConsumer(mDev, deviceDataProducer);
+    abfDataWriterConsumer = new AbfDataWriterConsumer(msgDisp, deviceDataProducer);
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
-    liveNoiseConsumer = new LiveNoiseConsumer(mDev, deviceDataProducer);
+    liveNoiseConsumer = new LiveNoiseConsumer(msgDisp, deviceDataProducer);
     consumers.append(liveNoiseConsumer);
     
-    calibratorConsumer = new CalibrationConsumer(mDev, deviceDataProducer);
+    calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
     consumers.append(calibratorConsumer);
 
     /***********\
@@ -211,13 +206,13 @@ void ControllerMain::onMainWindowCreated() {
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
-        mDev->getMessageDispatcher()->setDebugBit(word, bit, flag);
+        msgDisp->setDebugBit(word, bit, flag);
     });
     connect(mainWindow, &MainWindow::setDebugWord, this, [=] (int word, int value) {
-        mDev->getMessageDispatcher()->setDebugWord(word, value);
+        msgDisp->setDebugWord(word, value);
     });
     connect(mainWindow, &MainWindow::debugInitialization, this, [=] () {
-        mDev->getMessageDispatcher()->initializeDevice();
+        msgDisp->initializeDevice();
     });
 
     connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, this, [=] (double value) {
@@ -325,12 +320,15 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
         calibratorConsumer->updateCalibParams();
     }
 
+    RangedMeasurement_t range;
+    msgDisp->getVCCurrentRange(range);
+
     for (auto consumer : consumers) {
-        consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
+        consumer->onCurrentRangeChanged(range);
     }
 
-    mainWindow->getChessaboard()->onRangeUpdated(mDev->getVcCurrentRange(), QwtPlot::yLeft);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcCurrentRange(), QwtPlot::yLeft);
+    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yLeft);
+    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yLeft);
 }
 
 void ControllerMain::onVcVoltageRangeSelected(int idx) {
@@ -342,11 +340,14 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
         calibratorConsumer->updateCalibParams();
     }
 
+    RangedMeasurement_t range;
+    msgDisp->getVCVoltageRange(range);
+
     for (auto consumer : consumers) {
-        consumer->onVoltageRangeChanged(mDev->getVcVoltageRange());
+        consumer->onVoltageRangeChanged(range);
     }
-    mainWindow->getChessaboard()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getVcVoltageRange(), QwtPlot::yRight);
+    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yRight);
+    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
     mainWindow->getChannelControlsDockWidget()->onVcVoltageRangeSelected(idx);
 }
 
@@ -359,19 +360,19 @@ void ControllerMain::onCcCurrentRangeSelected(int idx) {
         calibratorConsumer->updateCalibParams();
     }
 
+    RangedMeasurement_t range;
+    msgDisp->getCCCurrentRange(range);
+
     for (auto consumer : consumers) {
-        consumer->onCurrentRangeChanged(mDev->getVcCurrentRange());
+        consumer->onCurrentRangeChanged(range);
     }
 
-    mainWindow->getChessaboard()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcCurrentRange(), QwtPlot::yLeft);
+    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yLeft);
+    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yLeft);
     mainWindow->getChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
 void ControllerMain::onCcVoltageRangeSelected(int idx) {
-    std::vector <RangedMeasurement_t> ranges;
-    mDev->getCcVoltageRangesFeatures(ranges);
-
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -380,46 +381,47 @@ void ControllerMain::onCcVoltageRangeSelected(int idx) {
         calibratorConsumer->updateCalibParams();
     }
 
+    RangedMeasurement_t range;
+    msgDisp->getCCVoltageRange(range);
+
     for (auto consumer : consumers) {
-        consumer->onVoltageRangeChanged(mDev->getCcVoltageRange());
+        consumer->onVoltageRangeChanged(range);
     }
-    mainWindow->getChessaboard()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(mDev->getCcVoltageRange(), QwtPlot::yRight);
+    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yRight);
+    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
 }
 
 void ControllerMain::onVcVoltageFilterSelected(int idx) {
-    std::vector <Measurement_t> meas;
-    mDev->getVoltageStimulusLpfsFeatures(meas);
-
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 }
 
 void ControllerMain::onCcCurrentFilterSelected(int idx) {
-    std::vector <Measurement_t> meas;
-    mDev->getCurrentStimulusLpfsFeatures(meas);
-
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 }
 
 void ControllerMain::onSamplingRateSelected(int idx) {
-
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
+    Measurement_t meas;
+    msgDisp->getSamplingRate(meas);
+
     for (auto consumer : consumers) {
-        consumer->onSamplingRateChanged(mDev->getSamplingRate());
+        consumer->onSamplingRateChanged(meas);
     }
 }
 
 void ControllerMain::onDownsamplingRatioSelected(int idx) {
-
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
+    uint32_t ratio;
+    msgDisp->getDownsamplingRatio(ratio);
+
     for (auto consumer : consumers) {
-        consumer->onDownsamplingRatioChanged(mDev->getDownsamplingRatio());
+        consumer->onDownsamplingRatioChanged(ratio);
     }
 }
 

@@ -4,8 +4,8 @@
 
 #include "globaldefines.h"
 
-DataWriterConsumer::DataWriterConsumer(ModelDevice * mDev, DeviceDataProducer * producer) :
-    DeviceDataConsumer(mDev, producer) {
+DataWriterConsumer::DataWriterConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+    DeviceDataConsumer(msgDisp, producer) {
 
     activeChannels.resize(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {

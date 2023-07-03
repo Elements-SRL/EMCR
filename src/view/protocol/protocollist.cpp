@@ -13,9 +13,9 @@
 
 static int createdProtocolIdx = 0;
 
-ProtocolList::ProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
+ProtocolList::ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
     QListWidget(),
-    mDev(mDev),
+    msgDisp(msgDisp),
     protocolPropertyDialog(protocolPropertyDialog),
     parent(parent) {
 
@@ -1192,14 +1192,14 @@ void ProtocolList::onRejectShortCutsDialog() {
     shortCutsDlg->reject();
 }
 
-VoltageProtocolList::VoltageProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
-    ProtocolList(mDev, protocolPropertyDialog, parent) {
+VoltageProtocolList::VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
+    ProtocolList(msgDisp, protocolPropertyDialog, parent) {
 
     clampingModality = ClampingModality_t::VOLTAGE_CLAMP;
     protocolsGroupName = "voltageprotocols";
 
-    std::vector <int> clampingModalities;
-    mDev->getClampingModalitiesFeatures(clampingModalities);
+    std::vector <ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
     if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::VOLTAGE_CLAMP) != clampingModalities.end()) {
         this->importNullProtocol();
         this->importVhold0Protocol();
@@ -1214,23 +1214,23 @@ VoltageProtocolList::~VoltageProtocolList() {
 }
 
 ProtocolWidget * VoltageProtocolList::newGapfreeProtocol(QString name) {
-    ProtocolWidget * protocol = new GapfreeVoltageProtocolWidget(mDev, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new GapfreeVoltageProtocolWidget(msgDisp, name, protocolPropertyDialog);
     return protocol;
 }
 
 ProtocolWidget * VoltageProtocolList::newEpisodicProtocol(QString name) {
-    ProtocolWidget * protocol = new EpisodicVoltageProtocolWidget(mDev, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new EpisodicVoltageProtocolWidget(msgDisp, name, protocolPropertyDialog);
     return protocol;
 }
 
-CurrentProtocolList::CurrentProtocolList(ModelDevice * mDev, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
-    ProtocolList(mDev, protocolPropertyDialog, parent) {
+CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
+    ProtocolList(msgDisp, protocolPropertyDialog, parent) {
 
     clampingModality = ClampingModality_t::CURRENT_CLAMP;
     protocolsGroupName = "currentprotocols";
 
-    std::vector <int> clampingModalities;
-    mDev->getClampingModalitiesFeatures(clampingModalities);
+    std::vector <ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
     if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::CURRENT_CLAMP) != clampingModalities.end()) {
         this->importNullProtocol();
         this->importIhold0Protocol();
@@ -1245,11 +1245,11 @@ CurrentProtocolList::~CurrentProtocolList() {
 }
 
 ProtocolWidget * CurrentProtocolList::newGapfreeProtocol(QString name) {
-    ProtocolWidget * protocol = new GapfreeCurrentProtocolWidget(mDev, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new GapfreeCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
     return protocol;
 }
 
 ProtocolWidget * CurrentProtocolList::newEpisodicProtocol(QString name) {
-    ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(mDev, name, protocolPropertyDialog);
+    ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
     return protocol;
 }

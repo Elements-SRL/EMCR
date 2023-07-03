@@ -9,12 +9,13 @@
 #include "addtagdialog.h"
 #include "lcddisplay.h"
 #include "globaldefines.h"
+#include "messagedispatcher.h"
 
 class ProtocolDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    ProtocolDockWidget(ModelDevice * mDev, ClampingModality_t clampingModality, QWidget * parent = nullptr);
+    ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModality_t clampingModality, QWidget * parent = nullptr);
     ~ProtocolDockWidget();
 
     ProtocolList * getProtocolList();
@@ -40,7 +41,7 @@ private:
     void setRecordFile(QString path, QString name);
 #endif
 
-    ModelDevice *  mDev;
+    MessageDispatcher * msgDisp = nullptr;
     ProtocolPropertyDialog * protocolPropertyDialog = nullptr;
     ProtocolList * voltageProtocolList = nullptr;
     ProtocolList * currentProtocolList = nullptr;
