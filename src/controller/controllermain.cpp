@@ -35,7 +35,6 @@ ControllerMain::~ControllerMain() {
 void ControllerMain::setMainWindow(MainWindow * mainWindow) {
     this->mainWindow = mainWindow;
 
-    mainWindow->setMessageDispatcher(msgDisp);
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &ControllerMain::onDevicesListChanged);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &ControllerMain::onConnect);
 
@@ -80,8 +79,10 @@ void ControllerMain::onConnect(bool flag) {
         bool connectionSuccessful = ret == Success;
 
         if (connectionSuccessful) {
+            msgDisp = messageDispatcher;
             msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
             msgDisp->getBoardsNumberFeatures(boardsNumber);
+            mainWindow->setMessageDispatcher(msgDisp);
         }
 
         mainWindow->connectDevice(true, ret);
