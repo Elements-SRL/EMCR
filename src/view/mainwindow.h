@@ -10,11 +10,11 @@
 
 
 #include "messagedispatcher.h"
-#include "chessboard.h"
+#include "chessboarddockwidget.h"
 #include "devicecontroldockwidget.h"
 #include "channelcontroldockwidget.h"
 #include "boardcontroldockwidget.h"
-#include "bigplotdockwidget.h"
+#include "bigplotwidget.h"
 #include "recordsettingsdialog.h"
 #include "protocoldockwidget.h"
 #include "e384commlib_errorcodes.h"
@@ -32,8 +32,8 @@ public:
     void setMessageDispatcher(MessageDispatcher * msgDisp);
     QPushButton * getConnectButton();
     QString getSelectedSerialNumber();
-    Chessboard * getChessaboard();
-    BigPlotDockWidget * getBigPlotWidget();
+    BigPlotWidget * getBigPlotWidget();
+    ChessboardDockWidget * getChessboardDockWidget();
     DeviceControlDockWidget * getDeviceControlsDockWidget();
     ChannelControlDockWidget * getChannelControlsDockWidget();
     BoardControlDockWidget * getBoardControlsDockWidget();
@@ -45,6 +45,8 @@ public:
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
 
+    void setBigPlotWidget(BigPlotWidget * bpw);
+    void setChessboardDw(ChessboardDockWidget * cbdw);
     void setCompensationControlsDw(CompensationControlDockWidget * ccdw);
     void setChannelControlsDw(ChannelControlDockWidget * ccdw);
     void setBoardControlsDw(BoardControlDockWidget * bcdw);
@@ -77,15 +79,15 @@ private:
     QAction * actionRecordingSettings = nullptr;
 
     QDockWidget * deviceDetectorDw = nullptr;
+    BigPlotWidget * bigPlotW = nullptr;
+    ChessboardDockWidget * chessboardDw = nullptr;
     DeviceControlDockWidget * deviceControlsDw = nullptr;
     ChannelControlDockWidget * channelControlsDw = nullptr;
     BoardControlDockWidget * boardControlsDw = nullptr;
-    BigPlotDockWidget * bigPlotDw = nullptr;
     ProtocolDockWidget * protocolDw = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
     CompensationControlDockWidget * compensationControlsDw = nullptr;
     StateArrayDockWidget * stateArrayDockWidget = nullptr;
-//    DeviceDataProducer * deviceDataProducer = nullptr;
 
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
@@ -96,8 +98,6 @@ private:
 
     QVector <QDockWidget *> dockWidgets;
     QVector <QDockWidget *> analysisWidgets;
-
-    Chessboard * chessboard = nullptr;
 
 signals:
     void setDebugBit(int word, int bit, bool flag);

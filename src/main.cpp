@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "controllermain.h"
+#include "maincontroller.h"
 #include "globaldefines.h"
 
 int main(int argc, char *argv[]) {
@@ -20,6 +20,6 @@ int main(int argc, char *argv[]) {
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
     QDir().mkpath(YAML_DEFAULT_FOLDER);
 
-    ControllerMain c;
+    MainController c;
     return a.exec();
 }

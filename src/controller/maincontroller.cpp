@@ -1,20 +1,20 @@
-#include "controllermain.h"
-#include "controllerstatearray.h"
+#include "maincontroller.h"
+#include "statearraycontroller.h"
 #include "mainwindow.h"
 
-ControllerMain::ControllerMain() {
+MainController::MainController() {
     /*! Set up device detector */
     deviceDetector = new DeviceDetector;
     deviceDetector->moveToThread(&deviceDetectorThread);
 
-    connect(this, &ControllerMain::startDetecting, deviceDetector, &DeviceDetector::onStartDetecting);
-    connect(this, &ControllerMain::stopDetecting, deviceDetector, &DeviceDetector::onStopDetecting);
+    connect(this, &MainController::startDetecting, deviceDetector, &DeviceDetector::onStartDetecting);
+    connect(this, &MainController::stopDetecting, deviceDetector, &DeviceDetector::onStopDetecting);
 
     deviceDetectorThread.start();
     setMainWindow(new MainWindow());
 }
 
-ControllerMain::~ControllerMain() {
+MainController::~MainController() {
     deviceDetectorThread.quit();
     deviceDetectorThread.wait();
 
@@ -32,17 +32,17 @@ ControllerMain::~ControllerMain() {
     }
 }
 
-void ControllerMain::setMainWindow(MainWindow * mainWindow) {
+void MainController::setMainWindow(MainWindow * mainWindow) {
     this->mainWindow = mainWindow;
 
-    connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &ControllerMain::onDevicesListChanged);
-    connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &ControllerMain::onConnect);
+    connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
+    connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
 
     mainWindow->show();
     emit startDetecting();
 }
 
-void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList) {
+void MainController::onDevicesListChanged(std::vector <std::string> devicesList) {
     this->mainWindow->setDevicesList(devicesList);
     if (devicesList.size() > 0) {
         if (msgDisp != nullptr) {
@@ -69,7 +69,7 @@ void ControllerMain::onDevicesListChanged(std::vector <std::string> devicesList)
     }
 }
 
-void ControllerMain::onConnect(bool flag) {
+void MainController::onConnect(bool flag) {
     emit stopDetecting();
     QString serial = mainWindow->getSelectedSerialNumber();
 
@@ -110,18 +110,21 @@ void ControllerMain::onConnect(bool flag) {
     }
 }
 
-void ControllerMain::onMainWindowCreated() {
+void MainController::onMainWindowCreated() {
     consumers.clear();
     dataWriterConsumers.clear();
 
     /***************\
      * Controllers *
     \***************/
+
+    bigPlotController = new BigPlotController(msgDisp, mainWindow);
+    chessboardController = new ChessboardController(msgDisp, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
-    controllerCompensation = new ControllerCompensation(msgDisp, mainWindow);
-    controllerChannel = new ControllerChannel(msgDisp, mainWindow);
-    controllerBoard = new ControllerBoard(msgDisp, mainWindow);
-    controllerDevice = new ControllerDevice(msgDisp, mainWindow);
+    compensationController = new CompensationController(msgDisp, mainWindow);
+    channelController = new ChannelController(msgDisp, mainWindow);
+    boardController = new BoardController(msgDisp, mainWindow);
+    deviceController = new DeviceController(msgDisp, mainWindow);
     voltageProtocolManager = new ProtocolManager(msgDisp);
     currentProtocolManager = new ProtocolManager(msgDisp);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
@@ -130,7 +133,7 @@ void ControllerMain::onMainWindowCreated() {
 //    mainWindow->setProtocolDw(voltageProtocolManager->getProtocolDockWidget());
 //    mainWindow->setProtocolDw(currentProtocolManager->getProtocolDockWidget());
 
-    controllerStateArray = new ControllerStateArray(msgDisp, mainWindow);
+    stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
     mainWindow->addViewActions();
 
@@ -163,15 +166,21 @@ void ControllerMain::onMainWindowCreated() {
     /***********\
      * Connect *
     \***********/
-    connect(controllerDevice, &ControllerDevice::sigVcCurrentRangeSelected,     this, &ControllerMain::onVcCurrentRangeSelected);
-    connect(controllerDevice, &ControllerDevice::sigVcVoltageRangeSelected,     this, &ControllerMain::onVcVoltageRangeSelected);
-    connect(controllerDevice, &ControllerDevice::sigCcCurrentRangeSelected,     this, &ControllerMain::onCcCurrentRangeSelected);
-    connect(controllerDevice, &ControllerDevice::sigCcVoltageRangeSelected,     this, &ControllerMain::onCcVoltageRangeSelected);
-    connect(controllerDevice, &ControllerDevice::sigVcVoltageFilterSelected,    this, &ControllerMain::onVcVoltageFilterSelected);
-    connect(controllerDevice, &ControllerDevice::sigCcCurrentFilterSelected,    this, &ControllerMain::onCcCurrentFilterSelected);
-    connect(controllerDevice, &ControllerDevice::sigSamplingRateSelected,       this, &ControllerMain::onSamplingRateSelected);
-    connect(controllerDevice, &ControllerDevice::sigDownsamplingRatioSelected,  this, &ControllerMain::onDownsamplingRatioSelected);
-    connect(controllerDevice, &ControllerDevice::sigClampingModalitySelected,   this, &ControllerMain::onClampingModalitySelected);
+
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     channelController, &ChannelController::onAllChannelsClicked);
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        channelController, &ChannelController::onOneBoardClicked);
+    connect(chessboardController, &ChessboardController::sigOneRowClicked,          channelController, &ChannelController::onOneRowClicked);
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   channelController, &ChannelController::onSingleChannelClicked);
+
+    connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
+    connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);
+    connect(deviceController, &DeviceController::sigCcCurrentRangeSelected,     this, &MainController::onCcCurrentRangeSelected);
+    connect(deviceController, &DeviceController::sigCcVoltageRangeSelected,     this, &MainController::onCcVoltageRangeSelected);
+    connect(deviceController, &DeviceController::sigVcVoltageFilterSelected,    this, &MainController::onVcVoltageFilterSelected);
+    connect(deviceController, &DeviceController::sigCcCurrentFilterSelected,    this, &MainController::onCcCurrentFilterSelected);
+    connect(deviceController, &DeviceController::sigSamplingRateSelected,       this, &MainController::onSamplingRateSelected);
+    connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
+    connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
 
     connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
     connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
@@ -185,9 +194,10 @@ void ControllerMain::onMainWindowCreated() {
 #ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
     connect(currentProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolSaveRequest);
 #endif
-    connect(mainWindow->getChessaboard(), &Chessboard::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &ControllerMain::onStartRecording);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &ControllerMain::onStopRecording);
+    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
+
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &MainController::onStartRecording);
+    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &MainController::onStopRecording);
     connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedPlotToBigPlot,         bigPlotConsumer, &PlotConsumer::onSelectChannels);
 
     connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
@@ -225,16 +235,16 @@ void ControllerMain::onMainWindowCreated() {
         }
     });
 
-    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       mainWindow->getChessaboard(), &Chessboard::onSetGapFreePlotData);
-    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   mainWindow->getChessaboard(), &Chessboard::onReplot);
+    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::onSetGapFreePlotData);
+    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::onReplot);
 
-    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onSetGapFreePlotData);
-    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     mainWindow->getBigPlotWidget(), &BigPlotDockWidget::onReplot);
+    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         mainWindow->getBigPlotWidget(), &BigPlotWidget::onSetGapFreePlotData);
+    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     mainWindow->getBigPlotWidget(), &BigPlotWidget::onReplot);
 
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording,               mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onSigRecording);
 
-    connect(liveNoiseConsumer, &LiveNoiseConsumer::sigResult,   mainWindow->getChessaboard(), &Chessboard::onNoiseValueUpdated);
+    connect(liveNoiseConsumer, &LiveNoiseConsumer::sigResult,   mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::onNoiseValueUpdated);
 
     /*! \todo at the moment only for debug mode*/
     connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
@@ -252,7 +262,7 @@ void ControllerMain::onMainWindowCreated() {
     stampPlotConsumer->onDurationChanged(defaultPlotDuration);
     bigPlotConsumer->onDurationChanged(defaultPlotDuration);
 
-    mainWindow->getChessaboard()->onDurationUpdated(defaultPlotDuration);
+    mainWindow->getChessboardDockWidget()->onDurationUpdated(defaultPlotDuration);
     mainWindow->getBigPlotWidget()->onDurationUpdated(defaultPlotDuration);
 
     /*! Forced initialization at start */
@@ -283,20 +293,20 @@ void ControllerMain::onMainWindowCreated() {
     this->startProducerConsumers();
 }
 
-void ControllerMain::onMainWindowDestroyed() {
-    if (controllerChannel != nullptr) {
-        delete controllerChannel;
-        controllerChannel = nullptr;
+void MainController::onMainWindowDestroyed() {
+    if (channelController != nullptr) {
+        delete channelController;
+        channelController = nullptr;
     }
 
-    if (controllerBoard != nullptr) {
-        delete controllerBoard;
-        controllerBoard = nullptr;
+    if (boardController != nullptr) {
+        delete boardController;
+        boardController = nullptr;
     }
 
-    if (controllerDevice != nullptr) {
-        delete controllerDevice;
-        controllerDevice = nullptr;
+    if (deviceController != nullptr) {
+        delete deviceController;
+        deviceController = nullptr;
     }
 
     if (voltageProtocolManager != nullptr) {
@@ -310,9 +320,9 @@ void ControllerMain::onMainWindowDestroyed() {
     }
 }
 
-/*! Message forward from ControllerMain to other consumers */
+/*! Message forward from mainController to other consumers */
 
-void ControllerMain::onVcCurrentRangeSelected(int idx) {
+void MainController::onVcCurrentRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -328,11 +338,11 @@ void ControllerMain::onVcCurrentRangeSelected(int idx) {
         consumer->onCurrentRangeChanged(range);
     }
 
-    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yLeft);
+    mainWindow->getChessboardDockWidget()->onRangeUpdated(range, QwtPlot::yLeft);
     mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yLeft);
 }
 
-void ControllerMain::onVcVoltageRangeSelected(int idx) {
+void MainController::onVcVoltageRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -347,12 +357,12 @@ void ControllerMain::onVcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
     }
-    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yRight);
+    mainWindow->getChessboardDockWidget()->onRangeUpdated(range, QwtPlot::yRight);
     mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
     mainWindow->getChannelControlsDockWidget()->onVcVoltageRangeSelected(idx);
 }
 
-void ControllerMain::onCcCurrentRangeSelected(int idx) {
+void MainController::onCcCurrentRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -368,12 +378,12 @@ void ControllerMain::onCcCurrentRangeSelected(int idx) {
         consumer->onCurrentRangeChanged(range);
     }
 
-    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yLeft);
+    mainWindow->getChessboardDockWidget()->onRangeUpdated(range, QwtPlot::yLeft);
     mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yLeft);
     mainWindow->getChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
-void ControllerMain::onCcVoltageRangeSelected(int idx) {
+void MainController::onCcVoltageRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -388,21 +398,21 @@ void ControllerMain::onCcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
     }
-    mainWindow->getChessaboard()->onRangeUpdated(range, QwtPlot::yRight);
+    mainWindow->getChessboardDockWidget()->onRangeUpdated(range, QwtPlot::yRight);
     mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
 }
 
-void ControllerMain::onVcVoltageFilterSelected(int idx) {
+void MainController::onVcVoltageFilterSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 }
 
-void ControllerMain::onCcCurrentFilterSelected(int idx) {
+void MainController::onCcCurrentFilterSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 }
 
-void ControllerMain::onSamplingRateSelected(int idx) {
+void MainController::onSamplingRateSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -414,7 +424,7 @@ void ControllerMain::onSamplingRateSelected(int idx) {
     }
 }
 
-void ControllerMain::onDownsamplingRatioSelected(int idx) {
+void MainController::onDownsamplingRatioSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -426,7 +436,7 @@ void ControllerMain::onDownsamplingRatioSelected(int idx) {
     }
 }
 
-void ControllerMain::onClampingModalitySelected(int idx) {
+void MainController::onClampingModalitySelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -438,26 +448,26 @@ void ControllerMain::onClampingModalitySelected(int idx) {
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 
-void ControllerMain::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
+void MainController::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
     for (auto consumer : dataWriterConsumers) {
         consumer->onRecordSelectedChannels(channelIndexes, onValues);
     }
 }
 
-void ControllerMain::onStopRecording() {
+void MainController::onStopRecording() {
     for (auto consumer : dataWriterConsumers) {
         consumer->onStopConsuming();
     }
 }
 
-void ControllerMain::startProducerConsumers() {
+void MainController::startProducerConsumers() {
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();
     bigPlotConsumer->onStartConsuming();
     liveNoiseConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
-void ControllerMain::stopAndDestroyProducerConsumers() {
+void MainController::stopAndDestroyProducerConsumers() {
     if (stampPlotConsumer!= nullptr) {
         stampPlotConsumer->onStopConsuming();
         delete stampPlotConsumer;

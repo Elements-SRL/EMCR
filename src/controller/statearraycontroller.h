@@ -1,19 +1,20 @@
-#ifndef CONTROLLERSTATEARRAY_H
-#define CONTROLLERSTATEARRAY_H
+#ifndef STATEARRAYCONTROLLER_H
+#define STATEARRAYCONTROLLER_H
 
-#include "QObject"
-#include "model/state.h"
-#include "model/statearray.h"
-#include "view/statearray/statearraydockwidget.h"
+#include <QObject>
 
-#include <modeldevice.h>
+#include "state.h"
+#include "statearray.h"
+#include "statearraydockwidget.h"
+
+#include "modeldevice.h"
 #include "mainwindow.h"
 
-class ControllerStateArray : public QObject {
+class StateArrayController : public QObject {
     Q_OBJECT
 
 public:
-    ControllerStateArray(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    StateArrayController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
@@ -31,4 +32,4 @@ private:
     void cancel();
     void writeToFile(std::string);
 };
-#endif // CONTROLLERSTATEARRAY_H
+#endif // STATEARRAYCONTROLLER_H

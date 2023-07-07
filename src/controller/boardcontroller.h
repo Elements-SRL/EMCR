@@ -1,5 +1,5 @@
-#ifndef CONTROLLERBOARD_H
-#define CONTROLLERBOARD_H
+#ifndef BOARDCONTROLLER_H
+#define BOARDCONTROLLER_H
 
 #include <QObject>
 #include<QDebug>
@@ -8,11 +8,11 @@
 #include "boardcontroldockwidget.h"
 #include "mainwindow.h"
 
-class ControllerBoard : public QObject {
+class BoardController : public QObject {
     Q_OBJECT
 
 public:
-    ControllerBoard(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    BoardController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
@@ -26,4 +26,4 @@ signals:
     void sigGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages);
 };
 
-#endif // CONTROLLERBOARD_H
+#endif // BOARDCONTROLLER_H

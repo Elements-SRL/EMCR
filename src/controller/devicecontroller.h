@@ -1,18 +1,17 @@
-#ifndef CONTROLLERDEVICE_H
-#define CONTROLLERDEVICE_H
+#ifndef DEVICECONTROLLER_H
+#define DEVICECONTROLLER_H
 
 #include <QObject>
-#include <QDebug>
 
-#include "messagedispatcher.h"
 #include "devicecontroldockwidget.h"
 #include "mainwindow.h"
+#include "messagedispatcher.h"
 
-class ControllerDevice : public QObject {
+class DeviceController : public QObject {
     Q_OBJECT
 
 public:
-    ControllerDevice(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    DeviceController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 public slots:
     void onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex);
@@ -41,4 +40,4 @@ signals:
     void sigDownsamplingRatioSelected(int idx);
     void sigClampingModalitySelected(int idx);
 };
-#endif // CONTROLLERDEVICE_H
+#endif // DEVICECONTROLLER_H

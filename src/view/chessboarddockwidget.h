@@ -1,21 +1,21 @@
-#ifndef CHESSBOARD_H
-#define CHESSBOARD_H
+#ifndef CHESSBOARDDOCKWIDGET_H
+#define CHESSBOARDDOCKWIDGET_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QPushButton>
 
-#include "messagedispatcher.h"
 #include "stampplot.h"
 #include "curve.h"
 #include "myleftrightmousepushbutton.h"
 #include "channeloverviewwidget.h"
 #include "livenoiseconsumer.h"
+#include "messagedispatcher.h"
 
-class Chessboard : public QWidget {
+class ChessboardDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    Chessboard(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
+    ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
     void clearCurves();
 
@@ -41,11 +41,11 @@ private:
     int currentChannelsNum;
 
 signals:
-    void allChannelsClicked(bool newChannelState);
-    void oneBoardClicked(uint16_t changedBoardIndex, bool newChannelState);
-    void oneRowClicked(uint16_t changedRowIndex, bool newChannelState);
-    void singleChannelClicked(uint16_t changedChannelIndex, bool newChannelState);
+    void sigAllChannelsClicked(bool newChannelState);
+    void sigOneBoardClicked(uint16_t changedBoardIndex, bool newChannelState);
+    void sigOneRowClicked(uint16_t changedRowIndex, bool newChannelState);
+    void sigSingleChannelClicked(uint16_t changedChannelIndex, bool newChannelState);
     void sigExportLiveNoiseEstimates();
 };
 
-#endif // CHESSBOARD_H
+#endif // CHESSBOARDDOCKWIDGET_H

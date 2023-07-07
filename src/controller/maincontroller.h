@@ -1,29 +1,31 @@
-#ifndef CONTROLLERMAIN_H
-#define CONTROLLERMAIN_H
+#ifndef MAINCONTROLLER_H
+#define MAINCONTROLLER_H
 
 #include <QObject>
 #include <QThread>
 
 #include "mainwindow.h"
 #include "devicedetector.h"
-#include "controllerchannel.h"
-#include "controllerboard.h"
-#include "controllerdevice.h"
+#include "bigplotcontroller.h"
+#include "chessboardcontroller.h"
+#include "channelcontroller.h"
+#include "boardcontroller.h"
+#include "devicecontroller.h"
 #include "devicedataproducer.h"
 #include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
 #include "livenoiseconsumer.h"
 #include "calibrationconsumer.h"
 #include "protocolmanager.h"
-#include "controllerstatearray.h"
-#include "controllercompensation.h"
+#include "statearraycontroller.h"
+#include "compensationcontroller.h"
 
-class ControllerMain : public QObject {
+class MainController : public QObject {
     Q_OBJECT
 
 public:
-    ControllerMain();
-    ~ControllerMain();
+    MainController();
+    ~MainController();
 
     void setMainWindow(MainWindow * mainWindow);
 
@@ -43,7 +45,6 @@ public slots:
     void onClampingModalitySelected(int idx);
     void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onStopRecording();
-
 
 private:
     void startProducerConsumers();
@@ -66,11 +67,13 @@ private:
     QVector <DeviceDataConsumer*> consumers;
     QVector <DataWriterConsumer*> dataWriterConsumers;
 
-    ControllerChannel * controllerChannel = nullptr;
-    ControllerBoard * controllerBoard = nullptr;
-    ControllerDevice * controllerDevice = nullptr;
-    ControllerStateArray * controllerStateArray;
-    ControllerCompensation * controllerCompensation;
+    BigPlotController * bigPlotController = nullptr;
+    ChessboardController * chessboardController = nullptr;
+    ChannelController * channelController = nullptr;
+    BoardController * boardController = nullptr;
+    DeviceController * deviceController = nullptr;
+    StateArrayController * stateArrayController;
+    CompensationController * compensationController;
 
     ProtocolManager * voltageProtocolManager = nullptr;
     ProtocolManager * currentProtocolManager = nullptr;
@@ -87,4 +90,4 @@ signals:
     void connectDevice(bool flag, ErrorCodes_t err);
 };
 
-#endif // CONTROLLERMAIN_H
+#endif // MAINCONTROLLER_H

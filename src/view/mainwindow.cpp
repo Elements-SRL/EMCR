@@ -102,12 +102,12 @@ QString MainWindow::getSelectedSerialNumber() {
     return devicesComboBox->itemText(devicesComboBox->currentIndex());
 }
 
-Chessboard * MainWindow::getChessaboard() {
-    return chessboard;
+BigPlotWidget * MainWindow::getBigPlotWidget() {
+    return bigPlotW;
 }
 
-BigPlotDockWidget * MainWindow::getBigPlotWidget() {
-    return bigPlotDw;
+ChessboardDockWidget * MainWindow::getChessboardDockWidget() {
+    return chessboardDw;
 }
 
 DeviceControlDockWidget * MainWindow::getDeviceControlsDockWidget() {
@@ -186,9 +186,23 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
     }
 }
 
-/*****************\
- * controls dock *
-\*****************/
+/********************\
+ * set dock widgets *
+\********************/
+
+void MainWindow::setBigPlotWidget(BigPlotWidget * bpw) {
+    bigPlotW = bpw;
+    delete this->takeCentralWidget();
+    this->setCentralWidget(bigPlotW);
+    this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+}
+
+void MainWindow::setChessboardDw(ChessboardDockWidget * cbdw) {
+    chessboardDw = cbdw;
+    addDockWidget(Qt::BottomDockWidgetArea, chessboardDw);
+    chessboardDw->setFloating(true);
+    dockWidgets.append(chessboardDw);
+}
 
 void MainWindow::setCompensationControlsDw(CompensationControlDockWidget * ccdw){
     compensationControlsDw = ccdw;
@@ -245,6 +259,7 @@ void MainWindow::removeViewActions() {
 /******************\
  * protocols dock *
 \******************/
+
 void MainWindow::setProtocolDw(ProtocolDockWidget * pdw){
     protocolDw = pdw;
     addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
@@ -270,21 +285,6 @@ void MainWindow::createGuiControls() {
     protocolDw->setObjectName("protocolDw");
     this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
     dockWidgets.append(protocolDw);
-
-    /*********\
-     * plots *
-    \*********/
-
-    chessboard = new Chessboard(msgDisp);
-    chessboard->setObjectName("chessboard");
-    delete this->takeCentralWidget();
-    this->setCentralWidget(chessboard);
-    this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-
-    bigPlotDw = new BigPlotDockWidget(msgDisp);
-    bigPlotDw->setObjectName("bigPlotDw");
-    this->addDockWidget(Qt::BottomDockWidgetArea, bigPlotDw);
-    dockWidgets.append(bigPlotDw);
 
     /**************\
      * debug dock *
@@ -475,10 +475,10 @@ void MainWindow::destroyGuiControls() {
 //        deviceDataProducer = nullptr;
 //    }
 
-    if (chessboard != nullptr) {
+    if (bigPlotW != nullptr) {
         this->takeCentralWidget();
-        delete chessboard;
-        chessboard = nullptr;
+        delete bigPlotW;
+        bigPlotW = nullptr;
     }
 
     SRLbl->setText("");
@@ -521,9 +521,9 @@ void MainWindow::restoreUISettings() {
             }
         }
 
-        tag = settingsRoot + chessboard->objectName() + "/geometry";
+        tag = settingsRoot + bigPlotW->objectName() + "/geometry";
         if (settings.contains(tag)) {
-            chessboard->setGeometry(settings.value(tag).value <QRect> ());
+            bigPlotW->setGeometry(settings.value(tag).value <QRect> ());
         }
 
         tag = settingsRoot + this->objectName() + "/state";
@@ -538,8 +538,8 @@ void MainWindow::saveUISettings() {
     QString settingsRoot = "Preferences/UI/";
     QString tag;
 
-    tag = settingsRoot + chessboard->objectName() + "/geometry";
-    settings.setValue(tag, QVariant(chessboard->geometry()));
+    tag = settingsRoot + bigPlotW->objectName() + "/geometry";
+    settings.setValue(tag, QVariant(bigPlotW->geometry()));
 
     for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
         tag = settingsRoot + dockWidgets[dockIdx]->objectName() + "/geometry";

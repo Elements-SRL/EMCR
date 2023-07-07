@@ -1,6 +1,6 @@
-#include "controllerdevice.h"
+#include "devicecontroller.h"
 
-ControllerDevice::ControllerDevice(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp) {
 
     deviceControlDockWidget = new DeviceControlDockWidget(msgDisp);
@@ -63,28 +63,28 @@ ControllerDevice::ControllerDevice(MessageDispatcher * msgDisp, MainWindow * mai
 
 // Slots (actionPerformed) for current and voltage ranges
 // ADC Current Range in VC
-void ControllerDevice::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex){
+void DeviceController::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex){
     msgDisp->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
 
     emit sigVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
 }
 
 // DAC Voltage Range in VC might be set by protocol
-void ControllerDevice::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeIndex){
+void DeviceController::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeIndex){
     msgDisp->setVCVoltageRange(selectedVcVoltageRangeIndex, true);
 
     emit sigVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
 }
 
 // DAC Current Range in CC might be set by protocol
-void ControllerDevice::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeIndex){
+void DeviceController::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeIndex){
     msgDisp->setCCCurrentRange(selectedCcCurrentRangeIndex, true);
 
     emit sigCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
 }
 
 // ADC Voltage Range in CC
-void ControllerDevice::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex){
+void DeviceController::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex){
     msgDisp->setCCVoltageRange(selectedCcVoltageRangeIndex, true);
 
     emit sigCcVoltageRangeSelected(selectedCcVoltageRangeIndex);
@@ -94,35 +94,35 @@ void ControllerDevice::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeI
 // ADC Current Filter in VC set by Sampling Rate
 
 // DAC Voltage Filter in VC
-void ControllerDevice::onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex){
+void DeviceController::onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex){
     msgDisp->setVoltageStimulusLpf(selectedVcVoltageFilterIndex, true);
 
     emit sigVcVoltageFilterSelected(selectedVcVoltageFilterIndex);
 }
 
 // DAC Current Filter in CC
-void ControllerDevice::onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex){
+void DeviceController::onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex){
     msgDisp->setCurrentStimulusLpf(selectedCcCurrentFilterIndex, true);
 
     emit sigCcCurrentFilterSelected(selectedCcCurrentFilterIndex);
 }
 
 // Sampling rate
-void ControllerDevice::onSamplingRateSelected(uint16_t selectedSamplingRateIndex){
+void DeviceController::onSamplingRateSelected(uint16_t selectedSamplingRateIndex){
     msgDisp->setSamplingRate(selectedSamplingRateIndex, true);
 
     emit sigSamplingRateSelected(selectedSamplingRateIndex);
 }
 
 // Downsampling ratio
-void ControllerDevice::onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex){
+void DeviceController::onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex){
     msgDisp->setDownsamplingRatio(selectedDownsamplingRatioIndex);
 
     emit sigDownsamplingRatioSelected(selectedDownsamplingRatioIndex);
 }
 // ADC Voltage Filter in CC set by Sampling rate
 
-void ControllerDevice::onClampingModalitySelected(uint16_t selectedClampingModalityIndex){
+void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModalityIndex){
     msgDisp->setClampingModality(selectedClampingModalityIndex);
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);

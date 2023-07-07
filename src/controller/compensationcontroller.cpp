@@ -1,6 +1,6 @@
-#include "controllercompensation.h"
+#include "compensationcontroller.h"
 
-ControllerCompensation::ControllerCompensation(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+CompensationController::CompensationController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp) {
 
     compensationControlDockWidget = new CompensationControlDockWidget(msgDisp);

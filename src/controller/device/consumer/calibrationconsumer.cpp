@@ -207,8 +207,8 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
                            calibrationParams.ccAllOffsetDacMeas);
 }
 
-/*! \todo FCON recheck insieme a controllermain che updata calibration params quando si cambia range. Al momento funzion a perchè dopo la calibrazione di startup, non channelToCalibIdxs è mai vuoto
-Ricontrollare se ci sono problemi alla prima chiamata controllerMain in onVcCurrentRangeSelected
+/*! \todo FCON recheck insieme a mainController che updata calibration params quando si cambia range. Al momento funzion a perchè dopo la calibrazione di startup, non channelToCalibIdxs è mai vuoto
+Ricontrollare se ci sono problemi alla prima chiamata mainController in onVcCurrentRangeSelected
 */
 void CalibrationConsumer::updateCalibParams(){
     /*! \todo INVIARE NUOVI DATI DI CALIBRAZIONE A fpga DOPO AVERLI CONVERTITIT IN MEASUREMENT PER TUTTI I CANALI*/

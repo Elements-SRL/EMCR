@@ -27,18 +27,34 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/controllercompensation.cpp \
-    src/controller/controllerstatearray.cpp \
+src/main.cpp \
+    src/controller/bigplotcontroller.cpp \
+    src/controller/boardcontroller.cpp \
+    src/controller/channelcontroller.cpp \
+    src/controller/chessboardcontroller.cpp \
+    src/controller/compensationcontroller.cpp \
+    src/controller/devicecontroller.cpp \
+    src/controller/maincontroller.cpp \
     src/controller/protocol/cursorsmanager.cpp \
     src/controller/protocol/protocolitemctrlmanager.cpp \
     src/controller/protocol/protocolmanager.cpp \
     src/controller/protocol/protocolutils.cpp \
-    src/main.cpp \
+    src/controller/statearraycontroller.cpp \
+    src/controller/device/devicedetector.cpp \
+    src/controller/device/devicedataproducer.cpp \
+    src/controller/device/devicedataconsumer.cpp \
+    src/controller/device/consumer/plotconsumer.cpp \
+    src/controller/device/consumer/datawriterconsumer.cpp \
+    src/controller/device/consumer/abfdatawriterconsumer.cpp \
+    src/controller/device/consumer/livenoiseconsumer.cpp \
+    src/controller/device/consumer/calibrationconsumer.cpp \
     src/model/analysiscursor.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
-    src/view/compensationcontroldockwidget.cpp \
     src/model/statearray.cpp \
+    src/view/bigplotwidget.cpp \
+    src/view/chessboarddockwidget.cpp \
+    src/view/compensationcontroldockwidget.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/doubleclickmachine.cpp \
@@ -48,9 +64,7 @@ SOURCES += \
     src/view/elementslogowidget.cpp \
     src/view/channeloverviewwidget.cpp \
     src/view/bigplot.cpp \
-    src/view/bigplotdockwidget.cpp \
     src/view/curve.cpp \
-    src/view/chessboard.cpp \
     src/view/myleftrightmousepushbutton.cpp \
     src/view/myspinbox.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
@@ -76,35 +90,38 @@ SOURCES += \
     src/view/channelcontroldockwidget.cpp \
     src/view/boardcontroldockwidget.cpp \
     src/view/devicecontroldockwidget.cpp \
-    src/controller/controllermain.cpp \
-    src/controller/controllerchannel.cpp \
-    src/controller/controllerboard.cpp \
-    src/controller/controllerdevice.cpp \
-    src/controller/device/devicedetector.cpp \
-    src/controller/device/devicedataproducer.cpp \
-    src/controller/device/devicedataconsumer.cpp \
-    src/controller/device/consumer/plotconsumer.cpp \
-    src/controller/device/consumer/datawriterconsumer.cpp \
-    src/controller/device/consumer/abfdatawriterconsumer.cpp \
-    src/controller/device/consumer/livenoiseconsumer.cpp \
-    src/controller/device/consumer/calibrationconsumer.cpp \
-    src/abf/axon.cpp \
-    src/view/statearray/statearraydockwidget.cpp
+    src/view/statearray/statearraydockwidget.cpp \
+    src/abf/axon.cpp
 
 HEADERS += \
-    src/controller/controllercompensation.h \
-    src/controller/controllerstatearray.h \
+src/globaldefines.h \
+    src/controller/bigplotcontroller.h \
+    src/controller/boardcontroller.h \
+    src/controller/channelcontroller.h \
+    src/controller/chessboardcontroller.h \
+    src/controller/compensationcontroller.h \
+    src/controller/devicecontroller.h \
+    src/controller/maincontroller.h \
     src/controller/protocol/cursorsmanager.h \
     src/controller/protocol/protocolitemctrlmanager.h \
     src/controller/protocol/protocolmanager.h \
     src/controller/protocol/protocolutils.h \
-    src/globaldefines.h \
+    src/controller/statearraycontroller.h \
+    src/controller/device/devicedetector.h \
+    src/controller/device/devicedataproducer.h \
+    src/controller/device/devicedataconsumer.h \
+    src/controller/device/consumer/plotconsumer.h \
+    src/controller/device/consumer/datawriterconsumer.h \
+    src/controller/device/consumer/abfdatawriterconsumer.h \
+    src/controller/device/consumer/livenoiseconsumer.h \
+    src/controller/device/consumer/calibrationconsumer.h \
     src/model/analysiscursor.h \
     src/model/protocolmodel.h \
     src/model/state.h \
-    src/view/compensationcontroldockwidget.h \
     src/model/statearray.h \
-    src/protocoldefs.h \
+    src/view/bigplotwidget.h \
+    src/view/chessboarddockwidget.h \
+    src/view/compensationcontroldockwidget.h \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
     src/view/doubleclickmachine.h \
@@ -114,9 +131,7 @@ HEADERS += \
     src/view/elementslogowidget.h \
     src/view/channeloverviewwidget.h \
     src/view/bigplot.h \
-    src/view/bigplotdockwidget.h \
     src/view/curve.h \
-    src/view/chessboard.h \
     src/view/myleftrightmousepushbutton.h \
     src/view/myspinbox.h \
     src/view/protocol/impexpprotocoldialog.h \
@@ -142,44 +157,35 @@ HEADERS += \
     src/view/channelcontroldockwidget.h \
     src/view/boardcontroldockwidget.h \
     src/view/devicecontroldockwidget.h \
-    src/controller/controllermain.h \
-    src/controller/controllerchannel.h \
-    src/controller/controllerboard.h \
-    src/controller/controllerdevice.h \
-    src/controller/device/devicedetector.h \
-    src/controller/device/devicedataproducer.h \
-    src/controller/device/devicedataconsumer.h \
-    src/controller/device/consumer/plotconsumer.h \
-    src/controller/device/consumer/datawriterconsumer.h \
-    src/controller/device/consumer/abfdatawriterconsumer.h \
-    src/controller/device/consumer/livenoiseconsumer.h \
-    src/controller/device/consumer/calibrationconsumer.h \
+    src/view/statearray/statearraydockwidget.h \
+    src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
-    src/abf/axon_structs.h \
-    src/view/statearray/statearraydockwidget.h
+    src/abf/axon_structs.h
 
 INCLUDEPATH += \
     ./src \
-    ./src/view \
     ./src/controller \
     ./src/controller/device \
     ./src/controller/device/consumer \
+    ./src/controller/protocol \
     ./src/model \
-    ./src/abf \
+    ./src/view \
+    ./src/view/statearray \
     ./src/view/protocol \
-    ./src/controller/protocol
+    ./src/abf
 
 DEPENDPATH += \
     ./src \
-    ./src/view \
     ./src/controller \
     ./src/controller/device \
     ./src/controller/device/consumer \
+    ./src/controller/protocol \
     ./src/model \
-    ./src/abf \
+    ./src/view \
+    ./src/view/statearray \
     ./src/view/protocol \
-    ./src/controller/protocol
+    ./src/abf
 
 RC_ICONS = imgs/Elements.ico
 ICON = imgs/Elements.ico.icns

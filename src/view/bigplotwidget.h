@@ -1,17 +1,17 @@
-#ifndef BIGPLOTDOCKWIDGET_H
-#define BIGPLOTDOCKWIDGET_H
+#ifndef BIGPLOTWIDGET_H
+#define BIGPLOTWIDGET_H
 
-#include <QDockWidget>
+#include <QWidget>
 
 #include "messagedispatcher.h"
 #include "bigplot.h"
 #include "curve.h"
 
-class BigPlotDockWidget : public QDockWidget {
+class BigPlotWidget : public QWidget {
     Q_OBJECT
 
 public:
-    BigPlotDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
+    BigPlotWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
     void clearCurves();
 
@@ -30,4 +30,4 @@ private:
     int currentChannelsNum;
 };
 
-#endif // BIGPLOTDOCKWIDGET_H
+#endif // BIGPLOTWIDGET_H

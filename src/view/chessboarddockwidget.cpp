@@ -1,13 +1,15 @@
-#include "chessboard.h"
+#include "chessboarddockwidget.h"
 
 #include <QBoxLayout>
 #include <QComboBox>
 
 #include "globaldefines.h"
 
-Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
-    QWidget(parent),
+ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
+    QDockWidget(parent),
     msgDisp(msgDisp) {
+
+    this->setObjectName("chessboard");
 
     int boardsNum;
 
@@ -15,10 +17,16 @@ Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
     msgDisp->getBoardsNumberFeatures(boardsNum);
     int channelsPerBoard = currentChannelsNum/boardsNum;
 
+    QWidget * mainWg = new QWidget();
+    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    this->setWindowTitle("Channels overview");
+
+    this->setWidget(mainWg);
+
     QGridLayout * mainGl = new QGridLayout;
     mainGl->setMargin(0);
     mainGl->setSpacing(1);
-    this->setLayout(mainGl);
+    mainWg->setLayout(mainGl);
 
     QComboBox * visualizationCbx = new QComboBox;
     visualizationCbx->addItem("Plot Overview");
@@ -29,7 +37,7 @@ Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
     QPushButton * noiseExportBtn = new QPushButton("Export");
     noiseExportBtn->setVisible(false);
     noiseExportBtn->setCheckable(false);
-    connect(noiseExportBtn, &QPushButton::clicked, this, &Chessboard::sigExportLiveNoiseEstimates);
+    connect(noiseExportBtn, &QPushButton::clicked, this, &ChessboardDockWidget::sigExportLiveNoiseEstimates);
 
     mainGl->addWidget(noiseExportBtn, 0, (boardsNum+1)/2, 1, (boardsNum+1)/2);
 
@@ -45,7 +53,7 @@ Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
         } else {
             allChannelsSelector->setFixedSize(idealPlotWidth, STAMP_PLOT_SIZE);
         }
-        connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &Chessboard::allChannelsClicked);
+        connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &ChessboardDockWidget::sigAllChannelsClicked);
 
         mainGl->addWidget(allChannelsSelector, 1, 0);
     }
@@ -57,7 +65,7 @@ Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
             btn->setText(QString("%1").arg(boardIdx+1));
             btn->setFixedSize(idealPlotWidth, STAMP_PLOT_SIZE);
             connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
-                emit oneBoardClicked(boardIdx, selected);
+                emit sigOneBoardClicked(boardIdx, selected);
             });
 
             mainGl->addWidget(btn, 1, boardIdx+1);
@@ -70,7 +78,7 @@ Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
             btn->setText(QString("%1").arg(rowIdx+1));
             btn->setFixedSize(STAMP_PLOT_SIZE, idealPlotHeight);
             connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
-                emit oneRowClicked(rowIdx, selected);
+                emit sigOneRowClicked(rowIdx, selected);
             });
 
             mainGl->addWidget(btn, rowIdx+2, 0);
@@ -92,7 +100,7 @@ Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
 
 
         connect(wid, &ChannelOverviewWidget::clicked, this, [=] (bool selected) {
-            emit singleChannelClicked(channelIdx, selected);
+            emit sigSingleChannelClicked(channelIdx, selected);
         });
 
         connect(visualizationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int idx) {
@@ -139,7 +147,7 @@ Chessboard::Chessboard(MessageDispatcher * msgDisp, QWidget * parent) :
     }
 }
 
-void Chessboard::clearCurves() {
+void ChessboardDockWidget::clearCurves() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->detach();
         delete currentCurves[idx];
@@ -148,32 +156,32 @@ void Chessboard::clearCurves() {
     currentCurves.clear();
 }
 
-void Chessboard::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
+void ChessboardDockWidget::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
     for (auto plot : plots) {
         plot->onRangeUpdated(newRange, axisIdx);
     }
 }
 
-void Chessboard::onDurationUpdated(Measurement_t duration) {
+void ChessboardDockWidget::onDurationUpdated(Measurement_t duration) {
     for (auto plot : plots) {
         plot->onDurationUpdated(duration);
     }
 }
 
 /*! channelsToPlotNumber is ignored by the chessBoard*/
-void Chessboard::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
+void ChessboardDockWidget::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
     }
 }
 
-void Chessboard::onReplot() {
+void ChessboardDockWidget::onReplot() {
     for (auto plot : plots) {
         plot->replot();
     }
 }
 
-void Chessboard::onSelectedPlotsUdpated() {
+void ChessboardDockWidget::onSelectedPlotsUdpated() {
     std::vector <bool> selectedChannels;
     msgDisp->getSelectedChannels(selectedChannels);
     for(int ii = 0; ii < currentChannelsNum; ii++){
@@ -181,7 +189,7 @@ void Chessboard::onSelectedPlotsUdpated() {
     }
 }
 
-void Chessboard::onNoiseValueUpdated(LiveNoiseConsumer::Result_t result) {
+void ChessboardDockWidget::onNoiseValueUpdated(LiveNoiseConsumer::Result_t result) {
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         overviewWidgets[channelIdx]->setNoiseValue({result.stdCurrent[channelIdx], UnitPfxNone, "A"});
     }

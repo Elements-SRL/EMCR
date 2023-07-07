@@ -1,25 +1,18 @@
-#include "bigplotdockwidget.h"
+#include "bigplotwidget.h"
 
 #include <QBoxLayout>
 
-
-BigPlotDockWidget::BigPlotDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
-    QDockWidget(parent) {
+BigPlotWidget::BigPlotWidget(MessageDispatcher * msgDisp, QWidget * parent) :
+    QWidget(parent) {
 
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
-
-    QWidget * mainWg = new QWidget();
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    this->setWindowTitle("Enlarged traces");
-
-    this->setWidget(mainWg);
 
     QVBoxLayout * mainVl = new QVBoxLayout();
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
-    mainWg->setLayout(mainVl);
+    this->setLayout(mainVl);
 
-    plot = new BigPlot("", "s", "", this);
+    plot = new BigPlot("", "[s]", "", this);
     plot->enableAxis(QwtPlot::yRight);
     mainVl->addWidget(plot);
 
@@ -34,7 +27,7 @@ BigPlotDockWidget::BigPlotDockWidget(MessageDispatcher * msgDisp, QWidget * pare
     }
 }
 
-void BigPlotDockWidget::clearCurves() {
+void BigPlotWidget::clearCurves() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->detach();
         delete currentCurves[idx];
@@ -51,15 +44,15 @@ void BigPlotDockWidget::clearCurves() {
     voltageCurves.clear();
 }
 
-void BigPlotDockWidget::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
+void BigPlotWidget::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
     plot->onRangeUpdated(newRange, axisIdx);
 }
 
-void BigPlotDockWidget::onDurationUpdated(Measurement_t duration) {
+void BigPlotWidget::onDurationUpdated(Measurement_t duration) {
     plot->onDurationUpdated(duration);
 }
 
-void BigPlotDockWidget::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
+void BigPlotWidget::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
     for (int idx = 0; idx < channelsToPlotNumber; idx++) {
         currentCurves.at(idx)->attach(plot);
         currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
@@ -74,6 +67,6 @@ void BigPlotDockWidget::onSetGapFreePlotData(double * timeValues, QVector <doubl
     }
 }
 
-void BigPlotDockWidget::onReplot() {
+void BigPlotWidget::onReplot() {
     plot->replot();
 }

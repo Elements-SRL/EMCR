@@ -1,7 +1,7 @@
-#include "controllerboard.h"
+#include "boardcontroller.h"
 
 
-ControllerBoard::ControllerBoard(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp) {
 
     boardControlDockWidget = new BoardControlDockWidget(msgDisp);
@@ -12,7 +12,7 @@ ControllerBoard::ControllerBoard(MessageDispatcher * msgDisp, MainWindow * mainW
     });
 }
 
-void ControllerBoard::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
+void BoardController::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
     /*Set gate and source voltages in messageDispatcher*/
     msgDisp->setGateVoltagesTuner(gateVoltageBoardIndexes, gateVoltages, true);
     msgDisp->setSourceVoltagesTuner(sourceVoltageBoardIndexes, sourceVoltages, true);

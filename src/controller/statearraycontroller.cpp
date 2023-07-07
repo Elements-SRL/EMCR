@@ -1,4 +1,4 @@
-#include "controller/controllerstatearray.h"
+#include "controller/statearraycontroller.h"
 #include "view/statearray/statearraydockwidget.h"
 #include <iostream>
 #include <fstream>
@@ -7,7 +7,7 @@
 #include <QAction>
 #include "iostream"
 
-ControllerStateArray::ControllerStateArray(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp) {
     if(!msgDisp->isStateArrayAvailable()){
 //        TODO SHOULD THIS RETURN AN ERROR?
@@ -100,29 +100,29 @@ ControllerStateArray::ControllerStateArray(MessageDispatcher * msgDisp, MainWind
     });
 }
 
-void ControllerStateArray::printYaml(){
+void StateArrayController::printYaml(){
     YAML::Node node;
     node = stateArray;
     std::cout << node << std::endl;
 }
 
-void ControllerStateArray::open(std::string fname){
+void StateArrayController::open(std::string fname){
     stateArray = readStateArrayFromFile(fname);
     updateUI();
 }
 
-void ControllerStateArray::writeToFile(std::string fname){
+void StateArrayController::writeToFile(std::string fname){
     writeStateArrayToFile(stateArray, fname);
 }
 
-void ControllerStateArray::insertState(int idx, YAML::State s){
+void StateArrayController::insertState(int idx, YAML::State s){
     const int newIdx = idx+1;
     stateArray.states.insert(stateArray.states.begin()+newIdx, s);
     updateUI();
     stateArrayDockWidget->setState(s, newIdx);
 }
 
-void ControllerStateArray::deleteState(int idx){
+void StateArrayController::deleteState(int idx){
     if (stateArray.states.size() <= 1){
         return;
     }
@@ -130,7 +130,7 @@ void ControllerStateArray::deleteState(int idx){
     updateUI();
 }
 
-void ControllerStateArray::updateUI(){
+void StateArrayController::updateUI(){
     stateArrayDockWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
     stateArrayDockWidget->setStateCount(stateArray.states.size());
     stateArrayDockWidget->setState(stateArray.states[0], 0);

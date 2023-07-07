@@ -1,25 +1,23 @@
-#ifndef CONTROLLERCHANNEL_H
-#define CONTROLLERCHANNEL_H
+#ifndef CHANNELCONTROLLER_H
+#define CHANNELCONTROLLER_H
 
 #include <QObject>
 #include <QVector>
-#include <QDebug>
 
-#include "messagedispatcher.h"
 #include "channelcontroldockwidget.h"
 #include "mainwindow.h"
+#include "messagedispatcher.h"
 
-class ControllerChannel : public QObject {
+class ChannelController : public QObject {
     Q_OBJECT
 
 public:
-    ControllerChannel(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    ChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     ChannelControlDockWidget * channelControlsDw = nullptr;
-    void updateView();
 
 public slots:
     // To do on actions done on the chessboard
@@ -47,4 +45,4 @@ public slots:
     void sigCompValuesDispatched(std::vector<std::vector<double>> compValueMatrix, std::vector<RangedMeasurement> cfastFeatures, std::vector<RangedMeasurement> cslowFeatures, std::vector<RangedMeasurement> rsFeatures, std::vector<RangedMeasurement> rsCpFeatures, std::vector<RangedMeasurement> rsPgFeatures, std::vector<RangedMeasurement> ccCfastFeatures);
 };
 
-#endif // CONTROLLERCHANNEL_H
+#endif // CHANNELCONTROLLER_H

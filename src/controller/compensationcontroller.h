@@ -1,18 +1,17 @@
-#ifndef CONTROLLERCOMPENSATION_H
-#define CONTROLLERCOMPENSATION_H
+#ifndef COMPENSATIONCONTROLLER_H
+#define COMPENSATIONCONTROLLER_H
 
 #include <QObject>
-#include <QDebug>
 
 #include "messagedispatcher.h"
 #include "compensationcontroldockwidget.h"
 #include "mainwindow.h"
 
-class ControllerCompensation : public QObject {
+class CompensationController : public QObject {
     Q_OBJECT
 
 public:
-    ControllerCompensation(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    CompensationController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
     CompensationControlDockWidget * getCompensationDockWidget();
 
 private:
@@ -20,4 +19,4 @@ private:
     MainWindow * mainWindow = nullptr;
     CompensationControlDockWidget * compensationControlDockWidget = nullptr;
 };
-#endif // CONTROLLERCOMPENSATION_H
+#endif // COMPENSATIONCONTROLLER_H

@@ -1,8 +1,8 @@
-#include "controllerchannel.h"
+#include "channelcontroller.h"
 #include "channelcontroldockwidget.h"
 #include "mainwindow.h"
 
-ControllerChannel::ControllerChannel(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+ChannelController::ChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
 
@@ -19,57 +19,46 @@ ControllerChannel::ControllerChannel(MessageDispatcher * msgDisp, MainWindow * m
     connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedHoldValues, this, [=](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
         onApplyHoldValues(channelIndexes, holdValues);
     });
-    connect(mainWindow->getChessaboard(), &Chessboard::allChannelsClicked, this, [=](bool newChannelState){
-        onAllChannelsClicked(newChannelState);
-    });
-    connect(mainWindow->getChessaboard(), &Chessboard::oneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState){
-        onOneRowClicked(changedRowIndex, newChannelState);
-    });
-    connect(mainWindow->getChessaboard(), &Chessboard::oneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState){
-        onOneBoardClicked(changedBoardIndex, newChannelState);
-    });
-    connect(mainWindow->getChessaboard(), &Chessboard::singleChannelClicked, this, [=](uint16_t changedChannelIndexes, bool newChannelState){
-        onSingleChannelClicked(changedChannelIndexes, newChannelState);
-    });
+
     connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied, this, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
         onCompensationApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues, rsBWValueIdxs, ccCfastEn, ccCfastValues);
     });
     mainWindow->setChannelControlsDw(channelControlsDw);
 }
 
-void ControllerChannel::onSingleChannelClicked(uint16_t chIdx, bool newState){
+void ChannelController::onSingleChannelClicked(uint16_t chIdx, bool newState){
     msgDisp->setChannelSelected(chIdx, newState);
-    this->updateView();
+    channelControlsDw->onUpdate();
 }
 
-void ControllerChannel::onOneBoardClicked(uint16_t brdIdx, bool newState) {
+void ChannelController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
     msgDisp->setBoardSelected(brdIdx, newState);
-    this->updateView();
+    channelControlsDw->onUpdate();
 }
 
-void ControllerChannel::onOneRowClicked(uint16_t rowIdx, bool newState) {
+void ChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
     msgDisp->setRowSelected(rowIdx, newState);
-    this->updateView();
+    channelControlsDw->onUpdate();
 }
 
-void ControllerChannel::onAllChannelsClicked(bool newState) {
+void ChannelController::onAllChannelsClicked(bool newState) {
     msgDisp->setAllChannelsSelected(newState);
-    this->updateView();
+    channelControlsDw->onUpdate();
 }
 
-void ControllerChannel::onApplyTurnChannelOnOff(std::vector <uint16_t> channelIndexes, std::vector<bool> onValues){
+void ChannelController::onApplyTurnChannelOnOff(std::vector <uint16_t> channelIndexes, std::vector<bool> onValues){
     msgDisp->turnChannelsOn(channelIndexes, onValues, true);
 }
 
-void ControllerChannel::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+void ChannelController::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     msgDisp->enableStimulus(channelIndexes, onValues, true);
 }
 
-void ControllerChannel::onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+void ChannelController::onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     msgDisp->digitalOffsetCompensation(channelIndexes, onValues, true);
 }
 
-void ControllerChannel::onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
+void ChannelController::onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);
 
@@ -81,7 +70,7 @@ void ControllerChannel::onApplyHoldValues(std::vector<uint16_t> channelIndexes, 
     }
 }
 
-void ControllerChannel::onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
+void ChannelController::onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);
     std::vector<std::vector<double>> compValueMatrix;
@@ -142,10 +131,3 @@ void ControllerChannel::onCompensationApplied(std::vector<uint16_t> channelIndex
 
     mainWindow->getCompensationControlsDockWidget()->onCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures, ccCfastFeatures);
 }
-
-void ControllerChannel::updateView(){
-    channelControlsDw->onUpdate();
-    mainWindow->getChessaboard()->onSelectedPlotsUdpated();
-}
-
-
