@@ -6,6 +6,7 @@
 #include "protocolwidget.h"
 #include "devicedataconsumer.h"
 #include "protocoldefs.h"
+#include "messagedispatcher.h"
 
 class ProtocolManager : public QObject {
     Q_OBJECT

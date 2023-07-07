@@ -1,6 +1,5 @@
 #include "protocolmanager.h"
 
-#include "modeldevice.h"
 #include "globaldefines.h"
 
 ProtocolManager::ProtocolManager(MessageDispatcher * msgDisp) :

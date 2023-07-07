@@ -108,7 +108,7 @@ private:
                               std::vector<std::vector<Measurement_t>> &ccOffsetDacMeas
                               );
 
-    std::vector <ModelChannel *> channels;
+    std::vector <ChannelModel *> channels;
 
     bool consumptionStopped = false;
     bool exitedDataConsumingLoop = false;

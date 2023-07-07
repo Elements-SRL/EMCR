@@ -7,7 +7,7 @@
 #include "statearray.h"
 #include "statearraydockwidget.h"
 
-#include "modeldevice.h"
+#include "messagedispatcher.h"
 #include "mainwindow.h"
 
 class StateArrayController : public QObject {

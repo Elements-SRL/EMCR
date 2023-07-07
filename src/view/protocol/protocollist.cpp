@@ -8,7 +8,8 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QDialogButtonBox>
-#include "model/modeldevice.h"
+
+#include "messagedispatcher.h"
 #include "errormanager.h"
 
 static int createdProtocolIdx = 0;

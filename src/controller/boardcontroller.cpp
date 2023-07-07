@@ -18,7 +18,7 @@ void BoardController::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVolt
     msgDisp->setSourceVoltagesTuner(sourceVoltageBoardIndexes, sourceVoltages, true);
 
     /*Set gate and source voltages in the model*/
-    std::vector <ModelBoard *> myBoards;
+    std::vector <BoardModel *> myBoards;
     msgDisp->getBoards(myBoards);
     for(int i = 0; i<gateVoltageBoardIndexes.size(); i++){
         myBoards[gateVoltageBoardIndexes[i]]->setGateVoltage(gateVoltages[i]);
