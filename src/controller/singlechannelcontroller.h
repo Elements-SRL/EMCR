@@ -1,23 +1,23 @@
-#ifndef CHANNELCONTROLLER_H
-#define CHANNELCONTROLLER_H
+#ifndef SINGLECHANNELCONTROLLER_H
+#define SINGLECHANNELCONTROLLER_H
 
 #include <QObject>
 #include <QVector>
 
-#include "channelcontroldockwidget.h"
+#include "singlechannelcontroldockwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
 
-class ChannelController : public QObject {
+class SingleChannelController : public QObject {
     Q_OBJECT
 
 public:
-    ChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    SingleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
-    ChannelControlDockWidget * channelControlsDw = nullptr;
+    SingleChannelControlDockWidget * singleChannelControlsDw = nullptr;
 
 public slots:
     // To do on actions done on the chessboard
@@ -27,22 +27,18 @@ public slots:
     void onAllChannelsClicked(bool newState);
 
     // To do on apply pushed on the Channel Control Dock Widget
-    void onApplyTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> vHoldValues);
 
-    /*! \todo void onApplyKawaiiPlotSettings(Boh);*/
-
     // Compensations
     void onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues);
 
-
-    signals:
+signals:
     // signals sent to Channel Control Dock Widget (I've already done my stuff)
 
     // signals sent to Compensation Control Widget
     void sigCompValuesDispatched(std::vector<std::vector<double>> compValueMatrix, std::vector<RangedMeasurement> cfastFeatures, std::vector<RangedMeasurement> cslowFeatures, std::vector<RangedMeasurement> rsFeatures, std::vector<RangedMeasurement> rsCpFeatures, std::vector<RangedMeasurement> rsPgFeatures, std::vector<RangedMeasurement> ccCfastFeatures);
 };
 
-#endif // CHANNELCONTROLLER_H
+#endif // SINGLECHANNELCONTROLLER_H

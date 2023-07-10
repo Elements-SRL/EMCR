@@ -30,7 +30,7 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
     void onDurationChanged(Measurement_t duration);
-    void onSelectChannels(std::vector<uint16_t> channelIndexes, std::vector <bool> channels);
+    void onSelectChannels(bool flag);
 
 protected:
     typedef enum {
@@ -73,8 +73,8 @@ protected:
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
 
-    QVector <bool> selectedChannels;
-    int channelsAtTrue = 0;
+    QVector <bool> plottedChannels;
+    int plottedChannelsNum = 0;
 
     int maxSamples = 256;
     int dataSize = 0;

@@ -529,9 +529,9 @@ void DeviceControlDockWidget::updateParameters() {
 //}
 
 
-void DeviceControlDockWidget::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+void DeviceControlDockWidget::onRecordingStarted() {
     /*! \todo MPAC at the moment miccing ccCurrent and ccVoltage*/
-    if(this->vcCurrentRangesGroupBox != nullptr){
+    if (this->vcCurrentRangesGroupBox != nullptr){
         vcCurrentRangesPrevioueEnableStateBeforeRecording = this->vcCurrentRangesGroupBox->isEnabled();
         this->vcCurrentRangesGroupBox->setEnabled(false);
     }
@@ -559,24 +559,24 @@ void DeviceControlDockWidget::onStartRecording(std::vector<uint16_t> channelInde
     /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
 }
 
-void DeviceControlDockWidget::onStopRecording(){
-    if(this->vcCurrentRangesGroupBox != nullptr){
+void DeviceControlDockWidget::onRecordingStopped() {
+    if (this->vcCurrentRangesGroupBox != nullptr) {
         this->vcCurrentRangesGroupBox->setEnabled(vcCurrentRangesPrevioueEnableStateBeforeRecording);
     }
 
-    if(this->vcVoltageRangesGroupBox != nullptr){
+    if (this->vcVoltageRangesGroupBox != nullptr) {
         this->vcVoltageRangesGroupBox->setEnabled(vcVoltageRangesPrevioueEnableStateBeforeRecording);
     }
 
-    if(this->ccCurrentRangesGroupBox != nullptr){
+    if (this->ccCurrentRangesGroupBox != nullptr) {
         this->ccCurrentRangesGroupBox->setEnabled(ccCurrentRangesPrevioueEnableStateBeforeRecording);
     }
 
-    if(this->ccVoltageRangesGroupBox != nullptr){
+    if (this->ccVoltageRangesGroupBox != nullptr) {
         this->ccVoltageRangesGroupBox->setEnabled(ccVoltageRangesPrevioueEnableStateBeforeRecording);
     }
 
-    if(this->samplingRatesGroupBox != nullptr){
+    if (this->samplingRatesGroupBox != nullptr) {
         this->samplingRatesGroupBox->setEnabled(samplingRatesPrevioueEnableStateBeforeRecording);
     }
 

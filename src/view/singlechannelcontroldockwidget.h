@@ -1,5 +1,5 @@
-#ifndef CHANNELCONTROLDOCKWIDGET_H
-#define CHANNELCONTROLDOCKWIDGET_H
+#ifndef SINGLECHANNELCONTROLDOCKWIDGET_H
+#define SINGLECHANNELCONTROLDOCKWIDGET_H
 
 #include <QDockWidget>
 #include <QComboBox>
@@ -14,15 +14,14 @@
 
 class SpinBoxWithChannel;
 
-class ChannelControlDockWidget : public QDockWidget {
+class SingleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    ChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
+    SingleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
 public slots:
     void onUpdate();
-    void onSigRecording(bool state);
     void onVcVoltageRangeSelected(int idx);
     void onCcCurrentRangeSelected(int idx);
 
@@ -31,14 +30,11 @@ protected:
 
 private:
     typedef enum Operations {
-        OperationTurnChannelsOnOff,
-        OperationTurnStimulusOnOff,
-        OperationStartStopDigitalOffsetCompensation,
         OperationHoldingStimulus,
-        OperationRecordToFile,
-        OperationPlotToBigPlot,
         OperationsNum
     } Operations_t;
+
+    MessageDispatcher * msgDisp = nullptr;
 
     QVector <QString> operationTitles;
     QVector <QString> operationString;
@@ -46,8 +42,6 @@ private:
     QWidget * createOperationWidget(int idx);
     QWidget * createOperationButtonWidget(int idx);
     QVBoxLayout * getLayoutWithScrollBar(QWidget * widget);
-
-    MessageDispatcher * msgDisp = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;
@@ -73,18 +67,9 @@ private slots:
     void onCheckAllButtonClicked();
     void onUncheckAllButtonClicked();
     void onSetAllButtonClicked();
-    void onStartRecordingButtonClicked();
-    void onStopRecordingButtonClicked();
-
 
 signals:
-    void sigAppliedTurnChannelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onvalues);
-    void sigAppliedTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onvalues);
     void sigAppliedHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues);
-    void sigAppliedTurnStimulsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void sigStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void sigStopRecording();
-    void sigAppliedPlotToBigPlot(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 };
 
 class SpinBoxWithChannel : public QWidget {
@@ -101,4 +86,4 @@ private:
     MySpinBox * valueSbx;
 };
 
-#endif // CHANNELCONTROLDOCKWIDGET_H
+#endif // SINGLECHANNELCONTROLDOCKWIDGET_H

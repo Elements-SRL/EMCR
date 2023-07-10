@@ -122,7 +122,8 @@ void MainController::onMainWindowCreated() {
     chessboardController = new ChessboardController(msgDisp, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
-    channelController = new ChannelController(msgDisp, mainWindow);
+    multipleChannelController = new MultipleChannelController(msgDisp, mainWindow);
+    singleChannelController = new SingleChannelController(msgDisp, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
     voltageProtocolManager = new ProtocolManager(msgDisp);
@@ -167,10 +168,10 @@ void MainController::onMainWindowCreated() {
      * Connect *
     \***********/
 
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     channelController, &ChannelController::onAllChannelsClicked);
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        channelController, &ChannelController::onOneBoardClicked);
-    connect(chessboardController, &ChessboardController::sigOneRowClicked,          channelController, &ChannelController::onOneRowClicked);
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   channelController, &ChannelController::onSingleChannelClicked);
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     singleChannelController, &SingleChannelController::onAllChannelsClicked);
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        singleChannelController, &SingleChannelController::onOneBoardClicked);
+    connect(chessboardController, &ChessboardController::sigOneRowClicked,          singleChannelController, &SingleChannelController::onOneRowClicked);
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   singleChannelController, &SingleChannelController::onSingleChannelClicked);
 
     connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
     connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);
@@ -196,9 +197,14 @@ void MainController::onMainWindowCreated() {
 #endif
     connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStartRecording,               this, &MainController::onStartRecording);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigStopRecording,                this, &MainController::onStopRecording);
-    connect(mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::sigAppliedPlotToBigPlot,         bigPlotConsumer, &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this, &MainController::onStartRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this, &MainController::onStopRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigAddToBigPlot,         [=] () {
+        bigPlotConsumer->onSelectChannels(true);
+    });
+    connect(multipleChannelController, &MultipleChannelController::sigRemoveFromBigPlot,    [=] () {
+        bigPlotConsumer->onSelectChannels(false);
+    });
 
     connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
         mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
@@ -242,7 +248,15 @@ void MainController::onMainWindowCreated() {
     connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     mainWindow->getBigPlotWidget(), &BigPlotWidget::onReplot);
 
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
-    connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording,               mainWindow->getChannelControlsDockWidget(), &ChannelControlDockWidget::onSigRecording);
+    connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=] (bool flag) {
+        multipleChannelController->onRecordingExecution(flag);
+        if (flag) {
+            deviceController->sigRecordingStarted();
+
+        } else {
+            deviceController->sigRecordingStopped();
+        }
+    });
 
     connect(liveNoiseConsumer, &LiveNoiseConsumer::sigResult,   mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::onNoiseValueUpdated);
 
@@ -278,13 +292,15 @@ void MainController::onMainWindowCreated() {
         channelIndexes[i] = i;
     }
 
+    msgDisp->setAllChannelsSelected(true);
+
     stampPlotConsumer->setMaxSamplesPerPlot(256);
-    std::vector<bool> onValues(currentChannelsNumber, true);
-    stampPlotConsumer->onSelectChannels(channelIndexes, onValues);
+    stampPlotConsumer->onSelectChannels(true);
 
     bigPlotConsumer->setMaxSamplesPerPlot(4096);
-    std::vector<bool> offValues(currentChannelsNumber, false);
-    bigPlotConsumer->onSelectChannels(channelIndexes, offValues);
+    bigPlotConsumer->onSelectChannels(false);
+
+    msgDisp->setAllChannelsSelected(false);
 
 //    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationPath(), "boardMapping.csv");
     calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationDir(), calibratorConsumer->getCalibrationMappingFilePath());
@@ -294,9 +310,9 @@ void MainController::onMainWindowCreated() {
 }
 
 void MainController::onMainWindowDestroyed() {
-    if (channelController != nullptr) {
-        delete channelController;
-        channelController = nullptr;
+    if (singleChannelController != nullptr) {
+        delete singleChannelController;
+        singleChannelController = nullptr;
     }
 
     if (boardController != nullptr) {
@@ -359,7 +375,7 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     }
     mainWindow->getChessboardDockWidget()->onRangeUpdated(range, QwtPlot::yRight);
     mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
-    mainWindow->getChannelControlsDockWidget()->onVcVoltageRangeSelected(idx);
+    mainWindow->getSingleChannelControlsDockWidget()->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
 void MainController::onCcCurrentRangeSelected(int idx) {
@@ -380,7 +396,7 @@ void MainController::onCcCurrentRangeSelected(int idx) {
 
     mainWindow->getChessboardDockWidget()->onRangeUpdated(range, QwtPlot::yLeft);
     mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yLeft);
-    mainWindow->getChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
+    mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
 void MainController::onCcVoltageRangeSelected(int idx) {
@@ -448,9 +464,12 @@ void MainController::onClampingModalitySelected(int idx) {
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 
-void MainController::onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
+void MainController::onStartRecording() {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <bool> values(selectedChannels.size(), true);
     for (auto consumer : dataWriterConsumers) {
-        consumer->onRecordSelectedChannels(channelIndexes, onValues);
+        consumer->onRecordSelectedChannels(selectedChannels, values);
     }
 }
 

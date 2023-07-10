@@ -11,8 +11,9 @@ PlotConsumer::PlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * pro
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
     buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
 
-    selectedChannels.resize(currentChannelsNum);
-    selectedChannels.fill(true);
+    plottedChannels.resize(currentChannelsNum);
+    plottedChannels.fill(true);
+    plottedChannelsNum = currentChannelsNum;
 
 #ifdef GLB_SHOW_DEBUG_CTRLS
 //    logFile.setFileName(QString("log%1.txt").arg((unsigned int)this));
@@ -104,22 +105,34 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
     pushedDurationFlag = true;
 }
 
-void PlotConsumer::onSelectChannels(std::vector<uint16_t> channelIndexes, std::vector <bool> channels) {
+void PlotConsumer::onSelectChannels(bool flag) {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <bool> values(selectedChannels.size(), flag);
     bool wasThisRunning = this->isRunning();
-    if(wasThisRunning){
+    if (wasThisRunning) {
         this->onStopConsuming();
     }
 
-    selectedChannels.fill(false);
-    this->channelsAtTrue = 0;
-    for (int i = 0; i<channels.size(); i++){
-        if(channels[i]){
-            selectedChannels[channelIndexes[i]] = true;
-            channelsAtTrue++;
+    if (flag) {
+        for (auto channelIdx : selectedChannels) {
+            if (!plottedChannels[channelIdx]) {
+                plottedChannels[channelIdx] = true;
+                plottedChannelsNum++;
+            }
+        }
+
+    } else {
+        for (auto channelIdx : selectedChannels) {
+            if (plottedChannels[channelIdx]) {
+                plottedChannels[channelIdx] = false;
+                plottedChannelsNum--;
+            }
         }
     }
+
     forceAxisUpdate();
-    if(wasThisRunning){
+    if (wasThisRunning) {
         this->onStartConsuming();
     }
 }
@@ -182,7 +195,7 @@ void PlotConsumer::updateRangeAxis() {
         double coeff = voltageRange.max;
         int counter = 0;
         for (int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-            if (selectedChannels[channelIdx]) {
+            if (plottedChannels[channelIdx]) {
                 for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
                     voltageValues[counter][sampleIdx] *= coeff;
                 }
@@ -202,7 +215,7 @@ void PlotConsumer::updateRangeAxis() {
         coeff = currentRange.max;
         int counter = 0;
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            if (selectedChannels[channelIdx]) {
+            if (plottedChannels[channelIdx]) {
                 for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
                     currentValues[counter][sampleIdx] *= coeff;
                 }
@@ -264,7 +277,7 @@ void GapFreePlotConsumer::run() {
             while (bufferIdx < bufferLen) {
                 counter = 0;
                 for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-                    if (selectedChannels[channelIdx]) {
+                    if (plottedChannels[channelIdx]) {
                         voltageValues[counter++][gapFreeTimeIdx] = buffer[bufferIdx];
                     }
                     bufferIdx++;
@@ -272,7 +285,7 @@ void GapFreePlotConsumer::run() {
 
                 counter = 0;
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                    if (selectedChannels[channelIdx]) {
+                    if (plottedChannels[channelIdx]) {
                         currentValues[counter++][gapFreeTimeIdx] = buffer[bufferIdx];
                     }
                     bufferIdx++;
@@ -329,5 +342,5 @@ void GapFreePlotConsumer::clearData() {
 }
 
 void GapFreePlotConsumer::emitPlotData() {
-    emit setPlotData(timeValues, &voltageValues, &currentValues, dataSize, this->channelsAtTrue);
+    emit setPlotData(timeValues, &voltageValues, &currentValues, dataSize, plottedChannelsNum);
 }

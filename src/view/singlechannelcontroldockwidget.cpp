@@ -1,18 +1,16 @@
-#include "channelcontroldockwidget.h"
+#include "singlechannelcontroldockwidget.h"
 
 #include <QScrollBar>
 #include <QScrollArea>
-#include <QPushButton>
-#include <iostream>
 
-ChannelControlDockWidget::ChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
+SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
     msgDisp(msgDisp) {
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    setWindowTitle("Channels controls");
-    setObjectName("channelControlsDw");
+    setWindowTitle("Single channel controls");
+    setObjectName("singleChannelControlsDw");
     setWidget(mainWg);
 
     QVBoxLayout * mainVl = new QVBoxLayout();
@@ -23,20 +21,10 @@ ChannelControlDockWidget::ChannelControlDockWidget(MessageDispatcher * msgDisp, 
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     operationTitles.resize(OperationsNum);
-    operationTitles[OperationTurnChannelsOnOff] = "Turn channels on/off";
-    operationTitles[OperationTurnStimulusOnOff] = "Turn stimulus on/off";
-    operationTitles[OperationStartStopDigitalOffsetCompensation] = "Start/stop digital offset compensation";
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
-    operationTitles[OperationRecordToFile] = "Record to file";
-    operationTitles[OperationPlotToBigPlot] = "Expand selected traces";
 
     operationString.resize(OperationsNum);
-    operationString[OperationTurnChannelsOnOff] = "Ch %1: On";
-    operationString[OperationTurnStimulusOnOff] = "Ch %1: Stimulus on";
-    operationString[OperationStartStopDigitalOffsetCompensation] = "Ch %1: Compensation active";
     operationString[OperationHoldingStimulus] = "NOT USED";
-    operationString[OperationRecordToFile] = "Ch %1: Record this channel";
-    operationString[OperationPlotToBigPlot] = "Ch %1: Expand trace";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
@@ -56,18 +44,18 @@ ChannelControlDockWidget::ChannelControlDockWidget(MessageDispatcher * msgDisp, 
 
 //    QPushButton * applyBtn = new QPushButton("Apply");
     this->applyBtn = new QPushButton("Apply");
-    connect(applyBtn, &QPushButton::clicked, this, QOverload <> ::of(&ChannelControlDockWidget::onApplyButtonClicked));
+    connect(applyBtn, &QPushButton::clicked, this, QOverload <> ::of(&SingleChannelControlDockWidget::onApplyButtonClicked));
 
     QGridLayout * applyBtnGridLayout = new QGridLayout;
     applyBtnGridLayout->addWidget(applyBtn, 0, 0, 1, 2);
     mainVl->addLayout(applyBtnGridLayout);
 
-    connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &ChannelControlDockWidget::onOperationSelected);
+    connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &SingleChannelControlDockWidget::onOperationSelected);
 
     this->installEventFilter(this);
 }
 
-void ChannelControlDockWidget::onUpdate() {
+void SingleChannelControlDockWidget::onUpdate() {
     std::vector <bool> selectedChannels;
     msgDisp->getSelectedChannels(selectedChannels);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -77,66 +65,18 @@ void ChannelControlDockWidget::onUpdate() {
     }
 }
 
-void ChannelControlDockWidget::onApplyButtonClicked() {
+void SingleChannelControlDockWidget::onApplyButtonClicked() {
     int idx = operationCbx->currentIndex();
     this->onApplyButtonClicked(idx, false);
 }
 
-void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool applyAll) {
+void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool applyAll) {
     std::vector <bool> selectedChannels(currentChannelsNum, true);
     if (!applyAll) {
         msgDisp->getSelectedChannels(selectedChannels);
     }
 
     switch (operationIdx) {
-    case OperationTurnChannelsOnOff: {
-        QCheckBox * cb;
-        std::vector<bool> values;
-        std::vector<uint16_t> indexes;
-
-        for (int i = 0; i<selectedChannels.size(); i++) {
-            cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedChannels.at(i)) {
-                values.push_back(cb->isChecked());
-                indexes.push_back(i);
-            }
-        }
-
-        emit sigAppliedTurnChannelOnOff(indexes, values);
-        break;
-    }
-    case OperationTurnStimulusOnOff:{
-        QCheckBox * cb;
-        std::vector<bool> values;
-        std::vector<uint16_t> indexes;
-
-        for (int i = 0; i<selectedChannels.size(); i++) {
-            cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedChannels.at(i)) {
-                values.push_back(cb->isChecked());
-                indexes.push_back(i);
-            }
-        }
-
-        emit sigAppliedTurnStimulsOnOff(indexes, values);
-        break;
-    }
-    case OperationStartStopDigitalOffsetCompensation:{
-        QCheckBox * cb;
-        std::vector<bool> values;
-        std::vector<uint16_t> indexes;
-
-        for (int i = 0; i<selectedChannels.size(); i++) {
-            cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedChannels.at(i)) {
-                values.push_back(cb->isChecked());
-                indexes.push_back(i);
-            }
-        }
-
-        emit sigAppliedTurnDocOnOff(indexes, values);
-        break;
-    }
     case OperationHoldingStimulus:{
         SpinBoxWithChannel * sbx;
         std::vector<Measurement_t> values;
@@ -154,32 +94,10 @@ void ChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool apply
         emit sigAppliedHoldValues(indexes, values);
         break;
     }
-    case OperationRecordToFile:{
-        /*! Nothing to be done, Apply replaced by start and stop recording */
-        break;
     }
-    case OperationPlotToBigPlot:{
-        QCheckBox * cb;
-        std::vector<bool> values;
-        std::vector<uint16_t> indexes;
-
-        for (int i = 0; i<selectedChannels.size(); i++) {
-            cb = static_cast<QCheckBox *>(operationEdits[operationIdx][i]);
-            if (selectedChannels.at(i)) {
-                values.push_back(cb->isChecked());
-                indexes.push_back(i);
-            }
-        }
-
-        emit sigAppliedPlotToBigPlot(indexes, values);
-        break;
-    }
-    }
-
 }
 
-
-void ChannelControlDockWidget::onCheckAllButtonClicked() {
+void SingleChannelControlDockWidget::onCheckAllButtonClicked() {
     QCheckBox * cb;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
@@ -193,7 +111,7 @@ void ChannelControlDockWidget::onCheckAllButtonClicked() {
     }
 }
 
-void ChannelControlDockWidget::onUncheckAllButtonClicked() {
+void SingleChannelControlDockWidget::onUncheckAllButtonClicked() {
     QCheckBox * cb;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
@@ -207,7 +125,7 @@ void ChannelControlDockWidget::onUncheckAllButtonClicked() {
     }
 }
 
-void ChannelControlDockWidget::onSetAllButtonClicked() {
+void SingleChannelControlDockWidget::onSetAllButtonClicked() {
     SpinBoxWithChannel * spinBox;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
@@ -221,53 +139,7 @@ void ChannelControlDockWidget::onSetAllButtonClicked() {
     }
 }
 
-void ChannelControlDockWidget::onStartRecordingButtonClicked() {
-    QCheckBox * cb;
-    std::vector<bool> values;
-    std::vector<uint16_t> indexes;
-    bool isAtLeastOneChannelChecked = false;
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
-    for (int i = 0; i<selectedChannels.size(); i++) {
-        cb = static_cast<QCheckBox *>(operationEdits[OperationRecordToFile][i]);
-        if (selectedChannels.at(i)) {
-            values.push_back(cb->isChecked());
-            indexes.push_back(i);
-            if(cb->isChecked()){
-                isAtLeastOneChannelChecked = true;
-            }
-        }
-    }
-
-    if(isAtLeastOneChannelChecked){
-        operationWidgets[OperationRecordToFile]->setEnabled(false);
-        QPixmap pixmapRecors("://imgs/recording protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        startRecordingBtn->setIcon(recordIcon);
-        emit sigStartRecording(indexes, values);
-    } else{
-        QString err = "Recording to file not possible";
-        QString info = "No channel checked for recording";
-        ErrorManager e(err, info);
-    }
-}
-
-void ChannelControlDockWidget::onStopRecordingButtonClicked() {
-    QPixmap pixmapRecors("://imgs/record protocol.png");
-    QIcon recordIcon(pixmapRecors);
-    startRecordingBtn->setIcon(recordIcon);
-    operationWidgets[OperationRecordToFile]->setEnabled(true);
-
-    emit sigStopRecording();
-}
-
-void ChannelControlDockWidget::onSigRecording(bool state){
-    if(state == false){
-        this->stopRecordingBtn->click();
-    }
-}
-
-void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
+void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     msgDisp->getVoltageHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
@@ -285,7 +157,7 @@ void ChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     this->onApplyButtonClicked(OperationHoldingStimulus, true);
 }
 
-void ChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
+void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     msgDisp->getCurrentHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
@@ -303,7 +175,7 @@ void ChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     this->onApplyButtonClicked(OperationHoldingStimulus, true);
 }
 
-bool ChannelControlDockWidget::eventFilter(QObject * obj, QEvent * event) {
+bool SingleChannelControlDockWidget::eventFilter(QObject * obj, QEvent * event) {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent * keyEvent = static_cast <QKeyEvent *> (event);
         if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
@@ -313,7 +185,7 @@ bool ChannelControlDockWidget::eventFilter(QObject * obj, QEvent * event) {
     return QObject::eventFilter(obj, event);
 }
 
-QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
+QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     operationWidgets[idx] = new QWidget;
     QVBoxLayout * scrollVl = getLayoutWithScrollBar(operationWidgets[idx]);
 
@@ -322,20 +194,6 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
 
     operationEdits[idx].resize(currentChannelsNum);
     switch (idx) {
-    case OperationTurnChannelsOnOff:
-    case OperationTurnStimulusOnOff:
-    case OperationStartStopDigitalOffsetCompensation:
-    case OperationRecordToFile:
-    case OperationPlotToBigPlot:
-        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            QCheckBox * btn = new QCheckBox(QString(operationString[idx]).arg(channelIdx+1));
-            btn->setChecked(false);
-            btn->setVisible(selectedChannels[channelIdx]);
-            scrollVl->addWidget(btn);
-            operationEdits[idx][channelIdx] = btn;
-        }
-        break;
-
     case OperationHoldingStimulus: {
         std::vector <RangedMeasurement_t> ranges;
         /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
@@ -364,28 +222,10 @@ QWidget * ChannelControlDockWidget::createOperationWidget(int idx) {
     return operationWidgets[idx];
 }
 
-QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
+QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx] = new QWidget;
 
     switch (idx) {
-    case OperationTurnChannelsOnOff:
-    case OperationTurnStimulusOnOff:
-    case OperationStartStopDigitalOffsetCompensation:
-    case OperationPlotToBigPlot:{
-        // mettere bottoni check/uncheck all
-        QGridLayout* operationButtonGridLayout = new QGridLayout;
-        operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
-        operationButtonGridLayout->setSpacing(0);
-        operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
-        QPushButton* checkAllBtn = new QPushButton("Check all");
-        QPushButton* uncheckAllBtn = new QPushButton("Uncheck all");
-        connect(checkAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onCheckAllButtonClicked);
-        connect(uncheckAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onUncheckAllButtonClicked);
-
-        operationButtonGridLayout->addWidget(checkAllBtn, 0, 0);
-        operationButtonGridLayout->addWidget(uncheckAllBtn, 0, 1);
-        break;
-    }
     case OperationHoldingStimulus:{
         QGridLayout* operationButtonGridLayout = new QGridLayout;
         operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
@@ -402,35 +242,9 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
         setAllChannelsSbx->setDecimals(ranges[0].decimals());
         setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), setAllChannelsSbx);
         QPushButton* setAllBtn = new QPushButton("Set all channels");
-        connect(setAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onSetAllButtonClicked);
+        connect(setAllBtn, &QPushButton::clicked, this, &SingleChannelControlDockWidget::onSetAllButtonClicked);
         operationButtonGridLayout->addWidget(setAllVholdSpinBox, 0, 1);
         operationButtonGridLayout->addWidget(setAllBtn, 0, 0);
-        break;
-    }
-    case OperationRecordToFile:{
-        QGridLayout* operationButtonGridLayout = new QGridLayout;
-        operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
-        operationButtonGridLayout->setSpacing(0);
-        operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
-        QPushButton* checkAllBtn = new QPushButton("Check all");
-        QPushButton* uncheckAllBtn = new QPushButton("Uncheck all");
-        startRecordingBtn = new QPushButton("Start");
-        stopRecordingBtn = new QPushButton("Stop");
-        QPixmap pixmapRecors("://imgs/record protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        startRecordingBtn->setIcon(recordIcon);
-        QPixmap pixmapStop("://imgs/stop protocol.png");
-        QIcon stopRecordIcon(pixmapStop);
-        stopRecordingBtn->setIcon(stopRecordIcon);
-        connect(checkAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onCheckAllButtonClicked);
-        connect(uncheckAllBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onUncheckAllButtonClicked);
-        connect(startRecordingBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onStartRecordingButtonClicked);
-        connect(stopRecordingBtn, &QPushButton::clicked, this, &ChannelControlDockWidget::onStopRecordingButtonClicked);
-
-        operationButtonGridLayout->addWidget(checkAllBtn, 0, 0);
-        operationButtonGridLayout->addWidget(uncheckAllBtn, 0, 1);
-        operationButtonGridLayout->addWidget(startRecordingBtn, 1, 0);
-        operationButtonGridLayout->addWidget(stopRecordingBtn, 1, 1);
         break;
     }
     }
@@ -438,7 +252,7 @@ QWidget * ChannelControlDockWidget::createOperationButtonWidget(int idx) {
     return operationButtonWidgets[idx];
 }
 
-QVBoxLayout * ChannelControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
+QVBoxLayout * SingleChannelControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
     QVBoxLayout * vl = new QVBoxLayout;
     vl->setContentsMargins(0, 0, 0, 0);
     vl->setSpacing(1);
@@ -462,19 +276,13 @@ QVBoxLayout * ChannelControlDockWidget::getLayoutWithScrollBar(QWidget * widget)
     return scrollVl;
 }
 
-void ChannelControlDockWidget::onOperationSelected(int operationIdx) {
+void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
     for (int idx = 0; idx < OperationsNum; idx++) {
         operationWidgets[idx]->setVisible(false);
         operationButtonWidgets[idx]->setVisible(false);
     }
     operationWidgets[operationIdx]->setVisible(true);
     operationButtonWidgets[operationIdx]->setVisible(true);
-
-    if (operationIdx == OperationRecordToFile){
-        this->applyBtn->setEnabled(false);
-    } else {
-        this->applyBtn->setEnabled(true);
-    }
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :

@@ -30,8 +30,8 @@ public:
     void updateParameters();
 
 public slots:
-    void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-    void onStopRecording();
+    void onRecordingStarted();
+    void onRecordingStopped();
 
 private:
     MessageDispatcher * msgDisp = nullptr;

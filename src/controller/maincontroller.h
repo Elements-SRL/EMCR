@@ -8,7 +8,8 @@
 #include "devicedetector.h"
 #include "bigplotcontroller.h"
 #include "chessboardcontroller.h"
-#include "channelcontroller.h"
+#include "singlechannelcontroller.h"
+#include "multiplechannelcontroller.h"
 #include "boardcontroller.h"
 #include "devicecontroller.h"
 #include "devicedataproducer.h"
@@ -43,7 +44,7 @@ public slots:
     void onSamplingRateSelected(int idx);
     void onDownsamplingRatioSelected(int idx);
     void onClampingModalitySelected(int idx);
-    void onStartRecording(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
+    void onStartRecording();
     void onStopRecording();
 
 private:
@@ -69,7 +70,8 @@ private:
 
     BigPlotController * bigPlotController = nullptr;
     ChessboardController * chessboardController = nullptr;
-    ChannelController * channelController = nullptr;
+    SingleChannelController * singleChannelController = nullptr;
+    MultipleChannelController * multipleChannelController = nullptr;
     BoardController * boardController = nullptr;
     DeviceController * deviceController = nullptr;
     StateArrayController * stateArrayController;

@@ -8,11 +8,11 @@
 #include <QComboBox>
 #include <QPushButton>
 
-
 #include "messagedispatcher.h"
 #include "chessboarddockwidget.h"
 #include "devicecontroldockwidget.h"
-#include "channelcontroldockwidget.h"
+#include "singlechannelcontroldockwidget.h"
+#include "multiplechannelcontroldockwidget.h"
 #include "boardcontroldockwidget.h"
 #include "bigplotwidget.h"
 #include "recordsettingsdialog.h"
@@ -35,7 +35,8 @@ public:
     BigPlotWidget * getBigPlotWidget();
     ChessboardDockWidget * getChessboardDockWidget();
     DeviceControlDockWidget * getDeviceControlsDockWidget();
-    ChannelControlDockWidget * getChannelControlsDockWidget();
+    SingleChannelControlDockWidget * getSingleChannelControlsDockWidget();
+    MultipleChannelControlDockWidget * getMultipleChannelControlsDockWidget();
     BoardControlDockWidget * getBoardControlsDockWidget();
     ProtocolDockWidget * getProtocolDockWidget();
     RecordSettingsDialog * getRecordSettingsDialog();
@@ -48,7 +49,8 @@ public:
     void setBigPlotWidget(BigPlotWidget * bpw);
     void setChessboardDw(ChessboardDockWidget * cbdw);
     void setCompensationControlsDw(CompensationControlDockWidget * ccdw);
-    void setChannelControlsDw(ChannelControlDockWidget * ccdw);
+    void setSingleChannelControlsDw(SingleChannelControlDockWidget * scdw);
+    void setMultipleChannelControlsDw(MultipleChannelControlDockWidget * mcdw);
     void setBoardControlsDw(BoardControlDockWidget * bcdw);
     void setDeviceControlDw(DeviceControlDockWidget * dcdw);
     void setProtocolDw(ProtocolDockWidget * pdw);
@@ -82,7 +84,8 @@ private:
     BigPlotWidget * bigPlotW = nullptr;
     ChessboardDockWidget * chessboardDw = nullptr;
     DeviceControlDockWidget * deviceControlsDw = nullptr;
-    ChannelControlDockWidget * channelControlsDw = nullptr;
+    SingleChannelControlDockWidget * singleChannelControlsDw = nullptr;
+    MultipleChannelControlDockWidget * multipleChannelControlsDw = nullptr;
     BoardControlDockWidget * boardControlsDw = nullptr;
     ProtocolDockWidget * protocolDw = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;

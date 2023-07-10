@@ -27,10 +27,11 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/multiplechannelcontroller.cpp \
+    src/controller/singlechannelcontroller.cpp \
 src/main.cpp \
     src/controller/bigplotcontroller.cpp \
     src/controller/boardcontroller.cpp \
-    src/controller/channelcontroller.cpp \
     src/controller/chessboardcontroller.cpp \
     src/controller/compensationcontroller.cpp \
     src/controller/devicecontroller.cpp \
@@ -65,6 +66,7 @@ src/main.cpp \
     src/view/channeloverviewwidget.cpp \
     src/view/bigplot.cpp \
     src/view/curve.cpp \
+    src/view/multiplechannelcontroldockwidget.cpp \
     src/view/myleftrightmousepushbutton.cpp \
     src/view/myspinbox.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
@@ -86,18 +88,19 @@ src/main.cpp \
     src/view/protocol/protocolwidget.cpp \
     src/view/recordsettingsdialog.cpp \
     src/view/rect4.cpp \
+    src/view/singlechannelcontroldockwidget.cpp \
     src/view/stampplot.cpp \
-    src/view/channelcontroldockwidget.cpp \
     src/view/boardcontroldockwidget.cpp \
     src/view/devicecontroldockwidget.cpp \
     src/view/statearray/statearraydockwidget.cpp \
     src/abf/axon.cpp
 
 HEADERS += \
+    src/controller/multiplechannelcontroller.h \
+    src/controller/singlechannelcontroller.h \
 src/globaldefines.h \
     src/controller/bigplotcontroller.h \
     src/controller/boardcontroller.h \
-    src/controller/channelcontroller.h \
     src/controller/chessboardcontroller.h \
     src/controller/compensationcontroller.h \
     src/controller/devicecontroller.h \
@@ -132,6 +135,7 @@ src/globaldefines.h \
     src/view/channeloverviewwidget.h \
     src/view/bigplot.h \
     src/view/curve.h \
+    src/view/multiplechannelcontroldockwidget.h \
     src/view/myleftrightmousepushbutton.h \
     src/view/myspinbox.h \
     src/view/protocol/impexpprotocoldialog.h \
@@ -153,8 +157,8 @@ src/globaldefines.h \
     src/view/protocol/protocolwidget.h \
     src/view/recordsettingsdialog.h \
     src/view/rect4.h \
+    src/view/singlechannelcontroldockwidget.h \
     src/view/stampplot.h \
-    src/view/channelcontroldockwidget.h \
     src/view/boardcontroldockwidget.h \
     src/view/devicecontroldockwidget.h \
     src/view/statearray/statearraydockwidget.h \

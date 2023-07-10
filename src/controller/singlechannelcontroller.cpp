@@ -1,64 +1,51 @@
-#include "channelcontroller.h"
-#include "channelcontroldockwidget.h"
+#include "singlechannelcontroller.h"
+#include "singlechannelcontroldockwidget.h"
 #include "mainwindow.h"
 
-ChannelController::ChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
 
-    channelControlsDw = new ChannelControlDockWidget(msgDisp);
-    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnChannelOnOff, this, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-        onApplyTurnChannelOnOff(channelIndexes, onValues);
-    });
-    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnStimulsOnOff, this, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-        onApplyTurnStimulusOnOff(channelIndexes, onValues);
-    });
-    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedTurnDocOnOff, this, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-        onApplyTurnDocOnOff(channelIndexes, onValues);
-    });
-    connect(channelControlsDw, &ChannelControlDockWidget::sigAppliedHoldValues, this, [=](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
+    singleChannelControlsDw = new SingleChannelControlDockWidget(msgDisp);
+    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedHoldValues, this, [=](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
         onApplyHoldValues(channelIndexes, holdValues);
     });
 
     connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied, this, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
         onCompensationApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues, rsBWValueIdxs, ccCfastEn, ccCfastValues);
     });
-    mainWindow->setChannelControlsDw(channelControlsDw);
+    mainWindow->setSingleChannelControlsDw(singleChannelControlsDw);
 }
 
-void ChannelController::onSingleChannelClicked(uint16_t chIdx, bool newState){
+void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, bool newState){
     msgDisp->setChannelSelected(chIdx, newState);
-    channelControlsDw->onUpdate();
+    singleChannelControlsDw->onUpdate();
 }
 
-void ChannelController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
+void SingleChannelController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
     msgDisp->setBoardSelected(brdIdx, newState);
-    channelControlsDw->onUpdate();
+    singleChannelControlsDw->onUpdate();
 }
 
-void ChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
+void SingleChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
     msgDisp->setRowSelected(rowIdx, newState);
-    channelControlsDw->onUpdate();
+    singleChannelControlsDw->onUpdate();
 }
 
-void ChannelController::onAllChannelsClicked(bool newState) {
+void SingleChannelController::onAllChannelsClicked(bool newState) {
     msgDisp->setAllChannelsSelected(newState);
-    channelControlsDw->onUpdate();
+    singleChannelControlsDw->onUpdate();
 }
 
-void ChannelController::onApplyTurnChannelOnOff(std::vector <uint16_t> channelIndexes, std::vector<bool> onValues){
-    msgDisp->turnChannelsOn(channelIndexes, onValues, true);
-}
-
-void ChannelController::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+void SingleChannelController::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     msgDisp->enableStimulus(channelIndexes, onValues, true);
 }
 
-void ChannelController::onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+void SingleChannelController::onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     msgDisp->digitalOffsetCompensation(channelIndexes, onValues, true);
 }
 
-void ChannelController::onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
+void SingleChannelController::onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);
 
@@ -70,7 +57,7 @@ void ChannelController::onApplyHoldValues(std::vector<uint16_t> channelIndexes, 
     }
 }
 
-void ChannelController::onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
+void SingleChannelController::onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);
     std::vector<std::vector<double>> compValueMatrix;

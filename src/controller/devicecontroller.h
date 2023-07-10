@@ -39,5 +39,7 @@ signals:
     void sigSamplingRateSelected(int idx);
     void sigDownsamplingRatioSelected(int idx);
     void sigClampingModalitySelected(int idx);
+    void sigRecordingStarted();
+    void sigRecordingStopped();
 };
 #endif // DEVICECONTROLLER_H

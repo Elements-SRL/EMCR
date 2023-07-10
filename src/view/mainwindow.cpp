@@ -114,8 +114,12 @@ DeviceControlDockWidget * MainWindow::getDeviceControlsDockWidget() {
     return deviceControlsDw;
 }
 
-ChannelControlDockWidget * MainWindow::getChannelControlsDockWidget() {
-    return channelControlsDw;
+SingleChannelControlDockWidget * MainWindow::getSingleChannelControlsDockWidget() {
+    return singleChannelControlsDw;
+}
+
+MultipleChannelControlDockWidget * MainWindow::getMultipleChannelControlsDockWidget() {
+    return multipleChannelControlsDw;
 }
 
 BoardControlDockWidget * MainWindow::getBoardControlsDockWidget() {
@@ -210,10 +214,16 @@ void MainWindow::setCompensationControlsDw(CompensationControlDockWidget * ccdw)
     dockWidgets.append(compensationControlsDw);
 }
 
-void MainWindow::setChannelControlsDw(ChannelControlDockWidget * ccdw){
-    channelControlsDw = ccdw;
-    addDockWidget(Qt::RightDockWidgetArea, channelControlsDw);
-    dockWidgets.append(channelControlsDw);
+void MainWindow::setSingleChannelControlsDw(SingleChannelControlDockWidget * scdw){
+    singleChannelControlsDw = scdw;
+    addDockWidget(Qt::RightDockWidgetArea, singleChannelControlsDw);
+    dockWidgets.append(singleChannelControlsDw);
+}
+
+void MainWindow::setMultipleChannelControlsDw(MultipleChannelControlDockWidget * mcdw){
+    multipleChannelControlsDw = mcdw;
+    addDockWidget(Qt::RightDockWidgetArea, multipleChannelControlsDw);
+    dockWidgets.append(multipleChannelControlsDw);
 }
 
 void MainWindow::setBoardControlsDw(BoardControlDockWidget * bcdw){
