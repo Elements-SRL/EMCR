@@ -34,8 +34,12 @@ MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp
         this->onRecordingRequest(false);
     });
 
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlot,          this, &MultipleChannelController::sigAddToBigPlot);
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot,     this, &MultipleChannelController::sigRemoveFromBigPlot);
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlot,          this, [=] () {
+        emit sigAddRemoveFromBigPlot(true);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot,     this, [=] () {
+        emit sigAddRemoveFromBigPlot(false);
+    });
 
     mainWindow->setMultipleChannelControlsDw(multipleChannelControlsDw);
 }

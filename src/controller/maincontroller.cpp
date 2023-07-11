@@ -185,18 +185,13 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
 
-    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this, &MainController::onStartRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this, &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddToBigPlot,         [=] () {
-        bigPlotConsumer->onSelectChannels(true);
-    });
-    connect(multipleChannelController, &MultipleChannelController::sigRemoveFromBigPlot,    [=] () {
-        bigPlotConsumer->onSelectChannels(false);
-    });
-
-    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController, &ChessboardController::onChannelsTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController, &ChessboardController::onStimuliTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController, &ChessboardController::onDocTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                   &MainController::onStartRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                   &MainController::onStopRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,        &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,   &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,   &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,   &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,   &ChessboardController::onDocTurnedOnOff);
 
 //    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 

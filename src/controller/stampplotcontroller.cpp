@@ -79,6 +79,20 @@ void StampPlotController::docTurnedOnOff(bool flag) {
     }
 }
 
+void StampPlotController::tracesExpandedOnOff(bool flag) {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+
+    for (auto channelIdx : selectedChannels) {
+        if (flag) {
+            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
+
+        } else {
+            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
+        }
+    }
+}
+
 void StampPlotController::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
     for (auto plot : plots) {
         plot->onRangeUpdated(newRange, axisIdx);

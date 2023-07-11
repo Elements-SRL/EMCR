@@ -35,3 +35,7 @@ void ChessboardController::onStimuliTurnedOnOff(bool flag) {
 void ChessboardController::onDocTurnedOnOff(bool flag) {
     stamplPlotController->docTurnedOnOff(flag);
 }
+
+void ChessboardController::onTracesExpandedOnOff(bool flag) {
+    stamplPlotController->tracesExpandedOnOff(flag);
+}

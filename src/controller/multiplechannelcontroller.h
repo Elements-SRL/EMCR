@@ -29,12 +29,11 @@ private:
 signals:
     void sigStartRecording();
     void sigStopRecording();
-    void sigAddToBigPlot();
-    void sigRemoveFromBigPlot();
 
     void sigChannelsTurnedOnOff(bool flag);
     void sigStimuliTurnedOnOff(bool flag);
     void sigDocTurnedOnOff(bool flag);
+    void sigAddRemoveFromBigPlot(bool flag);
 };
 
 #endif // MULTIPLECHANNELCONTROLLER_H

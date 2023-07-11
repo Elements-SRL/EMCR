@@ -20,6 +20,7 @@ public slots:
     void onChannelsTurnedOnOff(bool flag);
     void onStimuliTurnedOnOff(bool flag);
     void onDocTurnedOnOff(bool flag);
+    void onTracesExpandedOnOff(bool flag);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
