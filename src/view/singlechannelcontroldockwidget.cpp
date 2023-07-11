@@ -42,8 +42,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
         mainVl->addWidget(operationButtonWidgets[idx]);
     }
 
-//    QPushButton * applyBtn = new QPushButton("Apply");
-    this->applyBtn = new QPushButton("Apply");
+    applyBtn = new QPushButton("Apply");
     connect(applyBtn, &QPushButton::clicked, this, QOverload <> ::of(&SingleChannelControlDockWidget::onApplyButtonClicked));
 
     QGridLayout * applyBtnGridLayout = new QGridLayout;

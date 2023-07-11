@@ -24,7 +24,7 @@ StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QW
     this->setCanvasBackground(Qt::black);
 
     QFont font;
-    font.setPointSize(6);
+    font.setPointSize(7);
 
     QwtText text;
     text.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
