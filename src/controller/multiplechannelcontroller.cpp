@@ -68,6 +68,8 @@ void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->turnChannelsOn(selectedChannels, values, true);
+
+    emit sigChannelsTurnedOnOff(flag);
 }
 
 void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
@@ -75,6 +77,8 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->enableStimulus(selectedChannels, values, true);
+
+    emit sigStimuliTurnedOnOff(flag);
 }
 
 void MultipleChannelController::turnSelectedDocOnOff(bool flag) {
@@ -82,4 +86,6 @@ void MultipleChannelController::turnSelectedDocOnOff(bool flag) {
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->digitalOffsetCompensation(selectedChannels, values, true);
+
+    emit sigDocTurnedOnOff(flag);
 }

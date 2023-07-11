@@ -11,11 +11,9 @@ ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget 
 
     this->setObjectName("chessboard");
 
-    int boardsNum;
-
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
     msgDisp->getBoardsNumberFeatures(boardsNum);
-    int channelsPerBoard = currentChannelsNum/boardsNum;
+    channelsPerBoard = currentChannelsNum/boardsNum;
 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -23,26 +21,13 @@ ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget 
 
     this->setWidget(mainWg);
 
-    QGridLayout * mainGl = new QGridLayout;
+    mainGl = new QGridLayout;
     mainGl->setMargin(0);
     mainGl->setSpacing(1);
     mainWg->setLayout(mainGl);
 
-    QComboBox * visualizationCbx = new QComboBox;
-    visualizationCbx->addItem("Plot Overview");
-    visualizationCbx->addItem("Noise Overview");
-
-    mainGl->addWidget(visualizationCbx, 0, 0, 1, (boardsNum+1)/2);
-
-    QPushButton * noiseExportBtn = new QPushButton("Export");
-    noiseExportBtn->setVisible(false);
-    noiseExportBtn->setCheckable(false);
-    connect(noiseExportBtn, &QPushButton::clicked, this, &ChessboardDockWidget::sigExportLiveNoiseEstimates);
-
-    mainGl->addWidget(noiseExportBtn, 0, (boardsNum+1)/2, 1, (boardsNum+1)/2);
-
-    int idealPlotHeight = qMax(300/channelsPerBoard, STAMP_PLOT_SIZE);
-    int idealPlotWidth = qMax(450/boardsNum, STAMP_PLOT_SIZE);
+    idealPlotHeight = qMax(300/channelsPerBoard, STAMP_PLOT_SIZE);
+    idealPlotWidth = qMax(450/boardsNum, STAMP_PLOT_SIZE);
 
     if (currentChannelsNum > 1) {
         allChannelsSelector = new MyLeftRightMousePushButton();
@@ -85,112 +70,33 @@ ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget 
             rowSelectors[rowIdx] = btn;
         }
     }
-
-    int boardIdx = 0;
-    int rowIdx = 0;
-
-    overviewWidgets.resize(currentChannelsNum);
-
-    plots.resize(currentChannelsNum);
-    currentCurves.resize(currentChannelsNum);
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        ChannelOverviewWidget * wid = new ChannelOverviewWidget;
-        wid->setFixedSize(idealPlotWidth, idealPlotHeight);
-        wid->setChannelIndex(channelIdx);
-
-
-        connect(wid, &ChannelOverviewWidget::clicked, this, [=] (bool selected) {
-            emit sigSingleChannelClicked(channelIdx, selected);
-        });
-
-        connect(visualizationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, [=] (int idx) {
-            wid->setVisualizationOption((ChannelOverviewWidget::VisualizationOption_t)idx);
-            noiseExportBtn->setVisible(idx == ChannelOverviewWidget::Noise);
-        });
-
-        if (boardsNum > 1 && channelsPerBoard > 1) {
-            mainGl->addWidget(wid, rowIdx+2, boardIdx+1);
-
-        } else if (boardsNum > 1) {
-            mainGl->addWidget(wid, rowIdx+1, boardIdx+1);
-
-        } else if (channelsPerBoard > 1) {
-            mainGl->addWidget(wid, rowIdx+2, boardIdx);
-
-        } else {
-            mainGl->addWidget(wid, rowIdx+1, boardIdx);
-        }
-
-        rowIdx++;
-        if (rowIdx == channelsPerBoard) {
-            rowIdx = 0;
-            boardIdx++;
-        }
-        overviewWidgets[channelIdx] = wid;
-
-        /*! buttare in una funzioncina di creazione del plot*/
-        StampPlot * plot = new StampPlot(idealPlotWidth, idealPlotHeight);
-        plot->setFixedSize(idealPlotWidth, idealPlotHeight);
-        plot->setToolTip(QString("Ch %1\nRight click: select\nLeft click: deselect").arg(channelIdx+1));
-        plot->setSelected(false);
-
-
-        plots[channelIdx] = plot;
-
-        Curve * curve = new Curve(CurveType_t::CurveTypeStampPlotSolid);
-        curve->attach(plot);
-        currentCurves[channelIdx] = curve;
-
-        wid->setStampPlot(plot);
-
-        wid->setVisualizationOption(ChannelOverviewWidget::Plot);
-    }
 }
 
-void ChessboardDockWidget::clearCurves() {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[idx]->detach();
-        delete currentCurves[idx];
-        delete [] currentCurves[idx];
+void ChessboardDockWidget::addPlot(StampPlot * plot, int channelIdx) {
+    int rowIdx = channelIdx % channelsPerBoard;
+    int boardIdx = channelIdx / channelsPerBoard;
+    if (boardsNum > 1 && channelsPerBoard > 1) {
+        mainGl->addWidget(plot, rowIdx+2, boardIdx+1);
+
+    } else if (boardsNum > 1) {
+        mainGl->addWidget(plot, rowIdx+1, boardIdx+1);
+
+    } else if (channelsPerBoard > 1) {
+        mainGl->addWidget(plot, rowIdx+2, boardIdx);
+
+    } else {
+        mainGl->addWidget(plot, rowIdx+1, boardIdx);
     }
-    currentCurves.clear();
+
+    connect(plot, &StampPlot::clicked, [=] (bool flag) {
+        emit sigSingleChannelClicked(channelIdx, flag);
+    });
 }
 
-void ChessboardDockWidget::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
-    for (auto plot : plots) {
-        plot->onRangeUpdated(newRange, axisIdx);
-    }
+int ChessboardDockWidget::getIdealPlotWidth() {
+    return idealPlotWidth;
 }
 
-void ChessboardDockWidget::onDurationUpdated(Measurement_t duration) {
-    for (auto plot : plots) {
-        plot->onDurationUpdated(duration);
-    }
-}
-
-/*! channelsToPlotNumber is ignored by the chessBoard*/
-void ChessboardDockWidget::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
-    }
-}
-
-void ChessboardDockWidget::onReplot() {
-    for (auto plot : plots) {
-        plot->replot();
-    }
-}
-
-void ChessboardDockWidget::onSelectedPlotsUdpated() {
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
-    for(int ii = 0; ii < currentChannelsNum; ii++){
-        plots[ii]->setSelected(selectedChannels[ii]);
-    }
-}
-
-void ChessboardDockWidget::onNoiseValueUpdated(LiveNoiseConsumer::Result_t result) {
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        overviewWidgets[channelIdx]->setNoiseValue({result.stdCurrent[channelIdx], UnitPfxNone, "A"});
-    }
+int ChessboardDockWidget::getIdealPlotHeight() {
+    return idealPlotHeight;
 }

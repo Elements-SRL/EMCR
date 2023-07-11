@@ -27,7 +27,6 @@ public:
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
-    void drawCanvas(QPainter * p) override;
 
     QwtText getPlotTitle();
     void setPlotTitle(QwtText text);

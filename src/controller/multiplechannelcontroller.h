@@ -32,6 +32,9 @@ signals:
     void sigAddToBigPlot();
     void sigRemoveFromBigPlot();
 
+    void sigChannelsTurnedOnOff(bool flag);
+    void sigStimuliTurnedOnOff(bool flag);
+    void sigDocTurnedOnOff(bool flag);
 };
 
 #endif // MULTIPLECHANNELCONTROLLER_H

@@ -5,8 +5,9 @@
 
 #include "globaldefines.h"
 
-StampPlot::StampPlot(int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
+StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
     QwtPlot(parent),
+    channelIdx(channelIdx),
     idealPlotWidth(idealPlotWidth),
     idealPlotHeight(idealPlotHeight) {
 
@@ -21,6 +22,27 @@ StampPlot::StampPlot(int idealPlotWidth, int idealPlotHeight, QWidget * parent) 
     canvas->setFrameStyle(QFrame::NoFrame);
     this->setCanvas(canvas);
     this->setCanvasBackground(Qt::black);
+
+    QFont font;
+    font.setPointSize(6);
+
+    QwtText text;
+    text.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
+    text.setColor(Qt::white);
+
+    channelIdxLbl = new QwtTextLabel(this);
+    text.setText(QString("%1").arg(channelIdx+1));
+    channelIdxLbl->setText(text);
+    channelIdxLbl->setFont(font);
+    channelIdxLbl->setMargin(0);
+    channelIdxLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+
+    stateLbl = new QwtTextLabel(this);
+    text.setText("");
+    stateLbl->setText(text);
+    stateLbl->setFont(font);
+    stateLbl->setMargin(0);
+    stateLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
     /*! select picker */
     selectPicker = new QwtPlotPicker(this->canvas());
@@ -39,16 +61,11 @@ StampPlot::StampPlot(int idealPlotWidth, int idealPlotHeight, QWidget * parent) 
     rangeInitialized.resize(axisCnt);
     rangeInitialized.fill(false);
 
+    xAxisMaxMajor = this->axisMaxMajor(xBottom);
+    yAxisMaxMajor = this->axisMaxMajor(yLeft);
+
     selected = false;
     this->setStyleSheet(STP_STYLE_PLOT_INACTIVE);
-}
-
-void StampPlot::onClicked() {
-    emit clicked(true);
-}
-
-void StampPlot::onUnclicked() {
-    emit clicked(false);
 }
 
 QSize StampPlot::sizeHint() const {
@@ -69,6 +86,46 @@ void StampPlot::setSelected(bool flag) {
             this->setStyleSheet(STP_STYLE_PLOT_INACTIVE);
         }
     }
+}
+
+void StampPlot::setState(States_t newState) {
+    state = newState;
+    QString stateText = "";
+    bool anyLabelAssigned = false;
+    if (state & StateSwitchedOff) {
+        if (anyLabelAssigned) {
+            stateText += ",";
+        }
+        stateText += "O";
+        anyLabelAssigned = true;
+    }
+
+    if (state & StateStimuliDisabled) {
+        if (anyLabelAssigned) {
+            stateText += ",";
+        }
+        stateText += "X";
+        anyLabelAssigned = true;
+    }
+
+    if (state & StateOffsetCompensation) {
+        if (anyLabelAssigned) {
+            stateText += ",";
+        }
+        stateText += "C";
+        anyLabelAssigned = true;
+    }
+
+    stateLbl->setText(stateText);
+    this->resizeEvent(nullptr);
+}
+
+void StampPlot::addState(States_t newState) {
+    this->setState((States_t)(state | newState));
+}
+
+void StampPlot::removeState(States_t newState) {
+    this->setState((States_t)(state &~ newState));
 }
 
 void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
@@ -93,4 +150,24 @@ void StampPlot::onDurationUpdated(Measurement_t duration) {
     this->setAxisScale(xBottom, 0.0, sweepDuration.value);
 
     this->replot();
+}
+
+void StampPlot::onClicked() {
+    emit clicked(true);
+}
+
+void StampPlot::onUnclicked() {
+    emit clicked(false);
+}
+
+void StampPlot::resizeEvent(QResizeEvent * e) {
+    if (e != nullptr) {
+        QwtPlot::resizeEvent(e);
+    }
+
+    QSize siz = channelIdxLbl->minimumSizeHint();
+    channelIdxLbl->setGeometry(this->canvas()->x(), this->canvas()->y(), siz.width(), siz.height());
+
+    siz = stateLbl->minimumSizeHint();
+    stateLbl->setGeometry(this->canvas()->x(), this->canvas()->y()+this->canvas()->height()-siz.height(), siz.width(), siz.height());
 }

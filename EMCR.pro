@@ -29,6 +29,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 SOURCES += \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/singlechannelcontroller.cpp \
+    src/controller/stampplotcontroller.cpp \
 src/main.cpp \
     src/controller/bigplotcontroller.cpp \
     src/controller/boardcontroller.cpp \
@@ -98,6 +99,7 @@ src/main.cpp \
 HEADERS += \
     src/controller/multiplechannelcontroller.h \
     src/controller/singlechannelcontroller.h \
+    src/controller/stampplotcontroller.h \
 src/globaldefines.h \
     src/controller/bigplotcontroller.h \
     src/controller/boardcontroller.h \

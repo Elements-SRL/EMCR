@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "chessboarddockwidget.h"
+#include "stampplotcontroller.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
 
@@ -13,9 +14,17 @@ class ChessboardController : public QObject {
 public:
     ChessboardController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
+    StampPlotController * getStampPlotController();
+
+public slots:
+    void onChannelsTurnedOnOff(bool flag);
+    void onStimuliTurnedOnOff(bool flag);
+    void onDocTurnedOnOff(bool flag);
+
 private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
+    StampPlotController * stamplPlotController = nullptr;
     ChessboardDockWidget * chessboard = nullptr;
 
 signals:

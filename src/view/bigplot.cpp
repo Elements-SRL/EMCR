@@ -95,11 +95,6 @@ QSize BigPlot::minimumSizeHint() const {
     return QSize(200, 300);
 }
 
-void BigPlot::drawCanvas(QPainter * p) {
-    QwtPlot::drawCanvas(p);
-    this->resizeEvent(nullptr);
-}
-
 QwtText BigPlot::getPlotTitle() {
     return plotTitle->text();
 }
@@ -353,21 +348,6 @@ void BigPlot::onDurationUpdated(commlib::Measurement_t duration) {
 void BigPlot::resizeEvent(QResizeEvent * e) {
     if (e != nullptr) {
         QwtPlot::resizeEvent(e);
-    }
-
-    int newXAxisMaxMajor = this->width()/40;
-    int newYAxisMaxMajor = this->height()/40;
-    if ((xAxisMaxMajor != newXAxisMaxMajor) || (yAxisMaxMajor != newYAxisMaxMajor)) {
-        xAxisMaxMajor = newXAxisMaxMajor;
-        yAxisMaxMajor = newYAxisMaxMajor;
-
-        this->setAxisMaxMajor(xBottom, xAxisMaxMajor);
-        this->setAxisMaxMajor(yLeft, yAxisMaxMajor);
-        this->setAxisMaxMajor(yRight, yAxisMaxMajor);
-
-        /*! \todo FCON questo accade troppo spesso, perchè il numero di tick non è necessariamente uguale al numero massimo di tick
-                       quindi a volte cambia il massimo ma non il numero */
-        this->replot();
     }
 
     QSize siz = plotTitle->minimumSizeHint();
