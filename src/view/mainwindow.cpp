@@ -291,10 +291,12 @@ void MainWindow::createGuiControls() {
      * protocols dock *
     \******************/
 
-    protocolDw = new ProtocolDockWidget(msgDisp, e384CommLib::VOLTAGE_CLAMP);
-    protocolDw->setObjectName("protocolDw");
-    this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
-    dockWidgets.append(protocolDw);
+    if (msgDisp->hasProtocols() == Success) {
+        protocolDw = new ProtocolDockWidget(msgDisp, e384CommLib::VOLTAGE_CLAMP);
+        protocolDw->setObjectName("protocolDw");
+        this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
+        dockWidgets.append(protocolDw);
+    }
 
     /**************\
      * debug dock *

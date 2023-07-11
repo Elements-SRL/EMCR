@@ -126,8 +126,10 @@ void MainController::onMainWindowCreated() {
     singleChannelController = new SingleChannelController(msgDisp, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
-    voltageProtocolManager = new ProtocolManager(msgDisp);
-    currentProtocolManager = new ProtocolManager(msgDisp);
+    if (msgDisp->hasProtocols() == Success) {
+        voltageProtocolManager = new ProtocolManager(msgDisp);
+        currentProtocolManager = new ProtocolManager(msgDisp);
+    }
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
 
@@ -183,20 +185,6 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
 
-    connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
-    connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
-    connect(voltageProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::currentApplied);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    connect(voltageProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolSaveRequest);
-#endif
-    connect(currentProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolStarted);
-    connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
-    connect(currentProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::currentApplied);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    connect(currentProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolSaveRequest);
-#endif
-    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
-
     connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this, &MainController::onStartRecording);
     connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this, &MainController::onStopRecording);
     connect(multipleChannelController, &MultipleChannelController::sigAddToBigPlot,         [=] () {
@@ -206,19 +194,36 @@ void MainController::onMainWindowCreated() {
         bigPlotConsumer->onSelectChannels(false);
     });
 
-    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
-        mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
-    });
-    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onStopProtocol);
-    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
-        mainWindow->getProtocolDockWidget()->getCurrentProtocolList()->onStartProtocol();
-    });
-    connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onStopProtocol);
+    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+    if (msgDisp->hasProtocols() == Success) {
+        connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
+        connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+        connect(voltageProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::currentApplied);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+        connect(voltageProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolSaveRequest);
+#endif
+        connect(currentProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolStarted);
+        connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+        connect(currentProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::currentApplied);
+#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
+        connect(currentProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolSaveRequest);
+#endif
+
+        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
+            mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
+        });
+        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onStopProtocol);
+        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
+            mainWindow->getProtocolDockWidget()->getCurrentProtocolList()->onStartProtocol();
+        });
+        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onStopProtocol);
+
+        connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
+        connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+        connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
+        connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+    }
 
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
 

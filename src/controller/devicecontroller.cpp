@@ -34,25 +34,28 @@ DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mai
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](uint16_t selectedClampingModalityIndex){
         onClampingModalitySelected(selectedClampingModalityIndex);
     });
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedCcCurrentRangeIndex){
-        onCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
-    });
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex){
-        onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
-    });
-    connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex){
-        onSamplingRateSelected(selectedSamplingRateIndex);
-    });
 
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedVcCurrentRangeIndex){
-        onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
-    } );
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex){
-        onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
-    });
-    connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex){
-        onSamplingRateSelected(selectedSamplingRateIndex);
-    });
+    if (msgDisp->hasProtocols() == Success) {
+        connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedCcCurrentRangeIndex){
+            onCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
+        });
+        connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex){
+            onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+        });
+        connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex){
+            onSamplingRateSelected(selectedSamplingRateIndex);
+        });
+
+        connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedVcCurrentRangeIndex){
+            onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
+        } );
+        connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex){
+            onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+        });
+        connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex){
+            onSamplingRateSelected(selectedSamplingRateIndex);
+        });
+    }
     connect(this, &DeviceController::sigRecordingStarted,   deviceControlDockWidget, &DeviceControlDockWidget::onRecordingStarted);
     connect(this, &DeviceController::sigRecordingStopped,   deviceControlDockWidget, &DeviceControlDockWidget::onRecordingStopped);
 }
