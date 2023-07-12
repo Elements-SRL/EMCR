@@ -15,7 +15,7 @@
 #include "devicedataproducer.h"
 #include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
-#include "livenoiseconsumer.h"
+#include "livestatisticsconsumer.h"
 #include "calibrationconsumer.h"
 #include "protocolmanager.h"
 #include "statearraycontroller.h"
@@ -62,7 +62,7 @@ private:
     GapFreePlotConsumer * stampPlotConsumer = nullptr;
     GapFreePlotConsumer * bigPlotConsumer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
-    LiveNoiseConsumer * liveNoiseConsumer = nullptr;
+    LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
     CalibrationConsumer * calibratorConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;

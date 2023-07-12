@@ -1,27 +1,28 @@
-#include "livenoiseconsumer.h"
+#include "livestatisticsconsumer.h"
 
 #include <qmath.h>
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
 
-LiveNoiseConsumer::LiveNoiseConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
     DeviceDataConsumer(msgDisp, producer) {
 
+    analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
 }
 
-LiveNoiseConsumer::~LiveNoiseConsumer() {
+LiveStatisticsConsumer::~LiveStatisticsConsumer() {
 
 }
 
-void LiveNoiseConsumer::onStartConsuming() {
+void LiveStatisticsConsumer::onStartConsuming() {
     hook = producer->getDataHook();
     if (hook != nullptr) {
         this->start();
     }
 }
 
-void LiveNoiseConsumer::onStopConsuming() {
+void LiveStatisticsConsumer::onStopConsuming() {
     if (this->isRunning()) {
         QMutexLocker consumptionLock(&consumptionMtx);
         consumptionStopped = true;
@@ -36,32 +37,32 @@ void LiveNoiseConsumer::onStopConsuming() {
     }
 }
 
-void LiveNoiseConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
+void LiveStatisticsConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     QMutexLocker locker(&samplingRateMtx);
     samplingRate.convertValue(UnitPfxNone);
     pushedSamplingRateHz = samplingRate.value;
     pushedSamplingRateFlag = true;
 }
 
-void LiveNoiseConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
+void LiveStatisticsConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
     QMutexLocker locker(&samplingRateMtx);
     pushedDownsamplingRatio = ratio;
     pushedDownsamplingRatioFlag = true;
 }
 
-void LiveNoiseConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
+void LiveStatisticsConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
     QMutexLocker locker(&rangesMtx);
     pushedVoltageRange = range;
     pushedVoltageRangeFlag = true;
 }
 
-void LiveNoiseConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
+void LiveStatisticsConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
     QMutexLocker locker(&rangesMtx);
     pushedCurrentRange = range;
     pushedCurrentRangeFlag = true;
 }
 
-void LiveNoiseConsumer::onExportLiveNoiseEstimates() {
+void LiveStatisticsConsumer::onExportLiveNoiseEstimates() {
     QString filename = "noise";
     QString filedir = QDir::currentPath() + "/";
     QString filepath = filedir + filename + ".csv";
@@ -80,7 +81,7 @@ void LiveNoiseConsumer::onExportLiveNoiseEstimates() {
     file.close();
 }
 
-void LiveNoiseConsumer::run() {
+void LiveStatisticsConsumer::run() {
     this->initAnalysis();
 
     QMutexLocker consumptionLock(&consumptionMtx);
@@ -114,7 +115,7 @@ void LiveNoiseConsumer::run() {
     exitedDataConsumingLoopCv.wakeAll();
 }
 
-void LiveNoiseConsumer::initAnalysis() {
+void LiveStatisticsConsumer::initAnalysis() {
     res.meanVoltage.resize(voltageChannelsNum);
     res.stdVoltage.resize(voltageChannelsNum);
     voltageSum.resize(voltageChannelsNum);
@@ -123,49 +124,52 @@ void LiveNoiseConsumer::initAnalysis() {
     res.stdCurrent.resize(currentChannelsNum);
     currentSum.resize(currentChannelsNum);
     currentSum2.resize(currentChannelsNum);
+    res.conductivity.resize(currentChannelsNum);
 
     this->lockAndResetAnalysis(currentChannelsNum);
 }
 
-void LiveNoiseConsumer::lockAndResetAnalysis(int currentChannelIdx) {
+void LiveStatisticsConsumer::lockAndResetAnalysis(int currentChannelIdx) {
     QMutexLocker locker(&mutex);
     this->resetAnalysis(currentChannelIdx);
 }
 
-void LiveNoiseConsumer::resetAnalysis(int) {
+void LiveStatisticsConsumer::resetAnalysis(int) {
     analysisBuffer.clear();
 
-    minSamples = qRound(sweepSamplingRate*LNC_MIN_INTERVAL_S);
+    minSamples = qRound(sweepSamplingRate*LSC_MIN_INTERVAL_S);
 }
 
-void LiveNoiseConsumer::performAnalysis() {
+void LiveStatisticsConsumer::performAnalysis() {
     QMutexLocker locker(&mutex);
     bufferSize = analysisBuffer.size();
     analysisSamples = bufferSize/totalChannelsNum;
     int channelIdx;
 
-    if (analysisSamples >= minSamples) {
+    if (totalAnalysisSamples == 0) {
         voltageSum.fill(0.0);
         voltageSum2.fill(0.0);
         currentSum.fill(0.0);
         currentSum2.fill(0.0);
+    }
 
-        for (analysisIdx = 0; analysisIdx < bufferSize; analysisIdx += totalChannelsNum) {
-            for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
-                channelIdx = analysisIdx+voltageIdx;
-                voltageSum[voltageIdx] += analysisBuffer[channelIdx];
-                voltageSum2[voltageIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
-            }
-
-            for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-                channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
-                currentSum[currentIdx] += analysisBuffer[channelIdx];
-                currentSum2[currentIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
-            }
+    for (analysisIdx = 0; analysisIdx < bufferSize; analysisIdx += totalChannelsNum) {
+        for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
+            channelIdx = analysisIdx+voltageIdx;
+            voltageSum[voltageIdx] += analysisBuffer[channelIdx];
+            voltageSum2[voltageIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
         }
 
-        analysisBuffer.clear();
+        for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+            channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
+            currentSum[currentIdx] += analysisBuffer[channelIdx];
+            currentSum2[currentIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
+        }
+    }
+    totalAnalysisSamples += analysisSamples;
+    analysisBuffer.clear();
 
+    if (totalAnalysisSamples >= minSamples) {
         for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
             res.meanVoltage[voltageIdx] = voltageSum[voltageIdx]/((double)analysisSamples);
             res.stdVoltage[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res.meanVoltage[voltageIdx])/((double)analysisSamples))*voltageMultiplier;
@@ -176,24 +180,31 @@ void LiveNoiseConsumer::performAnalysis() {
             res.meanCurrent[currentIdx] = currentSum[currentIdx]/((double)analysisSamples);
             res.stdCurrent[currentIdx] = qSqrt((currentSum2[currentIdx]-currentSum[currentIdx]*res.meanCurrent[currentIdx])/((double)analysisSamples))*currentMultiplier;
             res.meanCurrent[currentIdx] *= currentMultiplier;
+            if (res.meanVoltage[currentIdx]*res.meanCurrent[currentIdx] <= 0.0) {
+                res.conductivity[currentIdx] = -1.0;
+
+            } else {
+                res.conductivity[currentIdx] = res.meanCurrent[currentIdx]/res.meanVoltage[currentIdx];
+            }
         }
+        totalAnalysisSamples = 0;
 
         emit sigResult(res);
     }
 }
 
-void LiveNoiseConsumer::updateSamplingRate() {
+void LiveStatisticsConsumer::updateSamplingRate() {
     QMutexLocker locker(&samplingRateMtx);
     if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
         pushedSamplingRateFlag = false;
         pushedDownsamplingRatioFlag = false;
         sweepSamplingRate = pushedSamplingRate/(double)pushedDownsamplingRatio;
-        minDataBatchSize = qRound(sweepSamplingRate*0.05);
+        minDataBatchSize = qRound(sweepSamplingRate*LSC_MIN_BATCH_INTERVAL_S);
         this->lockAndResetAnalysis(currentChannelsNum);
     }
 }
 
-void LiveNoiseConsumer::updateRanges() {
+void LiveStatisticsConsumer::updateRanges() {
     QMutexLocker locker(&rangesMtx);
     if (pushedVoltageRangeFlag) {
         pushedVoltageRangeFlag = false;

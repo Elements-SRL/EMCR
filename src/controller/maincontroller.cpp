@@ -160,8 +160,8 @@ void MainController::onMainWindowCreated() {
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
-    liveNoiseConsumer = new LiveNoiseConsumer(msgDisp, deviceDataProducer);
-    consumers.append(liveNoiseConsumer);
+    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, deviceDataProducer);
+    consumers.append(liveStatisticsConsumer);
     
     calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
     consumers.append(calibratorConsumer);
@@ -487,7 +487,7 @@ void MainController::startProducerConsumers() {
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();
     bigPlotConsumer->onStartConsuming();
-    liveNoiseConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
+    liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
@@ -509,10 +509,10 @@ void MainController::stopAndDestroyProducerConsumers() {
         abfDataWriterConsumer = nullptr;
     }
 
-    if (liveNoiseConsumer!= nullptr) {
-        liveNoiseConsumer->onStopConsuming();
-        delete liveNoiseConsumer;
-        liveNoiseConsumer = nullptr;
+    if (liveStatisticsConsumer!= nullptr) {
+        liveStatisticsConsumer->onStopConsuming();
+        delete liveStatisticsConsumer;
+        liveStatisticsConsumer = nullptr;
     }
     
     if (calibratorConsumer!= nullptr) {

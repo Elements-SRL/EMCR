@@ -4,7 +4,6 @@
 #include <QReadWriteLock>
 
 static bool exitedDataProducingLoop = true;
-//static QMutex dataMtx;
 static QReadWriteLock dataLock;
 static QWaitCondition dataCv;
 static int16_t ** dataSamplesBuffer;
@@ -55,7 +54,6 @@ unsigned int DeviceDataProducer::getDataPacketsBufferLen() {
 DataHook * DeviceDataProducer::getDataHook() {
     DataHook * hook;
 
-//    QMutexLocker locker(&dataMtx);
     hook = new DataHook(totalChannelsNum);
     dataLock.lockForRead();
     hook->setInitialOffset(dataPacketsIdx);
@@ -92,9 +90,6 @@ void DeviceDataProducer::run() {
 
     connectionLock.unlock();
 
-//    QMutexLocker dataLock(&dataMtx);
-//    dataLock.unlock();
-
     QMutexLocker bitRateLock(&bitRateMtx);
     bitRateLock.unlock();
 
@@ -123,7 +118,6 @@ void DeviceDataProducer::run() {
                 dataSampleBufferIdx = (dataSampleBufferIdx+1) & dataPacketsBufferMask;
             }
 
-//            dataLock.relock();
             dataLock.lockForWrite();
             dataPacketsIdx = dataSampleBufferIdx;
             dataCv.wakeAll();
@@ -138,7 +132,6 @@ void DeviceDataProducer::run() {
         }
     }
 
-//    dataLock.relock();
     dataLock.lockForWrite();
     dataPacketsIdx = (dataPacketsIdx+(dataPacketsBufferLen >> 4)) & dataPacketsBufferMask;
     dataCv.wakeAll();
@@ -178,7 +171,6 @@ void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
 
 bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
     int waitCount = 0;
-//    QMutexLocker locker(&dataMtx);
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
            (!exitedDataProducingLoop) &&
@@ -216,7 +208,6 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
 
 bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
     int waitCount = 0;
-//    QMutexLocker locker(&dataMtx);
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
            (!exitedDataProducingLoop) &&

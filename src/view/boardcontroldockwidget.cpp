@@ -30,10 +30,10 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
     QGridLayout * mainGl = this->getLayoutWithScrollBar(mainWg);
 
     // Column captions
-    mainGl->addWidget(new QLabel(" Board"), 0, 0);
+    mainGl->addWidget(new QLabel(" Board   "), 0, 0, Qt::AlignRight);
     mainGl->addWidget(new QLabel("Gate"), 0, 1);
     mainGl->addWidget(new QLabel("Source"), 0, 2);
-    int row = 2;
+    int row = 1;
     mainGl->addWidget(new QLabel("ALL   "), row++, 0, Qt::AlignRight);
     for(row = 3; row < localNumOfBoards+3; row++){
         QString channelLabel= QString("%1   ").arg(row-2);
@@ -45,18 +45,19 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
         MySpinBox* gateSpinBox;
         QString gateUnit = QString().fromStdString(gateRange.getFullUnit());
         int row = 1;
-        QPushButton * setAllBtn = new QPushButton("Set all boards");
-        mainGl->addWidget(setAllBtn, row++, 1);
         gateSpinBox = new MySpinBox();
         gateSpinBox->setSuffix(QString(" ") + gateUnit);
         gateSpinBox->setRange(gateRange.min, gateRange.max);
         gateSpinBox->setValue(0.0);
         gateSpinBox->setDecimals(gateRange.decimals());
         mainGl->addWidget(gateSpinBox, row++, 1);
+        QPushButton * setAllBtn = new QPushButton("Set all gates");
+        mainGl->addWidget(setAllBtn, row++, 1);
         connect(setAllBtn, &QPushButton::clicked, this, [=] () {
             for (auto sbx : gateSpinBoxes) {
                 sbx->setValue(gateSpinBox->value());
             }
+            this->onApplyButtonClicked();
         });
         for(row = 3; row < localNumOfBoards+3; row++){
             gateSpinBox = new MySpinBox();
@@ -75,18 +76,19 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
         MySpinBox* sourceSpinBox;
         QString sourceUnit = QString().fromStdString(sourceRange.getFullUnit());
         int row = 1;
-        QPushButton * setAllBtn = new QPushButton("Set all boards");
-        mainGl->addWidget(setAllBtn, row++, 2);
         sourceSpinBox = new MySpinBox();
         sourceSpinBox->setSuffix(QString(" ") + sourceUnit);
         sourceSpinBox->setRange(sourceRange.min, sourceRange.max);
         sourceSpinBox->setValue(0.0);
         sourceSpinBox->setDecimals(sourceRange.decimals());
         mainGl->addWidget(sourceSpinBox, row++, 2);
+        QPushButton * setAllBtn = new QPushButton("Set all sources");
+        mainGl->addWidget(setAllBtn, row++, 2);
         connect(setAllBtn, &QPushButton::clicked, this, [=] () {
             for (auto sbx : sourceSpinBoxes) {
                 sbx->setValue(sourceSpinBox->value());
             }
+            this->onApplyButtonClicked();
         });
         for(row = 3; row < localNumOfBoards+3; row++){
             sourceSpinBox = new MySpinBox();
@@ -101,7 +103,7 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
         }
     }
 
-    QPushButton* applyButton = new QPushButton("Apply");
+    QPushButton * applyButton = new QPushButton("Apply");
     mainVl->addWidget(applyButton);
     connect(applyButton, &QPushButton::clicked, this, &BoardControlDockWidget::onApplyButtonClicked);
 }
