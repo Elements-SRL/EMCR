@@ -19,6 +19,7 @@ private:
 //    MessageDispatcher * msgDisp = nullptr;
     QVBoxLayout * mainVl;
     QWidget * mainWg;
+    QLabel * channelIndexesLabel;
     QPushButton * meanVoltageBtn;
     QPushButton * meanCurrentBtn;
     QPushButton * stdCurrentBtn;

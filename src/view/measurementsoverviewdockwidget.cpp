@@ -19,6 +19,8 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChann
 
     QHBoxLayout * buttonsLayout = new QHBoxLayout();
 
+    channelIndexesLabel = new QLabel("Active channels");
+
     meanVoltageBtn = new QPushButton("Mean Voltage");
     meanCurrentBtn = new QPushButton("Mean Current");
     stdCurrentBtn = new QPushButton("Std Voltage");
@@ -34,6 +36,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChann
     stdCurrentBtn->setChecked(true);
     conductivityBtn->setChecked(true);
 
+    buttonsLayout->addWidget(channelIndexesLabel);
     buttonsLayout->addWidget(meanVoltageBtn);
     buttonsLayout->addWidget(meanCurrentBtn);
     buttonsLayout->addWidget(stdCurrentBtn);
@@ -61,13 +64,6 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChann
 
     mainVl->addLayout(buttonsLayout);
 
-
-//    QVBoxLayout * vl = new QVBoxLayout;
-//    vl->setContentsMargins(0, 0, 0, 0);
-//    vl->setSpacing(1);
-//    QWidget * scrollWidget =  new QWidget;
-//    scrollWidget->setLayout(vl);
-
     QScrollArea * scrollArea = new QScrollArea;
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -86,12 +82,17 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChann
     QGridLayout *gl = new QGridLayout();
     // Initial layout structure
 
-    for (int i= 0; i<numberOfChannels; i++){
+    for (int i=0; i<numberOfChannels; i++){
         gl->addWidget(meanVoltageLabels[i], i, 0);
-        gl->addWidget(meanCurrentLabels[i], i, 0);
-        gl->addWidget(stdCurrentLabels[i], i, 1);
-        gl->addWidget(conductivityLabels[i], i, 2);
+        gl->addWidget(meanCurrentLabels[i], i, 1);
+        gl->addWidget(stdCurrentLabels[i], i, 2);
+        gl->addWidget(conductivityLabels[i], i, 3);
     }
+
+    setAllWidgetsInvisible(meanVoltageLabels);
+    setAllWidgetsInvisible(meanCurrentLabels);
+    setAllWidgetsInvisible(stdCurrentLabels);
+    setAllWidgetsInvisible(conductivityLabels);
 
     for(int i: getActiveChannels()){
         meanVoltageLabels[i]->setVisible(true);
@@ -130,9 +131,8 @@ void MeasurementsOverviewDockWidget::onUpdate(){
     setAllWidgetsInvisible(meanCurrentLabels);
     setAllWidgetsInvisible(stdCurrentLabels);
     setAllWidgetsInvisible(conductivityLabels);
-
     if (meanVoltageBtn->isChecked()){
-        setActiveChannelsVisible(meanCurrentLabels, activeChannels);
+        setActiveChannelsVisible(meanVoltageLabels, activeChannels);
     }
     if (meanCurrentBtn->isChecked()){
         setActiveChannelsVisible(meanCurrentLabels, activeChannels);
