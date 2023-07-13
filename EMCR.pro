@@ -54,6 +54,7 @@ src/main.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
     src/model/statearray.cpp \
+    src/model/statisticsmodel.cpp \
     src/view/bigplotwidget.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/compensationcontroldockwidget.cpp \
@@ -125,6 +126,7 @@ src/globaldefines.h \
     src/model/protocolmodel.h \
     src/model/state.h \
     src/model/statearray.h \
+    src/model/statisticsmodel.h \
     src/view/bigplotwidget.h \
     src/view/chessboarddockwidget.h \
     src/view/compensationcontroldockwidget.h \

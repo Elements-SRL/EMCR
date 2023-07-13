@@ -6,21 +6,17 @@
 
 #include "messagedispatcher.h"
 #include "devicedataconsumer.h"
+#include "mainwindow.h"
+#include "statisticsmodel.h"
+
+class MeasurementsOverviewDockWidget;
 
 class LiveStatisticsConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
+    LiveStatisticsConsumer(MessageDispatcher * msgDisp, MainWindow * mainWindow, DeviceDataProducer * producer);
     virtual ~LiveStatisticsConsumer();
-
-    typedef struct {
-        QVector <double> meanVoltage;
-        QVector <double> stdVoltage;
-        QVector <double> meanCurrent;
-        QVector <double> stdCurrent;
-        QVector <double> conductivity;
-    } Result_t;
 
 public slots:
     virtual void onStartConsuming() override;
@@ -41,6 +37,8 @@ protected:
     void performAnalysis();
     void updateSamplingRate();
     void updateRanges();
+
+    MeasurementsOverviewDockWidget * modw = nullptr;
 
     QMutex samplingRateMtx;
     QMutex rangesMtx;

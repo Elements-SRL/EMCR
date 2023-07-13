@@ -10,7 +10,6 @@
 #include "elementslogowidget.h"
 #include "errormanager.h"
 #include "globaldefines.h"
-#include "measurementsoverviewdockwidget.h"
 
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
@@ -60,8 +59,6 @@ MainWindow::MainWindow(QWidget * parent) :
     menuView->addAction(deviceDetectorDw->toggleViewAction());
     deviceDetectorDw->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     this->addDockWidget(Qt::TopDockWidgetArea, deviceDetectorDw);
-
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, new MeasurementsOverviewDockWidget());
 
     QWidget * deviceDetectorWid = new QWidget;
     deviceDetectorWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -164,6 +161,10 @@ StateArrayDockWidget * MainWindow::getStateArrayDockWidget(){
     return stateArrayDockWidget;
 }
 
+MeasurementsOverviewDockWidget * MainWindow::getMeasurementOverviewDockWidget() {
+    return measurementsOverviewDw;
+}
+
 void MainWindow::setConnectedDeviceIdx(int idx) {
     devicesComboBox->setCurrentIndex(idx);
 }
@@ -245,6 +246,13 @@ void MainWindow::setDeviceControlDw(DeviceControlDockWidget * dcdw){
 void MainWindow::setStateArrayDw(StateArrayDockWidget * sadw){
     stateArrayDockWidget = sadw;
     addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
+    dockWidgets.append(stateArrayDockWidget);
+}
+
+void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * modw) {
+    measurementsOverviewDw = modw;
+    addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
+    chessboardDw->setFloating(true);
     dockWidgets.append(stateArrayDockWidget);
 }
 

@@ -160,7 +160,7 @@ void MainController::onMainWindowCreated() {
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
-    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, deviceDataProducer);
+    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp/*, mainWindow*/, deviceDataProducer);
     consumers.append(liveStatisticsConsumer);
     
     calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
@@ -261,8 +261,6 @@ void MainController::onMainWindowCreated() {
             deviceController->sigRecordingStopped();
         }
     });
-
-//    connect(liveNoiseConsumer, &LiveNoiseConsumer::sigResult,   mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::onNoiseValueUpdated);
 
     /*! \todo at the moment only for debug mode*/
     connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);

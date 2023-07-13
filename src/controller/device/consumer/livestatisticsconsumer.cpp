@@ -5,10 +5,17 @@
 #include <QDir>
 #include <QTextStream>
 
-LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+#include "measurementsoverviewdockwidget.h"
+
+LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, MainWindow * mainWindow, DeviceDataProducer * producer) :
     DeviceDataConsumer(msgDisp, producer) {
 
+    modw = new MeasurementsOverviewDockWidget;
+
     analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
+    connect(this, &LiveStatisticsConsumer::sigResult, modw, &MeasurementsOverviewDockWidget::onResult);
+
+    mainWindow->setMeasurementOverviewDw(modw);
 }
 
 LiveStatisticsConsumer::~LiveStatisticsConsumer() {

@@ -20,7 +20,7 @@
 #include "e384commlib_errorcodes.h"
 #include "compensationcontroldockwidget.h"
 #include "statearray/statearraydockwidget.h"
-
+#include "measurementsoverviewdockwidget.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -42,6 +42,7 @@ public:
     RecordSettingsDialog * getRecordSettingsDialog();
     CompensationControlDockWidget * getCompensationControlsDockWidget();
     StateArrayDockWidget * getStateArrayDockWidget();
+    MeasurementsOverviewDockWidget * getMeasurementOverviewDockWidget();
     void setDevicesList(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
@@ -55,6 +56,7 @@ public:
     void setDeviceControlDw(DeviceControlDockWidget * dcdw);
     void setProtocolDw(ProtocolDockWidget * pdw);
     void setStateArrayDw(StateArrayDockWidget * sadw);
+    void setMeasurementOverviewDw(MeasurementsOverviewDockWidget * modw);
     void addViewActions();
     void removeViewActions();
 
@@ -91,6 +93,7 @@ private:
     RecordSettingsDialog * recordSettingsDialog = nullptr;
     CompensationControlDockWidget * compensationControlsDw = nullptr;
     StateArrayDockWidget * stateArrayDockWidget = nullptr;
+    MeasurementsOverviewDockWidget * measurementsOverviewDw = nullptr;
 
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
