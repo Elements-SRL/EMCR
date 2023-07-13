@@ -4,6 +4,11 @@
 BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp) {
 
+    if (msgDisp->hasGateVoltageTuners() != Success && msgDisp->hasSourceVoltageTuners() != Success) {
+//        TODO SHOULD THIS RETURN AN ERROR?
+        return;
+    }
+
     boardControlDockWidget = new BoardControlDockWidget(msgDisp);
     this->mainWindow = mainWindow;
     mainWindow->setBoardControlsDw(boardControlDockWidget);

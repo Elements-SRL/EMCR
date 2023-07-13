@@ -27,6 +27,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/singlechannelcontroller.cpp \
     src/controller/stampplotcontroller.cpp \
@@ -48,7 +49,6 @@ src/main.cpp \
     src/controller/device/consumer/plotconsumer.cpp \
     src/controller/device/consumer/datawriterconsumer.cpp \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
-    src/controller/device/consumer/livenoiseconsumer.cpp \
     src/controller/device/consumer/calibrationconsumer.cpp \
     src/model/analysiscursor.cpp \
     src/model/protocolmodel.cpp \
@@ -98,6 +98,7 @@ src/main.cpp \
     src/abf/axon.cpp
 
 HEADERS += \
+    src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/multiplechannelcontroller.h \
     src/controller/singlechannelcontroller.h \
     src/controller/stampplotcontroller.h \
@@ -119,7 +120,6 @@ src/globaldefines.h \
     src/controller/device/consumer/plotconsumer.h \
     src/controller/device/consumer/datawriterconsumer.h \
     src/controller/device/consumer/abfdatawriterconsumer.h \
-    src/controller/device/consumer/livenoiseconsumer.h \
     src/controller/device/consumer/calibrationconsumer.h \
     src/model/analysiscursor.h \
     src/model/protocolmodel.h \

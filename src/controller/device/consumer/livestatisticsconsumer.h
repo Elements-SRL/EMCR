@@ -1,23 +1,25 @@
-#ifndef LIVENOISECONSUMER_H
-#define LIVENOISECONSUMER_H
+#ifndef LIVESTATISTICSCONSUMER_H
+#define LIVESTATISTICSCONSUMER_H
 
-#define LNC_MIN_INTERVAL_S 1.0
+#define LSC_MIN_INTERVAL_S 1.0
+#define LSC_MIN_BATCH_INTERVAL_S 0.1
 
 #include "messagedispatcher.h"
 #include "devicedataconsumer.h"
 
-class LiveNoiseConsumer : public DeviceDataConsumer {
+class LiveStatisticsConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    LiveNoiseConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
-    virtual ~LiveNoiseConsumer();
+    LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
+    virtual ~LiveStatisticsConsumer();
 
     typedef struct {
         QVector <double> meanVoltage;
         QVector <double> stdVoltage;
         QVector <double> meanCurrent;
         QVector <double> stdCurrent;
+        QVector <double> conductivity;
     } Result_t;
 
 public slots:
@@ -59,6 +61,7 @@ protected:
 private:
     int bufferSize;
     int analysisSamples;
+    int totalAnalysisSamples;
     int analysisIdx;
     int voltageIdx;
     int currentIdx;
@@ -77,7 +80,7 @@ private:
     Result_t res;
 
 signals:
-    void sigResult(LiveNoiseConsumer::Result_t);
+    void sigResult(LiveStatisticsConsumer::Result_t);
 };
 
-#endif // LIVENOISECONSUMER_H
+#endif // LIVESTATISTICSCONSUMER_H

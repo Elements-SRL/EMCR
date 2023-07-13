@@ -17,6 +17,7 @@ public:
     void channelsTurnedOnOff(bool flag);
     void stimuliTurnedOnOff(bool flag);
     void docTurnedOnOff(bool flag);
+    void tracesExpandedOnOff(bool flag);
 
 public slots:
     void onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx = QwtPlot::yLeft);

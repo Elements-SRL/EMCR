@@ -17,7 +17,6 @@ CalibrationConsumer::CalibrationConsumer(MessageDispatcher * msgDisp, DeviceData
     msgDisp->getCalibMappingFilePath(tempString);
     calibrationMappingFilePath = QString().fromStdString(tempString);
 
-
     msgDisp->getVCCurrentRanges(vcCurrentRangesArray, defaultVcCurrRangeIdx);
     msgDisp->getVCVoltageRanges(vcVoltageRangesArray);
     msgDisp->getCCCurrentRanges(ccCurrentRangesArray);
@@ -170,7 +169,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
                if(calibLoadOkFlags[0][k] == false){
                    msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibrated with default parameters\n";
                } else {
-                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibration paramteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +".csv\n";
+                   msg = msg + " VC - Board " + QString("%1").arg(k+1) + " calibration parameteres loaded from file " + QString::fromStdString(calibrationFileNames[k]) +".csv\n";
                }
            }
 

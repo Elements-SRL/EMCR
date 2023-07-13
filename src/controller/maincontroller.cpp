@@ -160,8 +160,8 @@ void MainController::onMainWindowCreated() {
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
-    liveNoiseConsumer = new LiveNoiseConsumer(msgDisp, deviceDataProducer);
-    consumers.append(liveNoiseConsumer);
+    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, deviceDataProducer);
+    consumers.append(liveStatisticsConsumer);
     
     calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
     consumers.append(calibratorConsumer);
@@ -185,18 +185,13 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
 
-    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this, &MainController::onStartRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this, &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddToBigPlot,         [=] () {
-        bigPlotConsumer->onSelectChannels(true);
-    });
-    connect(multipleChannelController, &MultipleChannelController::sigRemoveFromBigPlot,    [=] () {
-        bigPlotConsumer->onSelectChannels(false);
-    });
-
-    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController, &ChessboardController::onChannelsTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController, &ChessboardController::onStimuliTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController, &ChessboardController::onDocTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                   &MainController::onStartRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                   &MainController::onStopRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,        &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,   &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,   &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,   &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,   &ChessboardController::onDocTurnedOnOff);
 
 //    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 
@@ -492,7 +487,7 @@ void MainController::startProducerConsumers() {
     deviceDataProducer->start();
     stampPlotConsumer->onStartConsuming();
     bigPlotConsumer->onStartConsuming();
-    liveNoiseConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
+    liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
@@ -514,10 +509,10 @@ void MainController::stopAndDestroyProducerConsumers() {
         abfDataWriterConsumer = nullptr;
     }
 
-    if (liveNoiseConsumer!= nullptr) {
-        liveNoiseConsumer->onStopConsuming();
-        delete liveNoiseConsumer;
-        liveNoiseConsumer = nullptr;
+    if (liveStatisticsConsumer!= nullptr) {
+        liveStatisticsConsumer->onStopConsuming();
+        delete liveStatisticsConsumer;
+        liveStatisticsConsumer = nullptr;
     }
     
     if (calibratorConsumer!= nullptr) {

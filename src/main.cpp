@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
 
     qRegisterMetaType <std::vector <std::string>> ("std::vector <std::string>");
     qRegisterMetaType <ErrorCodes_t> ("ErrorCodes_t");
-    qRegisterMetaType <LiveNoiseConsumer::Result_t> ("LiveNoiseConsumer::Result_t");
+    qRegisterMetaType <LiveStatisticsConsumer::Result_t> ("LiveStatisticsConsumer::Result_t");
     qRegisterMetaType <RecordSettingsDialog::RecordSettings_t> ("RecordSettingsDialog::RecordSettings_t");
     qRegisterMetaType <e384CommLib::ClampingModality_t> ("e384CommLib::ClampingModality_t");
     qRegisterMetaType <ProtocolWidget *> ("ProtocolWidget *");

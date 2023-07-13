@@ -116,6 +116,14 @@ void StampPlot::setState(States_t newState) {
         anyLabelAssigned = true;
     }
 
+    if (state & StateTraceExpanded) {
+        if (anyLabelAssigned) {
+            stateText += ",";
+        }
+        stateText += "E";
+        anyLabelAssigned = true;
+    }
+
     stateLbl->setText(stateText);
     this->resizeEvent(nullptr);
 }

@@ -3,6 +3,17 @@
 CompensationController::CompensationController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp) {
 
+    if (msgDisp->hasCompFeature(MessageDispatcher::U_CpVc) != Success &&
+            msgDisp->hasCompFeature(MessageDispatcher::U_Cm) != Success &&
+            msgDisp->hasCompFeature(MessageDispatcher::U_Rs) != Success &&
+            msgDisp->hasCompFeature(MessageDispatcher::U_RsCp) != Success &&
+            msgDisp->hasCompFeature(MessageDispatcher::U_RsPg) != Success &&
+            msgDisp->hasCompFeature(MessageDispatcher::CompRsCorr) != Success &&
+            msgDisp->hasCompFeature(MessageDispatcher::U_CpCc) != Success) {
+//        TODO SHOULD THIS RETURN AN ERROR?
+        return;
+    }
+
     compensationControlDockWidget = new CompensationControlDockWidget(msgDisp);
     this->mainWindow = mainWindow;
     mainWindow->setCompensationControlsDw(compensationControlDockWidget);

@@ -195,7 +195,6 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     switch (idx) {
     case OperationHoldingStimulus: {
         std::vector <RangedMeasurement_t> ranges;
-        /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
         msgDisp->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -231,12 +230,11 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
         operationButtonGridLayout->setSpacing(0);
         operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
         std::vector <RangedMeasurement_t> ranges;
-        /*! \todo FCON magari non è necessariamente disponibile il DAC di tensione, bensì quello di corrente */
         msgDisp->getVoltageHoldTunerFeatures(ranges);
         QString unit = QString().fromStdString(ranges[0].getFullUnit());
         setAllChannelsSbx = new MySpinBox;
         setAllChannelsSbx->setSuffix(QString(" ") + unit);
-        setAllChannelsSbx->setRange(ranges[0].min, ranges[0].max); /*! \todo questo range dovrebbe cambiare quando cambia il range del DAC */
+        setAllChannelsSbx->setRange(ranges[0].min, ranges[0].max);
         setAllChannelsSbx->setValue(0.0);
         setAllChannelsSbx->setDecimals(ranges[0].decimals());
         setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), setAllChannelsSbx);

@@ -8,7 +8,7 @@
 #include "curve.h"
 #include "myleftrightmousepushbutton.h"
 #include "channeloverviewwidget.h"
-#include "livenoiseconsumer.h"
+#include "livestatisticsconsumer.h"
 #include "messagedispatcher.h"
 
 class ChessboardDockWidget : public QDockWidget {

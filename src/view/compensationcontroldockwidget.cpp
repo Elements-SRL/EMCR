@@ -14,8 +14,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     int localNumOfCurrChans;
     msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
 
-    bool anyControlFlag = false;
-
     QWidget * bigMainWg = new QWidget();
     QVBoxLayout * vLayout = new QVBoxLayout(bigMainWg);
     QHBoxLayout * intermedHorLayout = new QHBoxLayout();
@@ -80,7 +78,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
 
     /*! Cfast checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_CpVc, compensationFeatures, defaultParamValue) == Success) {
-        anyControlFlag = true;
         QCheckBox* cfastEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
             cfastEnableCb = new QCheckBox();
@@ -111,7 +108,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
 
     /*! Cslow and Rs checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_Cm, compensationFeatures, defaultParamValue) == Success && msgDisp->getCompFeatures(MessageDispatcher::U_Rs, compensationFeaturesBis, defaultParamValueBis) == Success) {
-        anyControlFlag = true;
         QCheckBox* cslowRsEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
             cslowRsEnableCb = new QCheckBox();
@@ -154,7 +150,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
 
     /*! RsCp checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_RsCp, compensationFeatures, defaultParamValue) == Success) {
-        anyControlFlag = true;
         QCheckBox* rsCpEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
             rsCpEnableCb = new QCheckBox();
@@ -185,8 +180,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
 
     /*! RsPg checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_RsPg, compensationFeatures, defaultParamValue) == Success) {
-        anyControlFlag = true;
-
         QCheckBox* rsPgEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
             rsPgEnableCb = new QCheckBox();
@@ -235,7 +228,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     /*! RsBW comboboxes*/
     std::vector <std::string> rsBwStringArray;
     if (msgDisp->getCompOptionsFeatures(MessageDispatcher::CompRsCorr, rsBwStringArray) == Success) {
-        anyControlFlag = true;
         QComboBox* rsBwCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
             rsBwCb = new QComboBox();
@@ -328,7 +320,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     }
 
     if (msgDisp->getCompFeatures(MessageDispatcher::U_CpCc, compensationFeatures, defaultParamValue) == Success) {
-        anyControlFlag = true;
         QCheckBox* ccCfastEnableCb;
         for(int i = 1; i <= localNumOfCurrChans; i++){
             ccCfastEnableCb = new QCheckBox();
@@ -395,11 +386,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     QPushButton* applyButton = new QPushButton("Apply");
     vLayout->addWidget(applyButton);
     connect(applyButton, &QPushButton::clicked, this, &CompensationControlDockWidget::onApplyButtonClicked);
-
-    if (!anyControlFlag) {
-        this->setEnabled(false);
-        this->setVisible(false);
-    }
 }
 
 QGridLayout * CompensationControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
