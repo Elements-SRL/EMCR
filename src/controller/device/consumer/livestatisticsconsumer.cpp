@@ -9,8 +9,11 @@
 
 LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, MainWindow * mainWindow, DeviceDataProducer * producer) :
     DeviceDataConsumer(msgDisp, producer) {
-
-    modw = new MeasurementsOverviewDockWidget;
+    int currentChannels;
+    int voltageChannels;
+    msgDisp->getChannelNumberFeatures(voltageChannels, currentChannels);
+//    TODO lrossi this will be refactored to take voltageChannelsToo
+    modw = new MeasurementsOverviewDockWidget(currentChannels);
 
     analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
     connect(this, &LiveStatisticsConsumer::sigResult, modw, &MeasurementsOverviewDockWidget::onResult);
@@ -170,7 +173,7 @@ void LiveStatisticsConsumer::performAnalysis() {
     }
     totalAnalysisSamples += analysisSamples;
     analysisBuffer.clear();
-
+    emit sigResult(res);
     if (totalAnalysisSamples >= minSamples) {
         for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
             res->getMeanVoltage()[voltageIdx] = voltageSum[voltageIdx]/((double)analysisSamples);

@@ -3,8 +3,8 @@
 #include <QScrollArea>
 #include <iostream>
 
-MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(QWidget * parent) :
-    QDockWidget(parent) {
+MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChannels, QWidget * parent) :
+    QDockWidget(parent), numberOfChannels(numberOfChannels){
 
     mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -19,105 +19,129 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(QWidget * parent)
 
     QHBoxLayout * buttonsLayout = new QHBoxLayout();
 
-    b1 = new QPushButton("b1");
-    b2 = new QPushButton("b2");
-    b3 = new QPushButton("b3");
+    meanVoltageBtn = new QPushButton("Mean Voltage");
+    meanCurrentBtn = new QPushButton("Mean Current");
+    stdCurrentBtn = new QPushButton("Std Voltage");
+    conductivityBtn = new QPushButton("Conductivity");
 
-    b1->setCheckable(true);
-    b2->setCheckable(true);
-    b3->setCheckable(true);
+    meanVoltageBtn->setCheckable(true);
+    meanCurrentBtn->setCheckable(true);
+    stdCurrentBtn->setCheckable(true);
+    conductivityBtn->setCheckable(true);
 
-    b1->setChecked(true);
-    b2->setChecked(true);
-    b3->setChecked(true);
+    meanVoltageBtn->setChecked(true);
+    meanCurrentBtn->setChecked(true);
+    stdCurrentBtn->setChecked(true);
+    conductivityBtn->setChecked(true);
 
-    buttonsLayout->addWidget(b1);
-    buttonsLayout->addWidget(b2);
-    buttonsLayout->addWidget(b3);
+    buttonsLayout->addWidget(meanVoltageBtn);
+    buttonsLayout->addWidget(meanCurrentBtn);
+    buttonsLayout->addWidget(stdCurrentBtn);
+    buttonsLayout->addWidget(conductivityBtn);
 
-
-    for (int i=0; i< getTotalChannelsChannels(); i++) {
-        col1.push_back(new QPushButton(QString("col 1 row %1").arg(i)));
-        col2.push_back(new QPushButton(QString("col 2 row %1").arg(i)));
-        col3.push_back(new QPushButton(QString("col 3 row %1").arg(i)));
+    for (int i=0; i< numberOfChannels; i++) {
+        meanVoltageLabels.push_back(new QLabel(QString("-")));
+        meanCurrentLabels.push_back(new QLabel(QString("-")));
+        stdCurrentLabels.push_back(new QLabel(QString("-")));
+        conductivityLabels.push_back(new QLabel(QString("-")));
     }
 
-    for (QPushButton * b : col1) {
-        b->setVisible(false);
-    }
-    for (QPushButton * b : col2) {
-        b->setVisible(false);
-    }
-    for (QPushButton * b : col3) {
-        b->setVisible(false);
-    }
-
-    connect(b1, &QPushButton::clicked, this, [=](){
-        updateButton(b1);
+    connect(meanVoltageBtn, &QPushButton::clicked, this, [=](){
+        updateButton(meanVoltageBtn);
     });
-    connect(b2, &QPushButton::clicked, this, [=](){
-        updateButton(b2);
+    connect(meanCurrentBtn, &QPushButton::clicked, this, [=](){
+        updateButton(meanCurrentBtn);
     });
-    connect(b3, &QPushButton::clicked, this, [=](){
-        updateButton(b3);
+    connect(stdCurrentBtn, &QPushButton::clicked, this, [=](){
+        updateButton(stdCurrentBtn);
     });
+    connect(conductivityBtn, &QPushButton::clicked, this, [=](){
+        updateButton(conductivityBtn);
+    });
+
     mainVl->addLayout(buttonsLayout);
+
+
+//    QVBoxLayout * vl = new QVBoxLayout;
+//    vl->setContentsMargins(0, 0, 0, 0);
+//    vl->setSpacing(1);
+//    QWidget * scrollWidget =  new QWidget;
+//    scrollWidget->setLayout(vl);
+
+    QScrollArea * scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    mainVl->addWidget(scrollArea);
+
+    QWidget * scrollWg = new QWidget;
+    scrollArea->setWidget(scrollWg);
+
+    QVBoxLayout * scrollVl = new QVBoxLayout;
+    scrollVl->setContentsMargins(0, 0, 0, 0);
+    scrollVl->setSpacing(1);
+    scrollWg->setLayout(scrollVl);
 
     QGridLayout *gl = new QGridLayout();
     // Initial layout structure
 
-    for (int i= 0; i<getTotalChannelsChannels(); i++){
-        gl->addWidget(col1[i], i, 0);
-        gl->addWidget(col2[i], i, 1);
-        gl->addWidget(col3[i], i, 2);
+    for (int i= 0; i<numberOfChannels; i++){
+        gl->addWidget(meanVoltageLabels[i], i, 0);
+        gl->addWidget(meanCurrentLabels[i], i, 0);
+        gl->addWidget(stdCurrentLabels[i], i, 1);
+        gl->addWidget(conductivityLabels[i], i, 2);
     }
 
     for(int i: getActiveChannels()){
-
-        col1[i]->setVisible(true);
-        col2[i]->setVisible(true);
-        col3[i]->setVisible(true);
+        meanVoltageLabels[i]->setVisible(true);
+        meanCurrentLabels[i]->setVisible(true);
+        stdCurrentLabels[i]->setVisible(true);
+        conductivityLabels[i]->setVisible(true);
     }
 
     // Create and add widgets to the layout
-    mainVl->addLayout(gl);
+//    mainVl->addLayout(gl);
+    scrollVl->addLayout(gl);
+
 }
 
 void MeasurementsOverviewDockWidget::updateButton(QPushButton * bt){
-
-//    if (bt->isChecked()){
-//        bt->setChecked(false);
-//    } else {
-//        bt->setChecked(true);
-//    }
     onUpdate();
 }
 
-void MeasurementsOverviewDockWidget::setAllButtonsInvisible(std::vector<QPushButton *> bts){
-    foreach (auto bt, bts) {
-        bt->setVisible(false);
+template<typename T>
+void MeasurementsOverviewDockWidget::setAllWidgetsInvisible(const std::vector<T>& widgets){
+    for (const auto& widget : widgets) {
+        widget->setVisible(false);
     }
 }
 
-void MeasurementsOverviewDockWidget::setActiveChannelsVisible(std::vector<QPushButton *> bts, std::vector<int> active_channels){
+template<typename T>
+void MeasurementsOverviewDockWidget::setActiveChannelsVisible(const std::vector<T>& widgets, std::vector<int> active_channels){
     for (auto i : active_channels) {
-        bts[i]->setVisible(true);
+        widgets[i]->setVisible(true);
     }
 }
 
 void MeasurementsOverviewDockWidget::onUpdate(){
     std::vector<int> activeChannels = getActiveChannels();
-    setAllButtonsInvisible(col1);
-    setAllButtonsInvisible(col2);
-    setAllButtonsInvisible(col3);
-    if (b1->isChecked()){
-        setActiveChannelsVisible(col1, activeChannels);
+    setAllWidgetsInvisible(meanVoltageLabels);
+    setAllWidgetsInvisible(meanCurrentLabels);
+    setAllWidgetsInvisible(stdCurrentLabels);
+    setAllWidgetsInvisible(conductivityLabels);
+
+    if (meanVoltageBtn->isChecked()){
+        setActiveChannelsVisible(meanCurrentLabels, activeChannels);
     }
-    if (b2->isChecked()){
-        setActiveChannelsVisible(col2, activeChannels);
+    if (meanCurrentBtn->isChecked()){
+        setActiveChannelsVisible(meanCurrentLabels, activeChannels);
     }
-    if (b3->isChecked()){
-        setActiveChannelsVisible(col3, activeChannels);
+    if (stdCurrentBtn->isChecked()){
+        setActiveChannelsVisible(stdCurrentLabels, activeChannels);
+    }
+    if (conductivityBtn->isChecked()){
+        setActiveChannelsVisible(conductivityLabels, activeChannels);
     }
     std::cout << "onUpdate"<< std::endl;
 }
@@ -128,15 +152,10 @@ void MeasurementsOverviewDockWidget::onNewMeasurement(std::vector<Measurement_t>
 
 void MeasurementsOverviewDockWidget::onResult(StatisticsResult * result) {
     Measurement_t meas = {result->getStdCurrent()[0], UnitPfx::UnitPfxNone, "A"};
-    std::cout<< meas.niceLabel() << std::endl;
-    col1[1]->setText(QString::fromStdString(meas.niceLabel()));
+    meanCurrentLabels[1]->setText(QString::fromStdString(meas.niceLabel()));
 }
 
 std::vector<int> MeasurementsOverviewDockWidget::getActiveChannels(){
     std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,90,91,92,93,94,95,96,97,98,99,};
     return v;
-}
-
-int MeasurementsOverviewDockWidget::getTotalChannelsChannels(){
-    return 100;
 }

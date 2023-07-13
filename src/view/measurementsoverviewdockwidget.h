@@ -19,22 +19,28 @@ private:
 //    MessageDispatcher * msgDisp = nullptr;
     QVBoxLayout * mainVl;
     QWidget * mainWg;
-    QPushButton * b1;
-    QPushButton * b2;
-    QPushButton * b3;
+    QPushButton * meanVoltageBtn;
+    QPushButton * meanCurrentBtn;
+    QPushButton * stdCurrentBtn;
+    QPushButton * conductivityBtn;
+
     QGridLayout * gl;
     void updateButton(QPushButton * bt);
     std::vector<int> getActiveChannels();
     int getTotalChannelsChannels();
     std::vector<QPushButton*> buttons;
-    void setAllButtonsInvisible(std::vector<QPushButton *> bts);
-    void setActiveChannelsVisible(std::vector<QPushButton *> bts, std::vector<int> active_channels);
-    std::vector<QPushButton *>col1;
-    std::vector<QPushButton *>col2;
-    std::vector<QPushButton *>col3;
+    template<typename T>
+    void setAllWidgetsInvisible(const std::vector<T>& widgets);
+    template<typename T>
+    void setActiveChannelsVisible(const std::vector<T>& widgets, std::vector<int> active_channels);
+    std::vector<QLabel *>meanVoltageLabels;
+    std::vector<QLabel *>meanCurrentLabels;
+    std::vector<QLabel *>stdCurrentLabels;
+    std::vector<QLabel *>conductivityLabels;
+    int numberOfChannels;
 
 public:
-    MeasurementsOverviewDockWidget(QWidget * parent = nullptr);
+    MeasurementsOverviewDockWidget(int numberOfChannels, QWidget * parent = nullptr);
 
 public slots:
     void onUpdate();
