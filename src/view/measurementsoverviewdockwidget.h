@@ -40,10 +40,12 @@ private:
     std::vector<QLabel *>meanCurrentLabels;
     std::vector<QLabel *>stdCurrentLabels;
     std::vector<QLabel *>conductivityLabels;
-    int numberOfChannels;
+    std::vector<int> activeChannels;
+    int voltageChannels;
+    int currentChannels;
 
 public:
-    MeasurementsOverviewDockWidget(int numberOfChannels, QWidget * parent = nullptr);
+    MeasurementsOverviewDockWidget(std::vector<int> activeChannels, int voltageChannels, int currentChannels, QWidget * parent = nullptr);
 
 public slots:
     void onUpdate();

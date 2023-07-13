@@ -3,8 +3,8 @@
 #include <QScrollArea>
 #include <iostream>
 
-MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChannels, QWidget * parent) :
-    QDockWidget(parent), numberOfChannels(numberOfChannels){
+MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> activeChannels, int voltageChannels, int currentChannels, QWidget * parent) :
+    QDockWidget(parent), activeChannels(activeChannels), voltageChannels(voltageChannels), currentChannels(currentChannels){
 
     mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -20,7 +20,6 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChann
     QHBoxLayout * buttonsLayout = new QHBoxLayout();
 
     channelIndexesLabel = new QLabel("Active channels");
-
     meanVoltageBtn = new QPushButton("Mean Voltage");
     meanCurrentBtn = new QPushButton("Mean Current");
     stdCurrentBtn = new QPushButton("Std Voltage");
@@ -42,7 +41,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChann
     buttonsLayout->addWidget(stdCurrentBtn);
     buttonsLayout->addWidget(conductivityBtn);
 
-    for (int i=0; i< numberOfChannels; i++) {
+    for (int i=0; i< currentChannels; i++) {
         meanVoltageLabels.push_back(new QLabel(QString("-")));
         meanCurrentLabels.push_back(new QLabel(QString("-")));
         stdCurrentLabels.push_back(new QLabel(QString("-")));
@@ -82,7 +81,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(int numberOfChann
     QGridLayout *gl = new QGridLayout();
     // Initial layout structure
 
-    for (int i=0; i<numberOfChannels; i++){
+    for (int i=0; i<currentChannels; i++){
         gl->addWidget(meanVoltageLabels[i], i, 0);
         gl->addWidget(meanCurrentLabels[i], i, 1);
         gl->addWidget(stdCurrentLabels[i], i, 2);
@@ -159,7 +158,7 @@ void MeasurementsOverviewDockWidget::onResult(StatisticsResult * result) {
 
 template<typename T>
 void MeasurementsOverviewDockWidget::applyTextFromValuesAndaPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx){
-    for (int i = 0; i<numberOfChannels; i++) {
+    for (int i = 0; i<currentChannels; i++) {
         Measurement_t m = {values[i], UnitPfx::UnitPfxNone, pfx};
         widgets[i]->setText(QString::fromStdString(m.niceLabel()));
     }

@@ -12,8 +12,10 @@ LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, Main
     int currentChannels;
     int voltageChannels;
     msgDisp->getChannelNumberFeatures(voltageChannels, currentChannels);
-//    TODO lrossi this will be refactored to take voltageChannelsToo
-    modw = new MeasurementsOverviewDockWidget(currentChannels);
+    //    TODO lrossi this will be refactored to take voltageChannelsToo
+    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,90,91,92,93,94,95,96,97,98,99,};
+
+    modw = new MeasurementsOverviewDockWidget(v, voltageChannels, currentChannels);
 
     analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
     connect(this, &LiveStatisticsConsumer::sigResult, modw, &MeasurementsOverviewDockWidget::onResult);
