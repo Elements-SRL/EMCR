@@ -151,8 +151,18 @@ void MeasurementsOverviewDockWidget::onNewMeasurement(std::vector<Measurement_t>
 }
 
 void MeasurementsOverviewDockWidget::onResult(StatisticsResult * result) {
-    Measurement_t meas = {result->getStdCurrent()[0], UnitPfx::UnitPfxNone, "A"};
-    meanCurrentLabels[1]->setText(QString::fromStdString(meas.niceLabel()));
+    applyTextFromValuesAndaPfx(stdCurrentLabels, result->getStdCurrent().toStdVector(), "A");
+    applyTextFromValuesAndaPfx(meanCurrentLabels, result->getMeanCurrent().toStdVector(), "A");
+    applyTextFromValuesAndaPfx(meanVoltageLabels, result->getMeanVoltage().toStdVector(), "V");
+    applyTextFromValuesAndaPfx(conductivityLabels, result->getConductivity().toStdVector(), "TODO");
+}
+
+template<typename T>
+void MeasurementsOverviewDockWidget::applyTextFromValuesAndaPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx){
+    for (int i = 0; i<numberOfChannels; i++) {
+        Measurement_t m = {values[i], UnitPfx::UnitPfxNone, pfx};
+        widgets[i]->setText(QString::fromStdString(m.niceLabel()));
+    }
 }
 
 std::vector<int> MeasurementsOverviewDockWidget::getActiveChannels(){

@@ -33,7 +33,9 @@ private:
     template<typename T>
     void setAllWidgetsInvisible(const std::vector<T>& widgets);
     template<typename T>
-    void setActiveChannelsVisible(const std::vector<T>& widgets, std::vector<int> active_channels);
+    void setActiveChannelsVisible(const std::vector<T>& widgets, const std::vector<int> active_channels);
+    template<typename T>
+    void applyTextFromValuesAndaPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx);
     std::vector<QLabel *>meanVoltageLabels;
     std::vector<QLabel *>meanCurrentLabels;
     std::vector<QLabel *>stdCurrentLabels;
