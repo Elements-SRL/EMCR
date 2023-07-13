@@ -42,6 +42,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     buttonsLayout->addWidget(conductivityBtn);
 
     for (int i=0; i< currentChannels; i++) {
+        activeChannelsLabels.push_back(new QLabel(QString(" %1").arg(i)));
         meanVoltageLabels.push_back(new QLabel(QString("-")));
         meanCurrentLabels.push_back(new QLabel(QString("-")));
         stdCurrentLabels.push_back(new QLabel(QString("-")));
@@ -82,18 +83,26 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     // Initial layout structure
 
     for (int i=0; i<currentChannels; i++){
-        gl->addWidget(meanVoltageLabels[i], i, 0);
-        gl->addWidget(meanCurrentLabels[i], i, 1);
-        gl->addWidget(stdCurrentLabels[i], i, 2);
-        gl->addWidget(conductivityLabels[i], i, 3);
-    }
+        gl->addWidget(new QLabel(QString::fromStdString(" Active Channels")), 0, 0);
+        gl->addWidget(new QLabel(QString::fromStdString(" Mean Voltage")), 0, 1);
+        gl->addWidget(new QLabel(QString::fromStdString( "Mean Current")), 0, 2);
+        gl->addWidget(new QLabel(QString::fromStdString(" Current RMS")), 0, 3);
+        gl->addWidget(new QLabel(QString::fromStdString(" Conductivity")), 0, 4);
 
+        gl->addWidget(activeChannelsLabels[i], i+1, 0);
+        gl->addWidget(meanVoltageLabels[i], i+1, 1);
+        gl->addWidget(meanCurrentLabels[i], i+1, 2);
+        gl->addWidget(stdCurrentLabels[i], i+1, 3);
+        gl->addWidget(conductivityLabels[i], i+1, 4);
+    }
+    setAllWidgetsInvisible(activeChannelsLabels);
     setAllWidgetsInvisible(meanVoltageLabels);
     setAllWidgetsInvisible(meanCurrentLabels);
     setAllWidgetsInvisible(stdCurrentLabels);
     setAllWidgetsInvisible(conductivityLabels);
 
     for(int i: getActiveChannels()){
+        activeChannelsLabels[i]->setVisible(true);
         meanVoltageLabels[i]->setVisible(true);
         meanCurrentLabels[i]->setVisible(true);
         stdCurrentLabels[i]->setVisible(true);
@@ -126,10 +135,12 @@ void MeasurementsOverviewDockWidget::setActiveChannelsVisible(const std::vector<
 
 void MeasurementsOverviewDockWidget::onUpdate(){
     std::vector<int> activeChannels = getActiveChannels();
+    setAllWidgetsInvisible(activeChannelsLabels);
     setAllWidgetsInvisible(meanVoltageLabels);
     setAllWidgetsInvisible(meanCurrentLabels);
     setAllWidgetsInvisible(stdCurrentLabels);
     setAllWidgetsInvisible(conductivityLabels);
+    setActiveChannelsVisible(activeChannelsLabels, activeChannels);
     if (meanVoltageBtn->isChecked()){
         setActiveChannelsVisible(meanVoltageLabels, activeChannels);
     }
@@ -150,10 +161,10 @@ void MeasurementsOverviewDockWidget::onNewMeasurement(std::vector<Measurement_t>
 }
 
 void MeasurementsOverviewDockWidget::onResult(StatisticsResult * result) {
-    applyTextFromValuesAndaPfx(stdCurrentLabels, result->getStdCurrent().toStdVector(), "A");
-    applyTextFromValuesAndaPfx(meanCurrentLabels, result->getMeanCurrent().toStdVector(), "A");
-    applyTextFromValuesAndaPfx(meanVoltageLabels, result->getMeanVoltage().toStdVector(), "V");
-    applyTextFromValuesAndaPfx(conductivityLabels, result->getConductivity().toStdVector(), "TODO");
+    applyTextFromValuesAndaPfx(stdCurrentLabels, result->stdCurrent.toStdVector(), "A");
+    applyTextFromValuesAndaPfx(meanCurrentLabels, result->meanCurrent.toStdVector(), "A");
+    applyTextFromValuesAndaPfx(meanVoltageLabels, result->meanVoltage.toStdVector(), "V");
+    applyTextFromValuesAndaPfx(conductivityLabels, result->conductivity.toStdVector(), "S");
 }
 
 template<typename T>
@@ -165,6 +176,6 @@ void MeasurementsOverviewDockWidget::applyTextFromValuesAndaPfx(const std::vecto
 }
 
 std::vector<int> MeasurementsOverviewDockWidget::getActiveChannels(){
-    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,90,91,92,93,94,95,96,97,98,99,};
+    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,90,91,92,93,94,95,96,97,98,99,};
     return v;
 }

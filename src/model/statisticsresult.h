@@ -4,7 +4,7 @@
 #include <QVector>
 
 class StatisticsResult {
-private:
+public:
     QVector <double> meanVoltage;
     QVector <double> stdVoltage;
     QVector <double> meanCurrent;
@@ -12,14 +12,7 @@ private:
     QVector <double> conductivity;
 
 public:
-
     StatisticsResult(int voltageChannelsNum, int currentChannelsNum);
-
-    QVector <double> getMeanVoltage();
-    QVector <double> getStdVoltage();
-    QVector <double> getMeanCurrent();
-    QVector <double> getStdCurrent();
-    QVector <double> getConductivity();
 };
 
 #endif // STATISTICSRESULT_H
