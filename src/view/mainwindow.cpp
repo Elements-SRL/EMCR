@@ -10,6 +10,7 @@
 #include "elementslogowidget.h"
 #include "errormanager.h"
 #include "globaldefines.h"
+#include "measurementsoverviewdockwidget.h"
 
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
@@ -59,6 +60,8 @@ MainWindow::MainWindow(QWidget * parent) :
     menuView->addAction(deviceDetectorDw->toggleViewAction());
     deviceDetectorDw->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     this->addDockWidget(Qt::TopDockWidgetArea, deviceDetectorDw);
+
+    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, new MeasurementsOverviewDockWidget());
 
     QWidget * deviceDetectorWid = new QWidget;
     deviceDetectorWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);

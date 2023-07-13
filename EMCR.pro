@@ -67,6 +67,7 @@ src/main.cpp \
     src/view/channeloverviewwidget.cpp \
     src/view/bigplot.cpp \
     src/view/curve.cpp \
+    src/view/measurementsoverviewdockwidget.cpp \
     src/view/multiplechannelcontroldockwidget.cpp \
     src/view/myleftrightmousepushbutton.cpp \
     src/view/myspinbox.cpp \
@@ -137,6 +138,7 @@ src/globaldefines.h \
     src/view/channeloverviewwidget.h \
     src/view/bigplot.h \
     src/view/curve.h \
+    src/view/measurementsoverviewdockwidget.h \
     src/view/multiplechannelcontroldockwidget.h \
     src/view/myleftrightmousepushbutton.h \
     src/view/myspinbox.h \
