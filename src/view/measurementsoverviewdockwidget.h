@@ -10,7 +10,7 @@
 
 //#include "messagedispatcher.h"
 #include "errormanager.h"
-#include "livestatisticsconsumer.h"
+#include "model/statisticsresult.h"
 
 class MeasurementsOverviewDockWidget : public QDockWidget {
     Q_OBJECT
@@ -39,7 +39,7 @@ public:
 public slots:
     void onUpdate();
     void onNewMeasurement(std::vector<Measurement_t> measurements);
-    void onResult(LiveStatisticsConsumer::Result_t result);
+    void onResult(StatisticsResult * result);
 
 signals:
     void testSignal();

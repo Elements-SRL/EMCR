@@ -82,7 +82,7 @@ void LiveStatisticsConsumer::onExportLiveNoiseEstimates() {
     file.open(QIODevice::WriteOnly);
 
     QTextStream stream(&file);
-    for (auto noise : res.stdCurrent) {
+    for (auto noise : res->getStdCurrent()) {
         stream << noise << "\n";
     }
     file.close();
@@ -123,16 +123,11 @@ void LiveStatisticsConsumer::run() {
 }
 
 void LiveStatisticsConsumer::initAnalysis() {
-    res.meanVoltage.resize(voltageChannelsNum);
-    res.stdVoltage.resize(voltageChannelsNum);
+    res = new StatisticsResult(voltageChannelsNum, currentChannelsNum);
     voltageSum.resize(voltageChannelsNum);
     voltageSum2.resize(voltageChannelsNum);
-    res.meanCurrent.resize(currentChannelsNum);
-    res.stdCurrent.resize(currentChannelsNum);
     currentSum.resize(currentChannelsNum);
     currentSum2.resize(currentChannelsNum);
-    res.conductivity.resize(currentChannelsNum);
-
     this->lockAndResetAnalysis(currentChannelsNum);
 }
 
@@ -178,20 +173,20 @@ void LiveStatisticsConsumer::performAnalysis() {
 
     if (totalAnalysisSamples >= minSamples) {
         for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
-            res.meanVoltage[voltageIdx] = voltageSum[voltageIdx]/((double)analysisSamples);
-            res.stdVoltage[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res.meanVoltage[voltageIdx])/((double)analysisSamples))*voltageMultiplier;
-            res.meanVoltage[voltageIdx] *= voltageMultiplier;
+            res->getMeanVoltage()[voltageIdx] = voltageSum[voltageIdx]/((double)analysisSamples);
+            res->getStdVoltage()[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res->getMeanVoltage()[voltageIdx])/((double)analysisSamples))*voltageMultiplier;
+            res->getMeanVoltage()[voltageIdx] *= voltageMultiplier;
         }
 
         for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-            res.meanCurrent[currentIdx] = currentSum[currentIdx]/((double)analysisSamples);
-            res.stdCurrent[currentIdx] = qSqrt((currentSum2[currentIdx]-currentSum[currentIdx]*res.meanCurrent[currentIdx])/((double)analysisSamples))*currentMultiplier;
-            res.meanCurrent[currentIdx] *= currentMultiplier;
-            if (res.meanVoltage[currentIdx]*res.meanCurrent[currentIdx] <= 0.0) {
-                res.conductivity[currentIdx] = -1.0;
+            res->getMeanCurrent()[currentIdx] = currentSum[currentIdx]/((double)analysisSamples);
+            res->getStdCurrent()[currentIdx] = qSqrt((currentSum2[currentIdx]-currentSum[currentIdx]*res->getMeanCurrent()[currentIdx])/((double)analysisSamples))*currentMultiplier;
+            res->getMeanCurrent()[currentIdx] *= currentMultiplier;
+            if (res->getMeanVoltage()[currentIdx]*res->getMeanCurrent()[currentIdx] <= 0.0) {
+                res->getConductivity()[currentIdx] = -1.0;
 
             } else {
-                res.conductivity[currentIdx] = res.meanCurrent[currentIdx]/res.meanVoltage[currentIdx];
+                res->getConductivity()[currentIdx] = res->getMeanCurrent()[currentIdx]/res->getMeanVoltage()[currentIdx];
             }
         }
         totalAnalysisSamples = 0;

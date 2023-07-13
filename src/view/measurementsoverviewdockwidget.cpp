@@ -126,13 +126,14 @@ void MeasurementsOverviewDockWidget::onNewMeasurement(std::vector<Measurement_t>
     std::cout << "onNewMeasurement"<< std::endl;
 }
 
-void MeasurementsOverviewDockWidget::onResult(LiveStatisticsConsumer::Result_t result) {
-    Measurement_t meas = {result.stdCurrent[0], UnitPfx::UnitPfxNone, "A"};
+void MeasurementsOverviewDockWidget::onResult(StatisticsResult * result) {
+    Measurement_t meas = {result->getStdCurrent()[0], UnitPfx::UnitPfxNone, "A"};
+    std::cout<< meas.niceLabel() << std::endl;
     col1[1]->setText(QString::fromStdString(meas.niceLabel()));
 }
 
 std::vector<int> MeasurementsOverviewDockWidget::getActiveChannels(){
-    std::vector<int> v = {01,2,3,4,5,6,6,7,8,9,90,91,92,93,94,95,96,97,98,99,};
+    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,90,91,92,93,94,95,96,97,98,99,};
     return v;
 }
 

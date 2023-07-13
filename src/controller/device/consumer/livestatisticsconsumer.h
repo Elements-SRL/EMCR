@@ -7,7 +7,8 @@
 #include "messagedispatcher.h"
 #include "devicedataconsumer.h"
 #include "mainwindow.h"
-#include "statisticsmodel.h"
+#include "statisticsresult.h"
+#include "statisticsresult.h"
 
 class MeasurementsOverviewDockWidget;
 
@@ -65,7 +66,7 @@ private:
     int currentIdx;
 
     int minSamples = 0;
-
+    MainWindow * mainWindow;
     QVector <double> voltageSum;
     QVector <double> voltageSum2;
 
@@ -75,10 +76,10 @@ private:
     double pushedSamplingRate = 1.0;
     double sweepSamplingRate = 1.0;
 
-    Result_t res;
+    StatisticsResult * res;
 
 signals:
-    void sigResult(LiveStatisticsConsumer::Result_t);
+    void sigResult(StatisticsResult *);
 };
 
 #endif // LIVESTATISTICSCONSUMER_H

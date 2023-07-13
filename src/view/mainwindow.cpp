@@ -251,9 +251,9 @@ void MainWindow::setStateArrayDw(StateArrayDockWidget * sadw){
 
 void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * modw) {
     measurementsOverviewDw = modw;
-    addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
+    addDockWidget(Qt::RightDockWidgetArea, modw);
     chessboardDw->setFloating(true);
-    dockWidgets.append(stateArrayDockWidget);
+    dockWidgets.append(modw);
 }
 
 void MainWindow::addViewActions() {

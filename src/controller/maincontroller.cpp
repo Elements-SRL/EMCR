@@ -138,8 +138,6 @@ void MainController::onMainWindowCreated() {
 
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
-    mainWindow->addViewActions();
-
     /************\
      * Producer *
     \************/
@@ -160,9 +158,11 @@ void MainController::onMainWindowCreated() {
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
-    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp/*, mainWindow*/, deviceDataProducer);
+    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, mainWindow, deviceDataProducer);
     consumers.append(liveStatisticsConsumer);
     
+    mainWindow->addViewActions();
+
     calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
     consumers.append(calibratorConsumer);
 
