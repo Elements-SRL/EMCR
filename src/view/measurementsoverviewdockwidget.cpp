@@ -50,7 +50,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     conductivityBtn->setVisible(false);
 
     for (int i=0; i< currentChannels; i++) {
-        activeChannelsLabels.push_back(new QLabel(QString(" %1").arg(i), mainWg));
+        activeChannelsLabels.push_back(new QLabel(QString(" %1").arg(i+1), mainWg));
         meanVoltageLabels.push_back(new QLabel(QString("-"), mainWg));
         meanCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
         stdCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
