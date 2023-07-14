@@ -148,7 +148,7 @@ void PlotConsumer::updateTimeAxis() {
         if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
             pushedSamplingRateFlag = false;
             pushedDownsamplingRatioFlag = false;
-            sweepSamplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
+            samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
         }
 
         locker.unlock();
@@ -158,16 +158,16 @@ void PlotConsumer::updateTimeAxis() {
 }
 
 void PlotConsumer::computeTimeAxis() {
-    dataSize = qRound(sweepSamplingRateHz*sweepDuration);
-    minDataBatchSize = qMin(qRound(sweepSamplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
+    dataSize = qRound(samplingRateHz*sweepDuration);
+    minDataBatchSize = qMin(qRound(samplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
 
     subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;
 
 #ifdef GLB_SHOW_DEBUG_CTRLS
-//    logStream << "sweepSamplingRateHz " << sweepSamplingRateHz;
+//    logStream << "samplingRateHz " << samplingRateHz;
 //    logStream << " --- sweepDuration " << sweepDuration;
-//    logStream << " --- initial dataSize " << qRound(sweepSamplingRateHz*sweepDuration);
+//    logStream << " --- initial dataSize " << qRound(samplingRateHz*sweepDuration);
 //    logStream << " --- final dataSize " << dataSize;
 //    logStream << " --- minDataBatchSize " << minDataBatchSize;
 //    logStream << " --- subSamplingRatio " << subSamplingRatio;
@@ -176,7 +176,7 @@ void PlotConsumer::computeTimeAxis() {
 
     subSamplingIdx = 0;
 
-    double dt = ((double)subSamplingRatio)/sweepSamplingRateHz;
+    double dt = ((double)subSamplingRatio)/samplingRateHz;
     for (int idx = 0; idx < dataSize; idx++) {
         timeValues[idx] = dt*(double)idx;
     }

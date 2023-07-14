@@ -114,6 +114,7 @@ void LiveStatisticsConsumer::run() {
         this->updateSamplingRate();
         this->updateRanges();
 
+        hook->flush();
         if (hook->getDataChunk(buffer, 1, minDataBatchSize)) {
             analysisBuffer.append(buffer);
 
@@ -142,7 +143,8 @@ void LiveStatisticsConsumer::lockAndResetAnalysis(int currentChannelIdx) {
 void LiveStatisticsConsumer::resetAnalysis(int) {
     analysisBuffer.clear();
 
-    minSamples = qRound(sweepSamplingRate*LSC_MIN_INTERVAL_S);
+    minSamples = qRound(samplingRateHz*LSC_MIN_INTERVAL_S);
+    minDataBatchSize = qRound(samplingRateHz*LSC_MIN_BATCH_INTERVAL_S);
     totalAnalysisSamples = 0;
 }
 
@@ -174,7 +176,7 @@ void LiveStatisticsConsumer::performAnalysis() {
     }
     totalAnalysisSamples += analysisSamples;
     analysisBuffer.clear();
-//    emit sigResult(res);
+
     if (totalAnalysisSamples >= minSamples) {
         for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
             res->meanVoltage[voltageIdx] = voltageSum[voltageIdx]/((double)totalAnalysisSamples);
@@ -204,8 +206,7 @@ void LiveStatisticsConsumer::updateSamplingRate() {
     if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
         pushedSamplingRateFlag = false;
         pushedDownsamplingRatioFlag = false;
-        sweepSamplingRate = pushedSamplingRate/(double)pushedDownsamplingRatio;
-        minDataBatchSize = qRound(sweepSamplingRate*LSC_MIN_BATCH_INTERVAL_S);
+        samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
         this->lockAndResetAnalysis(currentChannelsNum);
     }
 }

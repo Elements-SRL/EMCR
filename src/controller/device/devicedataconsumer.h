@@ -42,7 +42,7 @@ protected:
 
     unsigned int minDataBatchSize = 0;
     double pushedSamplingRateHz = 1.0;
-    double sweepSamplingRateHz = 1.0;
+    double samplingRateHz = 1.0;
 
     unsigned int pushedDownsamplingRatio = 1;
     unsigned int downsamplingRatio = 1;

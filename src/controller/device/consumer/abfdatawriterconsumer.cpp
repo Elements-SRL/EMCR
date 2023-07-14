@@ -336,7 +336,7 @@ void AbfDataWriterConsumer::initAbfSections() {
         abf->FileInfo.ScopeSection.llNumEntries = 1;
         blockIdx += this->blocksUsedBySection(abf->FileInfo.ScopeSection);
 
-        abf->ScopeInfo.fSamplingRateHz = (float)sweepSamplingRateHz;
+        abf->ScopeInfo.fSamplingRateHz = (float)samplingRateHz;
         sprintf(abf->ScopeInfo.channels[0].sName, "I%d", channelIdx);
         sprintf(abf->ScopeInfo.channels[1].sName, "V%d", channelIdx);
 

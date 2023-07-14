@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget * parent) :
     this->setGeometry(0, 0, 800, 600);
     this->setObjectName("mainWindow");
 
+    this->showMaximized();
     this->setWindowTitle(QString(GLB_SOFTWARE_NAME) + " " + GLB_SOFTWARE_VERSION_NUMBER);
 
     this->setCentralWidget(new ElementsLogoWidget);

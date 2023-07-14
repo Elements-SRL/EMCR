@@ -79,9 +79,6 @@ private:
     QVector <double> currentSum;
     QVector <double> currentSum2;
 
-    double pushedSamplingRate = 1.0;
-    double sweepSamplingRate = 1.0;
-
     StatisticsResult * res;
     bool isInVec(std::vector<int> vec, int elem);
     void removeElem(std::vector<int> vec, int elem);

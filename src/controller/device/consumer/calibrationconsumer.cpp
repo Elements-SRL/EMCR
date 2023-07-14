@@ -721,9 +721,9 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
         la cui struttura è ancora da definire */
         Measurement_t samplingRate;
         msgDisp->getSamplingRate(samplingRate);
-        sweepSamplingRateHz = samplingRate.getNoPrefixValue();
-        minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        samplingRateHz = samplingRate.getNoPrefixValue();
+        minDataBatchSize = qRound(samplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+        samplesToremove = qRound(samplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
@@ -810,9 +810,9 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     la cui struttura è ancora da definire */
     Measurement_t samplingRate;
     msgDisp->getSamplingRate(samplingRate);
-    sweepSamplingRateHz = samplingRate.getNoPrefixValue();
-    minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-    samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+    samplingRateHz = samplingRate.getNoPrefixValue();
+    minDataBatchSize = qRound(samplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+    samplesToremove = qRound(samplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
     QThread::sleep(1);
     hook->flush(); /*! Remove old buffered data */
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
@@ -915,9 +915,9 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         la cui struttura è ancora da definire */
         Measurement_t samplingRate;
         msgDisp->getSamplingRate(samplingRate);
-        sweepSamplingRateHz = samplingRate.getNoPrefixValue();
-        minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        samplingRateHz = samplingRate.getNoPrefixValue();
+        minDataBatchSize = qRound(samplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+        samplesToremove = qRound(samplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
         QThread::sleep(1);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
@@ -1005,9 +1005,9 @@ void CalibrationConsumer::calibrateCcAdcGain(int thisActualRangeIdx){
         la cui struttura è ancora da definire */
         Measurement_t samplingRate;
         msgDisp->getSamplingRate(samplingRate);
-        sweepSamplingRateHz = samplingRate.getNoPrefixValue();
-        minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        samplingRateHz = samplingRate.getNoPrefixValue();
+        minDataBatchSize = qRound(samplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+        samplesToremove = qRound(samplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
         QThread::sleep(2);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
@@ -1110,9 +1110,9 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
         la cui struttura è ancora da definire */
         Measurement_t samplingRate;
         msgDisp->getSamplingRate(samplingRate);
-        sweepSamplingRateHz = samplingRate.getNoPrefixValue();
-        minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        samplingRateHz = samplingRate.getNoPrefixValue();
+        minDataBatchSize = qRound(samplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+        samplesToremove = qRound(samplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;//channelToCalibIdxs.size();  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
         QThread::sleep(2);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
@@ -1209,9 +1209,9 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
     la cui struttura è ancora da definire */
     Measurement_t samplingRate;
     msgDisp->getSamplingRate(samplingRate);
-    sweepSamplingRateHz = samplingRate.getNoPrefixValue();
-    minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-    samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+    samplingRateHz = samplingRate.getNoPrefixValue();
+    minDataBatchSize = qRound(samplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+    samplesToremove = qRound(samplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
     QThread::sleep(2);
     hook->flush(); /*! Remove old buffered data */
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
@@ -1294,9 +1294,9 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
         la cui struttura è ancora da definire */
         Measurement_t samplingRate;
         msgDisp->getSamplingRate(samplingRate);
-        sweepSamplingRateHz = samplingRate.getNoPrefixValue();
-        minDataBatchSize = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
-        samplesToremove = qRound(sweepSamplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
+        samplingRateHz = samplingRate.getNoPrefixValue();
+        minDataBatchSize = qRound(samplingRateHz * CCS_CALIB_INTERVAL_IN_S); /*! \todo proviamo  a mettere qui 1 intero secondo*/
+        samplesToremove = qRound(samplingRateHz * CCS_CALIB_INTERVAL_TO_REMOVE_IN_S) * totalChannelsNum;  /*! \todo proviamo  a mettere qui 1/10 di secondo*/
         QThread::sleep(2);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));

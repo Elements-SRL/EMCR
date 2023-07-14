@@ -56,7 +56,7 @@ void DataWriterConsumer::onStartConsuming() {
         if (hook != nullptr) {
             voltageRange = pushedVoltageRange;
             currentRange = pushedCurrentRange;
-            sweepSamplingRateHz = pushedSamplingRateHz;
+            samplingRateHz = pushedSamplingRateHz;
 
             this->computeSamples();
 
@@ -106,7 +106,7 @@ void DataWriterConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     pushedSamplingRateHz = samplingRate.getNoPrefixValue();
     pushedSamplingRateFlag = true;
     if (!this->isRunning()){
-        sweepSamplingRateHz = pushedSamplingRateHz/(double)downsamplingRatio;
+        samplingRateHz = pushedSamplingRateHz/(double)downsamplingRatio;
     }
 }
 
@@ -115,7 +115,7 @@ void DataWriterConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
     pushedDownsamplingRatioFlag = true;
     pushedSamplingRateFlag = true;
     if (!this->isRunning()){
-        sweepSamplingRateHz = pushedSamplingRateHz/(double)ratio;
+        samplingRateHz = pushedSamplingRateHz/(double)ratio;
     }
 }
 
@@ -226,14 +226,14 @@ void DataWriterConsumer::computeSamples() {
     QString chunkSizeStr;
 
     /*! First samples computation, might not be the final one because of specific behaviorus when durations are 0 */
-    samplesToBeSaved = (long long)qRound(settings.recordDurationS*sweepSamplingRateHz);
-    samplesPerChunk = (long long)qRound(settings.chunkDurationS*sweepSamplingRateHz);
+    samplesToBeSaved = (long long)qRound(settings.recordDurationS*samplingRateHz);
+    samplesPerChunk = (long long)qRound(settings.chunkDurationS*samplingRateHz);
 
     unlimitedFlag = settings.recordDurationS == 0.0;
     chunkFlag = settings.chunkDurationS > 0.0;
 
     if (unlimitedFlag && chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*sweepSamplingRateHz)/1048576.0;
+        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/1048576.0;
         if (totalMB < 0.1) {
             recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
 
@@ -255,7 +255,7 @@ void DataWriterConsumer::computeSamples() {
         }
 
     } else if (unlimitedFlag && !chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*sweepSamplingRateHz)/1048576.0;
+        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/1048576.0;
         if (totalMB < 0.1) {
             recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
 

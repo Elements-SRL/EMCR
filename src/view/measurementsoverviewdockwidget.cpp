@@ -22,7 +22,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     channelIndexesLabel = new QLabel("Active channels");
     meanVoltageBtn = new QPushButton("Mean Voltage");
     meanCurrentBtn = new QPushButton("Mean Current");
-    stdCurrentBtn = new QPushButton("Std Voltage");
+    stdCurrentBtn = new QPushButton("Current RMS");
     conductivityBtn = new QPushButton("Conductivity");
 
     meanVoltageBtn->setCheckable(true);
