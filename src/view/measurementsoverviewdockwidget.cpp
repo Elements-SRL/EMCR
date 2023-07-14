@@ -161,10 +161,6 @@ void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<int> newAc
     onUpdate();
 }
 
-void MeasurementsOverviewDockWidget::onNewMeasurement(std::vector<Measurement_t> measurements){
-    std::cout << "onNewMeasurement"<< std::endl;
-}
-
 void MeasurementsOverviewDockWidget::onResult(StatisticsResult * result) {
     applyTextFromValuesAndaPfx(stdCurrentLabels, result->stdCurrent.toStdVector(), "A");
     applyTextFromValuesAndaPfx(meanCurrentLabels, result->meanCurrent.toStdVector(), "A");
