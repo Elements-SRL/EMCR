@@ -41,12 +41,20 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     buttonsLayout->addWidget(stdCurrentBtn);
     buttonsLayout->addWidget(conductivityBtn);
 
+    mainVl->addLayout(buttonsLayout);
+
+    channelIndexesLabel->setVisible(false);
+    meanVoltageBtn->setVisible(false);
+    meanCurrentBtn->setVisible(false);
+    stdCurrentBtn->setVisible(false);
+    conductivityBtn->setVisible(false);
+
     for (int i=0; i< currentChannels; i++) {
-        activeChannelsLabels.push_back(new QLabel(QString(" %1").arg(i)));
-        meanVoltageLabels.push_back(new QLabel(QString("-")));
-        meanCurrentLabels.push_back(new QLabel(QString("-")));
-        stdCurrentLabels.push_back(new QLabel(QString("-")));
-        conductivityLabels.push_back(new QLabel(QString("-")));
+        activeChannelsLabels.push_back(new QLabel(QString(" %1").arg(i), mainWg));
+        meanVoltageLabels.push_back(new QLabel(QString("-"), mainWg));
+        meanCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
+        stdCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
+        conductivityLabels.push_back(new QLabel(QString("-"), mainWg));
     }
 
     connect(meanVoltageBtn, &QPushButton::clicked, this, [=](){
@@ -61,8 +69,6 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     connect(conductivityBtn, &QPushButton::clicked, this, [=](){
         updateButton(conductivityBtn);
     });
-
-    mainVl->addLayout(buttonsLayout);
 
     QScrollArea * scrollArea = new QScrollArea;
     scrollArea->setWidgetResizable(true);
@@ -176,6 +182,6 @@ void MeasurementsOverviewDockWidget::applyTextFromValuesAndaPfx(const std::vecto
 }
 
 std::vector<int> MeasurementsOverviewDockWidget::getActiveChannels(){
-    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,90,91,92,93,94,95,96,97,98,99,};
+    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,10,90,91,92,93,94,95,96,97,98,99,};
     return v;
 }
