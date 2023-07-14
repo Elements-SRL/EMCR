@@ -107,18 +107,14 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     setAllWidgetsInvisible(stdCurrentLabels);
     setAllWidgetsInvisible(conductivityLabels);
 
-    for(int i: getActiveChannels()){
+    for(int i: activeChannels){
         activeChannelsLabels[i]->setVisible(true);
         meanVoltageLabels[i]->setVisible(true);
         meanCurrentLabels[i]->setVisible(true);
         stdCurrentLabels[i]->setVisible(true);
         conductivityLabels[i]->setVisible(true);
     }
-
-    // Create and add widgets to the layout
-//    mainVl->addLayout(gl);
     scrollVl->addLayout(gl);
-
 }
 
 void MeasurementsOverviewDockWidget::updateButton(QPushButton * bt){
@@ -140,7 +136,6 @@ void MeasurementsOverviewDockWidget::setActiveChannelsVisible(const std::vector<
 }
 
 void MeasurementsOverviewDockWidget::onUpdate(){
-    std::vector<int> activeChannels = getActiveChannels();
     setAllWidgetsInvisible(activeChannelsLabels);
     setAllWidgetsInvisible(meanVoltageLabels);
     setAllWidgetsInvisible(meanCurrentLabels);
@@ -159,7 +154,11 @@ void MeasurementsOverviewDockWidget::onUpdate(){
     if (conductivityBtn->isChecked()){
         setActiveChannelsVisible(conductivityLabels, activeChannels);
     }
-    std::cout << "onUpdate"<< std::endl;
+}
+
+void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<int> newActiveChannels){
+    activeChannels = newActiveChannels;
+    onUpdate();
 }
 
 void MeasurementsOverviewDockWidget::onNewMeasurement(std::vector<Measurement_t> measurements){
@@ -179,9 +178,4 @@ void MeasurementsOverviewDockWidget::applyTextFromValuesAndaPfx(const std::vecto
         Measurement_t m = {values[i], UnitPfx::UnitPfxNone, pfx};
         widgets[i]->setText(QString::fromStdString(m.niceLabel()));
     }
-}
-
-std::vector<int> MeasurementsOverviewDockWidget::getActiveChannels(){
-    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,10,90,91,92,93,94,95,96,97,98,99,};
-    return v;
 }

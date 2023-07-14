@@ -27,7 +27,6 @@ private:
 
     QGridLayout * gl;
     void updateButton(QPushButton * bt);
-    std::vector<int> getActiveChannels();
     int getTotalChannelsChannels();
     std::vector<QPushButton*> buttons;
     template<typename T>
@@ -47,6 +46,7 @@ private:
 
 public:
     MeasurementsOverviewDockWidget(std::vector<int> activeChannels, int voltageChannels, int currentChannels, QWidget * parent = nullptr);
+    void updateActiveChannels(std::vector<int> newActiveChannels);
 
 public slots:
     void onUpdate();

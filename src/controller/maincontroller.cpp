@@ -175,6 +175,11 @@ void MainController::onMainWindowCreated() {
     connect(chessboardController, &ChessboardController::sigOneRowClicked,          singleChannelController, &SingleChannelController::onOneRowClicked);
     connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   singleChannelController, &SingleChannelController::onSingleChannelClicked);
 
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     liveStatisticsConsumer, &LiveStatisticsConsumer::onAllChannelsClicked);
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        liveStatisticsConsumer, &LiveStatisticsConsumer::onOneBoardClicked);
+    connect(chessboardController, &ChessboardController::sigOneRowClicked,          liveStatisticsConsumer, &LiveStatisticsConsumer::onOneRowClicked);
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   liveStatisticsConsumer, &LiveStatisticsConsumer::onSingleChannelClicked);
+
     connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
     connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);
     connect(deviceController, &DeviceController::sigCcCurrentRangeSelected,     this, &MainController::onCcCurrentRangeSelected);

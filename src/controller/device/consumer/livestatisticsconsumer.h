@@ -30,6 +30,11 @@ public slots:
 
     void onExportLiveNoiseEstimates();
 
+    // To do on actions done on the chessboard
+    void onSingleChannelClicked(uint16_t chIdx, bool newState);
+    void onOneBoardClicked(uint16_t brdIdx, bool newState);
+    void onOneRowClicked(uint16_t rowIdx, bool newState);
+    void onAllChannelsClicked(bool newState);
 protected:
     void run() override;
     void initAnalysis();
@@ -65,6 +70,7 @@ private:
     int voltageIdx;
     int currentIdx;
 
+    std::vector<int> activeChannelsIdxs;
     int minSamples = 0;
     MainWindow * mainWindow;
     QVector <double> voltageSum;
@@ -77,9 +83,12 @@ private:
     double sweepSamplingRate = 1.0;
 
     StatisticsResult * res;
+    bool isInVec(std::vector<int> vec, int elem);
+    void removeElem(std::vector<int> vec, int elem);
+    void getNewActiveChannels(std::vector <int>& newActiveChannels);
 
 signals:
-    void sigResult(StatisticsResult *);
+    void sigResult(StatisticsResult *); 
 };
 
 #endif // LIVESTATISTICSCONSUMER_H

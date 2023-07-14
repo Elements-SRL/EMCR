@@ -9,13 +9,11 @@
 
 LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, MainWindow * mainWindow, DeviceDataProducer * producer) :
     DeviceDataConsumer(msgDisp, producer) {
+    getNewActiveChannels(activeChannelsIdxs);
     int currentChannels;
     int voltageChannels;
     msgDisp->getChannelNumberFeatures(voltageChannels, currentChannels);
-    //    TODO lrossi this will be refactored to take voltageChannelsToo
-    std::vector<int> v = {0,1,2,3,4,5,6,6,7,8,9,90,91,92,93,94,95,96,97,98,99,};
-
-    modw = new MeasurementsOverviewDockWidget(v, voltageChannels, currentChannels);
+    modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannels, currentChannels);
 
     analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
     connect(this, &LiveStatisticsConsumer::sigResult, modw, &MeasurementsOverviewDockWidget::onResult);
@@ -227,4 +225,45 @@ void LiveStatisticsConsumer::updateRanges() {
         currentMultiplier = currentRange.multiplier();
         this->lockAndResetAnalysis(currentChannelsNum);
     }
+}
+
+bool LiveStatisticsConsumer::isInVec(std::vector<int> vec, int elem){
+    auto it = std::find(vec.begin(), vec.end(), elem);
+    return it == vec.end();
+}
+
+void removeElem(std::vector<int> vec, int elem){
+    auto it = std::find(vec.begin(), vec.end(), elem);
+    vec.erase(it);
+}
+
+void LiveStatisticsConsumer::getNewActiveChannels(std::vector <int>& newActiveChannels){
+    newActiveChannels.clear();
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        if (selectedChannels[channelIdx]){
+            newActiveChannels.push_back(channelIdx);
+        }
+    }
+}
+
+void LiveStatisticsConsumer::onSingleChannelClicked(uint16_t chIdx, bool newState){
+    getNewActiveChannels(activeChannelsIdxs);
+    modw->updateActiveChannels(activeChannelsIdxs);
+}
+
+void LiveStatisticsConsumer::onOneBoardClicked(uint16_t brdIdx, bool newState) {
+    getNewActiveChannels(activeChannelsIdxs);
+    modw->updateActiveChannels(activeChannelsIdxs);
+}
+
+void LiveStatisticsConsumer::onOneRowClicked(uint16_t rowIdx, bool newState) {
+    getNewActiveChannels(activeChannelsIdxs);
+    modw->updateActiveChannels(activeChannelsIdxs);
+}
+
+void LiveStatisticsConsumer::onAllChannelsClicked(bool newState) {
+    getNewActiveChannels(activeChannelsIdxs);
+    modw->updateActiveChannels(activeChannelsIdxs);
 }
