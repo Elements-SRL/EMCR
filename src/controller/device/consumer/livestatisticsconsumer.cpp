@@ -114,11 +114,11 @@ void LiveStatisticsConsumer::run() {
         this->updateSamplingRate();
         this->updateRanges();
 
-        hook->flush();
         if (hook->getDataChunk(buffer, 1, minDataBatchSize)) {
             analysisBuffer.append(buffer);
 
             this->performAnalysis();
+            hook->flush(); /*! Get rid of some data, these analyses will work anyway */
         }
     }
 

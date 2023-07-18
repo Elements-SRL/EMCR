@@ -34,8 +34,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     std::vector <Measurement_t> samplingRates;
     msgDisp->getSamplingRatesFeatures(samplingRates);
 
-    std::vector <unsigned int> downsamplingRatios;
-    msgDisp->getDownsamplingRatiosFeatures(downsamplingRatios);
+    unsigned int maxDownsamplingRatio;
+    msgDisp->getMaxDownsamplingRatioFeature(maxDownsamplingRatio);
 
     QWidget *window = new QWidget;
     this->setWidget(window);
@@ -252,27 +252,20 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     /*! Downsampling ratio */
     this->downsamplingRatiosGroupBox = new QGroupBox(DCW_DOWNSAMPLING_RATIO_TITLE);
 
-    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-    radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-    radioButtonsBoxLayout->setSpacing(2);
+    QVBoxLayout * downSamplingRatioVl = new QVBoxLayout();
+    downSamplingRatioVl->setContentsMargins(2, 2, 2, 2);
+    downSamplingRatioVl->setSpacing(2);
 
     vLayout->addWidget(this->downsamplingRatiosGroupBox);
-    for (int idx = 0; idx < downsamplingRatios.size(); idx++){
-        auto m = downsamplingRatios[idx];
-        QRadioButton * qrb = new QRadioButton(QString("%1").arg(m));
-        radioButtonsBoxLayout->addWidget(qrb);
-        this->downsamplingRatiosRadioButtons.push_back(qrb);
-        connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-            if (flag) {
-                emit sigDownsamplingRatioSelected(idx);
-            }
-        });
-    }
-    if (this->downsamplingRatiosRadioButtons.size() > 0) {
-        this->downsamplingRatiosRadioButtons[0]->setChecked(true);
-    }
-    this->downsamplingRatiosGroupBox->setLayout(radioButtonsBoxLayout);
-    if (downsamplingRatios.size() == 1) {
+    downsamplingRatioSbx = new QSpinBox;
+    downsamplingRatioSbx->setRange(1, maxDownsamplingRatio);
+    downsamplingRatioSbx->setValue(1);
+    downSamplingRatioVl->addWidget(downsamplingRatioSbx);
+    connect(downsamplingRatioSbx, QOverload <int> ::of(&QSpinBox::valueChanged), this, [=] (int value) {
+        emit sigDownsamplingRatioSelected(value);
+    });
+    this->downsamplingRatiosGroupBox->setLayout(downSamplingRatioVl);
+    if (maxDownsamplingRatio <= 1) {
         downsamplingRatiosGroupBox->setEnabled(false);
     }
 
@@ -386,12 +379,7 @@ void DeviceControlDockWidget::forceEmit() {
         }
     }
 
-    for (int idx = 0; idx < downsamplingRatiosRadioButtons.size(); idx++) {
-        QRadioButton* btn = downsamplingRatiosRadioButtons[idx];
-        if (btn->isChecked()) {
-            emit sigDownsamplingRatioSelected(idx);
-        }
-    }
+    emit sigDownsamplingRatioSelected(downsamplingRatioSbx->value());
 }
 
 void DeviceControlDockWidget::updateParameters() {
@@ -491,10 +479,10 @@ void DeviceControlDockWidget::updateParameters() {
         samplingRatesRadioButtons[idx]->setChecked(true);
     }
 
-    if (downsamplingRatiosRadioButtons.size()>0) {
-        uint32_t idx;
-        msgDisp->getDownsamplingRatioIdx(idx);
-        downsamplingRatiosRadioButtons[idx]->setChecked(true);
+    if (downsamplingRatioSbx != nullptr) {
+        uint32_t value;
+        msgDisp->getDownsamplingRatio(value);
+        downsamplingRatioSbx->setValue(value);
     }
 
     if (clampingModalitiesRadioButtons.size()>0) {

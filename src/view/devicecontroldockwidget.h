@@ -5,6 +5,7 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QVBoxLayout>
+#include <QSpinBox>
 
 #include "messagedispatcher.h"
 
@@ -57,7 +58,7 @@ private:
     std::vector<QRadioButton *> samplingRatesRadioButtons;
     bool samplingRatesPrevioueEnableStateBeforeRecording = false;
     QGroupBox * downsamplingRatiosGroupBox = nullptr;
-    std::vector<QRadioButton *> downsamplingRatiosRadioButtons;
+    QSpinBox * downsamplingRatioSbx;
     bool downsamplingRatiosPrevioueEnableStateBeforeRecording = false;
     QGroupBox * clampingModalitiesGroupBox = nullptr;
     std::vector<QRadioButton *> clampingModalitiesRadioButtons;
@@ -74,7 +75,7 @@ signals:
     void sigVcVoltageFilterSelected(int idx);
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
-    void sigDownsamplingRatioSelected(int idx);
+    void sigDownsamplingRatioSelected(int ratio);
     void sigClampingModalitySelected(int idx);
 };
 
