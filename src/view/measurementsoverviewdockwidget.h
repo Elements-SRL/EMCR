@@ -50,7 +50,6 @@ public:
 
 public slots:
     void onUpdate();
-    void onNewMeasurement(std::vector<Measurement_t> measurements);
     void onResult(StatisticsResult * result);
 
 signals:
