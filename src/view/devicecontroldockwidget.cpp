@@ -264,6 +264,10 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     connect(downsamplingRatioSbx, QOverload <int> ::of(&QSpinBox::valueChanged), this, [=] (int value) {
         emit sigDownsamplingRatioSelected(value);
     });
+
+    finalSamplingRateLbl = new QLabel("");
+    downSamplingRatioVl->addWidget(finalSamplingRateLbl);
+
     this->downsamplingRatiosGroupBox->setLayout(downSamplingRatioVl);
     if (maxDownsamplingRatio <= 1) {
         downsamplingRatiosGroupBox->setEnabled(false);
@@ -473,19 +477,24 @@ void DeviceControlDockWidget::updateParameters() {
         }
     }
 
-    if (samplingRatesRadioButtons.size()>0) {
+    if (!samplingRatesRadioButtons.empty()) {
         uint32_t idx;
         msgDisp->getSamplingRateIdx(idx);
         samplingRatesRadioButtons[idx]->setChecked(true);
     }
 
     if (downsamplingRatioSbx != nullptr) {
-        uint32_t value;
-        msgDisp->getDownsamplingRatio(value);
-        downsamplingRatioSbx->setValue(value);
+        uint32_t ratio;
+        msgDisp->getDownsamplingRatio(ratio);
+        downsamplingRatioSbx->setValue(ratio);
+
+        Measurement_t samplingRate;
+        msgDisp->getSamplingRate(samplingRate);
+        samplingRate = samplingRate/(double)ratio;
+        finalSamplingRateLbl->setText("Final sampling rate: " + QString::fromStdString(samplingRate.niceLabel()));
     }
 
-    if (clampingModalitiesRadioButtons.size()>0) {
+    if (!clampingModalitiesRadioButtons.empty()) {
         uint32_t idx;
         msgDisp->getClampingModalityIdx(idx);
         clampingModalitiesRadioButtons[idx]->setChecked(true);

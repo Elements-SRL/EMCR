@@ -6,6 +6,7 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QSpinBox>
+#include <QLabel>
 
 #include "messagedispatcher.h"
 
@@ -18,7 +19,7 @@
 #define DCW_STIMULUS_FILTER_TITLE "Stimulus Filters"
 
 #define DCW_SAMPLING_RATE_TITLE "Sampling Rates"
-#define DCW_DOWNSAMPLING_RATIO_TITLE "Downsampling"
+#define DCW_DOWNSAMPLING_RATIO_TITLE "Downsampling Ratio"
 #define DCW_CLMAPINGMODALITY_TITLE "Clamping Modality"
 
 class DeviceControlDockWidget : public QDockWidget{
@@ -59,6 +60,7 @@ private:
     bool samplingRatesPrevioueEnableStateBeforeRecording = false;
     QGroupBox * downsamplingRatiosGroupBox = nullptr;
     QSpinBox * downsamplingRatioSbx;
+    QLabel * finalSamplingRateLbl;
     bool downsamplingRatiosPrevioueEnableStateBeforeRecording = false;
     QGroupBox * clampingModalitiesGroupBox = nullptr;
     std::vector<QRadioButton *> clampingModalitiesRadioButtons;

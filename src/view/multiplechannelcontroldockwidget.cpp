@@ -27,7 +27,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         switchChannelsOnBtn = new QPushButton("ON");
         connect(switchChannelsOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOn);
         mainGl->addWidget(switchChannelsOnBtn, rowIdx, 1);
-        switchChannelsOffBtn = new QPushButton("OFF");
+        switchChannelsOffBtn = new QPushButton("OFF (O)");
         connect(switchChannelsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOff);
         mainGl->addWidget(switchChannelsOffBtn, rowIdx, 2);
         rowIdx++;
@@ -38,7 +38,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         turnStimulusOnBtn = new QPushButton("ON");
         connect(turnStimulusOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOn);
         mainGl->addWidget(turnStimulusOnBtn, rowIdx, 1);
-        turnStimulusOffBtn = new QPushButton("OFF");
+        turnStimulusOffBtn = new QPushButton("OFF (X)");
         connect(turnStimulusOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOff);
         mainGl->addWidget(turnStimulusOffBtn, rowIdx, 2);
         rowIdx++;
@@ -46,7 +46,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     if (msgDisp->hasOffsetCompensation() == Success) {
         mainGl->addWidget(new QLabel("Offset compensation"), rowIdx, 0, Qt::AlignRight);
-        offsetCompensationOnBtn = new QPushButton("ON");
+        offsetCompensationOnBtn = new QPushButton("ON (C)");
         connect(offsetCompensationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnDocOn);
         mainGl->addWidget(offsetCompensationOnBtn, rowIdx, 1);
         offsetCompensationOffBtn = new QPushButton("OFF");
@@ -56,7 +56,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     }
 
     mainGl->addWidget(new QLabel("Expand trace"), rowIdx, 0, Qt::AlignRight);
-    expandTraceBtn = new QPushButton("ON");
+    expandTraceBtn = new QPushButton("ON (E)");
     connect(expandTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddToBigPlot);
     mainGl->addWidget(expandTraceBtn, rowIdx, 1);
     reduceTraceBtn = new QPushButton("OFF");
