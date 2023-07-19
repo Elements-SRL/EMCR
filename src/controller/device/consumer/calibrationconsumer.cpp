@@ -31,15 +31,6 @@ CalibrationConsumer::CalibrationConsumer(MessageDispatcher * msgDisp, DeviceData
     suspectChannelIdxs.resize(currentChannelsNum);
     fill(suspectChannelIdxs.begin(), suspectChannelIdxs.end(), false);
 
-    msgDisp->getCalibDefaultVcAdcGain(defaultAdcGainValue);    //1.0;
-    msgDisp->getCalibDefaultVcAdcOffset(defaultAdcOffsetValue); // 0.0;
-    msgDisp->getCalibDefaultVcDacGain(defaultDacGainValue); // 1.0;
-    msgDisp->getCalibDefaultVcDacOffset(defaultDacOffsetValue); // 0.0;
-    msgDisp->getCalibDefaultCcAdcGain(defaultCcAdcGainValue);    //1.0;
-    msgDisp->getCalibDefaultCcAdcOffset(defaultCcAdcOffsetValue); // 0.0;
-    msgDisp->getCalibDefaultCcDacGain(defaultCcDacGainValue); // 1.0;
-    msgDisp->getCalibDefaultCcDacOffset(defaultCcDacOffsetValue); // 0.0;
-
     msgDisp->getCalibData(calibData);
     calibrationVoltSteps = calibData.vcCalibStepsArrays;
     calibratonResistances = calibData.vcCalibResArray;
@@ -1761,15 +1752,15 @@ void CalibrationConsumer::loadDefaultCalibParams(int channelsNum, bool forVc, bo
     if(forVc){
         for(int i = 0; i < vcCurrentRangesArray.size(); i++){
             for(int j = 0; j < channelsNum; j++){
-                gainADC[i].push_back(defaultAdcGainValue.getNoPrefixValue());
-                offsetADC[i].push_back(defaultAdcOffsetValue.getNoPrefixValue());
+                gainADC[i].push_back(1.0);
+                offsetADC[i].push_back(0.0);
             }
         }
 
         for(int i = 0; i < vcVoltageRangesArray.size(); i++){
             for(int j = 0; j < channelsNum; j++){
-                gainDAC[i].push_back(defaultDacGainValue.getNoPrefixValue());
-                offsetDAC[i].push_back(defaultDacOffsetValue.getNoPrefixValue());
+                gainDAC[i].push_back(1.0);
+                offsetDAC[i].push_back(0.0);
             }
         }
     }
@@ -1777,15 +1768,15 @@ void CalibrationConsumer::loadDefaultCalibParams(int channelsNum, bool forVc, bo
     if(forCc){
         for(int i = 0; i < ccVoltageRangesArray.size(); i++){
             for(int j = 0; j < channelsNum; j++){
-                ccGainADC[i].push_back(defaultCcAdcGainValue.getNoPrefixValue());
-                ccOffsetADC[i].push_back(defaultCcAdcOffsetValue.getNoPrefixValue());
+                ccGainADC[i].push_back(1.0);
+                ccOffsetADC[i].push_back(0.0);
             }
         }
 
         for(int i = 0; i < ccCurrentRangesArray.size(); i++){
             for(int j = 0; j < channelsNum; j++){
-                ccGainDAC[i].push_back(defaultCcDacGainValue.getNoPrefixValue());
-                ccOffsetDAC[i].push_back(defaultCcDacOffsetValue.getNoPrefixValue());
+                ccGainDAC[i].push_back(1.0);
+                ccOffsetDAC[i].push_back(0.0);
             }
         }
     }

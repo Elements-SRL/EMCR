@@ -349,11 +349,6 @@ void MainController::onVcCurrentRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
-    /*! Invio dati a FPGA con massageDispatcher*/
-    if (calibratorConsumer != nullptr) {
-        calibratorConsumer->updateCalibParams();
-    }
-
     RangedMeasurement_t range;
     msgDisp->getVCCurrentRange(range);
 
@@ -368,11 +363,6 @@ void MainController::onVcCurrentRangeSelected(int idx) {
 void MainController::onVcVoltageRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
-
-    /*! Invio dati a FPGA con massageDispatcher*/
-    if (calibratorConsumer != nullptr) {
-        calibratorConsumer->updateCalibParams();
-    }
 
     RangedMeasurement_t range;
     msgDisp->getVCVoltageRange(range);
@@ -389,11 +379,6 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
-    /*! Invio dati a FPGA con massageDispatcher*/
-    if (calibratorConsumer != nullptr) {
-        calibratorConsumer->updateCalibParams();
-    }
-
     RangedMeasurement_t range;
     msgDisp->getCCCurrentRange(range);
 
@@ -409,11 +394,6 @@ void MainController::onCcCurrentRangeSelected(int idx) {
 void MainController::onCcVoltageRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
-
-    /*! Invio dati a FPGA con massageDispatcher*/
-    if (calibratorConsumer != nullptr) {
-        calibratorConsumer->updateCalibParams();
-    }
 
     RangedMeasurement_t range;
     msgDisp->getCCVoltageRange(range);
@@ -462,11 +442,6 @@ void MainController::onDownsamplingRatioSelected(int idx) {
 void MainController::onClampingModalitySelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
-
-    /*! Invio dati a FPGA con massageDispatcher*/
-    if (calibratorConsumer != nullptr) {
-        calibratorConsumer->updateCalibParams();
-    }
 
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }

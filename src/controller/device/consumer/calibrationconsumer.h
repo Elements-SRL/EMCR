@@ -155,16 +155,6 @@ private:
     bool waitForModelCellChanged = false;
     QMutex popUpWindowMtx;
 
-    /*! \todo FORSE MEGLIO METTERLI NEL MSGDISPATCHER DEVICE-SPECIFIC*/
-    Measurement_t defaultAdcGainValue;
-    Measurement_t defaultAdcOffsetValue;
-    Measurement_t defaultDacGainValue;
-    Measurement_t defaultDacOffsetValue;
-    Measurement_t defaultCcAdcGainValue;
-    Measurement_t defaultCcAdcOffsetValue;
-    Measurement_t defaultCcDacGainValue;
-    Measurement_t defaultCcDacOffsetValue;
-
     std::vector<QString> boardSerialNums;
     QString calibrationFilesFolder;// = CCS_CALIBRATION_DEFAULT_PATH;
     QString calibrationMappingFilePath;
