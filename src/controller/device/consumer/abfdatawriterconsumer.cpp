@@ -405,7 +405,7 @@ void AbfDataWriterConsumer::manageConsumptionBegin() {
     DataWriterConsumer::manageConsumptionBegin();
 
     /*! Initialize abf sections */
-    abfIntervalUsF32 = (float)(1000000.0/pushedSamplingRateHz);
+    abfIntervalUsF32 = (float)(1000000.0/samplingRateHz);
 
     this->initAbfSections();
 
