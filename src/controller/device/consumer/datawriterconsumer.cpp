@@ -56,7 +56,8 @@ void DataWriterConsumer::onStartConsuming() {
         if (hook != nullptr) {
             voltageRange = pushedVoltageRange;
             currentRange = pushedCurrentRange;
-            samplingRateHz = pushedSamplingRateHz;
+            samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
+            downsamplingRatio = pushedDownsamplingRatio;
 
             this->computeSamples();
 
