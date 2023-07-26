@@ -14,10 +14,6 @@ class ProtocolManager : public QObject {
 public:
     ProtocolManager(MessageDispatcher * msgDisp);
 
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    void saveLast(ProtocolWidget * protocol);
-#endif
-
 public slots:
     void onStartProtocolRequest(ProtocolWidget * protocol);
     void onIncreaseProtocolId();
@@ -103,9 +99,6 @@ signals:
     void protocolStarted(unsigned int, ProtocolWidget *);
     void currentApplied();
     void protocolRequestOutcome(ProtocolApplicationStatus_t status);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    void protocolSaveRequest(unsigned int, ProtocolWidget *);
-#endif
 };
 
 #endif // PROTOCOLMANAGER_H

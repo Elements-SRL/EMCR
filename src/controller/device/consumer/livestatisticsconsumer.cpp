@@ -5,20 +5,10 @@
 #include <QDir>
 #include <QTextStream>
 
-#include "measurementsoverviewdockwidget.h"
-
-LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, MainWindow * mainWindow, DeviceDataProducer * producer) :
+LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
     DeviceDataConsumer(msgDisp, producer) {
-    getNewActiveChannels(activeChannelsIdxs);
-    int currentChannels;
-    int voltageChannels;
-    msgDisp->getChannelNumberFeatures(voltageChannels, currentChannels);
-    modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannels, currentChannels);
 
     analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
-    connect(this, &LiveStatisticsConsumer::sigResult, modw, &MeasurementsOverviewDockWidget::onResult);
-
-    mainWindow->setMeasurementOverviewDw(modw);
 }
 
 LiveStatisticsConsumer::~LiveStatisticsConsumer() {
@@ -70,25 +60,6 @@ void LiveStatisticsConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
     QMutexLocker locker(&rangesMtx);
     pushedCurrentRange = range;
     pushedCurrentRangeFlag = true;
-}
-
-void LiveStatisticsConsumer::onExportLiveNoiseEstimates() {
-    QString filename = "noise";
-    QString filedir = QDir::currentPath() + "/";
-    QString filepath = filedir + filename + ".csv";
-    while (QFile::exists(filepath)) {
-        filename += "_";
-        filepath = filedir + filename + ".csv";
-    }
-
-    QFile file(filepath);
-    file.open(QIODevice::WriteOnly);
-
-    QTextStream stream(&file);
-    for (auto noise : res->stdCurrent) {
-        stream << noise << "\n";
-    }
-    file.close();
 }
 
 void LiveStatisticsConsumer::run() {
@@ -236,35 +207,4 @@ bool LiveStatisticsConsumer::isInVec(std::vector<int> vec, int elem){
 void removeElem(std::vector<int> vec, int elem){
     auto it = std::find(vec.begin(), vec.end(), elem);
     vec.erase(it);
-}
-
-void LiveStatisticsConsumer::getNewActiveChannels(std::vector <int>& newActiveChannels){
-    newActiveChannels.clear();
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        if (selectedChannels[channelIdx]){
-            newActiveChannels.push_back(channelIdx);
-        }
-    }
-}
-
-void LiveStatisticsConsumer::onSingleChannelClicked(uint16_t chIdx, bool newState){
-    getNewActiveChannels(activeChannelsIdxs);
-    modw->updateActiveChannels(activeChannelsIdxs);
-}
-
-void LiveStatisticsConsumer::onOneBoardClicked(uint16_t brdIdx, bool newState) {
-    getNewActiveChannels(activeChannelsIdxs);
-    modw->updateActiveChannels(activeChannelsIdxs);
-}
-
-void LiveStatisticsConsumer::onOneRowClicked(uint16_t rowIdx, bool newState) {
-    getNewActiveChannels(activeChannelsIdxs);
-    modw->updateActiveChannels(activeChannelsIdxs);
-}
-
-void LiveStatisticsConsumer::onAllChannelsClicked(bool newState) {
-    getNewActiveChannels(activeChannelsIdxs);
-    modw->updateActiveChannels(activeChannelsIdxs);
 }

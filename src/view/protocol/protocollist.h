@@ -10,7 +10,6 @@
 #include "protocolwidget.h"
 #include "protocolpropertydialog.h"
 #include "impexpprotocoldialog.h"
-#include "protocolssettingsdialog.h"
 #include "protocols.h"
 #include "messagedispatcher.h"
 
@@ -43,12 +42,6 @@ public:
     void setClampingModality(ClampingModality_t clampingModalitySet);
     void saveAndClosePropertyDialog();
 
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    ProtocolsSettingsDialog * getProtocolsSettingsDialog();
-    void recordIhold0Protocol();
-    void recordProtocol(int shortCutIdx);
-#endif
-
 public slots:
     void onStartProtocol(bool recordFlag = false);
     void onStopProtocol();
@@ -63,14 +56,6 @@ public slots:
     void onItemDoubleClicked(QListWidgetItem * item);
     void onProtocolNameChanged(QString oldName, QString newName);
     void onProtocolRequestOutcome(ProtocolApplicationStatus_t status);
-
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    void onRecordProtocol();
-    void onSaveLastProtocol();
-    void onProtocolsSettings();
-    void onPlotting(bool flag, ProtocolType_t protocolType);
-    void onControlsChanged();
-#endif
 
 protected:
     bool eventFilter(QObject * obj, QEvent * event) override;
@@ -105,10 +90,6 @@ protected:
     ProtocolWidget * findProtocolByName(QString name);
     QString availableProtocolName(QString name);
 
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    void exportLastRunProtocol(ProtocolWidget * protocol);
-#endif
-
     YAML::Protocols_t getYamlProtocols();
 
     MessageDispatcher * msgDisp = nullptr;
@@ -134,9 +115,7 @@ protected:
     bool ihold0ProtocolFlag = false;
     bool lastRunProtocolFlag = false;
     Measurement_t holdingDelta = {0.0, UnitPfxNone, ""};
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    ProtocolsSettingsDialog * protocolsSettingsDlg;
-#endif
+
     QGridLayout * shortCutsDlgLo;
     QVector <QComboBox *> shortCutIdxCbxs;
 
@@ -145,11 +124,6 @@ protected:
     QAction * editProtocolAct;
     QAction * openProtocolPropertiesAct;
     QAction * removeProtocolAct;
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    QAction * recordProtocolAct;
-    bool plottingFlag = false;
-    bool controlsChangedFlag = false;
-#endif
 
 protected slots:
     void onAcceptShortCutsDialog();
@@ -164,12 +138,6 @@ signals:
     void requestVoltageRange(int);
     void protocolAppliedRange(RangedMeasurement_t);
     void requestSamplingRate(int);
-
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    void protocolSaveRequest(unsigned int, ProtocolWidget *);
-    void enableSaveLastProtocol(bool);
-    void newRecordPath();
-#endif
 };
 
 class VoltageProtocolList : public ProtocolList {

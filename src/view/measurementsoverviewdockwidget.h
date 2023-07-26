@@ -24,6 +24,7 @@ private:
     QPushButton * meanCurrentBtn;
     QPushButton * stdCurrentBtn;
     QPushButton * conductivityBtn;
+    QPushButton * liquidJunctionBtn;
 
     QGridLayout * gl;
     void updateButton(QPushButton * bt);
@@ -34,12 +35,15 @@ private:
     template<typename T>
     void setActiveChannelsVisible(const std::vector<T>& widgets, const std::vector<int> active_channels);
     template<typename T>
-    void applyTextFromValuesAndaPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx);
+    void applyTextFromValuesAndPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx);
+    template<typename T>
+    void applyTextFromMeasurement(const std::vector<T>& widgets, QVector<Measurement_t> meas);
     std::vector<QLabel *>activeChannelsLabels;
     std::vector<QLabel *>meanVoltageLabels;
     std::vector<QLabel *>meanCurrentLabels;
     std::vector<QLabel *>stdCurrentLabels;
     std::vector<QLabel *>conductivityLabels;
+    std::vector<QLabel *>liquidJunctionLabels;
     std::vector<int> activeChannels;
     int voltageChannels;
     int currentChannels;
@@ -50,7 +54,8 @@ public:
 
 public slots:
     void onUpdate();
-    void onResult(StatisticsResult * result);
+    void onLiveStatisticsResult(StatisticsResult * result);
+    void onLiquidJunctionResult(QVector <Measurement_t> result);
 
 signals:
     void testSignal();

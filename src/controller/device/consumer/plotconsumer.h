@@ -62,11 +62,6 @@ protected:
 
     bool pushedDurationFlag = false;
 
-    bool consumptionStopped = false;
-    bool exitedDataConsumingLoop = false;
-    QMutex consumptionMtx;
-    QWaitCondition exitedDataConsumingLoopCv;
-
     double pushedDuration = 1.0;
     double sweepDuration = 1.0;
 

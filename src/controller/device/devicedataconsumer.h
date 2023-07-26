@@ -54,6 +54,11 @@ protected:
     RangedMeasurement_t currentRange = {0.0, 1.0, 1.0, UnitPfxNone, "A"};
 
     QMutex itemsMtx;
+
+    bool consumptionStopped = false;
+    bool exitedDataConsumingLoop = false;
+    QMutex consumptionMtx;
+    QWaitCondition exitedDataConsumingLoopCv;
 };
 
 #endif // DEVICEDATACONSUMER_H

@@ -666,8 +666,8 @@ void CalibrationConsumer::run(){
 
 void CalibrationConsumer::leastSquareSimple(std::vector<double> x, std::vector<double> y, double &slope, double &offset){
     double xsum=0,x2sum=0,ysum=0,xysum=0;                //variables for sums/sigma of xi,yi,xi^2,xiyi etc
-    int n = x.size();
-    for (int i = 0 ; i < x.size(); i++){
+    size_t n = x.size();
+    for (unsigned int i = 0 ; i < x.size(); i++){
         xsum=xsum+x[i];                        //calculate sigma(xi)
         ysum=ysum+y[i];                        //calculate sigma(yi)
         x2sum=x2sum+pow(x[i],2);                //calculate sigma(x^2i)
@@ -1365,7 +1365,7 @@ void CalibrationConsumer::modelCellActionRequest(QString msg) {
 }
 
 void CalibrationConsumer::selectAllChannels(bool selectValue) {
-    uint16_t numOfChannelsToUpadate = channels.size();
+    size_t numOfChannelsToUpadate = channels.size();
     for (uint16_t i = 0; i < numOfChannelsToUpadate; i++) {
         channels[i]->setSelected(selectValue);
     }
@@ -1413,7 +1413,7 @@ void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllCalSwOnOff(bool onValue){
+void CalibrationConsumer::turnAllCalSwOnOff(bool){
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
@@ -1422,7 +1422,7 @@ void CalibrationConsumer::turnAllCalSwOnOff(bool onValue){
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllVcSwOnOff(bool onValue){
+void CalibrationConsumer::turnAllVcSwOnOff(bool){
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
@@ -1431,7 +1431,7 @@ void CalibrationConsumer::turnAllVcSwOnOff(bool onValue){
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllCcSwOnOff(bool onValue){
+void CalibrationConsumer::turnAllCcSwOnOff(bool){
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
@@ -1440,7 +1440,7 @@ void CalibrationConsumer::turnAllCcSwOnOff(bool onValue){
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllVcCcSelOnOff(bool onValue){
+void CalibrationConsumer::turnAllVcCcSelOnOff(bool){
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
@@ -1449,7 +1449,7 @@ void CalibrationConsumer::turnAllVcCcSelOnOff(bool onValue){
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
-void CalibrationConsumer::turnAllCcStimulaOnOff(bool onValue){
+void CalibrationConsumer::turnAllCcStimulaOnOff(bool){
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);

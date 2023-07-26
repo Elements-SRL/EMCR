@@ -24,22 +24,26 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     meanCurrentBtn = new QPushButton("Mean Current");
     stdCurrentBtn = new QPushButton("Current RMS");
     conductivityBtn = new QPushButton("Conductivity");
+    liquidJunctionBtn = new QPushButton("Conductivity");
 
     meanVoltageBtn->setCheckable(true);
     meanCurrentBtn->setCheckable(true);
     stdCurrentBtn->setCheckable(true);
     conductivityBtn->setCheckable(true);
+    liquidJunctionBtn->setCheckable(true);
 
     meanVoltageBtn->setChecked(true);
     meanCurrentBtn->setChecked(true);
     stdCurrentBtn->setChecked(true);
     conductivityBtn->setChecked(true);
+    liquidJunctionBtn->setChecked(true);
 
     buttonsLayout->addWidget(channelIndexesLabel);
     buttonsLayout->addWidget(meanVoltageBtn);
     buttonsLayout->addWidget(meanCurrentBtn);
     buttonsLayout->addWidget(stdCurrentBtn);
     buttonsLayout->addWidget(conductivityBtn);
+    buttonsLayout->addWidget(liquidJunctionBtn);
 
     mainVl->addLayout(buttonsLayout);
 
@@ -48,6 +52,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     meanCurrentBtn->setVisible(false);
     stdCurrentBtn->setVisible(false);
     conductivityBtn->setVisible(false);
+    liquidJunctionBtn->setVisible(false);
 
     for (int i=0; i< currentChannels; i++) {
         activeChannelsLabels.push_back(new QLabel(QString(" %1").arg(i+1), mainWg));
@@ -55,6 +60,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
         meanCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
         stdCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
         conductivityLabels.push_back(new QLabel(QString("-"), mainWg));
+        liquidJunctionLabels.push_back(new QLabel(QString("-"), mainWg));
     }
 
     connect(meanVoltageBtn, &QPushButton::clicked, this, [=](){
@@ -68,6 +74,9 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     });
     connect(conductivityBtn, &QPushButton::clicked, this, [=](){
         updateButton(conductivityBtn);
+    });
+    connect(liquidJunctionBtn, &QPushButton::clicked, this, [=](){
+        updateButton(liquidJunctionBtn);
     });
 
     QScrollArea * scrollArea = new QScrollArea;
@@ -94,18 +103,21 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
         gl->addWidget(new QLabel(QString::fromStdString( "Mean Current")), 0, 2);
         gl->addWidget(new QLabel(QString::fromStdString(" Current RMS")), 0, 3);
         gl->addWidget(new QLabel(QString::fromStdString(" Conductivity")), 0, 4);
+        gl->addWidget(new QLabel(QString::fromStdString(" Liquid Junction")), 0, 5);
 
         gl->addWidget(activeChannelsLabels[i], i+1, 0);
         gl->addWidget(meanVoltageLabels[i], i+1, 1);
         gl->addWidget(meanCurrentLabels[i], i+1, 2);
         gl->addWidget(stdCurrentLabels[i], i+1, 3);
         gl->addWidget(conductivityLabels[i], i+1, 4);
+        gl->addWidget(liquidJunctionLabels[i], i+1, 5);
     }
     setAllWidgetsInvisible(activeChannelsLabels);
     setAllWidgetsInvisible(meanVoltageLabels);
     setAllWidgetsInvisible(meanCurrentLabels);
     setAllWidgetsInvisible(stdCurrentLabels);
     setAllWidgetsInvisible(conductivityLabels);
+    setAllWidgetsInvisible(liquidJunctionLabels);
 
     for(int i: activeChannels){
         activeChannelsLabels[i]->setVisible(true);
@@ -113,6 +125,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
         meanCurrentLabels[i]->setVisible(true);
         stdCurrentLabels[i]->setVisible(true);
         conductivityLabels[i]->setVisible(true);
+        liquidJunctionLabels[i]->setVisible(true);
     }
     scrollVl->addLayout(gl);
 }
@@ -141,6 +154,7 @@ void MeasurementsOverviewDockWidget::onUpdate(){
     setAllWidgetsInvisible(meanCurrentLabels);
     setAllWidgetsInvisible(stdCurrentLabels);
     setAllWidgetsInvisible(conductivityLabels);
+    setAllWidgetsInvisible(liquidJunctionLabels);
     setActiveChannelsVisible(activeChannelsLabels, activeChannels);
     if (meanVoltageBtn->isChecked()){
         setActiveChannelsVisible(meanVoltageLabels, activeChannels);
@@ -154,6 +168,9 @@ void MeasurementsOverviewDockWidget::onUpdate(){
     if (conductivityBtn->isChecked()){
         setActiveChannelsVisible(conductivityLabels, activeChannels);
     }
+    if (liquidJunctionBtn->isChecked()){
+        setActiveChannelsVisible(liquidJunctionLabels, activeChannels);
+    }
 }
 
 void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<int> newActiveChannels){
@@ -161,17 +178,28 @@ void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<int> newAc
     onUpdate();
 }
 
-void MeasurementsOverviewDockWidget::onResult(StatisticsResult * result) {
-    applyTextFromValuesAndaPfx(stdCurrentLabels, result->stdCurrent.toStdVector(), "A");
-    applyTextFromValuesAndaPfx(meanCurrentLabels, result->meanCurrent.toStdVector(), "A");
-    applyTextFromValuesAndaPfx(meanVoltageLabels, result->meanVoltage.toStdVector(), "V");
-    applyTextFromValuesAndaPfx(conductivityLabels, result->conductivity.toStdVector(), "S");
+void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResult * result) {
+    applyTextFromValuesAndPfx(stdCurrentLabels, result->stdCurrent.toStdVector(), "A");
+    applyTextFromValuesAndPfx(meanCurrentLabels, result->meanCurrent.toStdVector(), "A");
+    applyTextFromValuesAndPfx(meanVoltageLabels, result->meanVoltage.toStdVector(), "V");
+    applyTextFromValuesAndPfx(conductivityLabels, result->conductivity.toStdVector(), "S");
+}
+
+void MeasurementsOverviewDockWidget::onLiquidJunctionResult(QVector <Measurement_t> result) {
+    applyTextFromMeasurement(liquidJunctionLabels, result);
 }
 
 template<typename T>
-void MeasurementsOverviewDockWidget::applyTextFromValuesAndaPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx){
+void MeasurementsOverviewDockWidget::applyTextFromValuesAndPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx){
     for (int i = 0; i<currentChannels; i++) {
         Measurement_t m = {values[i], UnitPfx::UnitPfxNone, pfx};
         widgets[i]->setText(QString::fromStdString(m.niceLabel()));
+    }
+}
+
+template<typename T>
+void MeasurementsOverviewDockWidget::applyTextFromMeasurement(const std::vector<T>& widgets, QVector<Measurement_t> meas) {
+    for (int i = 0; i<currentChannels; i++) {
+        widgets[i]->setText(QString::fromStdString(meas[i].niceLabel()));
     }
 }

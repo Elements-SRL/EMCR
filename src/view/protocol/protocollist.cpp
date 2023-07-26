@@ -28,11 +28,6 @@ ProtocolList::ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog *
 
     this->installEventFilter(this);
 
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    protocolsSettingsDlg = new ProtocolsSettingsDialog();
-    connect(protocolsSettingsDlg, &ProtocolsSettingsDialog::newRecordPath, this, &ProtocolList::newRecordPath);
-#endif
-
     this->createActions();
     this->createShortCutsDialog();
 
@@ -115,9 +110,6 @@ void ProtocolList::startVhold0Protocol() {
 
         lastStartedType = vhold0Protocol->getType();
         emit startProtocolRequest(vhold0Protocol);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-        this->exportLastRunProtocol(vhold0Protocol);
-#endif
     }
 }
 
@@ -127,9 +119,6 @@ void ProtocolList::startIhold0Protocol() {
 
         lastStartedType = ihold0Protocol->getType();
         emit startProtocolRequest(ihold0Protocol);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-        this->exportLastRunProtocol(ihold0Protocol);
-#endif
     }
 }
 
@@ -170,31 +159,6 @@ void ProtocolList::saveAndClosePropertyDialog() {
     }
 }
 
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-ProtocolsSettingsDialog * ProtocolList::getProtocolsSettingsDialog() {
-    return protocolsSettingsDlg;
-}
-
-void ProtocolList::recordIhold0Protocol() {
-    if (ihold0Protocol != nullptr) {
-        this->setNullProtocolHolding(ihold0Protocol);
-
-        protocolManager->startProtocol(ihold0Protocol, true);
-        this->exportLastRunProtocol(ihold0Protocol);
-    }
-}
-
-void ProtocolList::recordProtocol(int shortCutIdx) {
-    if (clampingModality == clampingModalitySet) {
-        ProtocolWidget * protocol = shortCutsProtocols[shortCutIdx];
-        if (protocol != nullptr) {
-            this->setCurrentItem(protocol);
-            this->onRecordProtocol();
-        }
-    }
-}
-#endif
-
 bool ProtocolList::eventFilter(QObject * obj, QEvent * event) {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent * keyEvent = static_cast <QKeyEvent *> (event);
@@ -208,9 +172,6 @@ bool ProtocolList::eventFilter(QObject * obj, QEvent * event) {
 void ProtocolList::contextMenuEvent(QContextMenuEvent * event) {
     QMenu menu(this);
     menu.addAction(startProtocolAct);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    menu.addAction(recordProtocolAct);
-#endif
     menu.addSeparator();
     menu.addAction(copyProtocolAct);
     menu.addAction(editProtocolAct);
@@ -248,12 +209,6 @@ void ProtocolList::onStartProtocol(bool recordFlag) {
     }
 
     this->setNullProtocolHolding(protocol);
-
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    if (!(protocol->isNullProtocol())) {
-        this->exportLastRunProtocol(protocol);
-    }
-#endif
 
     lastStartedType = protocol->getType();
     emit startProtocolRequest(protocol);
@@ -592,65 +547,10 @@ void ProtocolList::onProtocolRequestOutcome(ProtocolApplicationStatus_t status) 
     }
 }
 
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-void ProtocolList::onRecordProtocol() {
-    QSettings settings;
-
-    QString fileName = settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, "").toString();
-    if (fileName == "") {
-        this->onProtocolsSettings();
-    }
-
-    this->onStartProtocol(true);
-}
-
-void ProtocolList::onSaveLastProtocol() {
-    QSettings settings;
-
-    QString fileName = settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, "").toString();
-    if (fileName == "") {
-        this->onProtocolsSettings();
-    }
-
-    this->importLastRunProtocol();
-
-    protocolManager->saveLast(lastRunProtocol);
-}
-
-void ProtocolList::onProtocolsSettings() {
-    protocolsSettingsDlg->exec();
-}
-
-void ProtocolList::onPlotting(bool flag, ProtocolType_t) {
-    plottingFlag = flag;
-    if (plottingFlag == true) {
-        /*! Whenever a plot starts controlsChangeFlag is reset */
-        controlsChangedFlag = false;
-    }
-
-    /*! The save last button is enbaled if we are not plotting anymore and there has been no change in the controls in the meanwhile */
-    emit enableSaveLastProtocol((!plottingFlag) && (!controlsChangedFlag));
-}
-
-void ProtocolList::onControlsChanged() {
-    controlsChangedFlag = true;
-    if (!plottingFlag) {
-        /*! If the controls change after the plot ends disable the save last protocol button */
-        emit enableSaveLastProtocol(false);
-    }
-}
-#endif
-
 void ProtocolList::createActions() {
     startProtocolAct = new QAction("Start protocol", this);
     startProtocolAct->setIcon(QIcon(":/imgs/start protocol.png"));
     connect(startProtocolAct, &QAction::triggered, this, &ProtocolList::onStartProtocol);
-
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-    recordProtocolAct = new QAction("Record protocol", this);
-    recordProtocolAct->setIcon(QIcon(":/imgs/record protocol.png"));
-    connect(recordProtocolAct, &QAction::triggered, this, &ProtocolList::onRecordProtocol);
-#endif
 
     copyProtocolAct = new QAction("Copy protocol", this);
     copyProtocolAct->setIcon(QIcon(":/imgs/copy protocol.png"));
@@ -1140,25 +1040,6 @@ QString ProtocolList::availableProtocolName(QString name) {
     }
     return ret;
 }
-
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-void ProtocolList::exportLastRunProtocol(ProtocolWidget * protocol) {
-    YAML::Node node;
-    YAML::Protocols yamlProtocols;
-    if (protocol->getClampingModality() == ClampingModality_t::VOLTAGE_CLAMP) {
-        yamlProtocols.addProtocol(protocol->getYamlVoltageProtocol());
-
-    } else {
-        yamlProtocols.addProtocol(protocol->getYamlCurrentProtocol());
-    }
-
-    node = yamlProtocols;
-    QString fullFileName = YAML_LAST_PROTOCOL_FULL_FILE;
-    std::ofstream fout(fullFileName.replace(YAML_FILE_EXTENSION, YAML_FILE_EXTENSION).toStdString());
-    fout << node;
-    fout.close();
-}
-#endif
 
 YAML::Protocols_t ProtocolList::getYamlProtocols() {
     YAML::Protocols_t yamlProtocols;

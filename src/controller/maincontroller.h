@@ -12,10 +12,12 @@
 #include "multiplechannelcontroller.h"
 #include "boardcontroller.h"
 #include "devicecontroller.h"
+#include "measurementoverviewcontroller.h"
 #include "devicedataproducer.h"
 #include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
 #include "livestatisticsconsumer.h"
+#include "liquidjunctionconsumer.h"
 #include "calibrationconsumer.h"
 #include "protocolmanager.h"
 #include "statearraycontroller.h"
@@ -63,6 +65,7 @@ private:
     GapFreePlotConsumer * bigPlotConsumer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
+    LiquidJunctionConsumer * liquidJunctionConsumer = nullptr;
     CalibrationConsumer * calibratorConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;
@@ -74,8 +77,9 @@ private:
     MultipleChannelController * multipleChannelController = nullptr;
     BoardController * boardController = nullptr;
     DeviceController * deviceController = nullptr;
-    StateArrayController * stateArrayController;
-    CompensationController * compensationController;
+    StateArrayController * stateArrayController = nullptr;
+    CompensationController * compensationController = nullptr;
+    MeasurementOverviewController * measurementOverviewController = nullptr;
 
     ProtocolManager * voltageProtocolManager = nullptr;
     ProtocolManager * currentProtocolManager = nullptr;

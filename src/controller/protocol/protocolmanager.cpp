@@ -12,19 +12,6 @@ void ProtocolManager::onStartProtocolRequest(ProtocolWidget * protocol) {
     emit protocolRequestOutcome(this->startProtocol(protocol));
 }
 
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-void ProtocolManager::saveLast(ProtocolWidget * protocol) {
-    /*! Preprocess protocol items */
-    protocol->setProtocolItems();
-    protocol->setProcessingStatus();
-    protocol->setAnalysisCursors();
-    protocol->resetConsumerRequests();
-    protocol->setConsumerRequest(ProtocolConsumerDataWriter);
-
-    emit protocolSaveRequest(lastRunProtocolId, protocol);
-}
-#endif
-
 ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * protocol, bool recordFlag) {
     this->protocol = protocol;
     this->recordFlag = recordFlag;

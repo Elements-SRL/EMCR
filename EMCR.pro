@@ -12,7 +12,6 @@ CONFIG(release, debug|release) {
     DEFINES += DEBUG
 }
 
-#DEFINES += GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
 #DEFINES += GLB_ANALYSES_IN_PROTOCOL_EDITOR
 #DEFINES += GLB_CURSORS_IN_PROTOCOL_EDITOR
 
@@ -27,11 +26,13 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/device/consumer/liquidjunctionconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
+    src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/singlechannelcontroller.cpp \
     src/controller/stampplotcontroller.cpp \
-src/main.cpp \
+    src/main.cpp \
     src/controller/bigplotcontroller.cpp \
     src/controller/boardcontroller.cpp \
     src/controller/chessboardcontroller.cpp \
@@ -87,7 +88,6 @@ src/main.cpp \
     src/view/protocol/protocolpreview.cpp \
     src/view/protocol/protocolpropertydialog.cpp \
     src/view/protocol/protocolsection.cpp \
-    src/view/protocol/protocolssettingsdialog.cpp \
     src/view/protocol/protocolwidget.cpp \
     src/view/recordsettingsdialog.cpp \
     src/view/rect4.cpp \
@@ -99,11 +99,13 @@ src/main.cpp \
     src/abf/axon.cpp
 
 HEADERS += \
+    src/controller/device/consumer/liquidjunctionconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
+    src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
     src/controller/singlechannelcontroller.h \
     src/controller/stampplotcontroller.h \
-src/globaldefines.h \
+    src/globaldefines.h \
     src/controller/bigplotcontroller.h \
     src/controller/boardcontroller.h \
     src/controller/chessboardcontroller.h \
@@ -159,7 +161,6 @@ src/globaldefines.h \
     src/view/protocol/protocolpreview.h \
     src/view/protocol/protocolpropertydialog.h \
     src/view/protocol/protocolsection.h \
-    src/view/protocol/protocolssettingsdialog.h \
     src/view/protocol/protocolwidget.h \
     src/view/recordsettingsdialog.h \
     src/view/rect4.h \

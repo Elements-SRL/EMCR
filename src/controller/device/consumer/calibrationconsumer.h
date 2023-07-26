@@ -34,11 +34,11 @@ public slots:
     void onPerformCalibration(std::vector<uint16_t> channelsToCalibrateIdxs);
     void onModelCellChanged(bool modelCellChanged);
 
-    /*! \todo not really needed */
-    void onSamplingRateChanged(Measurement_t samplingRate) override {};
-    void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override {};
-    void onVoltageRangeChanged(RangedMeasurement_t range) override {};
-    void onCurrentRangeChanged(RangedMeasurement_t range) override {};
+    /*!  really needed */
+    void onSamplingRateChanged(Measurement_t) override {};
+    void onDownsamplingRatioChanged(unsigned int) override {};
+    void onVoltageRangeChanged(RangedMeasurement_t) override {};
+    void onCurrentRangeChanged(RangedMeasurement_t) override {};
 
 private:
     void run() override;
@@ -109,11 +109,6 @@ private:
                               );
 
     std::vector <ChannelModel *> channels;
-
-    bool consumptionStopped = false;
-    bool exitedDataConsumingLoop = false;
-    QMutex consumptionMtx;
-    QWaitCondition exitedDataConsumingLoopCv;
 
     DeviceTypes_t deviceUnderCalibrationType;
     int numOfBoards;

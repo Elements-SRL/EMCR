@@ -13,6 +13,7 @@
 #define DDP_MAX_WAIT_COUNT (10)
 
 class DataHook;
+class LiquidJunctionHook;
 
 class DeviceDataProducer : public QThread {
     Q_OBJECT
@@ -23,6 +24,7 @@ public:
 
     unsigned int getDataPacketsBufferLen();
     DataHook * getDataHook();
+    LiquidJunctionHook * getLiquidJunctionHook();
 
 public slots:
     void onStopProducing();
@@ -84,6 +86,19 @@ protected:
     unsigned int bufferSize;
     unsigned int halfBufferSize;
     unsigned int bufferMask;
+};
+
+class LiquidJunctionHook {
+public:
+    LiquidJunctionHook(unsigned int currentChannelsNum);
+    virtual ~LiquidJunctionHook();
+
+    bool getLiquidJunctionValues(QVector <double> &buffer);
+
+protected:
+    int currentChannelsNum;
+
+    bool initialized = false;
 };
 
 #endif // DEVICEDATAPRODUCER_H

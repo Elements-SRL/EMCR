@@ -126,6 +126,7 @@ void MainController::onMainWindowCreated() {
     singleChannelController = new SingleChannelController(msgDisp, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
+    measurementOverviewController = new MeasurementOverviewController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {
         voltageProtocolManager = new ProtocolManager(msgDisp);
         currentProtocolManager = new ProtocolManager(msgDisp);
@@ -158,9 +159,12 @@ void MainController::onMainWindowCreated() {
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
 
-    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, mainWindow, deviceDataProducer);
+    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, deviceDataProducer);
     consumers.append(liveStatisticsConsumer);
-    
+
+    liquidJunctionConsumer = new LiquidJunctionConsumer(msgDisp, deviceDataProducer);
+    consumers.append(liquidJunctionConsumer);
+
     mainWindow->addViewActions();
 
     calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
@@ -175,10 +179,13 @@ void MainController::onMainWindowCreated() {
     connect(chessboardController, &ChessboardController::sigOneRowClicked,          singleChannelController, &SingleChannelController::onOneRowClicked);
     connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   singleChannelController, &SingleChannelController::onSingleChannelClicked);
 
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     liveStatisticsConsumer, &LiveStatisticsConsumer::onAllChannelsClicked);
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        liveStatisticsConsumer, &LiveStatisticsConsumer::onOneBoardClicked);
-    connect(chessboardController, &ChessboardController::sigOneRowClicked,          liveStatisticsConsumer, &LiveStatisticsConsumer::onOneRowClicked);
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   liveStatisticsConsumer, &LiveStatisticsConsumer::onSingleChannelClicked);
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onAllChannelsClicked);
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onOneBoardClicked);
+    connect(chessboardController, &ChessboardController::sigOneRowClicked,          measurementOverviewController, &MeasurementOverviewController::onOneRowClicked);
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   measurementOverviewController, &MeasurementOverviewController::onSingleChannelClicked);
+
+    connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::sigLiveStatisticsResult);
+    connect(liquidJunctionConsumer, &LiquidJunctionConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::sigLiquidJunctionResult);
 
     connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
     connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);
@@ -204,15 +211,10 @@ void MainController::onMainWindowCreated() {
         connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
         connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
         connect(voltageProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::currentApplied);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-        connect(voltageProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolSaveRequest);
-#endif
+
         connect(currentProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolStarted);
         connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
         connect(currentProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::currentApplied);
-#ifdef GLB_RECORD_CONTROLS_IN_PROTOCOL_WIDGET
-        connect(currentProtocolManager, &ProtocolManager::protocolSaveRequest,      mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolSaveRequest);
-#endif
 
         connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
             mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
@@ -345,7 +347,7 @@ void MainController::onMainWindowDestroyed() {
 
 /*! Message forward from mainController to other consumers */
 
-void MainController::onVcCurrentRangeSelected(int idx) {
+void MainController::onVcCurrentRangeSelected(int) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -391,7 +393,7 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
-void MainController::onCcVoltageRangeSelected(int idx) {
+void MainController::onCcVoltageRangeSelected(int) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -405,17 +407,17 @@ void MainController::onCcVoltageRangeSelected(int idx) {
     mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
 }
 
-void MainController::onVcVoltageFilterSelected(int idx) {
+void MainController::onVcVoltageFilterSelected(int) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 }
 
-void MainController::onCcCurrentFilterSelected(int idx) {
+void MainController::onCcCurrentFilterSelected(int) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 }
 
-void MainController::onSamplingRateSelected(int idx) {
+void MainController::onSamplingRateSelected(int) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -427,7 +429,7 @@ void MainController::onSamplingRateSelected(int idx) {
     }
 }
 
-void MainController::onDownsamplingRatioSelected(int idx) {
+void MainController::onDownsamplingRatioSelected(int) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -439,7 +441,7 @@ void MainController::onDownsamplingRatioSelected(int idx) {
     }
 }
 
-void MainController::onClampingModalitySelected(int idx) {
+void MainController::onClampingModalitySelected(int) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -466,6 +468,7 @@ void MainController::startProducerConsumers() {
     stampPlotConsumer->onStartConsuming();
     bigPlotConsumer->onStartConsuming();
     liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
+    liquidJunctionConsumer->onStartConsuming();
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
@@ -492,7 +495,13 @@ void MainController::stopAndDestroyProducerConsumers() {
         delete liveStatisticsConsumer;
         liveStatisticsConsumer = nullptr;
     }
-    
+
+    if (liquidJunctionConsumer!= nullptr) {
+        liquidJunctionConsumer->onStopConsuming();
+        delete liquidJunctionConsumer;
+        liquidJunctionConsumer = nullptr;
+    }
+
     if (calibratorConsumer!= nullptr) {
         calibratorConsumer->onStopConsuming();
         delete calibratorConsumer;

@@ -79,11 +79,6 @@ protected:
 
     int chunkIdx;
 
-    bool consumptionStopped = false;
-    bool exitedDataConsumingLoop = false;
-    QMutex consumptionMtx;
-    QWaitCondition exitedDataConsumingLoopCv;
-
 signals:
     void sigRecording(bool on);
     void sigError(QString message);

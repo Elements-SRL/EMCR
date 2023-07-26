@@ -6,7 +6,6 @@
 
 #include "messagedispatcher.h"
 #include "devicedataconsumer.h"
-#include "mainwindow.h"
 #include "statisticsresult.h"
 #include "statisticsresult.h"
 
@@ -16,7 +15,7 @@ class LiveStatisticsConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    LiveStatisticsConsumer(MessageDispatcher * msgDisp, MainWindow * mainWindow, DeviceDataProducer * producer);
+    LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
     virtual ~LiveStatisticsConsumer();
 
 public slots:
@@ -28,13 +27,6 @@ public slots:
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
-    void onExportLiveNoiseEstimates();
-
-    // To do on actions done on the chessboard
-    void onSingleChannelClicked(uint16_t chIdx, bool newState);
-    void onOneBoardClicked(uint16_t brdIdx, bool newState);
-    void onOneRowClicked(uint16_t rowIdx, bool newState);
-    void onAllChannelsClicked(bool newState);
 protected:
     void run() override;
     void initAnalysis();
@@ -44,15 +36,8 @@ protected:
     void updateSamplingRate();
     void updateRanges();
 
-    MeasurementsOverviewDockWidget * modw = nullptr;
-
     QMutex samplingRateMtx;
     QMutex rangesMtx;
-
-    bool consumptionStopped = false;
-    bool exitedDataConsumingLoop = false;
-    QMutex consumptionMtx;
-    QWaitCondition exitedDataConsumingLoopCv;
 
     double voltageMultiplier;
     double currentMultiplier;
@@ -70,9 +55,7 @@ private:
     int voltageIdx;
     int currentIdx;
 
-    std::vector<int> activeChannelsIdxs;
     int minSamples = 0;
-    MainWindow * mainWindow;
     QVector <double> voltageSum;
     QVector <double> voltageSum2;
 
@@ -82,10 +65,9 @@ private:
     StatisticsResult * res;
     bool isInVec(std::vector<int> vec, int elem);
     void removeElem(std::vector<int> vec, int elem);
-    void getNewActiveChannels(std::vector <int>& newActiveChannels);
 
 signals:
-    void sigResult(StatisticsResult *); 
+    void sigResult(StatisticsResult * res);
 };
 
 #endif // LIVESTATISTICSCONSUMER_H
