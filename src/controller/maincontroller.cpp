@@ -277,7 +277,6 @@ void MainController::onMainWindowCreated() {
     connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
 
     /*! Plots durations */
-    /*! \todo FCON Capire come gestire le durate dei plot */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
     stampPlotConsumer->onDurationChanged(defaultPlotDuration);
