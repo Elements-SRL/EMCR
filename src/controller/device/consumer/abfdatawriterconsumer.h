@@ -40,7 +40,7 @@ protected:
 
     unsigned short ** rawBuffers = nullptr;
     unsigned int rawBuffersLen;
-    unsigned int minPacketsPerBatch;
+    unsigned int maxMinPacketsPerBatch;
     QVector <ABF *> abfs;
     unsigned int blockIdx;
     int samplesFromTheBeginning = 0;

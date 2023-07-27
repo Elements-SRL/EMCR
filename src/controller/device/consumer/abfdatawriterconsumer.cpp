@@ -11,7 +11,7 @@ AbfDataWriterConsumer::AbfDataWriterConsumer(MessageDispatcher * msgDisp, Device
     bytesPerChannel = 2;
 
     rawBuffersLen = 1U << (unsigned int)qFloor(log2((double)DWC_ABF_MAX_SAMPLES_FOR_BUFFERS/(double)(DWC_ABF_CHANNEL_PER_FILE*currentChannelsNum)));
-    minPacketsPerBatch = rawBuffersLen/2;
+    maxMinPacketsPerBatch = rawBuffersLen/2;
 
     rawBuffers = new unsigned short* [currentChannelsNum];
     rawBuffers[0] = new unsigned short [rawBuffersLen*DWC_ABF_CHANNEL_PER_FILE*currentChannelsNum];
@@ -85,6 +85,7 @@ void AbfDataWriterConsumer::run() {
     int maxDataSizeWritten = (rawBuffersLen/DWC_ABF_CHANNEL_PER_FILE)*DWC_ABF_CHANNEL_PER_FILE;
     int rawBufferIdx;
     int truncatedSamples = 0;
+    unsigned int minPacketsPerBatch = qMin(maxMinPacketsPerBatch, (unsigned int)qRound(samplingRateHz*DWC_MIN_BATCH_DURATION));
 
     QMutexLocker consumptionLock(&consumptionMtx);
     consumptionStopped = false;
