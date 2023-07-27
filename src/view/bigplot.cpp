@@ -74,9 +74,9 @@ BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, 
 
     this->canvas()->setCursor(Qt::CrossCursor);
 
-    connect(this, &BigPlot::zoomInRequest, this, &BigPlot::onZoomInRequest);
-    connect(this, &BigPlot::zoomOutRequest, this, &BigPlot::onZoomOutRequest);
-    connect(this, &BigPlot::zoomResetRequest, this, &BigPlot::onZoomResetRequest);
+//    connect(this, &BigPlot::zoomInRequest, this, &BigPlot::onZoomInRequest);
+//    connect(this, &BigPlot::zoomOutRequest, this, &BigPlot::onZoomOutRequest);
+//    connect(this, &BigPlot::zoomResetRequest, this, &BigPlot::onZoomResetRequest);
 
     xAxisMaxMajor = this->axisMaxMajor(xBottom);
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
@@ -95,98 +95,44 @@ QSize BigPlot::minimumSizeHint() const {
     return QSize(200, 300);
 }
 
-QwtText BigPlot::getPlotTitle() {
-    return plotTitle->text();
-}
-
-void BigPlot::setPlotTitle(QwtText text) {
-    plotTitle->setText(text);
-}
-
-void BigPlot::setTitleText(QString text) {
+void BigPlot::setTitle(QString text) {
     plotTitle->setPlainText(text);
     QwtText t = plotTitle->text();
     t.setRenderFlags(Qt::AlignRight | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
     plotTitle->setText(t);
 }
 
-void BigPlot::setXUnit(QwtText text) {
-    xUnit->setText(text);
-}
-
-QwtText BigPlot::getXUnit() {
-    return xUnit->text();
-}
-
-void BigPlot::setXUnitText(QString text) {
+void BigPlot::setXUnit(QString text) {
     xUnit->setPlainText("[" + text + "]");
     QwtText t = xUnit->text();
     t.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
     xUnit->setText(t);
 }
 
-QString BigPlot::getXUnitText() {
-    return xUnit->plainText();
-}
-
-void BigPlot::setYUnit(QwtText text) {
-    yUnit->setText(text);
-}
-
-QwtText BigPlot::getYUnit() {
-    return yUnit->text();
-}
-
-void BigPlot::setYUnitText(QString text) {
+void BigPlot::setYUnit(QString text) {
     yUnit->setPlainText("[" + text + "]");
     QwtText t = yUnit->text();
     t.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
     yUnit->setText(t);
 }
 
-QString BigPlot::getYUnitText() {
-    return yUnit->plainText();
-}
-
-void BigPlot::pushZoomStack() {
+Rect4 BigPlot::getRect() {
     Rect4 r(this);
-    zoomStack.push_back(r);
-}
-
-Rect4 BigPlot::popZoomStack() {
-    Rect4 r;
-    if (!this->isEmptyZoomStack()) {
-        r = zoomStack.back();
-        zoomStack.pop_back();
-
-    } else {
-        r = this->resetZoomStack();
-    }
     return r;
 }
 
-void BigPlot::clearZoomStack() {
-    zoomStack.clear();
-}
-
-bool BigPlot::isEmptyZoomStack() {
-    return zoomStack.empty();
-}
-
-Rect4 BigPlot::resetZoomStack() {
-    Rect4 r;
-    if (!this->isEmptyZoomStack()) {
-        r = zoomStack[0];
-        zoomStack.clear();
-
-    } else {
-        r[xBottom] = this->axisInterval(xBottom);
-        r[yLeft] = this->axisInterval(yLeft);
-        if (this->axisEnabled(yRight)) {
-            r[yRight] = this->axisInterval(yRight);
-        }
+void BigPlot::setRect(Rect4 r) {
+    if (((r.at(yLeft).width() == 0.0) && (r.at(yRight).width() == 0.0)) || (r.at(xBottom).width() == 0.0)) {
+        return;
     }
-    return r;
+    this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
+    this->setAxisScale(yLeft, r[yLeft].minValue(), r[yLeft].maxValue());
+    yScale = 0.5*r[yLeft].width();
+    if (this->axisEnabled(yRight)) {
+        this->setAxisScale(yRight, r[yRight].minValue(), r[yRight].maxValue());
+    }
+    this->replot();
+    this->recomputeXAxisFactor(this->axisInterval(xBottom).width());
 }
 
 void BigPlot::shiftVertAxis(Axis axis, double shiftValue) {
@@ -194,25 +140,6 @@ void BigPlot::shiftVertAxis(Axis axis, double shiftValue) {
     this->replot();
 }
 
-void BigPlot::onZoomInRequest(Rect4 * rect) {
-    if (((rect->at(yLeft).width() == 0.0) && (rect->at(yRight).width() == 0.0)) || (rect->at(xBottom).width() == 0.0)) {
-        return;
-    }
-
-    Rect4 newRect = * rect;
-
-    this->pushZoomStack();
-
-    this->setAxisScale(xBottom, newRect[xBottom].minValue(), newRect[xBottom].maxValue());
-    this->recomputeXAxisFactor(newRect[xBottom].width());
-    this->setAxisScale(yLeft, newRect[yLeft].minValue(), newRect[yLeft].maxValue());
-    yScale = 0.5*newRect[yLeft].width();
-    if (this->axisEnabled(yRight)) {
-        this->setAxisScale(yRight, newRect[yRight].minValue(), newRect[yRight].maxValue());
-    }
-
-    this->replot();
-}
 
 void BigPlot::onHorzZoomInRequest(Rect4 * rect) {
     if ((rect->at(xBottom).width() == 0.0)) {
@@ -224,8 +151,7 @@ void BigPlot::onHorzZoomInRequest(Rect4 * rect) {
     if (this->axisEnabled(yRight)) {
         newRect[yRight] = this->axisInterval(yRight);
     }
-
-    this->onZoomInRequest(&newRect);
+    emit zoomInRequest(newRect);
 }
 
 void BigPlot::onVertZoomInRequest(Rect4 * rect) {
@@ -235,63 +161,15 @@ void BigPlot::onVertZoomInRequest(Rect4 * rect) {
 
     Rect4 newRect = * rect;
     newRect[xBottom] = this->axisInterval(xBottom);
-
-    this->onZoomInRequest(&newRect);
+    emit zoomInRequest(newRect);
 }
 
 void BigPlot::onVertZoomFullRequest() {
-    this->pushZoomStack();
     this->setAxisAutoScale(yLeft);
 
     this->replot();
 
     this->setAxisAutoScale(yLeft, false);
-}
-
-void BigPlot::onZoomOutRequest() {
-    if (this->isEmptyZoomStack()) {
-        this->setAxisScale(yLeft, currentRange[yLeft].min, currentRange[yLeft].max);
-        if (this->axisEnabled(yRight)) {
-            this->setAxisScale(yRight, currentRange[yRight].min, currentRange[yRight].max);
-        }
-
-    } else {
-        Rect4 r = this->popZoomStack();
-
-        this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
-
-        this->setAxisScale(yLeft, r[yLeft].minValue(), r[yLeft].maxValue());
-        yScale = 0.5*r[yLeft].width();
-        if (this->axisEnabled(yRight)) {
-            this->setAxisScale(yRight, r[yRight].minValue(), r[yRight].maxValue());
-        }
-    }
-    this->replot();
-
-    this->recomputeXAxisFactor(this->axisInterval(xBottom).width());
-}
-
-void BigPlot::onZoomResetRequest() {
-    if (this->isEmptyZoomStack()) {
-        this->setAxisScale(yLeft, currentRange[yLeft].min, currentRange[yLeft].max);
-        if (this->axisEnabled(yRight)) {
-            this->setAxisScale(yRight, currentRange[yRight].min, currentRange[yRight].max);
-        }
-
-    } else {
-        Rect4 r = this->resetZoomStack();
-
-        this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
-
-        this->setAxisScale(yLeft, r[yLeft].minValue(), r[yLeft].maxValue());
-        yScale = 0.5*r[yLeft].width();
-        if (this->axisEnabled(yRight)) {
-            this->setAxisScale(yRight, r[yRight].minValue(), r[yRight].maxValue());
-        }
-    }
-    this->replot();
-
-    this->recomputeXAxisFactor(this->axisInterval(xBottom).width());
 }
 
 void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
@@ -313,10 +191,10 @@ void BigPlot::onRangeUpdated(commlib::RangedMeasurement_t newRange, Axis axisIdx
             this->setAxisScale(axisIdx, min, max);
             if (axisIdx == yLeft) {
                 yScale = 0.5*coeff*this->axisInterval(axisIdx).width();
-                this->setYUnitText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+                this->setYUnit(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
 
             } else {
-                this->setTitleText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+                this->setTitle(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
             }
         }
 
@@ -325,11 +203,11 @@ void BigPlot::onRangeUpdated(commlib::RangedMeasurement_t newRange, Axis axisIdx
         this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
         if (axisIdx == yLeft) {
             yScale = 0.5*currentRange[axisIdx].delta();
-            this->setYUnitText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+            this->setYUnit(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
 
         } else {
             /*! If both y-axis are defined the second unit goes into title */
-            this->setTitleText(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
+            this->setTitle(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
         }
         rangeInitialized[axisIdx] = true;
     }
@@ -378,7 +256,7 @@ void BigPlot::recomputeXAxisFactor(double duration) {
     if (xAxisPrefix != sweepDuration.prefix) {
         xAxisPrefix = sweepDuration.prefix;
         xBottomScaleDraw->setConversionFactor(1.0/sweepDuration.multiplier());
-        this->setXUnitText(QString::fromStdString(sweepDuration.getFullUnit()));
+        this->setXUnit(QString::fromStdString(sweepDuration.getFullUnit()));
     }
 }
 
@@ -434,7 +312,7 @@ void BigPlot::onZoomInPickerSelected(const QRectF &r) {
         }
         break;
     }
-    emit zoomInRequest(&rect);
+    emit zoomInRequest(rect);
 }
 
 void BigPlot::onZoomOutPickerSelected(const QPointF &) {
@@ -442,5 +320,6 @@ void BigPlot::onZoomOutPickerSelected(const QPointF &) {
 }
 
 void BigPlot::onZoomResetPickerSelected(const QPointF &) {
+    qDebug()<<"ciccia";
     emit zoomResetRequest();
 }

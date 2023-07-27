@@ -70,3 +70,8 @@ void BigPlotWidget::onSetGapFreePlotData(double * timeValues, QVector <double *>
 void BigPlotWidget::onReplot() {
     plot->replot();
 }
+
+
+BigPlot * BigPlotWidget::getPlot(){
+    return plot;
+}
