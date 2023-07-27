@@ -12,11 +12,10 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
     connect(plot, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
     connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
     connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
-    qDebug() <<"tete";
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
-    bpm->pushZoomStack(r);
+    bpm->pushZoomStack(plot->getRect());
     plot->setRect(r);
 }
 
@@ -25,6 +24,5 @@ void BigPlotController::handleZoomOutRequest(){
 }
 
 void BigPlotController::handleZoomResetRequest(){
-    qDebug() <<"culo";
     plot->setRect(bpm->resetZoomStack());
 }
