@@ -2,7 +2,6 @@
 #define BOARDCONTROLLER_H
 
 #include <QObject>
-#include<QDebug>
 
 #include "messagedispatcher.h"
 #include "boardcontroldockwidget.h"

@@ -4,7 +4,7 @@
 
 #include <QWidget>
 #include <QDoubleSpinBox>
-#include <QDebug>
+
 class MySpinBox : public QDoubleSpinBox
 {
     Q_OBJECT

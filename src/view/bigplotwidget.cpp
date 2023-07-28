@@ -44,10 +44,6 @@ void BigPlotWidget::clearCurves() {
     voltageCurves.clear();
 }
 
-void BigPlotWidget::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
-    plot->onRangeUpdated(newRange, axisIdx);
-}
-
 void BigPlotWidget::onDurationUpdated(Measurement_t duration) {
     plot->onDurationUpdated(duration);
 }
@@ -69,4 +65,9 @@ void BigPlotWidget::onSetGapFreePlotData(double * timeValues, QVector <double *>
 
 void BigPlotWidget::onReplot() {
     plot->replot();
+}
+
+
+BigPlot * BigPlotWidget::getPlot(){
+    return plot;
 }

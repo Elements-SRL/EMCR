@@ -63,7 +63,7 @@ protected:
     bool pushedDurationFlag = false;
 
     double pushedDuration = 1.0;
-    double sweepDuration = 1.0;
+    double xAxisDuration = 1.0;
 
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
@@ -88,7 +88,7 @@ protected:
 signals:
     void voltageRangeUpdated(RangedMeasurement_t range);
     void currentRangeUpdated(RangedMeasurement_t range);
-    void durationUpdated(double duration);
+//    void durationUpdated(double duration);
     void plotDataUpdated();
 };
 

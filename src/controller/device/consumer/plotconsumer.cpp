@@ -142,7 +142,7 @@ void PlotConsumer::updateTimeAxis() {
     if (pushedDurationFlag || pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
         if (pushedDurationFlag) {
             pushedDurationFlag = false;
-            sweepDuration = pushedDuration;
+            xAxisDuration = pushedDuration;
         }
 
         if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
@@ -153,12 +153,12 @@ void PlotConsumer::updateTimeAxis() {
 
         locker.unlock();
         this->computeTimeAxis();
-        emit durationUpdated(sweepDuration);
+//        emit durationUpdated(sweepDuration);
     }
 }
 
 void PlotConsumer::computeTimeAxis() {
-    dataSize = qRound(samplingRateHz*sweepDuration);
+    dataSize = qRound(samplingRateHz*xAxisDuration);
     minDataBatchSize = qMin(qRound(samplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
 
     subSamplingRatio = (dataSize-1)/maxSamples+1;
@@ -183,7 +183,7 @@ void PlotConsumer::computeTimeAxis() {
 
     this->emitPlotData();
 
-    pushedDuration = sweepDuration;
+//    pushedDuration = sweepDuration;
 }
 
 void PlotConsumer::updateRangeAxis() {

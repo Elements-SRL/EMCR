@@ -28,33 +28,18 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
-    QwtText getPlotTitle();
-    void setPlotTitle(QwtText text);
-    void setTitleText(QString text);
-    void setXUnit(QwtText text);
-    QwtText getXUnit();
-    void setXUnitText(QString text);
-    QString getXUnitText();
-    void setYUnit(QwtText text);
-    QwtText getYUnit();
-    void setYUnitText(QString text);
-    QString getYUnitText();
-    void pushZoomStack();
-    Rect4 popZoomStack();
-    void clearZoomStack();
-    bool isEmptyZoomStack();
-    virtual Rect4 resetZoomStack();
+    void setTitle(QString text);
+    void setXUnit(QString text);
+    void setYUnit(QString text);
     void shiftVertAxis(Axis axis, double shiftValue);
+    void setRect(Rect4 r);
+    Rect4 getRect();
 
 public slots:
-    void onZoomInRequest(Rect4 * rect);
     void onHorzZoomInRequest(Rect4 * rect);
     void onVertZoomInRequest(Rect4 * rect);
     void onVertZoomFullRequest();
-    void onZoomOutRequest();
-    void onZoomResetRequest();
     void onUpdateBaseline(Axis axisIdx, double baseline);
-    void onRangeUpdated(commlib::RangedMeasurement_t newRange, Axis axisIdx = yLeft);
     void onDurationUpdated(commlib::Measurement_t duration);
 
 protected:
@@ -99,11 +84,10 @@ protected slots:
     virtual void onZoomResetPickerSelected(const QPointF &p);
 
 private:
-    QVector <Rect4> zoomStack;
     QVector <bool> rangeInitialized;
 
 signals:
-    void zoomInRequest(Rect4 * rect);
+    void zoomInRequest(Rect4 rect);
     void zoomOutRequest();
     void zoomResetRequest();
 };
