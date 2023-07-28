@@ -25,6 +25,9 @@ private slots:
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx);
+
+signals:
+    void durationChanged(Measurement_t duration);
 };
 
 #endif // BIGPLOTCONTROLLER_H

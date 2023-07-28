@@ -14,18 +14,10 @@ PlotConsumer::PlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * pro
     plottedChannels.resize(currentChannelsNum);
     plottedChannels.fill(true);
     plottedChannelsNum = currentChannelsNum;
-
-#ifdef GLB_SHOW_DEBUG_CTRLS
-//    logFile.setFileName(QString("log%1.txt").arg((unsigned int)this));
-//    logFile.open(QFile::WriteOnly | QFile::Truncate);
-//    logStream.setDevice(&logFile);
-#endif
 }
 
 PlotConsumer::~PlotConsumer() {
-#ifdef GLB_SHOW_DEBUG_CTRLS
-//    logFile.close();
-#endif
+
 }
 
 void PlotConsumer::forceAxisUpdate() {
@@ -139,21 +131,21 @@ void PlotConsumer::onSelectChannels(bool flag) {
 
 void PlotConsumer::updateTimeAxis() {
     QMutexLocker locker(&timeAxisMtx);
-    if (pushedDurationFlag || pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
-        if (pushedDurationFlag) {
-            pushedDurationFlag = false;
-            xAxisDuration = pushedDuration;
-        }
-
-        if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
-            pushedSamplingRateFlag = false;
-            pushedDownsamplingRatioFlag = false;
-            samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
-        }
+    if (pushedDurationFlag) {
+        pushedDurationFlag = false;
+        xAxisDuration = pushedDuration;
 
         locker.unlock();
         this->computeTimeAxis();
-//        emit durationUpdated(sweepDuration);
+    }
+
+    if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
+        pushedSamplingRateFlag = false;
+        pushedDownsamplingRatioFlag = false;
+        samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
+
+        locker.unlock();
+        this->computeTimeAxis();
     }
 }
 
@@ -164,16 +156,6 @@ void PlotConsumer::computeTimeAxis() {
     subSamplingRatio = (dataSize-1)/maxSamples+1;
     dataSize /= subSamplingRatio;
 
-#ifdef GLB_SHOW_DEBUG_CTRLS
-//    logStream << "samplingRateHz " << samplingRateHz;
-//    logStream << " --- sweepDuration " << sweepDuration;
-//    logStream << " --- initial dataSize " << qRound(samplingRateHz*sweepDuration);
-//    logStream << " --- final dataSize " << dataSize;
-//    logStream << " --- minDataBatchSize " << minDataBatchSize;
-//    logStream << " --- subSamplingRatio " << subSamplingRatio;
-//    logStream << " --- maxSamples " << maxSamples << endl;
-#endif
-
     subSamplingIdx = 0;
 
     double dt = ((double)subSamplingRatio)/samplingRateHz;
@@ -182,8 +164,6 @@ void PlotConsumer::computeTimeAxis() {
     }
 
     this->emitPlotData();
-
-//    pushedDuration = sweepDuration;
 }
 
 void PlotConsumer::updateRangeAxis() {

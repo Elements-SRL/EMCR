@@ -17,7 +17,6 @@ public:
     BigPlot * getPlot();
 
 public slots:
-    void onDurationUpdated(Measurement_t duration);
     void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber);
     void onReplot();
 private:

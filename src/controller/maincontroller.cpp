@@ -255,6 +255,8 @@ void MainController::onMainWindowCreated() {
     connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       chessboardController->getStampPlotController(), &StampPlotController::onSetGapFreePlotData);
     connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   chessboardController->getStampPlotController(), &StampPlotController::onReplot);
 
+    connect(bigPlotController, &BigPlotController::durationChanged, bigPlotConsumer, &GapFreePlotConsumer::onDurationChanged);
+
     connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         mainWindow->getBigPlotWidget(), &BigPlotWidget::onSetGapFreePlotData);
     connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     mainWindow->getBigPlotWidget(), &BigPlotWidget::onReplot);
 

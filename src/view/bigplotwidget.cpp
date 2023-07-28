@@ -44,10 +44,6 @@ void BigPlotWidget::clearCurves() {
     voltageCurves.clear();
 }
 
-void BigPlotWidget::onDurationUpdated(Measurement_t duration) {
-    plot->onDurationUpdated(duration);
-}
-
 void BigPlotWidget::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
     for (int idx = 0; idx < channelsToPlotNumber; idx++) {
         currentCurves.at(idx)->attach(plot);

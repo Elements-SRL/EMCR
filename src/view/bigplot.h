@@ -40,7 +40,6 @@ public slots:
     void onVertZoomInRequest(Rect4 * rect);
     void onVertZoomFullRequest();
     void onUpdateBaseline(Axis axisIdx, double baseline);
-    void onDurationUpdated(commlib::Measurement_t duration);
 
 protected:
     typedef enum {
@@ -73,7 +72,6 @@ protected:
     ConversionScaleDraw * xBottomScaleDraw;
 
     commlib::RangedMeasurement_t currentRange[axisCnt];
-    commlib::Measurement_t sweepDuration = {1.0, commlib::UnitPfxNone, "s"};
     commlib::UnitPfx_t xAxisPrefix = commlib::UnitPfxNone;
 
 protected slots:

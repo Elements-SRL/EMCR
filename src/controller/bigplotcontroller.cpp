@@ -16,26 +16,41 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
 void BigPlotController::handleZoomInRequest(Rect4 r){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
     bpm->updateCurrentZoom(r);
-    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Current));
+    auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
+    plot->setRect(zoom);
+    emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
 }
 
 void BigPlotController::handleZoomOutRequest(){
-    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Previous));
+    auto zoom = bpm->getZoom(BigPlotModel::Zoom::Previous);
+    plot->setRect(zoom);
+    emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
 }
 
 void BigPlotController::handleZoomResetRequest(){
-    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Default));
+    auto zoom = bpm->getZoom(BigPlotModel::Zoom::Default);
+    plot->setRect(zoom);
+    emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
 }
 
 void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
     bpm->setCurrentRange(axisIdx, newRange);
-    auto interval = bpm->getCurrentZoomInterval(axisIdx);
-    plot->setAxisScale(axisIdx, interval.minValue(), interval.maxValue());
+    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Current));
     auto fullUnit = QString::fromStdString(bpm->getCurrentRange(axisIdx).getFullUnit());
-    if (axisIdx == QwtPlot::yLeft) {
+    switch (axisIdx) {
+    case QwtPlot::yLeft:
         plot->setYUnit(fullUnit);
-    } else {
+        break;
+
+    case QwtPlot::yRight:
         plot->setTitle(fullUnit);
+        break;
+
+    case QwtPlot::xBottom:
+        plot->setXUnit(fullUnit);
+        Measurement_t duration = {bpm->getZoom(BigPlotModel::Zoom::Current)[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"};
+        emit durationChanged(duration);
+        break;
     }
     plot->replot();
 }

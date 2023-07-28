@@ -4,6 +4,8 @@
 #include "qwt_scale_widget.h"
 #include "qwt_plot_canvas.h"
 
+using namespace e384CommLib;
+
 BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, QWidget * parent) :
     QwtPlot(parent) {
 
@@ -125,7 +127,7 @@ void BigPlot::setRect(Rect4 r) {
     if (((r.at(yLeft).width() == 0.0) && (r.at(yRight).width() == 0.0)) || (r.at(xBottom).width() == 0.0)) {
         return;
     }
-    this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
+    this->setAxisScale(xBottom, 0.0, r[xBottom].width());
     this->setAxisScale(yLeft, r[yLeft].minValue(), r[yLeft].maxValue());
     yScale = 0.5*r[yLeft].width();
     if (this->axisEnabled(yRight)) {
@@ -176,15 +178,6 @@ void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
     this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
 }
 
-void BigPlot::onDurationUpdated(commlib::Measurement_t duration) {
-    sweepDuration = duration;
-    sweepDuration.convertValue(commlib::UnitPfxNone);
-    this->setAxisScale(xBottom, 0.0, sweepDuration.value);
-    this->recomputeXAxisFactor(sweepDuration.value);
-
-    this->replot();
-}
-
 void BigPlot::resizeEvent(QResizeEvent * e) {
     if (e != nullptr) {
         QwtPlot::resizeEvent(e);
@@ -211,14 +204,13 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
 }
 
 void BigPlot::recomputeXAxisFactor(double duration) {
-    sweepDuration.value = duration;
-    sweepDuration.prefix = commlib::UnitPfxNone;
-    sweepDuration.nice();
+    Measurement_t durationMeas = {duration, commlib::UnitPfxNone, "s"};
+    durationMeas.nice();
 
-    if (xAxisPrefix != sweepDuration.prefix) {
-        xAxisPrefix = sweepDuration.prefix;
-        xBottomScaleDraw->setConversionFactor(1.0/sweepDuration.multiplier());
-        this->setXUnit(QString::fromStdString(sweepDuration.getFullUnit()));
+    if (xAxisPrefix != durationMeas.prefix) {
+        xAxisPrefix = durationMeas.prefix;
+        xBottomScaleDraw->setConversionFactor(1.0/durationMeas.multiplier());
+        this->setXUnit(QString::fromStdString(durationMeas.getFullUnit()));
     }
 }
 

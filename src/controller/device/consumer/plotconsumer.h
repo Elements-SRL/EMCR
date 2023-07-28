@@ -88,7 +88,6 @@ protected:
 signals:
     void voltageRangeUpdated(RangedMeasurement_t range);
     void currentRangeUpdated(RangedMeasurement_t range);
-//    void durationUpdated(double duration);
     void plotDataUpdated();
 };
 
