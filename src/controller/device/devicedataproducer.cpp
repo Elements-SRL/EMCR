@@ -323,10 +323,18 @@ LiquidJunctionHook::~LiquidJunctionHook() {
 }
 
 bool LiquidJunctionHook::getLiquidJunctionValues(QVector<double> &buffer) {
+    int waitCount = 0;
     ljLock.lockForRead();
-    while (!newLiquidJunctionData) {
+    while (!newLiquidJunctionData &&
+           waitCount++ < DDP_MAX_WAIT_COUNT) {
         ljCv.wait(&ljLock, 100);
     }
+
+    if (!newLiquidJunctionData) {
+        ljLock.unlock();
+        return false;
+    }
+
     newLiquidJunctionData = false;
 
     buffer.resize(currentChannelsNum);
