@@ -283,7 +283,8 @@ void MainController::onMainWindowCreated() {
     bigPlotConsumer->onDurationChanged(defaultPlotDuration);
 
     chessboardController->getStampPlotController()->onDurationUpdated(defaultPlotDuration);
-    mainWindow->getBigPlotWidget()->onDurationUpdated(defaultPlotDuration);
+    RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
+    bigPlotController->onRangeUpdated(plotRange, QwtPlot::Axis::xBottom);
 
     /*! Forced initialization at start */
     mainWindow->getDeviceControlsDockWidget()->forceEmit();
@@ -356,7 +357,7 @@ void MainController::onVcCurrentRangeSelected(int idx) {
     }
 
     chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yLeft);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yLeft);
+    bigPlotController->onRangeUpdated(range, QwtPlot::yLeft);
 }
 
 void MainController::onVcVoltageRangeSelected(int idx) {
@@ -370,7 +371,7 @@ void MainController::onVcVoltageRangeSelected(int idx) {
         consumer->onVoltageRangeChanged(range);
     }
     chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yRight);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
+    bigPlotController->onRangeUpdated(range, QwtPlot::yRight);
     mainWindow->getSingleChannelControlsDockWidget()->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
@@ -386,7 +387,7 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     }
 
     chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yLeft);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yLeft);
+    bigPlotController->onRangeUpdated(range, QwtPlot::yLeft);
     mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
@@ -401,7 +402,7 @@ void MainController::onCcVoltageRangeSelected(int idx) {
         consumer->onVoltageRangeChanged(range);
     }
     chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yRight);
-    mainWindow->getBigPlotWidget()->onRangeUpdated(range, QwtPlot::yRight);
+    bigPlotController->onRangeUpdated(range, QwtPlot::yRight);
 }
 
 void MainController::onVcVoltageFilterSelected(int idx) {

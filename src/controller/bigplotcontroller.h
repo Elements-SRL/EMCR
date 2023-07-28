@@ -22,6 +22,9 @@ private slots:
     void handleZoomInRequest(Rect4 r);
     void handleZoomOutRequest();
     void handleZoomResetRequest();
+
+public slots:
+    void onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx);
 };
 
 #endif // BIGPLOTCONTROLLER_H

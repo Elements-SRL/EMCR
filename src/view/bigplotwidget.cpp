@@ -44,10 +44,6 @@ void BigPlotWidget::clearCurves() {
     voltageCurves.clear();
 }
 
-void BigPlotWidget::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
-    plot->onRangeUpdated(newRange, axisIdx);
-}
-
 void BigPlotWidget::onDurationUpdated(Measurement_t duration) {
     plot->onDurationUpdated(duration);
 }

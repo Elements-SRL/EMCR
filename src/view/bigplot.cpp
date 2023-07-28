@@ -96,7 +96,7 @@ QSize BigPlot::minimumSizeHint() const {
 }
 
 void BigPlot::setTitle(QString text) {
-    plotTitle->setPlainText(text);
+    plotTitle->setPlainText("[" + text + "]");
     QwtText t = plotTitle->text();
     t.setRenderFlags(Qt::AlignRight | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
     plotTitle->setText(t);
@@ -174,44 +174,6 @@ void BigPlot::onVertZoomFullRequest() {
 
 void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
     this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
-}
-
-void BigPlot::onRangeUpdated(commlib::RangedMeasurement_t newRange, Axis axisIdx) {
-    if (rangeInitialized[axisIdx]) {
-        if (newRange != currentRange[axisIdx]) {
-            currentRange[axisIdx].max = 1.0;
-            currentRange[axisIdx].convertValues(newRange.prefix);
-            double coeff = currentRange[axisIdx].max;
-            currentRange[axisIdx].max = newRange.max;
-            currentRange[axisIdx].min = newRange.min;
-
-            double min = coeff*this->axisInterval(axisIdx).minValue();
-            double max = coeff*this->axisInterval(axisIdx).maxValue();
-
-            this->setAxisScale(axisIdx, min, max);
-            if (axisIdx == yLeft) {
-                yScale = 0.5*coeff*this->axisInterval(axisIdx).width();
-                this->setYUnit(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
-
-            } else {
-                this->setTitle(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
-            }
-        }
-
-    } else {
-        currentRange[axisIdx] = newRange;
-        this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
-        if (axisIdx == yLeft) {
-            yScale = 0.5*currentRange[axisIdx].delta();
-            this->setYUnit(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
-
-        } else {
-            /*! If both y-axis are defined the second unit goes into title */
-            this->setTitle(QString::fromStdString(currentRange[axisIdx].getFullUnit()));
-        }
-        rangeInitialized[axisIdx] = true;
-    }
-    this->replot();
 }
 
 void BigPlot::onDurationUpdated(commlib::Measurement_t duration) {
@@ -320,6 +282,5 @@ void BigPlot::onZoomOutPickerSelected(const QPointF &) {
 }
 
 void BigPlot::onZoomResetPickerSelected(const QPointF &) {
-    qDebug()<<"ciccia";
     emit zoomResetRequest();
 }

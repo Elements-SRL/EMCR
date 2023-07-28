@@ -3,7 +3,6 @@
 #include "errormanager.h"
 
 #include <QTime>
-#include <QDebug>
 
 CalibrationConsumer::CalibrationConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
     DeviceDataConsumer(msgDisp, producer){
@@ -1499,7 +1498,6 @@ void CalibrationConsumer::turnSomeCalSwOnOff(std::vector<uint16_t> channelIndexe
     this->msgDisp->turnCalSwOn(channelIndexes, onValues, true);
 //    for (int i = 0; i < channelIndexes.size(); i++){
 //        channels[channelIndexes[i]]->setInStimActive(onValues[i]);
-//        qDebug() << "[Channel " << channelIndexes[i] << "]: on/off status:" << onValues[i] << "\n";
 //    }
 }
 

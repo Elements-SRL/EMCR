@@ -1,5 +1,4 @@
 #include "bigplotcontroller.h"
-#include <QDebug>
 
 BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp),
@@ -15,14 +14,28 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
-    bpm->pushZoomStack(plot->getRect());
-    plot->setRect(r);
+//    non idale, rischio di incoerenza con le altre chiamate nel model
+    bpm->updateCurrentZoom(r);
+    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Current));
 }
 
 void BigPlotController::handleZoomOutRequest(){
-    plot->setRect(bpm->popZoomStack());
+    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Previous));
 }
 
 void BigPlotController::handleZoomResetRequest(){
-    plot->setRect(bpm->resetZoomStack());
+    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Default));
+}
+
+void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
+    bpm->setCurrentRange(axisIdx, newRange);
+    auto interval = bpm->getCurrentZoomInterval(axisIdx);
+    plot->setAxisScale(axisIdx, interval.minValue(), interval.maxValue());
+    auto fullUnit = QString::fromStdString(bpm->getCurrentRange(axisIdx).getFullUnit());
+    if (axisIdx == QwtPlot::yLeft) {
+        plot->setYUnit(fullUnit);
+    } else {
+        plot->setTitle(fullUnit);
+    }
+    plot->replot();
 }

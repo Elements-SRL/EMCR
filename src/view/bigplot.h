@@ -40,7 +40,6 @@ public slots:
     void onVertZoomInRequest(Rect4 * rect);
     void onVertZoomFullRequest();
     void onUpdateBaseline(Axis axisIdx, double baseline);
-    void onRangeUpdated(commlib::RangedMeasurement_t newRange, Axis axisIdx = yLeft);
     void onDurationUpdated(commlib::Measurement_t duration);
 
 protected:
