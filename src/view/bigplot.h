@@ -41,7 +41,7 @@ public slots:
     void onHorzZoomInRequest(Rect4 * rect);
     void onVertZoomInRequest(Rect4 * rect);
     void onVertZoomFullRequest();
-    void onUpdateBaseline(Axis axisIdx, double baseline);
+    void onUpdateBaseline(QwtPlot::Axis axisIdx, double baseline);
 
 protected:
     typedef enum {

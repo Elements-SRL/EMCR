@@ -113,7 +113,7 @@ void DeviceDataProducer::run() {
         ret = msgDisp->getNextMessage(dataHeader, datain);
 
         if (ret == Success) {
-//            if (dataHeader.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
+            if (dataHeader.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
                 dataSampleBufferIdx = dataPacketsIdx;
                 for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
                     for (chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
@@ -138,13 +138,13 @@ void DeviceDataProducer::run() {
                 samplesReceived += dataHeader.dataLen;
                 bitRateLock.unlock();
 
-//            } else if (dataHeader.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp) {
-//                ljLock.lockForWrite();
-//                msgDisp->convertLiquidJunctionValues(datain, floatLiquidJunctionBuffer, currentChannelsNum);
-//                newLiquidJunctionData = true;
-//                ljCv.wakeAll();
-//                ljLock.unlock();
-//            }
+            } else if (dataHeader.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp) {
+                ljLock.lockForWrite();
+                msgDisp->convertLiquidJunctionValues(datain, floatLiquidJunctionBuffer, currentChannelsNum);
+                newLiquidJunctionData = true;
+                ljCv.wakeAll();
+                ljLock.unlock();
+            }
 
         } else {
             QThread::msleep(1);

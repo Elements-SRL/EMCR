@@ -101,7 +101,7 @@ void MainController::onConnect(bool flag) {
         this->onMainWindowDestroyed();
 
         if (msgDisp != nullptr) {
-            msgDisp->disconnectDevice();
+            auto c = msgDisp->disconnectDevice();
             delete msgDisp;
             msgDisp = nullptr;
         }
