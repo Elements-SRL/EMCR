@@ -22,15 +22,17 @@ namespace commlib = e384CommLib;
 class BigPlot : public QwtPlot {
     Q_OBJECT
 
+
+private:
+    void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
+
 public:
     BigPlot(QString titleString, QString xUnitString, QString yUnitString, QWidget * parent = nullptr);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
-    void setTitle(QString text);
-    void setXUnit(QString text);
-    void setYUnit(QString text);
+    void setLabel(QString, QwtPlot::Axis);
     void shiftVertAxis(Axis axis, double shiftValue);
     void setRect(Rect4 r);
     Rect4 getRect();

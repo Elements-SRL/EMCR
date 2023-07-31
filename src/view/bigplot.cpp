@@ -76,10 +76,6 @@ BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, 
 
     this->canvas()->setCursor(Qt::CrossCursor);
 
-//    connect(this, &BigPlot::zoomInRequest, this, &BigPlot::onZoomInRequest);
-//    connect(this, &BigPlot::zoomOutRequest, this, &BigPlot::onZoomOutRequest);
-//    connect(this, &BigPlot::zoomResetRequest, this, &BigPlot::onZoomResetRequest);
-
     xAxisMaxMajor = this->axisMaxMajor(xBottom);
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
 
@@ -97,25 +93,25 @@ QSize BigPlot::minimumSizeHint() const {
     return QSize(200, 300);
 }
 
-void BigPlot::setTitle(QString text) {
-    plotTitle->setPlainText("[" + text + "]");
-    QwtText t = plotTitle->text();
-    t.setRenderFlags(Qt::AlignRight | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
-    plotTitle->setText(t);
+void BigPlot::setLabel(QString text, QwtPlot::Axis axis){
+    switch (axis) {
+        case QwtPlot::Axis::xBottom:
+            setAndFormatText(text, xUnit);
+            break;
+        case QwtPlot::Axis::yLeft:
+            setAndFormatText(text, yUnit);
+            break;
+        case QwtPlot::Axis::yRight:
+            setAndFormatText(text, plotTitle, Qt::AlignRight);
+            break;
+    }
 }
 
-void BigPlot::setXUnit(QString text) {
-    xUnit->setPlainText("[" + text + "]");
-    QwtText t = xUnit->text();
-    t.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
-    xUnit->setText(t);
-}
-
-void BigPlot::setYUnit(QString text) {
-    yUnit->setPlainText("[" + text + "]");
-    QwtText t = yUnit->text();
-    t.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
-    yUnit->setText(t);
+void BigPlot::setAndFormatText(QString text, QwtTextLabel * label, Qt::AlignmentFlag alignment){
+    label->setPlainText("[" + text + "]");
+    QwtText t = label->text();
+    t.setRenderFlags(alignment | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
+    label->setText(t);
 }
 
 Rect4 BigPlot::getRect() {
@@ -210,7 +206,7 @@ void BigPlot::recomputeXAxisFactor(double duration) {
     if (xAxisPrefix != durationMeas.prefix) {
         xAxisPrefix = durationMeas.prefix;
         xBottomScaleDraw->setConversionFactor(1.0/durationMeas.multiplier());
-        this->setXUnit(QString::fromStdString(durationMeas.getFullUnit()));
+        this->setLabel(QString::fromStdString(durationMeas.getFullUnit()), QwtPlot::Axis::xBottom);
     }
 }
 

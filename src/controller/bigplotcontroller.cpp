@@ -39,15 +39,15 @@ void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, Qw
     auto fullUnit = QString::fromStdString(bpm->getCurrentRange(axisIdx).getFullUnit());
     switch (axisIdx) {
     case QwtPlot::yLeft:
-        plot->setYUnit(fullUnit);
+        plot->setLabel(fullUnit, axisIdx);
         break;
 
     case QwtPlot::yRight:
-        plot->setTitle(fullUnit);
+        plot->setLabel(fullUnit, axisIdx);
         break;
 
     case QwtPlot::xBottom:
-        plot->setXUnit(fullUnit);
+        plot->setLabel(fullUnit, axisIdx);
         Measurement_t duration = {bpm->getZoom(BigPlotModel::Zoom::Current)[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"};
         emit durationChanged(duration);
         break;
