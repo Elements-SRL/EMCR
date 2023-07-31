@@ -93,6 +93,12 @@ QSize BigPlot::minimumSizeHint() const {
     return QSize(200, 300);
 }
 
+//This is needed to make the labels of the axis estetically pleasing
+void BigPlot::drawCanvas(QPainter * p) {
+    QwtPlot::drawCanvas(p);
+    this->resizeEvent(nullptr);
+}
+
 void BigPlot::setLabel(QString text, QwtPlot::Axis axis){
     switch (axis) {
         case QwtPlot::Axis::xBottom:

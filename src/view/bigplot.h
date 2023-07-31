@@ -36,6 +36,7 @@ public:
     void shiftVertAxis(Axis axis, double shiftValue);
     void setRect(Rect4 r);
     Rect4 getRect();
+    void drawCanvas(QPainter * p) override;
 
 public slots:
     void onHorzZoomInRequest(Rect4 * rect);
