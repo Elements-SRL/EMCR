@@ -22,6 +22,7 @@
 #include "protocolmanager.h"
 #include "statearraycontroller.h"
 #include "compensationcontroller.h"
+#include "plotpreferencescontroller.h"
 
 class MainController : public QObject {
     Q_OBJECT
@@ -80,6 +81,7 @@ private:
     StateArrayController * stateArrayController = nullptr;
     CompensationController * compensationController = nullptr;
     MeasurementOverviewController * measurementOverviewController = nullptr;
+    PlotPreferencesController * plotPreferencesController = nullptr;
 
     ProtocolManager * voltageProtocolManager = nullptr;
     ProtocolManager * currentProtocolManager = nullptr;

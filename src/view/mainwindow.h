@@ -19,8 +19,9 @@
 #include "protocoldockwidget.h"
 #include "e384commlib_errorcodes.h"
 #include "compensationcontroldockwidget.h"
-#include "statearray/statearraydockwidget.h"
+#include "statearraydockwidget.h"
 #include "measurementsoverviewdockwidget.h"
+#include "plotpreferencesdialog.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -43,6 +44,7 @@ public:
     CompensationControlDockWidget * getCompensationControlsDockWidget();
     StateArrayDockWidget * getStateArrayDockWidget();
     MeasurementsOverviewDockWidget * getMeasurementOverviewDockWidget();
+    PlotPreferencesDialog * getPlotPreferencesDialog();
     void setDevicesList(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
@@ -57,6 +59,7 @@ public:
     void setProtocolDw(ProtocolDockWidget * pdw);
     void setStateArrayDw(StateArrayDockWidget * sadw);
     void setMeasurementOverviewDw(MeasurementsOverviewDockWidget * modw);
+    void setPlotPreferencesDialog(PlotPreferencesDialog * ppd);
     void addViewActions();
     void removeViewActions();
 
@@ -77,10 +80,13 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     QMenu * menuView = nullptr;
     QMenu * menuRecordings = nullptr;
+    QMenu * menuPreferences = nullptr;
 
     bool interfaceCreated = false;
 
     QAction * actionRecordingSettings = nullptr;
+
+    QAction * actionPlotPreferences = nullptr;
 
     QDockWidget * deviceDetectorDw = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
@@ -94,6 +100,7 @@ private:
     CompensationControlDockWidget * compensationControlsDw = nullptr;
     StateArrayDockWidget * stateArrayDockWidget = nullptr;
     MeasurementsOverviewDockWidget * measurementsOverviewDw = nullptr;
+    PlotPreferencesDialog * plotPreferencesDlg = nullptr;
 
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;

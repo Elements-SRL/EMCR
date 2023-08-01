@@ -2,7 +2,8 @@
 
 
 BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp) {
+    msgDisp(msgDisp),
+    mainWindow(mainWindow) {
 
     if (msgDisp->hasGateVoltageTuners() != Success && msgDisp->hasSourceVoltageTuners() != Success) {
 //        TODO SHOULD THIS RETURN AN ERROR?
@@ -10,7 +11,6 @@ BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainW
     }
 
     boardControlDockWidget = new BoardControlDockWidget(msgDisp);
-    this->mainWindow = mainWindow;
     mainWindow->setBoardControlsDw(boardControlDockWidget);
     connect(boardControlDockWidget, &BoardControlDockWidget::sigGateSourceVoltagesApplied, this, [=](std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
         onGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);

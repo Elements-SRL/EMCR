@@ -8,13 +8,14 @@
 #include "iostream"
 
 StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp) {
+    msgDisp(msgDisp),
+    mainWindow(mainWindow) {
+
     if(!msgDisp->isStateArrayAvailable()){
 //        TODO SHOULD THIS RETURN AN ERROR?
         return;
     }
     stateArray = {};
-    this->mainWindow = mainWindow;
     stateArrayDockWidget = new StateArrayDockWidget();
     mainWindow->setStateArrayDw(stateArrayDockWidget);
     updateUI();

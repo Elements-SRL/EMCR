@@ -21,6 +21,7 @@ private:
     void turnSelectedChannelsOnOff(bool flag);
     void turnSelectedStimuliOnOff(bool flag);
     void turnSelectedDocOnOff(bool flag);
+    void addRemoveFromBigPlot(bool flag);
 
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;

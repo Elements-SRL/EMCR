@@ -16,7 +16,7 @@ ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget 
     channelsPerBoard = currentChannelsNum/boardsNum;
 
     QWidget * mainWg = new QWidget();
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    mainWg->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setWindowTitle("Channels overview");
 
     this->setWidget(mainWg);

@@ -101,7 +101,7 @@ void MainController::onConnect(bool flag) {
         mainWindow->connectDevice(false, Success);
 
         if (msgDisp != nullptr) {
-            auto c = msgDisp->disconnectDevice();
+            msgDisp->disconnectDevice();
             delete msgDisp;
             msgDisp = nullptr;
         }
@@ -127,6 +127,7 @@ void MainController::onMainWindowCreated() {
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
     measurementOverviewController = new MeasurementOverviewController(msgDisp, mainWindow);
+    plotPreferencesController = new PlotPreferencesController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {
         voltageProtocolManager = new ProtocolManager(msgDisp);
         currentProtocolManager = new ProtocolManager(msgDisp);
@@ -187,6 +188,7 @@ void MainController::onMainWindowCreated() {
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::sigLiveStatisticsResult);
     connect(liquidJunctionConsumer, &LiquidJunctionConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::sigLiquidJunctionResult);
 
+
     connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
     connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);
     connect(deviceController, &DeviceController::sigCcCurrentRangeSelected,     this, &MainController::onCcCurrentRangeSelected);
@@ -197,14 +199,17 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
 
-    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                   &MainController::onStartRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                   &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,        &PlotConsumer::onSelectChannels);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,   &ChessboardController::onTracesExpandedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,   &ChessboardController::onChannelsTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,   &ChessboardController::onStimuliTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,   &ChessboardController::onDocTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                       &MainController::onStartRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                       &MainController::onStopRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,            &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, plotPreferencesController,  &PlotPreferencesController::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,       &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,       &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,       &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,       &ChessboardController::onDocTurnedOnOff);
 
+    connect(plotPreferencesController, &PlotPreferencesController::sigSelectedColors,       bigPlotController, &BigPlotController::onSelectedColors);
+    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  bigPlotController, &BigPlotController::onCurrentColorChanged);
 //    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 
     if (msgDisp->hasProtocols() == Success) {
@@ -257,8 +262,8 @@ void MainController::onMainWindowCreated() {
 
     connect(bigPlotController, &BigPlotController::durationChanged, bigPlotConsumer, &GapFreePlotConsumer::onDurationChanged);
 
-    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         mainWindow->getBigPlotWidget(), &BigPlotWidget::onSetGapFreePlotData);
-    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     mainWindow->getBigPlotWidget(), &BigPlotWidget::onReplot);
+    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         bigPlotController, &BigPlotController::onSetGapFreePlotData);
+    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     bigPlotController, &BigPlotController::onReplot);
 
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=] (bool flag) {
@@ -344,6 +349,11 @@ void MainController::destroyControllers() {
     if (measurementOverviewController != nullptr) {
         delete measurementOverviewController;
         measurementOverviewController = nullptr;
+    }
+
+    if (plotPreferencesController != nullptr) {
+        delete plotPreferencesController;
+        plotPreferencesController = nullptr;
     }
 
     if (stateArrayController != nullptr) {

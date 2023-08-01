@@ -42,6 +42,13 @@ MainWindow::MainWindow(QWidget * parent) :
     menuRecordings->addAction(actionRecordingSettings);
     actionRecordingSettings->setEnabled(false);
 
+    menuPreferences = new QMenu("Preferences");
+    menuBar->addMenu(menuPreferences);
+
+    actionPlotPreferences = new QAction("Plots");
+    menuPreferences->addAction(actionPlotPreferences);
+    actionPlotPreferences->setEnabled(false);
+
     /************\
      * settings *
     \************/
@@ -166,6 +173,10 @@ MeasurementsOverviewDockWidget * MainWindow::getMeasurementOverviewDockWidget() 
     return measurementsOverviewDw;
 }
 
+PlotPreferencesDialog * MainWindow::getPlotPreferencesDialog() {
+    return plotPreferencesDlg;
+}
+
 void MainWindow::setConnectedDeviceIdx(int idx) {
     devicesComboBox->setCurrentIndex(idx);
 }
@@ -255,6 +266,11 @@ void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * modw)
     addDockWidget(Qt::RightDockWidgetArea, modw);
     chessboardDw->setFloating(true);
     dockWidgets.append(modw);
+}
+
+void MainWindow::setPlotPreferencesDialog(PlotPreferencesDialog * ppd) {
+    plotPreferencesDlg = ppd;
+    connect(actionPlotPreferences, &QAction::triggered, plotPreferencesDlg, &PlotPreferencesDialog::exec);
 }
 
 void MainWindow::addViewActions() {
@@ -430,6 +446,7 @@ void MainWindow::createGuiControls() {
 #endif
 
     actionRecordingSettings->setEnabled(true);
+    actionPlotPreferences->setEnabled(true);
     this->addViewActions();
 
     this->restoreUISettings();
@@ -446,6 +463,7 @@ void MainWindow::destroyGuiControls() {
 
     this->removeViewActions();
     actionRecordingSettings->setEnabled(false);
+    actionPlotPreferences->setEnabled(false);
 
 //    if (plotPreferencesDlg != nullptr) {
 //        delete plotPreferencesDlg;
@@ -499,11 +517,7 @@ void MainWindow::destroyGuiControls() {
 //        deviceDataProducer = nullptr;
 //    }
 
-    if (bigPlotW != nullptr) {
-        this->takeCentralWidget();
-        delete bigPlotW;
-        bigPlotW = nullptr;
-    }
+    this->takeCentralWidget();
 
     SRLbl->setText("");
 

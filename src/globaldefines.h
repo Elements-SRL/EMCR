@@ -18,6 +18,9 @@
 #define GLB_PROTOCOL_RECORD_DURATION_TAG "Protocol/Settings/recordDuration"
 #define GLB_PROTOCOL_CHUNK_DURATION_TAG "Protocol/Settings/chunkDuration"
 #define GLB_PROTOCOL_FOLDER_TAG "Protocol/folder"
+#define GLB_PREFERENCES_CURRENT_CHANNEL_X_COLOR_TAG "Preferences/Plot/currentChannel%1Color"
+#define GLB_PREFERENCES_VOLTAGE_CHANNEL_X_COLOR_TAG "Preferences/Plot/voltageChannel%1Color"
+#define GLB_PREFERENCES_DARK_MODE_TAG "Preferences/Plot/darkMode"
 /*! Utility defines */
 
 /*! Global defines */

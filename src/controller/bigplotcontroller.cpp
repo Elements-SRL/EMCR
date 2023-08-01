@@ -7,11 +7,94 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
     bpm = new BigPlotModel();
 
     mainWindow->setBigPlotWidget(bpw);
-    plot = bpw->getPlot();
+    plot = new BigPlot("", "[s]", "", bpw);
+    plot->enableAxis(QwtPlot::yRight);
+    bpw->setPlot(plot);
+
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+
+    for (int i = 0; i < currentChannelsNum; i++){
+        currentCurves.append(new Curve(CurveType_t::CurveTypePlotSolid));
+    }
+
+    for (int i = 0; i < voltageChannelsNum; i++){
+        voltageCurves.append(new Curve(CurveType_t::CurveTypePlotSolid));
+        voltageCurves[i]->setColor(QColor(Qt::red));
+        voltageCurves[i]->setYAxis(QwtPlot::yRight);
+    }
+
     connect(plot, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
     connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
     connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
     connect(plot, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
+}
+
+BigPlotController::~BigPlotController() {
+    this->clearCurves();
+    if (plot != nullptr) {
+        delete plot;
+        plot = nullptr;
+    }
+
+    if (bpw != nullptr) {
+        delete bpw;
+        bpw = nullptr;
+    }
+
+    if (bpm != nullptr) {
+        delete bpm;
+        bpm = nullptr;
+    }
+
+}
+
+BigPlot * BigPlotController::getPlot(){
+    return plot;
+}
+
+void BigPlotController::clearCurves() {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentCurves[idx]->detach();
+        delete currentCurves[idx];
+        delete [] currentCurves[idx];
+    }
+
+    for (int idx = 0; idx < voltageChannelsNum; idx++) {
+        voltageCurves[idx]->detach();
+        delete voltageCurves[idx];
+        delete [] voltageCurves[idx];
+    }
+
+    currentCurves.clear();
+    voltageCurves.clear();
+}
+
+void BigPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
+    for (int idx = 0; idx < channelsToPlotNumber; idx++) {
+        currentCurves.at(idx)->attach(plot);
+        currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
+
+        voltageCurves.at(idx)->attach(plot);
+        voltageCurves.at(idx)->setRawSamples(timeValues, voltageValues->at(idx), dataSize);
+    }
+
+    for (int idx = channelsToPlotNumber; idx < currentChannelsNum; idx++) {
+        currentCurves.at(idx)->detach();
+        voltageCurves.at(idx)->detach();
+    }
+}
+
+void BigPlotController::onReplot() {
+    if (plot != nullptr) {
+        plot->replot();
+    }
+}
+
+void BigPlotController::onSelectedColors(QVector <QColor> colors) {
+    for (int idx = 0; idx < colors.size(); idx++) {
+        currentCurves[idx]->setColor(colors[idx]);
+        voltageCurves[idx]->setColor(colors[idx]);
+    }
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
@@ -64,4 +147,19 @@ void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, Qw
         break;
     }
     plot->replot();
+}
+
+void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
+    std::vector <ChannelModel *> channels;
+    msgDisp->getChannels(channels);
+    if (channels[channelIdx]->isExpanded()) {
+        int reducedChannelIdx = 0;
+        for (int idx = 0; idx < channelIdx; idx++) {
+            if (channels[idx]->isExpanded()) {
+                reducedChannelIdx++;
+            }
+        }
+        currentCurves[reducedChannelIdx]->setColor(color);
+        voltageCurves[reducedChannelIdx]->setColor(color);
+    }
 }
