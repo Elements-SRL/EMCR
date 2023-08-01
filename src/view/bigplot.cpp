@@ -145,40 +145,40 @@ void BigPlot::shiftVertAxis(Axis axis, double shiftValue) {
 }
 
 
-void BigPlot::onHorzZoomInRequest(Rect4 * rect) {
-    if ((rect->at(xBottom).width() == 0.0)) {
-        return;
-    }
+//void BigPlot::onHorzZoomInRequest(Rect4 * rect) {
+//    if ((rect->at(xBottom).width() == 0.0)) {
+//        return;
+//    }
 
-    Rect4 newRect = * rect;
-    newRect[yLeft] = this->axisInterval(yLeft);
-    if (this->axisEnabled(yRight)) {
-        newRect[yRight] = this->axisInterval(yRight);
-    }
-    emit zoomInRequest(newRect);
-}
+//    Rect4 newRect = * rect;
+//    newRect[yLeft] = this->axisInterval(yLeft);
+//    if (this->axisEnabled(yRight)) {
+//        newRect[yRight] = this->axisInterval(yRight);
+//    }
+//    emit zoomInRequest(newRect);
+//}
 
-void BigPlot::onVertZoomInRequest(Rect4 * rect) {
-    if ((rect->at(yLeft).width() == 0.0) && (rect->at(yRight).width() == 0.0)) {
-        return;
-    }
+//void BigPlot::onVertZoomInRequest(Rect4 * rect) {
+//    if ((rect->at(yLeft).width() == 0.0) && (rect->at(yRight).width() == 0.0)) {
+//        return;
+//    }
 
-    Rect4 newRect = * rect;
-    newRect[xBottom] = this->axisInterval(xBottom);
-    emit zoomInRequest(newRect);
-}
+//    Rect4 newRect = * rect;
+//    newRect[xBottom] = this->axisInterval(xBottom);
+//    emit zoomInRequest(newRect);
+//}
 
-void BigPlot::onVertZoomFullRequest() {
-    this->setAxisAutoScale(yLeft);
+//void BigPlot::onVertZoomFullRequest() {
+//    this->setAxisAutoScale(yLeft);
 
-    this->replot();
+//    this->replot();
 
-    this->setAxisAutoScale(yLeft, false);
-}
+//    this->setAxisAutoScale(yLeft, false);
+//}
 
-void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
-    this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
-}
+//void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
+//    this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
+//}
 
 void BigPlot::resizeEvent(QResizeEvent * e) {
     if (e != nullptr) {
@@ -196,13 +196,24 @@ void BigPlot::resizeEvent(QResizeEvent * e) {
 }
 
 void BigPlot::wheelEvent(QWheelEvent * we) {
-    Axis vertAxis = yLeft;
-    if (this->axisEnabled(yRight) && we->x() > this->width()/2.0) {
-        /*! If the right y-axis is enabled and the pointer is on the right side of the plot, scroll the y-axis */
-        vertAxis = yRight;
+    /*! If the right y-axis is enabled and the pointer is on the right side of the plot, scroll the y-axis */
+    Axis vertAxis = (this->axisEnabled(yRight) && we->x() > this->width()/2.0)?yRight:yLeft;
+    auto key = we->modifiers();
+    // Get the angle delta of the wheel event
+    QPoint angleDelta = we->angleDelta();
+    // Check the vertical rotation
+    int verticalRotation = angleDelta.y();
+    bool zoomIn = verticalRotation > 0;
+    switch (key) {
+        case Qt::Modifier::CTRL:
+        emit singleAxisZoomRequest(vertAxis, verticalRotation);
+        break;
+    case Qt::Modifier::SHIFT:
+        emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, verticalRotation);
+        break;
     }
-    double p = this->axisInterval(vertAxis).width()*0.05;
-    this->shiftVertAxis(vertAxis, we->delta() < 0 ? p : -p);
+//    double p = this->axisInterval(vertAxis).width()*0.05;
+//    this->shiftVertAxis(vertAxis, we->delta() < 0 ? p : -p);
 }
 
 void BigPlot::recomputeXAxisFactor(double duration) {
