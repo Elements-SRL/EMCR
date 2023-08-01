@@ -152,8 +152,6 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
         sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
         sbx->setDecimals(holdingTunerRange.decimals());
     }
-
-    this->onApplyButtonClicked(OperationHoldingStimulus, true);
 }
 
 void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
@@ -170,8 +168,6 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
         sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
         sbx->setDecimals(holdingTunerRange.decimals());
     }
-
-    this->onApplyButtonClicked(OperationHoldingStimulus, true);
 }
 
 bool SingleChannelControlDockWidget::eventFilter(QObject * obj, QEvent * event) {
