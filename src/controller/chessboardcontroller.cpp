@@ -20,6 +20,11 @@ ChessboardController::ChessboardController(MessageDispatcher * msgDisp, MainWind
     mainWindow->setChessboardDw(chessboard);
 }
 
+ChessboardController::~ChessboardController() {
+    delete stamplPlotController;
+    stamplPlotController = nullptr;
+}
+
 StampPlotController * ChessboardController::getStampPlotController() {
     return stamplPlotController;
 }

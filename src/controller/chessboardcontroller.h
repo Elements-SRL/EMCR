@@ -13,6 +13,7 @@ class ChessboardController : public QObject {
 
 public:
     ChessboardController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    ~ChessboardController();
 
     StampPlotController * getStampPlotController();
 

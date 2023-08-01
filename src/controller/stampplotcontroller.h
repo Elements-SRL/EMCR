@@ -12,8 +12,10 @@ class StampPlotController : public QObject {
 
 public:
     StampPlotController(MessageDispatcher * msgDisp, ChessboardDockWidget * chessboardDw);
+    ~StampPlotController();
 
     void clearCurves();
+    void clearPlots();
     void channelsTurnedOnOff(bool flag);
     void stimuliTurnedOnOff(bool flag);
     void docTurnedOnOff(bool flag);

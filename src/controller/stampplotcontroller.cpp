@@ -28,13 +28,24 @@ StampPlotController::StampPlotController(MessageDispatcher * msgDisp, Chessboard
     }
 }
 
+StampPlotController::~StampPlotController() {
+    this->clearCurves();
+    this->clearPlots();
+}
+
 void StampPlotController::clearCurves() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->detach();
         delete currentCurves[idx];
-        delete [] currentCurves[idx];
     }
     currentCurves.clear();
+}
+
+void StampPlotController::clearPlots() {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        delete plots[idx];
+    }
+    plots.clear();
 }
 
 void StampPlotController::channelsTurnedOnOff(bool flag) {

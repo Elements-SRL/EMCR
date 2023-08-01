@@ -62,8 +62,8 @@ void MainController::onDevicesListChanged(std::vector <std::string> devicesList)
                 mainWindow->setConnectedDeviceIdx(connectedDeviceIdx);
 
             } else {
+                this->destroyControllers();
                 mainWindow->connectDevice(false, Success);
-                this->onMainWindowDestroyed();
             }
         }
     }
@@ -97,8 +97,8 @@ void MainController::onConnect(bool flag) {
     } else {
         this->stopAndDestroyProducerConsumers();
 
+        this->destroyControllers();
         mainWindow->connectDevice(false, Success);
-        this->onMainWindowDestroyed();
 
         if (msgDisp != nullptr) {
             auto c = msgDisp->disconnectDevice();
@@ -320,10 +320,35 @@ void MainController::onMainWindowCreated() {
     this->startProducerConsumers();
 }
 
-void MainController::onMainWindowDestroyed() {
+void MainController::destroyControllers() {
     if (singleChannelController != nullptr) {
         delete singleChannelController;
         singleChannelController = nullptr;
+    }
+
+    if (multipleChannelController != nullptr) {
+        delete multipleChannelController;
+        multipleChannelController = nullptr;
+    }
+
+    if (chessboardController != nullptr) {
+        delete chessboardController;
+        chessboardController = nullptr;
+    }
+
+    if (compensationController != nullptr) {
+        delete compensationController;
+        compensationController = nullptr;
+    }
+
+    if (measurementOverviewController != nullptr) {
+        delete measurementOverviewController;
+        measurementOverviewController = nullptr;
+    }
+
+    if (stateArrayController != nullptr) {
+        delete stateArrayController;
+        stateArrayController = nullptr;
     }
 
     if (boardController != nullptr) {

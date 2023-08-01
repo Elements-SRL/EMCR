@@ -36,7 +36,6 @@ public slots:
     void onDevicesListChanged(std::vector <std::string> devicesList);
     void onConnect(bool flag);
     void onMainWindowCreated();
-    void onMainWindowDestroyed();
     void onVcCurrentRangeSelected(int idx);
     void onVcVoltageRangeSelected(int idx);
     void onCcCurrentRangeSelected(int idx);
@@ -52,6 +51,7 @@ public slots:
 private:
     void startProducerConsumers();
     void stopAndDestroyProducerConsumers();
+    void destroyControllers();
 
     MessageDispatcher * msgDisp = nullptr;
 
