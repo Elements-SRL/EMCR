@@ -11,6 +11,7 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
     connect(plot, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
     connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
     connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
+    connect(plot, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
@@ -19,6 +20,16 @@ void BigPlotController::handleZoomInRequest(Rect4 r){
     auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
     emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+}
+
+void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, bool zoomIn){
+//    non idale, rischio di incoerenza con le altre chiamate nel model
+    bpm->updateCurrentZoom(bpm->zoomOnSingleAxis(axis, zoomIn));
+    auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
+    plot->setRect(zoom);
+    if (axis == QwtPlot::Axis::xBottom){
+        emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    }
 }
 
 void BigPlotController::handleZoomOutRequest(){

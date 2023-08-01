@@ -87,3 +87,19 @@ void BigPlotModel::updateCurrentZoom(Rect4 r){
     pushZoomStack(currentZoom);
     currentZoom = r;
 }
+
+Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, bool zoomIn){
+    auto currentZoom = getZoom(Current);
+    const auto interval = currentZoom[ax];
+    const auto min = interval.minValue();
+    const auto max = currentZoom[ax].maxValue();
+    const auto multiplier = (zoomIn?0.5:2);
+    const auto newMin = min * multiplier;
+    const auto newMax = max * multiplier;
+    const auto maxFactor = 10;
+    const auto maxMin = maxFactor*getCurrentRange(ax).getMin().value;
+    const auto maxMax = maxFactor*getCurrentRange(ax).getMax().value;
+//    if the new values are too big or too small use the the min and max of the current range multiplied by maxFactor
+    currentZoom[ax].setInterval((newMin<maxMin)?maxMin:newMin, (newMax>maxMax)?maxMax:newMax);
+    return currentZoom;
+}

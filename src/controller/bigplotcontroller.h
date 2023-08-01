@@ -22,6 +22,7 @@ private slots:
     void handleZoomInRequest(Rect4 r);
     void handleZoomOutRequest();
     void handleZoomResetRequest();
+    void handleSingleAxisZoomRequest(QwtPlot::Axis axis, bool zoomIn);
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx);

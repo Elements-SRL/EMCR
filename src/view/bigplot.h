@@ -91,6 +91,7 @@ signals:
     void zoomInRequest(Rect4 rect);
     void zoomOutRequest();
     void zoomResetRequest();
+    void singleAxisZoomRequest(QwtPlot::Axis, bool);
 };
 
 #endif // BIGPLOT_H
