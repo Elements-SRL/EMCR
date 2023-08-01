@@ -206,10 +206,10 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
     bool zoomIn = verticalRotation > 0;
     switch (key) {
         case Qt::Modifier::CTRL:
-        emit singleAxisZoomRequest(vertAxis, zoomIn);
+        emit singleAxisZoomRequest(vertAxis, verticalRotation);
         break;
     case Qt::Modifier::SHIFT:
-        emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, zoomIn);
+        emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, verticalRotation);
         break;
     }
 //    double p = this->axisInterval(vertAxis).width()*0.05;
