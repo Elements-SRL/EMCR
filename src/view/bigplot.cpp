@@ -145,40 +145,40 @@ void BigPlot::shiftVertAxis(Axis axis, double shiftValue) {
 }
 
 
-void BigPlot::onHorzZoomInRequest(Rect4 * rect) {
-    if ((rect->at(xBottom).width() == 0.0)) {
-        return;
-    }
+//void BigPlot::onHorzZoomInRequest(Rect4 * rect) {
+//    if ((rect->at(xBottom).width() == 0.0)) {
+//        return;
+//    }
 
-    Rect4 newRect = * rect;
-    newRect[yLeft] = this->axisInterval(yLeft);
-    if (this->axisEnabled(yRight)) {
-        newRect[yRight] = this->axisInterval(yRight);
-    }
-    emit zoomInRequest(newRect);
-}
+//    Rect4 newRect = * rect;
+//    newRect[yLeft] = this->axisInterval(yLeft);
+//    if (this->axisEnabled(yRight)) {
+//        newRect[yRight] = this->axisInterval(yRight);
+//    }
+//    emit zoomInRequest(newRect);
+//}
 
-void BigPlot::onVertZoomInRequest(Rect4 * rect) {
-    if ((rect->at(yLeft).width() == 0.0) && (rect->at(yRight).width() == 0.0)) {
-        return;
-    }
+//void BigPlot::onVertZoomInRequest(Rect4 * rect) {
+//    if ((rect->at(yLeft).width() == 0.0) && (rect->at(yRight).width() == 0.0)) {
+//        return;
+//    }
 
-    Rect4 newRect = * rect;
-    newRect[xBottom] = this->axisInterval(xBottom);
-    emit zoomInRequest(newRect);
-}
+//    Rect4 newRect = * rect;
+//    newRect[xBottom] = this->axisInterval(xBottom);
+//    emit zoomInRequest(newRect);
+//}
 
-void BigPlot::onVertZoomFullRequest() {
-    this->setAxisAutoScale(yLeft);
+//void BigPlot::onVertZoomFullRequest() {
+//    this->setAxisAutoScale(yLeft);
 
-    this->replot();
+//    this->replot();
 
-    this->setAxisAutoScale(yLeft, false);
-}
+//    this->setAxisAutoScale(yLeft, false);
+//}
 
-void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
-    this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
-}
+//void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
+//    this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
+//}
 
 void BigPlot::resizeEvent(QResizeEvent * e) {
     if (e != nullptr) {

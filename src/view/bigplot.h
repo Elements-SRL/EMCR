@@ -38,12 +38,6 @@ public:
     Rect4 getRect();
     void drawCanvas(QPainter * p) override;
 
-public slots:
-    void onHorzZoomInRequest(Rect4 * rect);
-    void onVertZoomInRequest(Rect4 * rect);
-    void onVertZoomFullRequest();
-    void onUpdateBaseline(QwtPlot::Axis axisIdx, double baseline);
-
 protected:
     typedef enum {
         PickerZoomRect,
