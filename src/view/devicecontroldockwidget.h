@@ -30,8 +30,12 @@ public:
 
     void forceEmit();
     void updateParameters();
-    void onRecordingStarted();
-    void onRecordingStopped();
+    void setVcVoltageRangesroupBoxEnabled(bool status);
+    void setVcCurrentRangesGroupBoxEnabled(bool status);
+    void setCcVoltageRangesGroupBoxEnabled(bool status);
+    void setCcCurrentRangesGroupBoxEnabled(bool status);
+    void setSamplingRatesGroupBoxEnabled(bool status);
+    void setDownsamplingRatioSbxEnabled(bool status);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
@@ -63,6 +67,9 @@ private:
     QGroupBox * clampingModalitiesGroupBox = nullptr;
     std::vector<QRadioButton *> clampingModalitiesRadioButtons;
     bool clampingModalitiesPrevioueEnableStateBeforeRecording = false;
+
+    template<typename T>
+    void setWidgetEnabled(T& widget, bool status);
 
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, std::vector <RangedMeasurement_t> myRanges, std::vector<QRadioButton *> &qRadioButtons);

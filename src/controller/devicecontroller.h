@@ -13,6 +13,7 @@ class DeviceController : public QObject {
 public:
     DeviceController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
     void handleRecording(bool);
+    void handleProtocolStatusChanged(bool);
 
 public slots:
     void onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex);
@@ -30,7 +31,8 @@ private:
     MainWindow * mainWindow;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
     bool recording = false;
-    bool protocolStarted = false;
+    bool protocolRunning = false;
+    bool getStatusFromRecordingAndProtocol();
 
 signals:
     void sigVcCurrentRangeSelected(int idx);
@@ -42,10 +44,5 @@ signals:
     void sigSamplingRateSelected(int idx);
     void sigDownsamplingRatioSelected(int idx);
     void sigClampingModalitySelected(int idx);
-
-
-private slots:
-    void handleStartProtocol();
-    void handleStopProtocol();    
 };
 #endif // DEVICECONTROLLER_H

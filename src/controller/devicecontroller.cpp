@@ -58,19 +58,29 @@ DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mai
     }
 }
 
-
 void DeviceController::handleRecording(bool recording){
     this->recording = recording;
-    if (recording){
-        deviceControlDockWidget->onRecordingStarted();
-    } else {
-        deviceControlDockWidget->onRecordingStopped();
-    }
+    auto status = getStatusFromRecordingAndProtocol();
+    deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
+    deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
+
+    deviceControlDockWidget->setVcCurrentRangesGroupBoxEnabled(!recording);
+    deviceControlDockWidget->setCcVoltageRangesGroupBoxEnabled(!recording);
+    deviceControlDockWidget->setSamplingRatesGroupBoxEnabled(!recording);
+    deviceControlDockWidget->setDownsamplingRatioSbxEnabled(!recording);
 }
 
-void DeviceController::handleStartProtocol(){}
-void DeviceController::handleStopProtocol(){}
+void DeviceController::handleProtocolStatusChanged(bool protocolRunning){
+    this->protocolRunning = protocolRunning;
+    auto status = getStatusFromRecordingAndProtocol();
+    deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
+    deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
+}
 
+//return the status to set the groupbox when a protocol is running or a registration is being made
+bool DeviceController::getStatusFromRecordingAndProtocol(){
+    return !(recording || protocolRunning);
+}
 
 // Slots (actionPerformed) for current and voltage ranges
 // ADC Current Range in VC

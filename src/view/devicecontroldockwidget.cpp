@@ -525,61 +525,81 @@ void DeviceControlDockWidget::updateParameters() {
 //    qGroupBox->setLayout(radioButtonsBoxLayout);
 //}
 
-
-void DeviceControlDockWidget::onRecordingStarted() {
-    printf("started\n");
-    fflush(stdout);
-    /*! \todo MPAC at the moment miccing ccCurrent and ccVoltage*/
-    if (this->vcCurrentRangesGroupBox != nullptr){
-        vcCurrentRangesPrevioueEnableStateBeforeRecording = this->vcCurrentRangesGroupBox->isEnabled();
-        this->vcCurrentRangesGroupBox->setEnabled(false);
-    }
-
-    if (this->vcVoltageRangesGroupBox != nullptr){
-        vcVoltageRangesPrevioueEnableStateBeforeRecording = this->vcVoltageRangesGroupBox->isEnabled();
-        this->vcVoltageRangesGroupBox->setEnabled(false);
-    }
-
-    if (this->ccCurrentRangesGroupBox != nullptr){
-        ccCurrentRangesPrevioueEnableStateBeforeRecording = this->ccCurrentRangesGroupBox->isEnabled();
-        this->ccCurrentRangesGroupBox->setEnabled(false);
-    }
-
-    if (this->ccVoltageRangesGroupBox != nullptr){
-        ccVoltageRangesPrevioueEnableStateBeforeRecording = this->ccVoltageRangesGroupBox->isEnabled();
-        this->ccVoltageRangesGroupBox->setEnabled(false);
-    }
-
-    if (this->samplingRatesGroupBox != nullptr){
-        samplingRatesPrevioueEnableStateBeforeRecording = this->samplingRatesGroupBox->isEnabled();
-        this->samplingRatesGroupBox->setEnabled(false);
-    }
-
-    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
+void DeviceControlDockWidget::setVcVoltageRangesroupBoxEnabled(bool status){
+    setWidgetEnabled(vcVoltageRangesGroupBox, status);
+}
+void DeviceControlDockWidget::setVcCurrentRangesGroupBoxEnabled(bool status){
+    setWidgetEnabled(vcCurrentRangesGroupBox, status);
+}
+void DeviceControlDockWidget::setCcVoltageRangesGroupBoxEnabled(bool status){
+    setWidgetEnabled(ccVoltageRangesGroupBox, status);
+}
+void DeviceControlDockWidget::setCcCurrentRangesGroupBoxEnabled(bool status){
+    setWidgetEnabled(ccCurrentRangesGroupBox, status);
+}
+void DeviceControlDockWidget::setSamplingRatesGroupBoxEnabled(bool status){
+    setWidgetEnabled(samplingRatesGroupBox, status);
+}
+void DeviceControlDockWidget::setDownsamplingRatioSbxEnabled(bool status){
+    setWidgetEnabled(downsamplingRatioSbx, status);
 }
 
-void DeviceControlDockWidget::onRecordingStopped() {
-    printf("stopped\n");
-    fflush(stdout);
-    if (this->vcCurrentRangesGroupBox != nullptr) {
-        this->vcCurrentRangesGroupBox->setEnabled(vcCurrentRangesPrevioueEnableStateBeforeRecording);
+template<typename T>
+void DeviceControlDockWidget::setWidgetEnabled(T& widget, bool status) {
+    if(widget != nullptr){
+        widget->setEnabled(status);
     }
-
-    if (this->vcVoltageRangesGroupBox != nullptr) {
-        this->vcVoltageRangesGroupBox->setEnabled(vcVoltageRangesPrevioueEnableStateBeforeRecording);
-    }
-
-    if (this->ccCurrentRangesGroupBox != nullptr) {
-        this->ccCurrentRangesGroupBox->setEnabled(ccCurrentRangesPrevioueEnableStateBeforeRecording);
-    }
-
-    if (this->ccVoltageRangesGroupBox != nullptr) {
-        this->ccVoltageRangesGroupBox->setEnabled(ccVoltageRangesPrevioueEnableStateBeforeRecording);
-    }
-
-    if (this->samplingRatesGroupBox != nullptr) {
-        this->samplingRatesGroupBox->setEnabled(samplingRatesPrevioueEnableStateBeforeRecording);
-    }
-
-    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
 }
+
+//void DeviceControlDockWidget::onRecordingStarted() {
+//    /*! \todo MPAC at the moment miccing ccCurrent and ccVoltage*/
+//    if (this->vcCurrentRangesGroupBox != nullptr){
+//        vcCurrentRangesPrevioueEnableStateBeforeRecording = this->vcCurrentRangesGroupBox->isEnabled();
+//        this->vcCurrentRangesGroupBox->setEnabled(false);
+//    }
+
+//    if (this->vcVoltageRangesGroupBox != nullptr){
+//        vcVoltageRangesPrevioueEnableStateBeforeRecording = this->vcVoltageRangesGroupBox->isEnabled();
+//        this->vcVoltageRangesGroupBox->setEnabled(false);
+//    }
+
+//    if (this->ccCurrentRangesGroupBox != nullptr){
+//        ccCurrentRangesPrevioueEnableStateBeforeRecording = this->ccCurrentRangesGroupBox->isEnabled();
+//        this->ccCurrentRangesGroupBox->setEnabled(false);
+//    }
+
+//    if (this->ccVoltageRangesGroupBox != nullptr){
+//        ccVoltageRangesPrevioueEnableStateBeforeRecording = this->ccVoltageRangesGroupBox->isEnabled();
+//        this->ccVoltageRangesGroupBox->setEnabled(false);
+//    }
+
+//    if (this->samplingRatesGroupBox != nullptr){
+//        samplingRatesPrevioueEnableStateBeforeRecording = this->samplingRatesGroupBox->isEnabled();
+//        this->samplingRatesGroupBox->setEnabled(false);
+//    }
+//    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
+//}
+
+//void DeviceControlDockWidget::onRecordingStopped() {
+//    if (this->vcCurrentRangesGroupBox != nullptr) {
+//        this->vcCurrentRangesGroupBox->setEnabled(vcCurrentRangesPrevioueEnableStateBeforeRecording);
+//    }
+
+//    if (this->vcVoltageRangesGroupBox != nullptr) {
+//        this->vcVoltageRangesGroupBox->setEnabled(vcVoltageRangesPrevioueEnableStateBeforeRecording);
+//    }
+
+//    if (this->ccCurrentRangesGroupBox != nullptr) {
+//        this->ccCurrentRangesGroupBox->setEnabled(ccCurrentRangesPrevioueEnableStateBeforeRecording);
+//    }
+
+//    if (this->ccVoltageRangesGroupBox != nullptr) {
+//        this->ccVoltageRangesGroupBox->setEnabled(ccVoltageRangesPrevioueEnableStateBeforeRecording);
+//    }
+
+//    if (this->samplingRatesGroupBox != nullptr) {
+//        this->samplingRatesGroupBox->setEnabled(samplingRatesPrevioueEnableStateBeforeRecording);
+//    }
+
+//    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
+//}

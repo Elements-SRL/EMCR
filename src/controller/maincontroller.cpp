@@ -218,13 +218,20 @@ void MainController::onMainWindowCreated() {
 
         connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
             mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
+            deviceController->handleProtocolStatusChanged(true);
         });
-        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onStopProtocol);
+        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     this, [=] () {
+            mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStopProtocol();
+            deviceController->handleProtocolStatusChanged(false);
+        });
         connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
             mainWindow->getProtocolDockWidget()->getCurrentProtocolList()->onStartProtocol();
+            deviceController->handleProtocolStatusChanged(true);
         });
-        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onStopProtocol);
-
+        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,    this, [=] () {
+            mainWindow->getProtocolDockWidget()->getCurrentProtocolList()->onStopProtocol();
+            deviceController->handleProtocolStatusChanged(false);
+        });
         connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
         connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
         connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
