@@ -56,9 +56,21 @@ DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mai
             onSamplingRateSelected(selectedSamplingRateIndex);
         });
     }
-    connect(this, &DeviceController::sigRecordingStarted,   deviceControlDockWidget, &DeviceControlDockWidget::onRecordingStarted);
-    connect(this, &DeviceController::sigRecordingStopped,   deviceControlDockWidget, &DeviceControlDockWidget::onRecordingStopped);
 }
+
+
+void DeviceController::handleRecording(bool recording){
+    this->recording = recording;
+    if (recording){
+        deviceControlDockWidget->onRecordingStarted();
+    } else {
+        deviceControlDockWidget->onRecordingStopped();
+    }
+}
+
+void DeviceController::handleStartProtocol(){}
+void DeviceController::handleStopProtocol(){}
+
 
 // Slots (actionPerformed) for current and voltage ranges
 // ADC Current Range in VC

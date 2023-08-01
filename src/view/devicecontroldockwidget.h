@@ -30,8 +30,6 @@ public:
 
     void forceEmit();
     void updateParameters();
-
-public slots:
     void onRecordingStarted();
     void onRecordingStopped();
 

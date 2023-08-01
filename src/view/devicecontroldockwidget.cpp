@@ -527,6 +527,8 @@ void DeviceControlDockWidget::updateParameters() {
 
 
 void DeviceControlDockWidget::onRecordingStarted() {
+    printf("started\n");
+    fflush(stdout);
     /*! \todo MPAC at the moment miccing ccCurrent and ccVoltage*/
     if (this->vcCurrentRangesGroupBox != nullptr){
         vcCurrentRangesPrevioueEnableStateBeforeRecording = this->vcCurrentRangesGroupBox->isEnabled();
@@ -557,6 +559,8 @@ void DeviceControlDockWidget::onRecordingStarted() {
 }
 
 void DeviceControlDockWidget::onRecordingStopped() {
+    printf("stopped\n");
+    fflush(stdout);
     if (this->vcCurrentRangesGroupBox != nullptr) {
         this->vcCurrentRangesGroupBox->setEnabled(vcCurrentRangesPrevioueEnableStateBeforeRecording);
     }
