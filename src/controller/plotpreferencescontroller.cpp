@@ -41,16 +41,11 @@ PlotPreferencesController::~PlotPreferencesController() {
     }
 }
 
-void PlotPreferencesController::onSelectChannels(bool) {
-    std::vector <ChannelModel *> channels;
-    msgDisp->getChannels(channels);
-
-    QVector <QColor> colors;
-    for (int idx = 0; idx < (int)channels.size(); idx++) {
-        if (channels[idx]->isExpanded()) {
-            colors.push_back(model->getColor(idx));
-        }
+void PlotPreferencesController::initializePlotColors() {
+    QVector <QColor> colors(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        colors[idx] = model->getColor(idx);
     }
 
-    emit sigSelectedColors(colors);
+    emit sigCurrentColorsChanged(colors);
 }

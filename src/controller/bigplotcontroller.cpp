@@ -18,7 +18,7 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
     }
 
     for (int i = 0; i < voltageChannelsNum; i++){
-        voltageCurves.append(new Curve(CurveType_t::CurveTypePlotSolid));
+        voltageCurves.append(new Curve(CurveType_t::CurveTypePlotDashed));
         voltageCurves[i]->setColor(QColor(Qt::red));
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
@@ -45,7 +45,6 @@ BigPlotController::~BigPlotController() {
         delete bpm;
         bpm = nullptr;
     }
-
 }
 
 BigPlot * BigPlotController::getPlot(){
@@ -69,18 +68,22 @@ void BigPlotController::clearCurves() {
     voltageCurves.clear();
 }
 
-void BigPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
-    for (int idx = 0; idx < channelsToPlotNumber; idx++) {
-        currentCurves.at(idx)->attach(plot);
-        currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
+void BigPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize) {
+    std::vector <ChannelModel *> channels;
+    msgDisp->getChannels(channels);
 
-        voltageCurves.at(idx)->attach(plot);
-        voltageCurves.at(idx)->setRawSamples(timeValues, voltageValues->at(idx), dataSize);
-    }
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        if (channels[idx]->isExpanded()) {
+            currentCurves.at(idx)->attach(plot);
+            currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
 
-    for (int idx = channelsToPlotNumber; idx < currentChannelsNum; idx++) {
-        currentCurves.at(idx)->detach();
-        voltageCurves.at(idx)->detach();
+            voltageCurves.at(idx)->attach(plot);
+            voltageCurves.at(idx)->setRawSamples(timeValues, voltageValues->at(idx), dataSize);
+
+        } else {
+            currentCurves.at(idx)->detach();
+            voltageCurves.at(idx)->detach();
+        }
     }
 }
 
@@ -90,11 +93,16 @@ void BigPlotController::onReplot() {
     }
 }
 
-void BigPlotController::onSelectedColors(QVector <QColor> colors) {
-    for (int idx = 0; idx < colors.size(); idx++) {
+void BigPlotController::onCurrentColorsChanged(QVector <QColor> colors) {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->setColor(colors[idx]);
         voltageCurves[idx]->setColor(colors[idx]);
     }
+}
+
+void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
+    currentCurves[channelIdx]->setColor(color);
+    voltageCurves[channelIdx]->setColor(color);
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
@@ -147,19 +155,4 @@ void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, Qw
         break;
     }
     plot->replot();
-}
-
-void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
-    std::vector <ChannelModel *> channels;
-    msgDisp->getChannels(channels);
-    if (channels[channelIdx]->isExpanded()) {
-        int reducedChannelIdx = 0;
-        for (int idx = 0; idx < channelIdx; idx++) {
-            if (channels[idx]->isExpanded()) {
-                reducedChannelIdx++;
-            }
-        }
-        currentCurves[reducedChannelIdx]->setColor(color);
-        voltageCurves[reducedChannelIdx]->setColor(color);
-    }
 }

@@ -15,8 +15,7 @@ public:
     PlotPreferencesController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
     ~PlotPreferencesController();
 
-public slots:
-    void onSelectChannels(bool flag);
+    void initializePlotColors();
 
 private:
     MessageDispatcher * msgDisp = nullptr;
@@ -31,7 +30,7 @@ private:
 
 signals:
     void sigCurrentColorChanged(int channelIdx, QColor color);
-    void sigSelectedColors(QVector <QColor> colors);
+    void sigCurrentColorsChanged(QVector <QColor> colors);
 };
 
 #endif // PLOTPREFERENCESCONTROLLER_H

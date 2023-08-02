@@ -117,7 +117,7 @@ void StampPlotController::onDurationUpdated(Measurement_t duration) {
 }
 
 /*! channelsToPlotNumber is ignored by the chessBoard*/
-void StampPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber) {
+void StampPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> *, QVector <double *> * currentValues, int dataSize) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
     }

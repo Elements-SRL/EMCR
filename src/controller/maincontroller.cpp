@@ -202,13 +202,12 @@ void MainController::onMainWindowCreated() {
     connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                       &MainController::onStartRecording);
     connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                       &MainController::onStopRecording);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,            &PlotConsumer::onSelectChannels);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, plotPreferencesController,  &PlotPreferencesController::onSelectChannels);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,       &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,       &ChessboardController::onChannelsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,       &ChessboardController::onStimuliTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,       &ChessboardController::onDocTurnedOnOff);
 
-    connect(plotPreferencesController, &PlotPreferencesController::sigSelectedColors,       bigPlotController, &BigPlotController::onSelectedColors);
+    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, bigPlotController, &BigPlotController::onCurrentColorsChanged);
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  bigPlotController, &BigPlotController::onCurrentColorChanged);
 //    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 
@@ -317,6 +316,8 @@ void MainController::onMainWindowCreated() {
     bigPlotConsumer->onSelectChannels(false);
 
     msgDisp->setAllChannelsSelected(false);
+
+    plotPreferencesController->initializePlotColors();
 
 //    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationPath(), "boardMapping.csv");
     calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationDir(), calibratorConsumer->getCalibrationMappingFilePath());
