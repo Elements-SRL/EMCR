@@ -19,13 +19,22 @@ PlotPreferencesController::PlotPreferencesController(MessageDispatcher * msgDisp
 
     mainWindow->setPlotPreferencesDialog(dialog);
 
-    connect(dialog, &PlotPreferencesDialog::buttonClicked, this, [=] (int channelIdx) {
+    connect(dialog, &PlotPreferencesDialog::channelButtonClicked, this, [=] (int channelIdx) {
         QColor color = QColorDialog::getColor(model->getColor(channelIdx));
         if (color.isValid()) {
             model->setColor(PlotPreferencesDialog::CurrentColor, channelIdx, color);
             dialog->setColor(PlotPreferencesDialog::CurrentColor, channelIdx, color);
             emit sigCurrentColorChanged(channelIdx, color);
         }
+    });
+
+    connect(dialog, &PlotPreferencesDialog::restoreDefaultButtonClicked, this, [=] () {
+        model->restoreDefaultColors();
+        QVector <QColor> colors = model->getColors();
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            dialog->setColor(PlotPreferencesDialog::CurrentColor, idx, colors[idx]);
+        }
+        emit sigCurrentColorsChanged(colors);
     });
 }
 

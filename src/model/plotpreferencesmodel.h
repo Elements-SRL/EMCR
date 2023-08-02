@@ -9,6 +9,8 @@ public:
 
     void setColor(PlotPreferencesDialog::SettingType_t type, int channelIdx, QColor color);
     QColor getColor(int idx);
+    QVector <QColor> getColors();
+    void restoreDefaultColors();
 
 private:
     void loadSettings();

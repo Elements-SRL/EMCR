@@ -23,7 +23,8 @@ private:
     QVector <ColorSelectionButton *> currentBtns;
 
 signals:
-    void buttonClicked(int channelIdx);
+    void channelButtonClicked(int channelIdx);
+    void restoreDefaultButtonClicked();
 };
 
 #endif // PLOTPREFERENCESDIALOG_H

@@ -20,7 +20,7 @@ PlotPreferencesDialog::PlotPreferencesDialog(int channelsNum, int channelsPerBoa
         button->setText(QString("%1").arg(idx+1));
         currentBtns.push_back(button);
         connect(button, &QPushButton::clicked, this, [=] () {
-            emit buttonClicked(idx);
+            emit channelButtonClicked(idx);
         });
 
         currentButtonsLo->addWidget(button, row, col);
@@ -37,10 +37,12 @@ PlotPreferencesDialog::PlotPreferencesDialog(int channelsNum, int channelsPerBoa
 //    darkModeBtn->setChecked(darkModeFlag);
 //    otherButtonsHl->addWidget(darkModeBtn);
 
-//    /*! Reset to defaults button */
-//    QPushButton * restoreDefaultBtn = new QPushButton("Restore defaults");
-//    restoreDefaultBtn->setCheckable(false);
-//    otherButtonsHl->addWidget(restoreDefaultBtn);
+    /*! Reset to defaults button */
+    QPushButton * restoreDefaultBtn = new QPushButton("Restore defaults");
+    restoreDefaultBtn->setCheckable(false);
+    otherButtonsHl->addWidget(restoreDefaultBtn);
+
+    connect(restoreDefaultBtn, &QPushButton::clicked, this, &PlotPreferencesDialog::restoreDefaultButtonClicked);
 
     /*! Adds sub layouts in main layout */
     mainVl->addWidget(new QLabel("Current channels colors:"));

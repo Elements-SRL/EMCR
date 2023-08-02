@@ -28,6 +28,17 @@ QColor PlotPreferencesModel::getColor(int idx) {
     return selectedCurrentColors[idx];
 }
 
+QVector <QColor> PlotPreferencesModel::getColors() {
+    return selectedCurrentColors;
+}
+
+void PlotPreferencesModel::restoreDefaultColors() {
+    defaultCurrentColors.resize(channelsNum);
+    for (int idx = 0; idx < channelsNum; idx++) {
+        this->setColor(PlotPreferencesDialog::CurrentColor, idx, defaultCurrentColors[idx]);
+    }
+}
+
 QString PlotPreferencesModel::tagName(PlotPreferencesDialog::SettingType_t type, int channelIdx) {
     QString ret;
     switch (type) {
