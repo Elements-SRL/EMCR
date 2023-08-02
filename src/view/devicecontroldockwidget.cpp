@@ -390,17 +390,12 @@ void DeviceControlDockWidget::updateParameters() {
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
-        if (ccVoltageRangesGroupBox != nullptr) {
-            ccVoltageRangesGroupBox->setVisible(false);
-        }
-
-        if (ccCurrentRangesGroupBox != nullptr) {
-            ccCurrentRangesGroupBox->setVisible(false);
-        }
-
-        if (ccCurrentFiltersGroupBox != nullptr) {
-            ccCurrentFiltersGroupBox->setVisible(false);
-        }
+        this->setWidgetVisible(ccVoltageRangesGroupBox, false);
+        this->setWidgetVisible(ccCurrentRangesGroupBox, false);
+        this->setWidgetVisible(ccCurrentFiltersGroupBox, false);
+        this->setWidgetVisible(vcVoltageRangesGroupBox, true);
+        this->setWidgetVisible(vcCurrentRangesGroupBox, true);
+        this->setWidgetVisible(vcVoltageFiltersGroupBox, true);
 
         if (vcCurrentRangesRadioButtons.size()>0){
             uint32_t idx;
@@ -419,33 +414,15 @@ void DeviceControlDockWidget::updateParameters() {
             msgDisp->getVCVoltageFilterIdx(idx);
             vcVoltageFiltersRadioButtons[idx]->setChecked(true);
         }
-
-        if (vcVoltageRangesGroupBox != nullptr) {
-            vcVoltageRangesGroupBox->setVisible(true);
-        }
-
-        if (vcCurrentRangesGroupBox != nullptr) {
-            vcCurrentRangesGroupBox->setVisible(true);
-        }
-
-        if (vcVoltageFiltersGroupBox != nullptr) {
-            vcVoltageFiltersGroupBox->setVisible(true);
-        }
     }
 
     if (mode == ClampingModality_t::CURRENT_CLAMP) {
-        if (vcVoltageRangesGroupBox != nullptr) {
-            vcVoltageRangesGroupBox->setVisible(false);
-        }
-
-        if (vcCurrentRangesGroupBox != nullptr) {
-            vcCurrentRangesGroupBox->setVisible(false);
-        }
-
-        if (vcVoltageFiltersGroupBox != nullptr) {
-            vcVoltageFiltersGroupBox->setVisible(false);
-        }
-
+        this->setWidgetVisible(vcVoltageRangesGroupBox, false);
+        this->setWidgetVisible(vcCurrentRangesGroupBox, false);
+        this->setWidgetVisible(vcVoltageFiltersGroupBox, false);
+        this->setWidgetVisible(ccVoltageRangesGroupBox, true);
+        this->setWidgetVisible(ccCurrentRangesGroupBox, true);
+        this->setWidgetVisible(ccCurrentFiltersGroupBox, true);
         if (ccCurrentRangesRadioButtons.size()>0){
             uint32_t idx;
             msgDisp->getCCCurrentRangeIdx(idx);
@@ -462,19 +439,7 @@ void DeviceControlDockWidget::updateParameters() {
             uint32_t idx;
             msgDisp->getCCCurrentFilterIdx(idx);
             ccCurrentFiltersRadioButtons[idx]->setChecked(true);
-        }
-
-        if (ccVoltageRangesGroupBox != nullptr) {
-            ccVoltageRangesGroupBox->setVisible(true);
-        }
-
-        if (ccCurrentRangesGroupBox != nullptr) {
-            ccCurrentRangesGroupBox->setVisible(true);
-        }
-
-        if (ccCurrentFiltersGroupBox != nullptr) {
-            ccCurrentFiltersGroupBox->setVisible(true);
-        }
+        }     
     }
 
     if (!samplingRatesRadioButtons.empty()) {
@@ -548,6 +513,13 @@ template<typename T>
 void DeviceControlDockWidget::setWidgetEnabled(T& widget, bool status) {
     if(widget != nullptr){
         widget->setEnabled(status);
+    }
+}
+
+template<typename T>
+void DeviceControlDockWidget::setWidgetVisible(T& widget, bool status) {
+    if(widget != nullptr){
+        widget->setVisible(status);
     }
 }
 
