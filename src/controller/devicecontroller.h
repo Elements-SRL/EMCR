@@ -27,12 +27,25 @@ public slots:
     void onClampingModalitySelected(uint16_t selectedClampingModalityIndex);
 
 private:
+
+
+    std::vector<ClampingModality_t> clampingModalities;
+    std::vector <RangedMeasurement_t> vcCurrentRanges;
+    std::vector <RangedMeasurement_t> vcVoltageRanges;
+    std::vector <RangedMeasurement_t> ccCurrentRanges;
+    std::vector <RangedMeasurement_t> ccVoltageRanges;
+    std::vector <Measurement_t> vcVoltageFilters;
+    std::vector <Measurement_t> ccCurrentFilters;
+    std::vector <Measurement_t> samplingRates;
+
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
     bool recording = false;
     bool protocolRunning = false;
     bool getStatusFromRecordingAndProtocol();
+    bool calcDefaultStatus(std::vector<Measurement>, bool);
+    bool calcDefaultStatus(std::vector<RangedMeasurement>, bool);
 
 signals:
     void sigVcCurrentRangeSelected(int idx);

@@ -3,6 +3,19 @@
 DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp) {
 
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
+    uint16_t defaultVcCurrRangeIdx;
+    msgDisp->getVCCurrentRanges(vcCurrentRanges,defaultVcCurrRangeIdx);
+    msgDisp->getVCVoltageRanges(vcVoltageRanges);
+    msgDisp->getCCCurrentRanges(ccCurrentRanges);
+    msgDisp->getCCVoltageRanges(ccVoltageRanges);
+    msgDisp->getVCVoltageFilters(vcVoltageFilters);
+    msgDisp->getCCCurrentFilters(ccCurrentFilters);
+    msgDisp->getSamplingRatesFeatures(samplingRates);
+
+    unsigned int maxDownsamplingRatio;
+    msgDisp->getMaxDownsamplingRatioFeature(maxDownsamplingRatio);
+
     deviceControlDockWidget = new DeviceControlDockWidget(msgDisp);
     this->mainWindow = mainWindow;
     mainWindow->setDeviceControlDw(deviceControlDockWidget);
@@ -64,9 +77,9 @@ void DeviceController::handleRecording(bool recording){
     deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
     deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
 
-    deviceControlDockWidget->setVcCurrentRangesGroupBoxEnabled(!recording);
-    deviceControlDockWidget->setCcVoltageRangesGroupBoxEnabled(!recording);
-    deviceControlDockWidget->setSamplingRatesGroupBoxEnabled(!recording);
+    deviceControlDockWidget->setVcCurrentRangesGroupBoxEnabled(calcDefaultStatus(vcCurrentRanges, recording));
+    deviceControlDockWidget->setCcVoltageRangesGroupBoxEnabled(calcDefaultStatus(ccVoltageRanges, recording));
+    deviceControlDockWidget->setSamplingRatesGroupBoxEnabled(calcDefaultStatus(samplingRates, recording));
     deviceControlDockWidget->setDownsamplingRatioSbxEnabled(!recording);
 }
 
@@ -200,4 +213,13 @@ void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModal
     }
 
     emit sigClampingModalitySelected(selectedClampingModalityIndex);
+}
+
+bool DeviceController::calcDefaultStatus(std::vector<Measurement> measurements, bool recording){
+//    if I'm not recording and there are more then 1 measurements enable the groupboxes
+    return measurements.size() > 1 && !recording;
+}
+bool DeviceController::calcDefaultStatus(std::vector<RangedMeasurement> rangedMeasurements, bool recording){
+    //    if I'm not recording and there are more then 1 rangedMeasurements enable the groupboxes
+    return rangedMeasurements.size() > 1 && !recording;
 }
