@@ -44,8 +44,7 @@ private:
     bool recording = false;
     bool protocolRunning = false;
     bool getStatusFromRecordingAndProtocol();
-    bool calcDefaultStatus(std::vector<Measurement>, bool);
-    bool calcDefaultStatus(std::vector<RangedMeasurement>, bool);
+    bool calcDefaultStatus(int, bool);
 
 signals:
     void sigVcCurrentRangeSelected(int idx);

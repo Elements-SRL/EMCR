@@ -77,9 +77,9 @@ void DeviceController::handleRecording(bool recording){
     deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
     deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
 
-    deviceControlDockWidget->setVcCurrentRangesGroupBoxEnabled(calcDefaultStatus(vcCurrentRanges, recording));
-    deviceControlDockWidget->setCcVoltageRangesGroupBoxEnabled(calcDefaultStatus(ccVoltageRanges, recording));
-    deviceControlDockWidget->setSamplingRatesGroupBoxEnabled(calcDefaultStatus(samplingRates, recording));
+    deviceControlDockWidget->setVcCurrentRangesGroupBoxEnabled(calcDefaultStatus(vcCurrentRanges.size(), recording));
+    deviceControlDockWidget->setCcVoltageRangesGroupBoxEnabled(calcDefaultStatus(ccVoltageRanges.size(), recording));
+    deviceControlDockWidget->setSamplingRatesGroupBoxEnabled(calcDefaultStatus(samplingRates.size(), recording));
     deviceControlDockWidget->setDownsamplingRatioSbxEnabled(!recording);
 }
 
@@ -215,11 +215,7 @@ void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModal
     emit sigClampingModalitySelected(selectedClampingModalityIndex);
 }
 
-bool DeviceController::calcDefaultStatus(std::vector<Measurement> measurements, bool recording){
+bool DeviceController::calcDefaultStatus(int size, bool recording){
 //    if I'm not recording and there are more then 1 measurements enable the groupboxes
-    return measurements.size() > 1 && !recording;
-}
-bool DeviceController::calcDefaultStatus(std::vector<RangedMeasurement> rangedMeasurements, bool recording){
-    //    if I'm not recording and there are more then 1 rangedMeasurements enable the groupboxes
-    return rangedMeasurements.size() > 1 && !recording;
+    return size > 1 && !recording;
 }
