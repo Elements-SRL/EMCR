@@ -69,7 +69,6 @@ protected:
     QMutex rangeAxisMtx;
 
     QVector <bool> plottedChannels;
-    int plottedChannelsNum = 0;
 
     int maxSamples = 256;
     int dataSize = 0;
@@ -106,7 +105,7 @@ protected:
     void emitPlotData() override;
 
 signals:
-    void setPlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber);
+    void setPlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
 };
 
 #endif // PLOTCONSUMER_H

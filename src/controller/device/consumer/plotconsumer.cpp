@@ -13,7 +13,6 @@ PlotConsumer::PlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * pro
 
     plottedChannels.resize(currentChannelsNum);
     plottedChannels.fill(true);
-    plottedChannelsNum = currentChannelsNum;
 }
 
 PlotConsumer::~PlotConsumer() {
@@ -110,7 +109,6 @@ void PlotConsumer::onSelectChannels(bool flag) {
         for (auto channelIdx : selectedChannels) {
             if (!plottedChannels[channelIdx]) {
                 plottedChannels[channelIdx] = true;
-                plottedChannelsNum++;
             }
         }
 
@@ -118,7 +116,6 @@ void PlotConsumer::onSelectChannels(bool flag) {
         for (auto channelIdx : selectedChannels) {
             if (plottedChannels[channelIdx]) {
                 plottedChannels[channelIdx] = false;
-                plottedChannelsNum--;
             }
         }
     }
@@ -173,13 +170,11 @@ void PlotConsumer::updateRangeAxis() {
         voltageRange.max = 1.0;
         voltageRange.convertValues(pushedVoltageRange.prefix);
         double coeff = voltageRange.max;
-        int counter = 0;
         for (int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
             if (plottedChannels[channelIdx]) {
                 for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-                    voltageValues[counter][sampleIdx] *= coeff;
+                    voltageValues[channelIdx][sampleIdx] *= coeff;
                 }
-                counter++;
             }
         }
         voltageRange = pushedVoltageRange;
@@ -193,13 +188,11 @@ void PlotConsumer::updateRangeAxis() {
         currentRange.max = 1.0;
         currentRange.convertValues(pushedCurrentRange.prefix);
         coeff = currentRange.max;
-        int counter = 0;
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             if (plottedChannels[channelIdx]) {
                 for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-                    currentValues[counter][sampleIdx] *= coeff;
+                    currentValues[channelIdx][sampleIdx] *= coeff;
                 }
-                counter++;
             }
         }
         currentRange = pushedCurrentRange;
@@ -228,8 +221,6 @@ void GapFreePlotConsumer::run() {
     int bufferIdx;
     int bufferLen = 0;
     int channelIdx;
-    int counter;
-
     QTime updateDataTimer = QTime::currentTime();
     updateDataTimer.start();
 
@@ -255,18 +246,16 @@ void GapFreePlotConsumer::run() {
 
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
-                counter = 0;
                 for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
-                        voltageValues[counter++][gapFreeTimeIdx] = buffer[bufferIdx];
+                        voltageValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx];
                     }
                     bufferIdx++;
                 }
 
-                counter = 0;
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
-                        currentValues[counter++][gapFreeTimeIdx] = buffer[bufferIdx];
+                        currentValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx];
                     }
                     bufferIdx++;
                 }
@@ -322,5 +311,5 @@ void GapFreePlotConsumer::clearData() {
 }
 
 void GapFreePlotConsumer::emitPlotData() {
-    emit setPlotData(timeValues, &voltageValues, &currentValues, dataSize, plottedChannelsNum);
+    emit setPlotData(timeValues, &voltageValues, &currentValues, dataSize);
 }

@@ -2,6 +2,7 @@
 #define BIGPLOTWIDGET_H
 
 #include <QWidget>
+#include <QBoxLayout>
 
 #include "messagedispatcher.h"
 #include "bigplot.h"
@@ -13,19 +14,10 @@ class BigPlotWidget : public QWidget {
 public:
     BigPlotWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
-    void clearCurves();
-    BigPlot * getPlot();
+    void setPlot(BigPlot * plot);
 
-public slots:
-    void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize, int channelsToPlotNumber);
-    void onReplot();
 private:
-    BigPlot * plot = nullptr;
-    QVector <Curve *> currentCurves;
-    QVector <Curve *> voltageCurves;
-
-    int voltageChannelsNum;
-    int currentChannelsNum;
+    QVBoxLayout * mainVl;
 };
 
 #endif // BIGPLOTWIDGET_H

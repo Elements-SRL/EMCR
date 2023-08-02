@@ -30,6 +30,7 @@ SOURCES += \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
+    src/controller/plotpreferencescontroller.cpp \
     src/controller/singlechannelcontroller.cpp \
     src/controller/stampplotcontroller.cpp \
     src/main.cpp \
@@ -53,12 +54,14 @@ SOURCES += \
     src/controller/device/consumer/calibrationconsumer.cpp \
     src/model/analysiscursor.cpp \
     src/model/bigplotmodel.cpp \
+    src/model/plotpreferencesmodel.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
     src/model/statearray.cpp \
     src/model/statisticsresult.cpp \
     src/view/bigplotwidget.cpp \
     src/view/chessboarddockwidget.cpp \
+    src/view/colorselectionbutton.cpp \
     src/view/compensationcontroldockwidget.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
@@ -74,6 +77,7 @@ SOURCES += \
     src/view/multiplechannelcontroldockwidget.cpp \
     src/view/myleftrightmousepushbutton.cpp \
     src/view/myspinbox.cpp \
+    src/view/plotpreferencesdialog.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
     src/view/protocol/protocolcursor.cpp \
     src/view/protocol/protocoldockwidget.cpp \
@@ -104,6 +108,7 @@ HEADERS += \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
+    src/controller/plotpreferencescontroller.h \
     src/controller/singlechannelcontroller.h \
     src/controller/stampplotcontroller.h \
     src/globaldefines.h \
@@ -127,12 +132,14 @@ HEADERS += \
     src/controller/device/consumer/calibrationconsumer.h \
     src/model/analysiscursor.h \
     src/model/bigplotmodel.h \
+    src/model/plotpreferencesmodel.h \
     src/model/protocolmodel.h \
     src/model/state.h \
     src/model/statearray.h \
     src/model/statisticsresult.h \
     src/view/bigplotwidget.h \
     src/view/chessboarddockwidget.h \
+    src/view/colorselectionbutton.h \
     src/view/compensationcontroldockwidget.h \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
@@ -148,6 +155,7 @@ HEADERS += \
     src/view/multiplechannelcontroldockwidget.h \
     src/view/myleftrightmousepushbutton.h \
     src/view/myspinbox.h \
+    src/view/plotpreferencesdialog.h \
     src/view/protocol/impexpprotocoldialog.h \
     src/view/protocol/protocolcursor.h \
     src/view/protocol/protocoldockwidget.h \

@@ -35,10 +35,10 @@ MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlot,          this, [=] () {
-        emit sigAddRemoveFromBigPlot(true);
+        this->addRemoveFromBigPlot(true);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot,     this, [=] () {
-        emit sigAddRemoveFromBigPlot(false);
+        this->addRemoveFromBigPlot(false);
     });
 
     mainWindow->setMultipleChannelControlsDw(multipleChannelControlsDw);
@@ -92,4 +92,13 @@ void MultipleChannelController::turnSelectedDocOnOff(bool flag) {
     msgDisp->digitalOffsetCompensation(selectedChannels, values, true);
 
     emit sigDocTurnedOnOff(flag);
+}
+
+void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <bool> values(selectedChannels.size(), flag);
+    msgDisp->expandTraces(selectedChannels, values);
+
+    emit sigAddRemoveFromBigPlot(flag);
 }
