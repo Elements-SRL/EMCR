@@ -67,6 +67,8 @@ private:
     QGroupBox * clampingModalitiesGroupBox = nullptr;
     std::vector<QRadioButton *> clampingModalitiesRadioButtons;
     bool clampingModalitiesPrevioueEnableStateBeforeRecording = false;
+    QGroupBox * setupGroupBox(std::string title, std::vector<RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> radioButtons);
+    QGroupBox * setupGroupBox(std::string title, std::vector<Measurement> measurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> radioButtons);
 
     template<typename T>
     void setWidgetEnabled(T& widget, bool status);

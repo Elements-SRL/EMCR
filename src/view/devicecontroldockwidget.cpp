@@ -46,207 +46,73 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     this->setWindowTitle(TITLE);
 
     /*! VC Current range */
-    if (vcCurrentRanges.size() > 0) {
-        this->vcCurrentRangesGroupBox = new QGroupBox(DCW_CURRENT_RANGE_TITLE);
-
-        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-        radioButtonsBoxLayout->setSpacing(2);
-
-        vLayout->addWidget(this->vcCurrentRangesGroupBox);
-        for (int idx = 0; idx < vcCurrentRanges.size(); idx++){
-            auto rm = vcCurrentRanges[idx];
-            QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
-            radioButtonsBoxLayout->addWidget(qrb);
-            this->vcCurrentRangesRadioButtons.push_back(qrb);
-            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigVcCurrentRangeSelected(idx);
-                }
-            });
-        }
-        if (this->vcCurrentRangesRadioButtons.size() > 0) {
-//            this->vcCurrentRangesRadioButtons[0]->setChecked(true);
-            this->vcCurrentRangesRadioButtons[defaultVcCurrRangeIdx]->setChecked(true);
-        }
-        this->vcCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
-        if (vcCurrentRanges.size() == 1) {
-            vcCurrentRangesGroupBox->setEnabled(false);
-        }
+    this->vcCurrentRangesGroupBox = setupGroupBox(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons);
+    for (int i = 0; i< vcCurrentRangesRadioButtons.size(); i++){
+        connect(vcCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigVcCurrentRangeSelected(i);
+            }
+        });
     }
 
     /*! VC Voltage range */
-    if (vcVoltageRanges.size() > 0) {
-        this->vcVoltageRangesGroupBox = new QGroupBox(DCW_VOLTAGE_RANGE_TITLE);
-
-        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-        radioButtonsBoxLayout->setSpacing(2);
-
-        vLayout->addWidget(this->vcVoltageRangesGroupBox);
-        for (int idx = 0; idx < vcVoltageRanges.size(); idx++){
-            auto rm = vcVoltageRanges[idx];
-            QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
-            radioButtonsBoxLayout->addWidget(qrb);
-            this->vcVoltageRangesRadioButtons.push_back(qrb);
-            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigVcVoltageRangeSelected(idx);
-                }
-            });
-        }
-        if (this->vcVoltageRangesRadioButtons.size() > 0) {
-            this->vcVoltageRangesRadioButtons[0]->setChecked(true);
-        }
-        this->vcVoltageRangesGroupBox->setLayout(radioButtonsBoxLayout);
-        if (vcVoltageRanges.size() == 1) {
-            vcVoltageRangesGroupBox->setEnabled(false);
-        }
+    this->vcVoltageRangesGroupBox = setupGroupBox(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, vLayout, vcVoltageRangesRadioButtons);
+    for (int i = 0; i< vcVoltageRangesRadioButtons.size(); i++){
+        connect(vcVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigVcVoltageRangeSelected(i);
+            }
+        });
     }
 
     /*! CC Current range */
-    if (ccCurrentRanges.size() > 0) {
-        this->ccCurrentRangesGroupBox = new QGroupBox(DCW_CC_CURRENT_RANGE_TITLE);
-
-        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-        radioButtonsBoxLayout->setSpacing(2);
-
-        vLayout->addWidget(this->ccCurrentRangesGroupBox);
-        for (int idx = 0; idx < ccCurrentRanges.size(); idx++){
-            auto rm = ccCurrentRanges[idx];
-            QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
-            radioButtonsBoxLayout->addWidget(qrb);
-            this->ccCurrentRangesRadioButtons.push_back(qrb);
-            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigCcCurrentRangeSelected(idx);
-                }
-            });
-        }
-        if (this->ccCurrentRangesRadioButtons.size() > 0) {
-            this->ccCurrentRangesRadioButtons[0]->setChecked(true);
-        }
-        this->ccCurrentRangesGroupBox->setLayout(radioButtonsBoxLayout);
-        if (ccCurrentRanges.size() == 1) {
-            ccCurrentRangesGroupBox->setEnabled(false);
-        }
+    this->ccCurrentRangesGroupBox = setupGroupBox(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, vLayout, ccCurrentRangesRadioButtons);
+    for (int i = 0; i< ccCurrentRangesRadioButtons.size(); i++){
+        connect(ccCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigCcCurrentRangeSelected(i);
+            }
+        });
     }
 
     /*! CC Voltage range */
-    if (ccVoltageRanges.size() > 0) {
-        this->ccVoltageRangesGroupBox = new QGroupBox(DCW_CC_VOLTAGE_RANGE_TITLE);
-
-        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-        radioButtonsBoxLayout->setSpacing(2);
-
-        vLayout->addWidget(this->ccVoltageRangesGroupBox);
-        for (int idx = 0; idx < ccVoltageRanges.size(); idx++){
-            auto rm = ccVoltageRanges[idx];
-            QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
-            radioButtonsBoxLayout->addWidget(qrb);
-            this->ccVoltageRangesRadioButtons.push_back(qrb);
-            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigCcVoltageRangeSelected(idx);
-                }
-            });
-        }
-        if (this->ccVoltageRangesRadioButtons.size() > 0) {
-            this->ccVoltageRangesRadioButtons[0]->setChecked(true);
-        }
-        this->ccVoltageRangesGroupBox->setLayout(radioButtonsBoxLayout);
-        if (ccVoltageRanges.size() == 1) {
-            ccVoltageRangesGroupBox->setEnabled(false);
-        }
+    this->ccVoltageRangesGroupBox = setupGroupBox(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, vLayout, ccVoltageRangesRadioButtons);
+    for (int i = 0; i< ccVoltageRangesRadioButtons.size(); i++){
+        connect(ccVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigCcVoltageRangeSelected(i);
+            }
+        });
     }
 
     /*! VC Voltage filter */
-    if (vcVoltageFilters.size() > 0) {
-        this->vcVoltageFiltersGroupBox = new QGroupBox(DCW_STIMULUS_FILTER_TITLE);
-
-        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-        radioButtonsBoxLayout->setSpacing(2);
-
-        vLayout->addWidget(this->vcVoltageFiltersGroupBox);
-        for (int idx = 0; idx < vcVoltageFilters.size(); idx++){
-            auto f = vcVoltageFilters[idx];
-            QRadioButton * qrb = new QRadioButton(QString().fromStdString(f.niceLabel()));
-            radioButtonsBoxLayout->addWidget(qrb);
-            this->vcVoltageFiltersRadioButtons.push_back(qrb);
-            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigVcVoltageFilterSelected(idx);
-                }
-            });
-        }
-        if (this->vcVoltageFiltersRadioButtons.size() > 0) {
-            this->vcVoltageFiltersRadioButtons[0]->setChecked(true);
-        }
-        this->vcVoltageFiltersGroupBox->setLayout(radioButtonsBoxLayout);
-        if (vcVoltageFilters.size() == 1) {
-            vcVoltageFiltersGroupBox->setEnabled(false);
-        }
+    this->vcVoltageFiltersGroupBox = setupGroupBox(DCW_STIMULUS_FILTER_TITLE, vcVoltageFilters, vLayout, vcVoltageFiltersRadioButtons);
+    for (int i = 0; i< vcVoltageFiltersRadioButtons.size(); i++){
+        connect(vcVoltageFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigVcVoltageFilterSelected(i);
+            }
+        });
     }
 
     /*! CC Current filter */
-    if (ccCurrentFilters.size() > 0) {
-        this->ccCurrentFiltersGroupBox = new QGroupBox(DCW_STIMULUS_FILTER_TITLE);
-
-        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-        radioButtonsBoxLayout->setSpacing(2);
-
-        vLayout->addWidget(this->ccCurrentFiltersGroupBox);
-        for (int idx = 0; idx < ccCurrentFilters.size(); idx++){
-            auto f = ccCurrentFilters[idx];
-            QRadioButton * qrb = new QRadioButton(QString().fromStdString(f.niceLabel()));
-            radioButtonsBoxLayout->addWidget(qrb);
-            this->ccCurrentFiltersRadioButtons.push_back(qrb);
-            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigCcCurrentFilterSelected(idx);
-                }
-            });
-        }
-        if (this->ccCurrentFiltersRadioButtons.size() > 0) {
-            this->ccCurrentFiltersRadioButtons[0]->setChecked(true);
-        }
-        this->ccCurrentFiltersGroupBox->setLayout(radioButtonsBoxLayout);
-        if (ccCurrentFilters.size() == 1) {
-            ccCurrentFiltersGroupBox->setEnabled(false);
-        }
+    this->ccCurrentFiltersGroupBox = setupGroupBox(DCW_STIMULUS_FILTER_TITLE, ccCurrentFilters, vLayout, ccCurrentFiltersRadioButtons);
+    for (int i = 0; i< ccCurrentFiltersRadioButtons.size(); i++){
+        connect(ccCurrentFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigCcCurrentFilterSelected(i);
+            }
+        });
     }
 
     /*! Sampling rate */
-    if (samplingRates.size() > 0) {
-        this->samplingRatesGroupBox = new QGroupBox(DCW_SAMPLING_RATE_TITLE);
-
-        QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-        radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-        radioButtonsBoxLayout->setSpacing(2);
-
-        vLayout->addWidget(this->samplingRatesGroupBox);
-        for (int idx = 0; idx < samplingRates.size(); idx++){
-            auto m = samplingRates[idx];
-            QRadioButton * qrb = new QRadioButton(QString().fromStdString(m.niceLabel()));
-            radioButtonsBoxLayout->addWidget(qrb);
-            this->samplingRatesRadioButtons.push_back(qrb);
-            connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigSamplingRateSelected(idx);
-                }
-            });
-        }
-        if (this->samplingRatesRadioButtons.size() > 0) {
-            this->samplingRatesRadioButtons[0]->setChecked(true);
-        }
-        this->samplingRatesGroupBox->setLayout(radioButtonsBoxLayout);
-        if (samplingRates.size() == 1) {
-            samplingRatesGroupBox->setEnabled(false);
-        }
+    this->samplingRatesGroupBox = setupGroupBox(DCW_SAMPLING_RATE_TITLE,samplingRates, vLayout, samplingRatesRadioButtons);
+    for (int i = 0; i< samplingRatesRadioButtons.size(); i++){
+        connect(samplingRatesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigSamplingRateSelected(i);
+            }
+        });
     }
 
     /*! Downsampling ratio */
@@ -523,55 +389,38 @@ void DeviceControlDockWidget::setWidgetVisible(T& widget, bool status) {
     }
 }
 
-//void DeviceControlDockWidget::onRecordingStarted() {
-//    /*! \todo MPAC at the moment miccing ccCurrent and ccVoltage*/
-//    if (this->vcCurrentRangesGroupBox != nullptr){
-//        vcCurrentRangesPrevioueEnableStateBeforeRecording = this->vcCurrentRangesGroupBox->isEnabled();
-//        this->vcCurrentRangesGroupBox->setEnabled(false);
-//    }
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> radioButtons){
+    if (rangedMeasurements.size() == 0) {
+        return nullptr;
+    }
+    std::vector<Measurement> measurements;
+    for(auto rm: rangedMeasurements){
+        measurements.push_back(rm.getMax());
+    }
+    return setupGroupBox(title, measurements, parentLayout, radioButtons);
+}
 
-//    if (this->vcVoltageRangesGroupBox != nullptr){
-//        vcVoltageRangesPrevioueEnableStateBeforeRecording = this->vcVoltageRangesGroupBox->isEnabled();
-//        this->vcVoltageRangesGroupBox->setEnabled(false);
-//    }
-
-//    if (this->ccCurrentRangesGroupBox != nullptr){
-//        ccCurrentRangesPrevioueEnableStateBeforeRecording = this->ccCurrentRangesGroupBox->isEnabled();
-//        this->ccCurrentRangesGroupBox->setEnabled(false);
-//    }
-
-//    if (this->ccVoltageRangesGroupBox != nullptr){
-//        ccVoltageRangesPrevioueEnableStateBeforeRecording = this->ccVoltageRangesGroupBox->isEnabled();
-//        this->ccVoltageRangesGroupBox->setEnabled(false);
-//    }
-
-//    if (this->samplingRatesGroupBox != nullptr){
-//        samplingRatesPrevioueEnableStateBeforeRecording = this->samplingRatesGroupBox->isEnabled();
-//        this->samplingRatesGroupBox->setEnabled(false);
-//    }
-//    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
-//}
-
-//void DeviceControlDockWidget::onRecordingStopped() {
-//    if (this->vcCurrentRangesGroupBox != nullptr) {
-//        this->vcCurrentRangesGroupBox->setEnabled(vcCurrentRangesPrevioueEnableStateBeforeRecording);
-//    }
-
-//    if (this->vcVoltageRangesGroupBox != nullptr) {
-//        this->vcVoltageRangesGroupBox->setEnabled(vcVoltageRangesPrevioueEnableStateBeforeRecording);
-//    }
-
-//    if (this->ccCurrentRangesGroupBox != nullptr) {
-//        this->ccCurrentRangesGroupBox->setEnabled(ccCurrentRangesPrevioueEnableStateBeforeRecording);
-//    }
-
-//    if (this->ccVoltageRangesGroupBox != nullptr) {
-//        this->ccVoltageRangesGroupBox->setEnabled(ccVoltageRangesPrevioueEnableStateBeforeRecording);
-//    }
-
-//    if (this->samplingRatesGroupBox != nullptr) {
-//        this->samplingRatesGroupBox->setEnabled(samplingRatesPrevioueEnableStateBeforeRecording);
-//    }
-
-//    /*! \todo FCON Non credo sia necessario bloccare le opzioni di filtraggio durante le registrazioni */
-//}
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<Measurement> measurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> radioButtons){
+    if (measurements.size() == 0) {
+        return nullptr;
+    }
+    auto gb = new QGroupBox(QString::fromStdString(title));
+    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
+    radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
+    radioButtonsBoxLayout->setSpacing(2);
+    parentLayout->addWidget(gb);
+    for (int idx = 0; idx < measurements.size(); idx++){
+        QRadioButton * qrb = new QRadioButton(QString().fromStdString(measurements[idx].niceLabel()));
+        radioButtonsBoxLayout->addWidget(qrb);
+        radioButtons.push_back(qrb);
+    }
+    if (radioButtons.size() > 0) {
+        radioButtons[0]->setChecked(true);
+        radioButtons[0]->setCheckable(false);
+    }
+    gb->setLayout(radioButtonsBoxLayout);
+    if (measurements.size() == 1) {
+        gb->setEnabled(false);
+    }
+    return gb;
+}
