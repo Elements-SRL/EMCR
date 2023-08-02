@@ -32,10 +32,11 @@ PlotPreferencesDialog::PlotPreferencesDialog(int channelsNum, int channelsPerBoa
 
     QHBoxLayout * otherButtonsHl = new QHBoxLayout;
 
-//    QPushButton * darkModeBtn = new QPushButton("Dark mode");
-//    darkModeBtn->setCheckable(true);
-//    darkModeBtn->setChecked(darkModeFlag);
-//    otherButtonsHl->addWidget(darkModeBtn);
+    darkModeBtn = new QPushButton("Dark mode");
+    darkModeBtn->setCheckable(true);
+    otherButtonsHl->addWidget(darkModeBtn);
+
+    connect(darkModeBtn, &QPushButton::clicked, this, &PlotPreferencesDialog::darkModeButtonClicked);
 
     /*! Reset to defaults button */
     QPushButton * restoreDefaultBtn = new QPushButton("Restore defaults");
@@ -60,4 +61,8 @@ void PlotPreferencesDialog::setColor(SettingType_t type, int channelIdx, QColor 
     case DarkMode:
         break;
     }
+}
+
+void PlotPreferencesDialog::setDarkMode(bool flag) {
+    darkModeBtn->setChecked(flag);
 }

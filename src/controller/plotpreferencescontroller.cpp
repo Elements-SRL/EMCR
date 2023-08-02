@@ -28,6 +28,16 @@ PlotPreferencesController::PlotPreferencesController(MessageDispatcher * msgDisp
         }
     });
 
+    connect(dialog, &PlotPreferencesDialog::darkModeButtonClicked, this, [=] (bool flag) {
+        model->setDarkMode(flag);
+        QVector <QColor> colors = model->getColors();
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            dialog->setColor(PlotPreferencesDialog::CurrentColor, idx, colors[idx]);
+        }
+        emit sigCurrentColorsChanged(colors);
+        emit sigBackgroundChanged(model->getBackGroundColor());
+    });
+
     connect(dialog, &PlotPreferencesDialog::restoreDefaultButtonClicked, this, [=] () {
         model->restoreDefaultColors();
         QVector <QColor> colors = model->getColors();
@@ -57,4 +67,6 @@ void PlotPreferencesController::initializePlotColors() {
     }
 
     emit sigCurrentColorsChanged(colors);
+
+    dialog->setDarkMode(model->isDarkModeActive());
 }

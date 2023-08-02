@@ -18,12 +18,15 @@ public:
     PlotPreferencesDialog(int channelsNum, int channelsPerBoard, QWidget * parent = nullptr);
 
     void setColor(SettingType_t type, int channelIdx, QColor color);
+    void setDarkMode(bool flag);
 
 private:
     QVector <ColorSelectionButton *> currentBtns;
+    QPushButton * darkModeBtn = nullptr;
 
 signals:
     void channelButtonClicked(int channelIdx);
+    void darkModeButtonClicked(bool flag);
     void restoreDefaultButtonClicked();
 };
 

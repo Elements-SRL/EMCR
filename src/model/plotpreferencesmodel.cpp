@@ -32,11 +32,43 @@ QVector <QColor> PlotPreferencesModel::getColors() {
     return selectedCurrentColors;
 }
 
+QColor PlotPreferencesModel::getBackGroundColor() {
+    return backgroundColor;
+}
+
+void PlotPreferencesModel::setDarkMode(bool flag) {
+    QSettings settings;
+    bool toggleColorsFlag = (darkModeFlag != flag ? true : false);
+    darkModeFlag = flag;
+    settings.setValue(this->tagName(PlotPreferencesDialog::DarkMode, 0), flag);
+
+    if (flag) {
+        backgroundColor = QColor(Qt::black);
+
+    } else {
+        backgroundColor = QColor(Qt::white);
+    }
+
+    if (toggleColorsFlag) {
+        for (int channelIdx = 0; channelIdx < channelsNum; channelIdx++) {
+            QColor color = selectedCurrentColors[channelIdx];
+            color.setRed(255-color.red());
+            color.setGreen(255-color.green());
+            color.setBlue(255-color.blue());
+            this->setColor(PlotPreferencesDialog::CurrentColor, channelIdx, color);
+        }
+    }
+}
+
 void PlotPreferencesModel::restoreDefaultColors() {
     defaultCurrentColors.resize(channelsNum);
     for (int idx = 0; idx < channelsNum; idx++) {
         this->setColor(PlotPreferencesDialog::CurrentColor, idx, defaultCurrentColors[idx]);
     }
+}
+
+bool PlotPreferencesModel::isDarkModeActive() {
+    return darkModeFlag;
 }
 
 QString PlotPreferencesModel::tagName(PlotPreferencesDialog::SettingType_t type, int channelIdx) {

@@ -10,7 +10,10 @@ public:
     void setColor(PlotPreferencesDialog::SettingType_t type, int channelIdx, QColor color);
     QColor getColor(int idx);
     QVector <QColor> getColors();
+    QColor getBackGroundColor();
+    void setDarkMode(bool flag);
     void restoreDefaultColors();
+    bool isDarkModeActive();
 
 private:
     void loadSettings();
@@ -19,6 +22,7 @@ private:
     int channelsNum;
     QVector <QColor> selectedCurrentColors;
     QVector <QColor> defaultCurrentColors;
+    QColor backgroundColor;
     bool darkModeFlag = false;
 };
 

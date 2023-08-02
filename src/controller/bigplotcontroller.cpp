@@ -105,6 +105,10 @@ void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
     voltageCurves[channelIdx]->setColor(color);
 }
 
+void BigPlotController::onBackgroundColorChanged(QColor color) {
+    plot->setCanvasBackground(color);
+}
+
 void BigPlotController::handleZoomInRequest(Rect4 r){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
     bpm->updateCurrentZoom(r);
