@@ -264,8 +264,8 @@ void MainController::onMainWindowCreated() {
         }
     });
 
-    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       chessboardController->getStampPlotController(), &StampPlotController::onSetGapFreePlotData);
-    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   chessboardController->getStampPlotController(), &StampPlotController::onReplot);
+    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       chessboardController, &ChessboardController::onSetGapFreePlotData);
+    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   chessboardController, &ChessboardController::onReplot);
 
     connect(bigPlotController, &BigPlotController::durationChanged, bigPlotConsumer, &GapFreePlotConsumer::onDurationChanged);
 
@@ -293,7 +293,7 @@ void MainController::onMainWindowCreated() {
     stampPlotConsumer->onDurationChanged(defaultPlotDuration);
     bigPlotConsumer->onDurationChanged(defaultPlotDuration);
 
-    chessboardController->getStampPlotController()->onDurationUpdated(defaultPlotDuration);
+    chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
     bigPlotController->onRangeUpdated(plotRange, QwtPlot::Axis::xBottom);
 
@@ -399,7 +399,7 @@ void MainController::onVcCurrentRangeSelected(int) {
         consumer->onCurrentRangeChanged(range);
     }
 
-    chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yLeft);
+    chessboardController->onRangeUpdated(range, QwtPlot::yLeft);
     bigPlotController->onRangeUpdated(range, QwtPlot::yLeft);
 }
 
@@ -413,7 +413,7 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
     }
-    chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yRight);
+    chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range, QwtPlot::yRight);
     mainWindow->getSingleChannelControlsDockWidget()->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
@@ -429,7 +429,7 @@ void MainController::onCcCurrentRangeSelected(int idx) {
         consumer->onCurrentRangeChanged(range);
     }
 
-    chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yLeft);
+    chessboardController->onRangeUpdated(range, QwtPlot::yLeft);
     bigPlotController->onRangeUpdated(range, QwtPlot::yLeft);
     mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
@@ -444,7 +444,7 @@ void MainController::onCcVoltageRangeSelected(int) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
     }
-    chessboardController->getStampPlotController()->onRangeUpdated(range, QwtPlot::yRight);
+    chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range, QwtPlot::yRight);
 }
 

@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include "chessboarddockwidget.h"
-#include "stampplotcontroller.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
 
@@ -15,19 +14,36 @@ public:
     ChessboardController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
     ~ChessboardController();
 
-    StampPlotController * getStampPlotController();
+    void clearCurves();
+    void clearPlots();
+    void channelsTurnedOnOff(bool flag);
+    void stimuliTurnedOnOff(bool flag);
+    void docTurnedOnOff(bool flag);
+    void tracesExpandedOnOff(bool flag);
 
 public slots:
     void onChannelsTurnedOnOff(bool flag);
     void onStimuliTurnedOnOff(bool flag);
     void onDocTurnedOnOff(bool flag);
     void onTracesExpandedOnOff(bool flag);
+    void onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx = QwtPlot::yLeft);
+    void onDurationUpdated(Measurement_t duration);
+    void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
+    void onReplot();
+    void onSelectedPlotsUpdated();
 
 private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
-    StampPlotController * stamplPlotController = nullptr;
     ChessboardDockWidget * chessboard = nullptr;
+
+    QVector <StampPlot *> plots;
+    QVector <Curve *> currentCurves;
+
+    std::vector <ChannelModel *> channels;
+
+    int voltageChannelsNum;
+    int currentChannelsNum;
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);
