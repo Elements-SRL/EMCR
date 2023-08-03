@@ -5,7 +5,7 @@ BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainW
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
 
-    if (msgDisp->hasGateVoltageTuners() != Success && msgDisp->hasSourceVoltageTuners() != Success) {
+    if (msgDisp->hasGateVoltages() != Success && msgDisp->hasSourceVoltages() != Success) {
 //        TODO SHOULD THIS RETURN AN ERROR?
         return;
     }
@@ -19,8 +19,8 @@ BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainW
 
 void BoardController::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
     /*Set gate and source voltages in messageDispatcher*/
-    msgDisp->setGateVoltagesTuner(gateVoltageBoardIndexes, gateVoltages, true);
-    msgDisp->setSourceVoltagesTuner(sourceVoltageBoardIndexes, sourceVoltages, true);
+    msgDisp->setGateVoltages(gateVoltageBoardIndexes, gateVoltages, true);
+    msgDisp->setSourceVoltages(sourceVoltageBoardIndexes, sourceVoltages, true);
 
     /*Set gate and source voltages in the model*/
     std::vector <BoardModel *> myBoards;

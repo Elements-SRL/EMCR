@@ -465,25 +465,6 @@ void MainWindow::destroyGuiControls() {
     actionRecordingSettings->setEnabled(false);
     actionPlotPreferences->setEnabled(false);
 
-//    if (plotPreferencesDlg != nullptr) {
-//        delete plotPreferencesDlg;
-//        plotPreferencesDlg = nullptr;
-//    }
-//    actionPlotPreferences->setEnabled(false);
-
-//    if (menuFrontEndResetDenoiser->isEnabled()) {
-//        settings.setValue("Preferences/frontEndResetDenoiser", actionFrontEndResetDenoiserEnable->isChecked());
-//        menuFrontEndResetDenoiser->setEnabled(false);
-//    }
-
-//    if (actionDigitalOffsetCompensationAutostop->isEnabled()) {
-//        settings.setValue("Preferences/digitalOffsetCompensationAutostop", actionDigitalOffsetCompensationAutostop->isChecked());
-//        actionDigitalOffsetCompensationAutostop->setEnabled(false);
-//    }
-
-//    menuReset->setEnabled(false);
-//    this->removeViewActions();
-
     for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
         if (dockWidgets[dockIdx] != nullptr) {
             delete dockWidgets[dockIdx];
@@ -499,23 +480,6 @@ void MainWindow::destroyGuiControls() {
         }
     }
     analysisWidgets.clear();
-
-//    if (deviceDataProducer!= nullptr) {
-//        deviceDataProducer->onStopProducing();
-//    }
-
-//    for (int consumerIdx = 0; consumerIdx < consumers.size(); consumerIdx++) {
-//        if (consumers[consumerIdx] != nullptr) {
-//            consumers[consumerIdx]->onStopConsuming();
-//            delete consumers[consumerIdx];
-//            consumers[consumerIdx] = nullptr;
-//        }
-//    }
-
-//    if (deviceDataProducer != nullptr) {
-//        delete deviceDataProducer; /*! The destructor also stops the producer thread */
-//        deviceDataProducer = nullptr;
-//    }
 
     this->takeCentralWidget();
 

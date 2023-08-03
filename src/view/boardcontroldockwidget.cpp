@@ -41,7 +41,7 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
     }
 
     RangedMeasurement_t gateRange;
-    if (msgDisp->getGateVoltagesTunerFeatures(gateRange) == Success) {
+    if (msgDisp->getGateVoltagesFeatures(gateRange) == Success) {
         MySpinBox* gateSpinBox;
         QString gateUnit = QString().fromStdString(gateRange.getFullUnit());
         int row = 1;
@@ -72,7 +72,7 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
     }
 
     RangedMeasurement_t sourceRange;
-    if (msgDisp->getSourceVoltagesTunerFeatures(sourceRange) == Success) {
+    if (msgDisp->getSourceVoltagesFeatures(sourceRange) == Success) {
         MySpinBox* sourceSpinBox;
         QString sourceUnit = QString().fromStdString(sourceRange.getFullUnit());
         int row = 1;
@@ -146,7 +146,7 @@ std::vector<uint16_t> BoardControlDockWidget::getChangedChannelIndexes(std::vect
 
 void BoardControlDockWidget::onApplyButtonClicked(){
     RangedMeasurement_t range;
-    msgDisp->getGateVoltagesTunerFeatures(range);
+    msgDisp->getGateVoltagesFeatures(range);
     std::vector<Measurement_t> gateChangedVoltages;
     std::vector<uint16_t> gateChangedChannelIndexes = this->getChangedChannelIndexes(this->gateSpinBoxes, this->previousGateSpinBoxValues);
     gateChangedVoltages.resize(gateChangedChannelIndexes.size());
@@ -156,7 +156,7 @@ void BoardControlDockWidget::onApplyButtonClicked(){
         gateChangedVoltages[i] = {changedValue, range.prefix, range.unit};
     }
 
-    msgDisp->getSourceVoltagesTunerFeatures(range);
+    msgDisp->getSourceVoltagesFeatures(range);
     std::vector<Measurement_t> sourceChangedVoltages;
     std::vector<uint16_t> sourceChangedChannelIndexes = this->getChangedChannelIndexes(this->sourceSpinBoxes, this->previousSourceSpinBoxValues);
     sourceChangedVoltages.resize(sourceChangedChannelIndexes.size());

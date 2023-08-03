@@ -69,4 +69,6 @@ void PlotPreferencesController::initializePlotColors() {
     emit sigCurrentColorsChanged(colors);
 
     dialog->setDarkMode(model->isDarkModeActive());
+
+    emit sigBackgroundChanged(model->getBackGroundColor());
 }
