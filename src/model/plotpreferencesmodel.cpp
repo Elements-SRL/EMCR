@@ -61,6 +61,8 @@ void PlotPreferencesModel::setDarkMode(bool flag) {
 }
 
 void PlotPreferencesModel::restoreDefaultColors() {
+    this->setDarkMode(false);
+
     defaultCurrentColors.resize(channelsNum);
     for (int idx = 0; idx < channelsNum; idx++) {
         this->setColor(PlotPreferencesDialog::CurrentColor, idx, defaultCurrentColors[idx]);
@@ -123,4 +125,5 @@ void PlotPreferencesModel::loadSettings() {
     }
 
     darkModeFlag = settings.value(this->tagName(PlotPreferencesDialog::DarkMode, 0), false).toBool();
+    this->setDarkMode(darkModeFlag);
 }

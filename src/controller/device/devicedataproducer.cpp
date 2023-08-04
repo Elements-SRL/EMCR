@@ -40,6 +40,10 @@ DeviceDataProducer::DeviceDataProducer(MessageDispatcher * msgDisp, QObject * pa
         floatDataSamplesBuffer[packetIdx] = floatDataSamplesBuffer[packetIdx-1]+totalChannelsNum;
     }
     floatLiquidJunctionBuffer = new double[currentChannelsNum];
+
+    exitedDataProducingLoop = true;
+    dataPacketsIdx = 0;
+    newLiquidJunctionData = false;
 }
 
 DeviceDataProducer::~DeviceDataProducer() {

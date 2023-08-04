@@ -93,23 +93,22 @@ QSize BigPlot::minimumSizeHint() const {
     return QSize(200, 300);
 }
 
-//This is needed to make the labels of the axis estetically pleasing
 void BigPlot::drawCanvas(QPainter * p) {
     QwtPlot::drawCanvas(p);
-    this->resizeEvent(nullptr);
+    this->handleLabelsPosition();
 }
 
 void BigPlot::setLabel(QString text, QwtPlot::Axis axis){
     switch (axis) {
-        case QwtPlot::Axis::xBottom:
-            setAndFormatText(text, xUnit);
-            break;
-        case QwtPlot::Axis::yLeft:
-            setAndFormatText(text, yUnit);
-            break;
-        case QwtPlot::Axis::yRight:
-            setAndFormatText(text, plotTitle, Qt::AlignRight);
-            break;
+    case QwtPlot::Axis::xBottom:
+        setAndFormatText(text, xUnit);
+        break;
+    case QwtPlot::Axis::yLeft:
+        setAndFormatText(text, yUnit);
+        break;
+    case QwtPlot::Axis::yRight:
+        setAndFormatText(text, plotTitle, Qt::AlignRight);
+        break;
     }
 }
 
@@ -144,55 +143,10 @@ void BigPlot::shiftVertAxis(Axis axis, double shiftValue) {
     this->replot();
 }
 
-
-//void BigPlot::onHorzZoomInRequest(Rect4 * rect) {
-//    if ((rect->at(xBottom).width() == 0.0)) {
-//        return;
-//    }
-
-//    Rect4 newRect = * rect;
-//    newRect[yLeft] = this->axisInterval(yLeft);
-//    if (this->axisEnabled(yRight)) {
-//        newRect[yRight] = this->axisInterval(yRight);
-//    }
-//    emit zoomInRequest(newRect);
-//}
-
-//void BigPlot::onVertZoomInRequest(Rect4 * rect) {
-//    if ((rect->at(yLeft).width() == 0.0) && (rect->at(yRight).width() == 0.0)) {
-//        return;
-//    }
-
-//    Rect4 newRect = * rect;
-//    newRect[xBottom] = this->axisInterval(xBottom);
-//    emit zoomInRequest(newRect);
-//}
-
-//void BigPlot::onVertZoomFullRequest() {
-//    this->setAxisAutoScale(yLeft);
-
-//    this->replot();
-
-//    this->setAxisAutoScale(yLeft, false);
-//}
-
-//void BigPlot::onUpdateBaseline(Axis axisIdx, double baseline) {
-//    this->setAxisScale(axisIdx, baseline-yScale, baseline+yScale);
-//}
-
 void BigPlot::resizeEvent(QResizeEvent * e) {
-    if (e != nullptr) {
-        QwtPlot::resizeEvent(e);
-    }
+    QwtPlot::resizeEvent(e);
 
-    QSize siz = plotTitle->minimumSizeHint();
-    plotTitle->setGeometry(this->canvas()->x()+this->canvas()->width()-siz.width(), this->canvas()->y(), siz.width(), siz.height());
-
-    siz = xUnit->minimumSizeHint();
-    xUnit->setGeometry(this->canvas()->x()+this->canvas()->width()-siz.width(), this->canvas()->y()+this->canvas()->height()-siz.height(), siz.width(), siz.height());
-
-    siz = yUnit->minimumSizeHint();
-    yUnit->setGeometry(this->canvas()->x(), this->canvas()->y(), siz.width(), siz.height());
+    this->handleLabelsPosition();
 }
 
 void BigPlot::wheelEvent(QWheelEvent * we) {
@@ -203,7 +157,6 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
     QPoint angleDelta = we->angleDelta();
     // Check the vertical rotation
     int verticalRotation = angleDelta.y();
-    bool zoomIn = verticalRotation > 0;
     switch (key) {
         case Qt::Modifier::CTRL:
         emit singleAxisZoomRequest(vertAxis, verticalRotation);
@@ -212,8 +165,6 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
         emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, verticalRotation);
         break;
     }
-//    double p = this->axisInterval(vertAxis).width()*0.05;
-//    this->shiftVertAxis(vertAxis, we->delta() < 0 ? p : -p);
 }
 
 void BigPlot::recomputeXAxisFactor(double duration) {
@@ -288,4 +239,15 @@ void BigPlot::onZoomOutPickerSelected(const QPointF &) {
 
 void BigPlot::onZoomResetPickerSelected(const QPointF &) {
     emit zoomResetRequest();
+}
+
+void BigPlot::handleLabelsPosition() {
+    QSize siz = plotTitle->minimumSizeHint();
+    plotTitle->setGeometry(this->canvas()->x()+this->canvas()->width()-siz.width(), this->canvas()->y(), siz.width(), siz.height());
+
+    siz = xUnit->minimumSizeHint();
+    xUnit->setGeometry(this->canvas()->x()+this->canvas()->width()-siz.width(), this->canvas()->y()+this->canvas()->height()-siz.height(), siz.width(), siz.height());
+
+    siz = yUnit->minimumSizeHint();
+    yUnit->setGeometry(this->canvas()->x(), this->canvas()->y(), siz.width(), siz.height());
 }

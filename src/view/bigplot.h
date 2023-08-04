@@ -22,7 +22,6 @@ namespace commlib = e384CommLib;
 class BigPlot : public QwtPlot {
     Q_OBJECT
 
-
 private:
     void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
 
@@ -79,6 +78,8 @@ protected slots:
     virtual void onZoomResetPickerSelected(const QPointF &p);
 
 private:
+    void handleLabelsPosition();
+
     QVector <bool> rangeInitialized;
 
 signals:

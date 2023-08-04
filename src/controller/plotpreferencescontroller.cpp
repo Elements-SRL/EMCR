@@ -44,7 +44,10 @@ PlotPreferencesController::PlotPreferencesController(MessageDispatcher * msgDisp
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             dialog->setColor(PlotPreferencesDialog::CurrentColor, idx, colors[idx]);
         }
+        dialog->setDarkMode(model->isDarkModeActive());
+
         emit sigCurrentColorsChanged(colors);
+        emit sigBackgroundChanged(model->getBackGroundColor());
     });
 }
 
