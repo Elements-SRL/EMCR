@@ -389,7 +389,7 @@ void DeviceControlDockWidget::setWidgetVisible(T& widget, bool status) {
     }
 }
 
-QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> radioButtons){
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> &radioButtons){
     if (rangedMeasurements.size() == 0) {
         return nullptr;
     }
@@ -400,7 +400,7 @@ QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vecto
     return setupGroupBox(title, measurements, parentLayout, radioButtons);
 }
 
-QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<Measurement> measurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> radioButtons){
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<Measurement> measurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> &radioButtons){
     if (measurements.size() == 0) {
         return nullptr;
     }
@@ -416,7 +416,6 @@ QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vecto
     }
     if (radioButtons.size() > 0) {
         radioButtons[0]->setChecked(true);
-        radioButtons[0]->setCheckable(false);
     }
     gb->setLayout(radioButtonsBoxLayout);
     if (measurements.size() == 1) {
