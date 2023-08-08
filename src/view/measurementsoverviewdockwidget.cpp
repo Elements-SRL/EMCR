@@ -178,15 +178,15 @@ void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<int> newAc
     onUpdate();
 }
 
+void MeasurementsOverviewDockWidget::setLiquidJunctionResult(QVector <Measurement_t> result) {
+    applyTextFromMeasurement(liquidJunctionLabels, result);
+}
+
 void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResult * result) {
     applyTextFromValuesAndPfx(stdCurrentLabels, result->stdCurrent.toStdVector(), "A");
     applyTextFromValuesAndPfx(meanCurrentLabels, result->meanCurrent.toStdVector(), "A");
     applyTextFromValuesAndPfx(meanVoltageLabels, result->meanVoltage.toStdVector(), "V");
     applyTextFromValuesAndPfx(conductivityLabels, result->conductivity.toStdVector(), "S");
-}
-
-void MeasurementsOverviewDockWidget::onLiquidJunctionResult(QVector <Measurement_t> result) {
-    applyTextFromMeasurement(liquidJunctionLabels, result);
 }
 
 template<typename T>

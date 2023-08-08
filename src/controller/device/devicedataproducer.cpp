@@ -6,13 +6,10 @@
 static bool exitedDataProducingLoop = true;
 static QReadWriteLock dataLock;
 static QWaitCondition dataCv;
-static QReadWriteLock ljLock;
-static QWaitCondition ljCv;
 static int16_t ** dataSamplesBuffer;
 static double ** floatDataSamplesBuffer;
 static double * floatLiquidJunctionBuffer;
 static unsigned int dataPacketsIdx = 0;
-static bool newLiquidJunctionData = false;
 
 DeviceDataProducer::DeviceDataProducer(MessageDispatcher * msgDisp, QObject * parent) :
     QThread(parent),
@@ -43,7 +40,6 @@ DeviceDataProducer::DeviceDataProducer(MessageDispatcher * msgDisp, QObject * pa
 
     exitedDataProducingLoop = true;
     dataPacketsIdx = 0;
-    newLiquidJunctionData = false;
 }
 
 DeviceDataProducer::~DeviceDataProducer() {
@@ -71,10 +67,6 @@ DataHook * DeviceDataProducer::getDataHook() {
     hook->setBufferSize(dataPacketsBufferLen, dataPacketsBufferMask);
 
     return hook;
-}
-
-LiquidJunctionHook * DeviceDataProducer::getLiquidJunctionHook() {
-    return new LiquidJunctionHook(currentChannelsNum);
 }
 
 void DeviceDataProducer::onStopProducing() {
@@ -141,13 +133,6 @@ void DeviceDataProducer::run() {
                 bitRateLock.relock();
                 samplesReceived += dataHeader.dataLen;
                 bitRateLock.unlock();
-
-            } else if (dataHeader.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp) {
-                ljLock.lockForWrite();
-                msgDisp->convertLiquidJunctionValues(datain, floatLiquidJunctionBuffer, currentChannelsNum);
-                newLiquidJunctionData = true;
-                ljCv.wakeAll();
-                ljLock.unlock();
             }
 
         } else {
@@ -159,11 +144,6 @@ void DeviceDataProducer::run() {
     dataPacketsIdx = (dataPacketsIdx+(dataPacketsBufferLen >> 4)) & dataPacketsBufferMask;
     dataCv.wakeAll();
     dataLock.unlock();
-
-    ljLock.lockForWrite();
-    newLiquidJunctionData = true;
-    ljCv.wakeAll();
-    ljLock.unlock();
 
     exitedDataProducingLoop = true;
     exitedDataProducingLoopCv.wakeAll();
@@ -224,7 +204,7 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
 
     buffer.resize(dataPacketsToBuffer*totalChannelsNum);
     int count = 0;
-    unsigned int chIdx;
+    int chIdx;
     while (dataIdx != dataPacketsMax) {
         for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
             buffer[count++] = dataSamplesBuffer[dataIdx][chIdx];
@@ -274,7 +254,7 @@ bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingR
     buffer.resize(dataSamplesToBuffer);
     int count = 0;
 
-    unsigned int chIdx;
+    int chIdx;
     double value;
     if (downsamplingRatio > 1) {
         while (count < dataSamplesToBuffer-(int)totalChannelsNum) {
@@ -315,36 +295,4 @@ void DataHook::flush() {
     dataLock.lockForRead();
     dataIdx = dataPacketsIdx;
     dataLock.unlock();
-}
-
-LiquidJunctionHook::LiquidJunctionHook(unsigned int currentChannelsNum) :
-    currentChannelsNum(currentChannelsNum) {
-
-}
-
-LiquidJunctionHook::~LiquidJunctionHook() {
-
-}
-
-bool LiquidJunctionHook::getLiquidJunctionValues(QVector<double> &buffer) {
-    int waitCount = 0;
-    ljLock.lockForRead();
-    while (!newLiquidJunctionData &&
-           waitCount++ < DDP_MAX_WAIT_COUNT) {
-        ljCv.wait(&ljLock, 100);
-    }
-
-    if (!newLiquidJunctionData) {
-        ljLock.unlock();
-        return false;
-    }
-
-    newLiquidJunctionData = false;
-
-    buffer.resize(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        buffer[idx] = floatLiquidJunctionBuffer[idx];
-    }
-    ljLock.unlock();
-    return true;
 }

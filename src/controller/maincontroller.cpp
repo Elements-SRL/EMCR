@@ -163,9 +163,6 @@ void MainController::onMainWindowCreated() {
     liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, deviceDataProducer);
     consumers.append(liveStatisticsConsumer);
 
-    liquidJunctionConsumer = new LiquidJunctionConsumer(msgDisp, deviceDataProducer);
-    consumers.append(liquidJunctionConsumer);
-
     mainWindow->addViewActions();
 
     calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
@@ -186,8 +183,6 @@ void MainController::onMainWindowCreated() {
     connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   measurementOverviewController, &MeasurementOverviewController::onSingleChannelClicked);
 
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::sigLiveStatisticsResult);
-    connect(liquidJunctionConsumer, &LiquidJunctionConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::sigLiquidJunctionResult);
-
 
     connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
     connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);
@@ -199,13 +194,14 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
 
-    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                       &MainController::onStartRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                       &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,            &PlotConsumer::onSelectChannels);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,       &ChessboardController::onTracesExpandedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,       &ChessboardController::onChannelsTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,       &ChessboardController::onStimuliTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,       &ChessboardController::onDocTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                           &MainController::onStartRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                           &MainController::onStopRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,                &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,           &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,           &ChessboardController::onDocTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       measurementOverviewController,  &MeasurementOverviewController::onLiquidJunctionResult);
 
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, bigPlotController, &BigPlotController::onCurrentColorsChanged);
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  bigPlotController, &BigPlotController::onCurrentColorChanged);
@@ -322,7 +318,6 @@ void MainController::onMainWindowCreated() {
 
     plotPreferencesController->initializePlotColors();
 
-//    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationPath(), "boardMapping.csv");
     calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationDir(), calibratorConsumer->getCalibrationMappingFilePath());
 
     /*! Start threads */
@@ -509,7 +504,6 @@ void MainController::startProducerConsumers() {
     stampPlotConsumer->onStartConsuming();
     bigPlotConsumer->onStartConsuming();
     liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
-    liquidJunctionConsumer->onStartConsuming();
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
@@ -535,12 +529,6 @@ void MainController::stopAndDestroyProducerConsumers() {
         liveStatisticsConsumer->onStopConsuming();
         delete liveStatisticsConsumer;
         liveStatisticsConsumer = nullptr;
-    }
-
-    if (liquidJunctionConsumer!= nullptr) {
-        liquidJunctionConsumer->onStopConsuming();
-        delete liquidJunctionConsumer;
-        liquidJunctionConsumer = nullptr;
     }
 
     if (calibratorConsumer!= nullptr) {

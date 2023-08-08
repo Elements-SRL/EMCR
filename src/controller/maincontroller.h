@@ -17,7 +17,6 @@
 #include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
 #include "livestatisticsconsumer.h"
-#include "liquidjunctionconsumer.h"
 #include "calibrationconsumer.h"
 #include "protocolmanager.h"
 #include "statearraycontroller.h"
@@ -66,7 +65,6 @@ private:
     GapFreePlotConsumer * bigPlotConsumer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
-    LiquidJunctionConsumer * liquidJunctionConsumer = nullptr;
     CalibrationConsumer * calibratorConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;

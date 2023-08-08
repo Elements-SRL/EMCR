@@ -26,7 +26,6 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/device/consumer/liquidjunctionconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
@@ -103,7 +102,6 @@ SOURCES += \
     src/abf/axon.cpp
 
 HEADERS += \
-    src/controller/device/consumer/liquidjunctionconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \

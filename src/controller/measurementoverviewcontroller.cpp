@@ -9,7 +9,6 @@ MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher *
     modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
 
     connect(this, &MeasurementOverviewController::sigLiveStatisticsResult, modw, &MeasurementsOverviewDockWidget::onLiveStatisticsResult);
-    connect(this, &MeasurementOverviewController::sigLiquidJunctionResult, modw, &MeasurementsOverviewDockWidget::onLiquidJunctionResult);
 
     mainWindow->setMeasurementOverviewDw(modw);
 }
@@ -31,6 +30,25 @@ void MeasurementOverviewController::onExportLiveNoiseEstimates() {
 //        stream << noise << "\n";
 //    }
     file.close();
+}
+
+void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
+    if (!started) {
+        std::vector <uint16_t> channelIdxs(currentChannelsNum);
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            channelIdxs[idx] = idx;
+        }
+
+        std::vector <Measurement_t> stdVoltages;
+        msgDisp->getLiquidJunctionVoltages(channelIdxs, stdVoltages);
+        QVector <Measurement_t> voltages(currentChannelsNum);
+
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            voltages[idx] = stdVoltages[idx];
+        }
+
+        modw->setLiquidJunctionResult(voltages);
+    }
 }
 
 void MeasurementOverviewController::onSingleChannelClicked(uint16_t, bool){

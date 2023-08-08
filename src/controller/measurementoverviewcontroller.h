@@ -20,6 +20,7 @@ public slots:
     void onAllChannelsClicked(bool newState);
 
     void onExportLiveNoiseEstimates();
+    void onLiquidJunctionResult(bool started);
 
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
@@ -34,7 +35,6 @@ private:
 
 signals:
     void sigLiveStatisticsResult(StatisticsResult * result);
-    void sigLiquidJunctionResult(QVector <Measurement_t> result);
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H

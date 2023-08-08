@@ -8,7 +8,6 @@
 #include <QLabel>
 #include <QPushButton>
 
-//#include "messagedispatcher.h"
 #include "errormanager.h"
 #include "model/statisticsresult.h"
 
@@ -16,7 +15,6 @@ class MeasurementsOverviewDockWidget : public QDockWidget {
     Q_OBJECT
 
 private:
-//    MessageDispatcher * msgDisp = nullptr;
     QVBoxLayout * mainVl;
     QWidget * mainWg;
     QLabel * channelIndexesLabel;
@@ -51,16 +49,15 @@ private:
 public:
     MeasurementsOverviewDockWidget(std::vector<int> activeChannels, int voltageChannels, int currentChannels, QWidget * parent = nullptr);
     void updateActiveChannels(std::vector<int> newActiveChannels);
+    void setLiquidJunctionResult(QVector <Measurement_t> result);
 
 public slots:
     void onUpdate();
     void onLiveStatisticsResult(StatisticsResult * result);
-    void onLiquidJunctionResult(QVector <Measurement_t> result);
 
 signals:
     void testSignal();
     void sigAppliedHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues);
 };
-
 
 #endif // MEASUREMENTSOVERVIEWDOCKWIDGET_H
