@@ -158,11 +158,16 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
     // Check the vertical rotation
     int verticalRotation = angleDelta.y();
     switch (key) {
-        case Qt::Modifier::CTRL:
+    case Qt::Modifier::CTRL:
         emit singleAxisZoomRequest(vertAxis, verticalRotation);
         break;
+
     case Qt::Modifier::SHIFT:
         emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, verticalRotation);
+        break;
+
+    default:
+        emit singleAxisShiftRequest(vertAxis, verticalRotation);
         break;
     }
 }

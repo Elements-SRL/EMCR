@@ -45,5 +45,6 @@ public:
     QwtInterval getCurrentZoomInterval(QwtPlot::Axis);
     void updateCurrentZoom(Rect4);
     Rect4 zoomOnSingleAxis(QwtPlot::Axis, int);
+    Rect4 shiftOnSingleAxis(QwtPlot::Axis, int);
 };
 #endif // BIGPLOTMODEL_H

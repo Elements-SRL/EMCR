@@ -92,7 +92,7 @@ Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, int zoomInFactor){
     auto currentZoom = getZoom(Current);
     const auto interval = currentZoom[ax];
     const auto min = interval.minValue();
-    const auto max = currentZoom[ax].maxValue();
+    const auto max = interval.maxValue();
     const auto zoom = (double) zoomInFactor/100;
     const auto divisor = (zoom>0 ?zoom:-1/zoom);
     const auto newMin = min / divisor;
@@ -102,5 +102,17 @@ Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, int zoomInFactor){
     const auto maxMax = maxFactor*getCurrentRange(ax).getMax().value;
 //    if the new values are too big or too small use the the min and max of the current range multiplied by maxFactor
     currentZoom[ax].setInterval((newMin<maxMin)?maxMin:newMin, (newMax>maxMax)?maxMax:newMax);
+    return currentZoom;
+}
+
+Rect4 BigPlotModel::shiftOnSingleAxis(QwtPlot::Axis ax, int shiftFactor){
+    auto currentZoom = getZoom(Current);
+    const auto interval = currentZoom[ax];
+    const auto min = interval.minValue();
+    const auto max = interval.maxValue();
+    const auto shift = (double) shiftFactor/10000*(max-min);
+    const auto newMin = min - shift;
+    const auto newMax = max - shift;
+    currentZoom[ax].setInterval(newMin, newMax);
     return currentZoom;
 }

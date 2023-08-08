@@ -87,6 +87,7 @@ signals:
     void zoomOutRequest();
     void zoomResetRequest();
     void singleAxisZoomRequest(QwtPlot::Axis, int);
+    void singleAxisShiftRequest(QwtPlot::Axis, int);
 };
 
 #endif // BIGPLOT_H

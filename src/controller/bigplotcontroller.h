@@ -43,6 +43,7 @@ private slots:
     void handleZoomOutRequest();
     void handleZoomResetRequest();
     void handleSingleAxisZoomRequest(QwtPlot::Axis, int);
+    void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
 
 signals:
     void durationChanged(Measurement_t duration);

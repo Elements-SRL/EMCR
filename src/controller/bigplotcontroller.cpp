@@ -27,6 +27,7 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
     connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
     connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
     connect(plot, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
+    connect(plot, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
 }
 
 BigPlotController::~BigPlotController() {
@@ -125,6 +126,13 @@ void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoom
     if (axis == QwtPlot::Axis::xBottom){
         emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
     }
+}
+
+void BigPlotController::handleSingleAxisShiftRequest(QwtPlot::Axis axis, int shift){
+//    non idale, rischio di incoerenza con le altre chiamate nel model
+    bpm->updateCurrentZoom(bpm->shiftOnSingleAxis(axis, shift));
+    auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
+    plot->setRect(zoom);
 }
 
 void BigPlotController::handleZoomOutRequest(){
