@@ -7,9 +7,8 @@ SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, Ma
     mainWindow(mainWindow) {
 
     singleChannelControlsDw = new SingleChannelControlDockWidget(msgDisp);
-    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedHoldValues, this, [=](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
-        onApplyHoldValues(channelIndexes, holdValues);
-    });
+    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedHoldValues, this, &SingleChannelController::onApplyHoldValues);
+    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigLiquidJunctionValues, this, &SingleChannelController::onLiquidJunctionValues);
 
     if (mainWindow->getCompensationControlsDockWidget() != nullptr) {
         connect(mainWindow->getCompensationControlsDockWidget(), &CompensationControlDockWidget::sigCompensationsApplied, this, [=](std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
@@ -56,6 +55,15 @@ void SingleChannelController::onApplyHoldValues(std::vector<uint16_t> channelInd
 
     } else {
         msgDisp->setCurrentHoldTuner(channelIndexes, holdValues, true);
+    }
+}
+
+void SingleChannelController::onLiquidJunctionValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> values){
+    ClampingModality_t mode;
+    msgDisp->getClampingModality(mode);
+
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+        msgDisp->setLiquidJunctionVoltage(channelIndexes, values, true);
     }
 }
 

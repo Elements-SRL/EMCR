@@ -3,7 +3,6 @@
 
 #include <QDockWidget>
 #include <QComboBox>
-#include <QCheckBox>
 #include <QBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -31,6 +30,7 @@ protected:
 private:
     typedef enum Operations {
         OperationHoldingStimulus,
+        OperationLiquidJunction,
         OperationsNum
     } Operations_t;
 
@@ -46,7 +46,7 @@ private:
     int voltageChannelsNum;
     int currentChannelsNum;
     QComboBox * operationCbx = nullptr;
-    SpinBoxWithChannel * setAllVholdSpinBox = nullptr;
+    QVector <SpinBoxWithChannel *> setAllWidgets;
 
     QPushButton* startRecordingBtn = nullptr;
     QPushButton* stopRecordingBtn = nullptr;
@@ -58,7 +58,8 @@ private:
 
     QVector <QWidget *> operationButtonWidgets;
     RangedMeasurement_t holdingTunerRange;
-    MySpinBox * setAllChannelsSbx;
+    RangedMeasurement_t liquidJunctionRange;
+    QVector <MySpinBox *> setAllChannelsSbxs;
 
 private slots:
     void onOperationSelected(int operationIdx);
@@ -69,7 +70,8 @@ private slots:
     void onSetAllButtonClicked();
 
 signals:
-    void sigAppliedHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues);
+    void sigAppliedHoldValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
+    void sigLiquidJunctionValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
 };
 
 class SpinBoxWithChannel : public QWidget {

@@ -24,6 +24,7 @@ private:
     QPushButton * turnStimulusOffBtn = nullptr;
     QPushButton * offsetCompensationOnBtn = nullptr;
     QPushButton * offsetCompensationOffBtn = nullptr;
+    QPushButton * offsetCompensationResetBtn = nullptr;
     QPushButton * expandTraceBtn = nullptr;
     QPushButton * reduceTraceBtn = nullptr;
     QPushButton * recordingStartBtn = nullptr;
@@ -34,6 +35,7 @@ signals:
     void sigTurnChannelOff();
     void sigTurnDocOn();
     void sigTurnDocOff();
+    void sigResetDoc();
     void sigTurnStimulsOn();
     void sigTurnStimulsOff();
     void sigStartRecording();

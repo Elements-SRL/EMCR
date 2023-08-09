@@ -12,11 +12,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     setObjectName("multipleChannelControlsDw");
     this->setWidget(mainWg);
 
-//    QVBoxLayout * mainVl = new QVBoxLayout();
-//    mainVl->setContentsMargins(0, 0, 0, 0);
-//    mainVl->setSpacing(1);
-//    mainWg->setLayout(mainVl);
-
     QGridLayout * mainGl = new QGridLayout;
     mainWg->setLayout(mainGl);
 
@@ -52,6 +47,9 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         offsetCompensationOffBtn = new QPushButton("OFF");
         connect(offsetCompensationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnDocOff);
         mainGl->addWidget(offsetCompensationOffBtn, rowIdx, 2);
+        offsetCompensationResetBtn = new QPushButton("RESET");
+        connect(offsetCompensationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetDoc);
+        mainGl->addWidget(offsetCompensationResetBtn, rowIdx, 3);
         rowIdx++;
     }
 

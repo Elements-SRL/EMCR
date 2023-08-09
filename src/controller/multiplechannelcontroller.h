@@ -21,6 +21,7 @@ private:
     void turnSelectedChannelsOnOff(bool flag);
     void turnSelectedStimuliOnOff(bool flag);
     void turnSelectedDocOnOff(bool flag);
+    void resetDoc();
     void addRemoveFromBigPlot(bool flag);
 
     MessageDispatcher * msgDisp = nullptr;
@@ -34,6 +35,7 @@ signals:
     void sigChannelsTurnedOnOff(bool flag);
     void sigStimuliTurnedOnOff(bool flag);
     void sigDocTurnedOnOff(bool flag);
+    void sigDocResetted();
     void sigAddRemoveFromBigPlot(bool flag);
 };
 

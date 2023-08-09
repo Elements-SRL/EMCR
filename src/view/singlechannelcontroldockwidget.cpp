@@ -22,24 +22,36 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
 
     operationTitles.resize(OperationsNum);
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
+    operationTitles[OperationLiquidJunction] = "Offset compensation";
 
     operationString.resize(OperationsNum);
     operationString[OperationHoldingStimulus] = "NOT USED";
+    operationString[OperationLiquidJunction] = "NOT USED";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
+
+    setAllChannelsSbxs.resize(OperationsNum);
+    setAllWidgets.resize(OperationsNum);
 
     operationWidgets.resize(OperationsNum);
     operationButtonWidgets.resize(OperationsNum);
     operationEdits.resize(OperationsNum);
     for (int idx = 0; idx < OperationsNum; idx++) {
         operationCbx->addItem(operationTitles[idx]);
-        operationWidgets[idx] = this->createOperationWidget(idx);
-        operationWidgets[idx]->setVisible(idx == 0);
-        mainVl->addWidget(operationWidgets[idx]);
-        operationButtonWidgets[idx] = this->createOperationButtonWidget(idx);
-        operationButtonWidgets[idx]->setVisible(idx == 0);
-        mainVl->addWidget(operationButtonWidgets[idx]);
+        if (idx != OperationLiquidJunction || msgDisp->hasOffsetCompensation() == Success) {
+            operationWidgets[idx] = this->createOperationWidget(idx);
+            operationWidgets[idx]->setVisible(idx == 0);
+            mainVl->addWidget(operationWidgets[idx]);
+            operationButtonWidgets[idx] = this->createOperationButtonWidget(idx);
+            operationButtonWidgets[idx]->setVisible(idx == 0);
+            mainVl->addWidget(operationButtonWidgets[idx]);
+
+        } else {
+            QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
+            QStandardItem * item = model->item(OperationLiquidJunction);
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        }
     }
 
     applyBtn = new QPushButton("Apply");
@@ -58,9 +70,7 @@ void SingleChannelControlDockWidget::onUpdate() {
     std::vector <bool> selectedChannels;
     msgDisp->getSelectedChannels(selectedChannels);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        for (int idx = 0; idx < OperationsNum; idx++) {
-            operationEdits[idx][channelIdx]->setVisible(selectedChannels[channelIdx]);
-        }
+        operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(selectedChannels[channelIdx]);
     }
 }
 
@@ -81,8 +91,8 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         std::vector<Measurement_t> values;
         std::vector<uint16_t> indexes;
 
-        for (int i = 0; i<selectedChannels.size(); i++) {
-            sbx = static_cast<SpinBoxWithChannel *>(operationEdits[operationIdx][i]);
+        for (int i = 0; i < selectedChannels.size(); i++) {
+            sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
             if (selectedChannels.at(i)) {
                 Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), holdingTunerRange.prefix, holdingTunerRange.unit};
                 values.push_back(myMeasurementValue);
@@ -91,6 +101,24 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         }
 
         emit sigAppliedHoldValues(indexes, values);
+        break;
+    }
+
+    case OperationLiquidJunction:{
+        SpinBoxWithChannel * sbx;
+        std::vector<Measurement_t> values;
+        std::vector<uint16_t> indexes;
+
+        for (int i = 0; i < selectedChannels.size(); i++) {
+            sbx = static_cast<SpinBoxWithChannel *>(operationEdits[operationIdx][i]);
+            if (selectedChannels.at(i)) {
+                Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), liquidJunctionRange.prefix, liquidJunctionRange.unit};
+                values.push_back(myMeasurementValue);
+                indexes.push_back(i);
+            }
+        }
+
+        emit sigLiquidJunctionValues(indexes, values);
         break;
     }
     }
@@ -130,10 +158,10 @@ void SingleChannelControlDockWidget::onSetAllButtonClicked() {
     std::vector<uint16_t> indexes;
     std::vector <bool> selectedChannels;
     msgDisp->getSelectedChannels(selectedChannels);
-    for (int i = 0; i<selectedChannels.size(); i++) {
-        spinBox = static_cast<SpinBoxWithChannel *>(operationEdits[operationCbx->currentIndex()][i]);
+    for (int i = 0; i < selectedChannels.size(); i++) {
+        spinBox = static_cast <SpinBoxWithChannel *> (operationEdits[operationCbx->currentIndex()][i]);
         if (selectedChannels.at(i)) {
-            spinBox->getSpinBox()->setValue(this->setAllVholdSpinBox->getSpinBox()->value());
+            spinBox->getSpinBox()->setValue(setAllWidgets[operationCbx->currentIndex()]->getSpinBox()->value());
         }
     }
 }
@@ -143,14 +171,28 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     msgDisp->getVoltageHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
-    setAllChannelsSbx->setSuffix(QString(" ") + unit);
-    setAllChannelsSbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
-    setAllChannelsSbx->setDecimals(holdingTunerRange.decimals());
+    setAllChannelsSbxs[OperationHoldingStimulus]->setSuffix(QString(" ") + unit);
+    setAllChannelsSbxs[OperationHoldingStimulus]->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
         sbx->setSuffix(QString(" ") + unit);
         sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
         sbx->setDecimals(holdingTunerRange.decimals());
+    }
+
+    if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
+        liquidJunctionRange = ranges[idx];
+        unit = QString().fromStdString(liquidJunctionRange.getFullUnit());
+        setAllChannelsSbxs[OperationLiquidJunction]->setSuffix(QString(" ") + unit);
+        setAllChannelsSbxs[OperationLiquidJunction]->setRange(liquidJunctionRange.min, liquidJunctionRange.max);
+        setAllChannelsSbxs[OperationLiquidJunction]->setDecimals(liquidJunctionRange.decimals());
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
+            sbx->setSuffix(QString(" ") + unit);
+            sbx->setRange(liquidJunctionRange.min, liquidJunctionRange.max);
+            sbx->setDecimals(liquidJunctionRange.decimals());
+        }
     }
 }
 
@@ -159,9 +201,9 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     msgDisp->getCurrentHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
-    setAllChannelsSbx->setSuffix(QString(" ") + unit);
-    setAllChannelsSbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
-    setAllChannelsSbx->setDecimals(holdingTunerRange.decimals());
+    setAllChannelsSbxs[OperationHoldingStimulus]->setSuffix(QString(" ") + unit);
+    setAllChannelsSbxs[OperationHoldingStimulus]->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
         sbx->setSuffix(QString(" ") + unit);
@@ -188,28 +230,33 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     msgDisp->getSelectedChannels(selectedChannels);
 
     operationEdits[idx].resize(currentChannelsNum);
-    switch (idx) {
-    case OperationHoldingStimulus: {
-        std::vector <RangedMeasurement_t> ranges;
-        msgDisp->getVoltageHoldTunerFeatures(ranges);
-        QString unit = QString().fromStdString(ranges[0].getFullUnit());
-        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            MySpinBox * sbx = new MySpinBox;
-            sbx->setSuffix(QString(" ") + unit);
-            sbx->setRange(ranges[0].min, ranges[0].max);
-            sbx->setValue(0.0);
-            sbx->setDecimals(ranges[0].decimals());
-            SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
-            widget->setVisible(selectedChannels[channelIdx]);
+    std::vector <RangedMeasurement_t> ranges;
 
-            scrollVl->addWidget(widget);
-            operationEdits[idx][channelIdx] = widget;
-        }
+    switch (idx) {
+    case OperationHoldingStimulus:
+        msgDisp->getVoltageHoldTunerFeatures(ranges);
+        break;
+
+    case OperationLiquidJunction:
+        msgDisp->getLiquidJunctionRangesFeatures(ranges);
         break;
     }
+
+    QString unit = QString().fromStdString(ranges[0].getFullUnit());
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        MySpinBox * sbx = new MySpinBox;
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(ranges[0].min, ranges[0].max);
+        sbx->setValue(0.0);
+        sbx->setDecimals(ranges[0].decimals());
+        SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
+        widget->setVisible(selectedChannels[channelIdx]);
+
+        scrollVl->addWidget(widget);
+        operationEdits[idx][channelIdx] = widget;
     }
 
-    QWidget* spacer = new QWidget;
+    QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     scrollVl->addWidget(spacer);
 
@@ -218,29 +265,33 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 
 QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx] = new QWidget;
+    std::vector <RangedMeasurement_t> ranges;
 
     switch (idx) {
-    case OperationHoldingStimulus:{
-        QGridLayout* operationButtonGridLayout = new QGridLayout;
-        operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
-        operationButtonGridLayout->setSpacing(0);
-        operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
-        std::vector <RangedMeasurement_t> ranges;
+    case OperationHoldingStimulus:
         msgDisp->getVoltageHoldTunerFeatures(ranges);
-        QString unit = QString().fromStdString(ranges[0].getFullUnit());
-        setAllChannelsSbx = new MySpinBox;
-        setAllChannelsSbx->setSuffix(QString(" ") + unit);
-        setAllChannelsSbx->setRange(ranges[0].min, ranges[0].max);
-        setAllChannelsSbx->setValue(0.0);
-        setAllChannelsSbx->setDecimals(ranges[0].decimals());
-        setAllVholdSpinBox = new SpinBoxWithChannel(QString(""), setAllChannelsSbx);
-        QPushButton* setAllBtn = new QPushButton("Set all channels");
-        connect(setAllBtn, &QPushButton::clicked, this, &SingleChannelControlDockWidget::onSetAllButtonClicked);
-        operationButtonGridLayout->addWidget(setAllVholdSpinBox, 0, 1);
-        operationButtonGridLayout->addWidget(setAllBtn, 0, 0);
+        break;
+
+    case OperationLiquidJunction:
+        msgDisp->getLiquidJunctionRangesFeatures(ranges);
         break;
     }
-    }
+
+    QGridLayout * operationButtonGridLayout = new QGridLayout;
+    operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
+    operationButtonGridLayout->setSpacing(0);
+    operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
+    QString unit = QString().fromStdString(ranges[0].getFullUnit());
+    setAllChannelsSbxs[idx] = new MySpinBox;
+    setAllChannelsSbxs[idx]->setSuffix(QString(" ") + unit);
+    setAllChannelsSbxs[idx]->setRange(ranges[0].min, ranges[0].max);
+    setAllChannelsSbxs[idx]->setValue(0.0);
+    setAllChannelsSbxs[idx]->setDecimals(ranges[0].decimals());
+    setAllWidgets[idx] = new SpinBoxWithChannel(QString(""), setAllChannelsSbxs[idx]);
+    QPushButton * setAllBtn = new QPushButton("Set all channels");
+    connect(setAllBtn, &QPushButton::clicked, this, &SingleChannelControlDockWidget::onSetAllButtonClicked);
+    operationButtonGridLayout->addWidget(setAllWidgets[idx], 0, 1);
+    operationButtonGridLayout->addWidget(setAllBtn, 0, 0);
 
     return operationButtonWidgets[idx];
 }
@@ -276,6 +327,8 @@ void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
     }
     operationWidgets[operationIdx]->setVisible(true);
     operationButtonWidgets[operationIdx]->setVisible(true);
+
+    this->onUpdate();
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :

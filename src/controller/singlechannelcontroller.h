@@ -30,6 +30,7 @@ public slots:
     void onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> vHoldValues);
+    void onLiquidJunctionValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> values);
 
     // Compensations
     void onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues);

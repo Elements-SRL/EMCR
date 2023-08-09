@@ -26,6 +26,9 @@ MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnDocOff, this, [=]() {
         this->turnSelectedDocOnOff(false);
     });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigResetDoc, this, [=]() {
+        this->resetDoc();
+    });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStartRecording,        this, [=] () {
         this->onRecordingRequest(true);
@@ -92,6 +95,14 @@ void MultipleChannelController::turnSelectedDocOnOff(bool flag) {
     msgDisp->digitalOffsetCompensation(selectedChannels, values, true);
 
     emit sigDocTurnedOnOff(flag);
+}
+
+void MultipleChannelController::resetDoc() {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
+
+    emit sigDocResetted();
 }
 
 void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
