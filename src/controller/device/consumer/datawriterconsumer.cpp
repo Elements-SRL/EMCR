@@ -344,7 +344,11 @@ void DataWriterConsumer::findValidPathName() {
     int pathIndex;
     QString newFullFileName;
     QString suffix;
-
+//    if recordings folder does not exist, create it
+    QDir dir(PSD_DEFAULT_RECORD_PATH);
+    if (!dir.exists()) {
+        QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
+    }
     if (recordingInitialized) {
         suffix = channelIdxSuffix + QString("_%1").arg(chunkIdx++, 3, 10, QLatin1Char('0'));
         newFullFileName = validFilePath + baseFileName + suffix;
