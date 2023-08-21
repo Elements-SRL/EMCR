@@ -7,9 +7,10 @@ MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher *
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
     this->getNewActiveChannels(activeChannelsIdxs);
     modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
-
-    connect(this, &MeasurementOverviewController::sigLiveStatisticsResult, modw, &MeasurementsOverviewDockWidget::onLiveStatisticsResult);
-
+    modm = new MeasurementOverviewModel(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
+    connect(modw, &MeasurementsOverviewDockWidget::extract, this, [=](QString filepath){
+       modm->exportToCsv(filepath.toStdString());
+    });
     mainWindow->setMeasurementOverviewDw(modw);
 }
 
@@ -53,6 +54,7 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
 
 void MeasurementOverviewController::onChannelsUpdated(){
     this->getNewActiveChannels(activeChannelsIdxs);
+    modm->setActiveChannelsIdxs(activeChannelsIdxs);
     modw->updateActiveChannels(activeChannelsIdxs);
 }
 
@@ -65,4 +67,9 @@ void MeasurementOverviewController::getNewActiveChannels(std::vector <int>& newA
             newActiveChannels.push_back(channelIdx);
         }
     }
+}
+
+void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResult * result){
+    modm->setStatisticsResult(result);
+    modw->onLiveStatisticsResult(result);
 }

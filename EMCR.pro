@@ -52,6 +52,7 @@ SOURCES += \
     src/controller/device/consumer/calibrationconsumer.cpp \
     src/model/analysiscursor.cpp \
     src/model/bigplotmodel.cpp \
+    src/model/measurementoverviewmodel.cpp \
     src/model/plotpreferencesmodel.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
@@ -128,6 +129,7 @@ HEADERS += \
     src/controller/device/consumer/calibrationconsumer.h \
     src/model/analysiscursor.h \
     src/model/bigplotmodel.h \
+    src/model/measurementoverviewmodel.h \
     src/model/plotpreferencesmodel.h \
     src/model/protocolmodel.h \
     src/model/state.h \

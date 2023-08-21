@@ -6,7 +6,7 @@
 #include "mainwindow.h"
 #include "measurementsoverviewdockwidget.h"
 #include "messagedispatcher.h"
-
+#include "measurementoverviewmodel.h"
 class MeasurementOverviewController : public QObject {
     Q_OBJECT
 
@@ -18,6 +18,7 @@ public slots:
 
     void onExportLiveNoiseEstimates();
     void onLiquidJunctionResult(bool started);
+    void onLiveStatisticsResults(StatisticsResult * result);
 
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
@@ -25,13 +26,11 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     MeasurementsOverviewDockWidget * modw = nullptr;
+    MeasurementOverviewModel * modm = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;
     std::vector<int> activeChannelsIdxs;
-
-signals:
-    void sigLiveStatisticsResult(StatisticsResult * result);
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H

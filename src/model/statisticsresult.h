@@ -14,4 +14,5 @@ public:
     QVector <double> conductivity;
 };
 
+
 #endif // STATISTICSRESULT_H

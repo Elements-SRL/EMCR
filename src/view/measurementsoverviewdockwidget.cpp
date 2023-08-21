@@ -127,6 +127,20 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
         conductivityLabels[i]->setVisible(true);
         liquidJunctionLabels[i]->setVisible(true);
     }
+    QPushButton * extractBtn = new QPushButton("extract");
+    connect(extractBtn, &QPushButton::clicked, this, [=](){
+        QString filePath = QFileDialog::getSaveFileName(
+                nullptr,
+                "Save File",
+                QDir::homePath(), // Default directory
+                "Csv Files (*.csv);;All Files (*)"
+            );
+
+            if (!filePath.isEmpty()) {
+                emit extract(filePath);
+            }
+    });
+    scrollVl->addWidget(extractBtn);
     scrollVl->addLayout(gl);
 }
 
@@ -179,7 +193,7 @@ void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<int> newAc
 }
 
 void MeasurementsOverviewDockWidget::setLiquidJunctionResult(QVector <Measurement_t> result) {
-    applyTextFromMeasurement(liquidJunctionLabels, result);
+    applyTextFromMeasurements(liquidJunctionLabels, result);
 }
 
 void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResult * result) {
@@ -191,14 +205,15 @@ void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResult * r
 
 template<typename T>
 void MeasurementsOverviewDockWidget::applyTextFromValuesAndPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx){
+    QVector<Measurement_t> measurements;
     for (int i = 0; i<currentChannels; i++) {
-        Measurement_t m = {values[i], UnitPfx::UnitPfxNone, pfx};
-        widgets[i]->setText(QString::fromStdString(m.niceLabel()));
+        measurements.push_back({values[i], UnitPfx::UnitPfxNone, pfx});
     }
+    applyTextFromMeasurements(widgets, measurements);
 }
 
 template<typename T>
-void MeasurementsOverviewDockWidget::applyTextFromMeasurement(const std::vector<T>& widgets, QVector<Measurement_t> meas) {
+void MeasurementsOverviewDockWidget::applyTextFromMeasurements(const std::vector<T>& widgets, QVector<Measurement_t> meas) {
     for (int i = 0; i<currentChannels; i++) {
         widgets[i]->setText(QString::fromStdString(meas[i].niceLabel()));
     }

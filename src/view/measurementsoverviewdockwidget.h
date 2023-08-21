@@ -35,7 +35,7 @@ private:
     template<typename T>
     void applyTextFromValuesAndPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx);
     template<typename T>
-    void applyTextFromMeasurement(const std::vector<T>& widgets, QVector<Measurement_t> meas);
+    void applyTextFromMeasurements(const std::vector<T>& widgets, QVector<Measurement_t> meas);
     std::vector<QLabel *>activeChannelsLabels;
     std::vector<QLabel *>meanVoltageLabels;
     std::vector<QLabel *>meanCurrentLabels;
@@ -50,14 +50,15 @@ public:
     MeasurementsOverviewDockWidget(std::vector<int> activeChannels, int voltageChannels, int currentChannels, QWidget * parent = nullptr);
     void updateActiveChannels(std::vector<int> newActiveChannels);
     void setLiquidJunctionResult(QVector <Measurement_t> result);
+    void onLiveStatisticsResult(StatisticsResult * result);
 
 public slots:
     void onUpdate();
-    void onLiveStatisticsResult(StatisticsResult * result);
 
 signals:
     void testSignal();
     void sigAppliedHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues);
+    void extract(QString);
 };
 
 #endif // MEASUREMENTSOVERVIEWDOCKWIDGET_H
