@@ -51,22 +51,7 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
     }
 }
 
-void MeasurementOverviewController::onSingleChannelClicked(uint16_t, bool){
-    this->getNewActiveChannels(activeChannelsIdxs);
-    modw->updateActiveChannels(activeChannelsIdxs);
-}
-
-void MeasurementOverviewController::onOneBoardClicked(uint16_t, bool) {
-    this->getNewActiveChannels(activeChannelsIdxs);
-    modw->updateActiveChannels(activeChannelsIdxs);
-}
-
-void MeasurementOverviewController::onOneRowClicked(uint16_t, bool) {
-    this->getNewActiveChannels(activeChannelsIdxs);
-    modw->updateActiveChannels(activeChannelsIdxs);
-}
-
-void MeasurementOverviewController::onAllChannelsClicked(bool) {
+void MeasurementOverviewController::onChannelsUpdated(){
     this->getNewActiveChannels(activeChannelsIdxs);
     modw->updateActiveChannels(activeChannelsIdxs);
 }

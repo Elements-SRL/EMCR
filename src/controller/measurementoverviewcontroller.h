@@ -14,10 +14,7 @@ public:
     MeasurementOverviewController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
 
 public slots:
-    void onSingleChannelClicked(uint16_t chIdx, bool newState);
-    void onOneBoardClicked(uint16_t brdIdx, bool newState);
-    void onOneRowClicked(uint16_t rowIdx, bool newState);
-    void onAllChannelsClicked(bool newState);
+    void onChannelsUpdated();
 
     void onExportLiveNoiseEstimates();
     void onLiquidJunctionResult(bool started);

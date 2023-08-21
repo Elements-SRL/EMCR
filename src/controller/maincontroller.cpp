@@ -177,10 +177,10 @@ void MainController::onMainWindowCreated() {
     connect(chessboardController, &ChessboardController::sigOneRowClicked,          singleChannelController, &SingleChannelController::onOneRowClicked);
     connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   singleChannelController, &SingleChannelController::onSingleChannelClicked);
 
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onAllChannelsClicked);
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onOneBoardClicked);
-    connect(chessboardController, &ChessboardController::sigOneRowClicked,          measurementOverviewController, &MeasurementOverviewController::onOneRowClicked);
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   measurementOverviewController, &MeasurementOverviewController::onSingleChannelClicked);
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
+    connect(chessboardController, &ChessboardController::sigOneRowClicked,          measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
 
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::sigLiveStatisticsResult);
 
