@@ -1,6 +1,7 @@
 #include "multiplechannelcontroldockwidget.h"
 
 #include <QBoxLayout>
+#include <QGroupBox>
 
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
@@ -12,68 +13,81 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     setObjectName("multipleChannelControlsDw");
     this->setWidget(mainWg);
 
-    QGridLayout * mainGl = new QGridLayout;
-    mainWg->setLayout(mainGl);
+    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainWg->setLayout(mainLayout);
 
-    int rowIdx = 0;
 
     if (msgDisp->hasChannelSwitches() == Success) {
-        mainGl->addWidget(new QLabel("Channels input"), rowIdx, 0, Qt::AlignRight);
+        auto channels_input_gb = new QGroupBox(QString::fromStdString("Channels input"));
+        auto qhblChannels_input = new QHBoxLayout();
+        channels_input_gb->setLayout(qhblChannels_input);
+        mainLayout->addWidget(channels_input_gb);
         switchChannelsOnBtn = new QPushButton("ON");
         connect(switchChannelsOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOn);
-        mainGl->addWidget(switchChannelsOnBtn, rowIdx, 1);
+        qhblChannels_input->addWidget(switchChannelsOnBtn);
         switchChannelsOffBtn = new QPushButton("OFF (O)");
         connect(switchChannelsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOff);
-        mainGl->addWidget(switchChannelsOffBtn, rowIdx, 2);
-        rowIdx++;
+        qhblChannels_input->addWidget(switchChannelsOffBtn);
     }
 
     if (msgDisp->hasStimulusSwitches() == Success) {
-        mainGl->addWidget(new QLabel("Stimulus"), rowIdx, 0, Qt::AlignRight);
+        auto gb = new QGroupBox(QString::fromStdString("Stimulus"));
+        auto qhbl = new QHBoxLayout();
+        gb->setLayout(qhbl);
+        mainLayout->addWidget(gb);
         turnStimulusOnBtn = new QPushButton("ON");
         connect(turnStimulusOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOn);
-        mainGl->addWidget(turnStimulusOnBtn, rowIdx, 1);
+        qhbl->addWidget(turnStimulusOnBtn);
         turnStimulusOffBtn = new QPushButton("OFF (X)");
         connect(turnStimulusOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOff);
-        mainGl->addWidget(turnStimulusOffBtn, rowIdx, 2);
-        rowIdx++;
+        qhbl->addWidget(turnStimulusOffBtn);
     }
 
     if (msgDisp->hasOffsetCompensation() == Success) {
-        mainGl->addWidget(new QLabel("Offset compensation"), rowIdx, 0, Qt::AlignRight);
+        auto gb = new QGroupBox(QString::fromStdString("Offset compensation"));
+        auto qhbl = new QHBoxLayout();
+        gb->setLayout(qhbl);
+        mainLayout->addWidget(gb);
         offsetCompensationOnBtn = new QPushButton("ON (C)");
         connect(offsetCompensationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnDocOn);
-        mainGl->addWidget(offsetCompensationOnBtn, rowIdx, 1);
+        qhbl->addWidget(offsetCompensationOnBtn);
         offsetCompensationOffBtn = new QPushButton("OFF");
         connect(offsetCompensationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnDocOff);
-        mainGl->addWidget(offsetCompensationOffBtn, rowIdx, 2);
+        qhbl->addWidget(offsetCompensationOffBtn);
         offsetCompensationResetBtn = new QPushButton("RESET");
         connect(offsetCompensationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetDoc);
-        mainGl->addWidget(offsetCompensationResetBtn, rowIdx, 3);
-        rowIdx++;
+        qhbl->addWidget(offsetCompensationResetBtn);
     }
 
-    mainGl->addWidget(new QLabel("Expand trace"), rowIdx, 0, Qt::AlignRight);
+//    mainGl->addWidget(new QLabel("Expand trace"), rowIdx, 0, Qt::AlignRight);
+
+    auto expandTraceGb = new QGroupBox(QString::fromStdString("Expand trace"));
+    auto qhblExpandTrace = new QHBoxLayout();
+
+    expandTraceGb->setLayout(qhblExpandTrace);
+    mainLayout->addWidget(expandTraceGb);
+
     expandTraceBtn = new QPushButton("ON (E)");
     connect(expandTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddToBigPlot);
-    mainGl->addWidget(expandTraceBtn, rowIdx, 1);
+    qhblExpandTrace->addWidget(expandTraceBtn);
     reduceTraceBtn = new QPushButton("OFF");
     connect(reduceTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot);
-    mainGl->addWidget(reduceTraceBtn, rowIdx, 2);
-    rowIdx++;
+    qhblExpandTrace->addWidget(reduceTraceBtn);
 
-    mainGl->addWidget(new QLabel("Recording"), rowIdx, 0, Qt::AlignRight);
+    auto recording_gb = new QGroupBox(QString::fromStdString("Recording"));
+    auto qhBoxLayout = new QHBoxLayout();
+
+    recording_gb->setLayout(qhBoxLayout);
+    mainLayout->addWidget(recording_gb);
     recordingStartBtn = new QPushButton("START");
     connect(recordingStartBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStartRecording);
-    mainGl->addWidget(recordingStartBtn, rowIdx, 1);
+    qhBoxLayout->addWidget(recordingStartBtn);
     recordingStopBtn = new QPushButton("STOP");
     QPixmap pixmapStop("://imgs/stop protocol.png");
     QIcon stopRecordIcon(pixmapStop);
     recordingStopBtn->setIcon(stopRecordIcon);
     connect(recordingStopBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStopRecording);
-    mainGl->addWidget(recordingStopBtn, rowIdx, 2);
-    rowIdx++;
-
+    qhBoxLayout->addWidget(recordingStopBtn);
     this->setRecording(false);
 }
 
