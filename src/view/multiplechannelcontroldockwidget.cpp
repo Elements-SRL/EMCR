@@ -128,7 +128,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     hboxFileName->addWidget(fileNameLineEdit);
 
     QSettings settings;
-    qDebug()<<settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString();
     recordPathLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString());
     fileNameLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, PSD_DEFAULT_RECORD_NAME).toString());
 
