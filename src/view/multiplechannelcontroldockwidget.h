@@ -6,6 +6,8 @@
 #include <QPushButton>
 
 #include "messagedispatcher.h"
+#include "globaldefines.h"
+
 
 class MultipleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
@@ -42,6 +44,8 @@ signals:
     void sigStopRecording();
     void sigAddToBigPlot();
     void sigRemoveFromBigPlot();
+    void sigFileNameChanged(QString);
+    void sigRecordPathChanged(QString);
 };
 
 #endif // MULTIPLECHANNELCONTROLDOCKWIDGET_H

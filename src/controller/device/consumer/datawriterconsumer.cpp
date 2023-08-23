@@ -354,8 +354,8 @@ void DataWriterConsumer::findValidPathName() {
         newFullFileName = validFilePath + baseFileName + suffix;
 
     } else {
-        baseFileName = settings.filename;
-        validFilePath = settings.recordPath;
+        baseFileName = filename;
+        validFilePath = recordPath;
 
         /*! Add date and time if required */
         QString dateTime = "";
@@ -395,4 +395,11 @@ void DataWriterConsumer::findValidPathName() {
 
 //    validSubFileName = subFolder + baseFileName + suffix;
     validFullFileName = newFullFileName + fileNameExtension;
+}
+
+void DataWriterConsumer::onFilenameSet(QString fname){
+    filename = fname;
+}
+void DataWriterConsumer::onFilePathSet(QString path){
+    recordPath = path;
 }

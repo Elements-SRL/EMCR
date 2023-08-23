@@ -6,6 +6,10 @@
 #include <QDebug>
 #include <QCoreApplication>
 
+/*!Recordings settings*/
+#define PSD_DEFAULT_RECORD_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "/Recordings/")
+#define PSD_DEFAULT_RECORD_NAME QString("file")
+
 /*! Sw info */
 #define GLB_SOFTWARE_NAME QString("EMCR")
 #define GLB_SOFTWARE_VERSION_NUMBER (QString("%1.%2.%3").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH))

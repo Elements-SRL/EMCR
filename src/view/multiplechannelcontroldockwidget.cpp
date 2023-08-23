@@ -2,6 +2,10 @@
 
 #include <QBoxLayout>
 #include <QGroupBox>
+#include <QLineEdit>
+#include <QSettings>
+#include <QDir>
+#include <QFileDialog>
 
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
@@ -74,21 +78,72 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     connect(reduceTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot);
     qhblExpandTrace->addWidget(reduceTraceBtn);
 
-    auto recording_gb = new QGroupBox(QString::fromStdString("Recording"));
+    auto recordingGb = new QGroupBox(QString::fromStdString("Recording"));
+    auto recordingVBoxLayout = new QVBoxLayout();
     auto qhBoxLayout = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(qhBoxLayout);
 
-    recording_gb->setLayout(qhBoxLayout);
-    mainLayout->addWidget(recording_gb);
+    recordingGb->setLayout(recordingVBoxLayout);
+    mainLayout->addWidget(recordingGb);
     recordingStartBtn = new QPushButton("START");
     connect(recordingStartBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStartRecording);
     qhBoxLayout->addWidget(recordingStartBtn);
     recordingStopBtn = new QPushButton("STOP");
+
+    auto hboxRecordingPath = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(hboxRecordingPath);
+
+    auto hboxBrowseFile = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(hboxBrowseFile);
+
+    auto hboxFileName = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(hboxFileName);
+
+
+    hboxRecordingPath->addWidget(new QLabel("Recording path:"), 0, 0);
+    auto recordPathLineEdit = new QLineEdit();
+    recordPathLineEdit->setReadOnly(true);
+    hboxRecordingPath->addWidget(recordPathLineEdit);
+
+    auto browseBtn = new QPushButton("Browse");
+    connect(browseBtn, &QPushButton::clicked, [=](){
+        // Open a directory selection dialog
+        QString directoryPath = QFileDialog::getExistingDirectory(this,
+                                                                  "Select Directory",
+                                                                  QDir::homePath(),
+                                                                  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+        // Check if the user selected a directory
+        if (!directoryPath.isEmpty()) {
+            auto path = directoryPath + "/";
+            QSettings settings;
+            settings.setValue(GLB_PROTOCOL_RECORD_PATH_TAG, path);
+            recordPathLineEdit->setText(path);
+            emit sigRecordPathChanged(path);
+        }
+    });
+    hboxBrowseFile->addWidget(browseBtn);
+
+    hboxFileName->addWidget(new QLabel("File name:"), 0, 0);
+    auto fileNameLineEdit = new QLineEdit();
+    hboxFileName->addWidget(fileNameLineEdit);
+
+    QSettings settings;
+    qDebug()<<settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString();
+    recordPathLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString());
+    fileNameLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, PSD_DEFAULT_RECORD_NAME).toString());
+
     QPixmap pixmapStop("://imgs/stop protocol.png");
     QIcon stopRecordIcon(pixmapStop);
     recordingStopBtn->setIcon(stopRecordIcon);
     connect(recordingStopBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStopRecording);
     qhBoxLayout->addWidget(recordingStopBtn);
     this->setRecording(false);
+    connect(fileNameLineEdit, &QLineEdit::editingFinished, [=](){
+       QSettings settings;
+       auto filename = fileNameLineEdit->text();
+       settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, filename);
+       emit sigFileNameChanged(filename);
+    });
 }
 
 void MultipleChannelControlDockWidget::setRecording(bool flag) {

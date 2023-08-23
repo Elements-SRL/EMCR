@@ -18,7 +18,6 @@ public slots:
 
     void onExportLiveNoiseEstimates();
     void onLiquidJunctionResult(bool started);
-
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
 
