@@ -465,13 +465,14 @@ void MainWindow::destroyGuiControls() {
     actionRecordingSettings->setEnabled(false);
     actionPlotPreferences->setEnabled(false);
 
-    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-        if (dockWidgets[dockIdx] != nullptr) {
-            delete dockWidgets[dockIdx];
-            dockWidgets[dockIdx] = nullptr;
-        }
-    }
-    dockWidgets.clear();
+//    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
+//        if (dockWidgets[dockIdx] != nullptr) {
+//            delete dockWidgets[dockIdx];
+//            dockWidgets[dockIdx] = nullptr;
+//        }
+//    }
+    delete protocolDw;
+    protocolDw = nullptr;
 
     for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
         if (analysisWidgets[dockIdx] != nullptr) {

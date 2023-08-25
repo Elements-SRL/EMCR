@@ -60,7 +60,6 @@ void MainController::onDevicesListChanged(std::vector <std::string> devicesList)
 
             if (connectedDeviceIdx >= 0) {
                 mainWindow->setConnectedDeviceIdx(connectedDeviceIdx);
-
             } else {
                 this->destroyControllers();
                 mainWindow->connectDevice(false, Success);
@@ -97,8 +96,8 @@ void MainController::onConnect(bool flag) {
     } else {
         this->stopAndDestroyProducerConsumers();
 
-        this->destroyControllers();
         mainWindow->connectDevice(false, Success);
+        this->destroyControllers();
 
         if (msgDisp != nullptr) {
             msgDisp->disconnectDevice();

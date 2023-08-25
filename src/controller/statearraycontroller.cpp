@@ -137,6 +137,8 @@ void StateArrayController::updateUI(){
 }
 
 StateArrayController::~StateArrayController(){
-    delete stateArrayDockWidget;
-    stateArrayDockWidget = nullptr;
+    if (stateArrayDockWidget!=nullptr){
+        delete stateArrayDockWidget;
+        stateArrayDockWidget = nullptr;
+    }
 }
