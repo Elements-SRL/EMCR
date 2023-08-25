@@ -331,7 +331,7 @@ void MainWindow::createGuiControls() {
     \**************/
 
 #ifndef GLB_HIDE_DEBUG_CTRLS
-    QDockWidget * debugDw = new QDockWidget();
+    debugDw = new QDockWidget();
     debugDw->setObjectName("debugDw");
     debugDw->setWindowTitle("Debug");
     this->addDockWidget(Qt::RightDockWidgetArea, debugDw);
@@ -393,7 +393,7 @@ void MainWindow::createGuiControls() {
     connect(degugInitializeBtn, &QPushButton::clicked, this, &MainWindow::debugInitialization);
 
     /*! ------------------------------------------------------------ */
-    QDockWidget * calibrationDw = new QDockWidget();
+    calibrationDw = new QDockWidget();
     calibrationDw->setObjectName("calibrationDw");
     calibrationDw->setWindowTitle("Calibration");
     this->addDockWidget(Qt::RightDockWidgetArea, calibrationDw);
@@ -471,8 +471,18 @@ void MainWindow::destroyGuiControls() {
 //            dockWidgets[dockIdx] = nullptr;
 //        }
 //    }
-    delete protocolDw;
-    protocolDw = nullptr;
+    if (protocolDw != nullptr){
+        delete protocolDw;
+        protocolDw = nullptr;
+    }
+    if (calibrationDw != nullptr){
+        delete calibrationDw;
+        calibrationDw = nullptr;
+    }
+    if (debugDw != nullptr){
+        delete debugDw;
+        protocolDw = nullptr;
+    }
 
     for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
         if (analysisWidgets[dockIdx] != nullptr) {

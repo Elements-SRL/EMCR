@@ -12,6 +12,7 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
 
     if(!msgDisp->isStateArrayAvailable()){
 //        TODO SHOULD THIS RETURN AN ERROR?
+        stateArrayDockWidget = nullptr;
         return;
     }
     stateArray = {};

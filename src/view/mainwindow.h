@@ -101,6 +101,8 @@ private:
     StateArrayDockWidget * stateArrayDockWidget = nullptr;
     MeasurementsOverviewDockWidget * measurementsOverviewDw = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
+    QDockWidget * calibrationDw = nullptr;
+    QDockWidget * debugDw = nullptr;
 
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
