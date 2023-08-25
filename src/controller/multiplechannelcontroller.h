@@ -12,6 +12,7 @@ class MultipleChannelController : public QObject {
 
 public:
     MultipleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    ~MultipleChannelController();
 
 public slots:
     void onRecordingRequest(bool flag);
@@ -25,7 +26,6 @@ private:
     void addRemoveFromBigPlot(bool flag);
 
     MessageDispatcher * msgDisp = nullptr;
-    MainWindow * mainWindow = nullptr;
     MultipleChannelControlDockWidget * multipleChannelControlsDw = nullptr;
 
 signals:

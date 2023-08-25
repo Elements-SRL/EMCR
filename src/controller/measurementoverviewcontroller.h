@@ -12,20 +12,16 @@ class MeasurementOverviewController : public QObject {
 
 public:
     MeasurementOverviewController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
-
+    ~MeasurementOverviewController();
 public slots:
     void onChannelsUpdated();
-
     void onExportLiveNoiseEstimates();
     void onLiquidJunctionResult(bool started);
 
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
-
     MessageDispatcher * msgDisp = nullptr;
-    MainWindow * mainWindow = nullptr;
     MeasurementsOverviewDockWidget * modw = nullptr;
-
     int voltageChannelsNum;
     int currentChannelsNum;
     std::vector<int> activeChannelsIdxs;

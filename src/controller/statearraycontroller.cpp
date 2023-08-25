@@ -8,8 +8,7 @@
 #include "iostream"
 
 StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
-    mainWindow(mainWindow) {
+    msgDisp(msgDisp) {
 
     if(!msgDisp->isStateArrayAvailable()){
 //        TODO SHOULD THIS RETURN AN ERROR?
@@ -135,4 +134,9 @@ void StateArrayController::updateUI(){
     stateArrayDockWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
     stateArrayDockWidget->setStateCount(stateArray.states.size());
     stateArrayDockWidget->setState(stateArray.states[0], 0);
+}
+
+StateArrayController::~StateArrayController(){
+    delete stateArrayDockWidget;
+    stateArrayDockWidget = nullptr;
 }

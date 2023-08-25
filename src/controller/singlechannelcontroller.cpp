@@ -128,3 +128,8 @@ void SingleChannelController::onCompensationApplied(std::vector<uint16_t> channe
 
     mainWindow->getCompensationControlsDockWidget()->onCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures, ccCfastFeatures);
 }
+
+SingleChannelController::~SingleChannelController(){
+    delete singleChannelControlsDw;
+    singleChannelControlsDw = nullptr;
+}

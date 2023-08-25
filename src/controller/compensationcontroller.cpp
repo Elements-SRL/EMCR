@@ -15,6 +15,11 @@ CompensationController::CompensationController(MessageDispatcher * msgDisp, Main
     }
 
     compensationControlDockWidget = new CompensationControlDockWidget(msgDisp);
-    this->mainWindow = mainWindow;
     mainWindow->setCompensationControlsDw(compensationControlDockWidget);
+}
+
+
+CompensationController::~CompensationController(){
+    delete compensationControlDockWidget;
+    compensationControlDockWidget = nullptr;
 }

@@ -48,8 +48,8 @@ ChessboardController::~ChessboardController() {
     this->clearPlots();
 
     /*! Decommentare quando non verrà più distrutto dalla mainwindow */
-//    delete chessboard;
-//    chessboard = nullptr;
+    delete chessboard;
+    chessboard = nullptr;
 }
 
 void ChessboardController::clearCurves() {

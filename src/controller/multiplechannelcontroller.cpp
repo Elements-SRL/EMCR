@@ -1,8 +1,7 @@
 #include "multiplechannelcontroller.h"
 
 MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
-    mainWindow(mainWindow) {
+    msgDisp(msgDisp){
 
     multipleChannelControlsDw = new MultipleChannelControlDockWidget(msgDisp);
 
@@ -112,4 +111,9 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
     msgDisp->expandTraces(selectedChannels, values);
 
     emit sigAddRemoveFromBigPlot(flag);
+}
+
+MultipleChannelController::~MultipleChannelController(){
+    delete multipleChannelControlsDw;
+    multipleChannelControlsDw = nullptr;
 }

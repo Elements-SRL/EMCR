@@ -13,6 +13,7 @@ class SingleChannelController : public QObject {
 
 public:
     SingleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    ~SingleChannelController();
 
 private:
     MessageDispatcher * msgDisp = nullptr;

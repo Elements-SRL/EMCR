@@ -2,8 +2,7 @@
 
 
 BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
-    mainWindow(mainWindow) {
+    msgDisp(msgDisp) {
 
     if (msgDisp->hasGateVoltages() != Success && msgDisp->hasSourceVoltages() != Success) {
 //        TODO SHOULD THIS RETURN AN ERROR?
@@ -34,4 +33,9 @@ void BoardController::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVolt
     }
 
     emit sigGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);
+}
+
+BoardController::~BoardController(){
+    delete boardControlDockWidget;
+    boardControlDockWidget = nullptr;
 }

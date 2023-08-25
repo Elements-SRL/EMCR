@@ -1,8 +1,7 @@
 #include "measurementoverviewcontroller.h"
 
 MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
-    mainWindow(mainWindow) {
+    msgDisp(msgDisp) {
 
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
     this->getNewActiveChannels(activeChannelsIdxs);
@@ -65,4 +64,9 @@ void MeasurementOverviewController::getNewActiveChannels(std::vector <int>& newA
             newActiveChannels.push_back(channelIdx);
         }
     }
+}
+
+MeasurementOverviewController::~MeasurementOverviewController(){
+    delete modw;
+    modw = nullptr;
 }
