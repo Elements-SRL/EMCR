@@ -6,6 +6,8 @@
 #include <QSettings>
 #include <QDir>
 #include <QFileDialog>
+#include <QDesktopServices>
+#include <QMessageBox>
 
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
@@ -121,7 +123,19 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
             emit sigRecordPathChanged(path);
         }
     });
+    auto goToDirBtn = new QPushButton("Recordings");
+    connect(goToDirBtn, &QPushButton::clicked, [=](){
+        // Open a directory selection dialog
+        QUrl folderUrl = QUrl::fromLocalFile(recordPathLineEdit->text());
+        QDir folderDir(recordPathLineEdit->text());
+        if (folderDir.exists()){
+            QDesktopServices::openUrl(folderUrl);
+        } else {
+            QMessageBox::information(nullptr, "Warning", "This Path seems to be incorrect.");
+        }
+    });
     hboxBrowseFile->addWidget(browseBtn);
+    hboxBrowseFile->addWidget(goToDirBtn);
 
     hboxFileName->addWidget(new QLabel("File name:"), 0, 0);
     auto fileNameLineEdit = new QLineEdit();
