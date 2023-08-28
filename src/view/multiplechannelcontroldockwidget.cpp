@@ -123,7 +123,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
             emit sigRecordPathChanged(path);
         }
     });
-    auto goToDirBtn = new QPushButton("Recordings");
+    auto goToDirBtn = new QPushButton("Go to folder");
     connect(goToDirBtn, &QPushButton::clicked, [=](){
         // Open a directory selection dialog
         QUrl folderUrl = QUrl::fromLocalFile(recordPathLineEdit->text());
