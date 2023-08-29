@@ -19,7 +19,14 @@ SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, Ma
 }
 
 void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
-    msgDisp->setChannelSelected(chIdx, event->button() == Qt::LeftButton);
+    bool newState = event->button() == Qt::LeftButton;
+    if (newState){
+        if (!(QApplication::keyboardModifiers() & Qt::ControlModifier)){
+            // Ctrl key is pressed
+            msgDisp->setAllChannelsSelected(false);
+        }
+    }
+    msgDisp->setChannelSelected(chIdx, newState);
     singleChannelControlsDw->onUpdate();
 }
 

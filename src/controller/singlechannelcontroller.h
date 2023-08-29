@@ -8,6 +8,7 @@
 #include "mainwindow.h"
 #include "messagedispatcher.h"
 #include <QMouseEvent>
+#include <QApplication>
 
 class SingleChannelController : public QObject {
     Q_OBJECT
