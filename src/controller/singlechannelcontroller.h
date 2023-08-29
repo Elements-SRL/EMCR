@@ -20,7 +20,7 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     SingleChannelControlDockWidget * singleChannelControlsDw = nullptr;
-
+    void clickBehaviour(bool newState);
 public slots:
     // To do on actions done on the chessboard
     void onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event);
