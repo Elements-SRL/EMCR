@@ -7,6 +7,7 @@
 #include "singlechannelcontroldockwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
+#include <QMouseEvent>
 
 class SingleChannelController : public QObject {
     Q_OBJECT
@@ -21,7 +22,7 @@ private:
 
 public slots:
     // To do on actions done on the chessboard
-    void onSingleChannelClicked(uint16_t chIdx, bool newState);
+    void onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event);
     void onOneBoardClicked(uint16_t brdIdx, bool newState);
     void onOneRowClicked(uint16_t rowIdx, bool newState);
     void onAllChannelsClicked(bool newState);

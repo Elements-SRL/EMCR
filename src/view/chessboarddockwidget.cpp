@@ -2,7 +2,7 @@
 
 #include <QBoxLayout>
 #include <QComboBox>
-
+#include <QApplication>
 #include "globaldefines.h"
 
 ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
@@ -88,8 +88,28 @@ void ChessboardDockWidget::addPlot(StampPlot * plot, int channelIdx) {
         mainGl->addWidget(plot, rowIdx+1, boardIdx);
     }
 
-    connect(plot, &StampPlot::clicked, [=] (bool flag) {
-        emit sigSingleChannelClicked(channelIdx, flag);
+    connect(plot, &StampPlot::clicked, [=] (QMouseEvent *event) {
+        if (event->button() == Qt::LeftButton){
+            qDebug() << "left button pressed";
+        } else {
+            qDebug() << "right button pressed";
+        }
+        if (QApplication::keyboardModifiers() & Qt::ControlModifier){
+            // Ctrl key is pressed
+            // Do something specific when Ctrl is pressed during the button click
+            qDebug() << "Ctrl key is pressed";
+        }
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier){
+            // Shift key is pressed
+            // Do something specific when Shift is pressed during the button click
+            qDebug() << "Shift key is pressed";
+        }
+        if (QApplication::keyboardModifiers() & Qt::AltModifier){
+            // Alt key is pressed
+            // Do something specific when Alt is pressed during the button click
+            qDebug() << "AltModifier key is pressed";
+         }
+        emit sigSingleChannelClicked(channelIdx, event);
     });
 }
 

@@ -18,8 +18,8 @@ SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, Ma
     mainWindow->setSingleChannelControlsDw(singleChannelControlsDw);
 }
 
-void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, bool newState){
-    msgDisp->setChannelSelected(chIdx, newState);
+void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
+    msgDisp->setChannelSelected(chIdx, event->button() == Qt::LeftButton);
     singleChannelControlsDw->onUpdate();
 }
 
