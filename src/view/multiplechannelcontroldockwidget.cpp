@@ -2,7 +2,6 @@
 
 #include <QBoxLayout>
 #include <QGroupBox>
-#include <QLineEdit>
 #include <QSettings>
 #include <QDir>
 #include <QFileDialog>
@@ -21,8 +20,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     QVBoxLayout * mainLayout = new QVBoxLayout;
     mainWg->setLayout(mainLayout);
-
-
     if (msgDisp->hasChannelSwitches() == Success) {
         auto channels_input_gb = new QGroupBox(QString::fromStdString("Channels input"));
         auto qhblChannels_input = new QHBoxLayout();
@@ -85,10 +82,21 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     auto qhBoxLayout = new QHBoxLayout();
     recordingVBoxLayout->addLayout(qhBoxLayout);
 
+    fileNameLineEdit = new QLineEdit();
+    recordPathLineEdit = new QLineEdit();
+    QSettings settings;
+    recordPathLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString());
+    fileNameLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, PSD_DEFAULT_RECORD_NAME).toString());
+
     recordingGb->setLayout(recordingVBoxLayout);
     mainLayout->addWidget(recordingGb);
     recordingStartBtn = new QPushButton("START");
-    connect(recordingStartBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStartRecording);
+    connect(recordingStartBtn, &QPushButton::clicked, this,  [=](){
+        emitFileName();
+        emitFilePath();
+        emit sigStartRecording();
+//     &MultipleChannelControlDockWidget::sigStartRecording
+    });
     qhBoxLayout->addWidget(recordingStartBtn);
     recordingStopBtn = new QPushButton("STOP");
 
@@ -103,7 +111,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
 
     hboxRecordingPath->addWidget(new QLabel("Recording path:"), 0, 0);
-    auto recordPathLineEdit = new QLineEdit();
     recordPathLineEdit->setReadOnly(true);
     hboxRecordingPath->addWidget(recordPathLineEdit);
 
@@ -116,11 +123,9 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
                                                                   QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         // Check if the user selected a directory
         if (!directoryPath.isEmpty()) {
-            auto path = directoryPath + "/";
-            QSettings settings;
-            settings.setValue(GLB_PROTOCOL_RECORD_PATH_TAG, path);
-            recordPathLineEdit->setText(path);
-            emit sigRecordPathChanged(path);
+            auto recordingsDirectoryPath = directoryPath + "/";
+            recordPathLineEdit->setText(recordingsDirectoryPath);
+            emitFilePath();
         }
     });
     auto goToDirBtn = new QPushButton("Go to folder");
@@ -138,12 +143,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     hboxBrowseFile->addWidget(goToDirBtn);
 
     hboxFileName->addWidget(new QLabel("File name:"), 0, 0);
-    auto fileNameLineEdit = new QLineEdit();
     hboxFileName->addWidget(fileNameLineEdit);
-
-    QSettings settings;
-    recordPathLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString());
-    fileNameLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, PSD_DEFAULT_RECORD_NAME).toString());
 
     QPixmap pixmapStop("://imgs/stop protocol.png");
     QIcon stopRecordIcon(pixmapStop);
@@ -170,4 +170,18 @@ void MultipleChannelControlDockWidget::setRecording(bool flag) {
         QIcon recordIcon(pixmapRecors);
         recordingStartBtn->setIcon(recordIcon);
     }
+}
+
+void MultipleChannelControlDockWidget::emitFilePath(){
+    QSettings settings;
+    auto filePath = recordPathLineEdit->text();
+    settings.setValue(GLB_PROTOCOL_RECORD_PATH_TAG, filePath);
+    emit sigRecordPathChanged(filePath);
+}
+
+void MultipleChannelControlDockWidget::emitFileName(){
+    QSettings settings;
+    auto filename = fileNameLineEdit->text();
+    settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, filename);
+    emit sigFileNameChanged(filename);
 }
