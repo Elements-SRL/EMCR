@@ -118,9 +118,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     if (!directory.exists()) {
         // Create the directory
         if (directory.mkpath(".")) {
-            qDebug() << "Directory created:" << directory.absolutePath();
-        } else {
-            qDebug() << "Failed to create directory:" << directory.absolutePath();
         }
     }
     auto browseBtn = new QPushButton("Change recordings directory");
