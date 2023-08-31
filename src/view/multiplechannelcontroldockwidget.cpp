@@ -114,12 +114,21 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     recordPathLineEdit->setReadOnly(true);
     hboxRecordingPath->addWidget(recordPathLineEdit);
 
-    auto browseBtn = new QPushButton("Browse");
+    QDir directory(recordPathLineEdit->text());
+    if (!directory.exists()) {
+        // Create the directory
+        if (directory.mkpath(".")) {
+            qDebug() << "Directory created:" << directory.absolutePath();
+        } else {
+            qDebug() << "Failed to create directory:" << directory.absolutePath();
+        }
+    }
+    auto browseBtn = new QPushButton("Change recordings directory");
     connect(browseBtn, &QPushButton::clicked, [=](){
         // Open a directory selection dialog
         QString directoryPath = QFileDialog::getExistingDirectory(this,
                                                                   "Select Directory",
-                                                                  QDir::homePath(),
+                                                                  directory.absolutePath(),
                                                                   QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         // Check if the user selected a directory
         if (!directoryPath.isEmpty()) {
