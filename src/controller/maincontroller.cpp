@@ -481,10 +481,11 @@ void MainController::onDownsamplingRatioSelected(int) {
     }
 }
 
-void MainController::onClampingModalitySelected(int) {
+void MainController::onClampingModalitySelected(ClampingModality_t mode) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
+    mainWindow->getProtocolDockWidget()->onSetClampingModality(mode);
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 

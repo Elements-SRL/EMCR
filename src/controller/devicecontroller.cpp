@@ -198,7 +198,7 @@ void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModal
         this->onCcVoltageRangeSelected(idx);
     }
 
-    emit sigClampingModalitySelected(selectedClampingModalityIndex);
+    emit sigClampingModalitySelected(mode);
 }
 
 bool DeviceController::calcDefaultStatus(int size, bool recording){

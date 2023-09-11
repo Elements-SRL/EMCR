@@ -44,7 +44,7 @@ public slots:
     void onCcCurrentFilterSelected(int idx);
     void onSamplingRateSelected(int idx);
     void onDownsamplingRatioSelected(int idx);
-    void onClampingModalitySelected(int idx);
+    void onClampingModalitySelected(ClampingModality_t mode);
     void onStartRecording();
     void onStopRecording();
 
