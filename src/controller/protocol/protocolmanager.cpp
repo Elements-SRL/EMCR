@@ -51,6 +51,19 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
     xFinal.prefix = stimulusPrefix;
     xAmp.prefix = stimulusPrefix;
 
+    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+        x0.unit = "V";
+        xStep.unit = "V";
+        xFinal.unit = "V";
+        xAmp.unit = "V";
+
+    } else {
+        x0.unit = "A";
+        xStep.unit = "A";
+        xFinal.unit = "A";
+        xAmp.unit = "A";
+    }
+
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
         ProtocolItem * protocolItem = protocolItems[itemIdx];
         switch (protocolItem->type) {

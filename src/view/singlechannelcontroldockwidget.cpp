@@ -124,7 +124,8 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
     }
 }
 
-void SingleChannelControlDockWidget::onCheckAllButtonClicked() {
+//TODO Questo non viene mai chiamato
+void SingleChannelControlDockWidget::onAllButtonClicked(bool newState) {
     QCheckBox * cb;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
@@ -133,21 +134,7 @@ void SingleChannelControlDockWidget::onCheckAllButtonClicked() {
     for (int i = 0; i<selectedChannels.size(); i++) {
         cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
         if (selectedChannels.at(i)) {
-            cb->setChecked(true);
-        }
-    }
-}
-
-void SingleChannelControlDockWidget::onUncheckAllButtonClicked() {
-    QCheckBox * cb;
-    std::vector<bool> values;
-    std::vector<uint16_t> indexes;
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
-    for (int i = 0; i<selectedChannels.size(); i++) {
-        cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
-        if (selectedChannels.at(i)) {
-            cb->setChecked(false);
+            cb->setChecked(newState);
         }
     }
 }

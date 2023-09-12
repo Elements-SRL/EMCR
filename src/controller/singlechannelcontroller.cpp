@@ -18,25 +18,39 @@ SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, Ma
     mainWindow->setSingleChannelControlsDw(singleChannelControlsDw);
 }
 
-void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, bool newState){
+void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
+    bool newState = event->button() == Qt::LeftButton;
+    clickBehaviour(newState);
     msgDisp->setChannelSelected(chIdx, newState);
     singleChannelControlsDw->onUpdate();
 }
 
 void SingleChannelController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
+    clickBehaviour(newState);
     msgDisp->setBoardSelected(brdIdx, newState);
     singleChannelControlsDw->onUpdate();
 }
 
 void SingleChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
+    clickBehaviour(newState);
     msgDisp->setRowSelected(rowIdx, newState);
     singleChannelControlsDw->onUpdate();
 }
 
 void SingleChannelController::onAllChannelsClicked(bool newState) {
+    clickBehaviour(newState);
     msgDisp->setAllChannelsSelected(newState);
     singleChannelControlsDw->onUpdate();
 }
+void SingleChannelController::clickBehaviour(bool newState){
+//    if the newState is false or the user is not pressing ctrl, don't make anything
+    if (!newState || (QApplication::keyboardModifiers() & Qt::ControlModifier)){
+        return;
+    }
+    // Ctrl key is pressed
+    msgDisp->setAllChannelsSelected(false);
+}
+
 
 void SingleChannelController::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     msgDisp->enableStimulus(channelIndexes, onValues, true);

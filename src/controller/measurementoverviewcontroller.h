@@ -17,7 +17,6 @@ public slots:
     void onChannelsUpdated();
     void onExportLiveNoiseEstimates();
     void onLiquidJunctionResult(bool started);
-
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
     MessageDispatcher * msgDisp = nullptr;

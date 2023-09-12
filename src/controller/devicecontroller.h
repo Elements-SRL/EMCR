@@ -53,6 +53,6 @@ signals:
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
     void sigDownsamplingRatioSelected(int idx);
-    void sigClampingModalitySelected(int idx);
+    void sigClampingModalitySelected(ClampingModality_t mode);
 };
 #endif // DEVICECONTROLLER_H

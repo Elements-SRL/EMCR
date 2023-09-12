@@ -26,7 +26,8 @@ public slots:
 
     void onRecordingSettingsSet(RecordSettingsDialog::RecordSettings_t settings);
     void onRecordSelectedChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
-
+    void onFilenameSet(QString);
+    void onFilePathSet(QString);
     virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
     virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
@@ -58,6 +59,8 @@ protected:
     QVector <int> activeChannels;
     QVector <bool> activeChannelsFlag;
     int activeChannelsNum;
+    QString filename;
+    QString recordPath;
     RecordSettingsDialog::RecordSettings_t settings;
     QString baseFileName;
     QString validFullFileName;

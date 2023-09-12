@@ -2,7 +2,7 @@
 
 #include "qwt_plot_layout.h"
 #include "qwt_plot_canvas.h"
-
+#include <QApplication>
 #include "globaldefines.h"
 
 StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
@@ -88,6 +88,17 @@ void StampPlot::setSelected(bool flag) {
     }
 }
 
+void StampPlot::mousePressEvent(QMouseEvent *event){
+    emit clicked(event);
+//    if (event->button() == Qt::LeftButton){
+//        emit clicked(true);
+//    } else {
+//        emit clicked(false);
+//    }
+    // Call the base class implementation for normal processing
+    QwtPlot::mousePressEvent(event);
+}
+
 void StampPlot::setState(States_t newState) {
     state = newState;
     QString stateText = "";
@@ -161,11 +172,26 @@ void StampPlot::onDurationUpdated(Measurement_t duration) {
 }
 
 void StampPlot::onClicked() {
-    emit clicked(true);
+//    if (QApplication::keyboardModifiers() & Qt::ControlModifier){
+//        // Ctrl key is pressed
+//        // Do something specific when Ctrl is pressed during the button click
+//        qDebug() << "Ctrl key is pressed";
+//    }
+//    if (QApplication::keyboardModifiers() & Qt::ShiftModifier){
+//        // Shift key is pressed
+//        // Do something specific when Shift is pressed during the button click
+//        qDebug() << "Shift key is pressed";
+//    }
+//    if (QApplication::keyboardModifiers() & Qt::AltModifier){
+//        // Alt key is pressed
+//        // Do something specific when Alt is pressed during the button click
+//        qDebug() << "AltModifier key is pressed";
+//     }
+//    emit clicked(true);
 }
 
 void StampPlot::onUnclicked() {
-    emit clicked(false);
+//    emit clicked(false);
 }
 
 void StampPlot::resizeEvent(QResizeEvent * e) {

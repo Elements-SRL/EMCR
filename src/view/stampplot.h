@@ -10,6 +10,7 @@
 #include "qwt_plot_picker.h"
 #include "qwt_picker_machine.h"
 #include "qwt_text_label.h"
+#include <QMouseEvent>
 
 #include "e384commlib_global.h"
 
@@ -46,6 +47,7 @@ public slots:
 
 protected:
     virtual void resizeEvent(QResizeEvent * e) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     int channelIdx = 0;
@@ -73,7 +75,7 @@ private:
     int yAxisMaxMajor;
 
 signals:
-    void clicked(bool flag);
+    void clicked(QMouseEvent *event);
 };
 
 #endif // STAMPPLOT_H

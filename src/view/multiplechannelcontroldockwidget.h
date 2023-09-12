@@ -4,8 +4,10 @@
 #include <QDockWidget>
 #include <QLabel>
 #include <QPushButton>
+#include <QLineEdit>
 
 #include "messagedispatcher.h"
+#include "globaldefines.h"
 
 class MultipleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
@@ -29,7 +31,10 @@ private:
     QPushButton * reduceTraceBtn = nullptr;
     QPushButton * recordingStartBtn = nullptr;
     QPushButton * recordingStopBtn = nullptr;
-
+    QLineEdit * fileNameLineEdit = nullptr;
+    QLineEdit * recordPathLineEdit = nullptr;
+    void emitFileName();
+    void emitFilePath();
 signals:
     void sigTurnChannelOn();
     void sigTurnChannelOff();
@@ -42,6 +47,8 @@ signals:
     void sigStopRecording();
     void sigAddToBigPlot();
     void sigRemoveFromBigPlot();
+    void sigFileNameChanged(QString);
+    void sigRecordPathChanged(QString);
 };
 
 #endif // MULTIPLECHANNELCONTROLDOCKWIDGET_H

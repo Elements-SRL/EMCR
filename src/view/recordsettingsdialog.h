@@ -15,8 +15,6 @@
 
 #include "globaldefines.h"
 
-#define PSD_DEFAULT_RECORD_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "/Recordings/")
-#define PSD_DEFAULT_RECORD_NAME QString("file")
 #define PSD_DEFAULT_ADD_DATE false
 #define PSD_DEFAULT_RECORD_FORMAT 0
 #define PSD_DEFAULT_RECORD_DURATION 0.0
@@ -35,8 +33,6 @@ public:
     } RecordFileFormat_t;
 
     typedef struct RecordSettings {
-        QString recordPath = PSD_DEFAULT_RECORD_PATH;
-        QString filename = PSD_DEFAULT_RECORD_NAME;
         bool appendDate = false;
         RecordFileFormat_t fileFormat;
         double recordDurationS = 0.0;
@@ -52,8 +48,6 @@ public slots:
 private:
     RecordFileFormat_t getRecordFileFormat();
 
-    QLineEdit * recordPathEdit;
-    QLineEdit * recordNameEdit;
     QCheckBox * addDateChx;
 //    QRadioButton * recordFormatDatRb;
 //    QRadioButton * recordFormatEdrfRb;
@@ -73,7 +67,7 @@ private:
 //    int chunkIdx = 0;
 
 private slots:
-    void onRecordPathBrowseBtnClicked();
+//    void onRecordPathBrowseBtnClicked();
     void onLoadSettings();
     void onSaveSettings();
     void onAccept();

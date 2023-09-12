@@ -242,7 +242,8 @@ void MainController::onMainWindowCreated() {
     }
 
     connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
-
+    connect(mainWindow->getMultipleChannelControlsDockWidget(), &MultipleChannelControlDockWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
+    connect(mainWindow->getMultipleChannelControlsDockWidget(), &MultipleChannelControlDockWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
         msgDisp->setDebugBit(word, bit, flag);
     });
@@ -479,10 +480,11 @@ void MainController::onDownsamplingRatioSelected(int) {
     }
 }
 
-void MainController::onClampingModalitySelected(int) {
+void MainController::onClampingModalitySelected(ClampingModality_t mode) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
+    mainWindow->getProtocolDockWidget()->onSetClampingModality(mode);
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 

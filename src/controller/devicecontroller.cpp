@@ -156,19 +156,9 @@ void DeviceController::onDownsamplingRatioSelected(uint16_t selectedDownsampling
 // ADC Voltage Filter in CC set by Sampling rate
 
 void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModalityIndex){
-    msgDisp->setClampingModality(selectedClampingModalityIndex);
+    msgDisp->setClampingModality(selectedClampingModalityIndex, false);
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);
-
-    int voltageChannelsNum;
-    int currentChannelsNum;
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-    }
-    std::vector <bool> allTrue(currentChannelsNum, true);
-    std::vector <bool> allFalse(currentChannelsNum, false);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
         msgDisp->enableCcCompensations(false);
@@ -180,8 +170,6 @@ void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModal
 
         msgDisp->setSourceForVoltageChannel(0, false);
         msgDisp->setSourceForCurrentChannel(0, false);
-
-        msgDisp->setDebugBit(0, 7, false);
 
         uint32_t idx;
         msgDisp->getVCCurrentRangeIdx(idx);
@@ -201,8 +189,6 @@ void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModal
         msgDisp->setSourceForVoltageChannel(1, false);
         msgDisp->setSourceForCurrentChannel(1, false);
 
-        msgDisp->setDebugBit(0, 7, true);
-
         uint32_t idx;
         msgDisp->getCCCurrentRangeIdx(idx);
         this->onCcCurrentRangeSelected(idx);
@@ -211,7 +197,7 @@ void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModal
         this->onCcVoltageRangeSelected(idx);
     }
 
-    emit sigClampingModalitySelected(selectedClampingModalityIndex);
+    emit sigClampingModalitySelected(mode);
 }
 
 bool DeviceController::calcDefaultStatus(int size, bool recording){

@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QBoxLayout>
 #include <QLabel>
-
+#include <QMouseEvent>
 #include "stampplot.h"
 
 class ChannelOverviewWidget : public QFrame {
@@ -30,7 +30,7 @@ private:
     StampPlot * plot;
 
 signals:
-    void clicked(bool flag);
+    void clicked(QMouseEvent *event);
 };
 
 #endif // CHANNELOVERVIEWWIDGET_H
