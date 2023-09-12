@@ -40,6 +40,7 @@ BigPlotController::~BigPlotController() {
     if (bpw != nullptr) {
         delete bpw;
         bpw = nullptr;
+        mainWindow->setBigPlotWidget(bpw);
     }
 
     if (bpm != nullptr) {

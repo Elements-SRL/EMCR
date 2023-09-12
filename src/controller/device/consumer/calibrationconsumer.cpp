@@ -383,8 +383,9 @@ void CalibrationConsumer::run(){
                   ){
             msg = "Calibration will start in the range " + QString::fromStdString(vcCurrentRangesArray[0].niceLabel())+ ". Make sure you mounted the " + QString::fromStdString(calibratonResistances[0].niceLabel()) + " model cell.\nPress OK to continue.\n";
 
-        } else if(deviceUnderCalibrationType == Device4x10MHz
-                  || deviceUnderCalibrationType == Device2x10MHz
+        } else if(deviceUnderCalibrationType == Device4x10MHz_PCBV01
+                  || deviceUnderCalibrationType == Device2x10MHz_PCBV01
+                  || deviceUnderCalibrationType == Device2x10MHz_PCBV02
           #ifdef DEBUG
                   || deviceUnderCalibrationType == Device4x10MHzFake
           #endif

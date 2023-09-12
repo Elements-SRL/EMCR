@@ -47,6 +47,12 @@ MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp
     mainWindow->setMultipleChannelControlsDw(multipleChannelControlsDw);
 }
 
+MultipleChannelController::~MultipleChannelController(){
+    delete multipleChannelControlsDw;
+    multipleChannelControlsDw = nullptr;
+    mainWindow->setMultipleChannelControlsDw(multipleChannelControlsDw);
+}
+
 void MultipleChannelController::onRecordingRequest(bool flag) {
     if (flag) {
         std::vector <uint16_t> selectedChannels;

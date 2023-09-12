@@ -15,13 +15,12 @@ class StateArrayController : public QObject {
 
 public:
     StateArrayController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
-
+    ~StateArrayController();
 private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow;
     StateArrayDockWidget * stateArrayDockWidget;
     YAML::StateArray stateArray;
-    QAction * actionOpenFile = nullptr;
     void updateUI();
     void printYaml();
     void deleteState(int idx);

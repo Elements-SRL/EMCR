@@ -65,8 +65,7 @@ private slots:
     void onOperationSelected(int operationIdx);
     void onApplyButtonClicked();
     void onApplyButtonClicked(int idx, bool applyAll);
-    void onCheckAllButtonClicked();
-    void onUncheckAllButtonClicked();
+    void onAllButtonClicked(bool);
     void onSetAllButtonClicked();
 
 signals:

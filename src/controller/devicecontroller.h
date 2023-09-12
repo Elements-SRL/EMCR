@@ -12,6 +12,7 @@ class DeviceController : public QObject {
 
 public:
     DeviceController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    ~DeviceController();
     void handleRecording(bool);
     void handleProtocolStatusChanged(bool);
 
@@ -27,8 +28,6 @@ public slots:
     void onClampingModalitySelected(uint16_t selectedClampingModalityIndex);
 
 private:
-
-
     std::vector<ClampingModality_t> clampingModalities;
     std::vector <RangedMeasurement_t> vcCurrentRanges;
     std::vector <RangedMeasurement_t> vcVoltageRanges;
@@ -55,6 +54,6 @@ signals:
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
     void sigDownsamplingRatioSelected(int idx);
-    void sigClampingModalitySelected(int idx);
+    void sigClampingModalitySelected(ClampingModality_t mode);
 };
 #endif // DEVICECONTROLLER_H

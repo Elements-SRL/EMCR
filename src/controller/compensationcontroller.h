@@ -13,6 +13,7 @@ class CompensationController : public QObject {
 public:
     CompensationController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
     CompensationControlDockWidget * getCompensationDockWidget();
+    ~CompensationController();
 
 private:
     MessageDispatcher * msgDisp = nullptr;

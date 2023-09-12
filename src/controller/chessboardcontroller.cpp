@@ -18,7 +18,10 @@ ChessboardController::ChessboardController(MessageDispatcher * msgDisp, MainWind
         /*! buttare in una funzioncina di creazione del plot*/
         StampPlot * plot = new StampPlot(channelIdx, idealPlotWidth, idealPlotHeight);
         plot->setFixedSize(idealPlotWidth, idealPlotHeight);
-        plot->setToolTip(QString("Ch %1\nRight click: select\nLeft click: deselect").arg(channelIdx+1));
+        plot->setToolTip(QString("Ch %1\n"
+                                 "Left click: exclusive select\n"
+                                 "CTRL + Left click: append\n"
+                                 "Right click: deselect").arg(channelIdx+1));
         plot->setSelected(false);
 
         plots[channelIdx] = plot;
@@ -48,8 +51,9 @@ ChessboardController::~ChessboardController() {
     this->clearPlots();
 
     /*! Decommentare quando non verrà più distrutto dalla mainwindow */
-//    delete chessboard;
-//    chessboard = nullptr;
+    delete chessboard;
+    chessboard = nullptr;
+    mainWindow->setChessboardDw(chessboard);
 }
 
 void ChessboardController::clearCurves() {

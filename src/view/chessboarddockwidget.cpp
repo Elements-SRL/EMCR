@@ -2,7 +2,7 @@
 
 #include <QBoxLayout>
 #include <QComboBox>
-
+#include <QApplication>
 #include "globaldefines.h"
 
 ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
@@ -88,8 +88,8 @@ void ChessboardDockWidget::addPlot(StampPlot * plot, int channelIdx) {
         mainGl->addWidget(plot, rowIdx+1, boardIdx);
     }
 
-    connect(plot, &StampPlot::clicked, [=] (bool flag) {
-        emit sigSingleChannelClicked(channelIdx, flag);
+    connect(plot, &StampPlot::clicked, [=] (QMouseEvent *event) {
+        emit sigSingleChannelClicked(channelIdx, event);
     });
 }
 

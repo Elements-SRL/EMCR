@@ -144,7 +144,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
     scrollVl->addLayout(gl);
 }
 
-void MeasurementsOverviewDockWidget::updateButton(QPushButton * bt){
+void MeasurementsOverviewDockWidget::updateButton(QPushButton *){
     onUpdate();
 }
 

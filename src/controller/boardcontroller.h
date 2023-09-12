@@ -12,7 +12,7 @@ class BoardController : public QObject {
 
 public:
     BoardController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
-
+    ~BoardController();
 private:
     MessageDispatcher * msgDisp = nullptr;
     BoardControlDockWidget * boardControlDockWidget = nullptr;

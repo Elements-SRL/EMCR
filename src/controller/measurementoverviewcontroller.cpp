@@ -9,8 +9,14 @@ MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher *
     modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
     modm = new MeasurementOverviewModel(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
     connect(modw, &MeasurementsOverviewDockWidget::extract, this, [=](QString filepath){
-       modm->exportToCsv(filepath.toStdString());
+        modm->exportToCsv(filepath.toStdString());
     });
+    mainWindow->setMeasurementOverviewDw(modw);
+}
+
+MeasurementOverviewController::~MeasurementOverviewController(){
+    delete modw;
+    modw = nullptr;
     mainWindow->setMeasurementOverviewDw(modw);
 }
 

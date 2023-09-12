@@ -20,27 +20,12 @@ RecordSettingsDialog::RecordSettingsDialog() :
     QGridLayout * pathGl = new QGridLayout();
     mainVl->addLayout(pathGl);
 
-    /*! Record path settings */
-    pathGl->addWidget(new QLabel("Recording path:"), 0, 0);
-    recordPathEdit = new QLineEdit();
-    recordPathEdit->setReadOnly(true);
-    pathGl->addWidget(recordPathEdit, 0, 1);
-
-    QPushButton * recordPathBrowseBtn = new QPushButton("Browse...");
-    recordPathBrowseBtn->setCheckable(false);
-    connect(recordPathBrowseBtn, &QPushButton::clicked, this, &RecordSettingsDialog::onRecordPathBrowseBtnClicked);
-    pathGl->addWidget(recordPathBrowseBtn, 0, 2);
-
-    pathGl->addWidget(new QLabel("File Name:"), 1, 0);
-    recordNameEdit = new QLineEdit();
-    pathGl->addWidget(recordNameEdit, 1, 1);
-
     addDateChx = new QCheckBox("Append date to file name");
     pathGl->addWidget(addDateChx, 3, 0, 1, -1);
 
-    QRegularExpression re("^[a-zA-Z0-9_ ]*$");
-    QRegularExpressionValidator * validator = new QRegularExpressionValidator(re, this);
-    recordNameEdit->setValidator(validator);
+//    QRegularExpression re("^[a-zA-Z0-9_ ]*$");
+//    QRegularExpressionValidator * validator = new QRegularExpressionValidator(re, this);
+//    recordNameEdit->setValidator(validator);
 
     /*! Record format settings */
     QGroupBox * recordFormatGb = new QGroupBox();
@@ -147,19 +132,10 @@ RecordSettingsDialog::RecordFileFormat_t RecordSettingsDialog::getRecordFileForm
     return format;
 }
 
-void RecordSettingsDialog::onRecordPathBrowseBtnClicked() {
-    QString s = QFileDialog::getExistingDirectory(this, "Select directory", recordPathEdit->text());
-    if (s != "") {
-        recordPathEdit->setText(s + "/");
-    }
-}
-
 void RecordSettingsDialog::onLoadSettings() {
     QSettings settings;
 
-    recordPathEdit->setText(settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString());
-    recordNameEdit->setText(settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, PSD_DEFAULT_RECORD_NAME).toString());
-    addDateChx->setChecked(settings.value(GLB_PROTOCOL_ADD_DATE_TAG, PSD_DEFAULT_ADD_DATE).toBool());
+   addDateChx->setChecked(settings.value(GLB_PROTOCOL_ADD_DATE_TAG, PSD_DEFAULT_ADD_DATE).toBool());
 
     format = (RecordFileFormat_t)(settings.value(GLB_PROTOCOL_RECORD_FORMAT_TAG, PSD_DEFAULT_RECORD_FORMAT).toInt());
     switch (format) {
@@ -194,8 +170,8 @@ void RecordSettingsDialog::onLoadSettings() {
 void RecordSettingsDialog::onSaveSettings() {
     QSettings settings;
 
-    settings.setValue(GLB_PROTOCOL_RECORD_PATH_TAG, recordPathEdit->text());
-    settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, recordNameEdit->text());
+//    settings.setValue(GLB_PROTOCOL_RECORD_PATH_TAG, recordPathEdit->text());
+//    settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, recordNameEdit->text());
     settings.setValue(GLB_PROTOCOL_ADD_DATE_TAG, addDateChx->isChecked());
     settings.setValue(GLB_PROTOCOL_RECORD_FORMAT_TAG, (int)(this->getRecordFileFormat()));
     settings.setValue(GLB_PROTOCOL_RECORD_DURATION_TAG, recordDurationEdit->value());
@@ -206,8 +182,6 @@ void RecordSettingsDialog::onAccept() {
     this->onSaveSettings();
 
     RecordSettings_t settings;
-    settings.recordPath = recordPathEdit->text();
-    settings.filename = recordNameEdit->text();
     settings.appendDate = addDateChx->isChecked();
     settings.fileFormat = this->getRecordFileFormat();
     settings.recordDurationS = recordDurationEdit->value();

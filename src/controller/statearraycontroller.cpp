@@ -12,7 +12,7 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
     mainWindow(mainWindow) {
 
     if(!msgDisp->isStateArrayAvailable()){
-//        TODO SHOULD THIS RETURN AN ERROR?
+        stateArrayDockWidget = nullptr;
         return;
     }
     stateArray = {};
@@ -99,6 +99,14 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigTriggerStateCheckBoxClicked, this, [=](int value, int chIdx){
         stateArray.states[chIdx].triggerState = value;
     });
+}
+
+StateArrayController::~StateArrayController(){
+    if (stateArrayDockWidget!=nullptr){
+        delete stateArrayDockWidget;
+        stateArrayDockWidget = nullptr;
+        mainWindow->setStateArrayDw(stateArrayDockWidget);
+    }
 }
 
 void StateArrayController::printYaml(){

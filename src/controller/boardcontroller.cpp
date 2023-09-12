@@ -6,7 +6,6 @@ BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainW
     mainWindow(mainWindow) {
 
     if (msgDisp->hasGateVoltages() != Success && msgDisp->hasSourceVoltages() != Success) {
-//        TODO SHOULD THIS RETURN AN ERROR?
         return;
     }
 
@@ -15,6 +14,12 @@ BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainW
     connect(boardControlDockWidget, &BoardControlDockWidget::sigGateSourceVoltagesApplied, this, [=](std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
         onGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);
     });
+}
+
+BoardController::~BoardController(){
+    delete boardControlDockWidget;
+    boardControlDockWidget = nullptr;
+    mainWindow->setBoardControlsDw(boardControlDockWidget);
 }
 
 void BoardController::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){

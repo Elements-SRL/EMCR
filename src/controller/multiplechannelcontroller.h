@@ -12,6 +12,7 @@ class MultipleChannelController : public QObject {
 
 public:
     MultipleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    ~MultipleChannelController();
 
 public slots:
     void onRecordingRequest(bool flag);

@@ -9,6 +9,7 @@
 #include "myleftrightmousepushbutton.h"
 #include "channeloverviewwidget.h"
 #include "messagedispatcher.h"
+#include <QMouseEvent>
 
 class ChessboardDockWidget : public QDockWidget {
     Q_OBJECT
@@ -40,7 +41,7 @@ signals:
     void sigAllChannelsClicked(bool newChannelState);
     void sigOneBoardClicked(uint16_t changedBoardIndex, bool newChannelState);
     void sigOneRowClicked(uint16_t changedRowIndex, bool newChannelState);
-    void sigSingleChannelClicked(uint16_t changedChannelIndex, bool newChannelState);
+    void sigSingleChannelClicked(uint16_t changedChannelIndex, QMouseEvent * event);
 };
 
 #endif // CHESSBOARDDOCKWIDGET_H
