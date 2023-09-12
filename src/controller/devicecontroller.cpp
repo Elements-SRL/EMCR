@@ -17,6 +17,7 @@ DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mai
     msgDisp->getMaxDownsamplingRatioFeature(maxDownsamplingRatio);
 
     deviceControlDockWidget = new DeviceControlDockWidget(msgDisp);
+    this->mainWindow = mainWindow;
     mainWindow->setDeviceControlDw(deviceControlDockWidget);
 
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcCurrentRangeSelected,     this, [=](uint16_t selectedVcCurrentRangeIndex){
@@ -68,6 +69,12 @@ DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mai
             onSamplingRateSelected(selectedSamplingRateIndex);
         });
     }
+}
+
+DeviceController::~DeviceController(){
+    delete deviceControlDockWidget;
+    deviceControlDockWidget = nullptr;
+    mainWindow->setDeviceControlDw(deviceControlDockWidget);
 }
 
 void DeviceController::handleRecording(bool recording){
@@ -203,9 +210,4 @@ void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModal
 bool DeviceController::calcDefaultStatus(int size, bool recording){
 //    if I'm not recording and there are more then 1 measurements enable the groupboxes
     return size > 1 && !recording;
-}
-
-DeviceController::~DeviceController(){
-    delete deviceControlDockWidget;
-    deviceControlDockWidget = nullptr;
 }

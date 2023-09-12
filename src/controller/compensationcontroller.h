@@ -17,6 +17,7 @@ public:
 
 private:
     MessageDispatcher * msgDisp = nullptr;
+    MainWindow * mainWindow = nullptr;
     CompensationControlDockWidget * compensationControlDockWidget = nullptr;
 };
 #endif // COMPENSATIONCONTROLLER_H

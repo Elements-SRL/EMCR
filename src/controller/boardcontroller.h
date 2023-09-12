@@ -16,6 +16,7 @@ public:
 private:
     MessageDispatcher * msgDisp = nullptr;
     BoardControlDockWidget * boardControlDockWidget = nullptr;
+    MainWindow * mainWindow = nullptr;
 
 public slots:
     void onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages);

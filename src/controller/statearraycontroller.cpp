@@ -8,10 +8,10 @@
 #include "iostream"
 
 StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp) {
+    msgDisp(msgDisp),
+    mainWindow(mainWindow) {
 
     if(!msgDisp->isStateArrayAvailable()){
-//        TODO SHOULD THIS RETURN AN ERROR?
         stateArrayDockWidget = nullptr;
         return;
     }
@@ -101,6 +101,14 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
     });
 }
 
+StateArrayController::~StateArrayController(){
+    if (stateArrayDockWidget!=nullptr){
+        delete stateArrayDockWidget;
+        stateArrayDockWidget = nullptr;
+        mainWindow->setStateArrayDw(stateArrayDockWidget);
+    }
+}
+
 void StateArrayController::printYaml(){
     YAML::Node node;
     node = stateArray;
@@ -135,11 +143,4 @@ void StateArrayController::updateUI(){
     stateArrayDockWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
     stateArrayDockWidget->setStateCount(stateArray.states.size());
     stateArrayDockWidget->setState(stateArray.states[0], 0);
-}
-
-StateArrayController::~StateArrayController(){
-    if (stateArrayDockWidget!=nullptr){
-        delete stateArrayDockWidget;
-        stateArrayDockWidget = nullptr;
-    }
 }

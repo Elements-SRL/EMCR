@@ -53,6 +53,7 @@ ChessboardController::~ChessboardController() {
     /*! Decommentare quando non verrà più distrutto dalla mainwindow */
     delete chessboard;
     chessboard = nullptr;
+    mainWindow->setChessboardDw(chessboard);
 }
 
 void ChessboardController::clearCurves() {

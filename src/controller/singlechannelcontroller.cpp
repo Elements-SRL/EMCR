@@ -18,6 +18,12 @@ SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, Ma
     mainWindow->setSingleChannelControlsDw(singleChannelControlsDw);
 }
 
+SingleChannelController::~SingleChannelController(){
+    delete singleChannelControlsDw;
+    singleChannelControlsDw = nullptr;
+    mainWindow->setSingleChannelControlsDw(singleChannelControlsDw);
+}
+
 void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
     bool newState = event->button() == Qt::LeftButton;
     clickBehaviour(newState);
@@ -141,9 +147,4 @@ void SingleChannelController::onCompensationApplied(std::vector<uint16_t> channe
     msgDisp->getCompFeatures(MessageDispatcher::U_RsPg, rsPgFeatures, defaultParamValue);
 
     mainWindow->getCompensationControlsDockWidget()->onCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures, ccCfastFeatures);
-}
-
-SingleChannelController::~SingleChannelController(){
-    delete singleChannelControlsDw;
-    singleChannelControlsDw = nullptr;
 }

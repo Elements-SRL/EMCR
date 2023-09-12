@@ -20,6 +20,7 @@ public slots:
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
     MessageDispatcher * msgDisp = nullptr;
+    MainWindow * mainWindow = nullptr;
     MeasurementsOverviewDockWidget * modw = nullptr;
     int voltageChannelsNum;
     int currentChannelsNum;

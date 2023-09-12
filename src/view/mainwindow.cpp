@@ -210,62 +210,79 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
  * set dock widgets *
 \********************/
 
-void MainWindow::setBigPlotWidget(BigPlotWidget * bpw) {
-    bigPlotW = bpw;
-    delete this->takeCentralWidget();
-    this->setCentralWidget(bigPlotW);
-    this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+void MainWindow::setBigPlotWidget(BigPlotWidget * widget) {
+    bigPlotW = widget;
+    if (widget != nullptr) {
+        delete this->takeCentralWidget();
+        this->setCentralWidget(bigPlotW);
+        this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    }
 }
 
-void MainWindow::setChessboardDw(ChessboardDockWidget * cbdw) {
-    chessboardDw = cbdw;
-    addDockWidget(Qt::BottomDockWidgetArea, chessboardDw);
-    chessboardDw->setFloating(true);
-    dockWidgets.append(chessboardDw);
+void MainWindow::setChessboardDw(ChessboardDockWidget * widget) {
+    chessboardDw = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::BottomDockWidgetArea, chessboardDw);
+        chessboardDw->setFloating(true);
+        dockWidgets.append(chessboardDw);
+    }
 }
 
-void MainWindow::setCompensationControlsDw(CompensationControlDockWidget * ccdw){
-    compensationControlsDw = ccdw;
-    addDockWidget(Qt::RightDockWidgetArea, compensationControlsDw);
-    dockWidgets.append(compensationControlsDw);
+void MainWindow::setCompensationControlsDw(CompensationControlDockWidget * widget){
+    compensationControlsDw = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::RightDockWidgetArea, compensationControlsDw);
+        dockWidgets.append(compensationControlsDw);
+    }
 }
 
-void MainWindow::setSingleChannelControlsDw(SingleChannelControlDockWidget * scdw){
-    singleChannelControlsDw = scdw;
-    addDockWidget(Qt::RightDockWidgetArea, singleChannelControlsDw);
-    dockWidgets.append(singleChannelControlsDw);
+void MainWindow::setSingleChannelControlsDw(SingleChannelControlDockWidget * widget){
+    singleChannelControlsDw = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::RightDockWidgetArea, singleChannelControlsDw);
+        dockWidgets.append(singleChannelControlsDw);
+    }
 }
 
-void MainWindow::setMultipleChannelControlsDw(MultipleChannelControlDockWidget * mcdw){
-    multipleChannelControlsDw = mcdw;
-    addDockWidget(Qt::RightDockWidgetArea, multipleChannelControlsDw);
-    dockWidgets.append(multipleChannelControlsDw);
+void MainWindow::setMultipleChannelControlsDw(MultipleChannelControlDockWidget * widget){
+    multipleChannelControlsDw = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::RightDockWidgetArea, multipleChannelControlsDw);
+        dockWidgets.append(multipleChannelControlsDw);
+    }
 }
 
-void MainWindow::setBoardControlsDw(BoardControlDockWidget * bcdw){
-    boardControlsDw = bcdw;
-    addDockWidget(Qt::RightDockWidgetArea, boardControlsDw);
-    dockWidgets.append(boardControlsDw);
+void MainWindow::setBoardControlsDw(BoardControlDockWidget * widget){
+    boardControlsDw = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::RightDockWidgetArea, boardControlsDw);
+        dockWidgets.append(boardControlsDw);
+    }
 }
 
-void MainWindow::setDeviceControlDw(DeviceControlDockWidget * dcdw){
-    deviceControlsDw = dcdw;
-    addDockWidget(Qt::RightDockWidgetArea, deviceControlsDw);
-    dockWidgets.append(deviceControlsDw);
+void MainWindow::setDeviceControlDw(DeviceControlDockWidget * widget){
+    deviceControlsDw = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::RightDockWidgetArea, deviceControlsDw);
+        dockWidgets.append(deviceControlsDw);
+    }
 }
 
-//STATE ARRAY WIDGET
-void MainWindow::setStateArrayDw(StateArrayDockWidget * sadw){
-    stateArrayDockWidget = sadw;
-    addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
-    dockWidgets.append(stateArrayDockWidget);
+void MainWindow::setStateArrayDw(StateArrayDockWidget * widget){
+    stateArrayDockWidget = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
+        dockWidgets.append(stateArrayDockWidget);
+    }
 }
 
-void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * modw) {
-    measurementsOverviewDw = modw;
-    addDockWidget(Qt::RightDockWidgetArea, modw);
-    chessboardDw->setFloating(true);
-    dockWidgets.append(modw);
+void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * widget) {
+    measurementsOverviewDw = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::RightDockWidgetArea, measurementsOverviewDw);
+        chessboardDw->setFloating(true);
+        dockWidgets.append(measurementsOverviewDw);
+    }
 }
 
 void MainWindow::setPlotPreferencesDialog(PlotPreferencesDialog * ppd) {
@@ -465,12 +482,6 @@ void MainWindow::destroyGuiControls() {
     actionRecordingSettings->setEnabled(false);
     actionPlotPreferences->setEnabled(false);
 
-//    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-//        if (dockWidgets[dockIdx] != nullptr) {
-//            delete dockWidgets[dockIdx];
-//            dockWidgets[dockIdx] = nullptr;
-//        }
-//    }
     if (protocolDw != nullptr){
         delete protocolDw;
         protocolDw = nullptr;

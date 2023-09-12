@@ -26,6 +26,7 @@ private:
     void addRemoveFromBigPlot(bool flag);
 
     MessageDispatcher * msgDisp = nullptr;
+    MainWindow * mainWindow = nullptr;
     MultipleChannelControlDockWidget * multipleChannelControlsDw = nullptr;
 
 signals:

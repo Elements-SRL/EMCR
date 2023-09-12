@@ -38,6 +38,7 @@ private:
     std::vector <Measurement_t> samplingRates;
 
     MessageDispatcher * msgDisp = nullptr;
+    MainWindow * mainWindow;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
     bool recording = false;
     bool protocolRunning = false;

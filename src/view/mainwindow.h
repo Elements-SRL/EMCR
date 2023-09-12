@@ -49,17 +49,17 @@ public:
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
 
-    void setBigPlotWidget(BigPlotWidget * bpw);
-    void setChessboardDw(ChessboardDockWidget * cbdw);
-    void setCompensationControlsDw(CompensationControlDockWidget * ccdw);
-    void setSingleChannelControlsDw(SingleChannelControlDockWidget * scdw);
-    void setMultipleChannelControlsDw(MultipleChannelControlDockWidget * mcdw);
-    void setBoardControlsDw(BoardControlDockWidget * bcdw);
-    void setDeviceControlDw(DeviceControlDockWidget * dcdw);
-    void setProtocolDw(ProtocolDockWidget * pdw);
-    void setStateArrayDw(StateArrayDockWidget * sadw);
-    void setMeasurementOverviewDw(MeasurementsOverviewDockWidget * modw);
-    void setPlotPreferencesDialog(PlotPreferencesDialog * ppd);
+    void setBigPlotWidget(BigPlotWidget * widget);
+    void setChessboardDw(ChessboardDockWidget * widget);
+    void setCompensationControlsDw(CompensationControlDockWidget * widget);
+    void setSingleChannelControlsDw(SingleChannelControlDockWidget * widget);
+    void setMultipleChannelControlsDw(MultipleChannelControlDockWidget * widget);
+    void setBoardControlsDw(BoardControlDockWidget * widget);
+    void setDeviceControlDw(DeviceControlDockWidget * widget);
+    void setProtocolDw(ProtocolDockWidget * widget);
+    void setStateArrayDw(StateArrayDockWidget * widget);
+    void setMeasurementOverviewDw(MeasurementsOverviewDockWidget * widget);
+    void setPlotPreferencesDialog(PlotPreferencesDialog * widget);
     void addViewActions();
     void removeViewActions();
 

@@ -18,6 +18,7 @@ public:
     ~StateArrayController();
 private:
     MessageDispatcher * msgDisp = nullptr;
+    MainWindow * mainWindow;
     StateArrayDockWidget * stateArrayDockWidget;
     YAML::StateArray stateArray;
     void updateUI();
