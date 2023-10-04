@@ -58,6 +58,7 @@ public slots:
 signals:
     void testSignal();
     void sigAppliedHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues);
+    void sigAppliedStimHalfValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> halfValues);
     void extract(QString);
 };
 

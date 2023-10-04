@@ -38,6 +38,14 @@ ProtocolDropItem::ProtocolDropItem(MessageDispatcher * msgDisp, ProtocolItemCtrl
 
     propertyLo->addWidget(visibleEdit, PDI_VISIBLE_CHECK_ROW, 0, 1, -1);
 
+    QHBoxLayout * stimulusHalfHl = new QHBoxLayout;
+    mainVl->addLayout(stimulusHalfHl);
+
+    QCheckBox* cbStimulusHalf = new QCheckBox("Stimulus half ON");
+    cbStimulusHalf->setCheckState(Qt::Unchecked);
+    stimulusHalfHl->addWidget(cbStimulusHalf);
+    /** \todo MPAC, connect to something*/
+
     QHBoxLayout * okCancHl = new QHBoxLayout;
     mainVl->addLayout(okCancHl);
 
