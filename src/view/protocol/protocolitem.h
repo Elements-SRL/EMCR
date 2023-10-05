@@ -11,7 +11,7 @@ typedef enum {
 
 class ProtocolItem {
 public:
-    ProtocolItem(ProtocolItemType_t type, int nextItem, int repsNum, bool applySteps, bool visible);
+    ProtocolItem(ProtocolItemType_t type, int nextItem, int repsNum, bool applySteps, bool visible, bool stimHalfFlag);
     ProtocolItem(ProtocolItemType_t type, int nextItem, bool visible);
     virtual ~ProtocolItem();
 
@@ -28,6 +28,7 @@ public:
     int repsNum = 1;
     bool applySteps = false;
     bool visible = true;
+    bool stimHalfFlag = false;
 };
 
 class ProtocolXStepTStepItem : public ProtocolItem {
@@ -49,6 +50,7 @@ public:
     double xStep = 0.0;
     double t0 = 0.0;
     double tStep = 0.0;
+
 };
 
 class ProtocolXHoldItem : public ProtocolXStepTStepItem {

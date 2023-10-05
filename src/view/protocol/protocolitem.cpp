@@ -1,12 +1,12 @@
 #include "protocolitem.h"
 
-ProtocolItem::ProtocolItem(ProtocolItemType_t type, int nextItem, int repsNum, bool applySteps, bool visible) :
+ProtocolItem::ProtocolItem(ProtocolItemType_t type, int nextItem, int repsNum, bool applySteps, bool visible, bool stimHalfFlag) :
     type(type),
     nextItem(nextItem),
     repsNum(repsNum),
     applySteps(applySteps),
-    visible(visible) {
-
+    visible(visible),
+    stimHalfFlag(stimHalfFlag){
 }
 
 ProtocolItem::ProtocolItem(ProtocolItemType_t type, int nextItem, bool visible) :
@@ -50,10 +50,11 @@ ProtocolXStepTStepItem::ProtocolXStepTStepItem(ProtocolDropItem * item, double h
     xStep = castItem->getXStep();
     t0 = castItem->getT0();
     tStep = castItem->getTStep();
+    stimHalfFlag = castItem->getStimHalf();
 }
 
 ProtocolXStepTStepItem::ProtocolXStepTStepItem(ProtocolItem * item, int nextItem) :
-    ProtocolItem(item->type, nextItem, item->repsNum, item->applySteps, item->visible) {
+    ProtocolItem(item->type, nextItem, item->repsNum, item->applySteps, item->visible, item->stimHalfFlag) {
     ProtocolXStepTStepItem * castItem = static_cast <ProtocolXStepTStepItem *> (item);
     x0 = castItem->x0;
     xStep = castItem->xStep;
@@ -62,7 +63,7 @@ ProtocolXStepTStepItem::ProtocolXStepTStepItem(ProtocolItem * item, int nextItem
 }
 
 ProtocolXStepTStepItem::ProtocolXStepTStepItem(ProtocolItem * item) :
-    ProtocolItem(item->type, item->nextItem, item->repsNum, item->applySteps, item->visible) {
+    ProtocolItem(item->type, item->nextItem, item->repsNum, item->applySteps, item->visible, item->stimHalfFlag) {
     ProtocolXStepTStepItem * castItem = static_cast <ProtocolXStepTStepItem *> (item);
     x0 = castItem->x0;
     xStep = castItem->xStep;
@@ -137,10 +138,11 @@ ProtocolXRampItem::ProtocolXRampItem(ProtocolDropItem * item, double hold, int n
     x0 = castItem->getX0()+hold;
     xFinal = castItem->getXFinal()+hold;
     t0 = castItem->getT0();
+    stimHalfFlag = castItem->getStimHalf();
 }
 
 ProtocolXRampItem::ProtocolXRampItem(ProtocolItem * item, int nextItem) :
-    ProtocolItem(item->type, nextItem, item->repsNum, item->applySteps, item->visible) {
+    ProtocolItem(item->type, nextItem, item->repsNum, item->applySteps, item->visible, item->stimHalfFlag) {
     ProtocolXRampItem * castItem = static_cast <ProtocolXRampItem *> (item);
     x0 = castItem->x0;
     xFinal = castItem->xFinal;
@@ -148,7 +150,7 @@ ProtocolXRampItem::ProtocolXRampItem(ProtocolItem * item, int nextItem) :
 }
 
 ProtocolXRampItem::ProtocolXRampItem(ProtocolItem * item) :
-    ProtocolItem(item->type, item->nextItem, item->repsNum, item->applySteps, item->visible) {
+    ProtocolItem(item->type, item->nextItem, item->repsNum, item->applySteps, item->visible, item->stimHalfFlag) {
     ProtocolXRampItem * castItem = static_cast <ProtocolXRampItem *> (item);
     x0 = castItem->x0;
     xFinal = castItem->xFinal;
@@ -174,10 +176,11 @@ ProtocolXSinItem::ProtocolXSinItem(ProtocolDropItem * item, double hold, int nex
     x0 = castItem->getX0()+hold;
     xAmp = castItem->getXAmp();
     freq = castItem->getFreq();
+    stimHalfFlag = castItem->getStimHalf();
 }
 
 ProtocolXSinItem::ProtocolXSinItem(ProtocolItem * item, int nextItem) :
-    ProtocolItem(item->type, nextItem, item->repsNum, item->applySteps, item->visible) {
+    ProtocolItem(item->type, nextItem, item->repsNum, item->applySteps, item->visible, item->stimHalfFlag) {
     ProtocolXSinItem * castItem = static_cast <ProtocolXSinItem *> (item);
     x0 = castItem->x0;
     xAmp = castItem->xAmp;
@@ -185,7 +188,7 @@ ProtocolXSinItem::ProtocolXSinItem(ProtocolItem * item, int nextItem) :
 }
 
 ProtocolXSinItem::ProtocolXSinItem(ProtocolItem * item) :
-    ProtocolItem(item->type, item->nextItem, item->repsNum, item->applySteps, item->visible) {
+    ProtocolItem(item->type, item->nextItem, item->repsNum, item->applySteps, item->visible, item->stimHalfFlag) {
     ProtocolXSinItem * castItem = static_cast <ProtocolXSinItem *> (item);
     x0 = castItem->x0;
     xAmp = castItem->xAmp;

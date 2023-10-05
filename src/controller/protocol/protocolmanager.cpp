@@ -73,12 +73,13 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
             xStep.value = castItem->xStep;
             t0.value = castItem->t0;
             t0Step.value = castItem->tStep;
+            stimHalfFlag = castItem->stimHalfFlag;
 
             if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
-                msgDisp->setVoltageProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, t0Step);
+                msgDisp->setVoltageProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, t0Step, stimHalfFlag);
 
             } else {
-                msgDisp->setCurrentProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, t0Step);
+                msgDisp->setCurrentProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, t0Step, stimHalfFlag);
             }
             break;
         }
@@ -91,12 +92,13 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
             xFinalStep.value = 0.0;
             t0.value = castItem->t0;
             t0Step.value = 0.0;
+            stimHalfFlag = castItem->stimHalfFlag;
 
             if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                msgDisp->setVoltageProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, t0Step);
+                msgDisp->setVoltageProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, t0Step, stimHalfFlag);
 
             } else {
-                msgDisp->setCurrentProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, t0Step);
+                msgDisp->setCurrentProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, t0Step, stimHalfFlag);
             }
             break;
         }
@@ -109,12 +111,13 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
             xAmpStep.value = 0.0;
             f0.value = castItem->freq;
             f0Step.value = 0.0;
+            stimHalfFlag = castItem->stimHalfFlag;
 
             if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
-                msgDisp->setVoltageProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step);
+                msgDisp->setVoltageProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step, stimHalfFlag);
 
             } else {
-                msgDisp->setCurrentProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step);
+                msgDisp->setCurrentProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step, stimHalfFlag);
             }
             break;
         }

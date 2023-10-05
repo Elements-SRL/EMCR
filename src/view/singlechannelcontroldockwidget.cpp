@@ -23,12 +23,12 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
     operationTitles.resize(OperationsNum);
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
     operationTitles[OperationLiquidJunction] = "Offset compensation";
-    operationTitles[OperationLiquidJunction] = "Stimulus half";
+    operationTitles[OperationStimulusHalf] = "Stimulus half";
 
     operationString.resize(OperationsNum);
     operationString[OperationHoldingStimulus] = "NOT USED";
     operationString[OperationLiquidJunction] = "NOT USED";
-    operationString[OperationLiquidJunction] = "NOT USED";
+    operationString[OperationStimulusHalf] = "NOT USED";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
@@ -190,6 +190,17 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
         sbx->setDecimals(holdingTunerRange.decimals());
     }
 
+    /** \todo MPAC, recheck this section is new*/
+    setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
+    setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+        sbx->setDecimals(holdingTunerRange.decimals());
+    }
+
     if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
         liquidJunctionRange = ranges[idx];
         unit = QString().fromStdString(liquidJunctionRange.getFullUnit());
@@ -215,6 +226,17 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+        sbx->setDecimals(holdingTunerRange.decimals());
+    }
+
+    /** \todo MPAC, recheck this section is new*/
+    setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
+    setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
         sbx->setSuffix(QString(" ") + unit);
         sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
         sbx->setDecimals(holdingTunerRange.decimals());
