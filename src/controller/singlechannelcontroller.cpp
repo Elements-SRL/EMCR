@@ -84,10 +84,10 @@ void SingleChannelController::onApplyStimHalfValues(std::vector<uint16_t> channe
     msgDisp->getClampingModality(mode);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
-        msgDisp->setVoltageHalfTuner(channelIndexes, halfValues, true);
+        msgDisp->setVoltageHalf(channelIndexes, halfValues, true);
 
     } else {
-        msgDisp->setCurrentHalfTuner(channelIndexes, halfValues, true);
+        msgDisp->setCurrentHalf(channelIndexes, halfValues, true);
     }
 }
 
