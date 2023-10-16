@@ -42,3 +42,6 @@ EMCR_resource.rc
 debug/
 release/
 EMCR_resource.aps
+
+*.bit
+*.sln
