@@ -95,6 +95,8 @@ private:
         "Hz" // unit
     };
 
+    bool stimHalfFlag = false;
+
 signals:
     void protocolStarted(unsigned int, ProtocolWidget *);
     void currentApplied();

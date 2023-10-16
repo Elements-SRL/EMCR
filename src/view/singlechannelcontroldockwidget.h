@@ -31,6 +31,7 @@ private:
     typedef enum Operations {
         OperationHoldingStimulus,
         OperationLiquidJunction,
+        OperationStimulusHalf,
         OperationsNum
     } Operations_t;
 
@@ -70,6 +71,7 @@ private slots:
 
 signals:
     void sigAppliedHoldValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
+    void sigAppliedStimHalfValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigLiquidJunctionValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
 };
 

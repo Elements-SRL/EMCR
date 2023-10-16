@@ -23,10 +23,12 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
     operationTitles.resize(OperationsNum);
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
     operationTitles[OperationLiquidJunction] = "Offset compensation";
+    operationTitles[OperationStimulusHalf] = "Stimulus half";
 
     operationString.resize(OperationsNum);
     operationString[OperationHoldingStimulus] = "NOT USED";
     operationString[OperationLiquidJunction] = "NOT USED";
+    operationString[OperationStimulusHalf] = "NOT USED";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
@@ -121,6 +123,26 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         emit sigLiquidJunctionValues(indexes, values);
         break;
     }
+
+    case OperationStimulusHalf:{
+        /** \todo MPAC, recheck rimasta un botto di roba di holding tuner*/
+        SpinBoxWithChannel * sbx;
+        std::vector<Measurement_t> values;
+        std::vector<uint16_t> indexes;
+
+        for (int i = 0; i < selectedChannels.size(); i++) {
+            sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
+            if (selectedChannels.at(i)) {
+                Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), holdingTunerRange.prefix, holdingTunerRange.unit};
+                values.push_back(myMeasurementValue);
+                indexes.push_back(i);
+            }
+        }
+
+        emit sigAppliedStimHalfValues(indexes, values);
+        break;
+    }
+
     }
 }
 
@@ -152,7 +174,7 @@ void SingleChannelControlDockWidget::onSetAllButtonClicked() {
         }
     }
 }
-
+/** \todo MPAC recheck se devi modificare anche questo per Stimulus Half */
 void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     msgDisp->getVoltageHoldTunerFeatures(ranges);
@@ -163,6 +185,17 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+        sbx->setDecimals(holdingTunerRange.decimals());
+    }
+
+    /** \todo MPAC, recheck this section is new*/
+    setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
+    setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
         sbx->setSuffix(QString(" ") + unit);
         sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
         sbx->setDecimals(holdingTunerRange.decimals());
@@ -182,7 +215,7 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
         }
     }
 }
-
+/** \todo MPAC recheck se devi modificare anche questo per Stimulus Half */
 void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     msgDisp->getCurrentHoldTunerFeatures(ranges);
@@ -193,6 +226,17 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(holdingTunerRange.decimals());
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
+        sbx->setSuffix(QString(" ") + unit);
+        sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+        sbx->setDecimals(holdingTunerRange.decimals());
+    }
+
+    /** \todo MPAC, recheck this section is new*/
+    setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
+    setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
+    setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
         sbx->setSuffix(QString(" ") + unit);
         sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
         sbx->setDecimals(holdingTunerRange.decimals());
@@ -226,6 +270,11 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 
     case OperationLiquidJunction:
         msgDisp->getLiquidJunctionRangesFeatures(ranges);
+        break;
+
+    case OperationStimulusHalf:
+        /** \todo recheck, qui ci sono ancora gli hold, non gli half, sdal momento che non ne conosco le fatures*/
+        msgDisp->getVoltageHoldTunerFeatures(ranges);
         break;
     }
 
@@ -261,6 +310,11 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
 
     case OperationLiquidJunction:
         msgDisp->getLiquidJunctionRangesFeatures(ranges);
+        break;
+
+    case OperationStimulusHalf:
+        /** \todo recheck, qui ci sono ancora gli hold, non gli half, sdal momento che non ne conosco le fatures*/
+        msgDisp->getVoltageHoldTunerFeatures(ranges);
         break;
     }
 

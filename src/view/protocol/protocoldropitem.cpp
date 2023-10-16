@@ -38,6 +38,9 @@ ProtocolDropItem::ProtocolDropItem(MessageDispatcher * msgDisp, ProtocolItemCtrl
 
     propertyLo->addWidget(visibleEdit, PDI_VISIBLE_CHECK_ROW, 0, 1, -1);
 
+    stimulusHalfHl = new QHBoxLayout;
+    mainVl->addLayout(stimulusHalfHl);
+
     QHBoxLayout * okCancHl = new QHBoxLayout;
     mainVl->addLayout(okCancHl);
 
@@ -146,11 +149,19 @@ ProtocolDropStimulusItem::ProtocolDropStimulusItem(MessageDispatcher * msgDisp, 
     ProtocolDropItem(msgDisp, ctrlManager, hold0, clampingModality, type) {
     this->setBackground(PROT_EDITOR_STIMULUS_ITEM_COLOR);
 
+    cbStimulusHalf = new QCheckBox("Stimulus half ON");
+    cbStimulusHalf->setCheckState(Qt::Unchecked);
+    stimulusHalfHl->addWidget(cbStimulusHalf);
+
     propertyLo->setColumnStretch(0, 2);
     propertyLo->setColumnStretch(1, 3);
     propertyLo->setColumnStretch(2, 1);
     propertyLo->setColumnStretch(3, 2);
     propertyLo->setColumnStretch(4, 2);
+}
+
+bool ProtocolDropStimulusItem::getStimHalf(){
+    return cbStimulusHalf->isChecked();
 }
 
 QString ProtocolDropStimulusItem::getName() {

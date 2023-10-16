@@ -8,6 +8,7 @@ SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, Ma
 
     singleChannelControlsDw = new SingleChannelControlDockWidget(msgDisp);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedHoldValues, this, &SingleChannelController::onApplyHoldValues);
+    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedStimHalfValues, this, &SingleChannelController::onApplyStimHalfValues);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigLiquidJunctionValues, this, &SingleChannelController::onLiquidJunctionValues);
 
     if (mainWindow->getCompensationControlsDockWidget() != nullptr) {
@@ -75,6 +76,18 @@ void SingleChannelController::onApplyHoldValues(std::vector<uint16_t> channelInd
 
     } else {
         msgDisp->setCurrentHoldTuner(channelIndexes, holdValues, true);
+    }
+}
+
+void SingleChannelController::onApplyStimHalfValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> halfValues){
+    ClampingModality_t mode;
+    msgDisp->getClampingModality(mode);
+
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+        msgDisp->setVoltageHalf(channelIndexes, halfValues, true);
+
+    } else {
+        msgDisp->setCurrentHalf(channelIndexes, halfValues, true);
     }
 }
 

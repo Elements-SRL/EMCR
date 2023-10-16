@@ -45,6 +45,7 @@ protected:
     MessageDispatcher * msgDisp = nullptr;
     QDialog * propertyDialog = nullptr;
     QGridLayout * propertyLo;
+    QHBoxLayout * stimulusHalfHl;
     QLabel * descriptionName;
     QVector <QWidget *> editWidgets;
     QVector <ProtocolDropItemParam *> dropItemParams;
@@ -84,6 +85,9 @@ public:
     ProtocolDropStimulusItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_STIMULUS_ITEM_TYPE);
 
     QString getName() override;
+    bool getStimHalf();
+protected:
+    QCheckBox* cbStimulusHalf;
 };
 
 class ProtocolDropXStepTStepItem : public ProtocolDropStimulusItem {
