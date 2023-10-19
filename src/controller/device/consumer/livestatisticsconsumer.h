@@ -42,8 +42,8 @@ protected:
     double voltageMultiplier;
     double currentMultiplier;
 
-    QVector <double> analysisBuffer;
-    QVector <double> buffer;
+    std::vector <double> analysisBuffer;
+    std::vector <double> buffer;
 
     QMutex mutex;
 

@@ -719,9 +719,9 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+        buffer.erase(buffer.begin(), buffer.begin() + (CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove));
         int actualBufferSize = buffer.size();
-        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+        buffer.erase(buffer.end() - samplesToremove, buffer.end());
         actualBufferSize = buffer.size();
 
         int timeSamples = actualBufferSize/totalChannelsNum;
@@ -810,9 +810,14 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
 
     /*! butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
 //    buffer.remove(0, 5*samplesToremove);
-    buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+
+    buffer.erase(buffer.begin(), buffer.begin() + (CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove));
     int actualBufferSize = buffer.size();
-    buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+    buffer.erase(buffer.end() - samplesToremove, buffer.end());
+
+//    buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+//    int actualBufferSize = buffer.size();
+//    buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
     actualBufferSize = buffer.size();
 
     int timeSamples = actualBufferSize/totalChannelsNum;
@@ -914,9 +919,9 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+        buffer.erase(buffer.begin(), buffer.begin() + (CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove));
         int actualBufferSize = buffer.size();
-        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+        buffer.erase(buffer.end() - samplesToremove, buffer.end());
         actualBufferSize = buffer.size();
 
         int timeSamples = actualBufferSize/totalChannelsNum;
@@ -1004,9 +1009,9 @@ void CalibrationConsumer::calibrateCcAdcGain(int thisActualRangeIdx){
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+        buffer.erase(buffer.begin(), buffer.begin() + (CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove));
         int actualBufferSize = buffer.size();
-        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+        buffer.erase(buffer.end() - samplesToremove, buffer.end());
         actualBufferSize = buffer.size();
 
         int timeSamples = actualBufferSize/totalChannelsNum;
@@ -1107,11 +1112,13 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
         QThread::sleep(2);
         hook->flush(); /*! Remove old buffered data */
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
-
         /*!butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+
+        buffer.erase(buffer.begin(), buffer.begin() + (CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove));
+//        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
         int actualBufferSize = buffer.size();
-        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+//        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+        buffer.erase(buffer.end() - samplesToremove, buffer.end());
         actualBufferSize = buffer.size();
 
         int timeSamples = actualBufferSize/totalChannelsNum;
@@ -1208,9 +1215,9 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
     while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
     /*! butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-    buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+    buffer.erase(buffer.begin(), buffer.begin() + (CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove));
     int actualBufferSize = buffer.size();
-    buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+    buffer.erase(buffer.end() - samplesToremove, buffer.end());
     actualBufferSize = buffer.size();
 
     int timeSamples = actualBufferSize/totalChannelsNum;
@@ -1293,9 +1300,9 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
         while (!hook->getDataChunk(buffer, 1, minDataBatchSize));
 
         /*!  butta via i primi e gli ultimi campioni corrispondenti  a 1/10 secondo*/
-        buffer.remove(0, CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove);
+        buffer.erase(buffer.begin(), buffer.begin() + (CCS_CALIB_MULTIPLIER_FOR_INIT_ACQ*samplesToremove));
         int actualBufferSize = buffer.size();
-        buffer.remove(actualBufferSize-1-samplesToremove, samplesToremove);
+        buffer.erase(buffer.end() - samplesToremove, buffer.end());
         actualBufferSize = buffer.size();
 
         int timeSamples = actualBufferSize/totalChannelsNum;

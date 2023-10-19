@@ -177,7 +177,7 @@ void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
     halfBufferSize = bufferSize/2;
 }
 
-bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
+bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
     int waitCount = 0;
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
@@ -214,7 +214,7 @@ bool DataHook::getDataChunk(QVector <unsigned short> &buffer, unsigned int, unsi
     return true;
 }
 
-bool DataHook::getDataChunk(QVector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
     int waitCount = 0;
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
