@@ -756,11 +756,15 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
     std::vector<double> y; /*! average currents*/
     y.resize(calibrationVoltSteps[thisActualRangeIdx].size());
     std::vector<double> usefulAdcGain;
+    std::vector<Measurement> usefulAdcGainMeasurements;
     usefulAdcGain.resize(channelToCalibIdxs.size());
+
     double usefulSlope;
     double uselessOffset;
+    std::vector<uint16_t> channelIndexes;
 
     for(int chIdx = 0; chIdx < channelToCalibIdxs.size(); chIdx++){
+        channelIndexes.push_back(chIdx);
         for(int i = 0; i< calibrationVoltSteps[thisActualRangeIdx].size(); i++){
             y[i] = currentMeans[i][chIdx];
         }
@@ -768,10 +772,16 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
         leastSquareSimple(x, y, usefulSlope, uselessOffset);
 
         /*! il gain sarebbe Rest/Rcalib, i.e. 1(Rcalib * slope)*/
-        usefulAdcGain[chIdx] = 1/(usefulSlope * calibratonResistances[rangeIdx].getNoPrefixValue());
+        usefulAdcGain[chIdx] = 1.0/(usefulSlope * calibratonResistances[rangeIdx].getNoPrefixValue());
         y.clear();
         y.resize(calibrationVoltSteps[thisActualRangeIdx].size());
     }
+
+    for (auto v: usefulAdcGain){
+        usefulAdcGainMeasurements.push_back({v, UnitPfx::UnitPfxNone, "A"});
+    }
+
+    msgDisp->setCalibVcCurrentGain(channelIndexes, usefulAdcGainMeasurements, true);
     /*! FOR: END ciclo sui canali*/
     gainADC[rangeIdx] = usefulAdcGain;
 
@@ -783,9 +793,12 @@ void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
 void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange){
     /*!  applico  0V ai canali selezionati*/
     std::vector<Measurement_t> someVoltSteps;
+    std::vector<uint16_t> channelIndexes;
+
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
+        channelIndexes.push_back(i);
         someVoltSteps.push_back({0.0, UnitPfxMilli, "V"});
-       channels[channelToCalibIdxs[i]]->setVhold({0.0, UnitPfxMilli, "V"});
+        channels[channelToCalibIdxs[i]]->setVhold({0.0, UnitPfxMilli, "V"});
     }
     msgDisp->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
 
@@ -837,17 +850,18 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     }
 
     std::vector<double> usefulAdcOffset;
+    std::vector<Measurement> usefulAdcOffsetMeasurements;
     usefulAdcOffset.resize(channelToCalibIdxs.size());
 
-    /*! moltiplico la corrente media per i GAIN calacolati al passo precedente e dovrei avere già l'offset di ADC*/
     for(int i = 0; i < currentSum.size(); i++){
-        if (adcCalibratedInOffsetBinary) {
-            usefulAdcOffset[i] = -(gainADC[rangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue());
-
-        } else {
-            usefulAdcOffset[i] = -gainADC[rangeIdx][i] * currentSum[i]/(double)timeSamples;
-        }
+            usefulAdcOffset[i] = -currentSum[i]/(double)timeSamples;
     }
+
+    for (auto v: usefulAdcOffset){
+        usefulAdcOffsetMeasurements.push_back({v, UnitPfx::UnitPfxNone, "A"});
+    }
+
+    msgDisp->setCalibVcCurrentOffset(channelIndexes, usefulAdcOffsetMeasurements, true);
 
     buffer.clear(); /*! is resized in getDataChunk()*/
     currentSum.clear();
@@ -867,13 +881,20 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
 
 void CalibrationConsumer::calibrateDacGain(){
     std::vector<double> usefulDacGain;
+    std::vector<Measurement> gains;
+    std::vector<uint16_t> channelIndexes;
     usefulDacGain.resize(channelToCalibIdxs.size());
+
     for(int i = 0; i< usefulDacGain.size(); i++){
         usefulDacGain[i] = 1.0;
+        channelIndexes.push_back(i);
+    }
+    for(auto v: usefulDacGain){
+        gains.push_back({v, UnitPfx::UnitPfxNone, "V"});
     }
 
     gainDAC[rangeIdx] = usefulDacGain;
-
+    msgDisp->setCalibVcVoltageGain(channelIndexes, gains, true);
 }
 
 void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange, int thisVcCurrentActualRangeIdx){
@@ -886,6 +907,12 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
     /*! applico  0V ai canali selezionati*/
     std::vector<Measurement_t> someVoltSteps;
+    std::vector<Measurement_t> offsets;
+
+    std::vector<uint16_t> channelIndexes;
+    for(int i = 0; i < channelToCalibIdxs.size(); i++){
+        channelIndexes.push_back(i);
+    }
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
        someVoltSteps.push_back({0.0, UnitPfxMilli, "V"});
        channels[channelToCalibIdxs[i]]->setVhold({0.0, UnitPfxMilli, "V"});
@@ -942,13 +969,9 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
 
         /*! moltiplico la corrente media per i GAIN ADC  e sottraggo offset ADC calacolati per tenere conto delle calibrazioni precedenti*/
         for(int i = 0; i < currentSum.size(); i++){
-            if (adcCalibratedInOffsetBinary) {
-                adcCompensatedCurrent[i] = (gainADC[thisVcCurrentActualRangeIdx][i] * (currentSum[i]/((double)timeSamples) - thisActualRange.getMin().getNoPrefixValue()) + thisActualRange.getMin().getNoPrefixValue()) + offsetADC[thisVcCurrentActualRangeIdx][i];
+            adcCompensatedCurrent[i] = currentSum[i]/(double)timeSamples;
 
-            } else {
-                adcCompensatedCurrent[i] = gainADC[thisVcCurrentActualRangeIdx][i] * currentSum[i]/(double)timeSamples + offsetADC[thisVcCurrentActualRangeIdx][i];
-            }
-
+//            TODO this condition should never happen, hence it's useless. Should be changed with something more meaningful
             if (adcCompensatedCurrent[i] == 0.0){
                needsFurtherCalibration[i] = false;
            } else {
@@ -959,6 +982,10 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
            }
            usefulDacOffset[i] = -(someVoltSteps[i].getNoPrefixValue()); //V
         }
+        for(auto v: usefulDacOffset){
+            offsets.push_back({v, UnitPfx::UnitPfxNano, "V"});
+        }
+        msgDisp->setCalibVcVoltageOffset(channelIndexes, offsets, true);
 
         /*! mandi via messageDispatcher i valori aggiornati di voltage step per vedere se la lettura sui canali mi diventa finalmetne 0 */
         msgDisp->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
@@ -1657,20 +1684,20 @@ QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset, bool v
             for(int j = 0; j < chanSubset.size(); j++){
                 if(gainADC[i].size()==currentChannelsNum){
                     /*! All channels calibration*/
-                    stream << QString("%1").arg(gainADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(gainADC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
                     /*! One board channels calibration*/
-                    stream << QString("%1").arg(gainADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(gainADC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
             for(int j = 0; j < chanSubset.size(); j++){
                 if(offsetADC[i].size()==currentChannelsNum){
                     /*! All channels calibration*/
-                    stream << QString("%1").arg(offsetADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(offsetADC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
                     /*! One board channels calibration*/
-                    stream << QString("%1").arg(offsetADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(offsetADC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
@@ -1682,18 +1709,18 @@ QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset, bool v
             for(int j = 0; j < chanSubset.size(); j++){
                 if(gainDAC[i].size()==currentChannelsNum){
                     /*! All channels calibration*/
-                    stream << QString("%1").arg(gainDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(gainDAC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
                     /*! One board channels calibration*/
-                    stream << QString("%1").arg(gainDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(gainDAC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
             for(int j = 0; j < chanSubset.size(); j++){
                 if(offsetDAC[i].size()==currentChannelsNum){
-                    stream << QString("%1").arg(offsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(offsetDAC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
-                    stream << QString("%1").arg(offsetDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(offsetDAC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
@@ -1706,20 +1733,20 @@ QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset, bool v
             for(int j = 0; j < chanSubset.size(); j++){
                 if(ccGainADC[i].size()==currentChannelsNum){
                     /*! All channels calibration*/
-                    stream << QString("%1").arg(ccGainADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccGainADC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
                     /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccGainADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccGainADC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
             for(int j = 0; j < chanSubset.size(); j++){
                 if(ccOffsetADC[i].size()==currentChannelsNum){
                     /*! All channels calibration*/
-                    stream << QString("%1").arg(ccOffsetADC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccOffsetADC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
                     /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccOffsetADC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccOffsetADC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
@@ -1731,20 +1758,20 @@ QString CalibrationConsumer::getCsvData(std::vector<uint16_t> chanSubset, bool v
             for(int j = 0; j < chanSubset.size(); j++){
                 if(ccGainDAC[i].size()==currentChannelsNum){
                     /*! All channels calibration*/
-                    stream << QString("%1").arg(ccGainDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccGainDAC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
                     /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccGainDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccGainDAC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
             for(int j = 0; j < chanSubset.size(); j++){
                 if(ccOffsetDAC[i].size()==currentChannelsNum){
                     /*! All channels calibration*/
-                    stream << QString("%1").arg(ccOffsetDAC[i][chanSubset[j]], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccOffsetDAC[i][chanSubset[j]], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 } else {
                     /*! One board channels calibration*/
-                    stream << QString("%1").arg(ccOffsetDAC[i][j], 0, 'e', 3) << myCsvSeparator;
+                    stream << QString("%1").arg(ccOffsetDAC[i][j], 0, 'e', CCS_CALIBRATION_DECIMALS) << myCsvSeparator;
                 }
             }
             stream << "\n";
