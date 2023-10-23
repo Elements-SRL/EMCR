@@ -19,12 +19,47 @@ ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget 
     mainWg->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setWindowTitle("Channels overview");
 
+    auto column = new QVBoxLayout(this);
+
+    auto buttonRow = new QHBoxLayout(this);
+    column->addLayout(buttonRow);
+    auto startPreviewBtn = new QPushButton; {
+        QPixmap btnPix(":/imgs/start protocol.png");
+        QIcon btnIcon(btnPix);
+        startPreviewBtn->setIcon(btnIcon);
+        startPreviewBtn->setIconSize(QSize(30, 30));
+        startPreviewBtn->setFixedSize(32, 32);
+        startPreviewBtn->setToolTip("Start the data previews");
+    }
+
+    startPreviewBtn->setCheckable(false);
+//    connect(startPreviewBtn, &QPushButton::clicked, this, [=] () {
+//        this->onStartPreviews(true);
+//    });
+
+    auto stopPreviewlBtn = new QPushButton; {
+        QPixmap btnPix(":/imgs/stop protocol.png");
+        QIcon btnIcon(btnPix);
+        stopPreviewlBtn->setIcon(btnIcon);
+        stopPreviewlBtn->setIconSize(QSize(30, 30));
+        stopPreviewlBtn->setFixedSize(32, 32);
+        stopPreviewlBtn->setToolTip("Stop the data previews");
+    }
+    stopPreviewlBtn->setCheckable(false);
+//    connect(stopPreviewlBtn, &QPushButton::clicked, this, [=] () {
+//        this->onStartProtocol(false);
+//    });
+
+    buttonRow->addWidget(startPreviewBtn);
+    buttonRow->addWidget(stopPreviewlBtn);
     this->setWidget(mainWg);
+    mainWg->setLayout(column);
 
     mainGl = new QGridLayout;
+    column->addLayout(mainGl);
+
     mainGl->setMargin(0);
     mainGl->setSpacing(1);
-    mainWg->setLayout(mainGl);
 
     idealPlotHeight = qMax(300/channelsPerBoard, STAMP_PLOT_SIZE);
     idealPlotWidth = qMax(450/boardsNum, STAMP_PLOT_SIZE);

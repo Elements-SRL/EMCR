@@ -42,7 +42,7 @@ ChessboardController::ChessboardController(MessageDispatcher * msgDisp, MainWind
     connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked, this,       &ChessboardController::onSelectedPlotsUpdated);
-
+    connect(chessboard, &ChessboardDockWidget::sigUpdateConsumer,       this,       &ChessboardController::onConsumerUpdated);
     mainWindow->setChessboardDw(chessboard);
 }
 
@@ -172,5 +172,11 @@ void ChessboardController::onSelectedPlotsUpdated() {
     msgDisp->getSelectedChannels(selectedChannels);
     for(int ii = 0; ii < currentChannelsNum; ii++){
         plots[ii]->setSelected(selectedChannels[ii]);
+    }
+}
+
+void ChessboardController::onConsumerUpdated(bool flag) {
+    if (flag) {
+
     }
 }

@@ -32,6 +32,7 @@ public slots:
     void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
     void onReplot();
     void onSelectedPlotsUpdated();
+    void onConsumerUpdated(bool flag);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
