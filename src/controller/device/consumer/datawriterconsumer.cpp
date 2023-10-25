@@ -232,9 +232,10 @@ void DataWriterConsumer::computeSamples() {
 
     unlimitedFlag = settings.recordDurationS == 0.0;
     chunkFlag = settings.chunkDurationS > 0.0;
-
+//    true only for abf
+    long long channelsPerFile = 2;
     if (unlimitedFlag && chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/1048576.0;
+        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/BYTES_PER_MEGA_BYTES;
         if (totalMB < 0.1) {
             recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
 
@@ -242,9 +243,9 @@ void DataWriterConsumer::computeSamples() {
             recordSizeStr = QString("Recording size on disk = %1 MB/s").arg(totalMB, 0, 'f', 1);
         }
 
-        chunkMB = (bytesPerChannel*totalChannelsNum*samplesPerChunk)/1048576.0;
+        chunkMB = (bytesPerChannel*channelsPerFile*samplesPerChunk)/BYTES_PER_MEGA_BYTES;
         if (chunkMB > PSD_MAX_MB_PER_FILE) {
-            samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+            samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
             chunkMB = PSD_MAX_MB_PER_FILE;
         }
 
@@ -256,7 +257,7 @@ void DataWriterConsumer::computeSamples() {
         }
 
     } else if (unlimitedFlag && !chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/1048576.0;
+        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/BYTES_PER_MEGA_BYTES;
         if (totalMB < 0.1) {
             recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
 
@@ -265,12 +266,12 @@ void DataWriterConsumer::computeSamples() {
         }
 
         chunkFlag = true;
-        samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+        samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
         chunkMB = PSD_MAX_MB_PER_FILE;
         chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
 
     } else if (!unlimitedFlag && chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/1048576.0;
+        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/BYTES_PER_MEGA_BYTES;
         if (totalMB < 0.1) {
             recordSizeStr = QString("Recording size on disk < 0.1 MB");
 
@@ -278,10 +279,10 @@ void DataWriterConsumer::computeSamples() {
             recordSizeStr = QString("Recording size on disk = %1 MB").arg(totalMB, 0, 'f', 1);
         }
 
-        chunkMB = (bytesPerChannel*totalChannelsNum*samplesPerChunk)/1048576.0;
+        chunkMB = (bytesPerChannel*channelsPerFile*samplesPerChunk)/BYTES_PER_MEGA_BYTES;
 
         if (chunkMB > PSD_MAX_MB_PER_FILE) {
-            samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+            samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
             chunkMB = PSD_MAX_MB_PER_FILE;
         }
 
@@ -301,17 +302,17 @@ void DataWriterConsumer::computeSamples() {
         }
 
     } else if (!unlimitedFlag && !chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/1048576.0;
+        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/BYTES_PER_MEGA_BYTES;
         if (totalMB < 0.1) {
             recordSizeStr = QString("Recording size on disk < 0.1 MB");
 
         } else {
             recordSizeStr = QString("Recording size on disk = %1 MB").arg(totalMB, 0, 'f', 1);
         }
-
-        if (totalMB > PSD_MAX_MB_PER_FILE) {
+        double totalMBPerFile = totalMB/ (double) (totalChannelsNum/channelsPerFile);
+        if (totalMBPerFile > PSD_MAX_MB_PER_FILE) {
             chunkFlag = true;
-            samplesPerChunk = PSD_MAX_MB_PER_FILE*1048576.0/(bytesPerChannel*totalChannelsNum);
+            samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
             chunkMB = PSD_MAX_MB_PER_FILE;
             chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
 

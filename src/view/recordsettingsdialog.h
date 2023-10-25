@@ -20,6 +20,7 @@
 #define PSD_DEFAULT_RECORD_DURATION 0.0
 #define PSD_DEFAULT_CHUNK_DURATION 0.0
 #define PSD_MAX_MB_PER_FILE 1900.0
+#define BYTES_PER_MEGA_BYTES 1048576.0
 
 class RecordSettingsDialog : public QDialog {
     Q_OBJECT
