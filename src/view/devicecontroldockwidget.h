@@ -75,10 +75,8 @@ private:
     template<typename T>
     void setWidgetVisible(T& widget, bool status);
 
-
     /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
 //    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, std::vector <RangedMeasurement_t> myRanges, std::vector<QRadioButton *> &qRadioButtons);
-
 signals:
     void sigVcCurrentRangeSelected(int idx);
     void sigVcVoltageRangeSelected(int idx);

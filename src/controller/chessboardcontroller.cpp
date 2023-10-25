@@ -1,11 +1,12 @@
 #include "chessboardcontroller.h"
 
-ChessboardController::ChessboardController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+ChessboardController::ChessboardController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow) :
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
 
     chessboard = new ChessboardDockWidget(msgDisp);;
 
+    stampPlotConsumer = new GapFreePlotConsumer(msgDisp, producer);
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
     msgDisp->getChannels(channels);
     int idealPlotWidth = chessboard->getIdealPlotWidth();
@@ -33,6 +34,12 @@ ChessboardController::ChessboardController(MessageDispatcher * msgDisp, MainWind
         chessboard->addPlot(plot, channelIdx);
     }
 
+//    setting initial values for stampPlotConsumer
+    stampPlotConsumer->onDurationChanged(defaultDuration);
+    stampPlotConsumer->forceAxisUpdate();
+    stampPlotConsumer->setMaxSamplesPerPlot(256);
+    stampPlotConsumer->onSelectChannels(true);
+
     connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::sigAllChannelsClicked);
     connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::sigOneBoardClicked);
     connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::sigOneRowClicked);
@@ -42,8 +49,19 @@ ChessboardController::ChessboardController(MessageDispatcher * msgDisp, MainWind
     connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked, this,       &ChessboardController::onSelectedPlotsUpdated);
-    connect(chessboard, &ChessboardDockWidget::sigUpdateConsumer,       this,       &ChessboardController::onConsumerUpdated);
+
+    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       this,       &ChessboardController::onSetGapFreePlotData);
+    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   this,       &ChessboardController::onReplot);
+    connect(chessboard, &QDockWidget::visibilityChanged,                this,       &ChessboardController::onSetConsumerStatus);
     mainWindow->setChessboardDw(chessboard);
+}
+
+void ChessboardController::onSetConsumerStatus(bool status) {
+    if (status) {
+        stampPlotConsumer->onStartConsuming();
+    } else {
+        stampPlotConsumer->onStopConsuming();
+    }
 }
 
 ChessboardController::~ChessboardController() {
@@ -54,6 +72,11 @@ ChessboardController::~ChessboardController() {
     delete chessboard;
     chessboard = nullptr;
     mainWindow->setChessboardDw(chessboard);
+    if (stampPlotConsumer!= nullptr) {
+        stampPlotConsumer->onStopConsuming();
+        delete stampPlotConsumer;
+        stampPlotConsumer = nullptr;
+    }
 }
 
 void ChessboardController::clearCurves() {
@@ -175,8 +198,6 @@ void ChessboardController::onSelectedPlotsUpdated() {
     }
 }
 
-void ChessboardController::onConsumerUpdated(bool flag) {
-    if (flag) {
-
-    }
+PlotConsumer * ChessboardController::getPlotConsumer(){
+    return stampPlotConsumer;
 }

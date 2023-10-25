@@ -280,7 +280,7 @@ void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * widge
     measurementsOverviewDw = widget;
     if (widget != nullptr) {
         addDockWidget(Qt::RightDockWidgetArea, measurementsOverviewDw);
-        chessboardDw->setFloating(true);
+        measurementsOverviewDw->setFloating(true);
         dockWidgets.append(measurementsOverviewDw);
     }
 }

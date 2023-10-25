@@ -113,12 +113,21 @@ void MainController::onMainWindowCreated() {
     consumers.clear();
     dataWriterConsumers.clear();
 
+    /************\
+     * Producer *
+    \************/
+
+    deviceDataProducer = new DeviceDataProducer(msgDisp);
+
     /***************\
      * Controllers *
     \***************/
 
+    /*! Plots durations */
+    Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
+
     bigPlotController = new BigPlotController(msgDisp, mainWindow);
-    chessboardController = new ChessboardController(msgDisp, mainWindow);
+    chessboardController = new ChessboardController(msgDisp, deviceDataProducer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
     multipleChannelController = new MultipleChannelController(msgDisp, mainWindow);
@@ -139,18 +148,13 @@ void MainController::onMainWindowCreated() {
 
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
-    /************\
-     * Producer *
-    \************/
 
-    deviceDataProducer = new DeviceDataProducer(msgDisp);
 
     /*************\
      * Consumers *
     \*************/
 
-    stampPlotConsumer = new GapFreePlotConsumer(msgDisp, deviceDataProducer);
-    consumers.append(stampPlotConsumer);
+    consumers.append(chessboardController->getPlotConsumer());
 
     bigPlotConsumer = new GapFreePlotConsumer(msgDisp, deviceDataProducer);
     consumers.append(bigPlotConsumer);
@@ -263,9 +267,6 @@ void MainController::onMainWindowCreated() {
         }
     });
 
-    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       chessboardController, &ChessboardController::onSetGapFreePlotData);
-    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   chessboardController, &ChessboardController::onReplot);
-
     connect(bigPlotController, &BigPlotController::durationChanged, bigPlotConsumer, &GapFreePlotConsumer::onDurationChanged);
 
     connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         bigPlotController, &BigPlotController::onSetGapFreePlotData);
@@ -286,10 +287,6 @@ void MainController::onMainWindowCreated() {
     connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,                                mainWindow, &MainWindow::onManualCalibDoneMsg);
     connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
 
-    /*! Plots durations */
-    Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
-
-    stampPlotConsumer->onDurationChanged(defaultPlotDuration);
     bigPlotConsumer->onDurationChanged(defaultPlotDuration);
 
     chessboardController->onDurationUpdated(defaultPlotDuration);
@@ -299,7 +296,6 @@ void MainController::onMainWindowCreated() {
     /*! Forced initialization at start */
     mainWindow->getDeviceControlsDockWidget()->forceEmit();
     mainWindow->getRecordSettingsDialog()->forceSettingsEmit();
-    stampPlotConsumer->forceAxisUpdate();
     bigPlotConsumer->forceAxisUpdate();
 
     /*! \todo FCON questo potrebbe essere parametrizzato */
@@ -310,9 +306,6 @@ void MainController::onMainWindowCreated() {
     }
 
     msgDisp->setAllChannelsSelected(true);
-
-    stampPlotConsumer->setMaxSamplesPerPlot(256);
-    stampPlotConsumer->onSelectChannels(true);
 
     bigPlotConsumer->setMaxSamplesPerPlot(4096);
     bigPlotConsumer->onSelectChannels(false);
@@ -505,18 +498,12 @@ void MainController::onStopRecording() {
 
 void MainController::startProducerConsumers() {
     deviceDataProducer->start();
-    stampPlotConsumer->onStartConsuming();
+//    stampPlotConsumer->onStartConsuming();
     bigPlotConsumer->onStartConsuming();
     liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
-    if (stampPlotConsumer!= nullptr) {
-        stampPlotConsumer->onStopConsuming();
-        delete stampPlotConsumer;
-        stampPlotConsumer = nullptr;
-    }
-
     if (bigPlotConsumer!= nullptr) {
         bigPlotConsumer->onStopConsuming();
         delete bigPlotConsumer;
