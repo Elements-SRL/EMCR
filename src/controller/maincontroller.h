@@ -61,7 +61,6 @@ private:
     QThread deviceDetectorThread;
 
     DeviceDataProducer * deviceDataProducer = nullptr;
-    GapFreePlotConsumer * bigPlotConsumer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
     CalibrationConsumer * calibratorConsumer = nullptr;

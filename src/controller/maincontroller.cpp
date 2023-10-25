@@ -126,7 +126,7 @@ void MainController::onMainWindowCreated() {
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
-    bigPlotController = new BigPlotController(msgDisp, mainWindow);
+    bigPlotController = new BigPlotController(msgDisp, deviceDataProducer, defaultPlotDuration, mainWindow);
     chessboardController = new ChessboardController(msgDisp, deviceDataProducer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
@@ -153,12 +153,8 @@ void MainController::onMainWindowCreated() {
     /*************\
      * Consumers *
     \*************/
-
     consumers.append(chessboardController->getPlotConsumer());
-
-    bigPlotConsumer = new GapFreePlotConsumer(msgDisp, deviceDataProducer);
-    consumers.append(bigPlotConsumer);
-
+    consumers.append(bigPlotController->getGapFreePlotConsumer());
     abfDataWriterConsumer = new AbfDataWriterConsumer(msgDisp, deviceDataProducer);
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
@@ -199,7 +195,7 @@ void MainController::onMainWindowCreated() {
 
     connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                           &MainController::onStartRecording);
     connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                           &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotConsumer,                &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotController->getGapFreePlotConsumer(),                &PlotConsumer::onSelectChannels);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,           &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
@@ -267,11 +263,6 @@ void MainController::onMainWindowCreated() {
         }
     });
 
-    connect(bigPlotController, &BigPlotController::durationChanged, bigPlotConsumer, &GapFreePlotConsumer::onDurationChanged);
-
-    connect(bigPlotConsumer, &GapFreePlotConsumer::setPlotData,         bigPlotController, &BigPlotController::onSetGapFreePlotData);
-    connect(bigPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,     bigPlotController, &BigPlotController::onReplot);
-
     connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=] (bool flag) {
         multipleChannelController->onRecordingExecution(flag);
@@ -287,8 +278,6 @@ void MainController::onMainWindowCreated() {
     connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,                                mainWindow, &MainWindow::onManualCalibDoneMsg);
     connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
 
-    bigPlotConsumer->onDurationChanged(defaultPlotDuration);
-
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
     bigPlotController->onRangeUpdated(plotRange, QwtPlot::Axis::xBottom);
@@ -296,7 +285,6 @@ void MainController::onMainWindowCreated() {
     /*! Forced initialization at start */
     mainWindow->getDeviceControlsDockWidget()->forceEmit();
     mainWindow->getRecordSettingsDialog()->forceSettingsEmit();
-    bigPlotConsumer->forceAxisUpdate();
 
     /*! \todo FCON questo potrebbe essere parametrizzato */
 
@@ -306,9 +294,6 @@ void MainController::onMainWindowCreated() {
     }
 
     msgDisp->setAllChannelsSelected(true);
-
-    bigPlotConsumer->setMaxSamplesPerPlot(4096);
-    bigPlotConsumer->onSelectChannels(false);
 
     msgDisp->setAllChannelsSelected(false);
 
@@ -499,17 +484,11 @@ void MainController::onStopRecording() {
 void MainController::startProducerConsumers() {
     deviceDataProducer->start();
 //    stampPlotConsumer->onStartConsuming();
-    bigPlotConsumer->onStartConsuming();
+//    bigPlotConsumer->onStartConsuming();
     liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
-    if (bigPlotConsumer!= nullptr) {
-        bigPlotConsumer->onStopConsuming();
-        delete bigPlotConsumer;
-        bigPlotConsumer = nullptr;
-    }
-
     if (abfDataWriterConsumer!= nullptr) {
         abfDataWriterConsumer->onStopConsuming();
         delete abfDataWriterConsumer;
