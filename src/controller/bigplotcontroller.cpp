@@ -1,6 +1,7 @@
 #include "bigplotcontroller.h"
+#include <iostream>
 
-BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+BigPlotController::BigPlotController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
     bpw = new BigPlotWidget(msgDisp);
@@ -23,11 +24,25 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, MainWindow * m
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
 
+    plotConsumer = new GapFreePlotConsumer(msgDisp, producer);
+    plotConsumer->onDurationChanged(defaultPlotDuration);
+    plotConsumer->forceAxisUpdate();
+    plotConsumer->setMaxSamplesPerPlot(4096);
+    plotConsumer->onSelectChannels(false);
     connect(plot, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
     connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
     connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
     connect(plot, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
     connect(plot, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
+
+    connect(this, &BigPlotController::durationChanged, plotConsumer, &GapFreePlotConsumer::onDurationChanged);
+    connect(plotConsumer, &GapFreePlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
+    connect(plotConsumer, &GapFreePlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
+
+}
+
+GapFreePlotConsumer * BigPlotController::getGapFreePlotConsumer(){
+    return plotConsumer;
 }
 
 BigPlotController::~BigPlotController() {
@@ -46,6 +61,11 @@ BigPlotController::~BigPlotController() {
     if (bpm != nullptr) {
         delete bpm;
         bpm = nullptr;
+    }
+    if (plotConsumer!= nullptr) {
+        plotConsumer->onStopConsuming();
+        delete plotConsumer;
+        plotConsumer = nullptr;
     }
 }
 
@@ -73,6 +93,17 @@ void BigPlotController::clearCurves() {
 void BigPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize) {
     std::vector <ChannelModel *> channels;
     msgDisp->getChannels(channels);
+    int expanded_channels = 0;
+    for(auto c: channels){
+        if(c->isExpanded()){
+            expanded_channels++;
+        }
+    }
+    if (expanded_channels == 0){
+        plotConsumer->onStopConsuming();
+    } else {
+        plotConsumer->onStartConsuming();
+    }
 
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         if (channels[idx]->isExpanded()) {

@@ -18,13 +18,13 @@ ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget 
     QWidget * mainWg = new QWidget();
     mainWg->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setWindowTitle("Channels overview");
-
     this->setWidget(mainWg);
 
     mainGl = new QGridLayout;
+    mainWg->setLayout(mainGl);
+
     mainGl->setMargin(0);
     mainGl->setSpacing(1);
-    mainWg->setLayout(mainGl);
 
     idealPlotHeight = qMax(300/channelsPerBoard, STAMP_PLOT_SIZE);
     idealPlotWidth = qMax(450/boardsNum, STAMP_PLOT_SIZE);

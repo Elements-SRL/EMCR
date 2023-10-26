@@ -7,12 +7,13 @@
 #include "mainwindow.h"
 #include "messagedispatcher.h"
 #include <QMouseEvent>
+#include "plotconsumer.h"
 
 class ChessboardController : public QObject {
     Q_OBJECT
 
 public:
-    ChessboardController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    ChessboardController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~ChessboardController();
 
     void clearCurves();
@@ -21,6 +22,7 @@ public:
     void stimuliTurnedOnOff(bool flag);
     void docTurnedOnOff(bool flag);
     void tracesExpandedOnOff(bool flag);
+    PlotConsumer * getPlotConsumer();
 
 public slots:
     void onChannelsTurnedOnOff(bool flag);
@@ -37,6 +39,7 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     ChessboardDockWidget * chessboard = nullptr;
+    GapFreePlotConsumer * stampPlotConsumer = nullptr;
 
     QVector <StampPlot *> plots;
     QVector <Curve *> currentCurves;
@@ -45,6 +48,7 @@ private:
 
     int voltageChannelsNum;
     int currentChannelsNum;
+    void onSetConsumerStatus(bool status);
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);
