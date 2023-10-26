@@ -9,6 +9,7 @@ AbfDataWriterConsumer::AbfDataWriterConsumer(MessageDispatcher * msgDisp, Device
     fileNameExtension = ".abf";
     channelIdxSuffix = "_CH%1";
     bytesPerChannel = 2;
+    channelsPerFile = DWC_ABF_CHANNEL_PER_FILE;
 
     rawBuffersLen = 1U << (unsigned int)qFloor(log2((double)DWC_ABF_MAX_SAMPLES_FOR_BUFFERS/(double)(DWC_ABF_CHANNEL_PER_FILE*currentChannelsNum)));
     maxMinPacketsPerBatch = rawBuffersLen/2;
@@ -78,13 +79,13 @@ void AbfDataWriterConsumer::run() {
     this->manageConsumptionBegin();
 
     /*! Initialize consumer parameters */
-    int bufferIdx;
-    int rawBufferLen;
+    long long bufferIdx;
+    long long rawBufferLen;
     /*! rawBuffer has size DWC_ABF_RAW_BUFFER_LEN, and since data is written DWC_ABF_CHANNEL_PER_FILE values at a time, the maximum safe size for
      *  data written is less than DWC_ABF_RAW_BUFFER_LEN and divisible by DWC_ABF_CHANNEL_PER_FILE */
-    int maxDataSizeWritten = (rawBuffersLen/DWC_ABF_CHANNEL_PER_FILE)*DWC_ABF_CHANNEL_PER_FILE;
-    int rawBufferIdx;
-    int truncatedSamples = 0;
+    long long maxDataSizeWritten = (rawBuffersLen/DWC_ABF_CHANNEL_PER_FILE)*DWC_ABF_CHANNEL_PER_FILE;
+    long long rawBufferIdx;
+    long long truncatedValues = 0;
     unsigned int minPacketsPerBatch = qMin(maxMinPacketsPerBatch, (unsigned int)qRound(samplingRateHz*DWC_MIN_BATCH_DURATION));
 
     QMutexLocker consumptionLock(&consumptionMtx);
@@ -92,6 +93,7 @@ void AbfDataWriterConsumer::run() {
     exitedDataConsumingLoop = false;
     consumptionLock.unlock();
 
+    long long activeChannelsRatio = totalChannelsNum/activeChannelsNum;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
@@ -103,9 +105,13 @@ void AbfDataWriterConsumer::run() {
             bufferIdx = 0;
 
             bufferLen = buffer.size();
-            if (((long long)bufferLen)+savedValues >= valuesToBeSaved) {
-                truncatedSamples = bufferLen-(int)(valuesToBeSaved-savedValues);
-                bufferLen = (int)(valuesToBeSaved-savedValues);
+            long long valuesLen = bufferLen / activeChannelsRatio;
+            long long valuesToEndOfFile = valuesToBeSaved-savedValues;
+
+            if (valuesLen >= valuesToEndOfFile) {
+                truncatedValues = valuesLen - valuesToEndOfFile;
+                valuesLen = valuesToEndOfFile;
+                bufferLen = valuesToEndOfFile * activeChannelsRatio;
                 if (splitFlag) {
                     splittingFlag = true;
 
@@ -113,7 +119,7 @@ void AbfDataWriterConsumer::run() {
                     consumptionStopped = true;
                 }
             }
-            savedValues += bufferLen;
+            savedValues += valuesLen;
 //            if (recordSettings.episodicFlag && (savedValues >= valuesPerSweep*(long long)(sweepIdx+1)) && (savedValues < valuesToBeSaved)) {
 //                /*! if the episodic feature is active and enough values for a sweep have been saved store the sweep info */
 //                /*! moreover, do this only if not all values have been saved, since the last sweep is managed when the file is closed */
@@ -124,7 +130,7 @@ void AbfDataWriterConsumer::run() {
 
             while (bufferLen > 0) {
                 rawBufferIdx = 0;
-                rawBufferLen = qMin(bufferLen*DWC_ABF_CHANNEL_PER_FILE/totalChannelsNum, maxDataSizeWritten);
+                rawBufferLen = qMin((long long)(bufferLen*DWC_ABF_CHANNEL_PER_FILE/totalChannelsNum), maxDataSizeWritten);
                 bufferLen -= rawBufferLen*totalChannelsNum/DWC_ABF_CHANNEL_PER_FILE;
 
                 while (rawBufferIdx < rawBufferLen) {
@@ -152,14 +158,17 @@ void AbfDataWriterConsumer::run() {
                 }
                 this->manageConsumptionBegin();
 
-                bufferLen = truncatedSamples;
-                if (((long long)bufferLen)+savedValues >= valuesToBeSaved) {
+                bufferLen = truncatedValues * activeChannelsRatio;
+                long long valuesLen = bufferLen / activeChannelsRatio;
+                long long valuesToEndOfFile = valuesToBeSaved-savedValues;
+                if (valuesLen >= valuesToEndOfFile) {
                     /*! Assume a single buffer cannot span more than 1 file chunk
                      *  So we're not checking for splitting condition here */
-                    bufferLen = (int)(valuesToBeSaved-savedValues);
-                    consumptionStopped = true;
+                    truncatedValues = valuesLen - valuesToEndOfFile;
+                    valuesLen = valuesToEndOfFile;
+                    bufferLen = valuesToEndOfFile * activeChannelsRatio;
                 }
-                savedValues += bufferLen;
+                savedValues += valuesLen;
 //                if (recordSettings.episodicFlag && (savedValues >= valuesPerSweep*(long long)(sweepIdx+1)) && (savedValues < valuesToBeSaved)) {
 //                    /*! if the episodic feature is active and enough values for a sweep have been saved store the sweep info */
 //                    /*! moreover, do this only if not all values have been saved, since the last sweep is managed when the file is closed */
@@ -171,7 +180,7 @@ void AbfDataWriterConsumer::run() {
                 /*! manage the recording of data left in the buffer */
                 while (bufferLen > 0) {
                     rawBufferIdx = 0;
-                    rawBufferLen = qMin(bufferLen*DWC_ABF_CHANNEL_PER_FILE/totalChannelsNum, maxDataSizeWritten);
+                    rawBufferLen = qMin((long long)(bufferLen*DWC_ABF_CHANNEL_PER_FILE/totalChannelsNum), maxDataSizeWritten);
                     bufferLen -= rawBufferLen*totalChannelsNum/DWC_ABF_CHANNEL_PER_FILE;
 
                     while (rawBufferIdx < rawBufferLen) {

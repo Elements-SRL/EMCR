@@ -50,13 +50,14 @@ protected:
     QString channelIdxSuffix = "";
     bool recordingInitialized = false;
 
+    int channelsPerFile = 1;
     RecordSettingsDialog::RecordFileFormat_t dataFormat = RecordSettingsDialog::RecordFileNone;
 
     QFile headerFid;
-    QVector <int> pushedActiveChannels;
+    std::vector <int> pushedActiveChannels;
     QVector <bool> pushedActiveChannelsFlag;
     int pushedActiveChannelsNum;
-    QVector <int> activeChannels;
+    std::vector<int> activeChannels;
     QVector <bool> activeChannelsFlag;
     int activeChannelsNum;
     QString filename;
@@ -86,7 +87,6 @@ protected:
 signals:
     void sigRecording(bool on);
     void sigError(QString message);
-    void sigFileSizeComputed(QString fileSizeDescription);
 };
 
 #endif // DATAWRITERCONSUMER_H
