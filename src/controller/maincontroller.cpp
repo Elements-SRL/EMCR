@@ -263,7 +263,6 @@ void MainController::onMainWindowCreated() {
         }
     });
 
-    connect(abfDataWriterConsumer, &AbfDataWriterConsumer::sigFileSizeComputed,     mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::onFileSizeComputed);
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=] (bool flag) {
         multipleChannelController->onRecordingExecution(flag);
         deviceController->handleRecording(flag);

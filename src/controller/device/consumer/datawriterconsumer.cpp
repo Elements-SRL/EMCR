@@ -97,7 +97,7 @@ void DataWriterConsumer::onRecordSelectedChannels(std::vector<uint16_t> channelI
         if (onValues[idx]) {
             pushedActiveChannels.push_back(channelIndexes[idx]);
             pushedActiveChannelsFlag[channelIndexes[idx]] = true;
-            pushedActiveChannelsNum++;
+            pushedActiveChannelsNum+=channelsPerFile;
         }
     }
     this->onStartConsuming();
@@ -221,10 +221,14 @@ void DataWriterConsumer::manageConsumptionEnd() {
 //}
 
 void DataWriterConsumer::computeSamples() {
-    double totalMB;
-    double chunkMB;
-    QString recordSizeStr;
-    QString chunkSizeStr;
+    std::vector<bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    activeChannelsNum = 0;
+    for(auto v: selectedChannels){
+        if (v){
+            activeChannelsNum+=channelsPerFile;
+        }
+    }
 
     /*! First samples computation, might not be the final one because of specific behaviorus when durations are 0 */
     samplesToBeSaved = (long long)qRound(settings.recordDurationS*samplingRateHz);
@@ -232,107 +236,45 @@ void DataWriterConsumer::computeSamples() {
 
     unlimitedFlag = settings.recordDurationS == 0.0;
     chunkFlag = settings.chunkDurationS > 0.0;
+
+    long long maxSamplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
+
 //    true only for abf
-    long long channelsPerFile = 2;
     if (unlimitedFlag && chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/BYTES_PER_MEGA_BYTES;
-        if (totalMB < 0.1) {
-            recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
-
-        } else {
-            recordSizeStr = QString("Recording size on disk = %1 MB/s").arg(totalMB, 0, 'f', 1);
-        }
-
-        chunkMB = (bytesPerChannel*channelsPerFile*samplesPerChunk)/BYTES_PER_MEGA_BYTES;
-        if (chunkMB > PSD_MAX_MB_PER_FILE) {
-            samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
-            chunkMB = PSD_MAX_MB_PER_FILE;
-        }
-
-        if (chunkMB < 0.1) {
-            chunkSizeStr = QString(" (< 0.1 MB per chunk)");
-
-        } else {
-            chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
+        if (samplesPerChunk > maxSamplesPerChunk) {
+            samplesPerChunk = maxSamplesPerChunk;
         }
 
     } else if (unlimitedFlag && !chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplingRateHz)/BYTES_PER_MEGA_BYTES;
-        if (totalMB < 0.1) {
-            recordSizeStr = QString("Recording size on disk < 0.1 MB/s");
-
-        } else {
-            recordSizeStr = QString("Recording size on disk = %1 MB/s").arg(totalMB, 0, 'f', 1);
-        }
-
         chunkFlag = true;
-        samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
-        chunkMB = PSD_MAX_MB_PER_FILE;
-        chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
+        samplesPerChunk = maxSamplesPerChunk;
 
     } else if (!unlimitedFlag && chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/BYTES_PER_MEGA_BYTES;
-        if (totalMB < 0.1) {
-            recordSizeStr = QString("Recording size on disk < 0.1 MB");
-
-        } else {
-            recordSizeStr = QString("Recording size on disk = %1 MB").arg(totalMB, 0, 'f', 1);
+        if (samplesPerChunk > maxSamplesPerChunk) {
+            samplesPerChunk = maxSamplesPerChunk;
         }
-
-        chunkMB = (bytesPerChannel*channelsPerFile*samplesPerChunk)/BYTES_PER_MEGA_BYTES;
-
-        if (chunkMB > PSD_MAX_MB_PER_FILE) {
-            samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
-            chunkMB = PSD_MAX_MB_PER_FILE;
-        }
-
-        if (chunkMB >= totalMB) {
+        if (samplesPerChunk >= samplesToBeSaved) {
             chunkFlag = false;
             samplesPerChunk = -1.0;
-            chunkMB = -1.0;
-        }
-        if (chunkMB < 0.0) {
-            chunkSizeStr = QString(" (chunks disabled)");
-
-        } else if (chunkMB < 0.1) {
-            chunkSizeStr = QString(" (< 0.1 MB per chunk)");
-
-        } else {
-            chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
         }
 
     } else if (!unlimitedFlag && !chunkFlag) {
-        totalMB = (bytesPerChannel*totalChannelsNum*samplesToBeSaved)/BYTES_PER_MEGA_BYTES;
-        if (totalMB < 0.1) {
-            recordSizeStr = QString("Recording size on disk < 0.1 MB");
-
-        } else {
-            recordSizeStr = QString("Recording size on disk = %1 MB").arg(totalMB, 0, 'f', 1);
-        }
-        double totalMBPerFile = totalMB/ (double) (totalChannelsNum/channelsPerFile);
-        if (totalMBPerFile > PSD_MAX_MB_PER_FILE) {
+        if (samplesToBeSaved > maxSamplesPerChunk){
             chunkFlag = true;
-            samplesPerChunk = PSD_MAX_MB_PER_FILE*BYTES_PER_MEGA_BYTES/(bytesPerChannel*channelsPerFile);
-            chunkMB = PSD_MAX_MB_PER_FILE;
-            chunkSizeStr = QString(" (%1 MB per chunk)").arg(chunkMB, 0, 'f', 1);
-
-        } else {
-            chunkSizeStr = QString(" (chunks disabled)");
+            samplesPerChunk = maxSamplesPerChunk;
         }
     }
-
-    emit sigFileSizeComputed(recordSizeStr + chunkSizeStr);
 
     if (unlimitedFlag) {
         samplesToBeSaved = -1;
         totalValuesToBeSaved = -1;
 
     } else {
-        totalValuesToBeSaved = samplesToBeSaved*(long long)totalChannelsNum;
+        totalValuesToBeSaved = samplesToBeSaved*(long long)activeChannelsNum;
     }
 
     if (chunkFlag) {
-        valuesPerChunk = samplesPerChunk*(long long)totalChannelsNum;
+        valuesPerChunk = samplesPerChunk*(long long)activeChannelsNum;
 
     } else {
         samplesPerChunk = -1;
