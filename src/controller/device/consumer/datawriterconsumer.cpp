@@ -231,8 +231,8 @@ void DataWriterConsumer::computeSamples() {
     }
 
     /*! First samples computation, might not be the final one because of specific behaviorus when durations are 0 */
-    samplesToBeSaved = (long long)qRound(settings.recordDurationS*samplingRateHz);
-    samplesPerChunk = (long long)qRound(settings.chunkDurationS*samplingRateHz);
+    samplesToBeSaved = (long long) settings.recordDurationS*samplingRateHz;
+    samplesPerChunk = (long long) settings.chunkDurationS*samplingRateHz;
 
     unlimitedFlag = settings.recordDurationS == 0.0;
     chunkFlag = settings.chunkDurationS > 0.0;
