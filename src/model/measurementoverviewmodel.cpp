@@ -32,13 +32,13 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
         Measurement_t meanCurrent = {0.0, UnitPfxNone, "A"};
         Measurement_t stdCurrent = {0.0, UnitPfxNone, "A"};
         Measurement_t conductivity = {0.0, UnitPfxNone, "S"};
-        for (int i = 0; i < activeChannelsIdxs.size(); i++) {
-            stdCurrent.value = statisticsResults->stdCurrent[i];
-            meanCurrent.value = statisticsResults->meanCurrent[i];
-            meanVoltage.value = statisticsResults->meanVoltage[i];
-            conductivity.value = statisticsResults->conductivity[i];
+        for (auto ch: activeChannelsIdxs) {
+            stdCurrent.value = statisticsResults->stdCurrent[ch];
+            meanCurrent.value = statisticsResults->meanCurrent[ch];
+            meanVoltage.value = statisticsResults->meanVoltage[ch];
+            conductivity.value = statisticsResults->conductivity[ch];
 
-            stream << i+1 << "," << QString::fromStdString(meanVoltage.niceLabel()) << "," << QString::fromStdString(meanCurrent.niceLabel()) << "," << QString::fromStdString(stdCurrent.niceLabel()) << "," << QString::fromStdString(conductivity.niceLabel()) << "," << QString::fromStdString(liquidJunctionResults[i].niceLabel()) << "\n";
+            stream << ch+1 << "," << QString::fromStdString(meanVoltage.niceLabel()) << "," << QString::fromStdString(meanCurrent.niceLabel()) << "," << QString::fromStdString(stdCurrent.niceLabel()) << "," << QString::fromStdString(conductivity.niceLabel()) << "," << QString::fromStdString(liquidJunctionResults[ch].niceLabel()) << "\n";
         }
         file.close();
     }
