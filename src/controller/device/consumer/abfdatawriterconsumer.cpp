@@ -93,7 +93,7 @@ void AbfDataWriterConsumer::run() {
     exitedDataConsumingLoop = false;
     consumptionLock.unlock();
 
-    double activeChannelsRatio = totalChannelsNum/activeChannelsNum;
+    double activeChannelsRatio = (double)totalChannelsNum/(double)activeChannelsNum;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
@@ -105,13 +105,13 @@ void AbfDataWriterConsumer::run() {
             bufferIdx = 0;
 
             bufferLen = buffer.size();
-            long long valuesLen = bufferLen / activeChannelsRatio;
+            long long valuesLen = round(((double) bufferLen) / activeChannelsRatio);
             long long valuesToEndOfFile = valuesToBeSaved-savedValues;
 
             if (valuesLen >= valuesToEndOfFile) {
                 truncatedValues = valuesLen - valuesToEndOfFile;
                 valuesLen = valuesToEndOfFile;
-                bufferLen = valuesToEndOfFile * activeChannelsRatio;
+                bufferLen = round((double)valuesToEndOfFile * activeChannelsRatio);
                 if (splitFlag) {
                     splittingFlag = true;
 
@@ -158,15 +158,15 @@ void AbfDataWriterConsumer::run() {
                 }
                 this->manageConsumptionBegin();
 
-                bufferLen = truncatedValues * activeChannelsRatio;
-                long long valuesLen = bufferLen / activeChannelsRatio;
+                bufferLen = round((double) truncatedValues * activeChannelsRatio);
+                long long valuesLen = round((double) bufferLen / activeChannelsRatio);
                 long long valuesToEndOfFile = valuesToBeSaved-savedValues;
                 if (valuesLen >= valuesToEndOfFile) {
                     /*! Assume a single buffer cannot span more than 1 file chunk
                      *  So we're not checking for splitting condition here */
                     truncatedValues = valuesLen - valuesToEndOfFile;
                     valuesLen = valuesToEndOfFile;
-                    bufferLen = valuesToEndOfFile * activeChannelsRatio;
+                    bufferLen = round((double) valuesToEndOfFile * activeChannelsRatio);
                 }
                 savedValues += valuesLen;
 //                if (recordSettings.episodicFlag && (savedValues >= valuesPerSweep*(long long)(sweepIdx+1)) && (savedValues < valuesToBeSaved)) {
