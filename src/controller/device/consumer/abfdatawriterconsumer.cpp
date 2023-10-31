@@ -93,7 +93,7 @@ void AbfDataWriterConsumer::run() {
     exitedDataConsumingLoop = false;
     consumptionLock.unlock();
 
-    long long activeChannelsRatio = totalChannelsNum/activeChannelsNum;
+    double activeChannelsRatio = totalChannelsNum/activeChannelsNum;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
