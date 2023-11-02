@@ -134,7 +134,7 @@ void MainController::onMainWindowCreated() {
     singleChannelController = new SingleChannelController(msgDisp, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
-    measurementOverviewController = new MeasurementOverviewController(msgDisp, mainWindow);
+    measurementOverviewController = new MeasurementOverviewController(msgDisp, deviceDataProducer, mainWindow);
     plotPreferencesController = new PlotPreferencesController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {
         voltageProtocolManager = new ProtocolManager(msgDisp);
@@ -158,9 +158,7 @@ void MainController::onMainWindowCreated() {
     abfDataWriterConsumer = new AbfDataWriterConsumer(msgDisp, deviceDataProducer);
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
-
-    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, deviceDataProducer);
-    consumers.append(liveStatisticsConsumer);
+    consumers.append(measurementOverviewController->getLiveStatisticsConsumer());
 
     mainWindow->addViewActions();
 
@@ -180,8 +178,6 @@ void MainController::onMainWindowCreated() {
     connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
     connect(chessboardController, &ChessboardController::sigOneRowClicked,          measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
     connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
-
-    connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult,     measurementOverviewController, &MeasurementOverviewController::onLiveStatisticsResults);
 
     connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
     connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);
@@ -488,7 +484,7 @@ void MainController::startProducerConsumers() {
     deviceDataProducer->start();
 //    stampPlotConsumer->onStartConsuming();
 //    bigPlotConsumer->onStartConsuming();
-    liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
+//    liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
@@ -497,13 +493,6 @@ void MainController::stopAndDestroyProducerConsumers() {
         delete abfDataWriterConsumer;
         abfDataWriterConsumer = nullptr;
     }
-
-    if (liveStatisticsConsumer!= nullptr) {
-        liveStatisticsConsumer->onStopConsuming();
-        delete liveStatisticsConsumer;
-        liveStatisticsConsumer = nullptr;
-    }
-
     if (calibratorConsumer!= nullptr) {
         calibratorConsumer->onStopConsuming();
         delete calibratorConsumer;
