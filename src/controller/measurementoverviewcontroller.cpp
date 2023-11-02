@@ -1,6 +1,6 @@
 #include "measurementoverviewcontroller.h"
 
-MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
+MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, MainWindow * mainWindow) :
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
 
@@ -11,13 +11,30 @@ MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher *
     connect(modw, &MeasurementsOverviewDockWidget::extract, this, [=](QString filepath){
         modm->exportToCsv(filepath.toStdString());
     });
-    mainWindow->setMeasurementOverviewDw(modw);
+    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, producer);
+    connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
+    connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetConsumerStatus);
+
+    mainWindow->setMeasurementOverviewDw(modw);    
+}
+
+void MeasurementOverviewController::onSetConsumerStatus(bool status) {
+    if (status) {
+        liveStatisticsConsumer->onStartConsuming();
+    } else {
+        liveStatisticsConsumer->onStopConsuming();
+    }
 }
 
 MeasurementOverviewController::~MeasurementOverviewController(){
     delete modw;
     modw = nullptr;
     mainWindow->setMeasurementOverviewDw(modw);
+    if (liveStatisticsConsumer!= nullptr) {
+        liveStatisticsConsumer->onStopConsuming();
+        delete liveStatisticsConsumer;
+        liveStatisticsConsumer = nullptr;
+    }
 }
 
 void MeasurementOverviewController::onExportLiveNoiseEstimates() {
@@ -79,3 +96,8 @@ void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResult * r
     modm->setStatisticsResult(result);
     modw->onLiveStatisticsResult(result);
 }
+
+LiveStatisticsConsumer * MeasurementOverviewController::getLiveStatisticsConsumer(){
+    return liveStatisticsConsumer;
+}
+

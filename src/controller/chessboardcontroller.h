@@ -35,6 +35,10 @@ public slots:
     void onReplot();
     void onSelectedPlotsUpdated();
 
+    void onCurrentColorsChanged(QVector <QColor> colors);
+    void onCurrentColorChanged(int channelIdx, QColor color);
+//    void onBackgroundColorChanged(QColor color);
+
 private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;

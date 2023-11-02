@@ -11,6 +11,7 @@
 #include "qwt_picker_machine.h"
 #include "qwt_text_label.h"
 #include <QMouseEvent>
+#include <qwt_plot_marker.h>
 
 #include "e384commlib_global.h"
 
@@ -37,6 +38,7 @@ public:
     void setState(States_t newState);
     void addState(States_t newState);
     void removeState(States_t newState);
+    void setLegendColor(QColor colot);
 
 public slots:
     void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
@@ -73,6 +75,7 @@ private:
 
     int xAxisMaxMajor;
     int yAxisMaxMajor;
+    QwtPlotMarker * colorMarker = nullptr;
 
 signals:
     void clicked(QMouseEvent *event);

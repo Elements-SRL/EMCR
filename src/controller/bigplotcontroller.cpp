@@ -150,9 +150,9 @@ void BigPlotController::handleZoomInRequest(Rect4 r){
     emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
 }
 
-void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoomIn){
+void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoomIn, QPointF mousePosition){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
-    bpm->updateCurrentZoom(bpm->zoomOnSingleAxis(axis, zoomIn));
+    bpm->updateCurrentZoom(bpm->zoomOnSingleAxis(axis, zoomIn, mousePosition));
     auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
     if (axis == QwtPlot::Axis::xBottom){

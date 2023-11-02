@@ -4,6 +4,7 @@
 #include "qwt_plot_canvas.h"
 #include <QApplication>
 #include "globaldefines.h"
+#include <qwt_symbol.h>
 
 StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
     QwtPlot(parent),
@@ -65,6 +66,12 @@ StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QW
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
 
     selected = false;
+    colorMarker = new QwtPlotMarker();
+    colorMarker->attach(this);
+    auto x = this->width();
+    auto y = this->height();
+    colorMarker->setValue(x*.0093, y*0.4); // Set the position where you want to draw the solid color
+    colorMarker->setLineStyle(QwtPlotMarker::NoLine);
     this->setStyleSheet(STP_STYLE_PLOT_INACTIVE);
 }
 
@@ -204,4 +211,13 @@ void StampPlot::resizeEvent(QResizeEvent * e) {
 
     siz = stateLbl->minimumSizeHint();
     stateLbl->setGeometry(this->canvas()->x(), this->canvas()->y()+this->canvas()->height()-siz.height(), siz.width(), siz.height());
+}
+
+void StampPlot::setLegendColor(QColor color) {
+    auto symbol = new QwtSymbol();  // Create a QwtSymbol object
+    symbol->setStyle(QwtSymbol::Rect);  // Set the style to Rect
+    symbol->setBrush(QBrush(color));  // Set the fill color
+    symbol->setPen(QPen(color));      // Set the border color
+    symbol->setSize(QSize(10, 10));    // Set the size of the block
+    colorMarker->setSymbol(symbol);  // Use the setSymbol method to set the symbol
 }

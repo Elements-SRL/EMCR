@@ -157,13 +157,24 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
     QPoint angleDelta = we->angleDelta();
     // Check the vertical rotation
     int verticalRotation = angleDelta.y();
+
+    // Get the mouse position in global coordinates
+    QPoint globalPos = we->globalPos();
+    // Convert the global mouse position to the plot's local coordinates
+    QPoint plotPos = mapFromGlobal(globalPos);
+    // Get the corresponding position in the plot's coordinate system
+    QwtPointSeriesData data;
+    QwtScaleMap xMap = canvasMap(QwtPlot::xBottom);
+    QwtScaleMap yMap = canvasMap(vertAxis);
+    QPointF plotCoordinates = QPointF(xMap.invTransform(plotPos.x()), yMap.invTransform(plotPos.y()));
+
     switch (key) {
     case Qt::Modifier::CTRL:
-        emit singleAxisZoomRequest(vertAxis, verticalRotation);
+        emit singleAxisZoomRequest(vertAxis, verticalRotation, plotCoordinates);
         break;
 
     case Qt::Modifier::SHIFT:
-        emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, verticalRotation);
+        emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, verticalRotation, plotCoordinates);
         break;
 
     default:

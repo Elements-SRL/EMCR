@@ -7,12 +7,16 @@
 #include "measurementsoverviewdockwidget.h"
 #include "messagedispatcher.h"
 #include "measurementoverviewmodel.h"
+#include "livestatisticsconsumer.h"
+
+
 class MeasurementOverviewController : public QObject {
     Q_OBJECT
 
 public:
-    MeasurementOverviewController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    MeasurementOverviewController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, MainWindow * mainWindow);
     ~MeasurementOverviewController();
+    LiveStatisticsConsumer * getLiveStatisticsConsumer();
 public slots:
     void onChannelsUpdated();
     void onExportLiveNoiseEstimates();
@@ -27,6 +31,8 @@ private:
     int voltageChannelsNum;
     int currentChannelsNum;
     std::vector<int> activeChannelsIdxs;
+    LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
+    void onSetConsumerStatus(bool status);
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H

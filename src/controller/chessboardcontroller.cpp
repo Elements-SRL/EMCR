@@ -201,3 +201,20 @@ void ChessboardController::onSelectedPlotsUpdated() {
 PlotConsumer * ChessboardController::getPlotConsumer(){
     return stampPlotConsumer;
 }
+
+
+void ChessboardController::onCurrentColorsChanged(QVector <QColor> colors) {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        plots[idx]->setLegendColor(colors[idx]);
+    }
+}
+
+void ChessboardController::onCurrentColorChanged(int channelIdx, QColor color) {
+    plots[channelIdx]->setLegendColor(color);
+}
+
+//void ChessboardController::onBackgroundColorChanged(QColor color) {
+//    for (auto plot: plots) {
+//        plot->setCanvasBackground(color);
+//    }
+//}
