@@ -11,7 +11,7 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
 
-    if(!msgDisp->isStateArrayAvailable()){
+    if(msgDisp->isStateArrayAvailable() != Success){
         stateArrayDockWidget = nullptr;
         return;
     }
