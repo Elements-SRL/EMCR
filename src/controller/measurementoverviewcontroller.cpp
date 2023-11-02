@@ -1,5 +1,4 @@
 #include "measurementoverviewcontroller.h"
-#include <iostream>
 
 MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, MainWindow * mainWindow) :
     msgDisp(msgDisp),
