@@ -28,7 +28,22 @@ SingleChannelController::~SingleChannelController(){
 void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
     bool newState = event->button() == Qt::LeftButton;
     clickBehaviour(newState);
-    msgDisp->setChannelSelected(chIdx, newState);
+    if (newState) {
+        // slightly inefficient
+        std::vector<uint16_t> selectedIndexes;
+        msgDisp->getSelectedChannelsIndexes(selectedIndexes);
+        bool isChSelected = false;
+        for (auto idx: selectedIndexes){
+            if (idx == chIdx){
+                isChSelected = true;
+                break;
+            }
+        }
+//        if the channel is selected but the user is pressing ctrl toggle it
+        msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
+    } else {
+        msgDisp->setChannelSelected(chIdx, newState);
+    }
     singleChannelControlsDw->onUpdate();
 }
 

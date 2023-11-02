@@ -44,9 +44,6 @@ public slots:
     void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
     void onDurationUpdated(Measurement_t duration);
 
-    void onClicked();
-    void onUnclicked();
-
 protected:
     virtual void resizeEvent(QResizeEvent * e) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -60,9 +57,6 @@ private:
 
     QwtTextLabel * channelIdxLbl;
     QwtTextLabel * stateLbl;
-
-    QwtPlotPicker * selectPicker;
-    QwtPlotPicker * deselectPicker;
 
     QPointF pickerFirstCornerPos;
 
