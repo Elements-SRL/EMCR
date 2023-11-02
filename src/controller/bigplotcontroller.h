@@ -6,6 +6,7 @@
 #include "messagedispatcher.h"
 #include "bigplotmodel.h"
 #include "plotconsumer.h"
+#include <QPointF>
 
 class BigPlotController : public QObject {
     Q_OBJECT
@@ -43,7 +44,7 @@ private slots:
     void handleZoomInRequest(Rect4 r);
     void handleZoomOutRequest();
     void handleZoomResetRequest();
-    void handleSingleAxisZoomRequest(QwtPlot::Axis, int);
+    void handleSingleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
     void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
 
 signals:
