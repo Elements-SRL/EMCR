@@ -45,20 +45,6 @@ StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QW
     stateLbl->setMargin(0);
     stateLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-    /*! select picker */
-    selectPicker = new QwtPlotPicker(this->canvas());
-    selectPicker->setStateMachine(new QwtPickerClickPointMachine());
-    selectPicker->setTrackerMode(QwtPlotPicker::AlwaysOff);
-    selectPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::LeftButton);
-    connect(selectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onClicked);
-
-    /*! deselect picker */
-    deselectPicker = new QwtPlotPicker(this->canvas());
-    deselectPicker->setStateMachine(new QwtPickerClickPointMachine());
-    deselectPicker->setTrackerMode(QwtPlotPicker::AlwaysOff);
-    deselectPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::RightButton);
-    connect(deselectPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &StampPlot::onUnclicked);
-
     rangeInitialized.resize(axisCnt);
     rangeInitialized.fill(false);
 
@@ -97,12 +83,6 @@ void StampPlot::setSelected(bool flag) {
 
 void StampPlot::mousePressEvent(QMouseEvent *event){
     emit clicked(event);
-//    if (event->button() == Qt::LeftButton){
-//        emit clicked(true);
-//    } else {
-//        emit clicked(false);
-//    }
-    // Call the base class implementation for normal processing
     QwtPlot::mousePressEvent(event);
 }
 
@@ -176,29 +156,6 @@ void StampPlot::onDurationUpdated(Measurement_t duration) {
     this->setAxisScale(xBottom, 0.0, sweepDuration.value);
 
     this->replot();
-}
-
-void StampPlot::onClicked() {
-//    if (QApplication::keyboardModifiers() & Qt::ControlModifier){
-//        // Ctrl key is pressed
-//        // Do something specific when Ctrl is pressed during the button click
-//        qDebug() << "Ctrl key is pressed";
-//    }
-//    if (QApplication::keyboardModifiers() & Qt::ShiftModifier){
-//        // Shift key is pressed
-//        // Do something specific when Shift is pressed during the button click
-//        qDebug() << "Shift key is pressed";
-//    }
-//    if (QApplication::keyboardModifiers() & Qt::AltModifier){
-//        // Alt key is pressed
-//        // Do something specific when Alt is pressed during the button click
-//        qDebug() << "AltModifier key is pressed";
-//     }
-//    emit clicked(true);
-}
-
-void StampPlot::onUnclicked() {
-//    emit clicked(false);
 }
 
 void StampPlot::resizeEvent(QResizeEvent * e) {

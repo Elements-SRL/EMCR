@@ -193,8 +193,8 @@ void ChessboardController::onReplot() {
 void ChessboardController::onSelectedPlotsUpdated() {
     std::vector <bool> selectedChannels;
     msgDisp->getSelectedChannels(selectedChannels);
-    for(int ii = 0; ii < currentChannelsNum; ii++){
-        plots[ii]->setSelected(selectedChannels[ii]);
+    for(int i = 0; i < currentChannelsNum; i++){
+        plots[i]->setSelected(selectedChannels[i]);
     }
 }
 
