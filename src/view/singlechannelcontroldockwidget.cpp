@@ -25,11 +25,6 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
     operationTitles[OperationLiquidJunction] = "Offset compensation";
     operationTitles[OperationStimulusHalf] = "Stimulus half";
 
-    operationString.resize(OperationsNum);
-    operationString[OperationHoldingStimulus] = "NOT USED";
-    operationString[OperationLiquidJunction] = "NOT USED";
-    operationString[OperationStimulusHalf] = "NOT USED";
-
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
 
@@ -39,21 +34,21 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
     operationWidgets.resize(OperationsNum);
     operationButtonWidgets.resize(OperationsNum);
     operationEdits.resize(OperationsNum);
+
     for (int idx = 0; idx < OperationsNum; idx++) {
         operationCbx->addItem(operationTitles[idx]);
-        if (idx != OperationLiquidJunction || msgDisp->hasOffsetCompensation() == Success) {
-            operationWidgets[idx] = this->createOperationWidget(idx);
-            operationWidgets[idx]->setVisible(idx == 0);
-            mainVl->addWidget(operationWidgets[idx]);
-            operationButtonWidgets[idx] = this->createOperationButtonWidget(idx);
-            operationButtonWidgets[idx]->setVisible(idx == 0);
-            mainVl->addWidget(operationButtonWidgets[idx]);
+    }
 
-        } else {
-            QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
-            QStandardItem * item = model->item(OperationLiquidJunction);
-            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-        }
+    buildOperation(mainVl, OperationHoldingStimulus, true);
+    buildOperation(mainVl, OperationLiquidJunction);
+
+    //    change this to OperationStimulusHalf
+    if (msgDisp->hasOffsetCompensation()!= Success && false){
+        buildOperation(mainVl, OperationStimulusHalf);
+    } else {
+        QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
+        QStandardItem * item = model->item(OperationStimulusHalf);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
 
     applyBtn = new QPushButton("Apply");
@@ -66,6 +61,17 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &SingleChannelControlDockWidget::onOperationSelected);
 
     this->installEventFilter(this);
+}
+
+void SingleChannelControlDockWidget::buildOperation(QLayout * layout, int operationType, bool visibility){
+    auto operationWidget = this->createOperationWidget(operationType);
+    auto operationButtonWidget = this->createOperationButtonWidget(operationType);
+    operationWidget->setVisible(visibility);
+    operationButtonWidget->setVisible(visibility);
+    operationWidgets[operationType] = operationWidget;
+    operationButtonWidgets[operationType] = operationButtonWidget;
+    layout->addWidget(operationWidget);
+    layout->addWidget(operationButtonWidget);
 }
 
 void SingleChannelControlDockWidget::onUpdate() {
@@ -191,14 +197,16 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     }
 
     /** \todo MPAC, recheck this section is new*/
-    setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
-    setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
-    setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
-        sbx->setSuffix(QString(" ") + unit);
-        sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
-        sbx->setDecimals(holdingTunerRange.decimals());
+    if (setAllChannelsSbxs[OperationStimulusHalf] != nullptr) {
+        setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
+        setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
+        setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
+            sbx->setSuffix(QString(" ") + unit);
+            sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
+            sbx->setDecimals(holdingTunerRange.decimals());
+        }
     }
 
     if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
@@ -363,8 +371,10 @@ QVBoxLayout * SingleChannelControlDockWidget::getLayoutWithScrollBar(QWidget * w
 
 void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
     for (int idx = 0; idx < OperationsNum; idx++) {
-        operationWidgets[idx]->setVisible(false);
-        operationButtonWidgets[idx]->setVisible(false);
+        if (operationWidgets[idx] != nullptr){
+            operationWidgets[idx]->setVisible(false);
+            operationButtonWidgets[idx]->setVisible(false);
+        }
     }
     operationWidgets[operationIdx]->setVisible(true);
     operationButtonWidgets[operationIdx]->setVisible(true);

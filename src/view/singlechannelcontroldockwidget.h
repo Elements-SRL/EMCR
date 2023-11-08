@@ -38,7 +38,6 @@ private:
     MessageDispatcher * msgDisp = nullptr;
 
     QVector <QString> operationTitles;
-    QVector <QString> operationString;
 
     QWidget * createOperationWidget(int idx);
     QWidget * createOperationButtonWidget(int idx);
@@ -61,6 +60,7 @@ private:
     RangedMeasurement_t holdingTunerRange;
     RangedMeasurement_t liquidJunctionRange;
     QVector <MySpinBox *> setAllChannelsSbxs;
+    void buildOperation(QLayout * layout, int operationType, bool visibility = false);
 
 private slots:
     void onOperationSelected(int operationIdx);
