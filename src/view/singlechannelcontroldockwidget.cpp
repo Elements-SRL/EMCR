@@ -43,7 +43,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
     buildOperation(mainVl, OperationLiquidJunction);
 
     //    change this to OperationStimulusHalf
-    if (msgDisp->hasOffsetCompensation()!= Success && false){
+    if (msgDisp->hasStimulusHalf() == Success){
         buildOperation(mainVl, OperationStimulusHalf);
     } else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
