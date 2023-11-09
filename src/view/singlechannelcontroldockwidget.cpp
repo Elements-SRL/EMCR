@@ -351,7 +351,10 @@ void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
 }
 
 void SingleChannelControlDockWidget::setLiquidJunctionVoltages(std::vector <Measurement_t> voltages){
-//    5 / 0;
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        MySpinBox * sbx2 = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
+        sbx2->setValue(voltages[channelIdx].value);
+    }
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
