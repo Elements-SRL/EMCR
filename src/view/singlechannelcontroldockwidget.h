@@ -18,6 +18,7 @@ class SingleChannelControlDockWidget : public QDockWidget {
 
 public:
     SingleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
+    void setLiquidJunctionVoltages(std::vector <Measurement_t> voltages);
 
 public slots:
     void onUpdate();

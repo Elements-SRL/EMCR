@@ -92,63 +92,31 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
     if (!applyAll) {
         msgDisp->getSelectedChannels(selectedChannels);
     }
-
+    SpinBoxWithChannel * sbx;
+    std::vector<Measurement_t> values;
+    std::vector<uint16_t> indexes;
+    auto range = operationIdx == OperationLiquidJunction ? liquidJunctionRange : holdingTunerRange;
+    for (int i = 0; i < selectedChannels.size(); i++) {
+        sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
+        if (selectedChannels.at(i)) {
+            Measurement_t m = {sbx->getSpinBox()->value(), range.prefix, range.unit};
+            values.push_back(m);
+            indexes.push_back(i);
+        }
+    }
     switch (operationIdx) {
     case OperationHoldingStimulus:{
-        SpinBoxWithChannel * sbx;
-        std::vector<Measurement_t> values;
-        std::vector<uint16_t> indexes;
-
-        for (int i = 0; i < selectedChannels.size(); i++) {
-            sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
-            if (selectedChannels.at(i)) {
-                Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), holdingTunerRange.prefix, holdingTunerRange.unit};
-                values.push_back(myMeasurementValue);
-                indexes.push_back(i);
-            }
-        }
-
         emit sigAppliedHoldValues(indexes, values);
         break;
     }
-
     case OperationLiquidJunction:{
-        SpinBoxWithChannel * sbx;
-        std::vector<Measurement_t> values;
-        std::vector<uint16_t> indexes;
-
-        for (int i = 0; i < selectedChannels.size(); i++) {
-            sbx = static_cast<SpinBoxWithChannel *>(operationEdits[operationIdx][i]);
-            if (selectedChannels.at(i)) {
-                Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), liquidJunctionRange.prefix, liquidJunctionRange.unit};
-                values.push_back(myMeasurementValue);
-                indexes.push_back(i);
-            }
-        }
-
         emit sigLiquidJunctionValues(indexes, values);
         break;
     }
-
     case OperationStimulusHalf:{
-        /** \todo MPAC, recheck rimasta un botto di roba di holding tuner*/
-        SpinBoxWithChannel * sbx;
-        std::vector<Measurement_t> values;
-        std::vector<uint16_t> indexes;
-
-        for (int i = 0; i < selectedChannels.size(); i++) {
-            sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
-            if (selectedChannels.at(i)) {
-                Measurement_t myMeasurementValue = {sbx->getSpinBox()->value(), holdingTunerRange.prefix, holdingTunerRange.unit};
-                values.push_back(myMeasurementValue);
-                indexes.push_back(i);
-            }
-        }
-
         emit sigAppliedStimHalfValues(indexes, values);
         break;
     }
-
     }
 }
 
@@ -380,6 +348,10 @@ void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
     operationButtonWidgets[operationIdx]->setVisible(true);
 
     this->onUpdate();
+}
+
+void SingleChannelControlDockWidget::setLiquidJunctionVoltages(std::vector <Measurement_t> voltages){
+//    5 / 0;
 }
 
 SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :

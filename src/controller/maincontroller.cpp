@@ -197,6 +197,7 @@ void MainController::onMainWindowCreated() {
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,           &ChessboardController::onDocTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       measurementOverviewController,  &MeasurementOverviewController::onLiquidJunctionResult);
+    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       singleChannelController,        &SingleChannelController::onLiquidJunctionResult);
     connect(multipleChannelController, &MultipleChannelController::sigDocResetted,          this, [=] () {
         measurementOverviewController->onLiquidJunctionResult(false);
     });

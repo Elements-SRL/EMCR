@@ -176,3 +176,18 @@ void SingleChannelController::onCompensationApplied(std::vector<uint16_t> channe
 
     mainWindow->getCompensationControlsDockWidget()->onCompValuesDispatched(compValueMatrix, cfastFeatures, cslowFeatures, rsFeatures, rsCpFeatures, rsPgFeatures, ccCfastFeatures);
 }
+
+void SingleChannelController::onLiquidJunctionResult(){
+    uint16_t currentChannelsNum;
+    uint16_t voltageChannelsNum;
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    std::vector <uint16_t> channelIdxs(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        channelIdxs[idx] = idx;
+    }
+
+    std::vector <Measurement_t> stdVoltages;
+    msgDisp->getLiquidJunctionVoltages(channelIdxs, stdVoltages);
+
+    singleChannelControlsDw->setLiquidJunctionVoltages(stdVoltages);
+}
