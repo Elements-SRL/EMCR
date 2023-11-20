@@ -24,8 +24,5 @@ int main(int argc, char *argv[]) {
     QDir().mkpath(YAML_DEFAULT_FOLDER);
 
     MainController c;
-    auto path = "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml";
-    auto applicationStatus = new ApplicationStatus();
-    applicationStatus->loadChannelMappingFromYaml(path);
     return a.exec();
 }
