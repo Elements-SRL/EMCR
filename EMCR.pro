@@ -131,6 +131,7 @@ HEADERS += \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
+    src/model/channel_and_name.h \
     src/model/channel_mapping.h \
     src/model/measurementoverviewmodel.h \
     src/model/plotpreferencesmodel.h \

@@ -1,11 +1,48 @@
 #include "application_status.h"
 #include <iostream>
+#include <filesystem>
+
+ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath):
+    msgDisp(msgDisp) {
+
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    if(!filepath.empty() && std::filesystem::exists(filepath)) {
+//        if there's a mapping file read from it
+        loadChannelMappingFromYaml(filepath);
+    } else {
+//        else populate it with default values from the commlib
+        channelsAndNames.clear();
+        std::vector <ChannelModel *> channels;
+        msgDisp->getChannels(channels);
+        for (auto ch: channels){
+            auto chIdx = ch->getId();
+            channelsAndNames.push_back({chIdx, std::to_string(chIdx)});
+        }
+    }
+}
 
 void ApplicationStatus::loadChannelMappingFromYaml(std::string pathTofile) {
-    // Parse the YAML file
     YAML::Node yamlNode = YAML::LoadFile(pathTofile);
     if (yamlNode.IsSequence()){
         std::cout << yamlNode << std::endl;
     }
     channelMappings = yamlNode.as<std::vector<YAML::ChannelMapping>>();
+    channelsAndNames.clear();
+    for(auto &cm: channelMappings){
+        channelsAndNames.push_back({cm.originalChannelIndex, cm.newChannelName});
+    }
+}
+
+int ApplicationStatus::getVoltageChannelsNum(){
+    return voltageChannelsNum;
+};
+
+int ApplicationStatus::getCurrentChannelsNum(){
+    return currentChannelsNum;
+};
+
+std::vector <ChannelModel *> ApplicationStatus::getChannels(){
+    std::vector <ChannelModel *> channels;
+    msgDisp->getChannels(channels);
+    return channels;
 }

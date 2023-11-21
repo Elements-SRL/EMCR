@@ -12,7 +12,7 @@ class BigPlotWidget : public QWidget {
     Q_OBJECT
 
 public:
-    BigPlotWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
+    BigPlotWidget(QWidget * parent = nullptr);
 
     void setPlot(BigPlot * plot);
 

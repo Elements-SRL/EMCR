@@ -1,6 +1,7 @@
 #include "maincontroller.h"
 #include "statearraycontroller.h"
 #include "mainwindow.h"
+#include "application_status.h"
 
 MainController::MainController() {
     /*! Set up device detector */
@@ -120,13 +121,19 @@ void MainController::onMainWindowCreated() {
     deviceDataProducer = new DeviceDataProducer(msgDisp);
 
     /***************\
+     * Model *
+    \***************/
+
+    auto applicationStatus = new ApplicationStatus(msgDisp);
+
+    /***************\
      * Controllers *
     \***************/
 
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
-    bigPlotController = new BigPlotController(msgDisp, deviceDataProducer, defaultPlotDuration, mainWindow);
+    bigPlotController = new BigPlotController(msgDisp, applicationStatus, deviceDataProducer, defaultPlotDuration, mainWindow);
     chessboardController = new ChessboardController(msgDisp, deviceDataProducer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);

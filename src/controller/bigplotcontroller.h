@@ -7,12 +7,13 @@
 #include "bigplotmodel.h"
 #include "plotconsumer.h"
 #include <QPointF>
+#include "application_status.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
 
 public:
-    BigPlotController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    BigPlotController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~BigPlotController();
 
     BigPlot * getPlot();
@@ -28,7 +29,7 @@ public slots:
     void onReplot();
 
 private:
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
     BigPlotModel * bpm = nullptr;

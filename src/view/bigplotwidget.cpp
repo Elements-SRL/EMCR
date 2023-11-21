@@ -1,6 +1,6 @@
 #include "bigplotwidget.h"
 
-BigPlotWidget::BigPlotWidget(MessageDispatcher * msgDisp, QWidget * parent) :
+BigPlotWidget::BigPlotWidget(QWidget * parent) :
     QWidget(parent) {
 
     mainVl = new QVBoxLayout();

@@ -1,18 +1,18 @@
 #include "bigplotcontroller.h"
 #include <iostream>
 
-BigPlotController::BigPlotController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
+BigPlotController::BigPlotController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
+    appStatus(appStatus),
     mainWindow(mainWindow) {
-    bpw = new BigPlotWidget(msgDisp);
+    bpw = new BigPlotWidget(mainWindow);
     bpm = new BigPlotModel();
 
     mainWindow->setBigPlotWidget(bpw);
     plot = new BigPlot("", "[s]", "", bpw);
     plot->enableAxis(QwtPlot::yRight);
     bpw->setPlot(plot);
-
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    currentChannelsNum = appStatus->getCurrentChannelsNum();
+    voltageChannelsNum = appStatus->getVoltageChannelsNum();
 
     for (int i = 0; i < currentChannelsNum; i++){
         currentCurves.append(new Curve(CurveType_t::CurveTypePlotSolid));
@@ -91,8 +91,7 @@ void BigPlotController::clearCurves() {
 }
 
 void BigPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize) {
-    std::vector <ChannelModel *> channels;
-    msgDisp->getChannels(channels);
+    auto channels = appStatus->getChannels();
     int expanded_channels = 0;
     for(auto c: channels){
         if(c->isExpanded()){
