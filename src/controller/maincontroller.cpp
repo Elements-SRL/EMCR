@@ -119,7 +119,7 @@ void MainController::onMainWindowCreated() {
     \************/
 
     deviceDataProducer = new DeviceDataProducer(msgDisp);
-
+    auto bigPlotConsumer = new GapFreePlotConsumer(msgDisp, deviceDataProducer);
     /***************\
      * Model *
     \***************/
@@ -133,7 +133,7 @@ void MainController::onMainWindowCreated() {
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
-    bigPlotController = new BigPlotController(msgDisp, applicationStatus, deviceDataProducer, defaultPlotDuration, mainWindow);
+    bigPlotController = new BigPlotController(applicationStatus, bigPlotConsumer, defaultPlotDuration, mainWindow);
     chessboardController = new ChessboardController(msgDisp, deviceDataProducer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);

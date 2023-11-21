@@ -1,7 +1,7 @@
 #include "bigplotcontroller.h"
 #include <iostream>
 
-BigPlotController::BigPlotController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
+BigPlotController::BigPlotController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
     bpw = new BigPlotWidget(mainWindow);
@@ -24,20 +24,20 @@ BigPlotController::BigPlotController(MessageDispatcher * msgDisp, ApplicationSta
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
 
-    plotConsumer = new GapFreePlotConsumer(msgDisp, producer);
-    plotConsumer->onDurationChanged(defaultPlotDuration);
-    plotConsumer->forceAxisUpdate();
-    plotConsumer->setMaxSamplesPerPlot(4096);
-    plotConsumer->onSelectChannels(false);
+    this->plotConsumer = plotConsumer;
+    this->plotConsumer->onDurationChanged(defaultPlotDuration);
+    this->plotConsumer->forceAxisUpdate();
+    this->plotConsumer->setMaxSamplesPerPlot(4096);
+    this->plotConsumer->onSelectChannels(false);
     connect(plot, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
     connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
     connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
     connect(plot, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
     connect(plot, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
 
-    connect(this, &BigPlotController::durationChanged, plotConsumer, &GapFreePlotConsumer::onDurationChanged);
-    connect(plotConsumer, &GapFreePlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
-    connect(plotConsumer, &GapFreePlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
+    connect(this, &BigPlotController::durationChanged, this->plotConsumer, &GapFreePlotConsumer::onDurationChanged);
+    connect(this->plotConsumer, &GapFreePlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
+    connect(this->plotConsumer, &GapFreePlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
 
 }
 

@@ -13,7 +13,7 @@ class BigPlotController : public QObject {
     Q_OBJECT
 
 public:
-    BigPlotController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    BigPlotController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~BigPlotController();
 
     BigPlot * getPlot();
