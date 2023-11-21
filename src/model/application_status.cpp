@@ -67,3 +67,8 @@ std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     return selectedChannels;
 };
+
+std::vector <ChannelAndName> ApplicationStatus::getChannelsAndNames(){
+    return channelsAndNames;
+};
+

@@ -6,7 +6,7 @@
 #include "globaldefines.h"
 #include <qwt_symbol.h>
 
-StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
+StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
     QwtPlot(parent),
     channelIdx(channelIdx),
     idealPlotWidth(idealPlotWidth),
@@ -32,7 +32,7 @@ StampPlot::StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QW
     text.setColor(Qt::white);
 
     channelIdxLbl = new QwtTextLabel(this);
-    text.setText(QString("%1").arg(channelIdx+1));
+    text.setText(QString("%1").fromStdString(channelname));
     channelIdxLbl->setText(text);
     channelIdxLbl->setFont(font);
     channelIdxLbl->setMargin(0);

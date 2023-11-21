@@ -17,9 +17,29 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
     plots.resize(currentChannelsNum);
     currentCurves.resize(currentChannelsNum);
 
+//    for(auto chAndName: appStatus->getChannelsAndNames()){
+//        /*! buttare in una funzioncina di creazione del plot*/
+//        auto channelIdx = chAndName.channelIndex;
+//        StampPlot * plot = new StampPlot(channelIdx, chAndName.name, idealPlotWidth, idealPlotHeight);
+//        plot->setFixedSize(idealPlotWidth, idealPlotHeight);
+//        plot->setToolTip(QString("Ch %1\n"
+//                                 "Left click: exclusive select\n"
+//                                 "CTRL + Left click: append\n"
+//                                 "Right click: deselect").arg(QString::fromStdString(chAndName.name)));
+//        plot->setSelected(false);
+
+//        plots[channelIdx] = plot;
+
+//        Curve * curve = new Curve(CurveType_t::CurveTypeStampPlotSolid);
+//        curve->attach(plot);
+//        currentCurves[channelIdx] = curve;
+
+//        chessboard->addPlot(plot, channelIdx);
+//    };
+
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         /*! buttare in una funzioncina di creazione del plot*/
-        StampPlot * plot = new StampPlot(channelIdx, idealPlotWidth, idealPlotHeight);
+        StampPlot * plot = new StampPlot(channelIdx, std::to_string(channelIdx), idealPlotWidth, idealPlotHeight);
         plot->setFixedSize(idealPlotWidth, idealPlotHeight);
         plot->setToolTip(QString("Ch %1\n"
                                  "Left click: exclusive select\n"

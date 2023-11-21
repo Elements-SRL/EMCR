@@ -29,7 +29,7 @@ public:
         StateTraceExpanded = 0x0008
     } States_t;
 
-    StampPlot(int channelIdx, int idealPlotWidth, int idealPlotHeight, QWidget * parent = nullptr);
+    StampPlot(int channelIdx, std::string channelname, int idealPlotWidth, int idealPlotHeight, QWidget * parent = nullptr);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;

@@ -26,6 +26,7 @@ public:
     std::vector <ChannelModel *> getChannels();
     std::vector <bool> getSelectedChannels();
     std::vector <uint16_t> getSelectedChannelsIndexes();
+    std::vector <ChannelAndName> getChannelsAndNames();
 };
 
 
