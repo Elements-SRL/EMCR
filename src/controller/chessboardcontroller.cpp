@@ -1,14 +1,15 @@
 #include "chessboardcontroller.h"
 
-ChessboardController::ChessboardController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
+ChessboardController::ChessboardController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
+    appStatus(appStatus),
     mainWindow(mainWindow) {
 
     chessboard = new ChessboardDockWidget(msgDisp);;
 
-    stampPlotConsumer = new GapFreePlotConsumer(msgDisp, producer);
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
-    msgDisp->getChannels(channels);
+    stampPlotConsumer = plotConsumer;
+    voltageChannelsNum = appStatus->getVoltageChannelsNum();
+    currentChannelsNum = appStatus->getCurrentChannelsNum();
+    channels = appStatus->getChannels();
     int idealPlotWidth = chessboard->getIdealPlotWidth();
     int idealPlotHeight = chessboard->getIdealPlotHeight();
 
@@ -88,10 +89,7 @@ void ChessboardController::clearCurves() {
 }
 
 void ChessboardController::channelsTurnedOnOff(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
-
-    for (auto channelIdx : selectedChannels) {
+    for (auto channelIdx : appStatus->getSelectedChannels()) {
         if (flag) {
             plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
 
@@ -102,10 +100,7 @@ void ChessboardController::channelsTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::stimuliTurnedOnOff(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
-
-    for (auto channelIdx : selectedChannels) {
+    for (auto channelIdx : appStatus->getSelectedChannels()) {
         if (flag) {
             plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
 
@@ -116,10 +111,7 @@ void ChessboardController::stimuliTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::docTurnedOnOff(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
-
-    for (auto channelIdx : selectedChannels) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->addState(StampPlot::StateOffsetCompensation);
 
@@ -130,10 +122,7 @@ void ChessboardController::docTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::tracesExpandedOnOff(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
-
-    for (auto channelIdx : selectedChannels) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
 
@@ -191,8 +180,7 @@ void ChessboardController::onReplot() {
 }
 
 void ChessboardController::onSelectedPlotsUpdated() {
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
+    auto selectedChannels = appStatus->getSelectedChannels();
     for(int i = 0; i < currentChannelsNum; i++){
         plots[i]->setSelected(selectedChannels[i]);
     }

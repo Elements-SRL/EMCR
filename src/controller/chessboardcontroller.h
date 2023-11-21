@@ -8,12 +8,13 @@
 #include "messagedispatcher.h"
 #include <QMouseEvent>
 #include "plotconsumer.h"
+#include "application_status.h"
 
 class ChessboardController : public QObject {
     Q_OBJECT
 
 public:
-    ChessboardController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    ChessboardController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~ChessboardController();
 
     void clearCurves();
@@ -40,7 +41,7 @@ public slots:
 //    void onBackgroundColorChanged(QColor color);
 
 private:
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus;
     MainWindow * mainWindow = nullptr;
     ChessboardDockWidget * chessboard = nullptr;
     GapFreePlotConsumer * stampPlotConsumer = nullptr;

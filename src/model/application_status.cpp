@@ -46,3 +46,16 @@ std::vector <ChannelModel *> ApplicationStatus::getChannels(){
     msgDisp->getChannels(channels);
     return channels;
 }
+
+std::vector <bool> ApplicationStatus::getSelectedChannels(){
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    return selectedChannels;
+
+};
+
+std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    return selectedChannels;
+};
