@@ -1,15 +1,16 @@
 #include "chessboardcontroller.h"
 
-ChessboardController::ChessboardController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
+ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
-
-    chessboard = new ChessboardDockWidget(msgDisp);;
 
     stampPlotConsumer = plotConsumer;
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     channels = appStatus->getChannels();
+
+    chessboard = new ChessboardDockWidget(voltageChannelsNum, currentChannelsNum, appStatus->getBoardsNum(), mainWindow);;
+
     int idealPlotWidth = chessboard->getIdealPlotWidth();
     int idealPlotHeight = chessboard->getIdealPlotHeight();
 

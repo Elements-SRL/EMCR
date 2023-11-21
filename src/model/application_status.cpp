@@ -34,12 +34,20 @@ void ApplicationStatus::loadChannelMappingFromYaml(std::string pathTofile) {
 }
 
 int ApplicationStatus::getVoltageChannelsNum(){
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
     return voltageChannelsNum;
 };
 
 int ApplicationStatus::getCurrentChannelsNum(){
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
     return currentChannelsNum;
 };
+
+int ApplicationStatus::getBoardsNum(){
+    msgDisp->getBoardsNumberFeatures(boardsNum);
+    return boardsNum;
+};
+
 
 std::vector <ChannelModel *> ApplicationStatus::getChannels(){
     std::vector <ChannelModel *> channels;

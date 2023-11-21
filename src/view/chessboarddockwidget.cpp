@@ -5,17 +5,17 @@
 #include <QApplication>
 #include "globaldefines.h"
 
-ChessboardDockWidget::ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
-    QDockWidget(parent),
-    msgDisp(msgDisp) {
+ChessboardDockWidget::ChessboardDockWidget(int voltageChannelsNum, int currentChannelsNum, int boardsNum, QWidget * parent) :
+    QDockWidget(parent) {
 
     this->setObjectName("chessboard");
 
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
-    msgDisp->getBoardsNumberFeatures(boardsNum);
+    this->voltageChannelsNum = voltageChannelsNum;
+    this->currentChannelsNum = currentChannelsNum;
+    this->boardsNum = boardsNum;
     channelsPerBoard = currentChannelsNum/boardsNum;
 
-    QWidget * mainWg = new QWidget();
+    QWidget * mainWg = new QWidget(parent);
     mainWg->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setWindowTitle("Channels overview");
     this->setWidget(mainWg);

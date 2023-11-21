@@ -136,7 +136,7 @@ void MainController::onMainWindowCreated() {
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
     bigPlotController = new BigPlotController(applicationStatus, bigPlotConsumer, defaultPlotDuration, mainWindow);
-    chessboardController = new ChessboardController(msgDisp, applicationStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
+    chessboardController = new ChessboardController(applicationStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
     multipleChannelController = new MultipleChannelController(msgDisp, mainWindow);

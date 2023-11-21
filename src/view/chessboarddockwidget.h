@@ -15,15 +15,13 @@ class ChessboardDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    ChessboardDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
+    ChessboardDockWidget(int voltageChannelsNum, int currentChannelsNum, int boardsNum, QWidget * parent = nullptr);
 
     void addPlot(StampPlot * plot, int channelIdx);
     int getIdealPlotWidth();
     int getIdealPlotHeight();
 
 private:
-    MessageDispatcher * msgDisp = nullptr;
-
     QGridLayout * mainGl = nullptr;
 
     MyLeftRightMousePushButton * allChannelsSelector = nullptr;

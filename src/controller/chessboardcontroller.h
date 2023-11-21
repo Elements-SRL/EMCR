@@ -14,7 +14,7 @@ class ChessboardController : public QObject {
     Q_OBJECT
 
 public:
-    ChessboardController(MessageDispatcher * msgDisp, ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    ChessboardController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~ChessboardController();
 
     void clearCurves();
