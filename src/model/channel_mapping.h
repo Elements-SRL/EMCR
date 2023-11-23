@@ -6,10 +6,8 @@
 
 namespace YAML {
 typedef struct ChannelMapping {
-    int originalChannelIndex;
-    std::string originalChannelName;
-    int newChannelIndex;
-    std::string newChannelName;
+    int index;
+    std::string name;
     double x;
     double y;
     bool visible;
@@ -19,10 +17,8 @@ template<>
 struct convert<ChannelMapping>{
     static Node encode(const ChannelMapping& rhs) {
         Node node;
-        node["original_ch_index"] = rhs.originalChannelIndex;
-        node["original_ch_name"] = rhs.originalChannelName;
-        node["new_ch_index"] = rhs.newChannelIndex;
-        node["new_ch_name"] = rhs.newChannelName;
+        node["index"] = rhs.index;
+        node["name"] = rhs.name;
         node["x"] = rhs.x;
         node["y"] = rhs.y;
         node["visible"] = rhs.visible;
@@ -30,13 +26,11 @@ struct convert<ChannelMapping>{
     }
 
     static bool decode(const Node& node, ChannelMapping& rhs) {
-        if(node.size() != 7) {
+        if(node.size() != 5) {
             return false;
         }
-        rhs.originalChannelIndex = node["original_ch_index"].as<int>();
-        rhs.originalChannelName = node["original_ch_name"].as<std::string>();
-        rhs.newChannelIndex = node["new_ch_index"].as<int>();
-        rhs.newChannelName = node["new_ch_name"].as<std::string>();
+        rhs.index = node["index"].as<int>();
+        rhs.name = node["name"].as<std::string>();
         rhs.x = node["x"].IsNull()?NULL:node["x"].as<double>();
         rhs.y = node["y"].IsNull()?NULL:node["x"].as<double>();
         rhs.visible = node["visible"].as<bool>();
