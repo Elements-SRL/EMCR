@@ -39,12 +39,13 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
 
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         /*! buttare in una funzioncina di creazione del plot*/
-        StampPlot * plot = new StampPlot(channelIdx, std::to_string(channelIdx), idealPlotWidth, idealPlotHeight);
+        const auto chIdxToDisplay = channelIdx + 1;
+        StampPlot * plot = new StampPlot(channelIdx, std::to_string(chIdxToDisplay), idealPlotWidth, idealPlotHeight);
         plot->setFixedSize(idealPlotWidth, idealPlotHeight);
         plot->setToolTip(QString("Ch %1\n"
                                  "Left click: exclusive select\n"
                                  "CTRL + Left click: append\n"
-                                 "Right click: deselect").arg(channelIdx+1));
+                                 "Right click: deselect").arg(chIdxToDisplay));
         plot->setSelected(false);
 
         plots[channelIdx] = plot;
