@@ -17,15 +17,37 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
     plots.resize(currentChannelsNum);
     currentCurves.resize(currentChannelsNum);
 
-//    for(auto chAndName: appStatus->getChannelsAndNames()){
+    for(auto mapping: appStatus->getMappings()){
+        /*! buttare in una funzioncina di creazione del plot*/
+        const auto name = mapping.name;
+        const auto channelIdx = mapping.index;
+        const auto visibility = mapping.visible;
+        StampPlot * plot = new StampPlot(channelIdx, name, idealPlotWidth, idealPlotHeight, chessboard);
+        plot->setFixedSize(idealPlotWidth, idealPlotHeight);
+        plot->setToolTip(QString("Ch %1\n"
+                                 "Left click: exclusive select\n"
+                                 "CTRL + Left click: append\n"
+                                 "Right click: deselect").arg(QString::fromStdString(name)));
+        plot->setSelected(false);
+
+        plots[channelIdx] = plot;
+        plot->setVisible(visibility);
+        Curve * curve = new Curve(CurveType_t::CurveTypeStampPlotSolid);
+        curve->attach(plot);
+        currentCurves[channelIdx] = curve;
+
+        chessboard->addPlot(plot, channelIdx);
+    };
+
+//    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
 //        /*! buttare in una funzioncina di creazione del plot*/
-//        auto channelIdx = chAndName.channelIndex;
-//        StampPlot * plot = new StampPlot(channelIdx, chAndName.name, idealPlotWidth, idealPlotHeight);
+//        const auto chIdxToDisplay = channelIdx + 1;
+//        StampPlot * plot = new StampPlot(channelIdx, std::to_string(chIdxToDisplay), idealPlotWidth, idealPlotHeight);
 //        plot->setFixedSize(idealPlotWidth, idealPlotHeight);
 //        plot->setToolTip(QString("Ch %1\n"
 //                                 "Left click: exclusive select\n"
 //                                 "CTRL + Left click: append\n"
-//                                 "Right click: deselect").arg(QString::fromStdString(chAndName.name)));
+//                                 "Right click: deselect").arg(chIdxToDisplay));
 //        plot->setSelected(false);
 
 //        plots[channelIdx] = plot;
@@ -35,27 +57,7 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
 //        currentCurves[channelIdx] = curve;
 
 //        chessboard->addPlot(plot, channelIdx);
-//    };
-
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        /*! buttare in una funzioncina di creazione del plot*/
-        const auto chIdxToDisplay = channelIdx + 1;
-        StampPlot * plot = new StampPlot(channelIdx, std::to_string(chIdxToDisplay), idealPlotWidth, idealPlotHeight);
-        plot->setFixedSize(idealPlotWidth, idealPlotHeight);
-        plot->setToolTip(QString("Ch %1\n"
-                                 "Left click: exclusive select\n"
-                                 "CTRL + Left click: append\n"
-                                 "Right click: deselect").arg(chIdxToDisplay));
-        plot->setSelected(false);
-
-        plots[channelIdx] = plot;
-
-        Curve * curve = new Curve(CurveType_t::CurveTypeStampPlotSolid);
-        curve->attach(plot);
-        currentCurves[channelIdx] = curve;
-
-        chessboard->addPlot(plot, channelIdx);
-    }
+//    }
 
 //    setting initial values for stampPlotConsumer
     stampPlotConsumer->onDurationChanged(defaultDuration);

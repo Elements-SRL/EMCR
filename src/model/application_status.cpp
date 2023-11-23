@@ -11,12 +11,11 @@ ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string fi
         loadChannelMappingFromYaml(filepath);
     } else {
 //        else populate it with default values from the commlib
-        channelsAndNames.clear();
         std::vector <ChannelModel *> channels;
         msgDisp->getChannels(channels);
         for (auto ch: channels){
             auto chIdx = ch->getId();
-            channelsAndNames.push_back({chIdx, std::to_string(chIdx)});
+            mappings.push_back({chIdx, std::to_string(chIdx + 1), NULL, NULL, true});
         }
     }
 }
@@ -26,11 +25,7 @@ void ApplicationStatus::loadChannelMappingFromYaml(std::string pathTofile) {
     if (yamlNode.IsSequence()){
         std::cout << yamlNode << std::endl;
     }
-    channelMappings = yamlNode.as<std::vector<YAML::ChannelMapping>>();
-    channelsAndNames.clear();
-    for(auto &cm: channelMappings){
-        channelsAndNames.push_back({cm.originalChannelIndex, cm.newChannelName});
-    }
+    mappings = yamlNode.as<std::vector<YAML::ChannelMapping>>();
 }
 
 int ApplicationStatus::getVoltageChannelsNum(){
@@ -68,7 +63,6 @@ std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
     return selectedChannels;
 };
 
-std::vector <ChannelAndName> ApplicationStatus::getChannelsAndNames(){
-    return channelsAndNames;
+std::vector <YAML::ChannelMapping> ApplicationStatus::getMappings(){
+    return mappings;
 };
-
