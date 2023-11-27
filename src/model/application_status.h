@@ -26,6 +26,7 @@ public:
     std::vector <bool> getSelectedChannels();
     std::vector <uint16_t> getSelectedChannelsIndexes();
     std::vector <YAML::ChannelMapping> getMappings();
+    std::set <int> getVisibleBoards();
 
 };
 

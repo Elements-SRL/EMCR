@@ -9,7 +9,7 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     channels = appStatus->getChannels();
 
-    chessboard = new ChessboardDockWidget(voltageChannelsNum, currentChannelsNum, appStatus->getBoardsNum(), mainWindow);;
+    chessboard = new ChessboardDockWidget(appStatus, mainWindow);;
 
     int idealPlotWidth = chessboard->getIdealPlotWidth();
     int idealPlotHeight = chessboard->getIdealPlotHeight();

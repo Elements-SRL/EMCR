@@ -66,3 +66,14 @@ std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
 std::vector <YAML::ChannelMapping> ApplicationStatus::getMappings(){
     return mappings;
 };
+
+std::set <int> ApplicationStatus::getVisibleBoards(){
+    std::set <int> visibleBoards;
+    auto chPerBoard = currentChannelsNum/boardsNum;
+    for (auto m: getMappings()){
+        if (m.visible){
+            visibleBoards.insert(round(m.index/chPerBoard));
+        }
+    }
+    return visibleBoards;
+}
