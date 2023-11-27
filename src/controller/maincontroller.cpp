@@ -127,6 +127,7 @@ void MainController::onMainWindowCreated() {
     \***************/
 
     auto applicationStatus = new ApplicationStatus(msgDisp);
+//    auto applicationStatus = new ApplicationStatus(msgDisp, "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml");
 
     /***************\
      * Controllers *
