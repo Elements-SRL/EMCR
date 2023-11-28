@@ -2,7 +2,6 @@
 #define CHESSBOARDCONTROLLER_H
 
 #include <QObject>
-
 #include "chessboarddockwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
@@ -40,6 +39,8 @@ public slots:
     void onCurrentColorChanged(int channelIdx, QColor color);
 //    void onBackgroundColorChanged(QColor color);
 
+    void onBoardMappingLoaded(QString filepath);
+
 private:
     ApplicationStatus * appStatus;
     MainWindow * mainWindow = nullptr;
@@ -54,6 +55,7 @@ private:
     int voltageChannelsNum;
     int currentChannelsNum;
     void onSetConsumerStatus(bool status);
+    void updateChessboard();
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);

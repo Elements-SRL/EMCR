@@ -264,6 +264,7 @@ void MainController::onMainWindowCreated() {
     connect(mainWindow, &MainWindow::debugInitialization, this, [=] () {
         msgDisp->initializeDevice();
     });
+    connect(mainWindow, &MainWindow::sigBoardMappingFileChoosen, chessboardController, &ChessboardController::onBoardMappingLoaded);
 
     connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, this, [=] (double value) {
         if (value > 1.0e6) {

@@ -210,3 +210,24 @@ void ChessboardController::onCurrentColorChanged(int channelIdx, QColor color) {
 //        plot->setCanvasBackground(color);
 //    }
 //}
+
+void ChessboardController::onBoardMappingLoaded(QString filepath) {
+    appStatus->loadChannelMappingFromYaml(filepath.toStdString());
+    updateChessboard();
+    appStatus->setAllChannelsSelected(false);
+}
+
+void ChessboardController::updateChessboard(){
+    const auto mappings = appStatus->getMappings();
+    for(int i = 0; i<appStatus->getCurrentChannelsNum(); i++){
+        const auto mapping = mappings[i];
+        const auto name = mapping.name;
+//        const auto channelIdx = mapping.index;
+        const auto visibility = mapping.visible;
+        plots[i]->setSelected(false);
+        plots[i]->setVisible(visibility);
+        plots[i]->setName(name);
+    }
+    const auto visibleBoards = appStatus->getVisibleBoards();
+    chessboard->updateBoardMappings(visibleBoards);
+}

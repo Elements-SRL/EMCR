@@ -43,7 +43,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
         allChannelsSelector->setFixedSize(maxButtonWidth, maxButtonHeight);
         connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &ChessboardDockWidget::sigAllChannelsClicked);
 
-        mainGl->addWidget(allChannelsSelector, 1, 0);
+        mainGl->addWidget(allChannelsSelector, 1, 0, Qt::AlignCenter);
     }
 
     if (boardsNum > 1 && channelsPerBoard > 1) {
@@ -56,7 +56,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
                 emit sigOneBoardClicked(boardIdx, selected);
             });
 
-            mainGl->addWidget(btn, 1, boardIdx+1);
+            mainGl->addWidget(btn, 1, boardIdx+1, Qt::AlignCenter);
             boardSelectors[boardIdx] = btn;
         }
 
@@ -69,19 +69,11 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
                 emit sigOneRowClicked(rowIdx, selected);
             });
 
-            mainGl->addWidget(btn, rowIdx+2, 0);
+            mainGl->addWidget(btn, rowIdx+2, 0, Qt::AlignCenter);
             rowSelectors[rowIdx] = btn;
         }
     }
-    auto visibleBoards = appStatus->getVisibleBoards();
 
-    for (int i=0; i<boardSelectors.size(); i++) {
-        auto it = visibleBoards.find(i);
-//      The element is not present in the set, so we can hide it
-        if (it == visibleBoards.end()) {
-            boardSelectors[i]->setVisible(false);
-        }
-    }
 }
 
 void ChessboardDockWidget::addPlot(StampPlot * plot, int channelIdx) {
@@ -115,4 +107,12 @@ int ChessboardDockWidget::getIdealPlotHeight() {
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
     return  qRound((screenGeometry.height() * SCREEN_PERCENTAGE_HEIGHT) / (channelsPerBoard + 1));
+}
+
+void ChessboardDockWidget::updateBoardMappings(std::set <int> visibleBoards){
+    for (int i=0; i<boardSelectors.size(); i++) {
+        auto it = visibleBoards.find(i);
+//      The element is not present in the set, so we can hide it
+        boardSelectors[i]->setVisible(it != visibleBoards.end());
+    }
 }

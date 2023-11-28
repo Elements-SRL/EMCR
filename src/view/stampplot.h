@@ -39,6 +39,7 @@ public:
     void addState(States_t newState);
     void removeState(States_t newState);
     void setLegendColor(QColor colot);
+    void setName(std::string name);
 
 public slots:
     void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);

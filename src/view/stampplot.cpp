@@ -178,3 +178,17 @@ void StampPlot::setLegendColor(QColor color) {
     symbol->setSize(QSize(10, 10));    // Set the size of the block
     colorMarker->setSymbol(symbol);  // Use the setSymbol method to set the symbol
 }
+
+void StampPlot::setName(std::string name){
+    QwtText text;
+    text.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
+    text.setColor(Qt::white);
+    QFont font;
+    font.setPointSize(7);
+    text.setText(QString("%1").fromStdString(name));
+    channelIdxLbl->setText(text);
+    channelIdxLbl->setFont(font);
+    channelIdxLbl->setMargin(0);
+    channelIdxLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+}
+

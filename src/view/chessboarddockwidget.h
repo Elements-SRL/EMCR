@@ -24,6 +24,7 @@ public:
     void addPlot(StampPlot * plot, int channelIdx);
     int getIdealPlotWidth();
     int getIdealPlotHeight();
+    void updateBoardMappings(std::set <int> visibleBoards);
 
 private:
     QGridLayout * mainGl = nullptr;

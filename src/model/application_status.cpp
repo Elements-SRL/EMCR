@@ -22,10 +22,11 @@ ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string fi
 
 void ApplicationStatus::loadChannelMappingFromYaml(std::string pathTofile) {
     YAML::Node yamlNode = YAML::LoadFile(pathTofile);
-    if (yamlNode.IsSequence()){
-        std::cout << yamlNode << std::endl;
-    }
     mappings = yamlNode.as<std::vector<YAML::ChannelMapping>>();
+}
+
+void ApplicationStatus::setAllChannelsSelected(bool state){
+    msgDisp->setAllChannelsSelected(state);
 }
 
 int ApplicationStatus::getVoltageChannelsNum(){
