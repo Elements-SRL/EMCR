@@ -61,10 +61,8 @@ void SingleChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
 }
 
 void SingleChannelController::onAllChannelsClicked(bool newState) {
-    clickBehaviour(newState);
-//    TODO deleteme
-    auto msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->setAllChannelsSelected(newState);
+    clickBehaviour(newState);    
+    setSelectedStatus(appStatus->getVisibleChannels());
     singleChannelControlsDw->onUpdate();
 }
 void SingleChannelController::clickBehaviour(bool newState){
