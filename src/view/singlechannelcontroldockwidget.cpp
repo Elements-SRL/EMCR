@@ -237,9 +237,8 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     operationWidgets[idx] = new QWidget;
     QVBoxLayout * scrollVl = getLayoutWithScrollBar(operationWidgets[idx]);
 
-    std::vector <bool> selectedChannels;
+    auto selectedChannels = appStatus->getSelectedChannels();
     auto msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->getSelectedChannels(selectedChannels);
 
     operationEdits[idx].resize(currentChannelsNum);
     std::vector <RangedMeasurement_t> ranges;
@@ -260,13 +259,14 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     }
 
     QString unit = QString().fromStdString(ranges[0].getFullUnit());
+    auto names = appStatus->getNames();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         MySpinBox * sbx = new MySpinBox;
         sbx->setSuffix(QString(" ") + unit);
         sbx->setRange(ranges[0].min, ranges[0].max);
         sbx->setValue(0.0);
         sbx->setDecimals(ranges[0].decimals());
-        SpinBoxWithChannel * widget = new SpinBoxWithChannel(channelIdx, sbx);
+        SpinBoxWithChannel * widget = new SpinBoxWithChannel(names[channelIdx], sbx);
         widget->setVisible(selectedChannels[channelIdx]);
 
         scrollVl->addWidget(widget);
@@ -310,7 +310,7 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     setAllChannelsSbxs[idx]->setRange(ranges[0].min, ranges[0].max);
     setAllChannelsSbxs[idx]->setValue(0.0);
     setAllChannelsSbxs[idx]->setDecimals(ranges[0].decimals());
-    setAllWidgets[idx] = new SpinBoxWithChannel(QString(""), setAllChannelsSbxs[idx]);
+    setAllWidgets[idx] = new SpinBoxWithChannel("", setAllChannelsSbxs[idx]);
     QPushButton * setAllBtn = new QPushButton("Set all channels");
     connect(setAllBtn, &QPushButton::clicked, this, &SingleChannelControlDockWidget::onSetAllButtonClicked);
     operationButtonGridLayout->addWidget(setAllWidgets[idx], 0, 1);
@@ -363,12 +363,20 @@ void SingleChannelControlDockWidget::setLiquidJunctionVoltages(std::vector <Meas
     }
 }
 
-SpinBoxWithChannel::SpinBoxWithChannel(int idx, MySpinBox * sbx) :
-    SpinBoxWithChannel(QString().fromStdString("Ch %1").arg(idx+1), sbx) {
-
+void SingleChannelControlDockWidget::onBoardMappingsLoaded(){
+    auto names = appStatus->getNames();
+    for (int opIdx=0; opIdx<OperationsNum; opIdx++) {
+         if (operationEdits[opIdx].size() > 0) {
+            for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                auto sbwc = static_cast <SpinBoxWithChannel *> (operationEdits[opIdx][channelIdx]);
+                sbwc->setName(names[channelIdx]);
+                sbwc->setVisible(false);
+            }
+        }
+    }
 }
 
-SpinBoxWithChannel::SpinBoxWithChannel(QString title, MySpinBox * sbx) :
+SpinBoxWithChannel::SpinBoxWithChannel(std::string title, MySpinBox * sbx) :
     valueSbx(sbx) {
 
     QHBoxLayout * hl = new QHBoxLayout;
@@ -376,7 +384,7 @@ SpinBoxWithChannel::SpinBoxWithChannel(QString title, MySpinBox * sbx) :
     hl->setSpacing(1);
     this->setLayout(hl);
 
-    channelLbl = new QLabel(title);
+    channelLbl = new QLabel(QString::fromStdString(title));
     hl->addWidget(channelLbl);
 
     hl->addWidget(sbx);
@@ -385,3 +393,8 @@ SpinBoxWithChannel::SpinBoxWithChannel(QString title, MySpinBox * sbx) :
 MySpinBox * SpinBoxWithChannel::getSpinBox() {
     return valueSbx;
 }
+
+void SpinBoxWithChannel::setName(std::string name){
+    channelLbl->setText(QString::fromStdString(name));
+}
+

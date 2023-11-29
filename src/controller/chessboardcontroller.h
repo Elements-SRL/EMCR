@@ -23,6 +23,7 @@ public:
     void docTurnedOnOff(bool flag);
     void tracesExpandedOnOff(bool flag);
     PlotConsumer * getPlotConsumer();
+    void onBoardMappingLoaded();
 
 public slots:
     void onChannelsTurnedOnOff(bool flag);
@@ -38,8 +39,6 @@ public slots:
     void onCurrentColorsChanged(QVector <QColor> colors);
     void onCurrentColorChanged(int channelIdx, QColor color);
 //    void onBackgroundColorChanged(QColor color);
-
-    void onBoardMappingLoaded(QString filepath);
 
 private:
     ApplicationStatus * appStatus;

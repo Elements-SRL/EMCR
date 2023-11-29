@@ -206,3 +206,7 @@ void SingleChannelController::setSelectedStatus(std::vector<int> channelIndexes,
     }
     appStatus->setSelectedChannels(channelsAndStatus);
 }
+
+void SingleChannelController::onBoardMappingLoaded(){
+    singleChannelControlsDw->onBoardMappingsLoaded();
+}

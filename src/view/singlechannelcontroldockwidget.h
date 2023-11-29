@@ -19,6 +19,7 @@ class SingleChannelControlDockWidget : public QDockWidget {
 public:
     SingleChannelControlDockWidget(ApplicationStatus * appStatus, QWidget * parent = nullptr);
     void setLiquidJunctionVoltages(std::vector <Measurement_t> voltages);
+    void onBoardMappingsLoaded();
 
 public slots:
     void onUpdate();
@@ -80,9 +81,8 @@ class SpinBoxWithChannel : public QWidget {
     Q_OBJECT
 
 public:
-    SpinBoxWithChannel(int idx, MySpinBox * sbx);
-    SpinBoxWithChannel(QString title, MySpinBox * sbx);
-
+    SpinBoxWithChannel(std::string title, MySpinBox * sbx);
+    void setName(std::string title);
     MySpinBox * getSpinBox();
 
 private:

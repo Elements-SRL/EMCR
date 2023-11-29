@@ -211,8 +211,7 @@ void ChessboardController::onCurrentColorChanged(int channelIdx, QColor color) {
 //    }
 //}
 
-void ChessboardController::onBoardMappingLoaded(QString filepath) {
-    appStatus->loadChannelMappingFromYaml(filepath.toStdString());
+void ChessboardController::onBoardMappingLoaded() {
     updateChessboard();
     appStatus->setAllChannelsSelected(false);
 }

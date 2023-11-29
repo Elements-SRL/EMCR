@@ -126,7 +126,8 @@ void MainController::onMainWindowCreated() {
      * Model *
     \***************/
 
-    auto applicationStatus = new ApplicationStatus(msgDisp);
+    appStatus = new ApplicationStatus(msgDisp);
+
 //    auto applicationStatus = new ApplicationStatus(msgDisp, "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml");
 
     /***************\
@@ -136,12 +137,12 @@ void MainController::onMainWindowCreated() {
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
-    bigPlotController = new BigPlotController(applicationStatus, bigPlotConsumer, defaultPlotDuration, mainWindow);
-    chessboardController = new ChessboardController(applicationStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
+    bigPlotController = new BigPlotController(appStatus, bigPlotConsumer, defaultPlotDuration, mainWindow);
+    chessboardController = new ChessboardController(appStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
     multipleChannelController = new MultipleChannelController(msgDisp, mainWindow);
-    singleChannelController = new SingleChannelController(applicationStatus, mainWindow);
+    singleChannelController = new SingleChannelController(appStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
     measurementOverviewController = new MeasurementOverviewController(msgDisp, deviceDataProducer, mainWindow);
@@ -264,7 +265,11 @@ void MainController::onMainWindowCreated() {
     connect(mainWindow, &MainWindow::debugInitialization, this, [=] () {
         msgDisp->initializeDevice();
     });
-    connect(mainWindow, &MainWindow::sigBoardMappingFileChoosen, chessboardController, &ChessboardController::onBoardMappingLoaded);
+    connect(mainWindow, &MainWindow::sigBoardMappingFileChoosen, this, [=](QString filepath) {
+        appStatus->loadChannelMappingFromYaml(filepath.toStdString());
+        chessboardController->onBoardMappingLoaded();
+        singleChannelController->onBoardMappingLoaded();
+    });
 
     connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, this, [=] (double value) {
         if (value > 1.0e6) {

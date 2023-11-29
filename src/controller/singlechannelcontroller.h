@@ -17,7 +17,7 @@ class SingleChannelController : public QObject {
 public:
     SingleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow);
     ~SingleChannelController();
-
+    void onBoardMappingLoaded();
 private:
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;

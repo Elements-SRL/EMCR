@@ -127,3 +127,11 @@ void ApplicationStatus::setSelectedChannels(std::map<int, bool> channelAndStatus
 MessageDispatcher * ApplicationStatus::getMessageDispatcher(){
     return msgDisp;
 }
+
+std::vector<std::string> ApplicationStatus::getNames(){
+    std::vector<std::string> names;
+    for(auto m: getMappings()){
+        names.push_back(m.name);
+    }
+    return names;
+}
