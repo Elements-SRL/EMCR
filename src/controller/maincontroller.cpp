@@ -141,7 +141,7 @@ void MainController::onMainWindowCreated() {
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
     multipleChannelController = new MultipleChannelController(msgDisp, mainWindow);
-    singleChannelController = new SingleChannelController(msgDisp, mainWindow);
+    singleChannelController = new SingleChannelController(applicationStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
     measurementOverviewController = new MeasurementOverviewController(msgDisp, deviceDataProducer, mainWindow);

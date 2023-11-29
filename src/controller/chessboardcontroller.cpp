@@ -93,7 +93,7 @@ void ChessboardController::clearCurves() {
 }
 
 void ChessboardController::channelsTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannels()) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
 
@@ -104,7 +104,7 @@ void ChessboardController::channelsTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::stimuliTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannels()) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
 

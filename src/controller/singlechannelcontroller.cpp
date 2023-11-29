@@ -2,11 +2,11 @@
 #include "singlechannelcontroldockwidget.h"
 #include "mainwindow.h"
 
-SingleChannelController::SingleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
+SingleChannelController::SingleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
+    appStatus(appStatus),
     mainWindow(mainWindow) {
 
-    singleChannelControlsDw = new SingleChannelControlDockWidget(msgDisp);
+    singleChannelControlsDw = new SingleChannelControlDockWidget(appStatus, mainWindow);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedHoldValues, this, &SingleChannelController::onApplyHoldValues);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedStimHalfValues, this, &SingleChannelController::onApplyStimHalfValues);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigLiquidJunctionValues, this, &SingleChannelController::onLiquidJunctionValues);
@@ -28,10 +28,10 @@ SingleChannelController::~SingleChannelController(){
 void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
     bool newState = event->button() == Qt::LeftButton;
     clickBehaviour(newState);
+    auto msgDisp = appStatus->getMessageDispatcher();
     if (newState) {
         // slightly inefficient
-        std::vector<uint16_t> selectedIndexes;
-        msgDisp->getSelectedChannelsIndexes(selectedIndexes);
+        auto selectedIndexes = appStatus->getSelectedChannelsIndexes();
         bool isChSelected = false;
         for (auto idx: selectedIndexes){
             if (idx == chIdx){
@@ -49,18 +49,21 @@ void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent
 
 void SingleChannelController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
     clickBehaviour(newState);
-    msgDisp->setBoardSelected(brdIdx, newState);
+    setSelectedStatus(appStatus->getVisibleChannelsOnBoard(brdIdx));
     singleChannelControlsDw->onUpdate();
 }
 
 void SingleChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
     clickBehaviour(newState);
-    msgDisp->setRowSelected(rowIdx, newState);
+//    TODO deleteme
+    setSelectedStatus(appStatus->getVisibleChannelsOnRow(rowIdx));
     singleChannelControlsDw->onUpdate();
 }
 
 void SingleChannelController::onAllChannelsClicked(bool newState) {
     clickBehaviour(newState);
+//    TODO deleteme
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->setAllChannelsSelected(newState);
     singleChannelControlsDw->onUpdate();
 }
@@ -70,20 +73,25 @@ void SingleChannelController::clickBehaviour(bool newState){
         return;
     }
     // Ctrl key is pressed
+    //    TODO deleteme
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->setAllChannelsSelected(false);
 }
 
 
 void SingleChannelController::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->enableStimulus(channelIndexes, onValues, true);
 }
 
 void SingleChannelController::onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->digitalOffsetCompensation(channelIndexes, onValues, true);
 }
 
 void SingleChannelController::onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> holdValues){
     ClampingModality_t mode;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
@@ -96,6 +104,7 @@ void SingleChannelController::onApplyHoldValues(std::vector<uint16_t> channelInd
 
 void SingleChannelController::onApplyStimHalfValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> halfValues){
     ClampingModality_t mode;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
@@ -108,6 +117,7 @@ void SingleChannelController::onApplyStimHalfValues(std::vector<uint16_t> channe
 
 void SingleChannelController::onLiquidJunctionValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> values){
     ClampingModality_t mode;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
@@ -117,6 +127,7 @@ void SingleChannelController::onLiquidJunctionValues(std::vector<uint16_t> chann
 
 void SingleChannelController::onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
     ClampingModality_t mode;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
     std::vector<std::vector<double>> compValueMatrix;
     std::vector<RangedMeasurement> cfastFeatures;
@@ -178,16 +189,23 @@ void SingleChannelController::onCompensationApplied(std::vector<uint16_t> channe
 }
 
 void SingleChannelController::onLiquidJunctionResult(){
-    uint16_t currentChannelsNum;
-    uint16_t voltageChannelsNum;
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    uint16_t currentChannelsNum = appStatus->getCurrentChannelsNum();
     std::vector <uint16_t> channelIdxs(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         channelIdxs[idx] = idx;
     }
 
     std::vector <Measurement_t> stdVoltages;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getLiquidJunctionVoltages(channelIdxs, stdVoltages);
 
     singleChannelControlsDw->setLiquidJunctionVoltages(stdVoltages);
+}
+
+void SingleChannelController::setSelectedStatus(std::vector<int> channelIndexes){
+    std::map<int, bool> channelsAndStatus;
+    for(auto chIdx: channelIndexes){
+        channelsAndStatus[chIdx] = true;
+    }
+    appStatus->setSelectedChannels(channelsAndStatus);
 }

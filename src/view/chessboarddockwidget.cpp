@@ -115,4 +115,5 @@ void ChessboardDockWidget::updateBoardMappings(std::set <int> visibleBoards){
 //      The element is not present in the set, so we can hide it
         boardSelectors[i]->setVisible(it != visibleBoards.end());
     }
+    emit sigAllChannelsClicked(false);
 }

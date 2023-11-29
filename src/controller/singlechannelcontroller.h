@@ -6,6 +6,7 @@
 
 #include "singlechannelcontroldockwidget.h"
 #include "mainwindow.h"
+#include "application_status.h"
 #include "messagedispatcher.h"
 #include <QMouseEvent>
 #include <QApplication>
@@ -14,14 +15,16 @@ class SingleChannelController : public QObject {
     Q_OBJECT
 
 public:
-    SingleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    SingleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow);
     ~SingleChannelController();
 
 private:
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     SingleChannelControlDockWidget * singleChannelControlsDw = nullptr;
     void clickBehaviour(bool newState);
+    void setSelectedStatus(std::vector<int>);
+
 public slots:
     // To do on actions done on the chessboard
     void onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event);

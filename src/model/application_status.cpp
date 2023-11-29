@@ -44,7 +44,6 @@ int ApplicationStatus::getBoardsNum(){
     return boardsNum;
 };
 
-
 std::vector <ChannelModel *> ApplicationStatus::getChannels(){
     std::vector <ChannelModel *> channels;
     msgDisp->getChannels(channels);
@@ -68,13 +67,63 @@ std::vector <YAML::ChannelMapping> ApplicationStatus::getMappings(){
     return mappings;
 };
 
+std::vector <int> ApplicationStatus::getVisibleChannelsOnBoard(int boardIdx){
+    std::vector <ChannelModel *> channels;
+    msgDisp->getChannelsOnBoard(boardIdx, channels);
+    std::vector<int> channelIndexes;
+    for (auto &ch: channels){
+        channelIndexes.push_back(ch->getId());
+    }
+    return filterVisibleChannels(channelIndexes);
+}
+
+std::vector <int> ApplicationStatus::getVisibleChannelsOnRow(int rowIdx){
+    std::vector <ChannelModel *> channels;
+    msgDisp->getChannelsOnRow(rowIdx, channels);
+    std::vector<int> channelIndexes;
+    for (auto &ch: channels){
+        channelIndexes.push_back(ch->getId());
+    }
+    return filterVisibleChannels(channelIndexes);
+}
+
 std::set <int> ApplicationStatus::getVisibleBoards(){
     std::set <int> visibleBoards;
     auto chPerBoard = currentChannelsNum/boardsNum;
-    for (auto m: getMappings()){
+    for (auto &m: getMappings()){
         if (m.visible){
             visibleBoards.insert(round(m.index/chPerBoard));
         }
     }
     return visibleBoards;
+}
+
+std::vector <int> ApplicationStatus::getVisibleChannels(){
+    std::vector <int> visibleChannels;
+    for (auto &m: getMappings()){
+        if (m.visible){
+            visibleChannels.push_back(m.index);
+        }
+    }
+    return visibleChannels;
+}
+
+std::vector<int> ApplicationStatus::filterVisibleChannels(std::vector<int> channelInexes){
+    std::vector<int> results;
+    for(auto &i: channelInexes){
+        if(mappings[i].visible){
+            results.push_back(i);
+        }
+    }
+    return results;
+}
+
+void ApplicationStatus::setSelectedChannels(std::map<int, bool> channelAndStatus){
+    for(auto ch: channelAndStatus){
+        msgDisp->setChannelSelected(ch.first, ch.second);
+    }
+}
+
+MessageDispatcher * ApplicationStatus::getMessageDispatcher(){
+    return msgDisp;
 }

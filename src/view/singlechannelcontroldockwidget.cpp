@@ -3,11 +3,11 @@
 #include <QScrollBar>
 #include <QScrollArea>
 
-SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
+SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus * appStatus, QWidget * parent) :
     QDockWidget(parent),
-    msgDisp(msgDisp) {
+    appStatus(appStatus) {
 
-    QWidget * mainWg = new QWidget();
+    QWidget * mainWg = new QWidget(parent);
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWindowTitle("Single channel controls");
     setObjectName("singleChannelControlsDw");
@@ -17,8 +17,8 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
     mainVl->setContentsMargins(0, 0, 0, 0);
     mainVl->setSpacing(1);
     mainWg->setLayout(mainVl);
-
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    voltageChannelsNum = appStatus->getVoltageChannelsNum();
+    currentChannelsNum = appStatus->getCurrentChannelsNum();
 
     operationTitles.resize(OperationsNum);
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
@@ -41,7 +41,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(MessageDispatcher
 
     buildOperation(mainVl, OperationHoldingStimulus, true);
     buildOperation(mainVl, OperationLiquidJunction);
-
+    auto msgDisp = appStatus->getMessageDispatcher();
     //    change this to OperationStimulusHalf
     if (msgDisp->hasStimulusHalf() == Success){
         buildOperation(mainVl, OperationStimulusHalf);
@@ -76,6 +76,7 @@ void SingleChannelControlDockWidget::buildOperation(QLayout * layout, int operat
 
 void SingleChannelControlDockWidget::onUpdate() {
     std::vector <bool> selectedChannels;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getSelectedChannels(selectedChannels);
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(selectedChannels[channelIdx]);
@@ -90,6 +91,7 @@ void SingleChannelControlDockWidget::onApplyButtonClicked() {
 void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool applyAll) {
     std::vector <bool> selectedChannels(currentChannelsNum, true);
     if (!applyAll) {
+        auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->getSelectedChannels(selectedChannels);
     }
     SpinBoxWithChannel * sbx;
@@ -126,6 +128,7 @@ void SingleChannelControlDockWidget::onAllButtonClicked(bool newState) {
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
     std::vector <bool> selectedChannels;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getSelectedChannels(selectedChannels);
     for (int i = 0; i<selectedChannels.size(); i++) {
         cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
@@ -140,6 +143,7 @@ void SingleChannelControlDockWidget::onSetAllButtonClicked() {
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
     std::vector <bool> selectedChannels;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getSelectedChannels(selectedChannels);
     for (int i = 0; i < selectedChannels.size(); i++) {
         spinBox = static_cast <SpinBoxWithChannel *> (operationEdits[operationCbx->currentIndex()][i]);
@@ -151,6 +155,7 @@ void SingleChannelControlDockWidget::onSetAllButtonClicked() {
 /** \todo MPAC recheck se devi modificare anche questo per Stimulus Half */
 void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getVoltageHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
@@ -194,6 +199,7 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
 /** \todo MPAC recheck se devi modificare anche questo per Stimulus Half */
 void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getCurrentHoldTunerFeatures(ranges);
     holdingTunerRange = ranges[idx];
     QString unit = QString().fromStdString(holdingTunerRange.getFullUnit());
@@ -234,6 +240,7 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     QVBoxLayout * scrollVl = getLayoutWithScrollBar(operationWidgets[idx]);
 
     std::vector <bool> selectedChannels;
+    auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getSelectedChannels(selectedChannels);
 
     operationEdits[idx].resize(currentChannelsNum);
@@ -278,6 +285,7 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx] = new QWidget;
     std::vector <RangedMeasurement_t> ranges;
+    auto msgDisp = appStatus->getMessageDispatcher();
 
     switch (idx) {
     case OperationHoldingStimulus:
