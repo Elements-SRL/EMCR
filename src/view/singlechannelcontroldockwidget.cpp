@@ -75,9 +75,7 @@ void SingleChannelControlDockWidget::buildOperation(QLayout * layout, int operat
 }
 
 void SingleChannelControlDockWidget::onUpdate() {
-    std::vector <bool> selectedChannels;
-    auto msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->getSelectedChannels(selectedChannels);
+    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(selectedChannels[channelIdx]);
     }
