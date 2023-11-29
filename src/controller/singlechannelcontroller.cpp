@@ -49,20 +49,19 @@ void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent
 
 void SingleChannelController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
     clickBehaviour(newState);
-    setSelectedStatus(appStatus->getVisibleChannelsOnBoard(brdIdx));
+    setSelectedStatus(appStatus->getVisibleChannelsOnBoard(brdIdx), newState);
     singleChannelControlsDw->onUpdate();
 }
 
 void SingleChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
     clickBehaviour(newState);
-//    TODO deleteme
-    setSelectedStatus(appStatus->getVisibleChannelsOnRow(rowIdx));
+    setSelectedStatus(appStatus->getVisibleChannelsOnRow(rowIdx), newState);
     singleChannelControlsDw->onUpdate();
 }
 
 void SingleChannelController::onAllChannelsClicked(bool newState) {
     clickBehaviour(newState);    
-    setSelectedStatus(appStatus->getVisibleChannels());
+    setSelectedStatus(appStatus->getVisibleChannels(), newState);
     singleChannelControlsDw->onUpdate();
 }
 void SingleChannelController::clickBehaviour(bool newState){
@@ -200,10 +199,10 @@ void SingleChannelController::onLiquidJunctionResult(){
     singleChannelControlsDw->setLiquidJunctionVoltages(stdVoltages);
 }
 
-void SingleChannelController::setSelectedStatus(std::vector<int> channelIndexes){
+void SingleChannelController::setSelectedStatus(std::vector<int> channelIndexes, bool newStatus){
     std::map<int, bool> channelsAndStatus;
     for(auto chIdx: channelIndexes){
-        channelsAndStatus[chIdx] = true;
+        channelsAndStatus[chIdx] = newStatus;
     }
     appStatus->setSelectedChannels(channelsAndStatus);
 }

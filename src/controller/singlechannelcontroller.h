@@ -23,7 +23,7 @@ private:
     MainWindow * mainWindow = nullptr;
     SingleChannelControlDockWidget * singleChannelControlsDw = nullptr;
     void clickBehaviour(bool newState);
-    void setSelectedStatus(std::vector<int>);
+    void setSelectedStatus(std::vector<int>, bool);
 
 public slots:
     // To do on actions done on the chessboard
