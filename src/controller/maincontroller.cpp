@@ -114,19 +114,19 @@ void MainController::onMainWindowCreated() {
     consumers.clear();
     dataWriterConsumers.clear();
 
-    /************\
-     * Producer *
-    \************/
-
-    deviceDataProducer = new DeviceDataProducer(msgDisp);
-    auto bigPlotConsumer = new GapFreePlotConsumer(msgDisp, deviceDataProducer);
-    auto stampPlotConsumer =  new GapFreePlotConsumer(msgDisp, deviceDataProducer);
-
     /***************\
      * Model *
     \***************/
 
     appStatus = new ApplicationStatus(msgDisp);
+
+    /************\
+     * Producer *
+    \************/
+
+    deviceDataProducer = new DeviceDataProducer(appStatus);
+    auto bigPlotConsumer = new GapFreePlotConsumer(appStatus, deviceDataProducer);
+    auto stampPlotConsumer =  new GapFreePlotConsumer(appStatus, deviceDataProducer);
 
 //    auto applicationStatus = new ApplicationStatus(msgDisp, "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml");
 
@@ -145,7 +145,7 @@ void MainController::onMainWindowCreated() {
     singleChannelController = new SingleChannelController(appStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(msgDisp, mainWindow);
-    measurementOverviewController = new MeasurementOverviewController(msgDisp, deviceDataProducer, mainWindow);
+    measurementOverviewController = new MeasurementOverviewController(appStatus, deviceDataProducer, mainWindow);
     plotPreferencesController = new PlotPreferencesController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {
         voltageProtocolManager = new ProtocolManager(msgDisp);
@@ -166,14 +166,14 @@ void MainController::onMainWindowCreated() {
     \*************/
     consumers.append(chessboardController->getPlotConsumer());
     consumers.append(bigPlotController->getGapFreePlotConsumer());
-    abfDataWriterConsumer = new AbfDataWriterConsumer(msgDisp, deviceDataProducer);
+    abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
     consumers.append(measurementOverviewController->getLiveStatisticsConsumer());
 
     mainWindow->addViewActions();
 
-    calibratorConsumer = new CalibrationConsumer(msgDisp, deviceDataProducer);
+    calibratorConsumer = new CalibrationConsumer(appStatus, deviceDataProducer);
     consumers.append(calibratorConsumer);
 
     /***********\
@@ -269,6 +269,7 @@ void MainController::onMainWindowCreated() {
         appStatus->loadChannelMappingFromYaml(filepath.toStdString());
         chessboardController->onBoardMappingLoaded();
         singleChannelController->onBoardMappingLoaded();
+        measurementOverviewController->boardMappingsLoaded();
     });
 
     connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, this, [=] (double value) {

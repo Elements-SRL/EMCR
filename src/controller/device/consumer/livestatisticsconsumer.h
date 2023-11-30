@@ -4,7 +4,7 @@
 #define LSC_MIN_INTERVAL_S 1.0
 #define LSC_MIN_BATCH_INTERVAL_S 0.1
 
-#include "messagedispatcher.h"
+#include "application_status.h"
 #include "devicedataconsumer.h"
 #include "statisticsresult.h"
 #include "statisticsresult.h"
@@ -15,7 +15,7 @@ class LiveStatisticsConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
+    LiveStatisticsConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~LiveStatisticsConsumer();
 
 public slots:

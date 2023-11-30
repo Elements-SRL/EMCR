@@ -2,8 +2,8 @@
 
 #include <QTime>
 
-PlotConsumer::PlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
-    DeviceDataConsumer(msgDisp, producer) {
+PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+    DeviceDataConsumer(appStatus, producer) {
 
     voltageRange.prefix = UnitPfxNone;
     currentRange.prefix = UnitPfxNone;
@@ -97,8 +97,7 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
 }
 
 void PlotConsumer::onSelectChannels(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), flag);
     bool wasThisRunning = this->isRunning();
     if (wasThisRunning) {
@@ -201,8 +200,8 @@ void PlotConsumer::updateRangeAxis() {
     }
 }
 
-GapFreePlotConsumer::GapFreePlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
-    PlotConsumer(msgDisp, producer) {
+GapFreePlotConsumer::GapFreePlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+    PlotConsumer(appStatus, producer) {
 
     this->allocateData();
     this->updateTimeAxis();

@@ -51,7 +51,7 @@ public:
     void updateActiveChannels(std::vector<int> newActiveChannels);
     void setLiquidJunctionResult(QVector <Measurement_t> result);
     void onLiveStatisticsResult(StatisticsResult * result);
-
+    void boardMappingLoaded(std::vector<std::string> names);
 public slots:
     void onUpdate();
 

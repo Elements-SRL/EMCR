@@ -5,7 +5,7 @@
 
 #include "mainwindow.h"
 #include "measurementsoverviewdockwidget.h"
-#include "messagedispatcher.h"
+#include "application_status.h"
 #include "measurementoverviewmodel.h"
 #include "livestatisticsconsumer.h"
 
@@ -14,9 +14,10 @@ class MeasurementOverviewController : public QObject {
     Q_OBJECT
 
 public:
-    MeasurementOverviewController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, MainWindow * mainWindow);
+    MeasurementOverviewController(ApplicationStatus * appStatus, DeviceDataProducer * producer, MainWindow * mainWindow);
     ~MeasurementOverviewController();
     LiveStatisticsConsumer * getLiveStatisticsConsumer();
+    void boardMappingsLoaded();
 public slots:
     void onChannelsUpdated();
     void onExportLiveNoiseEstimates();
@@ -24,7 +25,7 @@ public slots:
     void onLiveStatisticsResults(StatisticsResult * result);
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     MeasurementsOverviewDockWidget * modw = nullptr;
     MeasurementOverviewModel * modm = nullptr;

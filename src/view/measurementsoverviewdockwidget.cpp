@@ -218,3 +218,9 @@ void MeasurementsOverviewDockWidget::applyTextFromMeasurements(const std::vector
         widgets[i]->setText(QString::fromStdString(meas[i].niceLabel()));
     }
 }
+
+void MeasurementsOverviewDockWidget::boardMappingLoaded(std::vector<std::string> names){
+    for (int i=0; i <currentChannels; i++) {
+        activeChannelsLabels[i]->setText(QString::fromStdString(names[i]));
+    }
+}

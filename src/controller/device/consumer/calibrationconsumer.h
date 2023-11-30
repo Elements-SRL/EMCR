@@ -15,13 +15,13 @@
 #include <QMutex>
 #include <QMutexLocker>
 
-#include "messagedispatcher.h"
+#include "application_status.h"
 #include "devicedataconsumer.h"
 
 class CalibrationConsumer : public DeviceDataConsumer {
     Q_OBJECT
 public:
-    CalibrationConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
+    CalibrationConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~CalibrationConsumer();
 
     void loadInitialCalibParams(QString path, QString mappingFileName);

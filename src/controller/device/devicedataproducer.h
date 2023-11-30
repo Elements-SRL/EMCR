@@ -7,7 +7,7 @@
 #include <QWaitCondition>
 #include <QTimer>
 
-#include "messagedispatcher.h"
+#include "application_status.h"
 
 #define DDP_MAX_SAMPLES_FOR_BUFFER 0x2000000 // 32M
 #define DDP_MAX_WAIT_COUNT (10)
@@ -18,7 +18,7 @@ class DeviceDataProducer : public QThread {
     Q_OBJECT
 
 public:
-    DeviceDataProducer(MessageDispatcher * msgDisp, QObject * parent = nullptr);
+    DeviceDataProducer(ApplicationStatus * appStatus, QObject * parent = nullptr);
     virtual ~DeviceDataProducer();
 
     unsigned int getDataPacketsBufferLen();
@@ -31,7 +31,7 @@ protected:
     virtual void run() override;
 
 private:
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;

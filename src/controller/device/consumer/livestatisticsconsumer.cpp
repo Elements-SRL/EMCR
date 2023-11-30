@@ -5,8 +5,8 @@
 #include <QDir>
 #include <QTextStream>
 
-LiveStatisticsConsumer::LiveStatisticsConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
-    DeviceDataConsumer(msgDisp, producer) {
+LiveStatisticsConsumer::LiveStatisticsConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+    DeviceDataConsumer(appStatus, producer) {
 
     analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
 }
