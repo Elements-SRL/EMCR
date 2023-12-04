@@ -4,8 +4,8 @@
 
 #include "globaldefines.h"
 
-DataWriterConsumer::DataWriterConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
-    DeviceDataConsumer(msgDisp, producer) {
+DataWriterConsumer::DataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+    DeviceDataConsumer(appStatus, producer) {
 
     activeChannels.resize(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
@@ -221,8 +221,7 @@ void DataWriterConsumer::manageConsumptionEnd() {
 //}
 
 void DataWriterConsumer::computeSamples() {
-    std::vector<bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
+    std::vector<bool> selectedChannels = appStatus->getSelectedChannels();
     activeChannelsNum = 0;
     for(auto v: selectedChannels){
         if (v){

@@ -49,6 +49,12 @@ MainWindow::MainWindow(QWidget * parent) :
     menuPreferences->addAction(actionPlotPreferences);
     actionPlotPreferences->setEnabled(false);
 
+    actionBoardMapping = new QAction("Board mappings");
+    menuPreferences->addAction(actionBoardMapping);
+    actionBoardMapping->setEnabled(false);
+
+    connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
+
     /************\
      * settings *
     \************/
@@ -290,6 +296,16 @@ void MainWindow::setPlotPreferencesDialog(PlotPreferencesDialog * ppd) {
     connect(actionPlotPreferences, &QAction::triggered, plotPreferencesDlg, &PlotPreferencesDialog::exec);
 }
 
+void MainWindow::onBoardMappingPressed(){
+    QString filePath = QFileDialog::getOpenFileName(this, "Choose Board Mapping File", QDir::homePath(), "YAML Files (*.yaml *.yml)");
+    if (!filePath.isEmpty()){
+        emit sigBoardMappingFileChoosen(filePath);
+    }
+//    else {
+//        QMessageBox::critical(this, "Invalid Board Mapping", "The file you chose is not a valid board mapping. Please try again.", QMessageBox::Ok);
+//    }
+}
+
 void MainWindow::addViewActions() {
     for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
         menuView->addAction(dockWidgets[dockIdx]->toggleViewAction());
@@ -464,6 +480,8 @@ void MainWindow::createGuiControls() {
 
     actionRecordingSettings->setEnabled(true);
     actionPlotPreferences->setEnabled(true);
+//    TODO maybe activate it only for devices with more then N channels
+    actionBoardMapping->setEnabled(true);
     this->addViewActions();
 
     this->restoreUISettings();
@@ -481,6 +499,7 @@ void MainWindow::destroyGuiControls() {
     this->removeViewActions();
     actionRecordingSettings->setEnabled(false);
     actionPlotPreferences->setEnabled(false);
+    actionBoardMapping->setEnabled(false);
 
     if (protocolDw != nullptr){
         delete protocolDw;

@@ -13,20 +13,28 @@ private:
     int currentChannelsNum;
     int boardsNum;
     MessageDispatcher * msgDisp;
+    std::vector<int> filterVisibleChannels(std::vector<int>);
 
 public:
     ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath = "");
     ~ApplicationStatus();
     void loadChannelMappingFromYaml(std::string pathTofile);
+    void setAllChannelsSelected(bool state);
     void printEverything();
     int getVoltageChannelsNum();
     int getCurrentChannelsNum();
     int getBoardsNum();
     std::vector <ChannelModel *> getChannels();
+    void setSelectedChannels(std::map<int, bool>);
+    std::vector <int> getVisibleChannelsOnBoard(int boardIdx);
+    std::vector <int> getVisibleChannelsOnRow(int rowIdx);
     std::vector <bool> getSelectedChannels();
     std::vector <uint16_t> getSelectedChannelsIndexes();
     std::vector <YAML::ChannelMapping> getMappings();
-
+    std::set <int> getVisibleBoards();
+    MessageDispatcher * getMessageDispatcher();
+    std::vector <int> getVisibleChannels();
+    std::vector<std::string> getNames();
 };
 
 

@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "messagedispatcher.h"
+#include "application_status.h"
 #include "myspinbox.h"
 #include "errormanager.h"
 
@@ -17,8 +17,9 @@ class SingleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    SingleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
+    SingleChannelControlDockWidget(ApplicationStatus * appStatus, QWidget * parent = nullptr);
     void setLiquidJunctionVoltages(std::vector <Measurement_t> voltages);
+    void onBoardMappingsLoaded();
 
 public slots:
     void onUpdate();
@@ -36,7 +37,7 @@ private:
         OperationsNum
     } Operations_t;
 
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus = nullptr;
 
     QVector <QString> operationTitles;
 
@@ -80,9 +81,8 @@ class SpinBoxWithChannel : public QWidget {
     Q_OBJECT
 
 public:
-    SpinBoxWithChannel(int idx, MySpinBox * sbx);
-    SpinBoxWithChannel(QString title, MySpinBox * sbx);
-
+    SpinBoxWithChannel(std::string title, MySpinBox * sbx);
+    void setName(std::string title);
     MySpinBox * getSpinBox();
 
 private:

@@ -2,7 +2,6 @@
 #define CHESSBOARDCONTROLLER_H
 
 #include <QObject>
-
 #include "chessboarddockwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
@@ -24,6 +23,7 @@ public:
     void docTurnedOnOff(bool flag);
     void tracesExpandedOnOff(bool flag);
     PlotConsumer * getPlotConsumer();
+    void onBoardMappingLoaded();
 
 public slots:
     void onChannelsTurnedOnOff(bool flag);
@@ -54,6 +54,7 @@ private:
     int voltageChannelsNum;
     int currentChannelsNum;
     void onSetConsumerStatus(bool status);
+    void updateChessboard();
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);

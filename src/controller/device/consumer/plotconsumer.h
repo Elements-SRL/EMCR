@@ -14,7 +14,7 @@ class PlotConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    PlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
+    PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~PlotConsumer();
 
     void forceAxisUpdate();
@@ -94,7 +94,7 @@ class GapFreePlotConsumer : public PlotConsumer {
     Q_OBJECT
 
 public:
-    GapFreePlotConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
+    GapFreePlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~GapFreePlotConsumer();
 
 protected:

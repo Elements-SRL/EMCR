@@ -3,7 +3,7 @@
 
 #include <QThread>
 
-#include "messagedispatcher.h"
+#include "application_status.h"
 #include "devicedataproducer.h"
 #include "e384commlib_global.h"
 
@@ -11,7 +11,7 @@ class DeviceDataConsumer : public QThread {
     Q_OBJECT
 
 public:
-    DeviceDataConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer);
+    DeviceDataConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~DeviceDataConsumer();
 
 public slots:
@@ -25,7 +25,7 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) = 0;
 
 protected:
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus = nullptr;
     DeviceDataProducer * producer = nullptr;
     DataHook * hook = nullptr;
 

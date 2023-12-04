@@ -1,6 +1,9 @@
 #ifndef CHESSBOARDDOCKWIDGET_H
 #define CHESSBOARDDOCKWIDGET_H
 
+#define SCREEN_PERCENTAGE_HEIGHT 0.75
+#define SCREEN_PERCENTAGE_WIDTH 0.6
+
 #include <QDockWidget>
 #include <QPushButton>
 
@@ -10,16 +13,18 @@
 #include "channeloverviewwidget.h"
 #include "messagedispatcher.h"
 #include <QMouseEvent>
+#include "application_status.h"
 
 class ChessboardDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
-    ChessboardDockWidget(int voltageChannelsNum, int currentChannelsNum, int boardsNum, QWidget * parent = nullptr);
+    ChessboardDockWidget(ApplicationStatus * appStatus, QWidget * parent = nullptr);
 
     void addPlot(StampPlot * plot, int channelIdx);
     int getIdealPlotWidth();
     int getIdealPlotHeight();
+    void updateBoardMappings(std::set <int> visibleBoards);
 
 private:
     QGridLayout * mainGl = nullptr;
@@ -32,8 +37,8 @@ private:
     int currentChannelsNum;
     int boardsNum;
     int channelsPerBoard;
-    int idealPlotHeight;
-    int idealPlotWidth;
+//    int idealPlotHeight;
+//    int idealPlotWidth;
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);

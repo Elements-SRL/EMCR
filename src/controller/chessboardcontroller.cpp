@@ -9,7 +9,7 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     channels = appStatus->getChannels();
 
-    chessboard = new ChessboardDockWidget(voltageChannelsNum, currentChannelsNum, appStatus->getBoardsNum(), mainWindow);;
+    chessboard = new ChessboardDockWidget(appStatus, mainWindow);;
 
     int idealPlotWidth = chessboard->getIdealPlotWidth();
     int idealPlotHeight = chessboard->getIdealPlotHeight();
@@ -93,7 +93,7 @@ void ChessboardController::clearCurves() {
 }
 
 void ChessboardController::channelsTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannels()) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
 
@@ -104,7 +104,7 @@ void ChessboardController::channelsTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::stimuliTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannels()) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
 
@@ -210,3 +210,23 @@ void ChessboardController::onCurrentColorChanged(int channelIdx, QColor color) {
 //        plot->setCanvasBackground(color);
 //    }
 //}
+
+void ChessboardController::onBoardMappingLoaded() {
+    updateChessboard();
+    appStatus->setAllChannelsSelected(false);
+}
+
+void ChessboardController::updateChessboard(){
+    const auto mappings = appStatus->getMappings();
+    for(int i = 0; i<appStatus->getCurrentChannelsNum(); i++){
+        const auto mapping = mappings[i];
+        const auto name = mapping.name;
+//        const auto channelIdx = mapping.index;
+        const auto visibility = mapping.visible;
+        plots[i]->setSelected(false);
+        plots[i]->setVisible(visibility);
+        plots[i]->setName(name);
+    }
+    const auto visibleBoards = appStatus->getVisibleBoards();
+    chessboard->updateBoardMappings(visibleBoards);
+}

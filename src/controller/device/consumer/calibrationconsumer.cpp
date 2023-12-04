@@ -4,12 +4,13 @@
 
 #include <QTime>
 
-CalibrationConsumer::CalibrationConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
-    DeviceDataConsumer(msgDisp, producer){
+CalibrationConsumer::CalibrationConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+    DeviceDataConsumer(appStatus, producer){
 
     std::vector <Measurement_t> aaa;
 
     std::string tempString;
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getCalibMappingFileDir(tempString);
     calibrationFilesFolder = QString().fromStdString(tempString);
 
@@ -133,6 +134,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
     CalibrationParams_t calibrationParams;
     std::vector<std::string> calibrationFileNames;
     std::vector<std::vector<bool>> calibLoadOkFlags;
+    const auto msgDisp = appStatus->getMessageDispatcher();
     ErrorCodes_t error = msgDisp->getCalibParams(calibrationParams);
     msgDisp->getCalibFileNames(calibrationFileNames);
     msgDisp->getCalibFilesFlags(calibLoadOkFlags);
@@ -237,6 +239,7 @@ void CalibrationConsumer::updateCalibParams(){
         calibParamsForMesDis.ccAllOffsetAdcMeas = ccAllOffsetAdcMeas;
         calibParamsForMesDis.ccAllGainDacMeas =   ccAllGainDacMeas;
         calibParamsForMesDis.ccAllOffsetDacMeas = ccAllOffsetDacMeas;
+        const auto msgDisp = appStatus->getMessageDispatcher();
 
         msgDisp->setCalibParams(calibParamsForMesDis);
 
@@ -319,6 +322,7 @@ void CalibrationConsumer::onModelCellChanged(bool modelCellChanged){
 void CalibrationConsumer::run(){
     consumptionStopped = false;
     exitedDataConsumingLoop = false;
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getChannels(channels);
 
 //    totalChannelsUnderCalibNum = 2*channelToCalibIdxs.size();
@@ -349,6 +353,7 @@ void CalibrationConsumer::run(){
             break;
         }
         consumptionLock.unlock();
+        const auto msgDisp = appStatus->getMessageDispatcher();
 
         /*! seleziona la più bassa sampling rate possibile*/
         std::vector <Measurement_t> samplingRates;
@@ -681,6 +686,7 @@ void CalibrationConsumer::leastSquareSimple(std::vector<double> x, std::vector<d
 void CalibrationConsumer::calibrateAdcGain(int thisActualRangeIdx){
     /*! Representation of voltage steps without any prefix, ...*/
     std::vector<double> x; /*! voltage steps*/
+    const auto msgDisp = appStatus->getMessageDispatcher();
     x.resize(calibrationVoltSteps[thisActualRangeIdx].size());
     for(int i = 0; i< calibrationVoltSteps[thisActualRangeIdx].size(); i++){
         x[i] = calibrationVoltSteps[thisActualRangeIdx][i].getNoPrefixValue();
@@ -794,6 +800,7 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
     /*!  applico  0V ai canali selezionati*/
     std::vector<Measurement_t> someVoltSteps;
     std::vector<uint16_t> channelIndexes;
+    const auto msgDisp = appStatus->getMessageDispatcher();
 
     for(int i = 0; i < channelToCalibIdxs.size(); i++){
         channelIndexes.push_back(i);
@@ -880,6 +887,7 @@ void CalibrationConsumer::calibrateAdcOffset(RangedMeasurement_t thisActualRange
 }
 
 void CalibrationConsumer::calibrateDacGain(){
+    const auto msgDisp = appStatus->getMessageDispatcher();
     std::vector<double> usefulDacGain;
     std::vector<Measurement> gains;
     std::vector<uint16_t> channelIndexes;
@@ -918,6 +926,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
        channels[channelToCalibIdxs[i]]->setVhold({0.0, UnitPfxMilli, "V"});
        needsFurtherCalibration[i] = true;
     }
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
 
     /*! accende lo stimolo e attacca gli switch di ingresso su tutti i canali  o su quelli della scheda selezionata*/
@@ -985,6 +994,7 @@ void CalibrationConsumer::calibrateDacOffset(RangedMeasurement_t thisActualRange
         for(auto v: usefulDacOffset){
             offsets.push_back({v, UnitPfx::UnitPfxNano, "V"});
         }
+        const auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->setCalibVcVoltageOffset(channelIndexes, offsets, true);
 
         /*! mandi via messageDispatcher i valori aggiornati di voltage step per vedere se la lettura sui canali mi diventa finalmetne 0 */
@@ -1022,6 +1032,7 @@ void CalibrationConsumer::calibrateCcAdcGain(int thisActualRangeIdx){
             someVoltSteps.push_back(ccCalibrationVoltSteps[thisActualRangeIdx][voltStepIdx]);
            channels[channelToCalibIdxs[i]]->setVhold(ccCalibrationVoltSteps[thisActualRangeIdx][voltStepIdx]);
         }
+        const auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->setVoltageHoldTuner(channelToCalibIdxs, someVoltSteps, true);
 
         /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
@@ -1127,6 +1138,7 @@ void CalibrationConsumer::calibrateCcDacGain(int thisActualRangeIdx){
             someCurrSteps.push_back(ccCalibrationCurrSteps[thisActualRangeIdx][currStepIdx]);
            //channels[channelToCalibIdxs[i]]->setChold(ccCalibrationCurrSteps[thisActualRangeIdx][currStepIdx]);
         }
+        const auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
 
         /*! prende dati per 1s, basandosi sulla sampling rate di calibrazione, i.e. la più bassa. E.g. almeno 7500 o 5000 campioni, verrà fuori una matrice dove
@@ -1221,6 +1233,7 @@ void CalibrationConsumer::calibrateCcAdcOffset(RangedMeasurement_t thisActualRan
         someCurrSteps.push_back({0.0, UnitPfxNano, "A"});
        //channels[channelToCalibIdxs[i]]->setChold({0.0, UnitPfxMilli, "V"});
     }
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
 
     /*! accende lo stimolo su tutti i canali  o su quelli della scheda selezionata*/
@@ -1303,6 +1316,7 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
        // channels[channelToCalibIdxs[i]]->setChold({0.0, UnitPfxNano, "A"});
        needsFurtherCalibration[i] = true;
     }
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
 
     /*! accende lo stimolo, i CAL_SW erano stati attaccati fuori dalla funzione*/
@@ -1368,6 +1382,7 @@ void CalibrationConsumer::calibrateCcDacOffset(RangedMeasurement_t thisActualRan
         }
 
         /*! mandi via messageDispatcher i valori aggiornati di voltage step per vedere se la lettura sui canali mi diventa finalmetne 0 */
+        const auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->setCurrentHoldTuner(channelToCalibIdxs, someCurrSteps, true);
 
         buffer.clear(); /*! is resized in getDataChunk()*/
@@ -1417,7 +1432,8 @@ void CalibrationConsumer::turnAllChannelsOnOff(bool onValue) {
                 channelIndexes[i] = i;
                 onValues[i] = onValue;
             }
-            this->msgDisp->turnChannelsOn(channelIndexes, onValues, true);
+            const auto msgDisp = appStatus->getMessageDispatcher();
+            msgDisp->turnChannelsOn(channelIndexes, onValues, true);
 
         } else {
             QString msg;
@@ -1443,7 +1459,8 @@ void CalibrationConsumer::turnAllStimulaOnOff(bool onValue){
         channelIndexes[i] = i;
         onValues[i] = onValue;
     }
-    this->msgDisp->enableStimulus(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->enableStimulus(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
@@ -1452,7 +1469,8 @@ void CalibrationConsumer::turnAllCalSwOnOff(bool){
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
     onValues.resize(currentChannelsNum);
-    this->msgDisp->turnCalSwOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnCalSwOn(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
@@ -1461,7 +1479,8 @@ void CalibrationConsumer::turnAllVcSwOnOff(bool){
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
     onValues.resize(currentChannelsNum);
-    this->msgDisp->turnVcSwOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnVcSwOn(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
@@ -1470,7 +1489,8 @@ void CalibrationConsumer::turnAllCcSwOnOff(bool){
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
     onValues.resize(currentChannelsNum);
-    this->msgDisp->turnCcSwOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnCcSwOn(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
@@ -1479,7 +1499,8 @@ void CalibrationConsumer::turnAllVcCcSelOnOff(bool){
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
     onValues.resize(currentChannelsNum);
-    this->msgDisp->turnVcCcSelOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnVcCcSelOn(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
@@ -1488,7 +1509,8 @@ void CalibrationConsumer::turnAllCcStimulaOnOff(bool){
     std::vector<bool> onValues;
     channelIndexes.resize(currentChannelsNum);
     onValues.resize(currentChannelsNum);
-    this->msgDisp->enableCcStimulus(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->enableCcStimulus(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: vogliamo mettere un Cal_SW anche nelmodelChannle con sua set e get???*/
@@ -1502,7 +1524,8 @@ void CalibrationConsumer::selectSomeChannels(std::vector<uint16_t> channelIndexe
 void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     if (areInputsBeOpened == onValues[0]) {
         if (canInputsBeOpened) {
-            this->msgDisp->turnChannelsOn(channelIndexes, onValues, true);
+            const auto msgDisp = appStatus->getMessageDispatcher();
+            msgDisp->turnChannelsOn(channelIndexes, onValues, true);
             for (int i = 0; i < channelIndexes.size(); i++){
                 channels[channelIndexes[i]]->setOn(onValues[i]);
             }
@@ -1522,7 +1545,8 @@ void CalibrationConsumer::turnSomeChannelsOnOff(std::vector<uint16_t> channelInd
 }
 
 void CalibrationConsumer::turnSomeStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->msgDisp->enableStimulus(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->enableStimulus(channelIndexes, onValues, true);
     for (int i = 0; i < channelIndexes.size(); i++){
         channels[channelIndexes[i]]->setInStimActive(onValues[i]);
     }
@@ -1530,7 +1554,8 @@ void CalibrationConsumer::turnSomeStimulaOnOff(std::vector<uint16_t> channelInde
 
 /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
 void CalibrationConsumer::turnSomeCalSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->msgDisp->turnCalSwOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnCalSwOn(channelIndexes, onValues, true);
 //    for (int i = 0; i < channelIndexes.size(); i++){
 //        channels[channelIndexes[i]]->setInStimActive(onValues[i]);
 //    }
@@ -1538,36 +1563,43 @@ void CalibrationConsumer::turnSomeCalSwOnOff(std::vector<uint16_t> channelIndexe
 
 /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
 void CalibrationConsumer::turnSomeVcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->msgDisp->turnVcSwOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnVcSwOn(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
 void CalibrationConsumer::turnSomeCcSwOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->msgDisp->turnCcSwOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnCcSwOn(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
 void CalibrationConsumer::turnSomeVcCcSelOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->msgDisp->turnVcCcSelOn(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->turnVcCcSelOn(channelIndexes, onValues, true);
 }
 
 /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
 void CalibrationConsumer::turnSomeCcStimulaOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
-    this->msgDisp->enableCcStimulus(channelIndexes, onValues, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->enableCcStimulus(channelIndexes, onValues, true);
 }
 
 void CalibrationConsumer::setSourceForVoltageChannel(uint16_t source){
-    this->msgDisp->setSourceForVoltageChannel(source, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->setSourceForVoltageChannel(source, true);
 }
 
 void CalibrationConsumer::setSourceForCurrentChannel(uint16_t source){
-    this->msgDisp->setSourceForCurrentChannel(source, true);
+    const auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->setSourceForCurrentChannel(source, true);
 }
 
 
 
 void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
     /*! \todo FCON molto specifico per il patch clamp */
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->turnVoltageReaderOn(false, false);
     msgDisp->turnCurrentReaderOn(true, false);
     turnSomeCalSwOnOff(channelIndexes, someTrue);
@@ -1581,6 +1613,7 @@ void CalibrationConsumer::setVcConfiguration(std::vector<uint16_t> channelIndexe
 
 void CalibrationConsumer::setCcConfiguration(std::vector<uint16_t> channelIndexes, std::vector<bool> someTrue, std::vector<bool> someFalse){
     /*! \todo FCON molto specifico per il patch clamp */
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->turnCurrentReaderOn(false, false);
     msgDisp->turnVoltageReaderOn(true, false);
     msgDisp->setDebugBit(0, 7, true);

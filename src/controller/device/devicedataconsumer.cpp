@@ -1,11 +1,11 @@
 #include "devicedataconsumer.h"
 
-DeviceDataConsumer::DeviceDataConsumer(MessageDispatcher * msgDisp, DeviceDataProducer * producer) :
+DeviceDataConsumer::DeviceDataConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     QThread(),
-    msgDisp(msgDisp),
+    appStatus(appStatus),
     producer(producer) {
-
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    voltageChannelsNum = appStatus->getVoltageChannelsNum();
+    currentChannelsNum = appStatus->getCurrentChannelsNum();
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 }
 

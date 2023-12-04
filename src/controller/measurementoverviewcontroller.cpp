@@ -1,17 +1,18 @@
 #include "measurementoverviewcontroller.h"
 
-MeasurementOverviewController::MeasurementOverviewController(MessageDispatcher * msgDisp, DeviceDataProducer * producer, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
+MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus * appStatus, DeviceDataProducer * producer, MainWindow * mainWindow) :
+    appStatus(appStatus),
     mainWindow(mainWindow) {
 
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    voltageChannelsNum = appStatus->getVoltageChannelsNum();
+    currentChannelsNum = appStatus->getCurrentChannelsNum();
     this->getNewActiveChannels(activeChannelsIdxs);
     modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
     modm = new MeasurementOverviewModel(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
     connect(modw, &MeasurementsOverviewDockWidget::extract, this, [=](QString filepath){
         modm->exportToCsv(filepath.toStdString());
     });
-    liveStatisticsConsumer = new LiveStatisticsConsumer(msgDisp, producer);
+    liveStatisticsConsumer = new LiveStatisticsConsumer(appStatus, producer);
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
     connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetConsumerStatus);
 
@@ -64,6 +65,7 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
         }
 
         std::vector <Measurement_t> stdVoltages;
+        auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->getLiquidJunctionVoltages(channelIdxs, stdVoltages);
         QVector <Measurement_t> voltages(currentChannelsNum);
 
@@ -83,8 +85,7 @@ void MeasurementOverviewController::onChannelsUpdated(){
 
 void MeasurementOverviewController::getNewActiveChannels(std::vector <int>& newActiveChannels){
     newActiveChannels.clear();
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
+    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedChannels[channelIdx]){
             newActiveChannels.push_back(channelIdx);
@@ -101,3 +102,7 @@ LiveStatisticsConsumer * MeasurementOverviewController::getLiveStatisticsConsume
     return liveStatisticsConsumer;
 }
 
+void MeasurementOverviewController::boardMappingsLoaded(){
+    modw->boardMappingLoaded(appStatus->getNames());
+    onChannelsUpdated();
+}

@@ -11,9 +11,9 @@ static double ** floatDataSamplesBuffer;
 static double * floatLiquidJunctionBuffer;
 static unsigned int dataPacketsIdx = 0;
 
-DeviceDataProducer::DeviceDataProducer(MessageDispatcher * msgDisp, QObject * parent) :
+DeviceDataProducer::DeviceDataProducer(ApplicationStatus * appStatus, QObject * parent) :
     QThread(parent),
-    msgDisp(msgDisp) {
+    appStatus(appStatus) {
 
     bitRateTmr = new QTimer();
     bitRateTmr->setSingleShot(false);
@@ -21,8 +21,8 @@ DeviceDataProducer::DeviceDataProducer(MessageDispatcher * msgDisp, QObject * pa
     connect(bitRateTmr, &QTimer::timeout, this, &DeviceDataProducer::onComputeBitRate);
     bitRateTmr->start();
     samplesReceived = 0;
-
-    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    voltageChannelsNum = appStatus->getVoltageChannelsNum();
+    currentChannelsNum = appStatus->getCurrentChannelsNum();
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
     dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_SAMPLES_FOR_BUFFER/(double)totalChannelsNum));
@@ -77,6 +77,7 @@ void DeviceDataProducer::onStopProducing() {
             exitedDataProducingLoopCv.wait(&connectionMtx);
         }
     }
+    const auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->deallocateRxDataBuffer(datain);
 }
 
@@ -88,6 +89,7 @@ void DeviceDataProducer::run() {
     exitedDataProducingLoop = false;
 
     ErrorCodes_t ret;
+    const auto msgDisp = appStatus->getMessageDispatcher();
     ret = msgDisp->allocateRxDataBuffer(datain);
     /*! \todo what to do if the memory is not initialized? */
 

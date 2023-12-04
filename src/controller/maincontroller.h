@@ -54,7 +54,7 @@ private:
     void destroyControllers();
 
     MessageDispatcher * msgDisp = nullptr;
-
+    ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
 
     DeviceDetector * deviceDetector = nullptr;
