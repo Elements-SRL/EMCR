@@ -6,6 +6,7 @@
 namespace YAML {
 typedef struct StateArray {
     int initialState = 0;
+    double reactionTimeUs = 0.0;
     std::vector<YAML::State> states = {{}};
 } StateArray_t;
 
@@ -14,6 +15,7 @@ struct convert<StateArray>{
     static Node encode(const StateArray& rhs) {
         Node node;
         node["initialState"] = rhs.initialState;
+        node["reactionTimeUs"] = rhs.reactionTimeUs;
         node["states"] = rhs.states;
         return node;
     }
@@ -23,6 +25,7 @@ struct convert<StateArray>{
             return false;
         }
         rhs.initialState = node["initialState"].as<int>();
+        rhs.reactionTimeUs = node["reactionTimeUs"].as<double>();
         rhs.states = node["states"].as<std::vector<YAML::State>>();
         return true;
     }
@@ -31,6 +34,5 @@ struct convert<StateArray>{
 
 void writeStateArrayToFile(YAML::StateArray, std::string);
 YAML::StateArray readStateArrayFromFile(std::string fname);
-//YAML::StateArray insertState(YAML::StateArray sa, YAML::State s, int idx);
 
 #endif // STATEARRAY_H

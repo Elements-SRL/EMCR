@@ -31,6 +31,7 @@ private:
     QDoubleSpinBox *voltageSpinbox;
     QSpinBox * numberOfStatesSpinbox;
     QSpinBox * initialStateSpinbox;
+    QDoubleSpinBox * reactionTimeSpinbox;
     QCheckBox * activeTimeoutCheckbox;
     QDoubleSpinBox * timeoutDoubleSpinbox;
     QSpinBox * timeoutStateSpinbox;
@@ -57,6 +58,7 @@ signals:
     void sigDeleteButtonPressed(int);
     void sigInsertStateAfter(int);
     void sigInitialStateChanged(int);
+    void sigReactionTimeChanged(double value); /*! us */
     void sigStartButtonPressed();
     void sigTriggerTypeChanged(std::string, int);
     void sigStateArrayCheckBoxClicked(bool, int);

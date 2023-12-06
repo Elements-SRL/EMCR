@@ -46,6 +46,19 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         emit this->sigInitialStateChanged(value);
     });
 
+    QVBoxLayout * reactionTimeLayout = new QVBoxLayout();
+    QLabel * reactionTimeLabel = new QLabel("Reaction time [us]");
+    reactionTimeSpinbox = new QDoubleSpinBox(this);
+    reactionTimeSpinbox->setRange(0.0, 100.0);
+    reactionTimeSpinbox->setValue(0.0);
+    reactionTimeSpinbox->setDecimals(1);
+    reactionTimeLayout->addWidget(reactionTimeLabel);
+    reactionTimeLayout->addWidget(reactionTimeSpinbox);
+    stateArrayConfigurationLayout->addLayout(reactionTimeLayout);
+    connect(reactionTimeSpinbox, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, [=](double value){
+        emit this->sigReactionTimeChanged(value);
+    });
+
     ///////////////// CRUD BUTTONS /////////////////
     QGroupBox *insertDeleteGroupBox = new QGroupBox(this);
     // Create the QHBoxLayout for the checkbox and its label

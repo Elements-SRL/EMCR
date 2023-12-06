@@ -50,9 +50,12 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigInitialStateChanged, this, [=](int idx){
         stateArray.initialState = idx;
     });
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigReactionTimeChanged, this, [=](double value){
+        stateArray.reactionTimeUs = value;
+    });
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigStartButtonPressed, this, [=](){
         auto md = msgDisp;
-        md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState);
+        md->setStateArrayStructure(stateArray.states.size(), stateArray.initialState, {stateArray.reactionTimeUs, UnitPfxMicro, "s"});
         for (int i = 0; i < stateArray.states.size(); i++){
             auto s = stateArray.states[i];
             switch (s.triggerType) {

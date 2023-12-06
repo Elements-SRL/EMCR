@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-void writeStateArrayToFile(YAML::StateArray sa, std::string fname){
+void writeStateArrayToFile(YAML::StateArray sa, std::string fname) {
     YAML::Node node;
     node = sa;
     std::filesystem::path path = std::filesystem::current_path() / fname;
@@ -13,18 +13,12 @@ void writeStateArrayToFile(YAML::StateArray sa, std::string fname){
     file.close();
 };
 
-YAML::StateArray readStateArrayFromFile(std::string fname){
+YAML::StateArray readStateArrayFromFile(std::string fname) {
     std::filesystem::path path = std::filesystem::current_path() / fname;
     if (!std::filesystem::exists(path)){
         std::cout << "No file found" << std::endl;
         return {};
     }
-//    std::ifstream inputFile(path); // Open the file for reading
     YAML::Node node = YAML::LoadFile(path.string());
     return node.as<YAML::StateArray>();
 };
-
-//YAML::StateArray insertState(YAML::StateArray sa, YAML::State s, int idx){
-//    sa.states.insert(sa.states.begin()+idx, s);
-//    return sa;
-//}
