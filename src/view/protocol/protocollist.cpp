@@ -180,7 +180,7 @@ void ProtocolList::contextMenuEvent(QContextMenuEvent * event) {
     menu.exec(event->globalPos());
 }
 
-void ProtocolList::onStartProtocol(bool recordFlag) {
+void ProtocolList::onStartProtocol(bool) {
     if (clampingModality != clampingModalitySet) {
         return;
     }
@@ -209,6 +209,8 @@ void ProtocolList::onStartProtocol(bool recordFlag) {
     }
 
     this->setNullProtocolHolding(protocol);
+
+    this->onStopProtocol();
 
     lastStartedType = protocol->getType();
     emit startProtocolRequest(protocol);
