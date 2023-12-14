@@ -121,7 +121,6 @@ private:
 signals:
     void setDebugBit(int word, int bit, bool flag);
     void setDebugWord(int word, int value);
-    void debugInitialization();
     void sigPerformCalibration(std::vector<std::uint16_t> channelsToCalibrateIdxs);
     void sigModelCellChanged(bool modelCellChanged);
     void sigBoardMappingFileChoosen(QString filename);

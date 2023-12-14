@@ -262,9 +262,6 @@ void MainController::onMainWindowCreated() {
     connect(mainWindow, &MainWindow::setDebugWord, this, [=] (int word, int value) {
         msgDisp->setDebugWord(word, value);
     });
-    connect(mainWindow, &MainWindow::debugInitialization, this, [=] () {
-        msgDisp->initializeDevice();
-    });
     connect(mainWindow, &MainWindow::sigBoardMappingFileChoosen, this, [=](QString filepath) {
         appStatus->loadChannelMappingFromYaml(filepath.toStdString());
         chessboardController->onBoardMappingLoaded();

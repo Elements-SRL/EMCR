@@ -421,10 +421,6 @@ void MainWindow::createGuiControls() {
         emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
     });
 
-    QPushButton * degugInitializeBtn = new QPushButton("Initialize");
-    debugVl->addWidget(degugInitializeBtn);
-    connect(degugInitializeBtn, &QPushButton::clicked, this, &MainWindow::debugInitialization);
-
     /*! ------------------------------------------------------------ */
     calibrationDw = new QDockWidget();
     calibrationDw->setObjectName("calibrationDw");
