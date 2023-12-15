@@ -25,7 +25,7 @@ public slots:
     void onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex);
     void onSamplingRateSelected(uint16_t selectedCcCurrentFilterIndex);
     void onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex);
-    void onClampingModalitySelected(uint16_t selectedClampingModalityIndex);
+    void onClampingModalitySelected(ClampingModality_t mode);
 
 private:
     std::vector<ClampingModality_t> clampingModalities;

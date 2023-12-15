@@ -150,7 +150,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         vLayout->addWidget(this->clampingModalitiesGroupBox);
         for (int idx = 0; idx < clampingModalities.size(); idx++){
             QRadioButton * qrb;
-            switch (clampingModalities[idx]) {
+            ClampingModality_t mode = clampingModalities[idx];
+            switch (mode) {
             case ClampingModality_t::VOLTAGE_CLAMP:
                 qrb = new QRadioButton("Voltage clamp");
                 break;
@@ -164,7 +165,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
             this->clampingModalitiesRadioButtons.push_back(qrb);
             connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
                 if (flag) {
-                    emit sigClampingModalitySelected(idx);
+                    emit sigClampingModalitySelected(mode);
                 }
             });
         }
@@ -186,10 +187,12 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 }
 
 void DeviceControlDockWidget::forceEmit() {
+    std::vector<ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities); /*! \todo LRos si può spostare nell'appstatus */
     for (int idx = 0; idx < clampingModalitiesRadioButtons.size(); idx++) {
         QRadioButton* btn = clampingModalitiesRadioButtons[idx];
         if (btn->isChecked()) {
-            emit sigClampingModalitySelected(idx);
+            emit sigClampingModalitySelected(clampingModalities[idx]);
         }
     }
 

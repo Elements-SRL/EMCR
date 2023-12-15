@@ -44,8 +44,8 @@ DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mai
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigDownsamplingRatioSelected,  this, [=](uint16_t selectedDownSamplingRatioIndex){
         onDownsamplingRatioSelected(selectedDownSamplingRatioIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](uint16_t selectedClampingModalityIndex){
-        onClampingModalitySelected(selectedClampingModalityIndex);
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](ClampingModality_t selectedClampingModality){
+        onClampingModalitySelected(selectedClampingModality);
     });
 
     if (msgDisp->hasProtocols() == Success) {
@@ -162,46 +162,24 @@ void DeviceController::onDownsamplingRatioSelected(uint16_t selectedDownsampling
 }
 // ADC Voltage Filter in CC set by Sampling rate
 
-void DeviceController::onClampingModalitySelected(uint16_t selectedClampingModalityIndex){
-    msgDisp->setClampingModality(selectedClampingModalityIndex, false);
-    ClampingModality_t mode;
-    msgDisp->getClampingModality(mode);
+void DeviceController::onClampingModalitySelected(ClampingModality_t mode){
+    msgDisp->setClampingModality(mode, true);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
-        msgDisp->enableCcCompensations(false);
-        msgDisp->turnCurrentStimulusOn(false, false);
-        msgDisp->turnVoltageReaderOn(false, false);
-        msgDisp->turnCurrentReaderOn(true, false);
-        msgDisp->turnVoltageStimulusOn(true, false);
-        msgDisp->enableVcCompensations(true);
-
-        msgDisp->setSourceForVoltageChannel(0, false);
-        msgDisp->setSourceForCurrentChannel(0, false);
-
         uint32_t idx;
         msgDisp->getVCCurrentRangeIdx(idx);
-        this->onVcCurrentRangeSelected(idx);
+        emit sigVcCurrentRangeSelected(idx);
 
         msgDisp->getVCVoltageRangeIdx(idx);
-        this->onVcVoltageRangeSelected(idx);
+        emit sigVcVoltageRangeSelected(idx);
 
     } else {
-        msgDisp->enableVcCompensations(false);
-        msgDisp->turnVoltageStimulusOn(false, false);
-        msgDisp->turnCurrentReaderOn(false, false);
-        msgDisp->turnVoltageReaderOn(true, false);
-        msgDisp->turnCurrentStimulusOn(true, false);
-        msgDisp->enableCcCompensations(true);
-
-        msgDisp->setSourceForVoltageChannel(1, false);
-        msgDisp->setSourceForCurrentChannel(1, false);
-
         uint32_t idx;
         msgDisp->getCCCurrentRangeIdx(idx);
-        this->onCcCurrentRangeSelected(idx);
+        emit sigCcCurrentRangeSelected(idx);
 
         msgDisp->getCCVoltageRangeIdx(idx);
-        this->onCcVoltageRangeSelected(idx);
+        emit sigCcVoltageRangeSelected(idx);
     }
 
     emit sigClampingModalitySelected(mode);
