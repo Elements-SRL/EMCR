@@ -19,7 +19,8 @@ public:
 
     void setState(YAML::State, int);
     void setStateChecboxesRanges(int min, int max);
-    void setStateCount(int count);    
+    void setStateCount(int count);
+    void setReactiontimeUs(double t);
     void setInitialState(int);
     void setRanges(int minVoltage, int maxVoltage, int minCurrent, int maxCurrent);
 

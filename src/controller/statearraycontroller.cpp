@@ -145,5 +145,6 @@ void StateArrayController::deleteState(int idx){
 void StateArrayController::updateUI(){
     stateArrayDockWidget->setStateChecboxesRanges(0, stateArray.states.size()-1);
     stateArrayDockWidget->setStateCount(stateArray.states.size());
+    stateArrayDockWidget->setReactiontimeUs(stateArray.reactionTimeUs);
     stateArrayDockWidget->setState(stateArray.states[0], 0);
 }

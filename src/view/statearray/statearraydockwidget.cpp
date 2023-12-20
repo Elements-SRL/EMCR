@@ -340,6 +340,10 @@ void StateArrayDockWidget::setStateCount(int count){
     numberOfStatesSpinbox->setValue(count);
 }
 
+void StateArrayDockWidget::setReactiontimeUs(double t){
+    reactionTimeSpinbox->setValue(t);
+}
+
 void StateArrayDockWidget::setStateChecboxesRanges(int min, int max){
     initialStateSpinbox->setRange(min, max);
     insertStateSpinBox->setRange(min, max);

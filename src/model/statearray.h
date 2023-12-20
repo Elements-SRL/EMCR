@@ -21,7 +21,7 @@ struct convert<StateArray>{
     }
 
     static bool decode(const Node& node, StateArray& rhs) {
-        if(node.size() != 2) {
+        if(node.size() != 3) {
             return false;
         }
         rhs.initialState = node["initialState"].as<int>();
