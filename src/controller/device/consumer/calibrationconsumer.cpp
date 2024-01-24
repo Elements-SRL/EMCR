@@ -136,6 +136,9 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
     std::vector<std::vector<bool>> calibLoadOkFlags;
     const auto msgDisp = appStatus->getMessageDispatcher();
     ErrorCodes_t error = msgDisp->getCalibParams(calibrationParams);
+    if (error != Success) {
+        return;
+    }
     msgDisp->getCalibFileNames(calibrationFileNames);
     msgDisp->getCalibFilesFlags(calibLoadOkFlags);
 
