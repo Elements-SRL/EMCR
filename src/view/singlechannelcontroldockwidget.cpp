@@ -43,6 +43,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     std::vector <RangedMeasurement_t> ranges;
     if (msgDisp->getVoltageHoldTunerFeatures(ranges) == Success) {
         buildOperation(mainVl, OperationHoldingStimulus, true);
+        anyOperationActive = true;
 
     } else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
@@ -52,6 +53,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
         buildOperation(mainVl, OperationLiquidJunction);
+        anyOperationActive = true;
 
     } else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
@@ -61,6 +63,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     if (msgDisp->hasStimulusHalf() == Success) {
         buildOperation(mainVl, OperationStimulusHalf);
+        anyOperationActive = true;
 
     } else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
@@ -98,9 +101,11 @@ void SingleChannelControlDockWidget::buildOperation(QLayout * layout, int operat
 }
 
 void SingleChannelControlDockWidget::onUpdate() {
-    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(selectedChannels[channelIdx]);
+    if (anyOperationActive) {
+        std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(selectedChannels[channelIdx]);
+        }
     }
 }
 

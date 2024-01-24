@@ -114,9 +114,9 @@ void MainController::onMainWindowCreated() {
     consumers.clear();
     dataWriterConsumers.clear();
 
-    /***************\
+    /*********\
      * Model *
-    \***************/
+    \*********/
 
     appStatus = new ApplicationStatus(msgDisp);
 
@@ -159,11 +159,10 @@ void MainController::onMainWindowCreated() {
 
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
-
-
     /*************\
      * Consumers *
     \*************/
+
     consumers.append(chessboardController->getPlotConsumer());
     consumers.append(bigPlotController->getGapFreePlotConsumer());
     abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);

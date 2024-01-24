@@ -156,6 +156,10 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
                 qrb = new QRadioButton("Voltage clamp");
                 break;
 
+            case ClampingModality_t::ZERO_CURRENT_CLAMP:
+                qrb = new QRadioButton("I0 clamp");
+                break;
+
             case ClampingModality_t::CURRENT_CLAMP:
                 qrb = new QRadioButton("Current clamp");
                 break;

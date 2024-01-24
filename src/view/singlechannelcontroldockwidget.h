@@ -58,6 +58,8 @@ private:
 
     QVector <QVector <QWidget *>> operationEdits;
 
+    bool anyOperationActive = false;
+
     QVector <QWidget *> operationButtonWidgets;
     RangedMeasurement_t holdingTunerRange;
     RangedMeasurement_t liquidJunctionRange;

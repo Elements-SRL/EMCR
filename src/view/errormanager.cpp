@@ -425,4 +425,3 @@ ErrorManager::ErrorManager(ProtocolList::ProtocolListStatus_t errorCode, QString
 ErrorManager::ErrorManager(ProtocolList::ProtocolListStatus_t errorCode) :
     ErrorManager(errorCode, protocolListCode2info(errorCode)) {
 }
-

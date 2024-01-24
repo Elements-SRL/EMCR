@@ -3,7 +3,9 @@
 
 BigPlotController::BigPlotController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
-    mainWindow(mainWindow) {
+    mainWindow(mainWindow),
+    plotConsumer(plotConsumer) {
+
     bpw = new BigPlotWidget(mainWindow);
     bpm = new BigPlotModel();
 
@@ -24,11 +26,10 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, GapFreePlotC
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
 
-    this->plotConsumer = plotConsumer;
-    this->plotConsumer->onDurationChanged(defaultPlotDuration);
-    this->plotConsumer->forceAxisUpdate();
-    this->plotConsumer->setMaxSamplesPerPlot(4096);
-    this->plotConsumer->onSelectChannels(false);
+    plotConsumer->onDurationChanged(defaultPlotDuration);
+    plotConsumer->forceAxisUpdate();
+    plotConsumer->setMaxSamplesPerPlot(4096);
+    plotConsumer->onSelectChannels(false);
     connect(plot, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
     connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
     connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
@@ -36,8 +37,8 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, GapFreePlotC
     connect(plot, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
 
     connect(this, &BigPlotController::durationChanged, this->plotConsumer, &GapFreePlotConsumer::onDurationChanged);
-    connect(this->plotConsumer, &GapFreePlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
-    connect(this->plotConsumer, &GapFreePlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
+    connect(plotConsumer, &GapFreePlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
+    connect(plotConsumer, &GapFreePlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
 
 }
 
