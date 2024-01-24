@@ -186,12 +186,12 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QLabel *maxTrigLevelLabel = new QLabel("Max Trig Level");
     maxTrigLevelDoubleSpinbox = new QDoubleSpinBox();
 
-    minTrigLevelDoubleSpinbox->setDecimals(4);
-    minTrigLevelDoubleSpinbox->setMaximum(50000);
-    minTrigLevelDoubleSpinbox->setMinimum(-50000);
-    maxTrigLevelDoubleSpinbox->setDecimals(4);
-    maxTrigLevelDoubleSpinbox->setMaximum(50000);
-    maxTrigLevelDoubleSpinbox->setMinimum(-50000);
+    minTrigLevelDoubleSpinbox->setDecimals(1);
+    minTrigLevelDoubleSpinbox->setMaximum(1e6);
+    minTrigLevelDoubleSpinbox->setMinimum(-1e6);
+    maxTrigLevelDoubleSpinbox->setDecimals(1);
+    maxTrigLevelDoubleSpinbox->setMaximum(1e6);
+    maxTrigLevelDoubleSpinbox->setMinimum(-1e6);
     triggerLevelsLayout->addWidget(minTriggerLevelLabel);
     triggerLevelsLayout->addWidget(minTrigLevelDoubleSpinbox);
     triggerLevelsLayout->addWidget(maxTrigLevelLabel);
@@ -358,14 +358,6 @@ void StateArrayDockWidget::setInitialState(int initialState){
 }
 
 void StateArrayDockWidget::setRanges(int minVoltage, int maxVoltage, int minCurrent, int maxCurrent){
-    minTrigLevelDoubleSpinbox->blockSignals(true);
-    minTrigLevelDoubleSpinbox->setMinimum(minCurrent);
-    minTrigLevelDoubleSpinbox->setMaximum(maxCurrent);
-    minTrigLevelDoubleSpinbox->blockSignals(false);
-    maxTrigLevelDoubleSpinbox->blockSignals(true);
-    maxTrigLevelDoubleSpinbox->setMinimum(minCurrent);
-    maxTrigLevelDoubleSpinbox->setMaximum(maxCurrent);
-    maxTrigLevelDoubleSpinbox->blockSignals(false);
     voltageSpinbox->blockSignals(true);
     voltageSpinbox->setMinimum(minVoltage);
     voltageSpinbox->setMaximum(maxVoltage);
