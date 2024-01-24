@@ -1,7 +1,5 @@
 #include "datawriterconsumer.h"
 
-#include <QMessageBox>
-
 #include "globaldefines.h"
 
 DataWriterConsumer::DataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :

@@ -62,6 +62,18 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "Ftdi configuration failed";
         break;
 
+    case ErrorConnectionPingFailed:
+        error = "Device ping failed";
+        break;
+
+    case ErrorConnectionFpgaResetFailed:
+        error = "Device FW reset failed";
+        break;
+
+    case ErrorConnectionChipResetFailed:
+        error = "Device HW reset failed";
+        break;
+
     case ErrorDeviceDisconnectionFailed:
         error = "Disconnection from device failed";
         break;
@@ -165,6 +177,18 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorFtdiConfigurationFailed:
         info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
+        break;
+
+    case ErrorConnectionPingFailed:
+        info = "Try to unplug and replug the device and restart EZ Patch.";
+        break;
+
+    case ErrorConnectionFpgaResetFailed:
+        info = "Try to unplug and replug the device and restart EZ Patch.";
+        break;
+
+    case ErrorConnectionChipResetFailed:
+        info = "Try to unplug and replug the device and restart EZ Patch.";
         break;
 
     case ErrorDeviceDisconnectionFailed:
