@@ -93,7 +93,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QVBoxLayout * enableStateArrayLayout = new QVBoxLayout(enableStateArrayGroupBox);
     std::vector<QCheckBox *> checkboxes;
     for(int i=0; i < 4; i++){
-        QCheckBox * ch = new QCheckBox("ch "+ QString::fromStdString(std::to_string(i)));
+        QCheckBox * ch = new QCheckBox(QString("ch %1").arg(i+1));
         checkboxes.push_back(ch);
         enableStateArrayLayout->addWidget(ch);
         connect(ch, &QCheckBox::clicked, this, [=](bool enabledFlag){
@@ -233,13 +233,12 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     QPushButton * openButton = new QPushButton("Open");
     QPushButton * saveAsButton = new QPushButton("Save As");
     QPushButton * startButton = new QPushButton("Start");
-    QPushButton * cancelButton = new QPushButton("Cancel");
-    cancelButton->setVisible(false);
-    QSpacerItem * spacer = new QSpacerItem(20, 40);
+    QPushButton * stopButton = new QPushButton("Stop");
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
-    connect(startButton, &QPushButton::clicked, this, [=](){
-        emit this->sigStartButtonPressed();
-    });
+    connect(startButton, &QPushButton::clicked, this, &StateArrayDockWidget::sigStartButtonPressed);
+    connect(stopButton, &QPushButton::clicked, this, &StateArrayDockWidget::sigStopButtonPressed);
     connect(openButton, &QPushButton::clicked, this, [=](){
         QString filename = QFileDialog::getOpenFileName(nullptr, "Open File", "", "YAML files (*.yaml);;");
         if (filename.isEmpty()) {
@@ -288,9 +287,9 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     });
     buttonsLayout->addWidget(openButton);
     buttonsLayout->addWidget(saveAsButton);
-    buttonsLayout->addItem(spacer);
+    buttonsLayout->addWidget(spacer);
     buttonsLayout->addWidget(startButton);
-    buttonsLayout->addWidget(cancelButton);
+    buttonsLayout->addWidget(stopButton);
 
     mainLayout->addLayout(buttonsLayout);
 

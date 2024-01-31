@@ -67,8 +67,14 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
                 break;
             }
         }
+        md->stopProtocol();
         md->startStateArray();
     });
+
+    connect(stateArrayDockWidget, &StateArrayDockWidget::sigStopButtonPressed, this, [=](){
+        msgDisp->stopProtocol();
+    });
+
     connect(stateArrayDockWidget, &StateArrayDockWidget::sigActiveTimeoutCheckbox, this, [=](bool activeTimeout, int stateIdx){
         stateArray.states[stateIdx].activeTimeout = activeTimeout;
     });

@@ -61,6 +61,7 @@ signals:
     void sigInitialStateChanged(int);
     void sigReactionTimeChanged(double value); /*! us */
     void sigStartButtonPressed();
+    void sigStopButtonPressed();
     void sigTriggerTypeChanged(std::string, int);
     void sigStateArrayCheckBoxClicked(bool, int);
     void sigTriggerStateCheckBoxClicked(int, int);
