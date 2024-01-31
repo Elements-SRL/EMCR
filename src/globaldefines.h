@@ -28,7 +28,8 @@
 /*! Utility defines */
 
 /*! Global defines */
-#define STAMP_PLOT_SIZE 50
+#define STAMP_PLOT_MIN_WIDTH 50
+#define STAMP_PLOT_MIN_HEIGHT 35
 #define GLB_MAX_PROT_ID 0xFFFF
 
 /*! Utility to debug by printf */

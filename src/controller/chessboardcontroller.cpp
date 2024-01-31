@@ -9,7 +9,7 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     channels = appStatus->getChannels();
 
-    chessboard = new ChessboardDockWidget(appStatus, mainWindow);;
+    chessboard = new ChessboardDockWidget(appStatus, mainWindow);
 
     int idealPlotWidth = chessboard->getIdealPlotWidth();
     int idealPlotHeight = chessboard->getIdealPlotHeight();
@@ -23,7 +23,7 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
         const auto channelIdx = mapping.index;
         const auto visibility = mapping.visible;
         StampPlot * plot = new StampPlot(channelIdx, name, idealPlotWidth, idealPlotHeight, chessboard);
-        plot->setFixedSize(idealPlotWidth, idealPlotHeight);
+        plot->resize(idealPlotWidth, idealPlotHeight);
         plot->setToolTip(QString("Ch %1\n"
                                  "Left click: exclusive select\n"
                                  "CTRL + Left click: append\n"

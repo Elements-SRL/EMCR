@@ -1,9 +1,6 @@
 #ifndef STAMPPLOT_H
 #define STAMPPLOT_H
 
-#define STP_STYLE_PLOT_ACTIVE "StampPlot { border: 2px solid green; }"
-#define STP_STYLE_PLOT_INACTIVE "StampPlot { border: 1px solid black; }"
-
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_widget.h"

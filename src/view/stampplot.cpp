@@ -22,7 +22,7 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     QwtPlotCanvas * canvas = new QwtPlotCanvas();
     canvas->setFrameStyle(QFrame::NoFrame);
     this->setCanvas(canvas);
-    this->setCanvasBackground(Qt::black);
+    this->setCanvasBackground(Qt::lightGray);
 
     QFont font;
     font.setPointSize(7);
@@ -58,7 +58,7 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     auto y = this->height();
     colorMarker->setValue(x*.0093, y*0.4); // Set the position where you want to draw the solid color
     colorMarker->setLineStyle(QwtPlotMarker::NoLine);
-    this->setStyleSheet(STP_STYLE_PLOT_INACTIVE);
+    this->setStyleSheet("StampPlot { border: 1px solid black; }");
 }
 
 QSize StampPlot::sizeHint() const {
@@ -66,17 +66,17 @@ QSize StampPlot::sizeHint() const {
 }
 
 QSize StampPlot::minimumSizeHint() const {
-    return QSize(STAMP_PLOT_SIZE, STAMP_PLOT_SIZE);
+    return QSize(STAMP_PLOT_MIN_WIDTH, STAMP_PLOT_MIN_HEIGHT);
 }
 
 void StampPlot::setSelected(bool flag) {
     if (flag != selected) {
         selected = flag;
         if (selected) {
-            this->setStyleSheet(STP_STYLE_PLOT_ACTIVE);
+            this->setCanvasBackground(Qt::black);
 
         } else {
-            this->setStyleSheet(STP_STYLE_PLOT_INACTIVE);
+            this->setCanvasBackground(Qt::lightGray);
         }
     }
 }
@@ -191,4 +191,3 @@ void StampPlot::setName(std::string name){
     channelIdxLbl->setMargin(0);
     channelIdxLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 }
-

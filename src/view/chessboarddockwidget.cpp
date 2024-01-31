@@ -18,7 +18,6 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     channelsPerBoard = currentChannelsNum/boardsNum;
 
     QWidget * mainWg = new QWidget(parent);
-    mainWg->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setWindowTitle("Channels overview");
     this->setWidget(mainWg);
 
@@ -31,7 +30,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     auto idealPlotHeight = getIdealPlotHeight();
     auto idealPlotWidth = getIdealPlotWidth();
 
-    QScreen *screen = QGuiApplication::primaryScreen();
+    QScreen * screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
 
     auto maxButtonHeight = qMin(idealPlotHeight, screenGeometry.height()/30);
@@ -73,7 +72,6 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
             rowSelectors[rowIdx] = btn;
         }
     }
-
 }
 
 void ChessboardDockWidget::addPlot(StampPlot * plot, int channelIdx) {
@@ -92,21 +90,27 @@ void ChessboardDockWidget::addPlot(StampPlot * plot, int channelIdx) {
         mainGl->addWidget(plot, rowIdx+1, boardIdx);
     }
 
+    plot->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
     connect(plot, &StampPlot::clicked, [=] (QMouseEvent *event) {
         emit sigSingleChannelClicked(channelIdx, event);
     });
 }
 
 int ChessboardDockWidget::getIdealPlotWidth() {
-    QScreen *screen = QGuiApplication::primaryScreen();
+    QScreen * screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
-    return qRound((screenGeometry.width() * SCREEN_PERCENTAGE_WIDTH) / channelsPerBoard);
+    double height = screenGeometry.height() * CHB_SCREEN_PERCENTAGE_HEIGHT / channelsPerBoard;
+    double width = screenGeometry.width() * CHB_SCREEN_PERCENTAGE_WIDTH / boardsNum;
+    return qRound(std::min(width, height / CHB_PLOT_ASPECT_RATIO));
 }
 
 int ChessboardDockWidget::getIdealPlotHeight() {
-    QScreen *screen = QGuiApplication::primaryScreen();
+    QScreen * screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
-    return  qRound((screenGeometry.height() * SCREEN_PERCENTAGE_HEIGHT) / (channelsPerBoard + 1));
+    double height = screenGeometry.height() * CHB_SCREEN_PERCENTAGE_HEIGHT / channelsPerBoard;
+    double width = screenGeometry.width() * CHB_SCREEN_PERCENTAGE_WIDTH / boardsNum;
+    return qRound(std::min(width * CHB_PLOT_ASPECT_RATIO, height));
 }
 
 void ChessboardDockWidget::updateBoardMappings(std::set <int> visibleBoards){
