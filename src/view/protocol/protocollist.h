@@ -21,7 +21,6 @@ public:
         Success,
         ErrorProtocolAlreadyExists,
         ErrorNoProtocolSelected,
-        ErrorLoadNullProtocolsFail,
         ErrorLoadOffsetCompensationProtocolFail,
         ErrorLoadRestingPotentialProtocolFail,
         ErrorLoadLastExecutedProtocolFail,
@@ -36,7 +35,6 @@ public:
 
     void startVhold0Protocol();
     void startIhold0Protocol();
-    void setStopProtocolHold(Measurement_t hold);
     void inhibitProtocols(bool inhibitFlag);
     void startProtocol(int shortCutIdx);
     void setClampingModality(ClampingModality_t clampingModalitySet);
@@ -68,9 +66,7 @@ protected:
     int getShortCutByProtocol(ProtocolWidget * protocol);
     virtual ProtocolWidget * newGapfreeProtocol(QString name) = 0;
     virtual ProtocolWidget * newEpisodicProtocol(QString name) = 0;
-    void setNullProtocolHolding(ProtocolWidget * protocol);
     void exportLastProtocols();
-    void importNullProtocol();
     void importVhold0Protocol();
     void importIhold0Protocol();
     void importLastRunProtocol();
@@ -105,12 +101,9 @@ protected:
     ClampingModality_t clampingModalitySet; /*!< Clamping modality currently set by the GUI */
     ProtocolType_t lastStartedType = ProtocolTypeGapfree;
 
-    ProtocolWidget * nullGapfreeProtocol = nullptr;
-    ProtocolWidget * nullEpisodicProtocol = nullptr;
     ProtocolWidget * vhold0Protocol = nullptr;
     ProtocolWidget * ihold0Protocol = nullptr;
     ProtocolWidget * lastRunProtocol = nullptr;
-    bool nullProtocolFlag = false;
     bool vhold0ProtocolFlag = false;
     bool ihold0ProtocolFlag = false;
     bool lastRunProtocolFlag = false;

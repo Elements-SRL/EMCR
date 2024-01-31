@@ -358,10 +358,6 @@ QString protocolListCode2error(ProtocolList::ProtocolListStatus_t errorCode) {
         error = "No protocol selected";
         break;
 
-    case ProtocolList::ErrorLoadNullProtocolsFail:
-        error = "Failed to load stop protocols";
-        break;
-
     case ProtocolList::ErrorLoadOffsetCompensationProtocolFail:
         error = "Failed to load protocol for offset compensation";
         break;
@@ -400,11 +396,6 @@ QString protocolListCode2info(ProtocolList::ProtocolListStatus_t errorCode) {
 
     case ProtocolList::ErrorNoProtocolSelected:
         info = "";
-        break;
-
-    case ProtocolList::ErrorLoadNullProtocolsFail:
-        info = "Check that the file " + YAML_NULL_FULL_FILE +
-                " exists.\nIf it doesn't please copy it from Protocols folder within " + GLB_SOFTWARE_NAME + " installation path.";
         break;
 
     case ProtocolList::ErrorLoadOffsetCompensationProtocolFail:

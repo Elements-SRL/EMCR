@@ -641,14 +641,6 @@ RangedMeasurement_t ProtocolWidget::getAppliedRange() {
     return appliedRange;
 }
 
-void ProtocolWidget::setNullProtocol(bool flag) {
-    isNull = flag;
-}
-
-bool ProtocolWidget::isNullProtocol() {
-    return isNull;
-}
-
 void ProtocolWidget::getSweepTrigger(double &value, bool &rising) {
     value = 0;
     rising = true;

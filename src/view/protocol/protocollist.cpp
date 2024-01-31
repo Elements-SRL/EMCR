@@ -69,16 +69,6 @@ ProtocolList::~ProtocolList() {
 
     protocolsNames->clear();
 
-    if (nullGapfreeProtocol != nullptr) {
-        delete nullGapfreeProtocol;
-        nullGapfreeProtocol = nullptr;
-    }
-
-    if (nullEpisodicProtocol != nullptr) {
-        delete nullEpisodicProtocol;
-        nullEpisodicProtocol = nullptr;
-    }
-
     if (vhold0Protocol != nullptr) {
         delete vhold0Protocol;
         vhold0Protocol = nullptr;
@@ -106,8 +96,6 @@ QVector <ProtocolWidget *> * ProtocolList::getProtocols() {
 
 void ProtocolList::startVhold0Protocol() {
     if (vhold0Protocol != nullptr) {
-        this->setNullProtocolHolding(vhold0Protocol);
-
         lastStartedType = vhold0Protocol->getType();
         emit startProtocolRequest(vhold0Protocol);
     }
@@ -115,16 +103,9 @@ void ProtocolList::startVhold0Protocol() {
 
 void ProtocolList::startIhold0Protocol() {
     if (ihold0Protocol != nullptr) {
-        this->setNullProtocolHolding(ihold0Protocol);
-
         lastStartedType = ihold0Protocol->getType();
         emit startProtocolRequest(ihold0Protocol);
     }
-}
-
-void ProtocolList::setStopProtocolHold(Measurement_t hold) {
-    nullGapfreeProtocol->setHold(hold);
-    nullEpisodicProtocol->setHold(hold);
 }
 
 void ProtocolList::inhibitProtocols(bool inhibitFlag) {
@@ -208,8 +189,6 @@ void ProtocolList::onStartProtocol(bool) {
         emit requestSamplingRate(samplingRateIndex);
     }
 
-    this->setNullProtocolHolding(protocol);
-
     this->onStopProtocol();
 
     lastStartedType = protocol->getType();
@@ -220,37 +199,7 @@ void ProtocolList::onStopProtocol() {
     if (clampingModality != clampingModalitySet) {
         return;
     }
-
-    if (lastStartedType == ProtocolTypeGapfree) {
-        if (nullGapfreeProtocol != nullptr) {
-            int currentRangeIndex = nullGapfreeProtocol->getCurrentRangeIndex();
-            if (currentRangeIndex >= 0) {
-                emit requestCurrentRange(currentRangeIndex);
-            }
-
-            int voltageRangeIndex = nullGapfreeProtocol->getVoltageRangeIndex();
-            if (voltageRangeIndex >= 0) {
-                emit requestVoltageRange(voltageRangeIndex);
-            }
-
-            emit startProtocolRequest(nullGapfreeProtocol);
-        }
-
-    } else {
-        if (nullEpisodicProtocol != nullptr) {
-            int currentRangeIndex = nullEpisodicProtocol->getCurrentRangeIndex();
-            if (currentRangeIndex >= 0) {
-                emit requestCurrentRange(currentRangeIndex);
-            }
-
-            int voltageRangeIndex = nullEpisodicProtocol->getVoltageRangeIndex();
-            if (voltageRangeIndex >= 0) {
-                emit requestVoltageRange(voltageRangeIndex);
-            }
-
-            emit startProtocolRequest(nullEpisodicProtocol);
-        }
-    }
+    msgDisp->stopProtocol();
 }
 
 void ProtocolList::onAddProtocol() {
@@ -685,21 +634,6 @@ int ProtocolList::getShortCutByProtocol(ProtocolWidget * protocol) {
     return ret;
 }
 
-void ProtocolList::setNullProtocolHolding(ProtocolWidget * protocol) {
-    if (protocol->getType() == ProtocolTypeGapfree) {
-        if (nullGapfreeProtocol != nullptr) {
-            nullGapfreeProtocol->setStimulusRangeIndex(protocol->getStimulusRangeIndex());
-            nullGapfreeProtocol->setHold(protocol->getHold());
-        }
-
-    } else {
-        if (nullEpisodicProtocol != nullptr) {
-            nullEpisodicProtocol->setStimulusRangeIndex(protocol->getStimulusRangeIndex());
-            nullEpisodicProtocol->setHold(protocol->getHold());
-        }
-    }
-}
-
 void ProtocolList::exportLastProtocols() {
     QString fullFileName = YAML_LAST_FULL_FILE;
     fullFileName.replace(YAML_FILE_EXTENSION, YAML_FILE_EXTENSION);
@@ -722,14 +656,6 @@ void ProtocolList::exportLastProtocols() {
     std::ofstream fout(fullFileName.toStdString());
     fout << node;
     fout.close();
-}
-
-void ProtocolList::importNullProtocol() {
-    nullProtocolFlag = true;
-    if (!(this->importProtocols(YAML_NULL_FULL_FILE))) {
-        ErrorManager e(ErrorLoadNullProtocolsFail);
-    }
-    nullProtocolFlag = false;
 }
 
 void ProtocolList::importVhold0Protocol() {
@@ -836,7 +762,7 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
 
 void ProtocolList::importProtocol(const YAML::VoltageProtocol &yamlProtocol) {
     QString name = QString::fromStdString(yamlProtocol.name);
-    if (nullProtocolFlag || vhold0ProtocolFlag || ihold0ProtocolFlag) {
+    if (vhold0ProtocolFlag || ihold0ProtocolFlag) {
         name = "";
     }
 
@@ -849,7 +775,7 @@ void ProtocolList::importProtocol(const YAML::VoltageProtocol &yamlProtocol) {
 
 void ProtocolList::importProtocol(const YAML::CurrentProtocol &yamlProtocol) {
     QString name = QString::fromStdString(yamlProtocol.name);
-    if (nullProtocolFlag || vhold0ProtocolFlag || ihold0ProtocolFlag) {
+    if (vhold0ProtocolFlag || ihold0ProtocolFlag) {
         name = "";
     }
 
@@ -876,17 +802,6 @@ void ProtocolList::importProtocolAs(const YAML::VoltageProtocol &yamlProtocol, Q
     protocol->setProtocolFromYaml(yamlProtocol);
 
     if (true) {
-        if (nullProtocolFlag) {
-            protocol->setNullProtocol(true);
-            if (protocol->getType() == ProtocolTypeGapfree) {
-                nullGapfreeProtocol = protocol;
-
-            } else {
-                nullEpisodicProtocol = protocol;
-            }
-            addProtocolToListFlag = false;
-        }
-
         if (vhold0ProtocolFlag) {
             vhold0Protocol = protocol;
             addProtocolToListFlag = false;
@@ -939,17 +854,6 @@ void ProtocolList::importProtocolAs(const YAML::CurrentProtocol &yamlProtocol, Q
     protocol->setProtocolFromYaml(yamlProtocol);
 
     if (true) {
-        if (nullProtocolFlag) {
-            protocol->setNullProtocol(true);
-            if (protocol->getType() == ProtocolTypeGapfree) {
-                nullGapfreeProtocol = protocol;
-
-            } else {
-                nullEpisodicProtocol = protocol;
-            }
-            addProtocolToListFlag = false;
-        }
-
         if (vhold0ProtocolFlag) {
             vhold0Protocol = protocol;
             addProtocolToListFlag = false;
@@ -1085,7 +989,6 @@ VoltageProtocolList::VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPr
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
     if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::VOLTAGE_CLAMP) != clampingModalities.end()) {
-        this->importNullProtocol();
         this->importVhold0Protocol();
         this->importLastProtocols();
         this->onStopProtocol();
@@ -1116,7 +1019,6 @@ CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPr
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
     if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::CURRENT_CLAMP) != clampingModalities.end()) {
-        this->importNullProtocol();
         this->importIhold0Protocol();
         this->importLastProtocols();
         this->onStopProtocol();

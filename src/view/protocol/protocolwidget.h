@@ -80,8 +80,6 @@ public:
     void setProtocolValid(bool valid);
     void setAppliedRange(RangedMeasurement_t &newAppliedRange);
     RangedMeasurement_t getAppliedRange();
-    void setNullProtocol(bool flag);
-    bool isNullProtocol();
 
     virtual double getTotalDuration() = 0;
     void getSweepTrigger(double &value, bool &rising);
@@ -114,7 +112,6 @@ protected:
     QHBoxLayout * propertyBtnsHl;
     QLineEdit * nameEdit;
     int shortCutIdx = -1;
-    bool isNull = false;
     Measurement_t hold;
     RangedMeasurement_t appliedRange;
 

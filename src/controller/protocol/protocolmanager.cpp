@@ -133,7 +133,7 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
 
     emit protocolStarted(protocolId, protocol);
 
-    if (!(protocol->isNullProtocol()) && !recordFlag) {
+    if (!recordFlag) {
         lastRunProtocolId = protocolId;
     }
 
