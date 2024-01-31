@@ -199,7 +199,7 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
             connectBtn->setChecked(true);
 
         } else {
-            ErrorManager e(err);
+//            ErrorManager e(err);
             connectBtn->setChecked(false);
         }
 
@@ -455,12 +455,13 @@ void MainWindow::createGuiControls() {
     int channelsPerBoard = currentChannelsNum/boardsNum;
 
     connect(calibrationAllApplyBtn, &QPushButton::clicked, this, [=] () {
-        std::vector<uint16_t> channelsToCalibrateIdxs;
+        std::vector <uint16_t> channelsToCalibrateIdxs;
 
-        if(boardCalibSbx->value() == 0){
-            for(int i = 0; i < currentChannelsNum; i++){
+        if (boardCalibSbx->value() == 0) {
+            for(int i = 0; i < currentChannelsNum; i++) {
                 channelsToCalibrateIdxs.push_back(i);
             }
+
         } else {
             for(int i = channelsPerBoard*(boardCalibSbx->value()-1); i < channelsPerBoard*boardCalibSbx->value(); i++){
                 channelsToCalibrateIdxs.push_back(i);

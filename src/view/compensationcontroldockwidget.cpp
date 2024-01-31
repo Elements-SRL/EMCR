@@ -10,6 +10,7 @@
 CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
     msgDisp(msgDisp) {
+
     int localNumOfVoltChans;
     int localNumOfCurrChans;
     msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
@@ -381,7 +382,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
         }
     });
 
-
     /*! here we restart with the main verical VLayout*/
     QPushButton* applyButton = new QPushButton("Apply");
     vLayout->addWidget(applyButton);
@@ -427,7 +427,6 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
     std::vector<uint16_t> rsBWValueIdxs;
     std::vector<double> ccCfastValues;
 
-
     int localNumOfVoltChans;
     int localNumOfCurrChans;
     msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
@@ -448,7 +447,6 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
     }
 
     emit sigCompensationsApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues, rsBWValueIdxs, ccCfastEn, ccCfastValues);
-
 }
 
 /*! It updates in GUI both the param values and ranges based on potenial clipings and covnersions done at the asic domain by the messageDispatcher*/

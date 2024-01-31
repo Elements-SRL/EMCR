@@ -206,7 +206,7 @@ void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResult * r
 template<typename T>
 void MeasurementsOverviewDockWidget::applyTextFromValuesAndPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx){
     QVector<Measurement_t> measurements;
-    for (int i = 0; i<currentChannels; i++) {
+    for (int i = 0; i < currentChannels; i++) {
         measurements.push_back({values[i], UnitPfx::UnitPfxNone, pfx});
     }
     applyTextFromMeasurements(widgets, measurements);
@@ -214,13 +214,13 @@ void MeasurementsOverviewDockWidget::applyTextFromValuesAndPfx(const std::vector
 
 template<typename T>
 void MeasurementsOverviewDockWidget::applyTextFromMeasurements(const std::vector<T>& widgets, QVector<Measurement_t> meas) {
-    for (int i = 0; i<currentChannels; i++) {
+    for (int i = 0; i < currentChannels; i++) {
         widgets[i]->setText(QString::fromStdString(meas[i].niceLabel()));
     }
 }
 
 void MeasurementsOverviewDockWidget::boardMappingLoaded(std::vector<std::string> names){
-    for (int i=0; i <currentChannels; i++) {
+    for (int i = 0; i < currentChannels; i++) {
         activeChannelsLabels[i]->setText(QString::fromStdString(names[i]));
     }
 }

@@ -210,6 +210,7 @@ void MainController::onMainWindowCreated() {
     connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       singleChannelController,        &SingleChannelController::onLiquidJunctionResult);
     connect(multipleChannelController, &MultipleChannelController::sigDocResetted,          this, [=] () {
         measurementOverviewController->onLiquidJunctionResult(false);
+        singleChannelController->onLiquidJunctionResult();
     });
 
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, bigPlotController, &BigPlotController::onCurrentColorsChanged);
