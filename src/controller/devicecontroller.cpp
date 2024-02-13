@@ -163,7 +163,7 @@ void DeviceController::onDownsamplingRatioSelected(uint16_t selectedDownsampling
 // ADC Voltage Filter in CC set by Sampling rate
 
 void DeviceController::onClampingModalitySelected(ClampingModality_t mode){
-    msgDisp->setClampingModality(mode, true);
+    msgDisp->setClampingModality(mode, true, true);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
         uint32_t idx;
