@@ -168,7 +168,7 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
                }
            }
 
-           if(deviceUnderCalibrationType == Device384PatchClamp
+           if(deviceUnderCalibrationType == Device384PatchClamp_prot_v01_fw_v02
            #ifdef DEBUG
                || deviceUnderCalibrationType == Device384FakePatchClamp
            #endif
@@ -377,7 +377,7 @@ void CalibrationConsumer::run(){
 
         /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
         QString msg;
-        if(deviceUnderCalibrationType == Device384PatchClamp
+        if(deviceUnderCalibrationType == Device384PatchClamp_prot_v01_fw_v02
         #ifdef DEBUG
                 || deviceUnderCalibrationType == Device384FakePatchClamp
         #endif
@@ -420,7 +420,7 @@ void CalibrationConsumer::run(){
             if(rangeIdx < vcCurrentRangesArray.size()-1){
                 /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
                 QString msg;
-                if(deviceUnderCalibrationType == Device384PatchClamp
+                if(deviceUnderCalibrationType == Device384PatchClamp_prot_v01_fw_v02
         #ifdef DEBUG
                         || deviceUnderCalibrationType == Device384FakePatchClamp
         #endif
@@ -500,7 +500,7 @@ void CalibrationConsumer::run(){
         /*! Qui inizia la parte di calibrazione in CC*/
         /*! Open all IN_SW*/
         /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
-        if(deviceUnderCalibrationType == Device384PatchClamp
+        if(deviceUnderCalibrationType == Device384PatchClamp_prot_v01_fw_v02
                 #ifdef DEBUG
                     || deviceUnderCalibrationType == Device384FakePatchClamp
                 #endif
@@ -1676,7 +1676,7 @@ void CalibrationConsumer::prepareStuffToSaveOnCsv(QString dir, QString fileNameR
     }
 
     /*! \todo FCON sostituire con flag e messaggi ottenuti dal CalibrationData_t */
-    if(deviceUnderCalibrationType == Device384PatchClamp
+    if(deviceUnderCalibrationType == Device384PatchClamp_prot_v01_fw_v02
             #ifdef DEBUG
                 || deviceUnderCalibrationType == Device384FakePatchClamp
             #endif
