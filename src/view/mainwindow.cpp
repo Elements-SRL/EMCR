@@ -384,11 +384,33 @@ void MainWindow::createGuiControls() {
     debugWordSbx->setValue(0);
     debugVl->addWidget(debugWordSbx);
 
+    QCheckBox * debugRangeWordChx = new QCheckBox("Enable word range");
+    debugVl->addWidget(debugRangeWordChx);
+
+    QSpinBox * debugLastWordSbx = new QSpinBox;
+    debugLastWordSbx->setRange(0, 32767);
+    debugLastWordSbx->setValue(0);
+    debugLastWordSbx->setEnabled(false);
+    debugVl->addWidget(debugLastWordSbx);
+
+    connect(debugRangeWordChx, &QCheckBox::clicked, debugLastWordSbx, &QWidget::setEnabled);
+
     debugVl->addWidget(new QLabel("Bit"));
     QSpinBox * debugBitSbx = new QSpinBox;
     debugBitSbx->setRange(0, 15);
     debugBitSbx->setValue(0);
     debugVl->addWidget(debugBitSbx);
+
+    QCheckBox * debugRangeBitChx = new QCheckBox("Enable bit range");
+    debugVl->addWidget(debugRangeBitChx);
+
+    QSpinBox * debugLastBitSbx = new QSpinBox;
+    debugLastBitSbx->setRange(0, 15);
+    debugLastBitSbx->setValue(0);
+    debugLastBitSbx->setEnabled(false);
+    debugVl->addWidget(debugLastBitSbx);
+
+    connect(debugRangeBitChx, &QCheckBox::clicked, debugLastBitSbx, &QWidget::setEnabled);
 
     QCheckBox * debugStatusChx = new QCheckBox("Status");
     debugVl->addWidget(debugStatusChx);
@@ -398,7 +420,28 @@ void MainWindow::createGuiControls() {
     debugVl->addWidget(debugApplyBtn);
 
     connect(debugApplyBtn, &QPushButton::clicked, this, [=] () {
-        emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), debugStatusChx->isChecked());
+        if (debugRangeWordChx->isChecked()) {
+            for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
+                if (debugRangeBitChx->isChecked()) {
+                    for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                        emit setDebugBit(wordIdx, bitIdx, debugStatusChx->isChecked());
+                    }
+
+                } else {
+                    emit setDebugBit(wordIdx, debugBitSbx->value(), debugStatusChx->isChecked());
+                }
+            }
+
+        } else {
+            if (debugRangeBitChx->isChecked()) {
+                for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                    emit setDebugBit(debugWordSbx->value(), bitIdx, debugStatusChx->isChecked());
+                }
+
+            } else {
+                emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), debugStatusChx->isChecked());
+            }
+        }
     });
 
     debugVl->addWidget(new QLabel("Value"));
@@ -418,10 +461,16 @@ void MainWindow::createGuiControls() {
     debugVl->addWidget(debugApplyValueBtn);
 
     connect(debugApplyValueBtn, &QPushButton::clicked, this, [=] () {
-        emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
+        if (debugRangeWordChx->isChecked()) {
+            for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
+                emit setDebugWord(wordIdx, debugValueSbx->value());
+            }
+
+        } else {
+            emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
+        }
     });
 
-    /*! ------------------------------------------------------------ */
     calibrationDw = new QDockWidget();
     calibrationDw->setObjectName("calibrationDw");
     calibrationDw->setWindowTitle("Calibration");
