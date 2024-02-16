@@ -191,14 +191,14 @@ void CalibrationConsumer::loadInitialCalibParams(QString dir, QString mappingFil
         emit sigCalibLoadingMsg(msg);
     }
 
-    convertFromMeasurement(calibrationParams.allGainDacMeas,
-                           calibrationParams.allGainAdcMeas,
-                           calibrationParams.allOffsetAdcMeas,
-                           calibrationParams.allOffsetDacMeas,
-                           calibrationParams.ccAllGainAdcMeas,
-                           calibrationParams.ccAllOffsetAdcMeas,
-                           calibrationParams.ccAllGainDacMeas,
-                           calibrationParams.ccAllOffsetDacMeas);
+    convertFromMeasurement(calibrationParams.vcGainDac,
+                           calibrationParams.vcGainAdc,
+                           calibrationParams.vcOffsetAdc,
+                           calibrationParams.vcOffsetDac,
+                           calibrationParams.ccGainAdc,
+                           calibrationParams.ccOffsetAdc,
+                           calibrationParams.ccGainDac,
+                           calibrationParams.ccOffsetDac);
 }
 
 /*! \todo FCON recheck insieme a mainController che updata calibration params quando si cambia range. Al momento funzion a perchè dopo la calibrazione di startup, non channelToCalibIdxs è mai vuoto
@@ -209,39 +209,39 @@ void CalibrationConsumer::updateCalibParams(){
     if(channelToCalibIdxs.size()==0){
         return;
     } else {
-        std::vector<std::vector<Measurement_t>> allGainAdcMeas;
-        std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
-        std::vector<std::vector<Measurement_t>> allGainDacMeas;
-        std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
-        std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
-        std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
-        std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
-        std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
+        std::vector<std::vector<Measurement_t>> vcGainAdc;
+        std::vector<std::vector<Measurement_t>> vcOffsetAdc;
+        std::vector<std::vector<Measurement_t>> vcGainDac;
+        std::vector<std::vector<Measurement_t>> vcOffsetDac;
+        std::vector<std::vector<Measurement_t>> ccGainAdc;
+        std::vector<std::vector<Measurement_t>> ccOffsetAdc;
+        std::vector<std::vector<Measurement_t>> ccGainDac;
+        std::vector<std::vector<Measurement_t>> ccOffsetDac;
         std::vector<uint16_t> allChannelIndexes;
 
         /*! \note 20230524 MPAC: we convert ALL the calib params for ALL the channels into Measurements_t
         despite we could've calibrated a single board. We send to FPGA EVERYTHING EVERYTIME*/
-        allGainAdcMeas.resize(vcCurrentRangesArray.size());
-        allGainDacMeas.resize(vcVoltageRangesArray.size());
-        allOffsetAdcMeas.resize(vcCurrentRangesArray.size());
-        allOffsetDacMeas.resize(vcVoltageRangesArray.size());
-        ccAllGainAdcMeas.resize(ccVoltageRangesArray.size());
-        ccAllOffsetAdcMeas.resize(ccVoltageRangesArray.size());
-        ccAllGainDacMeas.resize(ccCurrentRangesArray.size());
-        ccAllOffsetDacMeas.resize(ccCurrentRangesArray.size());
-        convertToMeasurement(allGainDacMeas, allGainAdcMeas, allOffsetAdcMeas, allOffsetDacMeas, ccAllGainAdcMeas, ccAllOffsetAdcMeas, ccAllGainDacMeas, ccAllOffsetDacMeas);
+        vcGainAdc.resize(vcCurrentRangesArray.size());
+        vcGainDac.resize(vcVoltageRangesArray.size());
+        vcOffsetAdc.resize(vcCurrentRangesArray.size());
+        vcOffsetDac.resize(vcVoltageRangesArray.size());
+        ccGainAdc.resize(ccVoltageRangesArray.size());
+        ccOffsetAdc.resize(ccVoltageRangesArray.size());
+        ccGainDac.resize(ccCurrentRangesArray.size());
+        ccOffsetDac.resize(ccCurrentRangesArray.size());
+        convertToMeasurement(vcGainDac, vcGainAdc, vcOffsetAdc, vcOffsetDac, ccGainAdc, ccOffsetAdc, ccGainDac, ccOffsetDac);
 
 
         /*! \note 20230524 MPAC: sends the updated params to the message dispatcher, for all the 384 channels, despite I could hae calibrated only one board*/
         CalibrationParams_t calibParamsForMesDis;
-        calibParamsForMesDis.allGainDacMeas =     allGainDacMeas;
-        calibParamsForMesDis.allGainAdcMeas =     allGainAdcMeas;
-        calibParamsForMesDis.allOffsetAdcMeas =   allOffsetAdcMeas;
-        calibParamsForMesDis.allOffsetDacMeas =   allOffsetDacMeas;
-        calibParamsForMesDis.ccAllGainAdcMeas =   ccAllGainAdcMeas;
-        calibParamsForMesDis.ccAllOffsetAdcMeas = ccAllOffsetAdcMeas;
-        calibParamsForMesDis.ccAllGainDacMeas =   ccAllGainDacMeas;
-        calibParamsForMesDis.ccAllOffsetDacMeas = ccAllOffsetDacMeas;
+        calibParamsForMesDis.vcGainDac =     vcGainDac;
+        calibParamsForMesDis.vcGainAdc =     vcGainAdc;
+        calibParamsForMesDis.vcOffsetAdc =   vcOffsetAdc;
+        calibParamsForMesDis.vcOffsetDac =   vcOffsetDac;
+        calibParamsForMesDis.ccGainAdc =   ccGainAdc;
+        calibParamsForMesDis.ccOffsetAdc = ccOffsetAdc;
+        calibParamsForMesDis.ccGainDac =   ccGainDac;
+        calibParamsForMesDis.ccOffsetDac = ccOffsetDac;
         const auto msgDisp = appStatus->getMessageDispatcher();
 
         msgDisp->setCalibParams(calibParamsForMesDis);
@@ -256,22 +256,22 @@ void CalibrationConsumer::updateCalibParams(){
         uint32_t idx;
         if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
             msgDisp->getVCCurrentRangeIdx(idx);
-            msgDisp->setCalibVcCurrentGain(allChannelIndexes, allGainAdcMeas[idx], true);
-            msgDisp->setCalibVcCurrentOffset(allChannelIndexes, allOffsetAdcMeas[idx], true);
+            msgDisp->setCalibVcCurrentGain(allChannelIndexes, vcGainAdc[idx], true);
+            msgDisp->setCalibVcCurrentOffset(allChannelIndexes, vcOffsetAdc[idx], true);
 
             msgDisp->getVCVoltageRangeIdx(idx);
-            msgDisp->setCalibVcVoltageGain(allChannelIndexes, allGainDacMeas[idx], true);
-            msgDisp->setCalibVcVoltageOffset(allChannelIndexes, allOffsetDacMeas[idx], true);
+            msgDisp->setCalibVcVoltageGain(allChannelIndexes, vcGainDac[idx], true);
+            msgDisp->setCalibVcVoltageOffset(allChannelIndexes, vcOffsetDac[idx], true);
         }
 
         if (mode == ClampingModality_t::CURRENT_CLAMP) {
             msgDisp->getCCVoltageRangeIdx(idx);
-            msgDisp->setCalibCcVoltageGain(allChannelIndexes, ccAllGainAdcMeas[idx], true);
-            msgDisp->setCalibCcVoltageOffset(allChannelIndexes, ccAllOffsetAdcMeas[idx], true);
+            msgDisp->setCalibCcVoltageGain(allChannelIndexes, ccGainAdc[idx], true);
+            msgDisp->setCalibCcVoltageOffset(allChannelIndexes, ccOffsetAdc[idx], true);
 
             msgDisp->getCCCurrentRangeIdx(idx);
-            msgDisp->setCalibCcCurrentGain(allChannelIndexes, ccAllGainDacMeas[idx], true);
-            msgDisp->setCalibCcCurrentOffset(allChannelIndexes, ccAllOffsetDacMeas[idx], true);
+            msgDisp->setCalibCcCurrentGain(allChannelIndexes, ccGainDac[idx], true);
+            msgDisp->setCalibCcCurrentOffset(allChannelIndexes, ccOffsetDac[idx], true);
         }
     }
 }

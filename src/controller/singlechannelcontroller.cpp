@@ -142,31 +142,29 @@ void SingleChannelController::onCompensationApplied(std::vector<uint16_t> channe
     rsPgFeatures.resize(channelIndexes.size());
     ccCfastFeatures.resize(channelIndexes.size());
 
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCfast, cfastEn, true);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, cslowRsEn, true);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, rsCpEn, true);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, rsPgEn, true);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, ccCfastEn, true);
+    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCfast, cfastEn, false);
+    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, cslowRsEn, false);
+    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, rsCpEn, false);
+    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, rsPgEn, false);
+    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, ccCfastEn, false);
 
-    /*! \todo MPAC discriminare tra voltage e current clamp*/
     if(mode == ClampingModality_t::VOLTAGE_CLAMP){
-        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, cfastValues, true);
+        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, cfastValues, false);
 
     } else if(mode == ClampingModality_t::ZERO_CURRENT_CLAMP || mode == ClampingModality_t::CURRENT_CLAMP) {
-        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, ccCfastValues, true);
+        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, ccCfastValues, false);
 
     } else {
         /*! \todo MPAC ancora da fare*/
     }
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Cm, cslowValues, true);
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Rs, rsValues, true);
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsCp, rsCpValues, true);
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsPg, rsPgValues, true);
+    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Cm, cslowValues, false);
+    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Rs, rsValues, false);
+    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsCp, rsCpValues, false);
+    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsPg, rsPgValues, false);
     msgDisp->setCompOptions(channelIndexes, MessageDispatcher::CompRsCorr, rsBWValueIdxs, true);
 
     msgDisp->getCompValueMatrix(compValueMatrix);
 
-    /*! \todo MPAC discriminare tra voltage e current clamp*/
     double defaultParamValue;
     if(mode == ClampingModality_t::VOLTAGE_CLAMP){
         msgDisp->getCompFeatures(MessageDispatcher::U_CpVc, cfastFeatures, defaultParamValue);
