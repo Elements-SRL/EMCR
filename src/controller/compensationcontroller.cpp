@@ -9,7 +9,6 @@ CompensationController::CompensationController(MessageDispatcher * msgDisp, Main
             msgDisp->hasCompFeature(MessageDispatcher::U_Rs) != Success &&
             msgDisp->hasCompFeature(MessageDispatcher::U_RsCp) != Success &&
             msgDisp->hasCompFeature(MessageDispatcher::U_RsPg) != Success &&
-            msgDisp->hasCompFeature(MessageDispatcher::CompRsCorr) != Success &&
             msgDisp->hasCompFeature(MessageDispatcher::U_CpCc) != Success) {
         return;
     }
