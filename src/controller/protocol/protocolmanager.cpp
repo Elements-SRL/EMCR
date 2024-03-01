@@ -37,11 +37,11 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
 
     /*! Send the commands to mDev */
     if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
-        msgDisp->setVoltageProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
+        msgDisp->setVoltageProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold, true);
 
     } else {
         emit currentApplied();
-        msgDisp->setCurrentProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold);
+        msgDisp->setCurrentProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold, true);
     }
 
     UnitPfx_t stimulusPrefix = protocol->getStimulusPrefix();

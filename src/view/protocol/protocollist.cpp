@@ -189,8 +189,6 @@ void ProtocolList::onStartProtocol(bool) {
         emit requestSamplingRate(samplingRateIndex);
     }
 
-    this->onStopProtocol();
-
     lastStartedType = protocol->getType();
     emit startProtocolRequest(protocol);
 }

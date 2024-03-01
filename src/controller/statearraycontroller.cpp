@@ -67,7 +67,6 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
                 break;
             }
         }
-        md->stopProtocol();
         md->startStateArray();
     });
 
