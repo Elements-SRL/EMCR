@@ -77,7 +77,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
     addProtocolBtn->setCheckable(false);
     connect(addProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onAddProtocol();
 
         } else {
@@ -96,7 +96,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
     removeProtocolBtn->setCheckable(false);
     connect(removeProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onRemoveProtocol();
 
         } else {
@@ -115,7 +115,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
     editProtocolBtn->setCheckable(false);
     connect(editProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onEditProtocol();
 
         } else {
@@ -134,7 +134,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
     copyProtocolBtn->setCheckable(false);
     connect(copyProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onCopyProtocol();
 
         } else {
@@ -153,7 +153,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
     setProtocolsShortCutsBtn->setCheckable(false);
     connect(setProtocolsShortCutsBtn, &QPushButton::clicked, this, [=] () {
-        if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onSetProtocolsShortCuts();
 
         } else {
@@ -172,7 +172,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
     importProtocolBtn->setCheckable(false);
     connect(importProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onImportProtocols();
 
         } else {
@@ -191,7 +191,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
     exportProtocolBtn->setCheckable(false);
     connect(exportProtocolBtn, &QPushButton::clicked, this, [=] () {
-        if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+        if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onExportProtocols();
 
         } else {
