@@ -30,6 +30,7 @@ protected:
 
 protected slots:
     void onStartProtocol(bool flag);
+    void onRestartProtocol(bool flag);
 
 private:
     void setProtocolListVisibility();
@@ -43,6 +44,7 @@ private:
 
 signals:
     void startProtocol();
+    void restartProtocol();
     void stopProtocol();
 };
 

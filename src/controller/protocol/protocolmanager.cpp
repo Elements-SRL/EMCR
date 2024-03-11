@@ -12,6 +12,17 @@ void ProtocolManager::onStartProtocolRequest(ProtocolWidget * protocol) {
     emit protocolRequestOutcome(this->startProtocol(protocol));
 }
 
+void ProtocolManager::onRestartProtocolRequest() {
+    msgDisp->startProtocol();
+
+    protocol->resetConsumerRequests();
+    if (recordFlag) {
+        protocol->setConsumerRequest(ProtocolConsumerDataWriter);
+    }
+
+    emit protocolStarted(protocolId, protocol);
+}
+
 ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * protocol, bool recordFlag) {
     this->protocol = protocol;
     this->recordFlag = recordFlag;

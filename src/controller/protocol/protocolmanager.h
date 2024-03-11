@@ -16,6 +16,7 @@ public:
 
 public slots:
     void onStartProtocolRequest(ProtocolWidget * protocol);
+    void onRestartProtocolRequest();
     void onIncreaseProtocolId();
 
 private:

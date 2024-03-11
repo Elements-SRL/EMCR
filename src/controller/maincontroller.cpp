@@ -235,6 +235,9 @@ void MainController::onMainWindowCreated() {
             mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
             deviceController->handleProtocolStatusChanged(true);
         });
+        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::restartProtocol,    this, [=] () {
+            voltageProtocolManager->onRestartProtocolRequest();
+        });
         connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     this, [=] () {
             mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStopProtocol();
             deviceController->handleProtocolStatusChanged(false);
@@ -503,6 +506,10 @@ void MainController::startProducerConsumers() {
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
+    for (auto consumer : consumers) {
+        consumer->onStopConsuming();
+    }
+
     if (abfDataWriterConsumer!= nullptr) {
         abfDataWriterConsumer->onStopConsuming();
         delete abfDataWriterConsumer;

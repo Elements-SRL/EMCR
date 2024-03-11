@@ -223,6 +223,21 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
 
     sweepInfoHl->insertWidget(btnCol++, startProtocolBtn);
 
+    QPushButton * restartProtocolBtn = new QPushButton; {
+        QPixmap btnPix(":/imgs/start protocol.png");
+        QIcon btnIcon(btnPix);
+        restartProtocolBtn->setIcon(btnIcon);
+        restartProtocolBtn->setIconSize(QSize(30, 30));
+        restartProtocolBtn->setFixedSize(32, 32);
+        restartProtocolBtn->setToolTip("Retart the selected protocol");
+    }
+    restartProtocolBtn->setCheckable(false);
+    connect(restartProtocolBtn, &QPushButton::clicked, this, [=] () {
+        this->onRestartProtocol(true);
+    });
+
+    sweepInfoHl->insertWidget(btnCol++, restartProtocolBtn);
+
     QPushButton * stopProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/stop protocol.png");
         QIcon btnIcon(btnPix);
@@ -285,6 +300,18 @@ void ProtocolDockWidget::onStartProtocol(bool flag) {
         protocolTimer->onStopTimer();
         protocolTimer->onStartTimer();
         emit startProtocol();
+
+    } else {
+        protocolTimer->onStopTimer();
+        emit stopProtocol();
+    }
+}
+
+void ProtocolDockWidget::onRestartProtocol(bool flag) {
+    if (flag) {
+        protocolTimer->onStopTimer();
+        protocolTimer->onStartTimer();
+        emit restartProtocol();
 
     } else {
         protocolTimer->onStopTimer();
