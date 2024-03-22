@@ -224,6 +224,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     sweepInfoHl->insertWidget(btnCol++, startProtocolBtn);
 
     QPushButton * restartProtocolBtn = new QPushButton; {
+        restartProtocolBtn->setVisible(false);
         QPixmap btnPix(":/imgs/start protocol.png");
         QIcon btnIcon(btnPix);
         restartProtocolBtn->setIcon(btnIcon);
