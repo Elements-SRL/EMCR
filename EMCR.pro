@@ -26,6 +26,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
@@ -53,6 +54,8 @@ SOURCES += \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
+    src/model/ivaccumulator.cpp \
+    src/model/ivchannel.cpp \
     src/model/measurementoverviewmodel.cpp \
     src/model/plotpreferencesmodel.cpp \
     src/model/protocolmodel.cpp \
@@ -104,6 +107,7 @@ SOURCES += \
     src/abf/axon.cpp
 
 HEADERS += \
+    src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
@@ -133,6 +137,8 @@ HEADERS += \
     src/model/bigplotmodel.h \
     src/model/channel_and_name.h \
     src/model/channel_mapping.h \
+    src/model/ivaccumulator.h \
+    src/model/ivchannel.h \
     src/model/measurementoverviewmodel.h \
     src/model/plotpreferencesmodel.h \
     src/model/protocolmodel.h \
