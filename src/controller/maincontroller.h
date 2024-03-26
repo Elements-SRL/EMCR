@@ -6,6 +6,7 @@
 
 #include "mainwindow.h"
 #include "devicedetector.h"
+#include "deviceconnector.h"
 #include "bigplotcontroller.h"
 #include "chessboardcontroller.h"
 #include "singlechannelcontroller.h"
@@ -35,6 +36,7 @@ public:
 public slots:
     void onDevicesListChanged(std::vector <std::string> devicesList);
     void onConnect(bool flag);
+    void onDeviceConnected(ErrorCodes_t ret);
     void onMainWindowCreated();
     void onVcCurrentRangeSelected(int idx);
     void onVcVoltageRangeSelected(int idx);
@@ -59,6 +61,8 @@ private:
 
     DeviceDetector * deviceDetector = nullptr;
     QThread deviceDetectorThread;
+
+    DeviceConnector * deviceConnector = nullptr;
 
     DeviceDataProducer * deviceDataProducer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;

@@ -12,6 +12,12 @@ MainController::MainController() {
     connect(this, &MainController::stopDetecting, deviceDetector, &DeviceDetector::onStopDetecting);
 
     deviceDetectorThread.start();
+
+    /*! Set up device connector */
+    deviceConnector = new DeviceConnector;
+
+    connect(deviceConnector, &DeviceConnector::deviceConnected, this, &MainController::onDeviceConnected);
+
     setMainWindow(new MainWindow());
 }
 
@@ -28,8 +34,11 @@ MainController::~MainController() {
         deviceDetector = nullptr;
     }
 
-    if (msgDisp != nullptr) {
-        msgDisp->disconnectDevice();
+    if (deviceConnector != nullptr) {
+        delete deviceConnector;
+        deviceConnector = nullptr;
+        /*! The messageDispatcher is destroyed by the deviceConnector */
+        msgDisp = nullptr;
     }
 }
 
@@ -61,6 +70,7 @@ void MainController::onDevicesListChanged(std::vector <std::string> devicesList)
 
             if (connectedDeviceIdx >= 0) {
                 mainWindow->setConnectedDeviceIdx(connectedDeviceIdx);
+
             } else {
                 this->destroyControllers();
                 mainWindow->connectDevice(false, Success);
@@ -74,25 +84,8 @@ void MainController::onConnect(bool flag) {
     QString serial = mainWindow->getSelectedSerialNumber();
 
     if (flag) {
-        MessageDispatcher * messageDispatcher;
-        ErrorCodes_t ret = MessageDispatcher::connectDevice(serial.toStdString(), messageDispatcher);
-        bool connectionSuccessful = ret == Success;
-
-        if (connectionSuccessful) {
-            msgDisp = messageDispatcher;
-            msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
-            msgDisp->getBoardsNumberFeatures(boardsNumber);
-            mainWindow->setMessageDispatcher(msgDisp);
-        }
-
-        mainWindow->connectDevice(true, ret);
-        if (connectionSuccessful) {
-            this->onMainWindowCreated();
-        }
-
-        if (!connectionSuccessful) {
-            emit startDetecting();
-        }
+        deviceConnector->setDeviceId(serial);
+        deviceConnector->start();
 
     } else {
         this->stopAndDestroyProducerConsumers();
@@ -106,6 +99,25 @@ void MainController::onConnect(bool flag) {
             msgDisp = nullptr;
         }
 
+        emit startDetecting();
+    }
+}
+
+void MainController::onDeviceConnected(ErrorCodes_t ret) {
+    bool connectionSuccessful = ret == Success;
+    if (connectionSuccessful) {
+        msgDisp = deviceConnector->getMessageDispatcher();
+        msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
+        msgDisp->getBoardsNumberFeatures(boardsNumber);
+        mainWindow->setMessageDispatcher(msgDisp);
+    }
+
+    mainWindow->connectDevice(true, ret);
+    if (connectionSuccessful) {
+        this->onMainWindowCreated();
+    }
+
+    if (!connectionSuccessful) {
         emit startDetecting();
     }
 }

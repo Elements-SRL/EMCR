@@ -27,6 +27,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
+    src/controller/device/deviceconnector.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/plotpreferencescontroller.cpp \
@@ -105,6 +106,7 @@ SOURCES += \
 
 HEADERS += \
     src/controller/device/consumer/livestatisticsconsumer.h \
+    src/controller/device/deviceconnector.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
     src/controller/plotpreferencescontroller.h \
