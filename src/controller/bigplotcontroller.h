@@ -8,24 +8,26 @@
 #include "plotconsumer.h"
 #include <QPointF>
 #include "application_status.h"
+#include "plotmessage.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
 
 public:
-    BigPlotController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    BigPlotController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~BigPlotController();
 
     BigPlot * getPlot();
     void clearCurves();
-    GapFreePlotConsumer * getGapFreePlotConsumer();
+    PlotConsumer * getPlotConsumer();
+
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx);
     void onCurrentColorsChanged(QVector <QColor> colors);
     void onCurrentColorChanged(int channelIdx, QColor color);
     void onBackgroundColorChanged(QColor color);
 
-    void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
+    void onSetPlotData(PlotMessage plotMessage);
     void onReplot();
 
 private:
@@ -34,7 +36,7 @@ private:
     BigPlotWidget * bpw = nullptr;
     BigPlotModel * bpm = nullptr;
     BigPlot * plot;
-    GapFreePlotConsumer * plotConsumer = nullptr;
+    PlotConsumer * plotConsumer = nullptr;
     QVector <Curve *> currentCurves;
     QVector <Curve *> voltageCurves;
 

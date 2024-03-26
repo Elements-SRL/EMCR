@@ -1,56 +1,18 @@
 #include "ivgraphconsumer.h"
 #include <QTime>
+#include <iostream>
 
 IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer):
-    DeviceDataConsumer(appStatus, producer) {
+    PlotConsumer(appStatus, producer) {
 //    todo read from file this value?
-    this->nBins = currentChannelsNum;
-    ivChannels.reserve(currentChannelsNum);
-    currentValues.reserve(currentChannelsNum);
-    for(auto &&a: currentValues){
-        a.reserve(binSize);
-    }
+    this->nBins = 1000;
+    this->emitPlotData();
 }
 
 IvGraphConsumer::~IvGraphConsumer() {
     this->onStopConsuming();
     this->clearData();
 }
-
-void IvGraphConsumer::onStartConsuming() {
-    hook = producer->getDataHook();
-    if (hook != nullptr) {
-        this->start();
-    }
-}
-
-void IvGraphConsumer::onStopConsuming() {
-    if (this->isRunning()) {
-        QMutexLocker consumptionLock(&consumptionMtx);
-        consumptionStopped = true;
-        while (!exitedDataConsumingLoop) {
-            exitedDataConsumingLoopCv.wait(&consumptionMtx, 100);
-        }
-    }
-
-    if (hook != nullptr) {
-        delete hook;
-        hook = nullptr;
-    }
-}
-
-void IvGraphConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
-    QMutexLocker locker(&voltageAxisMtx);
-    pushedVoltageRange = range;
-    pushedVoltageRangeFlag = true;
-}
-
-void IvGraphConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
-    QMutexLocker locker(&currentAxisMtx);
-    pushedCurrentRange = range;
-    pushedCurrentRangeFlag = true;
-}
-
 
 void IvGraphConsumer::onSelectChannels(bool flag) {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
@@ -76,7 +38,6 @@ void IvGraphConsumer::forceAxisUpdate() {
 //    this->updateVoltageAxis();
 //    this->updateCurrentAxis();
 }
-
 
 void IvGraphConsumer::run() {
     consumptionStopped = false;
@@ -104,13 +65,12 @@ void IvGraphConsumer::run() {
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
 //            this->updateTimeAxis();
 //            this->updateRangeAxis();
-
             bufferIdx = 0;
             bufferLen = buffer.size();
 
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
-                for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+                for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
                         auto voltage = buffer[bufferIdx];
 //                      use the voltage value to index the currents
@@ -127,12 +87,18 @@ void IvGraphConsumer::run() {
 
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
-                emitPlotData();
+                for (int i=0; i<currentChannelsNum; i++) {
+                    auto currents = ivChannels[i]->getCurrents();
+                    for (int j=0; j< nBins; j++){
+                        currentValues[i][j] = currents[j];
+                    }
+                }
+                emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
             }
         }
     }
-    emitPlotData();
+    emit plotDataUpdated();
     consumptionLock.relock();
 
     exitedDataConsumingLoop = true;
@@ -158,11 +124,16 @@ int IvGraphConsumer::scaleToBins(double value) {
 }
 
 void IvGraphConsumer::allocateData() {
+    ivChannels.reserve(currentChannelsNum);
+    voltageData.resize(nBins);
+    for (int i = 0; i<nBins; i++){
+        voltageData[i] = ((double) i) * binSize;
+    }
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
+        currentValues.push_back(new double[nBins]);
 //        todo maybe get the n_bins from some type of configuration file
         ivChannels.push_back(new IvChannel(nBins, binSize, voltageRange.min));
     }
-//    forceAxisUpdate();
 }
 
 //todo call this method when bin size changes or when voltage range changes
@@ -172,16 +143,12 @@ void IvGraphConsumer::calculateBinSize(int nBins){
 }
 
 void IvGraphConsumer::emitPlotData() {
-    auto voltageVaues = ivChannels[0]->getVoltages();
-    for (int i=0; i<currentChannelsNum; i++){
-        currentValues[i] = ivChannels[i]->getCurrents();
-    }
-    emit setPlotData(voltageVaues, currentValues, 0);
+    IvMessage message = {voltageData, currentValues, nBins};
+    emit setPlotData(message);
 }
 
 void IvGraphConsumer::clearData(){
-    buffer.clear();
     ivChannels.clear();
     currentValues.clear();
-    plottedChannels.clear();
+    voltageData.clear();
 }

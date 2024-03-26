@@ -1,6 +1,7 @@
 #include "chessboardcontroller.h"
+#include <iostream>
 
-ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
+ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
 
@@ -55,8 +56,8 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFre
     connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked, this,       &ChessboardController::onSelectedPlotsUpdated);
 
-    connect(stampPlotConsumer, &GapFreePlotConsumer::setPlotData,       this,       &ChessboardController::onSetGapFreePlotData);
-    connect(stampPlotConsumer, &GapFreePlotConsumer::plotDataUpdated,   this,       &ChessboardController::onReplot);
+    connect(stampPlotConsumer, &PlotConsumer::setPlotData,              this,       &ChessboardController::onSetPlotData);
+    connect(stampPlotConsumer, &PlotConsumer::plotDataUpdated,          this,       &ChessboardController::onReplot);
     connect(chessboard, &QDockWidget::visibilityChanged,                this,       &ChessboardController::onSetConsumerStatus);
     mainWindow->setChessboardDw(chessboard);
 }
@@ -171,10 +172,27 @@ void ChessboardController::onDurationUpdated(Measurement_t duration) {
     }
 }
 
-void ChessboardController::onSetGapFreePlotData(double * timeValues, QVector <double *> *, QVector <double *> * currentValues, int dataSize) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
+void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
+    switch (plotMessage.index()) {
+//    IvGraph message
+    case 0: {
+        IvMessage ivMessage = std::get<0>(plotMessage);
+        double * voltages = ivMessage.voltageValues.data();
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            double * currents = ivMessage.currentValues[idx];
+            currentCurves.at(idx)->setRawSamples(voltages, currents, ivMessage.dataSize);
+        }
     }
+        break;
+//    GapFree message
+    case 1:
+        GapFreeMessage gapFreeMessage = std::get<1>(plotMessage);
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            currentCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues->at(idx), gapFreeMessage.dataSize);
+        }
+        break;
+    }
+
 }
 
 void ChessboardController::onReplot() {

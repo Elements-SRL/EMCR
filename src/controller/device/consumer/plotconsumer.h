@@ -6,6 +6,7 @@
 
 #include "messagedispatcher.h"
 #include "devicedataconsumer.h"
+#include "plotmessage.h"
 
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
@@ -17,7 +18,7 @@ public:
     PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~PlotConsumer();
 
-    void forceAxisUpdate();
+    virtual void forceAxisUpdate();
     void setMaxSamplesPerPlot(int samples);
 
 public slots:
@@ -31,6 +32,9 @@ public slots:
 
     void onDurationChanged(Measurement_t duration);
     void onSelectChannels(bool flag);
+
+signals:
+    void setPlotData(PlotMessage plotMessage);
 
 protected:
     typedef enum {
@@ -47,8 +51,8 @@ protected:
     void computeTimeAxis();
     void updateRangeAxis();
 
-    QVector <double *> voltageValues;
-    QVector <double *> currentValues;
+    std::vector<double *> voltageValues;
+    std::vector<double *> currentValues;
 
     double * timeValues = nullptr;
 
@@ -99,13 +103,9 @@ public:
 
 protected:
     void run() override;
-
     void allocateData() override;
     void clearData() override;
     void emitPlotData() override;
-
-signals:
-    void setPlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
 };
 
 #endif // PLOTCONSUMER_H

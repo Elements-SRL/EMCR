@@ -140,6 +140,7 @@ HEADERS += \
     src/model/ivaccumulator.h \
     src/model/ivchannel.h \
     src/model/measurementoverviewmodel.h \
+    src/model/plotmessage.h \
     src/model/plotpreferencesmodel.h \
     src/model/protocolmodel.h \
     src/model/state.h \

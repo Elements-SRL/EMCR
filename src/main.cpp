@@ -4,6 +4,7 @@
 #include "globaldefines.h"
 #include "statisticsresult.h"
 #include "application_status.h"
+#include "plotmessage.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -15,6 +16,7 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType <RecordSettingsDialog::RecordSettings_t> ("RecordSettingsDialog::RecordSettings_t");
     qRegisterMetaType <e384CommLib::ClampingModality_t> ("e384CommLib::ClampingModality_t");
     qRegisterMetaType <ProtocolWidget *> ("ProtocolWidget *");
+    qRegisterMetaType <PlotMessage>("PlotMessage");
 
     QCoreApplication::setOrganizationName("Elements S.R.L.");
     QCoreApplication::setOrganizationDomain("elements-ic.com");

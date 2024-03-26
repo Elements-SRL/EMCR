@@ -1,6 +1,7 @@
 #include "plotconsumer.h"
 
 #include <QTime>
+#include <iostream>
 
 PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
@@ -43,6 +44,7 @@ void PlotConsumer::setMaxSamplesPerPlot(int samples) {
 }
 
 void PlotConsumer::onStartConsuming() {
+    emitPlotData();
     hook = producer->getDataHook();
     if (hook != nullptr) {
         this->start();
@@ -281,12 +283,12 @@ void GapFreePlotConsumer::run() {
 
 void GapFreePlotConsumer::allocateData() {
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
-        voltageValues.append(new double[maxSamples]);
+        voltageValues.push_back(new double[maxSamples]);
     }
-
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
-        currentValues.append(new double[maxSamples]);
+        currentValues.push_back(new double[maxSamples]);
     }
+    currentValues.reserve(maxSamples);
 
     timeValues = new double[maxSamples];
     forceAxisUpdate();
@@ -310,5 +312,6 @@ void GapFreePlotConsumer::clearData() {
 }
 
 void GapFreePlotConsumer::emitPlotData() {
-    emit setPlotData(timeValues, &voltageValues, &currentValues, dataSize);
+    GapFreeMessage message = {timeValues, &voltageValues, &currentValues, dataSize};
+    emit setPlotData(message);
 }

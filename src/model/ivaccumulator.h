@@ -9,12 +9,12 @@ class IvAccumulator {
 public:
     IvAccumulator();
     ~IvAccumulator();
-
     double getMean();
     void pushValue(double v);
 
 private:
-    std::vector<double> values;
+    double sum;
+    double size;
 };
 
 #endif // IVACCUMULATOR_H

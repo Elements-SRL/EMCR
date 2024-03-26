@@ -8,12 +8,13 @@
 #include <QMouseEvent>
 #include "plotconsumer.h"
 #include "application_status.h"
+#include "plotmessage.h"
 
 class ChessboardController : public QObject {
     Q_OBJECT
 
 public:
-    ChessboardController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    ChessboardController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~ChessboardController();
 
     void clearCurves();
@@ -32,7 +33,7 @@ public slots:
     void onTracesExpandedOnOff(bool flag);
     void onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx = QwtPlot::yLeft);
     void onDurationUpdated(Measurement_t duration);
-    void onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize);
+    void onSetPlotData(PlotMessage plotMessage);
     void onReplot();
     void onSelectedPlotsUpdated();
 
@@ -44,7 +45,7 @@ private:
     ApplicationStatus * appStatus;
     MainWindow * mainWindow = nullptr;
     ChessboardDockWidget * chessboard = nullptr;
-    GapFreePlotConsumer * stampPlotConsumer = nullptr;
+    PlotConsumer * stampPlotConsumer = nullptr;
 
     QVector <StampPlot *> plots;
     QVector <Curve *> currentCurves;

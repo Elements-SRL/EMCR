@@ -1,7 +1,7 @@
 #include "bigplotcontroller.h"
 #include <iostream>
 
-BigPlotController::BigPlotController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
+BigPlotController::BigPlotController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
     mainWindow(mainWindow),
     plotConsumer(plotConsumer) {
@@ -36,13 +36,14 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, GapFreePlotC
     connect(plot, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
     connect(plot, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
 
-    connect(this, &BigPlotController::durationChanged, this->plotConsumer, &GapFreePlotConsumer::onDurationChanged);
-    connect(plotConsumer, &GapFreePlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
-    connect(plotConsumer, &GapFreePlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
+    connect(this, &BigPlotController::durationChanged, this->plotConsumer, &PlotConsumer::onDurationChanged);
+//    connect(plotConsumer, &PlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
+    connect(plotConsumer, &PlotConsumer::setPlotData,         this, &BigPlotController::onSetPlotData);
+    connect(plotConsumer, &PlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
 
 }
 
-GapFreePlotConsumer * BigPlotController::getGapFreePlotConsumer(){
+PlotConsumer * BigPlotController::getPlotConsumer(){
     return plotConsumer;
 }
 
@@ -91,7 +92,8 @@ void BigPlotController::clearCurves() {
     voltageCurves.clear();
 }
 
-void BigPlotController::onSetGapFreePlotData(double * timeValues, QVector <double *> * voltageValues, QVector <double *> * currentValues, int dataSize) {
+void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
+    std::cout << "onSetPlotData Big Plot" << std::endl;
     auto channels = appStatus->getChannels();
     int expanded_channels = 0;
     for(auto c: channels){
@@ -105,18 +107,27 @@ void BigPlotController::onSetGapFreePlotData(double * timeValues, QVector <doubl
         plotConsumer->onStartConsuming();
     }
 
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        if (channels[idx]->isExpanded()) {
-            currentCurves.at(idx)->attach(plot);
-            currentCurves.at(idx)->setRawSamples(timeValues, currentValues->at(idx), dataSize);
+    switch (plotmessage.index()) {
+//    IvGraph message
+    case 0:
+        break;
+//    GapFree message
+    case 1:
+        GapFreeMessage gapFreeMessage = std::get<1>(plotmessage);
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            if (channels[idx]->isExpanded()) {
+                currentCurves.at(idx)->attach(plot);
+                currentCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues->at(idx), gapFreeMessage.dataSize);
 
-            voltageCurves.at(idx)->attach(plot);
-            voltageCurves.at(idx)->setRawSamples(timeValues, voltageValues->at(idx), dataSize);
+                voltageCurves.at(idx)->attach(plot);
+                voltageCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues->at(idx), gapFreeMessage.dataSize);
 
-        } else {
-            currentCurves.at(idx)->detach();
-            voltageCurves.at(idx)->detach();
+            } else {
+                currentCurves.at(idx)->detach();
+                voltageCurves.at(idx)->detach();
+            }
         }
+        break;
     }
 }
 

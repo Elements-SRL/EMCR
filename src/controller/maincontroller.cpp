@@ -126,7 +126,7 @@ void MainController::onMainWindowCreated() {
 
     deviceDataProducer = new DeviceDataProducer(appStatus);
     auto bigPlotConsumer = new GapFreePlotConsumer(appStatus, deviceDataProducer);
-    auto stampPlotConsumer =  new GapFreePlotConsumer(appStatus, deviceDataProducer);
+    auto stampPlotConsumer =  new IvGraphConsumer(appStatus, deviceDataProducer);
 
 //    auto applicationStatus = new ApplicationStatus(msgDisp, "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml");
 
@@ -164,7 +164,7 @@ void MainController::onMainWindowCreated() {
     \*************/
 
     consumers.append(chessboardController->getPlotConsumer());
-    consumers.append(bigPlotController->getGapFreePlotConsumer());
+    consumers.append(bigPlotController->getPlotConsumer());
     abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);
@@ -201,7 +201,7 @@ void MainController::onMainWindowCreated() {
 
     connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                           &MainController::onStartRecording);
     connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                           &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotController->getGapFreePlotConsumer(),                &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotController->getPlotConsumer(),                &PlotConsumer::onSelectChannels);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,           &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
@@ -500,9 +500,6 @@ void MainController::onStopRecording() {
 
 void MainController::startProducerConsumers() {
     deviceDataProducer->start();
-//    stampPlotConsumer->onStartConsuming();
-//    bigPlotConsumer->onStartConsuming();
-//    liveStatisticsConsumer->onStartConsuming(); /*! \todo FCON valutare se farlo partire solo a richiesta */
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
