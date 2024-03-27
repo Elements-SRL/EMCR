@@ -14,6 +14,7 @@ public:
 
     void setDeviceId(QString deviceId);
     MessageDispatcher * getMessageDispatcher();
+    void destroyMessageDispatcher();
 
 protected:
     void run() override;

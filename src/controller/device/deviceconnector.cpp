@@ -8,10 +8,7 @@ DeviceConnector::DeviceConnector() :
 }
 
 DeviceConnector::~DeviceConnector() {
-    if (msgDisp != nullptr) {
-        delete msgDisp;
-        msgDisp = nullptr;
-    }
+    this->destroyMessageDispatcher();
 }
 
 void DeviceConnector::setDeviceId(QString deviceId) {
@@ -20,6 +17,13 @@ void DeviceConnector::setDeviceId(QString deviceId) {
 
 MessageDispatcher * DeviceConnector::getMessageDispatcher() {
     return msgDisp;
+}
+
+void DeviceConnector::destroyMessageDispatcher() {
+    if (msgDisp != nullptr) {
+        delete msgDisp;
+        msgDisp = nullptr;
+    }
 }
 
 void DeviceConnector::run() {

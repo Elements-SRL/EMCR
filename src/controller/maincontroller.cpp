@@ -95,7 +95,7 @@ void MainController::onConnect(bool flag) {
 
         if (msgDisp != nullptr) {
             msgDisp->disconnectDevice();
-            delete msgDisp;
+            deviceConnector->destroyMessageDispatcher();
             msgDisp = nullptr;
         }
 
