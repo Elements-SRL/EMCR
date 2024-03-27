@@ -37,7 +37,6 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, PlotConsumer
     connect(plot, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
 
     connect(this, &BigPlotController::durationChanged, this->plotConsumer, &PlotConsumer::onDurationChanged);
-//    connect(plotConsumer, &PlotConsumer::setPlotData,         this, &BigPlotController::onSetGapFreePlotData);
     connect(plotConsumer, &PlotConsumer::setPlotData,         this, &BigPlotController::onSetPlotData);
     connect(plotConsumer, &PlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
 
@@ -107,13 +106,27 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
         plotConsumer->onStartConsuming();
     }
 
+    IvMessage ivMessage;
+    GapFreeMessage gapFreeMessage;
+
     switch (plotmessage.index()) {
 //    IvGraph message
     case 0:
+        ivMessage = std::get<0>(plotmessage);
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            if (channels[idx]->isExpanded()) {
+                double * voltages = ivMessage.voltageValues.data();
+                currentCurves.at(idx)->attach(plot);
+                currentCurves.at(idx)->setRawSamples(voltages, ivMessage.currentValues[idx], ivMessage.dataSize);
+            } else {
+                currentCurves.at(idx)->detach();
+                voltageCurves.at(idx)->detach();
+            }
+        }
         break;
 //    GapFree message
     case 1:
-        GapFreeMessage gapFreeMessage = std::get<1>(plotmessage);
+        gapFreeMessage = std::get<1>(plotmessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             if (channels[idx]->isExpanded()) {
                 currentCurves.at(idx)->attach(plot);

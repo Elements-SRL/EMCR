@@ -44,7 +44,6 @@ void PlotConsumer::setMaxSamplesPerPlot(int samples) {
 }
 
 void PlotConsumer::onStartConsuming() {
-    emitPlotData();
     hook = producer->getDataHook();
     if (hook != nullptr) {
         this->start();
@@ -312,6 +311,7 @@ void GapFreePlotConsumer::clearData() {
 }
 
 void GapFreePlotConsumer::emitPlotData() {
+    std::cout << "setPlotData Gapfree Big Plot" << std::endl;
     GapFreeMessage message = {timeValues, &voltageValues, &currentValues, dataSize};
     emit setPlotData(message);
 }

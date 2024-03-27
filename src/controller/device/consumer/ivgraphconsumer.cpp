@@ -33,10 +33,13 @@ void IvGraphConsumer::onSelectChannels(bool flag) {
 }
 
 void IvGraphConsumer::forceAxisUpdate() {
-    pushedVoltageRangeFlag = true;
     pushedCurrentRangeFlag = true;
-//    this->updateVoltageAxis();
-//    this->updateCurrentAxis();
+    updateRangeAxis();
+}
+
+void IvGraphConsumer::onStartConsuming(){
+    emitPlotData();
+    PlotConsumer::onStartConsuming();
 }
 
 void IvGraphConsumer::run() {
@@ -143,6 +146,7 @@ void IvGraphConsumer::calculateBinSize(int nBins){
 }
 
 void IvGraphConsumer::emitPlotData() {
+    std::cout << "setPlotData Big Plot" << std::endl;
     IvMessage message = {voltageData, currentValues, nBins};
     emit setPlotData(message);
 }

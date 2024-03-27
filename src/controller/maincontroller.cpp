@@ -126,7 +126,7 @@ void MainController::onMainWindowCreated() {
 
     deviceDataProducer = new DeviceDataProducer(appStatus);
     auto bigPlotConsumer = new GapFreePlotConsumer(appStatus, deviceDataProducer);
-    auto stampPlotConsumer =  new IvGraphConsumer(appStatus, deviceDataProducer);
+    auto stampPlotConsumer =  new GapFreePlotConsumer(appStatus, deviceDataProducer);
 
 //    auto applicationStatus = new ApplicationStatus(msgDisp, "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml");
 
