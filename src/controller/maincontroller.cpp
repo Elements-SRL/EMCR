@@ -125,7 +125,7 @@ void MainController::onMainWindowCreated() {
     \************/
 
     deviceDataProducer = new DeviceDataProducer(appStatus);
-    auto bigPlotConsumer = new GapFreePlotConsumer(appStatus, deviceDataProducer);
+    auto bigPlotConsumer = new IvGraphConsumer(appStatus, deviceDataProducer);
     auto stampPlotConsumer =  new GapFreePlotConsumer(appStatus, deviceDataProducer);
 
 //    auto applicationStatus = new ApplicationStatus(msgDisp, "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml");
@@ -201,7 +201,7 @@ void MainController::onMainWindowCreated() {
 
     connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                           &MainController::onStartRecording);
     connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                           &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotController->getPlotConsumer(),                &PlotConsumer::onSelectChannels);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotController,              &BigPlotController::onExpandTrace);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,           &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,           &ChessboardController::onStimuliTurnedOnOff);

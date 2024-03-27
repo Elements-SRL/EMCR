@@ -6,7 +6,6 @@ IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProduc
     PlotConsumer(appStatus, producer) {
 //    todo read from file this value?
     this->nBins = 1000;
-    this->emitPlotData();
 }
 
 IvGraphConsumer::~IvGraphConsumer() {
@@ -14,38 +13,15 @@ IvGraphConsumer::~IvGraphConsumer() {
     this->clearData();
 }
 
-void IvGraphConsumer::onSelectChannels(bool flag) {
-    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
-    std::vector <bool> values(selectedChannels.size(), flag);
-    bool wasThisRunning = this->isRunning();
-    if (wasThisRunning) {
-        this->onStopConsuming();
-    }
-
-    for (auto channelIdx : selectedChannels) {
-        plottedChannels[channelIdx] = !plottedChannels[channelIdx];
-    }
-
-    forceAxisUpdate();
-    if (wasThisRunning) {
-        this->onStartConsuming();
-    }
-}
-
 void IvGraphConsumer::forceAxisUpdate() {
     pushedCurrentRangeFlag = true;
     updateRangeAxis();
 }
 
-void IvGraphConsumer::onStartConsuming(){
-    emitPlotData();
-    PlotConsumer::onStartConsuming();
-}
-
 void IvGraphConsumer::run() {
     consumptionStopped = false;
     exitedDataConsumingLoop = false;
-
+    emitPlotData();
     int bufferIdx;
     int bufferLen = 0;
     int channelIdx;
@@ -64,7 +40,6 @@ void IvGraphConsumer::run() {
             break;
         }
         consumptionLock.unlock();
-
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
 //            this->updateTimeAxis();
 //            this->updateRangeAxis();
@@ -87,7 +62,6 @@ void IvGraphConsumer::run() {
                     }
                 }
             }
-
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
                 for (int i=0; i<currentChannelsNum; i++) {

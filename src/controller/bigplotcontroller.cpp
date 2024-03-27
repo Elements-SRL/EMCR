@@ -91,21 +91,27 @@ void BigPlotController::clearCurves() {
     voltageCurves.clear();
 }
 
-void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
-    std::cout << "onSetPlotData Big Plot" << std::endl;
+bool BigPlotController::isAtLeastOneChannelExpanded() {
     auto channels = appStatus->getChannels();
-    int expanded_channels = 0;
     for(auto c: channels){
         if(c->isExpanded()){
-            expanded_channels++;
+            return true;
         }
     }
-    if (expanded_channels == 0){
-        plotConsumer->onStopConsuming();
-    } else {
-        plotConsumer->onStartConsuming();
-    }
+    return false;
+}
 
+void BigPlotController::onExpandTrace(bool flag){
+    plotConsumer->onSelectChannels(flag);
+    if (isAtLeastOneChannelExpanded()) {
+        plotConsumer->onStartConsuming();
+    } else {
+        plotConsumer->onStopConsuming();
+    }
+}
+
+void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
+    auto channels = appStatus->getChannels();
     IvMessage ivMessage;
     GapFreeMessage gapFreeMessage;
 

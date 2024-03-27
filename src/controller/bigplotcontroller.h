@@ -29,6 +29,7 @@ public slots:
 
     void onSetPlotData(PlotMessage plotMessage);
     void onReplot();
+    void onExpandTrace(bool);
 
 private:
     ApplicationStatus * appStatus = nullptr;
@@ -42,7 +43,7 @@ private:
 
     int voltageChannelsNum;
     int currentChannelsNum;
-
+    bool isAtLeastOneChannelExpanded();
 private slots:
     void handleZoomInRequest(Rect4 r);
     void handleZoomOutRequest();

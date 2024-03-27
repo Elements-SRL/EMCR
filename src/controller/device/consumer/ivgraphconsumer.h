@@ -18,8 +18,6 @@ public:
     ~IvGraphConsumer();
     void forceAxisUpdate() override;
 
-public slots:
-    void onSelectChannels(bool flag);
 //    void onBinsNuberChanged(int numberOfBins);
 
 private:
@@ -35,7 +33,6 @@ private:
     void clearData() override;
     void run() override;
     void allocateData() override;
-    void onStartConsuming() override;
     int scaleToBins(double value);
     void calculateBinSize(int nBins);
 

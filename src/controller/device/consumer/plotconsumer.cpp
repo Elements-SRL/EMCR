@@ -104,7 +104,6 @@ void PlotConsumer::onSelectChannels(bool flag) {
     if (wasThisRunning) {
         this->onStopConsuming();
     }
-
     if (flag) {
         for (auto channelIdx : selectedChannels) {
             if (!plottedChannels[channelIdx]) {
