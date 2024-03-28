@@ -102,11 +102,10 @@ bool BigPlotController::isAtLeastOneChannelExpanded() {
 }
 
 void BigPlotController::onExpandTrace(bool flag){
+    plotConsumer->onStopConsuming();
     plotConsumer->onSelectChannels(flag);
     if (isAtLeastOneChannelExpanded()) {
         plotConsumer->onStartConsuming();
-    } else {
-        plotConsumer->onStopConsuming();
     }
 }
 

@@ -34,7 +34,6 @@ private:
     QMutex currentAxisMtx;
     int scaleToBins(double value);
     void calculateBinSize();
-    std::vector<int> indexes;
 
 protected:
     void clearData() override;

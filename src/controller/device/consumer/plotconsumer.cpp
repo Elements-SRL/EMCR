@@ -99,11 +99,6 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
 
 void PlotConsumer::onSelectChannels(bool flag) {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
-    std::vector <bool> values(selectedChannels.size(), flag);
-    bool wasThisRunning = this->isRunning();
-    if (wasThisRunning) {
-        this->onStopConsuming();
-    }
     if (flag) {
         for (auto channelIdx : selectedChannels) {
             if (!plottedChannels[channelIdx]) {
@@ -118,11 +113,7 @@ void PlotConsumer::onSelectChannels(bool flag) {
             }
         }
     }
-
     forceAxisUpdate();
-    if (wasThisRunning) {
-        this->onStartConsuming();
-    }
 }
 
 void PlotConsumer::updateTimeAxis() {
@@ -310,7 +301,6 @@ void GapFreePlotConsumer::clearData() {
 }
 
 void GapFreePlotConsumer::emitPlotData() {
-    std::cout << "setPlotData Gapfree Big Plot" << std::endl;
     GapFreeMessage message = {timeValues, &voltageValues, &currentValues, dataSize};
     emit setPlotData(message);
 }

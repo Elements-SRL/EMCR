@@ -17,6 +17,7 @@ IvGraphConsumer::~IvGraphConsumer() {
 void IvGraphConsumer::forceAxisUpdate() {
     pushedCurrentRangeFlag = true;
     updateRangeAxis();
+    emitPlotData();
 }
 
 void IvGraphConsumer::onVoltageRangeChanged(RangedMeasurement_t range){
@@ -61,11 +62,6 @@ void IvGraphConsumer::run() {
                         auto voltage = buffer[bufferIdx];
 //                      use the voltage value to index the currents
                         auto binIndex = scaleToBins(voltage);
-                        auto it = std::find(indexes.begin(), indexes.end(), binIndex);
-                        if (it == indexes.end()) {
-                            indexes.push_back(binIndex);
-                            std::sort(indexes.begin(), indexes.end());
-                        }
                         bufferIdx++;
                         auto currentValue = buffer[bufferIdx];
                         ivChannels[channelIdx]->pushValue(binIndex, currentValue);
@@ -81,10 +77,8 @@ void IvGraphConsumer::run() {
                     auto currents = ivChannels[i]->getCurrents();
                     for (int j=0; j< nBins; j++){
                         currentValues[i][j] = currents[j];
-                        std::cout << " " << currentValues[i][j];
                     }
                 }
-                std::cout << std::endl;
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
             }
@@ -105,7 +99,7 @@ int IvGraphConsumer::scaleToBins(double value) {
 
 void IvGraphConsumer::allocateData() {
     clearData();
-    ivChannels.reserve(currentChannelsNum);
+    ivChannels.resize(currentChannelsNum);
     voltageData = new double[nBins];
     for (int i = 0; i<nBins; i++){
         voltageData[i] = ((double) i) * binSize + pushedVoltageRange.min;
@@ -113,7 +107,7 @@ void IvGraphConsumer::allocateData() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[nBins]);
 //        todo maybe get the n_bins from some type of configuration file
-        ivChannels.push_back(new IvChannel(nBins, binSize));
+        ivChannels[idx] = new IvChannel(nBins, binSize);
     }
 }
 
@@ -129,7 +123,13 @@ void IvGraphConsumer::emitPlotData() {
 }
 
 void IvGraphConsumer::clearData(){
+    for (int i = 0; i < ivChannels.size(); i++) {
+        delete ivChannels[i];
+    }
     ivChannels.clear();
+    for (int i = 0; i < currentValues.size(); i++) {
+        delete [] currentValues[i];
+    }
     currentValues.clear();
     if (voltageData != nullptr) {
         delete [] voltageData;
