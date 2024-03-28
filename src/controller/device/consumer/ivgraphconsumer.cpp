@@ -5,7 +5,8 @@
 IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer):
     PlotConsumer(appStatus, producer) {
 //    todo read from file this value?
-    this->nBins = 1000;
+    this->nBins = 1600;
+    calculateBinSize();
 }
 
 IvGraphConsumer::~IvGraphConsumer() {
@@ -16,6 +17,13 @@ IvGraphConsumer::~IvGraphConsumer() {
 void IvGraphConsumer::forceAxisUpdate() {
     pushedCurrentRangeFlag = true;
     updateRangeAxis();
+}
+
+void IvGraphConsumer::onVoltageRangeChanged(RangedMeasurement_t range){
+    PlotConsumer::onVoltageRangeChanged(range);
+    calculateBinSize();
+    allocateData();
+    emitPlotData();
 }
 
 void IvGraphConsumer::run() {
@@ -53,6 +61,11 @@ void IvGraphConsumer::run() {
                         auto voltage = buffer[bufferIdx];
 //                      use the voltage value to index the currents
                         auto binIndex = scaleToBins(voltage);
+                        auto it = std::find(indexes.begin(), indexes.end(), binIndex);
+                        if (it == indexes.end()) {
+                            indexes.push_back(binIndex);
+                            std::sort(indexes.begin(), indexes.end());
+                        }
                         bufferIdx++;
                         auto currentValue = buffer[bufferIdx];
                         ivChannels[channelIdx]->pushValue(binIndex, currentValue);
@@ -68,8 +81,13 @@ void IvGraphConsumer::run() {
                     auto currents = ivChannels[i]->getCurrents();
                     for (int j=0; j< nBins; j++){
                         currentValues[i][j] = currents[j];
+//                        std::cout << " "  << currents[j];
                     }
                 }
+                for (auto i: indexes) {
+                    std::cout << " "  << currentValues[0][i];
+                }
+                std::cout << " "  << std::endl;
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
             }
@@ -85,42 +103,38 @@ void IvGraphConsumer::run() {
 // Function to scale a value into a number of bins
 int IvGraphConsumer::scaleToBins(double value) {
     // Calculate the adjusted value to lie within [0, 2*v]
-    double adjusted_value = (value + voltageRange.max) / nBins;
+    return static_cast<int>(((value + pushedVoltageRange.max) / (pushedVoltageRange.delta())) * (double)nBins);
 
-    // Calculate the bin index
-    int bin_index = static_cast<int>(adjusted_value);
+//    // Ensure the bin index falls within [0, n_bins-1] range
+//    if (bin_index < 0) {
+//        bin_index = 0;
+//    } else if (bin_index >= nBins) {
+//        bin_index = nBins - 1;
+//    }
 
-    // Ensure the bin index falls within [0, n_bins-1] range
-    if (bin_index < 0) {
-        bin_index = 0;
-    } else if (bin_index >= nBins) {
-        bin_index = nBins - 1;
-    }
-
-    return bin_index;
+//    return bin_index;
 }
 
 void IvGraphConsumer::allocateData() {
     ivChannels.reserve(currentChannelsNum);
     voltageData.resize(nBins);
     for (int i = 0; i<nBins; i++){
-        voltageData[i] = ((double) i) * binSize;
+        voltageData[i] = ((double) i) * binSize + pushedVoltageRange.min;
     }
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
         currentValues.push_back(new double[nBins]);
 //        todo maybe get the n_bins from some type of configuration file
-        ivChannels.push_back(new IvChannel(nBins, binSize, voltageRange.min));
+        ivChannels.push_back(new IvChannel(nBins, binSize, pushedVoltageRange.min));
     }
 }
 
 //todo call this method when bin size changes or when voltage range changes
-void IvGraphConsumer::calculateBinSize(int nBins){
+void IvGraphConsumer::calculateBinSize(){
     // Calculate the size of each bin
-    binSize = 2 * voltageRange.max / nBins;
+    binSize = pushedVoltageRange.delta() / ((double) nBins);
 }
 
 void IvGraphConsumer::emitPlotData() {
-    std::cout << "setPlotData Big Plot" << std::endl;
     IvMessage message = {voltageData, currentValues, nBins};
     emit setPlotData(message);
 }

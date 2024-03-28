@@ -10,9 +10,12 @@ IvAccumulator::~IvAccumulator(){
 
 void IvAccumulator::pushValue(double v){
     sum+=v;
-    sum+=1.0;
+    size++;
 }
 
 double IvAccumulator::getMean(){
-    return sum/size;
+    if (sum == 0.0 || size == 0) {
+        return 0.0;
+    }
+    return sum/((double) size);
 }

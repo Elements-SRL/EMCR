@@ -103,11 +103,18 @@ Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, int zoomInFactor, QPointF
         newMin = y - ((y - min) / divisor);
         newMax = y + (max - y) / divisor;
     }
-    const auto maxFactor = 10;
-    const auto maxMin = maxFactor*getCurrentRange(ax).getMin().value;
-    const auto maxMax = maxFactor*getCurrentRange(ax).getMax().value;
+//    const auto maxFactor = 10;
+//    const auto maxMin = maxFactor*getCurrentRange(ax).getMin().value;
+//    const auto maxMax = maxFactor*getCurrentRange(ax).getMax().value;
 //    if the new values are too big or too small use the the min and max of the current range multiplied by maxFactor
-    currentZoom[ax].setInterval((newMin<maxMin)?maxMin:newMin, (newMax>maxMax)?maxMax:newMax);
+    currentZoom[ax].setInterval(newMin, newMax);
+    return currentZoom;
+}
+
+Rect4 BigPlotModel::initRect(double minX, double maxX, double minY, double maxY){
+    clearZoomStack();
+    currentZoom[QwtPlot::Axis::xBottom] = QwtInterval(minX, maxX);
+    currentZoom[QwtPlot::Axis::yLeft] = QwtInterval(minY, maxY);
     return currentZoom;
 }
 

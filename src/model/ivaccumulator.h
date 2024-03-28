@@ -13,8 +13,8 @@ public:
     void pushValue(double v);
 
 private:
-    double sum;
-    double size;
+    double sum = 0.0;
+    uint64_t size = 0;
 };
 
 #endif // IVACCUMULATOR_H

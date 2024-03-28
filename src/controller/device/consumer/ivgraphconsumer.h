@@ -18,6 +18,8 @@ public:
     ~IvGraphConsumer();
     void forceAxisUpdate() override;
 
+public slots:
+    void onVoltageRangeChanged(RangedMeasurement_t range) override;
 //    void onBinsNuberChanged(int numberOfBins);
 
 private:
@@ -30,12 +32,14 @@ private:
     std::vector<double> voltageData;
     QMutex voltageAxisMtx;
     QMutex currentAxisMtx;
+    int scaleToBins(double value);
+    void calculateBinSize();
+    std::vector<int> indexes;
+
+protected:
     void clearData() override;
     void run() override;
     void allocateData() override;
-    int scaleToBins(double value);
-    void calculateBinSize(int nBins);
-
     void emitPlotData() override;
 };
 

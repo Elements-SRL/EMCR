@@ -114,16 +114,31 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
     auto channels = appStatus->getChannels();
     IvMessage ivMessage;
     GapFreeMessage gapFreeMessage;
-
+    RangedMeasurement v;
+    RangedMeasurement i;
+    Rect4 r;
     switch (plotmessage.index()) {
 //    IvGraph message
     case 0:
+        plot->setStatus(BigPlotStatus::Iv);
+        appStatus->getMessageDispatcher()->getVCVoltageRange(v);
+        appStatus->getMessageDispatcher()->getVCCurrentRange(i);
+        r = bpm->initRect(v.min, v.max, i.min, i.max);
+        plot->setRect(r);
         ivMessage = std::get<0>(plotmessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             if (channels[idx]->isExpanded()) {
                 double * voltages = ivMessage.voltageValues.data();
                 currentCurves.at(idx)->attach(plot);
+                voltageCurves.at(idx)->detach();
                 currentCurves.at(idx)->setRawSamples(voltages, ivMessage.currentValues[idx], ivMessage.dataSize);
+                std::cout<<"currents " << std::endl;
+                for (int i=0; i<ivMessage.dataSize; i++){
+                    std::cout<<" " <<ivMessage.currentValues[idx][i];
+                }
+                std::cout<< std::endl;
+                currentCurves.at(idx)->setStyle(QwtPlotCurve::NoCurve);
+                currentCurves.at(idx)->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::blue, Qt::NoPen, QSize(5, 5)));
             } else {
                 currentCurves.at(idx)->detach();
                 voltageCurves.at(idx)->detach();
@@ -132,6 +147,7 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
         break;
 //    GapFree message
     case 1:
+        plot->setStatus(BigPlotStatus::GapFree);
         gapFreeMessage = std::get<1>(plotmessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             if (channels[idx]->isExpanded()) {

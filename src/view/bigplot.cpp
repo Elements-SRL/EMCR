@@ -124,11 +124,22 @@ Rect4 BigPlot::getRect() {
     return r;
 }
 
+void BigPlot::setStatus(BigPlotStatus status){
+    this->status = status;
+}
+
 void BigPlot::setRect(Rect4 r) {
     if (((r.at(yLeft).width() == 0.0) && (r.at(yRight).width() == 0.0)) || (r.at(xBottom).width() == 0.0)) {
         return;
     }
-    this->setAxisScale(xBottom, 0.0, r[xBottom].width());
+    switch (status) {
+    case GapFree:
+        this->setAxisScale(xBottom, 0.0, r[xBottom].width());
+        break;
+    case Iv:
+        this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
+        break;
+    }
     this->setAxisScale(yLeft, r[yLeft].minValue(), r[yLeft].maxValue());
     yScale = 0.5*r[yLeft].width();
     if (this->axisEnabled(yRight)) {

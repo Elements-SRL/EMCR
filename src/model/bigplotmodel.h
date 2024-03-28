@@ -46,5 +46,6 @@ public:
     void updateCurrentZoom(Rect4);
     Rect4 zoomOnSingleAxis(QwtPlot::Axis, int, QPointF);
     Rect4 shiftOnSingleAxis(QwtPlot::Axis, int);
+    Rect4 initRect(double minX, double maxX, double miny, double maxY);
 };
 #endif // BIGPLOTMODEL_H
