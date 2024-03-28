@@ -177,7 +177,7 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
 //    IvGraph message
     case 0: {
         IvMessage ivMessage = std::get<0>(plotMessage);
-        double * voltages = ivMessage.voltageValues.data();
+        double * voltages = ivMessage.voltageValues;
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             double * currents = ivMessage.currentValues[idx];
             currentCurves.at(idx)->setRawSamples(voltages, currents, ivMessage.dataSize);

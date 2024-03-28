@@ -29,7 +29,7 @@ private:
     std::vector<double> buffer;
     std::vector<IvChannel *> ivChannels;
     std::vector<double *> currentValues;
-    std::vector<double> voltageData;
+    double * voltageData = nullptr;
     QMutex voltageAxisMtx;
     QMutex currentAxisMtx;
     int scaleToBins(double value);

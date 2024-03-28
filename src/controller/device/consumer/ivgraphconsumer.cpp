@@ -104,8 +104,9 @@ int IvGraphConsumer::scaleToBins(double value) {
 }
 
 void IvGraphConsumer::allocateData() {
+    clearData();
     ivChannels.reserve(currentChannelsNum);
-    voltageData.resize(nBins);
+    voltageData = new double[nBins];
     for (int i = 0; i<nBins; i++){
         voltageData[i] = ((double) i) * binSize + pushedVoltageRange.min;
     }
@@ -130,5 +131,8 @@ void IvGraphConsumer::emitPlotData() {
 void IvGraphConsumer::clearData(){
     ivChannels.clear();
     currentValues.clear();
-    voltageData.clear();
+    if (voltageData != nullptr) {
+        delete [] voltageData;
+        voltageData = nullptr;
+    }
 }

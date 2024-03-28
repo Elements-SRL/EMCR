@@ -128,15 +128,10 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
         ivMessage = std::get<0>(plotmessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             if (channels[idx]->isExpanded()) {
-                double * voltages = ivMessage.voltageValues.data();
+//                double * voltages = ivMessage.voltageValues.data();
                 currentCurves.at(idx)->attach(plot);
                 voltageCurves.at(idx)->detach();
-                currentCurves.at(idx)->setRawSamples(voltages, ivMessage.currentValues[idx], ivMessage.dataSize);
-//                std::cout<<"currents " << std::endl;
-//                for (int i=0; i<ivMessage.dataSize; i++){
-//                    std::cout<<" " <<ivMessage.currentValues[idx][i];
-//                }
-//                std::cout<< std::endl;
+                currentCurves.at(idx)->setRawSamples(ivMessage.voltageValues, ivMessage.currentValues[idx], ivMessage.dataSize);
                 currentCurves.at(idx)->setStyle(QwtPlotCurve::NoCurve);
                 currentCurves.at(idx)->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::blue, Qt::NoPen, QSize(5, 5)));
             } else {

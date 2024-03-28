@@ -7,7 +7,7 @@
 #include <tuple>
 
 struct IvMessage{
-    std::vector<double> voltageValues;
+    double * voltageValues;
     std::vector<double*> currentValues;
     int dataSize;
 };
