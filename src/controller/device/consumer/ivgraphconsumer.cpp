@@ -81,13 +81,10 @@ void IvGraphConsumer::run() {
                     auto currents = ivChannels[i]->getCurrents();
                     for (int j=0; j< nBins; j++){
                         currentValues[i][j] = currents[j];
-//                        std::cout << " "  << currents[j];
+                        std::cout << " " << currentValues[i][j];
                     }
                 }
-                for (auto i: indexes) {
-                    std::cout << " "  << currentValues[0][i];
-                }
-                std::cout << " "  << std::endl;
+                std::cout << std::endl;
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
             }
@@ -103,16 +100,7 @@ void IvGraphConsumer::run() {
 // Function to scale a value into a number of bins
 int IvGraphConsumer::scaleToBins(double value) {
     // Calculate the adjusted value to lie within [0, 2*v]
-    return static_cast<int>(((value + pushedVoltageRange.max) / (pushedVoltageRange.delta())) * (double)nBins);
-
-//    // Ensure the bin index falls within [0, n_bins-1] range
-//    if (bin_index < 0) {
-//        bin_index = 0;
-//    } else if (bin_index >= nBins) {
-//        bin_index = nBins - 1;
-//    }
-
-//    return bin_index;
+    return static_cast<int>((value - pushedVoltageRange.min) / binSize);
 }
 
 void IvGraphConsumer::allocateData() {
@@ -121,10 +109,10 @@ void IvGraphConsumer::allocateData() {
     for (int i = 0; i<nBins; i++){
         voltageData[i] = ((double) i) * binSize + pushedVoltageRange.min;
     }
-    for (int idx = 0; idx < this->currentChannelsNum; idx++) {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[nBins]);
 //        todo maybe get the n_bins from some type of configuration file
-        ivChannels.push_back(new IvChannel(nBins, binSize, pushedVoltageRange.min));
+        ivChannels.push_back(new IvChannel(nBins, binSize));
     }
 }
 

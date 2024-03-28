@@ -1,11 +1,11 @@
 #include "ivchannel.h"
 
-IvChannel::IvChannel(int nBins, double binSize, double minVoltageValue){
+IvChannel::IvChannel(int nBins, double binSize){
     this->nBins = nBins;
     this->binSize = binSize;
+    ivAccumulators.resize(nBins);
     for (int i=0; i<nBins; i++){
-        ivAccumulators.push_back(new IvAccumulator());
-        voltages.push_back(minVoltageValue + (binSize * i));
+        ivAccumulators[i] = new IvAccumulator();
     }
 }
 
@@ -20,13 +20,9 @@ void IvChannel::pushValue(int binIdx, double value){
 }
 
 std::vector<double> IvChannel::getCurrents(){
-    std::vector<double> avgCurrents;
-    for (auto &&acc: ivAccumulators){
-        avgCurrents.push_back(acc->getMean());
+    std::vector<double> avgCurrents(nBins);
+    for (int i=0; i<nBins; i++){
+        avgCurrents[i] = ivAccumulators[i]->getMean();
     }
     return avgCurrents;
-}
-
-std::vector<double> IvChannel::getVoltages(){
-    return this->voltages;
 }
