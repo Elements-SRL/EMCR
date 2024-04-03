@@ -21,7 +21,6 @@ private:
     void clearZoomStack();
     double yScale;
     RangedMeasurement_t currentRange[QwtPlot::axisCnt];
-    Measurement_t sweepDuration = {1.0, UnitPfxNone, "s"};
     UnitPfx_t xAxisPrefix = UnitPfxNone;
     void pushZoomStack(Rect4);
     void setCurrentZoom(QwtPlot::Axis, double, double);

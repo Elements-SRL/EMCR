@@ -6,11 +6,11 @@
 
 using namespace e384CommLib;
 
-BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, QWidget * parent) :
+BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, BigPlotStatus status, QWidget * parent) :
     QwtPlot(parent) {
 
     this->plotLayout()->setAlignCanvasToScales(true);
-
+    this->status = status;
     for (int axis = 0; axis < axisCnt; axis++) {
         this->axisWidget(axis)->setMargin(0);
     }
@@ -122,10 +122,6 @@ void BigPlot::setAndFormatText(QString text, QwtTextLabel * label, Qt::Alignment
 Rect4 BigPlot::getRect() {
     Rect4 r(this);
     return r;
-}
-
-void BigPlot::setStatus(BigPlotStatus status){
-    this->status = status;
 }
 
 void BigPlot::setRect(Rect4 r) {

@@ -20,8 +20,9 @@
 namespace commlib = e384CommLib;
 
 enum BigPlotStatus {
-    GapFree = 0,
-    Iv = 1
+    GapFree,
+    Iv,
+    NumberOfStatuses
 };
 
 class BigPlot : public QwtPlot {
@@ -29,9 +30,9 @@ class BigPlot : public QwtPlot {
 
 private:
     void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
-    BigPlotStatus status = BigPlotStatus::GapFree;
+    BigPlotStatus status;
 public:
-    BigPlot(QString titleString, QString xUnitString, QString yUnitString, QWidget * parent = nullptr);
+    BigPlot(QString titleString, QString xUnitString, QString yUnitString, BigPlotStatus status, QWidget * parent = nullptr);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -41,7 +42,7 @@ public:
     void setRect(Rect4 r);
     Rect4 getRect();
     void drawCanvas(QPainter * p) override;
-    void setStatus(BigPlotStatus status);
+
 protected:
     typedef enum {
         PickerZoomRect,

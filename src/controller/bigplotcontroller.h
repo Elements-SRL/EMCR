@@ -38,19 +38,24 @@ private:
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
-    BigPlotModel * bpm = nullptr;
     std::vector<BigPlot *> plots;
     std::vector<PlotConsumer *> consumers;
-    QVector <Curve *> currentCurves;
-    QVector <Curve *> voltageCurves;
+    std::vector<BigPlotModel *> models;
+
+    std::vector<std::vector <Curve *>> currentCurves;
+    std::vector<std::vector <Curve *>> voltageCurves;
+    std::vector<PlotMessage> messages;
 
     BigPlot * currentPlot = nullptr;
     PlotConsumer * currentConsumer = nullptr;
+    BigPlotModel * currentModel = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;
     bool isAtLeastOneChannelExpanded();
     void manageStatus(int);
+    void detachCurves();
+    void attachCurves();
 
 private slots:
     void handleZoomInRequest(Rect4 r);
