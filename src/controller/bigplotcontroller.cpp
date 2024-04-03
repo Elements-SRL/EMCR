@@ -1,18 +1,25 @@
 #include "bigplotcontroller.h"
 #include <iostream>
 
-BigPlotController::BigPlotController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
+BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
-    mainWindow(mainWindow),
-    plotConsumer(plotConsumer) {
+    mainWindow(mainWindow) {
 
     bpw = new BigPlotWidget(mainWindow);
     bpm = new BigPlotModel();
 
     mainWindow->setBigPlotWidget(bpw);
-    plot = new BigPlot("", "[s]", "", bpw);
-    plot->enableAxis(QwtPlot::yRight);
-    bpw->setPlot(plot);
+
+    auto ivGraphConsumer = new IvGraphConsumer(appStatus, producer);
+    auto gapFreePlotConsumer = new GapFreePlotConsumer(appStatus, producer);
+    gapFreePlotConsumer->onDurationChanged(defaultPlotDuration);
+
+    auto gapFreePlot = new BigPlot("", "[s]", "", bpw);
+    gapFreePlot->enableAxis(QwtPlot::yRight);
+    bpw->setGapFreePlot(gapFreePlot);
+    connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
+    auto ivGraph = new BigPlot("", "[V]", "", bpw);
+    bpw->setIvGraph(ivGraph);
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
 
@@ -26,31 +33,49 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, PlotConsumer
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
 
-    plotConsumer->onDurationChanged(defaultPlotDuration);
-    plotConsumer->forceAxisUpdate();
-    plotConsumer->setMaxSamplesPerPlot(4096);
-    plotConsumer->onSelectChannels(false);
-    connect(plot, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
-    connect(plot, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
-    connect(plot, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
-    connect(plot, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
-    connect(plot, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
+    consumers = {gapFreePlotConsumer, ivGraphConsumer};
+    plots = {gapFreePlot, ivGraph};
+    for(int i=0; i < consumers.size(); i++){
+        consumers[i]->forceAxisUpdate();
+        consumers[i]->setMaxSamplesPerPlot(4096);
+        consumers[i]->onSelectChannels(false);
+        consumers[i]->onStopConsuming();
+        connect(plots[i], &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
+        connect(plots[i], &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
+        connect(plots[i], &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
+        connect(plots[i], &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
+        connect(plots[i], &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
 
-    connect(this, &BigPlotController::durationChanged, this->plotConsumer, &PlotConsumer::onDurationChanged);
-    connect(plotConsumer, &PlotConsumer::setPlotData,         this, &BigPlotController::onSetPlotData);
-    connect(plotConsumer, &PlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
-
+        connect(this, &BigPlotController::durationChanged, consumers[i], &PlotConsumer::onDurationChanged);
+        connect(consumers[i], &PlotConsumer::setPlotData,         this, &BigPlotController::onSetPlotData);
+        connect(consumers[i], &PlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
+    }
+    currentPlot = gapFreePlot;
+    currentConsumer = gapFreePlotConsumer;
+    bps = BigPlotStatus::GapFree;
 }
 
-PlotConsumer * BigPlotController::getPlotConsumer(){
-    return plotConsumer;
+void BigPlotController::manageStatus(int idx) {
+    int  bps_idx = bps;
+     if (idx == bps_idx) {
+         return;
+     }
+     currentConsumer->onStopConsuming();
+     currentPlot = plots[idx];
+     currentConsumer = consumers[idx];
+     currentConsumer->onStartConsuming();
 }
 
 BigPlotController::~BigPlotController() {
     this->clearCurves();
-    if (plot != nullptr) {
-        delete plot;
-        plot = nullptr;
+
+    for(int i=0; i < plots.size(); i++) {
+        delete plots[i];
+        plots[i] = nullptr;
+    }
+    for(int i=0; i < consumers.size(); i++) {
+        delete consumers[i];
+        consumers[i] = nullptr;
     }
 
     if (bpw != nullptr) {
@@ -63,15 +88,10 @@ BigPlotController::~BigPlotController() {
         delete bpm;
         bpm = nullptr;
     }
-    if (plotConsumer!= nullptr) {
-        plotConsumer->onStopConsuming();
-        delete plotConsumer;
-        plotConsumer = nullptr;
-    }
 }
 
 BigPlot * BigPlotController::getPlot(){
-    return plot;
+    return currentPlot;
 }
 
 void BigPlotController::clearCurves() {
@@ -102,10 +122,10 @@ bool BigPlotController::isAtLeastOneChannelExpanded() {
 }
 
 void BigPlotController::onExpandTrace(bool flag){
-    plotConsumer->onStopConsuming();
-    plotConsumer->onSelectChannels(flag);
+    currentConsumer->onStopConsuming();
+    currentConsumer->onSelectChannels(flag);
     if (isAtLeastOneChannelExpanded()) {
-        plotConsumer->onStartConsuming();
+        currentConsumer->onStartConsuming();
     }
 }
 
@@ -119,16 +139,17 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
     switch (plotmessage.index()) {
 //    IvGraph message
     case 0:
-        plot->setStatus(BigPlotStatus::Iv);
+        currentPlot->setStatus(BigPlotStatus::Iv);
         appStatus->getMessageDispatcher()->getVCVoltageRange(v);
         appStatus->getMessageDispatcher()->getVCCurrentRange(i);
         r = bpm->initRect(v.min, v.max, i.min, i.max);
-        plot->setRect(r);
+        plots[1]->setRect(r);
+//        ivGra ->setRect(r);
         ivMessage = std::get<0>(plotmessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             if (channels[idx]->isExpanded()) {
 //                double * voltages = ivMessage.voltageValues.data();
-                currentCurves.at(idx)->attach(plot);
+                currentCurves.at(idx)->attach(currentPlot);
                 voltageCurves.at(idx)->detach();
                 currentCurves.at(idx)->setRawSamples(ivMessage.voltageValues, ivMessage.currentValues[idx], ivMessage.dataSize);
                 currentCurves.at(idx)->setStyle(QwtPlotCurve::NoCurve);
@@ -141,14 +162,14 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
         break;
 //    GapFree message
     case 1:
-        plot->setStatus(BigPlotStatus::GapFree);
+        currentPlot->setStatus(BigPlotStatus::GapFree);
         gapFreeMessage = std::get<1>(plotmessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             if (channels[idx]->isExpanded()) {
-                currentCurves.at(idx)->attach(plot);
+                currentCurves.at(idx)->attach(currentPlot);
                 currentCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues->at(idx), gapFreeMessage.dataSize);
 
-                voltageCurves.at(idx)->attach(plot);
+                voltageCurves.at(idx)->attach(currentPlot);
                 voltageCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues->at(idx), gapFreeMessage.dataSize);
 
             } else {
@@ -161,8 +182,9 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
 }
 
 void BigPlotController::onReplot() {
-    if (plot != nullptr) {
-        plot->replot();
+//    todo CHECK INTERNAL STATUS
+    if (currentPlot != nullptr) {
+        currentPlot->replot();
     }
 }
 
@@ -179,14 +201,14 @@ void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void BigPlotController::onBackgroundColorChanged(QColor color) {
-    plot->setCanvasBackground(color);
+    currentPlot->setCanvasBackground(color);
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
     bpm->updateCurrentZoom(r);
     auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
-    plot->setRect(zoom);
+    currentPlot->setRect(zoom);
     emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
 }
 
@@ -194,7 +216,7 @@ void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoom
 //    non idale, rischio di incoerenza con le altre chiamate nel model
     bpm->updateCurrentZoom(bpm->zoomOnSingleAxis(axis, zoomIn, mousePosition));
     auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
-    plot->setRect(zoom);
+    currentPlot->setRect(zoom);
     if (axis == QwtPlot::Axis::xBottom){
         emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
     }
@@ -204,39 +226,43 @@ void BigPlotController::handleSingleAxisShiftRequest(QwtPlot::Axis axis, int shi
 //    non idale, rischio di incoerenza con le altre chiamate nel model
     bpm->updateCurrentZoom(bpm->shiftOnSingleAxis(axis, shift));
     auto zoom = bpm->getZoom(BigPlotModel::Zoom::Current);
-    plot->setRect(zoom);
+    currentPlot->setRect(zoom);
 }
 
 void BigPlotController::handleZoomOutRequest(){
     auto zoom = bpm->getZoom(BigPlotModel::Zoom::Previous);
-    plot->setRect(zoom);
+    currentPlot->setRect(zoom);
     emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
 }
 
 void BigPlotController::handleZoomResetRequest(){
     auto zoom = bpm->getZoom(BigPlotModel::Zoom::Default);
-    plot->setRect(zoom);
+    currentPlot->setRect(zoom);
     emit durationChanged({zoom[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
 }
 
 void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
     bpm->setCurrentRange(axisIdx, newRange);
-    plot->setRect(bpm->getZoom(BigPlotModel::Zoom::Current));
+    currentPlot->setRect(bpm->getZoom(BigPlotModel::Zoom::Current));
     auto fullUnit = QString::fromStdString(bpm->getCurrentRange(axisIdx).getFullUnit());
     switch (axisIdx) {
     case QwtPlot::yLeft:
-        plot->setLabel(fullUnit, axisIdx);
+        currentPlot->setLabel(fullUnit, axisIdx);
         break;
 
     case QwtPlot::yRight:
-        plot->setLabel(fullUnit, axisIdx);
+        currentPlot->setLabel(fullUnit, axisIdx);
         break;
 
     case QwtPlot::xBottom:
-        plot->setLabel(fullUnit, axisIdx);
+        currentPlot->setLabel(fullUnit, axisIdx);
         Measurement_t duration = {bpm->getZoom(BigPlotModel::Zoom::Current)[QwtPlot::xBottom].width(), bpm->getCurrentRange(QwtPlot::xBottom).prefix, "s"};
         emit durationChanged(duration);
         break;
     }
-    plot->replot();
+    currentPlot->replot();
+}
+
+std::vector<PlotConsumer *> BigPlotController::getConsumers(){
+    return consumers;
 }

@@ -20,8 +20,8 @@
 namespace commlib = e384CommLib;
 
 enum BigPlotStatus {
-    GapFree,
-    Iv
+    GapFree = 0,
+    Iv = 1
 };
 
 class BigPlot : public QwtPlot {

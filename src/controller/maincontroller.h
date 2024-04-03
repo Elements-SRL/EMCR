@@ -22,7 +22,7 @@
 #include "statearraycontroller.h"
 #include "compensationcontroller.h"
 #include "plotpreferencescontroller.h"
-#include "ivgraphconsumer.h"
+
 
 class MainController : public QObject {
     Q_OBJECT

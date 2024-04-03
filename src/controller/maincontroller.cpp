@@ -125,7 +125,7 @@ void MainController::onMainWindowCreated() {
     \************/
 
     deviceDataProducer = new DeviceDataProducer(appStatus);
-    auto bigPlotConsumer = new IvGraphConsumer(appStatus, deviceDataProducer);
+//    auto bigPlotConsumer = new IvGraphConsumer(appStatus, deviceDataProducer);
     auto stampPlotConsumer =  new GapFreePlotConsumer(appStatus, deviceDataProducer);
 
 //    auto applicationStatus = new ApplicationStatus(msgDisp, "C:\\Users\\lucar\\development\\tests\\yaml_for_channel_descriptions\\inanobio.yaml");
@@ -137,7 +137,7 @@ void MainController::onMainWindowCreated() {
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
 
-    bigPlotController = new BigPlotController(appStatus, bigPlotConsumer, defaultPlotDuration, mainWindow);
+    bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow);
     chessboardController = new ChessboardController(appStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
@@ -164,7 +164,9 @@ void MainController::onMainWindowCreated() {
     \*************/
 
     consumers.append(chessboardController->getPlotConsumer());
-    consumers.append(bigPlotController->getPlotConsumer());
+    for(auto c: bigPlotController->getConsumers()){
+        consumers.append(c);
+    }
     abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);
     consumers.append(abfDataWriterConsumer);
     dataWriterConsumers.append(abfDataWriterConsumer);

@@ -9,17 +9,19 @@
 #include <QPointF>
 #include "application_status.h"
 #include "plotmessage.h"
+#include "ivgraphconsumer.h"
+#include "plotconsumer.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
 
 public:
-    BigPlotController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~BigPlotController();
 
     BigPlot * getPlot();
     void clearCurves();
-    PlotConsumer * getPlotConsumer();
+    std::vector<PlotConsumer *> getConsumers();
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx);
@@ -32,18 +34,24 @@ public slots:
     void onExpandTrace(bool);
 
 private:
+    BigPlotStatus bps;
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
     BigPlotModel * bpm = nullptr;
-    BigPlot * plot;
-    PlotConsumer * plotConsumer = nullptr;
+    std::vector<BigPlot *> plots;
+    std::vector<PlotConsumer *> consumers;
     QVector <Curve *> currentCurves;
     QVector <Curve *> voltageCurves;
+
+    BigPlot * currentPlot = nullptr;
+    PlotConsumer * currentConsumer = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;
     bool isAtLeastOneChannelExpanded();
+    void manageStatus(int);
+
 private slots:
     void handleZoomInRequest(Rect4 r);
     void handleZoomOutRequest();

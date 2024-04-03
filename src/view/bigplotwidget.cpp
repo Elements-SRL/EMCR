@@ -1,15 +1,35 @@
 #include "bigplotwidget.h"
 
 BigPlotWidget::BigPlotWidget(QWidget * parent) :
-    QWidget(parent) {
+    QTabWidget(parent) {
 
     mainVl = new QVBoxLayout();
+
+    // Create the first tab
+    auto gapFreeLayout = new QVBoxLayout();
+    gapFreeTab = new QWidget();
+    gapFreeTab->setLayout(gapFreeLayout);
+    addTab(gapFreeTab, "GapFree");
+
+    // Create the second tab
+    auto ivLayout = new QVBoxLayout();
+    ivTab = new QWidget();
+    ivTab->setLayout(ivLayout);
+    QVBoxLayout tab2Layout(ivTab);
+    addTab(ivTab, "IV Graph");
+
+    gapFreeTab->setLayout(new QVBoxLayout());
+    ivTab->setLayout(new QVBoxLayout());
+
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
     this->setLayout(mainVl);
 }
 
-void BigPlotWidget::setPlot(BigPlot * plot) {
-    mainVl->addWidget(plot);
+void BigPlotWidget::setGapFreePlot(BigPlot * gapFreePlot) {
+    gapFreeTab->layout()->addWidget(gapFreePlot);
 }
 
+void BigPlotWidget::setIvGraph(BigPlot * ivGraph){
+    ivTab->layout()->addWidget(ivGraph);
+}
