@@ -40,11 +40,11 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     }
     //    creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++){
-        currentCurves[BigPlotStatus::Iv].push_back(new Curve(CurveType_t::CurveTypePlotSolid));
+        currentCurves[BigPlotStatus::Iv].push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
         voltageCurves[BigPlotStatus::Iv].push_back(new Curve());
         voltageCurves[BigPlotStatus::Iv][i]->detach();
-        currentCurves[BigPlotStatus::Iv][i]->setStyle(QwtPlotCurve::NoCurve);
-        currentCurves[BigPlotStatus::Iv][i]->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::blue, Qt::NoPen, QSize(5, 5)));
+//        currentCurves[BigPlotStatus::Iv][i]->setStyle(QwtPlotCurve::NoCurve);
+//        currentCurves[BigPlotStatus::Iv][i]->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::blue, Qt::NoPen, QSize(5, 5)));
     }
     messages.resize(BigPlotStatus::NumberOfStatuses);
     consumers = {gapFreePlotConsumer, ivGraphConsumer};
@@ -239,15 +239,21 @@ void BigPlotController::onReplot() {
 }
 
 void BigPlotController::onCurrentColorsChanged(QVector <QColor> colors) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[bps][idx]->setColor(colors[idx]);
-        voltageCurves[bps][idx]->setColor(colors[idx]);
+    for (int si=0; si < BigPlotStatus::NumberOfStatuses; si++) {
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            currentCurves[si][idx]->setColor(colors[idx]);
+            voltageCurves[si][idx]->setColor(colors[idx]);
+        }
     }
 }
 
 void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
-    currentCurves[bps][channelIdx]->setColor(color);
-    voltageCurves[bps][channelIdx]->setColor(color);
+    for (int si=0; si < BigPlotStatus::NumberOfStatuses; si++) {
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            currentCurves[si][channelIdx]->setColor(color);
+            voltageCurves[si][channelIdx]->setColor(color);
+        }
+    }
 }
 
 void BigPlotController::onBackgroundColorChanged(QColor color) {
