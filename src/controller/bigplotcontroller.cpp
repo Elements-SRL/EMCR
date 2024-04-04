@@ -43,8 +43,6 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
         currentCurves[BigPlotStatus::Iv].push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
         voltageCurves[BigPlotStatus::Iv].push_back(new Curve());
         voltageCurves[BigPlotStatus::Iv][i]->detach();
-//        currentCurves[BigPlotStatus::Iv][i]->setStyle(QwtPlotCurve::NoCurve);
-//        currentCurves[BigPlotStatus::Iv][i]->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::blue, Qt::NoPen, QSize(5, 5)));
     }
     messages.resize(BigPlotStatus::NumberOfStatuses);
     consumers = {gapFreePlotConsumer, ivGraphConsumer};
