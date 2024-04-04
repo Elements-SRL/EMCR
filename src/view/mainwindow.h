@@ -70,6 +70,7 @@ public slots:
     void onCalibLoadingMsg(ErrorCodes_t error);
     void onManualCalibDoneMsg(QString msg);
     void onNeedToChangeModelCellMsg(QString msg);
+    void onBoardMappingPressed();
 
 private:
     void createGuiControls();
@@ -81,6 +82,7 @@ private:
     QMenu * menuView = nullptr;
     QMenu * menuRecordings = nullptr;
     QMenu * menuPreferences = nullptr;
+    QMenu * menuAdvanced = nullptr;
 
     bool interfaceCreated = false;
 
@@ -89,6 +91,7 @@ private:
     QAction * actionPlotPreferences = nullptr;
     QAction * actionBoardMapping = nullptr;
 
+    QAction * actionUpgradeFw = nullptr;
 
     QDockWidget * deviceDetectorDw = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
@@ -116,7 +119,6 @@ private:
 
     QVector <QDockWidget *> dockWidgets;
     QVector <QDockWidget *> analysisWidgets;
-    void onBoardMappingPressed();
 
 signals:
     void setDebugBit(int word, int bit, bool flag);
@@ -124,5 +126,6 @@ signals:
     void sigPerformCalibration(std::vector<std::uint16_t> channelsToCalibrateIdxs);
     void sigModelCellChanged(bool modelCellChanged);
     void sigBoardMappingFileChoosen(QString filename);
+    void sigUpgradeFw();
 };
 #endif // MAINWINDOW_H

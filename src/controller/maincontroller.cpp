@@ -18,6 +18,8 @@ MainController::MainController() {
 
     connect(deviceConnector, &DeviceConnector::deviceConnected, this, &MainController::onDeviceConnected);
 
+    upgradeFwController = new UpgradeFwController;
+
     setMainWindow(new MainWindow());
 }
 
@@ -40,6 +42,11 @@ MainController::~MainController() {
         /*! The messageDispatcher is destroyed by the deviceConnector */
         msgDisp = nullptr;
     }
+
+    if (upgradeFwController != nullptr) {
+        delete upgradeFwController;
+        upgradeFwController = nullptr;
+    }
 }
 
 void MainController::setMainWindow(MainWindow * mainWindow) {
@@ -47,6 +54,7 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
 
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
+    connect(mainWindow, &MainWindow::sigUpgradeFw, this, &MainController::onUpgradeFw);
 
     mainWindow->show();
     emit startDetecting();
@@ -101,6 +109,10 @@ void MainController::onConnect(bool flag) {
 
         emit startDetecting();
     }
+}
+
+void MainController::onUpgradeFw() {
+    upgradeFwController->openView(mainWindow->getSelectedSerialNumber());
 }
 
 void MainController::onDeviceConnected(ErrorCodes_t ret) {
