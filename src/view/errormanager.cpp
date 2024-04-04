@@ -90,6 +90,14 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "The amplifier's FW version is not compatible with this SW";
         break;
 
+    case ErrorDeviceNotUpgradable:
+        error = "The amplifier's FW version is already up to date or the new FW is not available";
+        break;
+
+    case ErrorFwNotFound:
+        error = "The amplifier's FW was not found";
+        break;
+
     case ErrorSendMessageFailed:
         error = "Failed to send message to the device";
         break;
@@ -214,6 +222,15 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorDeviceToBeUpgraded:
         info = "You can upgrade the amplifier's FW by clicking Upgrade FW in the Advanced menu.";
+        break;
+
+    case ErrorDeviceNotUpgradable:
+        info = "This device's FW cannot be upgraded with the current SW version.";
+        break;
+
+    case ErrorFwNotFound:
+        info = "If you need to upgrade your device's FW please contact support@elements-ic.com for more information\n"
+               "on the available FW versions for your device.";
         break;
 
     case ErrorSendMessageFailed:
