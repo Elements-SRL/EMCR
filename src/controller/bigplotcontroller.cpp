@@ -207,9 +207,7 @@ void BigPlotController::detachCurves(){
     for (int i=0; i<BigPlotStatus::NumberOfStatuses; i++) {
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves[i][idx]->detach();
-            if (channels[idx]->isExpanded()) {
-                currentCurves[i][idx]->attach(currentPlot);
-            }
+            voltageCurves[i][idx]->detach();
         }
     }
 }
