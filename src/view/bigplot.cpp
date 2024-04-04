@@ -191,6 +191,9 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
 }
 
 void BigPlot::recomputeXAxisFactor(double duration) {
+    if (status != BigPlotStatus::GapFree) {
+        return;
+    }
     Measurement_t durationMeas = {duration, commlib::UnitPfxNone, "s"};
     durationMeas.nice();
 
