@@ -95,7 +95,7 @@ void BigPlotController::manageStatus(int idx) {
      currentConsumer = consumers[idx];
      currentModel = models[idx];
      onSetPlotData(messages[idx]);
-     attachCurves();
+      attachCurves();
      currentPlot = plots[idx];
      if (isAtLeastOneChannelExpanded()) {
          currentConsumer->onStartConsuming();
@@ -215,12 +215,14 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
 }
 
 void BigPlotController::detachCurves(){
-    auto channels = appStatus->getChannels();
     for (int i=0; i<BigPlotStatus::NumberOfStatuses; i++) {
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves[i][idx]->detach();
             voltageCurves[i][idx]->detach();
         }
+    }
+    for (auto p: plots) {
+        p->replot();
     }
 }
 
