@@ -58,6 +58,7 @@ private:
     void manageStatus(int);
     void detachCurves();
     void attachCurves();
+    void saveToCSV(const QString& filePath, const IvMessage & data);
 
 private slots:
     void handleZoomInRequest(Rect4 r);

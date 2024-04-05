@@ -335,5 +335,47 @@ std::vector<PlotConsumer *> BigPlotController::getConsumers(){
 }
 
 void BigPlotController::onExportIvGraph() {
-    std::cout << "export" << std::endl;
+    QString filePath = QFileDialog::getSaveFileName(nullptr,
+                                   "Save File",
+                                   QDir::homePath(), // Initial directory
+                                   "CSV Files (*.csv)");
+
+       // Check if a file path was selected
+       if (!filePath.isEmpty()) {
+           IvMessage ivMessage = std::get<1>(messages[BigPlotStatus::Iv]);
+           // Save data to CSV file
+           saveToCSV(filePath, ivMessage);
+       } else {
+           // No file path selected
+           qDebug() << "No file path selected.";
+       }
+
+//    std::cout << "export" << std::endl;
+}
+
+
+
+void BigPlotController::saveToCSV(const QString& filePath, const IvMessage & data) {
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(nullptr, "Warning", "File could not be saved.");
+        return;
+    }
+
+    QTextStream out(&file);
+    RangedMeasurement r;
+    appStatus->getMessageDispatcher()->getVoltageRange(r);
+
+    // Write header
+    out << "Voltage " << QString::fromStdString(r.label()) << ", Current\n";
+
+    // Write data
+    int numRows = data.dataSize[0];
+    for (int i = 0; i < numRows; ++i) {
+        out <<  data.voltageValues[0][i] << "," << data.currentValues[0][i] << "\n";
+    }
+
+    file.close();
+
 }
