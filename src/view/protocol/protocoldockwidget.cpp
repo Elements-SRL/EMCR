@@ -297,25 +297,23 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
 }
 
 void ProtocolDockWidget::onStartProtocol(bool flag) {
+    protocolTimer->onStopTimer();
     if (flag) {
-        protocolTimer->onStopTimer();
         protocolTimer->onStartTimer();
         emit startProtocol();
 
     } else {
-        protocolTimer->onStopTimer();
         emit stopProtocol();
     }
 }
 
 void ProtocolDockWidget::onRestartProtocol(bool flag) {
+    protocolTimer->onStopTimer();
     if (flag) {
-        protocolTimer->onStopTimer();
         protocolTimer->onStartTimer();
         emit restartProtocol();
 
     } else {
-        protocolTimer->onStopTimer();
         emit stopProtocol();
     }
 }

@@ -13,9 +13,9 @@ void IvAccumulator::pushValue(double v){
     number_of_elements++;
 }
 
-double IvAccumulator::getMean(){
-    if (sum == 0.0 || number_of_elements == 0) {
-        return 0.0;
+std::optional<double> IvAccumulator::getMean(){
+    if (sum == 0.0 || number_of_elements < 20) {
+        return std::nullopt;
     }
     return sum/((double) number_of_elements);
 }

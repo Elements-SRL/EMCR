@@ -7,9 +7,9 @@
 #include <tuple>
 
 struct IvMessage{
-    double * voltageValues;
+    std::vector<double*> voltageValues;
     std::vector<double*> currentValues;
-    int dataSize;
+    std::vector<int> dataSize;
 };
 
 struct GapFreeMessage{

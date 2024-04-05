@@ -90,6 +90,7 @@ void BigPlotController::manageStatus(int idx) {
         break;
     case 1:
         bps = BigPlotStatus::Iv;
+        ivGraphWidget->show();
         break;
     default:
         bps = BigPlotStatus::NumberOfStatuses;
@@ -201,11 +202,11 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
         plots[BigPlotStatus::Iv]->setRect(models[BigPlotStatus::Iv]->initRect(v.min, v.max, i.min, i.max));
         ivMessage = std::get<1>(plotmessage);
         messages[BigPlotStatus::Iv] = ivMessage;
-        if (ivMessage.currentValues.size() == 0) {
+        if (ivMessage.currentValues.size() == 0 || ivMessage.voltageValues.size() == 0 ||  ivMessage.dataSize.size() == 0) {
             break;
         }
         for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves[BigPlotStatus::Iv][idx]->setRawSamples(ivMessage.voltageValues, ivMessage.currentValues[idx], ivMessage.dataSize);
+            currentCurves[BigPlotStatus::Iv][idx]->setRawSamples(ivMessage.voltageValues[idx], ivMessage.currentValues[idx], ivMessage.dataSize[idx]);
         }
         break;
     }

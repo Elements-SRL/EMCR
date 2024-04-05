@@ -64,7 +64,9 @@ void IvGraphConsumer::run() {
                         auto binIndex = scaleToBins(voltage);
                         bufferIdx++;
                         auto currentValue = buffer[bufferIdx];
-                        ivChannels[channelIdx]->pushValue(binIndex, currentValue);
+                        if (ivChannels[channelIdx] != NULL) {
+                            ivChannels[channelIdx]->pushValue(binIndex, currentValue);
+                        }
                         bufferIdx++;
                     } else {
                         bufferIdx+=2;
@@ -75,9 +77,26 @@ void IvGraphConsumer::run() {
             if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
                 for (int i=0; i<currentChannelsNum; i++) {
                     auto currents = ivChannels[i]->getCurrents();
-                    for (int j=0; j< nBins; j++){
-                        currentValues[i][j] = currents[j];
+                    int counterOfSomeVariant = 0;
+                    for(int c_idx = 0; c_idx<currents.size(); c_idx++) {
+                        const auto current = currents[c_idx];
+                        if(current.has_value()){
+                            voltageData[i][counterOfSomeVariant] = voltageBins[c_idx];
+                            currentValues[i][counterOfSomeVariant] = current.value();
+                            counterOfSomeVariant++;
+                        }
                     }
+                    dataSize[i] = counterOfSomeVariant;
+                }
+                bool isDataChanged = false;
+                for (int i=0; i<currentChannelsNum; i++) {
+                    if (dataSize [i] != officialDataSize[i]) {
+                        officialDataSize[i] = dataSize [i];
+                        isDataChanged = true;
+                    }
+                }
+                if (isDataChanged) {
+                    emitPlotData();
                 }
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
@@ -98,16 +117,32 @@ int IvGraphConsumer::scaleToBins(double value) {
 }
 
 void IvGraphConsumer::allocateData() {
+    bool wasThisRunning = isRunning();
+    onStopConsuming();
     clearData();
     ivChannels.resize(currentChannelsNum);
-    voltageData = new double[nBins];
+
+    double * precalculatedVoltages = new double[nBins];
     for (int i = 0; i<nBins; i++){
-        voltageData[i] = ((double) i) * binSize + pushedVoltageRange.min;
+        precalculatedVoltages[i] = ((double) i) * binSize + pushedVoltageRange.min;
+    }
+    voltageData.resize(currentChannelsNum);
+    for (int i=0; i< currentChannelsNum; i++) {
+        voltageData[i] = new double[nBins];
+    }
+    dataSize.resize(currentChannelsNum);
+    officialDataSize.resize(currentChannelsNum);
+    voltageBins.resize(nBins);
+    for (int i = 0; i<nBins; i++){
+        voltageBins[i] = ((double) i) * binSize + pushedVoltageRange.min;
     }
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[nBins]);
 //        todo maybe get the n_bins from some type of configuration file
         ivChannels[idx] = new IvChannel(nBins, binSize);
+    }
+    if (wasThisRunning) {
+        onStartConsuming();
     }
 }
 
@@ -118,7 +153,7 @@ void IvGraphConsumer::calculateBinSize(){
 }
 
 void IvGraphConsumer::emitPlotData() {
-    IvMessage message = {voltageData, currentValues, nBins};
+    IvMessage message = {voltageData, currentValues, dataSize};
     emit setPlotData(message);
 }
 
@@ -131,8 +166,11 @@ void IvGraphConsumer::clearData(){
         delete [] currentValues[i];
     }
     currentValues.clear();
-    if (voltageData != nullptr) {
-        delete [] voltageData;
-        voltageData = nullptr;
+    for (int i = 0; i < voltageData.size(); i++) {
+        delete [] voltageData[i];
     }
+    voltageData.clear();
+    voltageBins.clear();
+    dataSize.clear();
+    officialDataSize.clear();
 }

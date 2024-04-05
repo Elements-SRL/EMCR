@@ -2,12 +2,13 @@
 #define IVACCUMULATOR_H
 
 #define DEFAULT_ACCUMULATOR_SIZE 10
+#include <optional>
 
 class IvAccumulator {
 public:
     IvAccumulator();
     ~IvAccumulator();
-    double getMean();
+    std::optional<double> getMean();
     void pushValue(double v);
 
 private:

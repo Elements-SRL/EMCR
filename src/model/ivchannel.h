@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "ivaccumulator.h"
+#include <optional>
 
 class IvChannel
 {
@@ -11,7 +12,7 @@ public:
     ~IvChannel();
 
     void pushValue(int binIdx, double value);
-    std::vector<double> getCurrents();
+    std::vector<std::optional<double>> getCurrents();
 
 
 private:

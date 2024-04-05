@@ -19,8 +19,8 @@ void IvChannel::pushValue(int binIdx, double value){
     ivAccumulators[binIdx]->pushValue(value);
 }
 
-std::vector<double> IvChannel::getCurrents(){
-    std::vector<double> avgCurrents(nBins);
+std::vector<std::optional<double>> IvChannel::getCurrents(){
+    std::vector<std::optional<double>> avgCurrents(nBins);
     for (int i=0; i<nBins; i++){
         avgCurrents[i] = ivAccumulators[i]->getMean();
     }

@@ -29,11 +29,14 @@ private:
     std::vector<double> buffer;
     std::vector<IvChannel *> ivChannels;
     std::vector<double *> currentValues;
-    double * voltageData = nullptr;
+    std::vector<double *> voltageData;
+    std::vector<int> dataSize;
     QMutex voltageAxisMtx;
     QMutex currentAxisMtx;
     int scaleToBins(double value);
     void calculateBinSize();
+    std::vector<double> voltageBins;
+    std::vector<int> officialDataSize;
 
 protected:
     void clearData() override;
