@@ -11,6 +11,7 @@
 #include "plotmessage.h"
 #include "ivgraphconsumer.h"
 #include "plotconsumer.h"
+#include "ivgraphwidget.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
@@ -49,6 +50,7 @@ private:
     BigPlot * currentPlot = nullptr;
     PlotConsumer * currentConsumer = nullptr;
     BigPlotModel * currentModel = nullptr;
+    IvGraphWidget * ivGraphWidget = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;
@@ -63,6 +65,7 @@ private slots:
     void handleZoomResetRequest();
     void handleSingleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
     void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
+    void onExportIvGraph();
 
 signals:
     void durationChanged(Measurement_t duration);

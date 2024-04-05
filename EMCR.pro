@@ -69,6 +69,7 @@ SOURCES += \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/doubleclickmachine.cpp \
+    src/view/ivgraphwidget.cpp \
     src/view/lcddisplay.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
@@ -153,6 +154,7 @@ HEADERS += \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
     src/view/doubleclickmachine.h \
+    src/view/ivgraphwidget.h \
     src/view/lcddisplay.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \

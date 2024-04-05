@@ -18,9 +18,6 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     QVBoxLayout tab2Layout(ivTab);
     addTab(ivTab, "IV Graph");
 
-    gapFreeTab->setLayout(new QVBoxLayout());
-    ivTab->setLayout(new QVBoxLayout());
-
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
     this->setLayout(mainVl);

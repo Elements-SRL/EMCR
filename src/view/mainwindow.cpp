@@ -225,6 +225,16 @@ void MainWindow::setBigPlotWidget(BigPlotWidget * widget) {
     }
 }
 
+void MainWindow::setIvGraphWidget(IvGraphWidget * widget) {
+    ivGraphWidget = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::LeftDockWidgetArea, ivGraphWidget);
+        ivGraphWidget->setFloating(true);
+        dockWidgets.append(ivGraphWidget);
+    }
+}
+
+
 void MainWindow::setChessboardDw(ChessboardDockWidget * widget) {
     chessboardDw = widget;
     if (widget != nullptr) {

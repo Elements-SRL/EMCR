@@ -5,7 +5,7 @@
 IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer):
     PlotConsumer(appStatus, producer) {
 //    todo read from file this value?
-    this->nBins = 1600;
+    this->nBins = 3201;
     calculateBinSize();
 }
 
@@ -114,7 +114,7 @@ void IvGraphConsumer::allocateData() {
 //todo call this method when bin size changes or when voltage range changes
 void IvGraphConsumer::calculateBinSize(){
     // Calculate the size of each bin
-    binSize = pushedVoltageRange.delta() / ((double) nBins);
+    binSize = pushedVoltageRange.delta() / ((double) (nBins - 1));
 }
 
 void IvGraphConsumer::emitPlotData() {

@@ -8,12 +8,13 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
 //    we only have one widget with multiple tabs
 //    todo maybe we could create a widget for each tab
     bpw = new BigPlotWidget(mainWindow);
+    ivGraphWidget = new IvGraphWidget(mainWindow);
 
     auto ivModel = new BigPlotModel();
     auto gapFreeModel = new BigPlotModel();
 
     mainWindow->setBigPlotWidget(bpw);
-
+    mainWindow->setIvGraphWidget(ivGraphWidget);
     auto ivGraphConsumer = new IvGraphConsumer(appStatus, producer);
     auto gapFreePlotConsumer = new GapFreePlotConsumer(appStatus, producer);
     gapFreePlotConsumer->onDurationChanged(defaultPlotDuration);
@@ -67,6 +68,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
         c->onStopConsuming();
     }
 
+    connect(ivGraphWidget, &IvGraphWidget::exportIvGraph, this, &BigPlotController::onExportIvGraph);
     currentPlot = gapFreePlot;
     currentConsumer = gapFreePlotConsumer;
     currentModel = gapFreeModel;
@@ -182,12 +184,6 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
     GapFreeMessage gapFreeMessage;
     RangedMeasurement v;
     RangedMeasurement i;
-    double* doubleArray = new double[1000];
-
-    // Initializing all elements to 0
-    for (int i = 0; i < 1000; ++i) {
-        doubleArray[i] = 0.0;
-    }
     switch (plotmessage.index()) {
 //    GapFree message
     case 0:
@@ -239,6 +235,9 @@ void BigPlotController::attachCurves(){
             currentCurves[BigPlotStatus::GapFree][idx]->attach(plots[BigPlotStatus::GapFree]);
             voltageCurves[BigPlotStatus::GapFree][idx]->attach(plots[BigPlotStatus::GapFree]);
         }
+    }
+    for (auto p: plots) {
+        p->replot();
     }
 }
 
@@ -332,4 +331,8 @@ void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, Qw
 
 std::vector<PlotConsumer *> BigPlotController::getConsumers(){
     return consumers;
+}
+
+void BigPlotController::onExportIvGraph() {
+    std::cout << "export" << std::endl;
 }

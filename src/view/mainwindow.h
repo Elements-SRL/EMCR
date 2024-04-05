@@ -22,6 +22,7 @@
 #include "statearraydockwidget.h"
 #include "measurementsoverviewdockwidget.h"
 #include "plotpreferencesdialog.h"
+#include "ivgraphwidget.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -50,6 +51,7 @@ public:
     void connectDevice(bool flag, ErrorCodes_t err);
 
     void setBigPlotWidget(BigPlotWidget * widget);
+    void setIvGraphWidget(IvGraphWidget * widget);
     void setChessboardDw(ChessboardDockWidget * widget);
     void setCompensationControlsDw(CompensationControlDockWidget * widget);
     void setSingleChannelControlsDw(SingleChannelControlDockWidget * widget);
@@ -103,6 +105,7 @@ private:
     StateArrayDockWidget * stateArrayDockWidget = nullptr;
     MeasurementsOverviewDockWidget * measurementsOverviewDw = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
+    IvGraphWidget * ivGraphWidget = nullptr;
 //    BoardMappingDialog * boardMappingDialog= nullptr;
     QDockWidget * calibrationDw = nullptr;
     QDockWidget * debugDw = nullptr;
