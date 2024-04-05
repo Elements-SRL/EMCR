@@ -74,32 +74,33 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
 }
 
 void BigPlotController::manageStatus(int idx) {
-     if (idx == bps) {
-         return;
-     }
-     for(auto c: consumers){
-         c->onStopConsuming();
-     }
-     detachCurves();
-     switch (idx) {
-     case 0:
-         bps = BigPlotStatus::GapFree;
-         break;
-     case 1:
-         bps = BigPlotStatus::Iv;
-         break;
-     default:
-         bps = BigPlotStatus::NumberOfStatuses;
-         break;
-     }
-     currentConsumer = consumers[idx];
-     currentModel = models[idx];
-     onSetPlotData(messages[idx]);
-      attachCurves();
-     currentPlot = plots[idx];
-     if (isAtLeastOneChannelExpanded()) {
-         currentConsumer->onStartConsuming();
-     }
+
+    if (idx == bps) {
+        return;
+    }
+    for(auto c: consumers){
+        c->onStopConsuming();
+    }
+    detachCurves();
+    switch (idx) {
+    case 0:
+        bps = BigPlotStatus::GapFree;
+        break;
+    case 1:
+        bps = BigPlotStatus::Iv;
+        break;
+    default:
+        bps = BigPlotStatus::NumberOfStatuses;
+        break;
+    }
+    currentConsumer = consumers[idx];
+    currentModel = models[idx];
+    onSetPlotData(messages[idx]);
+    attachCurves();
+    currentPlot = plots[idx];
+    if (isAtLeastOneChannelExpanded()) {
+        currentConsumer->onStartConsuming();
+    }
 }
 
 BigPlotController::~BigPlotController() {
