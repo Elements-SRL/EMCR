@@ -301,6 +301,6 @@ void GapFreePlotConsumer::clearData() {
 }
 
 void GapFreePlotConsumer::emitPlotData() {
-    GapFreeMessage message = {timeValues, &voltageValues, &currentValues, dataSize};
+    GapFreeMessage message = {timeValues, voltageValues, currentValues, dataSize};
     emit setPlotData(message);
 }

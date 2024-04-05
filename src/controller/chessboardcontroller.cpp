@@ -173,26 +173,26 @@ void ChessboardController::onDurationUpdated(Measurement_t duration) {
 }
 
 void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
+    GapFreeMessage gapFreeMessage;
+    IvMessage ivMessage;
     switch (plotMessage.index()) {
-//    IvGraph message
-    case 0: {
-        IvMessage ivMessage = std::get<0>(plotMessage);
+    //    GapFree message
+    case 0:
+        gapFreeMessage = std::get<0>(plotMessage);
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            currentCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
+        }
+        break;
+        //    IvGraph message
+    case 1:
+        ivMessage = std::get<1>(plotMessage);
         double * voltages = ivMessage.voltageValues;
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             double * currents = ivMessage.currentValues[idx];
             currentCurves.at(idx)->setRawSamples(voltages, currents, ivMessage.dataSize);
         }
-    }
-        break;
-//    GapFree message
-    case 1:
-        GapFreeMessage gapFreeMessage = std::get<1>(plotMessage);
-        for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues->at(idx), gapFreeMessage.dataSize);
-        }
         break;
     }
-
 }
 
 void ChessboardController::onReplot() {

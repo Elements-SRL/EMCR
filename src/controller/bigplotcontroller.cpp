@@ -30,16 +30,16 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     currentCurves.resize(BigPlotStatus::NumberOfStatuses);
     voltageCurves.resize(BigPlotStatus::NumberOfStatuses);
 //    creating curves for gapfree
-    for (int i = 0; i < currentChannelsNum; i++){
+    for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves[BigPlotStatus::GapFree].push_back(new Curve(CurveType_t::CurveTypePlotSolid));
     }
-    for (int i = 0; i < voltageChannelsNum; i++){
+    for (int i = 0; i < voltageChannelsNum; i++) {
         voltageCurves[BigPlotStatus::GapFree].push_back(new Curve(CurveType_t::CurveTypePlotDashed));
         voltageCurves[BigPlotStatus::GapFree][i]->setColor(QColor(Qt::red));
         voltageCurves[BigPlotStatus::GapFree][i]->setYAxis(QwtPlot::yRight);
     }
     //    creating curves for iv
-    for (int i = 0; i < currentChannelsNum; i++){
+    for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves[BigPlotStatus::Iv].push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
         voltageCurves[BigPlotStatus::Iv].push_back(new Curve());
         voltageCurves[BigPlotStatus::Iv][i]->detach();
@@ -48,21 +48,25 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     consumers = {gapFreePlotConsumer, ivGraphConsumer};
     plots = {gapFreePlot, ivGraph};
     models = {gapFreeModel, ivModel};
-    for(int i=0; i < consumers.size(); i++){
-        consumers[i]->forceAxisUpdate();
-        consumers[i]->setMaxSamplesPerPlot(4096);
-        consumers[i]->onSelectChannels(false);
-        consumers[i]->onStopConsuming();
-        connect(plots[i], &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
-        connect(plots[i], &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
-        connect(plots[i], &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
-        connect(plots[i], &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
-        connect(plots[i], &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
 
-        connect(this, &BigPlotController::durationChanged, consumers[i], &PlotConsumer::onDurationChanged);
-        connect(consumers[i], &PlotConsumer::setPlotData,         this, &BigPlotController::onSetPlotData);
-        connect(consumers[i], &PlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
+    for(auto p: plots) {
+        connect(p, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
+        connect(p, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
+        connect(p, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
+        connect(p, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
+        connect(p, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
     }
+
+    for(auto c: consumers){
+        connect(this, &BigPlotController::durationChanged, c, &PlotConsumer::onDurationChanged);
+        connect(c, &PlotConsumer::setPlotData,         this, &BigPlotController::onSetPlotData);
+        connect(c, &PlotConsumer::plotDataUpdated,     this, &BigPlotController::onReplot);
+        c->forceAxisUpdate();
+        c->setMaxSamplesPerPlot(4096);
+        c->onSelectChannels(false);
+        c->onStopConsuming();
+    }
+
     currentPlot = gapFreePlot;
     currentConsumer = gapFreePlotConsumer;
     currentModel = gapFreeModel;
@@ -76,7 +80,6 @@ void BigPlotController::manageStatus(int idx) {
      for(auto c: consumers){
          c->onStopConsuming();
      }
-//     currentConsumer->onStopConsuming();
      detachCurves();
      switch (idx) {
      case 0:
@@ -178,25 +181,34 @@ void BigPlotController::onSetPlotData(PlotMessage plotmessage) {
     GapFreeMessage gapFreeMessage;
     RangedMeasurement v;
     RangedMeasurement i;
+    double* doubleArray = new double[1000];
+
+    // Initializing all elements to 0
+    for (int i = 0; i < 1000; ++i) {
+        doubleArray[i] = 0.0;
+    }
     switch (plotmessage.index()) {
-//    IvGraph message
-    case 0:
-        appStatus->getMessageDispatcher()->getVCVoltageRange(v);
-        appStatus->getMessageDispatcher()->getVCCurrentRange(i);
-        plots[BigPlotStatus::Iv]->setRect(currentModel->initRect(v.min, v.max, i.min, i.max));
-        ivMessage = std::get<0>(plotmessage);
-        messages[BigPlotStatus::Iv] = ivMessage;
-        for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves[BigPlotStatus::Iv][idx]->setRawSamples(ivMessage.voltageValues, ivMessage.currentValues[idx], ivMessage.dataSize);
-        }
-        break;
 //    GapFree message
-    case 1:
-        gapFreeMessage = std::get<1>(plotmessage);
+    case 0:
+        gapFreeMessage = std::get<0>(plotmessage);
         messages[BigPlotStatus::GapFree] = gapFreeMessage;
         for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves[BigPlotStatus::GapFree][idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues->at(idx), gapFreeMessage.dataSize);
-            voltageCurves[BigPlotStatus::GapFree][idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues->at(idx), gapFreeMessage.dataSize);
+            currentCurves[BigPlotStatus::GapFree][idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
+            voltageCurves[BigPlotStatus::GapFree][idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues[idx], gapFreeMessage.dataSize);
+        }
+        break;
+//    IvGraph message
+    case 1:
+        appStatus->getMessageDispatcher()->getVCVoltageRange(v);
+        appStatus->getMessageDispatcher()->getVCCurrentRange(i);
+        plots[BigPlotStatus::Iv]->setRect(models[BigPlotStatus::Iv]->initRect(v.min, v.max, i.min, i.max));
+        ivMessage = std::get<1>(plotmessage);
+        messages[BigPlotStatus::Iv] = ivMessage;
+        if (ivMessage.currentValues.size() == 0) {
+            break;
+        }
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            currentCurves[BigPlotStatus::Iv][idx]->setRawSamples(ivMessage.voltageValues, ivMessage.currentValues[idx], ivMessage.dataSize);
         }
         break;
     }

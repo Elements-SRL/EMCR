@@ -14,15 +14,15 @@ struct IvMessage{
 
 struct GapFreeMessage{
     double * timeValues;
-    std::vector<double *> * voltageValues;
-    std::vector<double *> * currentValues;
+    std::vector<double *> voltageValues;
+    std::vector<double *> currentValues;
     int dataSize;
 };
 
 // Forward declaration of the variant type
 typedef std::variant<
-    IvMessage,
-    GapFreeMessage
+    GapFreeMessage,
+    IvMessage
 > PlotMessage;
 
 #endif // PLOTMESSAGE_H
