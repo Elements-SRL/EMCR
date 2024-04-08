@@ -62,14 +62,13 @@ void IvGraphConsumer::run() {
                         auto voltage = buffer[bufferIdx];
 //                      use the voltage value to index the currents
                         auto binIndex = scaleToBins(voltage);
-                        bufferIdx++;
-                        auto currentValue = buffer[bufferIdx];
+                        auto currentValue = buffer[bufferIdx + voltageChannelsNum];
                         if (ivChannels[channelIdx] != NULL) {
                             ivChannels[channelIdx]->pushValue(binIndex, currentValue);
                         }
                         bufferIdx++;
                     } else {
-                        bufferIdx+=2;
+                        bufferIdx++;
                     }
                 }
             }

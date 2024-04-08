@@ -355,27 +355,35 @@ void BigPlotController::onExportIvGraph() {
 
 
 
-void BigPlotController::saveToCSV(const QString& filePath, const IvMessage & data) {
-    QFile file(filePath);
+void BigPlotController::saveToCSV(const QString& filePathssasda, const IvMessage & data) {
+    for (int i=0; i<currentChannelsNum; i++) {
+        auto filepath = filePathssasda.toStdString();
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(nullptr, "Warning", "File could not be saved.");
-        return;
+//        append the channel number
+        size_t pos = filepath.find_last_of('.');
+        if (pos != std::string::npos && filepath.substr(pos) == ".csv") {
+            filepath.insert(pos, "_" + std::to_string(i));
+        }
+
+        QFile file(QString::fromStdString(filepath));
+
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QMessageBox::warning(nullptr, "Warning", "File could not be saved.");
+            return;
+        }
+
+        QTextStream out(&file);
+        RangedMeasurement vRange;
+        RangedMeasurement iRange;
+        appStatus->getMessageDispatcher()->getVoltageRange(vRange);
+        appStatus->getMessageDispatcher()->getCurrentRange(iRange);
+        // Write header
+        out << "Voltage " << QString::fromStdString(vRange.label()) << ", Current " << QString::fromStdString(iRange.label()) << "\n";
+        // Write data
+        int numRows = data.dataSize[i];
+        for (int row = 0; row < numRows; row++) {
+            out << data.voltageValues[i][row] << "," << data.currentValues[i][row] << "\n";
+        }
+        file.close();
     }
-
-    QTextStream out(&file);
-    RangedMeasurement r;
-    appStatus->getMessageDispatcher()->getVoltageRange(r);
-
-    // Write header
-    out << "Voltage " << QString::fromStdString(r.label()) << ", Current\n";
-
-    // Write data
-    int numRows = data.dataSize[0];
-    for (int i = 0; i < numRows; ++i) {
-        out <<  data.voltageValues[0][i] << "," << data.currentValues[0][i] << "\n";
-    }
-
-    file.close();
-
 }
