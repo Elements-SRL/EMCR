@@ -6,6 +6,8 @@ UpgradeFwView::UpgradeFwView(QWidget * parent) :
     /*! Hide the help and close button on the window bar */
     this->setWindowFlags(Qt::WindowTitleHint);
 
+    this->setWindowTitle("FW upgrade");
+
     QVBoxLayout * mainVl = new QVBoxLayout;
     this->setLayout(mainVl);
 

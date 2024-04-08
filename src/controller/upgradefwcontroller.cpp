@@ -59,5 +59,6 @@ void UpgradeFwController::run() {
 
 void UpgradeFwController::onUpgradeFw() {
     view->setEnabled(false);
+    view->onSetMessage("Upgrading...\nPlease do not disconnect");
     this->start();
 }

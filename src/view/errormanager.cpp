@@ -98,6 +98,10 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "The amplifier's FW was not found";
         break;
 
+    case ErrorFwUpgradeFailed:
+        error = "The amplifier's FW upgrade procedure failed";
+        break;
+
     case ErrorSendMessageFailed:
         error = "Failed to send message to the device";
         break;
@@ -217,7 +221,7 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorDeviceFwLoadingFailed:
         info = "Please, contact support@elements-ic.com for support, telling that you are using\n"
-               + GLB_SOFTWARE_NAME + ", and reporting this problem together with the S/N of the maplifier.";
+               + GLB_SOFTWARE_NAME + ", and reporting this problem together with the S/N of the amplifier.";
         break;
 
     case ErrorDeviceToBeUpgraded:
@@ -231,6 +235,10 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
     case ErrorFwNotFound:
         info = "If you need to upgrade your device's FW please contact support@elements-ic.com for more information\n"
                "on the available FW versions for your device.";
+        break;
+
+    case ErrorFwUpgradeFailed:
+        info = "Please try again. If this is not your first attempt please contact support@elements-ic.com.";
         break;
 
     case ErrorSendMessageFailed:
