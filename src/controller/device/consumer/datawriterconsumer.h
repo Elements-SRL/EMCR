@@ -52,7 +52,6 @@ protected:
 
     int channelsPerFile = 1;
     RecordSettingsDialog::RecordFileFormat_t dataFormat = RecordSettingsDialog::RecordFileNone;
-    RecordSettingsDialog::VoltageFormat_t voltageFormat = RecordSettingsDialog::VoltageAll;
 
     QFile headerFid;
     std::vector <int> pushedActiveChannels;

@@ -24,6 +24,9 @@ public slots:
 protected:
     void run() override;
     void initAbfSections();
+    void initIVSections();
+    void initISections();
+    void initVSections();
 
     bool openFile() override;
     void manageConsumptionBegin() override;
@@ -39,13 +42,20 @@ protected:
     std::vector <unsigned short> buffer;
 
     unsigned short ** rawBuffers = nullptr;
+    unsigned short ** rawVBuffers = nullptr;
+
+    int voltageDecimationRatio = 1;
+
     unsigned int rawBuffersLen;
     unsigned int maxMinPacketsPerBatch;
     QVector <ABF *> abfs;
+    QVector <ABF *> abfsV;
     unsigned int blockIdx;
+    unsigned int blockIdxV;
     int samplesFromTheBeginning = 0;
 
     float abfIntervalUsF32;
+    float abfIntervalUsF32V;
 
 //    unsigned short sweepIdx;
 //    int sweepsNum = 0;

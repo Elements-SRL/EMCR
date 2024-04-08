@@ -29,7 +29,7 @@ RecordSettingsDialog::RecordSettingsDialog() :
 
     /*! Record format settings */
     QGroupBox * recordFormatGb = new QGroupBox();
-    recordFormatGb->setTitle("Data format");
+    recordFormatGb->setTitle("File format");
     QVBoxLayout * recordFormatVl = new QVBoxLayout();
     recordFormatGb->setLayout(recordFormatVl);
     mainVl->addWidget(recordFormatGb);
@@ -51,7 +51,7 @@ RecordSettingsDialog::RecordSettingsDialog() :
 
     /*! Voltage settings */
     QGroupBox * voltageGb = new QGroupBox();
-    voltageGb->setTitle("Data format");
+    voltageGb->setTitle("Data options");
     QVBoxLayout * voltageVl = new QVBoxLayout();
     voltageGb->setLayout(voltageVl);
     mainVl->addWidget(voltageGb);
@@ -63,13 +63,25 @@ RecordSettingsDialog::RecordSettingsDialog() :
     voltageVl->addWidget(voltageSaveAllRb);
     voltageBg->addButton(voltageSaveAllRb);
 
-    voltageSaveSeparatelyRb = new QRadioButton("Save voltage at 10kHz in a separate file");
+    voltageSaveSeparatelyRb = new QRadioButton("Save voltage at reduced rate in a separate file");
     voltageVl->addWidget(voltageSaveSeparatelyRb);
     voltageBg->addButton(voltageSaveSeparatelyRb);
 
     voltageDontSaveRb = new QRadioButton("Do not save voltage");
     voltageVl->addWidget(voltageDontSaveRb);
     voltageBg->addButton(voltageDontSaveRb);
+
+    connect(voltageSaveAllRb, &QRadioButton::clicked, this, &RecordSettingsDialog::onVoltageFormatChanged);
+    connect(voltageSaveSeparatelyRb, &QRadioButton::clicked, this, &RecordSettingsDialog::onVoltageFormatChanged);
+    connect(voltageDontSaveRb, &QRadioButton::clicked, this, &RecordSettingsDialog::onVoltageFormatChanged);
+
+    QHBoxLayout * voltageDecimatorHl = new QHBoxLayout;
+    voltageVl->addLayout(voltageDecimatorHl);
+    voltageDecimatorHl->addWidget(new QLabel("Voltage decimation factor"));
+    voltageDecimatorSbx = new QSpinBox;
+    voltageDecimatorSbx->setRange(2, 10000);
+    voltageDecimatorSbx->setValue(1000);
+    voltageDecimatorHl->addWidget(voltageDecimatorSbx);
 
     /*! Record size settings */
     QGroupBox * recordSizeGb = new QGroupBox();
@@ -107,7 +119,7 @@ RecordSettingsDialog::RecordSettingsDialog() :
     chunkSelectionHl->addWidget(chunkDurationUnitLbl);
 
     recordSizeLbl = new QLabel("Recording size on disk: 0 MB (0 MB per chunk)");
-    /*! \todo al momento non la facciamo vedere*/
+    /*! \todo FCON al momento non la facciamo vedere */
     recordSizeLbl ->setVisible(false);
     recordSizeVl->addWidget(recordSizeLbl);
 
@@ -142,6 +154,10 @@ void RecordSettingsDialog::forceSettingsEmit() {
 
 void RecordSettingsDialog::onFileSizeComputed(QString message) {
     recordSizeLbl->setText(message);
+}
+
+void RecordSettingsDialog::onVoltageFormatChanged() {
+    voltageDecimatorSbx->setEnabled(voltageSaveSeparatelyRb->isChecked());
 }
 
 RecordSettingsDialog::RecordFileFormat_t RecordSettingsDialog::getRecordFileFormat() {
@@ -227,6 +243,7 @@ void RecordSettingsDialog::onLoadSettings() {
         voltageDontSaveRb->setChecked(false);
         break;
     }
+    voltageDecimatorSbx->setValue(settings.value(GLB_PROTOCOL_VOLTAGE_DECIMATOR_FACTOR_TAG, PSD_DEFAULT_VOLTAGE_DECIMATION_FACTOR).toInt());
     recordDurationEdit->setValue(settings.value(GLB_PROTOCOL_RECORD_DURATION_TAG, PSD_DEFAULT_RECORD_DURATION).toDouble());
     chunkDurationEdit->setValue(settings.value(GLB_PROTOCOL_CHUNK_DURATION_TAG, PSD_DEFAULT_CHUNK_DURATION).toDouble());
 }
@@ -241,6 +258,7 @@ void RecordSettingsDialog::onSaveSettings() {
     settings.setValue(GLB_PROTOCOL_ADD_DATE_TAG, addDateChx->isChecked());
     settings.setValue(GLB_PROTOCOL_RECORD_FORMAT_TAG, (int)(this->getRecordFileFormat()));
     settings.setValue(GLB_PROTOCOL_VOLTAGE_FORMAT_TAG, (int)(this->getVoltageRecordFormat()));
+    settings.setValue(GLB_PROTOCOL_VOLTAGE_DECIMATOR_FACTOR_TAG, voltageDecimatorSbx->value());
     settings.setValue(GLB_PROTOCOL_RECORD_DURATION_TAG, recordDurationEdit->value());
     settings.setValue(GLB_PROTOCOL_CHUNK_DURATION_TAG, chunkDurationEdit->value());
 }
@@ -252,6 +270,7 @@ void RecordSettingsDialog::onAccept() {
     settings.appendDate = addDateChx->isChecked();
     settings.fileFormat = this->getRecordFileFormat();
     settings.voltageFormat = this->getVoltageRecordFormat();
+    settings.voltageDecimationFactor = voltageDecimatorSbx->value();
     settings.recordDurationS = recordDurationEdit->value();
     settings.chunkDurationS = chunkDurationEdit->value();
     emit sigSettingsSet(settings);

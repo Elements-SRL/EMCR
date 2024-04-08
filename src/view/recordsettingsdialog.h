@@ -18,6 +18,7 @@
 #define PSD_DEFAULT_ADD_DATE false
 #define PSD_DEFAULT_RECORD_FORMAT 0
 #define PSD_DEFAULT_VOLTAGE_FORMAT 0
+#define PSD_DEFAULT_VOLTAGE_DECIMATION_FACTOR 1000
 #define PSD_DEFAULT_RECORD_DURATION 0.0
 #define PSD_DEFAULT_CHUNK_DURATION 0.0
 #define PSD_MAX_MB_PER_FILE 1900.0
@@ -44,6 +45,7 @@ public:
         bool appendDate = false;
         RecordFileFormat_t fileFormat;
         VoltageFormat_t voltageFormat;
+        int voltageDecimationFactor = 1000;
         double recordDurationS = 0.0;
         double chunkDurationS = 0.0;
     } RecordSettings_t;
@@ -53,6 +55,7 @@ public:
 
 public slots:
     void onFileSizeComputed(QString message);
+    void onVoltageFormatChanged();
 
 private:
     RecordFileFormat_t getRecordFileFormat();
@@ -66,6 +69,8 @@ private:
     QRadioButton * voltageSaveAllRb;
     QRadioButton * voltageSaveSeparatelyRb;
     QRadioButton * voltageDontSaveRb;
+
+    QSpinBox * voltageDecimatorSbx;
 
     QButtonGroup * recordFormatBg;
     QButtonGroup * voltageBg;

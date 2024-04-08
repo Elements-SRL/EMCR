@@ -219,11 +219,11 @@ void DataWriterConsumer::manageConsumptionEnd() {
 //}
 
 void DataWriterConsumer::computeSamples() {
-    std::vector<bool> selectedChannels = appStatus->getSelectedChannels();
+    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     activeChannelsNum = 0;
-    for(auto v: selectedChannels){
-        if (v){
-            activeChannelsNum+=channelsPerFile;
+    for (auto v: selectedChannels) {
+        if (v) {
+            activeChannelsNum += channelsPerFile;
         }
     }
 
