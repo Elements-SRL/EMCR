@@ -49,6 +49,28 @@ RecordSettingsDialog::RecordSettingsDialog() :
     recordFormatVl->addWidget(recordFormatAbfRb);
     recordFormatBg->addButton(recordFormatAbfRb);
 
+    /*! Voltage settings */
+    QGroupBox * voltageGb = new QGroupBox();
+    voltageGb->setTitle("Data format");
+    QVBoxLayout * voltageVl = new QVBoxLayout();
+    voltageGb->setLayout(voltageVl);
+    mainVl->addWidget(voltageGb);
+
+    voltageBg = new QButtonGroup();
+    voltageBg->setExclusive(true);
+
+    voltageSaveAllRb = new QRadioButton("Save full voltage with current");
+    voltageVl->addWidget(voltageSaveAllRb);
+    voltageBg->addButton(voltageSaveAllRb);
+
+    voltageSaveSeparatelyRb = new QRadioButton("Save voltage at 10kHz in a separate file");
+    voltageVl->addWidget(voltageSaveSeparatelyRb);
+    voltageBg->addButton(voltageSaveSeparatelyRb);
+
+    voltageDontSaveRb = new QRadioButton("Do not save voltage");
+    voltageVl->addWidget(voltageDontSaveRb);
+    voltageBg->addButton(voltageDontSaveRb);
+
     /*! Record size settings */
     QGroupBox * recordSizeGb = new QGroupBox();
     recordSizeGb->setTitle("Data size");
@@ -132,6 +154,22 @@ RecordSettingsDialog::RecordFileFormat_t RecordSettingsDialog::getRecordFileForm
     return format;
 }
 
+RecordSettingsDialog::VoltageFormat_t RecordSettingsDialog::getVoltageRecordFormat() {
+    VoltageFormat_t format = (VoltageFormat_t)PSD_DEFAULT_VOLTAGE_FORMAT;
+
+    if (voltageSaveAllRb->isChecked()) {
+        format = VoltageAll;
+
+    } else if (voltageSaveSeparatelyRb->isChecked()) {
+        format = VoltageSeparate;
+
+    } else if (voltageDontSaveRb->isChecked()) {
+        format = VoltageNone;
+    }
+
+    return format;
+}
+
 void RecordSettingsDialog::onLoadSettings() {
     QSettings settings;
 
@@ -163,9 +201,37 @@ void RecordSettingsDialog::onLoadSettings() {
         recordFormatAbfRb->setChecked(true);
         break;
     }
+
+    switch ((VoltageFormat_t)(settings.value(GLB_PROTOCOL_VOLTAGE_FORMAT_TAG, PSD_DEFAULT_VOLTAGE_FORMAT).toInt())) {
+    case VoltageAll:
+        voltageSaveAllRb->setChecked(true);
+        voltageSaveSeparatelyRb->setChecked(false);
+        voltageDontSaveRb->setChecked(false);
+        break;
+
+    case VoltageSeparate:
+        voltageSaveAllRb->setChecked(false);
+        voltageSaveSeparatelyRb->setChecked(true);
+        voltageDontSaveRb->setChecked(false);
+        break;
+
+    case VoltageNone:
+        voltageSaveAllRb->setChecked(false);
+        voltageSaveSeparatelyRb->setChecked(false);
+        voltageDontSaveRb->setChecked(true);
+        break;
+
+    default:
+        voltageSaveAllRb->setChecked(true);
+        voltageSaveSeparatelyRb->setChecked(false);
+        voltageDontSaveRb->setChecked(false);
+        break;
+    }
     recordDurationEdit->setValue(settings.value(GLB_PROTOCOL_RECORD_DURATION_TAG, PSD_DEFAULT_RECORD_DURATION).toDouble());
     chunkDurationEdit->setValue(settings.value(GLB_PROTOCOL_CHUNK_DURATION_TAG, PSD_DEFAULT_CHUNK_DURATION).toDouble());
 }
+
+
 
 void RecordSettingsDialog::onSaveSettings() {
     QSettings settings;
@@ -174,6 +240,7 @@ void RecordSettingsDialog::onSaveSettings() {
 //    settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, recordNameEdit->text());
     settings.setValue(GLB_PROTOCOL_ADD_DATE_TAG, addDateChx->isChecked());
     settings.setValue(GLB_PROTOCOL_RECORD_FORMAT_TAG, (int)(this->getRecordFileFormat()));
+    settings.setValue(GLB_PROTOCOL_VOLTAGE_FORMAT_TAG, (int)(this->getVoltageRecordFormat()));
     settings.setValue(GLB_PROTOCOL_RECORD_DURATION_TAG, recordDurationEdit->value());
     settings.setValue(GLB_PROTOCOL_CHUNK_DURATION_TAG, chunkDurationEdit->value());
 }
@@ -184,6 +251,7 @@ void RecordSettingsDialog::onAccept() {
     RecordSettings_t settings;
     settings.appendDate = addDateChx->isChecked();
     settings.fileFormat = this->getRecordFileFormat();
+    settings.voltageFormat = this->getVoltageRecordFormat();
     settings.recordDurationS = recordDurationEdit->value();
     settings.chunkDurationS = chunkDurationEdit->value();
     emit sigSettingsSet(settings);

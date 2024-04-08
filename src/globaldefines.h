@@ -19,6 +19,7 @@
 #define GLB_PROTOCOL_RECORD_NAME_TAG "Protocol/Settings/recordName"
 #define GLB_PROTOCOL_ADD_DATE_TAG "Protocol/Settings/addDate"
 #define GLB_PROTOCOL_RECORD_FORMAT_TAG "Protocol/Settings/recordFormat"
+#define GLB_PROTOCOL_VOLTAGE_FORMAT_TAG "Protocol/Settings/voltageFormat"
 #define GLB_PROTOCOL_RECORD_DURATION_TAG "Protocol/Settings/recordDuration"
 #define GLB_PROTOCOL_CHUNK_DURATION_TAG "Protocol/Settings/chunkDuration"
 #define GLB_PROTOCOL_FOLDER_TAG "Protocol/folder"

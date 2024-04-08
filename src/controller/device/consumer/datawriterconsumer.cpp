@@ -334,6 +334,7 @@ void DataWriterConsumer::findValidPathName() {
 
 //    validSubFileName = subFolder + baseFileName + suffix;
     validFullFileName = newFullFileName + fileNameExtension;
+    validVoltageFullFileName = newFullFileName + "V" + fileNameExtension;
 }
 
 void DataWriterConsumer::onFilenameSet(QString fname){

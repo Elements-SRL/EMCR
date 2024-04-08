@@ -17,6 +17,7 @@
 
 #define PSD_DEFAULT_ADD_DATE false
 #define PSD_DEFAULT_RECORD_FORMAT 0
+#define PSD_DEFAULT_VOLTAGE_FORMAT 0
 #define PSD_DEFAULT_RECORD_DURATION 0.0
 #define PSD_DEFAULT_CHUNK_DURATION 0.0
 #define PSD_MAX_MB_PER_FILE 1900.0
@@ -33,9 +34,16 @@ public:
         RecordFileNone
     } RecordFileFormat_t;
 
+    typedef enum {
+        VoltageAll,
+        VoltageSeparate,
+        VoltageNone
+    } VoltageFormat_t;
+
     typedef struct RecordSettings {
         bool appendDate = false;
         RecordFileFormat_t fileFormat;
+        VoltageFormat_t voltageFormat;
         double recordDurationS = 0.0;
         double chunkDurationS = 0.0;
     } RecordSettings_t;
@@ -48,13 +56,19 @@ public slots:
 
 private:
     RecordFileFormat_t getRecordFileFormat();
+    VoltageFormat_t getVoltageRecordFormat();
 
     QCheckBox * addDateChx;
 //    QRadioButton * recordFormatDatRb;
 //    QRadioButton * recordFormatEdrfRb;
     QRadioButton * recordFormatAbfRb;
 
+    QRadioButton * voltageSaveAllRb;
+    QRadioButton * voltageSaveSeparatelyRb;
+    QRadioButton * voltageDontSaveRb;
+
     QButtonGroup * recordFormatBg;
+    QButtonGroup * voltageBg;
 
     QDoubleSpinBox * recordDurationEdit;
     QSpinBox * chunkDurationEdit;
