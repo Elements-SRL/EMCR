@@ -68,6 +68,7 @@ SOURCES += \
     src/view/compensationcontroldockwidget.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
+    src/view/copyabletable.cpp \
     src/view/doubleclickmachine.cpp \
     src/view/ivgraphwidget.cpp \
     src/view/lcddisplay.cpp \
@@ -153,6 +154,7 @@ HEADERS += \
     src/view/compensationcontroldockwidget.h \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
+    src/view/copyabletable.h \
     src/view/doubleclickmachine.h \
     src/view/ivgraphwidget.h \
     src/view/lcddisplay.h \

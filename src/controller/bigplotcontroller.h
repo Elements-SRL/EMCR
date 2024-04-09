@@ -67,6 +67,7 @@ private slots:
     void handleSingleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
     void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
     void onExportIvGraph();
+    void onCalcMeanSquared();
 
 signals:
     void durationChanged(Measurement_t duration);

@@ -1,14 +1,18 @@
 #include "bigplotcontroller.h"
 #include <iostream>
+#include <cmath>
 
 BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
 
+    currentChannelsNum = appStatus->getCurrentChannelsNum();
+    voltageChannelsNum = appStatus->getVoltageChannelsNum();
+
 //    we only have one widget with multiple tabs
 //    todo maybe we could create a widget for each tab
     bpw = new BigPlotWidget(mainWindow);
-    ivGraphWidget = new IvGraphWidget(mainWindow);
+    ivGraphWidget = new IvGraphWidget(currentChannelsNum, mainWindow);
 
     auto ivModel = new BigPlotModel();
     auto gapFreeModel = new BigPlotModel();
@@ -25,8 +29,6 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
     auto ivGraph = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bpw);
     bpw->setIvGraph(ivGraph);
-    currentChannelsNum = appStatus->getCurrentChannelsNum();
-    voltageChannelsNum = appStatus->getVoltageChannelsNum();
 
     currentCurves.resize(BigPlotStatus::NumberOfStatuses);
     voltageCurves.resize(BigPlotStatus::NumberOfStatuses);
@@ -69,6 +71,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     }
 
     connect(ivGraphWidget, &IvGraphWidget::exportIvGraph, this, &BigPlotController::onExportIvGraph);
+    connect(ivGraphWidget, &IvGraphWidget::calcMeanSquared, this, &BigPlotController::onCalcMeanSquared);
     currentPlot = gapFreePlot;
     currentConsumer = gapFreePlotConsumer;
     currentModel = gapFreeModel;
@@ -342,23 +345,25 @@ void BigPlotController::onExportIvGraph() {
 
        // Check if a file path was selected
        if (!filePath.isEmpty()) {
-           IvMessage ivMessage = std::get<1>(messages[BigPlotStatus::Iv]);
+           IvMessage ivMessage = std::get<BigPlotStatus::Iv>(messages[BigPlotStatus::Iv]);
            // Save data to CSV file
            saveToCSV(filePath, ivMessage);
        } else {
            // No file path selected
            qDebug() << "No file path selected.";
        }
-
-//    std::cout << "export" << std::endl;
 }
 
 
 
 void BigPlotController::saveToCSV(const QString& filePathssasda, const IvMessage & data) {
+    auto selectedChannels = appStatus->getSelectedChannels();
     for (int i=0; i<currentChannelsNum; i++) {
+//        save to file only selected channels
+        if (!selectedChannels[i]) {
+            continue;
+        }
         auto filepath = filePathssasda.toStdString();
-
 //        append the channel number
         size_t pos = filepath.find_last_of('.');
         if (pos != std::string::npos && filepath.substr(pos) == ".csv") {
@@ -386,4 +391,48 @@ void BigPlotController::saveToCSV(const QString& filePathssasda, const IvMessage
         }
         file.close();
     }
+}
+
+void BigPlotController::onCalcMeanSquared() {
+    std::map<std::uint32_t, std::vector<double>> myMap;
+
+    IvMessage ivMessage = std::get<BigPlotStatus::Iv>(messages[BigPlotStatus::Iv]);
+
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        const auto nItems = ivMessage.dataSize[chIdx];
+        const auto currentData = ivMessage.currentValues[chIdx];
+        const auto voltageData = ivMessage.voltageValues[chIdx];
+        // calc regression only for active channels
+        if (!selectedChannels[chIdx] || nItems == 0) {
+            continue;
+        }
+        double xSum = 0.0;
+        double ySum = 0.0;
+
+        for (int i = 0; i < nItems; i++) {
+            xSum += voltageData[i];
+            ySum += currentData[i];
+        }
+        const auto nItemsD = (double) nItems;
+        const double meanX = xSum / nItemsD;
+        const double meanY = ySum / nItemsD;
+
+        double bDenom = 0.0;
+        double bNum = 0.0;
+        for (int i = 0; i < nItems; i++) {
+            const auto xMinusMean = voltageData[i] - meanX;
+            const auto yMinusMean = currentData[i] - meanY;
+            bDenom += pow(xMinusMean, 2.0);
+            bNum += xMinusMean * yMinusMean;
+        }
+        const auto b = bNum / bDenom;
+        const auto a = meanY - (b*meanX);
+
+        const auto conductance = b;
+        const auto resistance = ((double) 1) / conductance;
+        std::vector<double> vals = {conductance, resistance, 0.0, 0.0};
+        myMap.insert(std::make_pair(chIdx,vals )); // Inserting key-value pair "apple" -> 5
+    }
+    ivGraphWidget->setParams(myMap);
 }

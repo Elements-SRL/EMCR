@@ -56,7 +56,7 @@ void IvGraphConsumer::run() {
             bufferLen = buffer.size();
 
             /*! Copy data in curves */
-            while (bufferIdx < bufferLen) {
+            while (bufferIdx + voltageChannelsNum < bufferLen) {
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
                         auto voltage = buffer[bufferIdx];
@@ -65,12 +65,11 @@ void IvGraphConsumer::run() {
                         auto currentValue = buffer[bufferIdx + voltageChannelsNum];
                         if (ivChannels[channelIdx] != NULL) {
                             ivChannels[channelIdx]->pushValue(binIndex, currentValue);
-                        }
-                        bufferIdx++;
-                    } else {
-                        bufferIdx++;
+                        }    
                     }
+                    bufferIdx++;
                 }
+                bufferIdx+=currentChannelsNum;
             }
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
