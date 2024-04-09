@@ -441,7 +441,7 @@ void BigPlotController::onCalcMeanSquared() {
         const Measurement iOffset = {a, iUnitPfx, "A"};
 
         std::vector<Measurement> vals = {conductance, resistance, invPot, iOffset};
-        myMap.insert(std::make_pair(chIdx, vals)); // Inserting key-value pair "apple" -> 5
+        myMap.insert(std::make_pair(chIdx, vals));
     }
     ivGraphWidget->setParams(myMap);
 }
