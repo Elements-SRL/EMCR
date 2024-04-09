@@ -431,8 +431,8 @@ void BigPlotController::onCalcMeanSquared() {
 
         const auto conductance = b;
         const auto resistance = ((double) 1) / conductance;
-        std::vector<double> vals = {conductance, resistance, 0.0, 0.0};
-        myMap.insert(std::make_pair(chIdx,vals )); // Inserting key-value pair "apple" -> 5
+        std::vector<double> vals = {conductance, resistance, ((0.0 - a)/ b), a};
+        myMap.insert(std::make_pair(chIdx, vals)); // Inserting key-value pair "apple" -> 5
     }
     ivGraphWidget->setParams(myMap);
 }
