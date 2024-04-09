@@ -25,6 +25,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *parent) {
     dataTable->verticalHeader()->hide();
     mainVl->addWidget(dataTable);
     this->layout()->addWidget(containerWidget);
+    this->installEventFilter(dataTable);
     dataTable->setItem(0, 0, new QTableWidgetItem("Channel index"));
     dataTable->setItem(0, 1, new QTableWidgetItem("Conductance"));
     dataTable->setItem(0, 2, new QTableWidgetItem("Unit"));
