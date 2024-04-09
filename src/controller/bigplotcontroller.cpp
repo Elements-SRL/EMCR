@@ -394,7 +394,13 @@ void BigPlotController::saveToCSV(const QString& filePathssasda, const IvMessage
 }
 
 void BigPlotController::onCalcMeanSquared() {
-    std::map<std::uint32_t, std::vector<double>> myMap;
+    std::map<std::uint32_t, std::vector<Measurement>> myMap;
+    RangedMeasurement vRange;
+    RangedMeasurement iRange;
+    appStatus->getMessageDispatcher()->getVoltageRange(vRange);
+    appStatus->getMessageDispatcher()->getCurrentRange(iRange);
+    auto vUnitPfx = vRange.prefix;
+    auto iUnitPfx = iRange.prefix;
 
     IvMessage ivMessage = std::get<BigPlotStatus::Iv>(messages[BigPlotStatus::Iv]);
 
@@ -429,9 +435,12 @@ void BigPlotController::onCalcMeanSquared() {
         const auto b = bNum / bDenom;
         const auto a = meanY - (b*meanX);
 
-        const auto conductance = b;
-        const auto resistance = ((double) 1) / conductance;
-        std::vector<double> vals = {conductance, resistance, ((0.0 - a)/ b), a};
+        const Measurement conductance = {b, iUnitPfx/vUnitPfx, "S"};
+        const Measurement resistance = {((double) 1) / conductance.value, UnitPfx::UnitPfxNone/conductance.prefix, "Ohm"};
+        const Measurement invPot = {((0.0 - a)/ b), vUnitPfx, "V"};
+        const Measurement iOffset = {a, iUnitPfx, "A"};
+
+        std::vector<Measurement> vals = {conductance, resistance, invPot, iOffset};
         myMap.insert(std::make_pair(chIdx, vals)); // Inserting key-value pair "apple" -> 5
     }
     ivGraphWidget->setParams(myMap);

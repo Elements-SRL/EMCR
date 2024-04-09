@@ -9,6 +9,8 @@
 #include <map>
 #include <QHeaderView>
 #include <QString>
+#include "messagedispatcher.h"
+#include "e384commlib_global_addendum.h"
 
 class IvGraphWidget : public QDockWidget
 {
@@ -18,7 +20,7 @@ private:
 
 public:
     IvGraphWidget(uint32_t channelsNum, QWidget *parent = nullptr);
-    void setParams(std::map<uint32_t, std::vector<double>> params);
+    void setParams(std::map<uint32_t, std::vector<Measurement>> params);
 
 signals:
     void exportIvGraph();
