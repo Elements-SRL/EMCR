@@ -69,8 +69,8 @@ public:
 
     void setInitialOffset(unsigned int offset);
     void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
-    int getDataChunk(unsigned short *buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
-    int getDataChunk(double *buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunk(std::vector <unsigned short> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
     void flush();
 
 protected:

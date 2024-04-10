@@ -26,7 +26,7 @@ private:
     int nBins;
     int subSamplingRatio = 1;
     double binSize;
-    double * buffer;
+    std::vector<double> buffer;
     std::vector<IvChannel *> ivChannels;
     std::vector<double *> currentValues;
     std::vector<double *> voltageData;

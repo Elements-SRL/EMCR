@@ -23,7 +23,7 @@ AbfDataWriterConsumer::AbfDataWriterConsumer(ApplicationStatus * appStatus, Devi
     abfs.fill(nullptr);
 
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
-    buffer = new unsigned short[producer->getDataPacketsBufferLen() * totalChannelsNum];
+    buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
 }
 
 AbfDataWriterConsumer::~AbfDataWriterConsumer() {
@@ -100,10 +100,11 @@ void AbfDataWriterConsumer::run() {
             break;
         }
         consumptionLock.unlock();
-        bufferLen = hook->getDataChunk(buffer, 1, minPacketsPerBatch);
-        if (bufferLen > 0) {
+
+        if (hook->getDataChunk(buffer, 1, minPacketsPerBatch)) {
             bufferIdx = 0;
 
+            bufferLen = buffer.size();
             long long valuesLen = round(((double) bufferLen) / activeChannelsRatio);
             long long valuesToEndOfFile = valuesToBeSaved-savedValues;
 

@@ -36,7 +36,7 @@ protected:
 //    void writeSynchInfo(ABF * abf);
 //    void writeTagsInfo(ABF * abf);
 
-    unsigned short * buffer;
+    std::vector <unsigned short> buffer;
 
     unsigned short ** rawBuffers = nullptr;
     unsigned int rawBuffersLen;

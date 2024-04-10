@@ -7,19 +7,11 @@
 
 LiveStatisticsConsumer::LiveStatisticsConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
-    std::vector<Measurement> samplingRates;
-    appStatus->getMessageDispatcher()->getSamplingRatesFeatures(samplingRates);
-    auto maxSamplingRate = samplingRates[0];
-    for (auto sr : samplingRates) {
-        if (sr > maxSamplingRate) {
-            maxSamplingRate = sr;
-        }
-    }
-    buffer = new double[qRound(LSC_MIN_BATCH_INTERVAL_S * 1.2 * (double)totalChannelsNum * maxSamplingRate.getNoPrefixValue())];
+    buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum); /*! \todo FCON magari renderlo comportamneto di default della classe base */
 }
 
 LiveStatisticsConsumer::~LiveStatisticsConsumer() {
-    delete[] buffer;
+
 }
 
 void LiveStatisticsConsumer::onStartConsuming() {
@@ -81,7 +73,7 @@ void LiveStatisticsConsumer::run() {
     pushedCurrentRangeFlag = true;
     pushedSamplingRateFlag = true;
     pushedDownsamplingRatioFlag = true;
-    bufferLen = 0;
+
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
@@ -91,8 +83,8 @@ void LiveStatisticsConsumer::run() {
 
         this->updateSamplingRate();
         this->updateRanges();
-        bufferLen = hook->getDataChunk(buffer, 1, minDataBatchSize);
-        if (bufferLen > 0) {
+
+        if (hook->getDataChunk(buffer, 1, minDataBatchSize)) {
             this->performAnalysis();
             hook->flush(); /*! Get rid of some data, these analyses will work anyway */
         }
@@ -124,6 +116,7 @@ void LiveStatisticsConsumer::resetAnalysis(int) {
 
 void LiveStatisticsConsumer::performAnalysis() {
     QMutexLocker locker(&mutex);
+    int bufferLen = buffer.size();
     analysisSamples = bufferLen/totalChannelsNum;
     int channelIdx;
     double bufferedValue;

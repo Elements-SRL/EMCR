@@ -179,7 +179,7 @@ void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
     halfBufferSize = bufferSize/2;
 }
 
-int DataHook::getDataChunk(unsigned short * buffer, unsigned int, unsigned int minDataBatchSize) {
+bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
     int waitCount = 0;
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
@@ -190,7 +190,7 @@ int DataHook::getDataChunk(unsigned short * buffer, unsigned int, unsigned int m
 
     if (waitCount >= DDP_MAX_WAIT_COUNT) {
         dataLock.unlock();
-        return 0;
+        return false;
     }
 
     unsigned int dataPacketsMax = dataPacketsIdx;
@@ -204,6 +204,7 @@ int DataHook::getDataChunk(unsigned short * buffer, unsigned int, unsigned int m
         dataPacketsToBuffer = dataPacketsMax+bufferSize-dataIdx;
     }
 
+    buffer.resize(dataPacketsToBuffer*totalChannelsNum);
     int count = 0;
     int chIdx;
     while (dataIdx != dataPacketsMax) {
@@ -212,10 +213,10 @@ int DataHook::getDataChunk(unsigned short * buffer, unsigned int, unsigned int m
         }
         dataIdx = (dataIdx+1) & bufferMask;
     }
-    return dataPacketsToBuffer * totalChannelsNum;
+    return true;
 }
 
-int DataHook::getDataChunk(double * buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
     int waitCount = 0;
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
@@ -226,7 +227,7 @@ int DataHook::getDataChunk(double * buffer, unsigned int downsamplingRatio, unsi
 
     if (waitCount >= DDP_MAX_WAIT_COUNT) {
         dataLock.unlock();
-        return 0;
+        return false;
     }
 
     unsigned int dataPacketsMax = dataPacketsIdx;
@@ -252,6 +253,7 @@ int DataHook::getDataChunk(double * buffer, unsigned int downsamplingRatio, unsi
     }
     int totalChannelsNumInt = (int)totalChannelsNum;
     int dataSamplesToBuffer = dataPacketsToBuffer* totalChannelsNumInt;
+    buffer.resize(dataSamplesToBuffer);
     int count = 0;
 
     int chIdx;
@@ -291,7 +293,7 @@ int DataHook::getDataChunk(double * buffer, unsigned int downsamplingRatio, unsi
             dataIdx = (dataIdx+1) & bufferMask;
         }
     }
-    return dataSamplesToBuffer;
+    return true;
 }
 
 void DataHook::flush() {
