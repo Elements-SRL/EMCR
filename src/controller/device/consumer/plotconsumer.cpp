@@ -10,14 +10,14 @@ PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * p
     currentRange.prefix = UnitPfxNone;
 
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
-    buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
+    buffer = new double[producer->getDataPacketsBufferLen() * totalChannelsNum];
 
     plottedChannels.resize(currentChannelsNum);
     plottedChannels.fill(true);
 }
 
 PlotConsumer::~PlotConsumer() {
-
+    delete[] buffer;
 }
 
 void PlotConsumer::forceAxisUpdate() {
@@ -227,12 +227,12 @@ void GapFreePlotConsumer::run() {
         }
         consumptionLock.unlock();
 
-        if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
+        bufferLen = hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize);
+        if (bufferLen > 0) {
             this->updateTimeAxis();
             this->updateRangeAxis();
 
             bufferIdx = 0;
-            bufferLen = buffer.size();
 
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {

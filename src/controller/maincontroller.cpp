@@ -174,8 +174,8 @@ void MainController::onMainWindowCreated() {
 
     mainWindow->addViewActions();
 
-    calibratorConsumer = new CalibrationConsumer(appStatus, deviceDataProducer);
-    consumers.append(calibratorConsumer);
+    // calibratorConsumer = new CalibrationConsumer(appStatus, deviceDataProducer);
+    // consumers.append(calibratorConsumer);
 
     /***********\
      * Connect *
@@ -289,13 +289,13 @@ void MainController::onMainWindowCreated() {
     });
 
     /*! \todo at the moment only for debug mode*/
-    connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
-    connect(mainWindow, &MainWindow::sigPerformCalibration, calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
+    //connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
+    //connect(mainWindow, &MainWindow::sigPerformCalibration, calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
 
-    connect(calibratorConsumer, QOverload <QString> ::of(&CalibrationConsumer::sigCalibLoadingMsg),         mainWindow, QOverload <QString> ::of(&MainWindow::onCalibLoadingMsg));
-    connect(calibratorConsumer, QOverload <ErrorCodes_t> ::of(&CalibrationConsumer::sigCalibLoadingMsg),    mainWindow, QOverload <ErrorCodes_t> ::of(&MainWindow::onCalibLoadingMsg));
-    connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,                                mainWindow, &MainWindow::onManualCalibDoneMsg);
-    connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
+    //connect(calibratorConsumer, QOverload <QString> ::of(&CalibrationConsumer::sigCalibLoadingMsg),         mainWindow, QOverload <QString> ::of(&MainWindow::onCalibLoadingMsg));
+    //connect(calibratorConsumer, QOverload <ErrorCodes_t> ::of(&CalibrationConsumer::sigCalibLoadingMsg),    mainWindow, QOverload <ErrorCodes_t> ::of(&MainWindow::onCalibLoadingMsg));
+    //connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,                                mainWindow, &MainWindow::onManualCalibDoneMsg);
+    //connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
 
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
@@ -318,7 +318,7 @@ void MainController::onMainWindowCreated() {
 
     plotPreferencesController->initializePlotColors();
 
-    calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationDir(), calibratorConsumer->getCalibrationMappingFilePath());
+    //calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationDir(), calibratorConsumer->getCalibrationMappingFilePath());
 
     /*! Start threads */
     this->startProducerConsumers();
@@ -514,11 +514,11 @@ void MainController::stopAndDestroyProducerConsumers() {
         delete abfDataWriterConsumer;
         abfDataWriterConsumer = nullptr;
     }
-    if (calibratorConsumer!= nullptr) {
-        calibratorConsumer->onStopConsuming();
-        delete calibratorConsumer;
-        calibratorConsumer = nullptr;
-    }
+    //if (calibratorConsumer!= nullptr) {
+    //    calibratorConsumer->onStopConsuming();
+    //    delete calibratorConsumer;
+    //    calibratorConsumer = nullptr;
+    //}
 
     if (deviceDataProducer!= nullptr) {
         deviceDataProducer->onStopProducing();

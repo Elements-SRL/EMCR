@@ -7,12 +7,19 @@
 
 LiveStatisticsConsumer::LiveStatisticsConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
-
-    analysisBuffer.reserve(qRound(LSC_MIN_BATCH_INTERVAL_S*1.2*totalChannelsNum));
+    std::vector<Measurement> samplingRates;
+    appStatus->getMessageDispatcher()->getSamplingRatesFeatures(samplingRates);
+    auto maxSamplingRate = samplingRates[0];
+    for (auto sr : samplingRates) {
+        if (sr > maxSamplingRate) {
+            maxSamplingRate = sr;
+        }
+    }
+    buffer = new double[qRound(LSC_MIN_BATCH_INTERVAL_S * 1.2 * (double)totalChannelsNum * maxSamplingRate.getNoPrefixValue())];
 }
 
 LiveStatisticsConsumer::~LiveStatisticsConsumer() {
-
+    delete[] buffer;
 }
 
 void LiveStatisticsConsumer::onStartConsuming() {
@@ -74,7 +81,7 @@ void LiveStatisticsConsumer::run() {
     pushedCurrentRangeFlag = true;
     pushedSamplingRateFlag = true;
     pushedDownsamplingRatioFlag = true;
-
+    bufferLen = 0;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
@@ -84,9 +91,8 @@ void LiveStatisticsConsumer::run() {
 
         this->updateSamplingRate();
         this->updateRanges();
-
-        if (hook->getDataChunk(buffer, 1, minDataBatchSize)) {
-            analysisBuffer.insert(analysisBuffer.end(), buffer.begin(), buffer.end());
+        bufferLen = hook->getDataChunk(buffer, 1, minDataBatchSize);
+        if (bufferLen > 0) {
             this->performAnalysis();
             hook->flush(); /*! Get rid of some data, these analyses will work anyway */
         }
@@ -111,8 +117,6 @@ void LiveStatisticsConsumer::lockAndResetAnalysis(int currentChannelIdx) {
 }
 
 void LiveStatisticsConsumer::resetAnalysis(int) {
-    analysisBuffer.clear();
-
     minSamples = qRound(samplingRateHz*LSC_MIN_INTERVAL_S);
     minDataBatchSize = qRound(samplingRateHz*LSC_MIN_BATCH_INTERVAL_S);
     totalAnalysisSamples = 0;
@@ -120,37 +124,36 @@ void LiveStatisticsConsumer::resetAnalysis(int) {
 
 void LiveStatisticsConsumer::performAnalysis() {
     QMutexLocker locker(&mutex);
-    bufferSize = analysisBuffer.size();
-    analysisSamples = bufferSize/totalChannelsNum;
+    analysisSamples = bufferLen/totalChannelsNum;
     int channelIdx;
-
+    double bufferedValue;
     if (totalAnalysisSamples == 0) {
-        std::fill(voltageSum.begin(), voltageSum.end(), 1.0);
-        std::fill(voltageSum2.begin(), voltageSum2.end(), 1.0);
+        std::fill(voltageSum.begin(), voltageSum.end(), 0.0);
+        //std::fill(voltageSum2.begin(), voltageSum2.end(), 1.0);
         std::fill(currentSum.begin(), currentSum.end(), 0.0);
         std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
     }
 
-    for (analysisIdx = 0; analysisIdx < bufferSize; analysisIdx += totalChannelsNum*100) {
-        //for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
-        //    channelIdx = analysisIdx+voltageIdx;
-        //    voltageSum[voltageIdx] += analysisBuffer[channelIdx];
-        //    voltageSum2[voltageIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
-        //}
+    for (analysisIdx = 0; analysisIdx < bufferLen; analysisIdx += totalChannelsNum*100) {
+        for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
+            channelIdx = analysisIdx+voltageIdx;
+            voltageSum[voltageIdx] += buffer[channelIdx];
+            // voltageSum2[voltageIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
+        }
 
         for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
             channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
-            currentSum[currentIdx] += analysisBuffer[channelIdx];
-            currentSum2[currentIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
+            bufferedValue = buffer[channelIdx];
+            currentSum[currentIdx] += bufferedValue;
+            currentSum2[currentIdx] += bufferedValue* bufferedValue;
         }
         totalAnalysisSamples++;
     }
-    analysisBuffer.clear();
 
-    if (totalAnalysisSamples >= minSamples) {
+    if (totalAnalysisSamples*100 >= minSamples) {
         for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
             res->meanVoltage[voltageIdx] = voltageSum[voltageIdx]/((double)totalAnalysisSamples);
-            res->stdVoltage[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res->meanVoltage[voltageIdx])/((double)totalAnalysisSamples))*voltageMultiplier;
+            // res->stdVoltage[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res->meanVoltage[voltageIdx])/((double)totalAnalysisSamples))*voltageMultiplier;
             res->meanVoltage[voltageIdx] *= voltageMultiplier;
         }
 

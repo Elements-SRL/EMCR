@@ -139,7 +139,7 @@ private:
 
     std::vector<uint16_t> channelToCalibIdxs; // se vogliamo calibrare solo una scheda e non tutti i canali insieme.
     int totalChannelsUnderCalibNum;
-    std::vector <double> buffer;
+    double * buffer;
     int samplesToremove;
     QVector <double> currentSum;
     QVector<QVector <double>> currentMeans;

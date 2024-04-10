@@ -179,7 +179,7 @@ void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
     halfBufferSize = bufferSize/2;
 }
 
-bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
+int DataHook::getDataChunk(unsigned short * buffer, unsigned int, unsigned int minDataBatchSize) {
     int waitCount = 0;
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
@@ -190,7 +190,7 @@ bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, u
 
     if (waitCount >= DDP_MAX_WAIT_COUNT) {
         dataLock.unlock();
-        return false;
+        return 0;
     }
 
     unsigned int dataPacketsMax = dataPacketsIdx;
@@ -204,7 +204,6 @@ bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, u
         dataPacketsToBuffer = dataPacketsMax+bufferSize-dataIdx;
     }
 
-    buffer.resize(dataPacketsToBuffer*totalChannelsNum);
     int count = 0;
     int chIdx;
     while (dataIdx != dataPacketsMax) {
@@ -213,10 +212,10 @@ bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, u
         }
         dataIdx = (dataIdx+1) & bufferMask;
     }
-    return true;
+    return dataPacketsToBuffer * totalChannelsNum;
 }
 
-bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+int DataHook::getDataChunk(double * buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
     int waitCount = 0;
     dataLock.lockForRead();
     while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
@@ -227,7 +226,7 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
 
     if (waitCount >= DDP_MAX_WAIT_COUNT) {
         dataLock.unlock();
-        return false;
+        return 0;
     }
 
     unsigned int dataPacketsMax = dataPacketsIdx;
@@ -253,7 +252,6 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
     }
     int totalChannelsNumInt = (int)totalChannelsNum;
     int dataSamplesToBuffer = dataPacketsToBuffer* totalChannelsNumInt;
-    buffer.resize(dataSamplesToBuffer);
     int count = 0;
 
     int chIdx;
@@ -293,7 +291,7 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
             dataIdx = (dataIdx+1) & bufferMask;
         }
     }
-    return true;
+    return dataSamplesToBuffer;
 }
 
 void DataHook::flush() {

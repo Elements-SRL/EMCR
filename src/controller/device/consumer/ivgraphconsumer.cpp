@@ -7,11 +7,13 @@ IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProduc
 //    todo read from file this value?
     this->nBins = 3201;
     calculateBinSize();
+    buffer = new double[producer->getDataPacketsBufferLen() * totalChannelsNum];
 }
 
 IvGraphConsumer::~IvGraphConsumer() {
     this->onStopConsuming();
     this->clearData();
+    delete[] buffer;
 }
 
 void IvGraphConsumer::forceAxisUpdate() {
@@ -49,11 +51,11 @@ void IvGraphConsumer::run() {
             break;
         }
         consumptionLock.unlock();
-        if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
+        bufferLen = hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize);
+        if (bufferLen > 0) {
 //            this->updateTimeAxis();
 //            this->updateRangeAxis();
             bufferIdx = 0;
-            bufferLen = buffer.size();
 
             /*! Copy data in curves */
             while (bufferIdx + voltageChannelsNum < bufferLen) {

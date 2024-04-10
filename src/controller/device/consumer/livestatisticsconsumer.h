@@ -42,13 +42,12 @@ protected:
     double voltageMultiplier;
     double currentMultiplier;
 
-    std::vector <double> analysisBuffer;
-    std::vector <double> buffer;
+    double * buffer;
+    int bufferLen;
 
     QMutex mutex;
 
 private:
-    int bufferSize;
     int analysisSamples;
     int totalAnalysisSamples;
     int analysisIdx;

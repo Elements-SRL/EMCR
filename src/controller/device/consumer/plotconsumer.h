@@ -56,7 +56,7 @@ protected:
 
     double * timeValues = nullptr;
 
-    std::vector <double> buffer;
+    double * buffer;
 
     Measurement hold = {0.0, UnitPfxNone, "V"};
     Measurement totalDuration = {0.0, UnitPfxNone, "s"};
