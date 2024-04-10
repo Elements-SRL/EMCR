@@ -17,7 +17,6 @@
 #include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
 #include "livestatisticsconsumer.h"
-#include "calibrationconsumer.h"
 #include "protocolmanager.h"
 #include "statearraycontroller.h"
 #include "compensationcontroller.h"
@@ -64,7 +63,6 @@ private:
     DeviceDataProducer * deviceDataProducer = nullptr;
     AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
-    CalibrationConsumer * calibratorConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;
     QVector <DataWriterConsumer*> dataWriterConsumers;

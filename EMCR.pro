@@ -50,7 +50,6 @@ SOURCES += \
     src/controller/device/consumer/plotconsumer.cpp \
     src/controller/device/consumer/datawriterconsumer.cpp \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
-    src/controller/device/consumer/calibrationconsumer.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -133,7 +132,6 @@ HEADERS += \
     src/controller/device/consumer/plotconsumer.h \
     src/controller/device/consumer/datawriterconsumer.h \
     src/controller/device/consumer/abfdatawriterconsumer.h \
-    src/controller/device/consumer/calibrationconsumer.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
