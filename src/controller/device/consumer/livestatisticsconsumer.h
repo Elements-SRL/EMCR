@@ -56,11 +56,11 @@ private:
     int currentIdx;
 
     int minSamples = 0;
-    QVector <double> voltageSum;
-    QVector <double> voltageSum2;
+    std::vector <double> voltageSum;
+    std::vector <double> voltageSum2;
 
-    QVector <double> currentSum;
-    QVector <double> currentSum2;
+    std::vector <double> currentSum;
+    std::vector <double> currentSum2;
 
     StatisticsResult * res;
     bool isInVec(std::vector<int> vec, int elem);

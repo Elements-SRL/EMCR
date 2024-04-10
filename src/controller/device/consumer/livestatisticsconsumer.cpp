@@ -125,26 +125,26 @@ void LiveStatisticsConsumer::performAnalysis() {
     int channelIdx;
 
     if (totalAnalysisSamples == 0) {
-        voltageSum.fill(0.0);
-        voltageSum2.fill(0.0);
-        currentSum.fill(0.0);
-        currentSum2.fill(0.0);
+        std::fill(voltageSum.begin(), voltageSum.end(), 1.0);
+        std::fill(voltageSum2.begin(), voltageSum2.end(), 1.0);
+        std::fill(currentSum.begin(), currentSum.end(), 0.0);
+        std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
     }
 
-    for (analysisIdx = 0; analysisIdx < bufferSize; analysisIdx += totalChannelsNum) {
-        for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
-            channelIdx = analysisIdx+voltageIdx;
-            voltageSum[voltageIdx] += analysisBuffer[channelIdx];
-            voltageSum2[voltageIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
-        }
+    for (analysisIdx = 0; analysisIdx < bufferSize; analysisIdx += totalChannelsNum*100) {
+        //for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
+        //    channelIdx = analysisIdx+voltageIdx;
+        //    voltageSum[voltageIdx] += analysisBuffer[channelIdx];
+        //    voltageSum2[voltageIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
+        //}
 
         for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
             channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
             currentSum[currentIdx] += analysisBuffer[channelIdx];
             currentSum2[currentIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
         }
+        totalAnalysisSamples++;
     }
-    totalAnalysisSamples += analysisSamples;
     analysisBuffer.clear();
 
     if (totalAnalysisSamples >= minSamples) {

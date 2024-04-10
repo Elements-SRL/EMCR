@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+*.qtvscr
+
 
 EMCR.pro.user
 Protocols/*

@@ -251,35 +251,38 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
             dataPacketsToBuffer = (int)(dataPacketsMax+bufferSize-dataIdx);
         }
     }
-
-    int dataSamplesToBuffer = dataPacketsToBuffer*(int)totalChannelsNum;
+    int totalChannelsNumInt = (int)totalChannelsNum;
+    int dataSamplesToBuffer = dataPacketsToBuffer* totalChannelsNumInt;
     buffer.resize(dataSamplesToBuffer);
     int count = 0;
 
     int chIdx;
     double value;
+    int countPlusChIdx;
     if (downsamplingRatio > 1) {
-        while (count < dataSamplesToBuffer-(int)totalChannelsNum) {
+        while (count < dataSamplesToBuffer-totalChannelsNumInt) {
             for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
                 value = floatDataSamplesBuffer[dataIdx][chIdx];
-                buffer[count+(int)chIdx] = value; /*! Initialize max */
-                buffer[count+(int)(chIdx+totalChannelsNum)] = value; /*! Initialize min */
+                countPlusChIdx = count+chIdx;
+                buffer[countPlusChIdx] = value; /*! Initialize max */
+                buffer[countPlusChIdx+totalChannelsNumInt] = value; /*! Initialize min */
             }
             dataIdx = (dataIdx+1) & bufferMask;
 
             for (unsigned int downsamplingIdx = 1; downsamplingIdx < downsamplingSize; downsamplingIdx++) {
                 for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
                     value = floatDataSamplesBuffer[dataIdx][chIdx];
-                    if (value > buffer[count+(int)chIdx]) {
-                        buffer[count+(int)chIdx] = value;
+                    countPlusChIdx = count+chIdx;
+                    if (value > buffer[countPlusChIdx]) {
+                        buffer[countPlusChIdx] = value;
 
-                    } else if (value < buffer[count+(int)(chIdx+totalChannelsNum)]) {
-                        buffer[count+(int)(chIdx+totalChannelsNum)] = value;
+                    } else if (value < buffer[countPlusChIdx+totalChannelsNumInt]) {
+                        buffer[countPlusChIdx+totalChannelsNumInt] = value;
                     }
                 }
                 dataIdx = (dataIdx+1) & bufferMask;
             }
-            count += (int)(totalChannelsNum << 1);
+            count += (totalChannelsNumInt << 1);
         }
 
     } else {
