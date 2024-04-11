@@ -3,7 +3,7 @@
 
 #define DWC_TIME_FORMAT "hh:mm:ss.zzz"
 
-#define DWC_DAT_RAW_BUFFER_LEN 4096
+#define DWC_DAT_RAW_BUFFER_LEN 1048576
 #define DWC_MIN_BATCH_DURATION 0.1
 
 #include <QDateTime>
@@ -65,6 +65,7 @@ protected:
     RecordSettingsDialog::RecordSettings_t settings;
     QString baseFileName;
     QString validFullFileName;
+    QString validVoltageFullFileName;
     QString validFilePath;
 
     QDateTime recordStartTime;

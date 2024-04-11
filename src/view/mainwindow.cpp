@@ -55,6 +55,14 @@ MainWindow::MainWindow(QWidget * parent) :
 
     connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
 
+    menuAdvanced = new QMenu("Advanced");
+    menuBar->addMenu(menuAdvanced);
+
+    actionUpgradeFw = new QAction("Upgrade FW");
+    menuAdvanced->addAction(actionUpgradeFw);
+
+    connect(actionUpgradeFw, &QAction::triggered, this, &MainWindow::sigUpgradeFw);
+
     /************\
      * settings *
     \************/
@@ -113,7 +121,7 @@ QPushButton * MainWindow::getConnectButton() {
 }
 
 QString MainWindow::getSelectedSerialNumber() {
-    return devicesComboBox->itemText(devicesComboBox->currentIndex());
+    return devicesComboBox->currentText();
 }
 
 BigPlotWidget * MainWindow::getBigPlotWidget() {
@@ -199,7 +207,7 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
             connectBtn->setChecked(true);
 
         } else {
-//            ErrorManager e(err);
+            ErrorManager e(err);
             connectBtn->setChecked(false);
         }
 
@@ -304,16 +312,6 @@ void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * widge
 void MainWindow::setPlotPreferencesDialog(PlotPreferencesDialog * ppd) {
     plotPreferencesDlg = ppd;
     connect(actionPlotPreferences, &QAction::triggered, plotPreferencesDlg, &PlotPreferencesDialog::exec);
-}
-
-void MainWindow::onBoardMappingPressed(){
-    QString filePath = QFileDialog::getOpenFileName(this, "Choose Board Mapping File", QDir::homePath(), "YAML Files (*.yaml *.yml)");
-    if (!filePath.isEmpty()){
-        emit sigBoardMappingFileChoosen(filePath);
-    }
-//    else {
-//        QMessageBox::critical(this, "Invalid Board Mapping", "The file you chose is not a valid board mapping. Please try again.", QMessageBox::Ok);
-//    }
 }
 
 void MainWindow::addViewActions() {
@@ -598,7 +596,7 @@ void MainWindow::destroyGuiControls() {
 
 void MainWindow::restoreUISettings() {
     QTimer * timer = new QTimer;
-    timer->setInterval(10);
+    timer->setInterval(200);
     timer->setSingleShot(true);
 
     connect(timer, &QTimer::timeout, this, [=] () {
@@ -675,4 +673,14 @@ void MainWindow::onNeedToChangeModelCellMsg(QString msg){
     if(msgBox.exec() == QMessageBox::Ok){
         emit sigModelCellChanged(true);
     }
+}
+
+void MainWindow::onBoardMappingPressed(){
+    QString filePath = QFileDialog::getOpenFileName(this, "Choose Board Mapping File", QDir::homePath(), "YAML Files (*.yaml *.yml)");
+    if (!filePath.isEmpty()){
+        emit sigBoardMappingFileChoosen(filePath);
+    }
+//    else {
+//        QMessageBox::critical(this, "Invalid Board Mapping", "The file you chose is not a valid board mapping. Please try again.", QMessageBox::Ok);
+//    }
 }

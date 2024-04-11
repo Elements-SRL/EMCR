@@ -18,6 +18,10 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "Devices detection failed";
         break;
 
+    case ErrorDeviceNotFound:
+        error = "The requested device is not found";
+        break;
+
     case ErrorEepromAlreadyConnected:
         error = "Connection to device EEPROM failed";
         break;
@@ -82,6 +86,22 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "Failed to load amplifier's FW";
         break;
 
+    case ErrorDeviceToBeUpgraded:
+        error = "The amplifier's FW version is not compatible with this SW";
+        break;
+
+    case ErrorDeviceNotUpgradable:
+        error = "The amplifier's FW version is already up to date or the new FW is not available";
+        break;
+
+    case ErrorFwNotFound:
+        error = "The amplifier's FW was not found";
+        break;
+
+    case ErrorFwUpgradeFailed:
+        error = "The amplifier's FW upgrade procedure failed";
+        break;
+
     case ErrorSendMessageFailed:
         error = "Failed to send message to the device";
         break;
@@ -131,6 +151,10 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorListDeviceFailed:
         info = "If any device is connected try restarting " + GLB_SOFTWARE_NAME + ".";
+        break;
+
+    case ErrorDeviceNotFound:
+        info = "Please, close " + GLB_SOFTWARE_NAME + ", unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromAlreadyConnected:
@@ -197,7 +221,24 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorDeviceFwLoadingFailed:
         info = "Please, contact support@elements-ic.com for support, telling that you are using\n"
-               + GLB_SOFTWARE_NAME + ", and reporting this problem together with the S/N of the maplifier.";
+               + GLB_SOFTWARE_NAME + ", and reporting this problem together with the S/N of the amplifier.";
+        break;
+
+    case ErrorDeviceToBeUpgraded:
+        info = "You can upgrade the amplifier's FW by clicking Upgrade FW in the Advanced menu.";
+        break;
+
+    case ErrorDeviceNotUpgradable:
+        info = "This device's FW cannot be upgraded with the current SW version.";
+        break;
+
+    case ErrorFwNotFound:
+        info = "If you need to upgrade your device's FW please contact support@elements-ic.com for more information\n"
+               "on the available FW versions for your device.";
+        break;
+
+    case ErrorFwUpgradeFailed:
+        info = "Please try again. If this is not your first attempt please contact support@elements-ic.com.";
         break;
 
     case ErrorSendMessageFailed:

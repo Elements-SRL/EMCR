@@ -28,10 +28,12 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 SOURCES += \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
+    src/controller/device/deviceconnector.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/plotpreferencescontroller.cpp \
     src/controller/singlechannelcontroller.cpp \
+    src/controller/upgradefwcontroller.cpp \
     src/main.cpp \
     src/controller/bigplotcontroller.cpp \
     src/controller/boardcontroller.cpp \
@@ -105,15 +107,18 @@ SOURCES += \
     src/view/boardcontroldockwidget.cpp \
     src/view/devicecontroldockwidget.cpp \
     src/view/statearray/statearraydockwidget.cpp \
-    src/abf/axon.cpp
+    src/abf/axon.cpp \
+    src/view/upgradefwview.cpp
 
 HEADERS += \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
+    src/controller/device/deviceconnector.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
     src/controller/plotpreferencescontroller.h \
     src/controller/singlechannelcontroller.h \
+    src/controller/upgradefwcontroller.h \
     src/globaldefines.h \
     src/controller/bigplotcontroller.h \
     src/controller/boardcontroller.h \
@@ -193,7 +198,8 @@ HEADERS += \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
-    src/abf/axon_structs.h
+    src/abf/axon_structs.h \
+    src/view/upgradefwview.h
 
 INCLUDEPATH += \
     ./src \

@@ -219,11 +219,11 @@ void DataWriterConsumer::manageConsumptionEnd() {
 //}
 
 void DataWriterConsumer::computeSamples() {
-    std::vector<bool> selectedChannels = appStatus->getSelectedChannels();
+    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     activeChannelsNum = 0;
-    for(auto v: selectedChannels){
-        if (v){
-            activeChannelsNum+=channelsPerFile;
+    for (auto v: selectedChannels) {
+        if (v) {
+            activeChannelsNum += channelsPerFile;
         }
     }
 
@@ -334,6 +334,7 @@ void DataWriterConsumer::findValidPathName() {
 
 //    validSubFileName = subFolder + baseFileName + suffix;
     validFullFileName = newFullFileName + fileNameExtension;
+    validVoltageFullFileName = newFullFileName + "V" + fileNameExtension;
 }
 
 void DataWriterConsumer::onFilenameSet(QString fname){
