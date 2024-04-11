@@ -10,6 +10,9 @@
 #include "elementslogowidget.h"
 #include "errormanager.h"
 #include "globaldefines.h"
+#include "aboutdialog.h"
+#include "supportdialog.h"
+#include "deviceinfodialog.h"
 
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
@@ -702,16 +705,16 @@ void MainWindow::onBoardMappingPressed(){
 }
 
 void MainWindow::onAbout() {
-    //AboutDialog a(this);
-    //a.exec();
+    AboutDialog a(this);
+    a.exec();
 }
 
 void MainWindow::onDeviceInfo() {
-    //SupportDialog a(this);
-    //a.exec();
+    DeviceInfoDialog a(msgDisp != nullptr, devicesComboBox->currentText(), this);
+    a.exec();
 }
 
 void MainWindow::onSupport() {
-    //DeviceInfoDialog a(deviceConnected, devicesComboBox->currentText(), this);
-    //a.exec();
+    SupportDialog a(this);
+    a.exec();
 }
