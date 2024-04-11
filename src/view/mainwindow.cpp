@@ -586,7 +586,7 @@ void MainWindow::destroyGuiControls() {
 
 void MainWindow::restoreUISettings() {
     QTimer * timer = new QTimer;
-    timer->setInterval(10);
+    timer->setInterval(200);
     timer->setSingleShot(true);
 
     connect(timer, &QTimer::timeout, this, [=] () {
