@@ -61,6 +61,22 @@ MainWindow::MainWindow(QWidget * parent) :
     actionUpgradeFw = new QAction("Upgrade FW");
     menuAdvanced->addAction(actionUpgradeFw);
 
+    /*! ? menu */
+    menuQuestionMark = new QMenu("?");
+    menuBar->addMenu(menuQuestionMark);
+
+    actionAbout = new QAction("About");
+    connect(actionAbout, &QAction::triggered, this, &MainWindow::onAbout);
+    menuQuestionMark->addAction(actionAbout);
+
+    actionDeviceInfo = new QAction("Device info");
+    connect(actionDeviceInfo, &QAction::triggered, this, &MainWindow::onDeviceInfo);
+    menuQuestionMark->addAction(actionDeviceInfo);
+
+    actionSupport = new QAction("Support");
+    connect(actionSupport, &QAction::triggered, this, &MainWindow::onSupport);
+    menuQuestionMark->addAction(actionSupport);
+
     connect(actionUpgradeFw, &QAction::triggered, this, &MainWindow::sigUpgradeFw);
 
     /************\
@@ -683,4 +699,19 @@ void MainWindow::onBoardMappingPressed(){
 //    else {
 //        QMessageBox::critical(this, "Invalid Board Mapping", "The file you chose is not a valid board mapping. Please try again.", QMessageBox::Ok);
 //    }
+}
+
+void MainWindow::onAbout() {
+    //AboutDialog a(this);
+    //a.exec();
+}
+
+void MainWindow::onDeviceInfo() {
+    //SupportDialog a(this);
+    //a.exec();
+}
+
+void MainWindow::onSupport() {
+    //DeviceInfoDialog a(deviceConnected, devicesComboBox->currentText(), this);
+    //a.exec();
 }

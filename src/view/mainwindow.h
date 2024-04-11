@@ -73,6 +73,9 @@ public slots:
     void onManualCalibDoneMsg(QString msg);
     void onNeedToChangeModelCellMsg(QString msg);
     void onBoardMappingPressed();
+    void onAbout();
+    void onDeviceInfo();
+    void onSupport();
 
 private:
     void createGuiControls();
@@ -85,6 +88,7 @@ private:
     QMenu * menuRecordings = nullptr;
     QMenu * menuPreferences = nullptr;
     QMenu * menuAdvanced = nullptr;
+    QMenu * menuQuestionMark = nullptr;
 
     bool interfaceCreated = false;
 
@@ -94,6 +98,10 @@ private:
     QAction * actionBoardMapping = nullptr;
 
     QAction * actionUpgradeFw = nullptr;
+    QAction * actionAbout = nullptr;
+    QAction* actionDeviceInfo = nullptr;
+    QAction* actionSupport = nullptr;
+
 
     QDockWidget * deviceDetectorDw = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
