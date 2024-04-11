@@ -312,25 +312,44 @@ void BigPlotController::handleZoomResetRequest(){
 }
 
 void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
-    currentModel->setCurrentRange(axisIdx, newRange);
-    currentPlot->setRect(currentModel->getZoom(BigPlotModel::Zoom::Current));
-    auto fullUnit = QString::fromStdString(currentModel->getCurrentRange(axisIdx).getFullUnit());
-    switch (axisIdx) {
-    case QwtPlot::yLeft:
-        currentPlot->setLabel(fullUnit, axisIdx);
-        break;
+    for (int idx = 0; idx < BigPlotStatus::NumberOfStatuses; idx++) {
+        switch (idx) {
+        case BigPlotStatus::GapFree:
+            if (newRange.unit == "s") {
+                axisIdx = QwtPlot::xBottom;
+                models[idx]->setCurrentRange(axisIdx, newRange);
+                Measurement_t duration = {models[idx]->getZoom(BigPlotModel::Zoom::Current)[axisIdx].width(), models[idx]->getCurrentRange(axisIdx).prefix, "s"};
+                emit durationChanged(duration);
 
-    case QwtPlot::yRight:
-        currentPlot->setLabel(fullUnit, axisIdx);
-        break;
+            } else if (newRange.unit == "V") {
+                axisIdx = QwtPlot::yRight;
+                models[idx]->setCurrentRange(axisIdx, newRange);
 
-    case QwtPlot::xBottom:
-        currentPlot->setLabel(fullUnit, axisIdx);
-        Measurement_t duration = {currentModel->getZoom(BigPlotModel::Zoom::Current)[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s"};
-        emit durationChanged(duration);
-        break;
+            } else if (newRange.unit == "A") {
+                axisIdx = QwtPlot::yLeft;
+                models[idx]->setCurrentRange(axisIdx, newRange);
+            }
+            plots[idx]->setRect(models[idx]->getZoom(BigPlotModel::Zoom::Current));
+            plots[idx]->setLabel(QString::fromStdString(models[idx]->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
+            break;
+
+        case BigPlotStatus::Iv:
+            if (newRange.unit == "s") {
+                break;
+
+            } else if (newRange.unit == "V") {
+                axisIdx = QwtPlot::xBottom;
+
+            } else if (newRange.unit == "A") {
+                axisIdx = QwtPlot::yLeft;
+            }
+            models[idx]->setCurrentRange(axisIdx, newRange);
+            plots[idx]->setRect(models[idx]->getZoom(BigPlotModel::Zoom::Current));
+            plots[idx]->setLabel(QString::fromStdString(models[idx]->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
+            break;
+        }
+        currentPlot->replot();
     }
-    currentPlot->replot();
 }
 
 std::vector<PlotConsumer *> BigPlotController::getConsumers(){
