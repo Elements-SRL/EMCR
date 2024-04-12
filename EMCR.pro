@@ -107,6 +107,10 @@ SOURCES += \
     src/view/boardcontroldockwidget.cpp \
     src/view/devicecontroldockwidget.cpp \
     src/view/statearray/statearraydockwidget.cpp \
+    src/view/questionmarkmenu/aboutdialog.cpp \
+    src/view/questionmarkmenu/supportdialog.cpp \
+    src/view/questionmarkmenu/deviceinfodialog.cpp \
+    src/view/questionmarkmenu/messagedialog.cpp \
     src/abf/axon.cpp \
     src/view/upgradefwview.cpp
 
@@ -195,6 +199,10 @@ HEADERS += \
     src/view/boardcontroldockwidget.h \
     src/view/devicecontroldockwidget.h \
     src/view/statearray/statearraydockwidget.h \
+    src/view/questionmarkmenu/aboutdialog.h \
+    src/view/questionmarkmenu/supportdialog.h \
+    src/view/questionmarkmenu/deviceinfodialog.h \
+    src/view/questionmarkmenu/messagedialog.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
@@ -211,6 +219,7 @@ INCLUDEPATH += \
     ./src/view \
     ./src/view/statearray \
     ./src/view/protocol \
+    ./src/view/questionmarkmenu \
     ./src/abf
 
 DEPENDPATH += \
@@ -223,6 +232,7 @@ DEPENDPATH += \
     ./src/view \
     ./src/view/statearray \
     ./src/view/protocol \
+    ./src/view/questionmarkmenu \
     ./src/abf
 
 RC_ICONS = imgs/Elements.ico
