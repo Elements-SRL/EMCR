@@ -514,6 +514,7 @@ void MainWindow::createGuiControls() {
     actionPlotPreferences->setEnabled(true);
 //    TODO maybe activate it only for devices with more then N channels
     actionBoardMapping->setEnabled(true);
+    actionUpgradeFw->setEnabled(false);
     this->addViewActions();
 
     this->restoreUISettings();
@@ -532,6 +533,7 @@ void MainWindow::destroyGuiControls() {
     actionRecordingSettings->setEnabled(false);
     actionPlotPreferences->setEnabled(false);
     actionBoardMapping->setEnabled(false);
+    actionUpgradeFw->setEnabled(true);
 
     if (protocolDw != nullptr){
         delete protocolDw;

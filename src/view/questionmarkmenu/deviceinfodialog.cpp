@@ -67,8 +67,8 @@ DeviceInfoDialog::~DeviceInfoDialog() {
 
 void DeviceInfoDialog::onCopyToClipboard() {
     QClipboard* clipboard = QApplication::clipboard();
-    clipboard->setText(deviceIdLbl->text() + "\n" +
-        //deviceVerLbl->text() + "\n" +
-        //deviceSubverLbl->text() + "\n" +
-        fwVerLbl->text());
+    clipboard->setText(deviceIdLbl->text() + "\n"/* +
+        deviceVerLbl->text() + "\n" +
+        deviceSubverLbl->text() + "\n" +
+        fwVerLbl->text()*/);
 }
