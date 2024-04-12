@@ -226,7 +226,10 @@ void GapFreePlotConsumer::run() {
             break;
         }
         consumptionLock.unlock();
-
+        if (hook == nullptr) {
+            msleep(20);
+            continue;
+        }
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
             this->updateTimeAxis();
             this->updateRangeAxis();
