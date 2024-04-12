@@ -1,6 +1,6 @@
 #include "ivgraphwidget.h"
 
-IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *parent) {
+IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
     this->setObjectName("ivGraph");
     this->setWindowTitle("Iv Graph");
 
@@ -12,6 +12,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *parent) {
     connect(exportButton, &QPushButton::clicked, this, [=](){
         emit exportIvGraph();
     });
+
     auto calcLineButton = new QPushButton("Calculate least square line");
     mainVl->addWidget(calcLineButton);
     connect(calcLineButton, &QPushButton::clicked, this, [=](){
@@ -24,7 +25,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *parent) {
     dataTable->horizontalHeader()->hide();
     dataTable->verticalHeader()->hide();
     mainVl->addWidget(dataTable);
-    this->layout()->addWidget(containerWidget);
+    this->setWidget(containerWidget);
     this->installEventFilter(dataTable);
     dataTable->setItem(0, 0, new QTableWidgetItem("Channel index"));
     dataTable->setItem(0, 1, new QTableWidgetItem("Conductance"));
