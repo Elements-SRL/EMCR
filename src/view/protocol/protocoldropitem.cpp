@@ -153,6 +153,10 @@ ProtocolDropStimulusItem::ProtocolDropStimulusItem(MessageDispatcher * msgDisp, 
     cbStimulusHalf->setCheckState(Qt::Unchecked);
     stimulusHalfHl->addWidget(cbStimulusHalf);
 
+#ifdef GLB_HIDE_DEBUG_CTRLS
+    cbStimulusHalf->setVisible(false);
+#endif
+
     propertyLo->setColumnStretch(0, 2);
     propertyLo->setColumnStretch(1, 3);
     propertyLo->setColumnStretch(2, 1);
@@ -215,7 +219,7 @@ ProtocolDropXStepTStepItem::ProtocolDropXStepTStepItem(MessageDispatcher * msgDi
 //        editWidget->setRangedMeasurement(stimulusRange, QDoubleSpinBox::DeltaRange);
 
         xStepParam = new ProtocolDropItemDoubleParam(ctrlManager, stimulusCtrlType, value,
-                                                     stimulusName + "step", editWidget,
+                                                     stimulusName + " step", editWidget,
                                                      QString::fromStdString(stimulusRange.getFullUnit()));
 
         connect(xStepParam, &ProtocolDropItemDoubleParam::setWidgetString, this, &ProtocolDropItem::onSetString);

@@ -12,9 +12,9 @@
 #include "messagedispatcher.h"
 #include "e384commlib_global_addendum.h"
 
-class IvGraphWidget : public QDockWidget
-{
+class IvGraphWidget : public QDockWidget {
     Q_OBJECT
+
 private:
     QTableWidget * dataTable;
 

@@ -387,6 +387,11 @@ void MainController::destroyControllers() {
         delete currentProtocolManager;
         currentProtocolManager = nullptr;
     }
+
+    if (bigPlotController != nullptr) {
+        delete bigPlotController;
+        bigPlotController = nullptr;
+    }
 }
 
 /*! Message forward from mainController to other consumers */

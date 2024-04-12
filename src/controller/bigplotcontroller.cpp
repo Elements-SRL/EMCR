@@ -132,9 +132,10 @@ BigPlotController::~BigPlotController() {
         mainWindow->setBigPlotWidget(bpw);
     }
 
-    if (currentModel != nullptr) {
-        delete currentModel;
-        currentModel = nullptr;
+    if (ivGraphWidget != nullptr) {
+        delete ivGraphWidget;
+        ivGraphWidget = nullptr;
+        mainWindow->setIvGraphWidget(ivGraphWidget);
     }
 }
 
@@ -147,13 +148,11 @@ void BigPlotController::clearCurves() {
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves[plotStatus][idx]->detach();
             delete currentCurves[plotStatus][idx];
-            delete [] currentCurves[plotStatus][idx];
         }
 
         for (int idx = 0; idx < voltageChannelsNum; idx++) {
             voltageCurves[plotStatus][idx]->detach();
             delete voltageCurves[plotStatus][idx];
-            delete [] voltageCurves[plotStatus][idx];
         }
     }
 
@@ -319,7 +318,7 @@ void BigPlotController::handleZoomResetRequest(){
     }
 }
 
-//todo Bisognerà controllare anche la clampingmodality
+//todo Bisogner controllare anche la clampingmodality
 void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     QwtPlot::Axis axisIdx;
     for (int idx = 0; idx < BigPlotStatus::NumberOfStatuses; idx++) {
