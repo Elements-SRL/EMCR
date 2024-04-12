@@ -271,7 +271,9 @@ void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void BigPlotController::onBackgroundColorChanged(QColor color) {
-    currentPlot->setCanvasBackground(color);
+    for (auto p : plots) {
+        p->setCanvasBackground(color);
+    }
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
