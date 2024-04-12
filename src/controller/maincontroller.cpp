@@ -92,10 +92,12 @@ void MainController::onConnect(bool flag) {
     QString serial = mainWindow->getSelectedSerialNumber();
 
     if (flag) {
+        mainWindow->setConnectionLabel("Connecting, please wait...");
         deviceConnector->setDeviceId(serial);
         deviceConnector->start();
 
     } else {
+        mainWindow->setConnectionLabel("");
         this->stopAndDestroyProducerConsumers();
 
         mainWindow->connectDevice(false, Success);
@@ -118,6 +120,7 @@ void MainController::onUpgradeFw() {
 void MainController::onDeviceConnected(ErrorCodes_t ret) {
     bool connectionSuccessful = ret == Success;
     if (connectionSuccessful) {
+        mainWindow->setConnectionLabel("");
         msgDisp = deviceConnector->getMessageDispatcher();
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
         msgDisp->getBoardsNumberFeatures(boardsNumber);
@@ -127,9 +130,9 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     mainWindow->connectDevice(true, ret);
     if (connectionSuccessful) {
         this->onMainWindowCreated();
-    }
 
-    if (!connectionSuccessful) {
+    } else {
+        mainWindow->setConnectionLabel("Connection failed");
         emit startDetecting();
     }
 }
@@ -194,9 +197,6 @@ void MainController::onMainWindowCreated() {
     consumers.append(measurementOverviewController->getLiveStatisticsConsumer());
 
     mainWindow->addViewActions();
-
-    // calibratorConsumer = new CalibrationConsumer(appStatus, deviceDataProducer);
-    // consumers.append(calibratorConsumer);
 
     /***********\
      * Connect *
@@ -309,15 +309,6 @@ void MainController::onMainWindowCreated() {
         deviceController->handleRecording(flag);
     });
 
-    /*! \todo at the moment only for debug mode*/
-    //connect(mainWindow, &MainWindow::sigModelCellChanged,   calibratorConsumer, &CalibrationConsumer::onModelCellChanged);
-    //connect(mainWindow, &MainWindow::sigPerformCalibration, calibratorConsumer, &CalibrationConsumer::onPerformCalibration);
-
-    //connect(calibratorConsumer, QOverload <QString> ::of(&CalibrationConsumer::sigCalibLoadingMsg),         mainWindow, QOverload <QString> ::of(&MainWindow::onCalibLoadingMsg));
-    //connect(calibratorConsumer, QOverload <ErrorCodes_t> ::of(&CalibrationConsumer::sigCalibLoadingMsg),    mainWindow, QOverload <ErrorCodes_t> ::of(&MainWindow::onCalibLoadingMsg));
-    //connect(calibratorConsumer, &CalibrationConsumer::sigManualCalibDoneMsg,                                mainWindow, &MainWindow::onManualCalibDoneMsg);
-    //connect(calibratorConsumer, &CalibrationConsumer::sigNeedToChangeModelCellMsg,                          mainWindow, &MainWindow::onNeedToChangeModelCellMsg);
-
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
     bigPlotController->onRangeUpdated(plotRange);
@@ -338,8 +329,6 @@ void MainController::onMainWindowCreated() {
     msgDisp->setAllChannelsSelected(false);
 
     plotPreferencesController->initializePlotColors();
-
-    //calibratorConsumer->loadInitialCalibParams(calibratorConsumer->getCalibrationDir(), calibratorConsumer->getCalibrationMappingFilePath());
 
     /*! Start threads */
     this->startProducerConsumers();
@@ -537,11 +526,6 @@ void MainController::stopAndDestroyProducerConsumers() {
         delete abfDataWriterConsumer;
         abfDataWriterConsumer = nullptr;
     }
-    //if (calibratorConsumer!= nullptr) {
-    //    calibratorConsumer->onStopConsuming();
-    //    delete calibratorConsumer;
-    //    calibratorConsumer = nullptr;
-    //}
 
     if (deviceDataProducer!= nullptr) {
         deviceDataProducer->onStopProducing();

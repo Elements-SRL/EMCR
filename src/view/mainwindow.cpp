@@ -123,8 +123,15 @@ MainWindow::MainWindow(QWidget * parent) :
     connectBtn->setCheckable(true);
     deviceDetectorHl->addWidget(connectBtn);
 
+    connectionInfoLbl = new QLabel("");
+    deviceDetectorHl->addWidget(connectionInfoLbl);
+
     SRLbl = new QLabel;
     deviceDetectorHl->addWidget(SRLbl);
+
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    deviceDetectorHl->addWidget(spacer);
 }
 
 MainWindow::~MainWindow() {
@@ -239,6 +246,10 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
     }
 }
 
+void MainWindow::setConnectionLabel(QString text) {
+    connectionInfoLbl->setText(text);
+}
+
 /********************\
  * set dock widgets *
 \********************/
@@ -260,7 +271,6 @@ void MainWindow::setIvGraphWidget(IvGraphWidget * widget) {
         dockWidgets.append(ivGraphWidget);
     }
 }
-
 
 void MainWindow::setChessboardDw(ChessboardDockWidget * widget) {
     chessboardDw = widget;
@@ -386,11 +396,12 @@ void MainWindow::createGuiControls() {
         dockWidgets.append(protocolDw);
     }
 
+#ifndef GLB_HIDE_DEBUG_CTRLS
+
     /**************\
      * debug dock *
     \**************/
 
-#ifndef GLB_HIDE_DEBUG_CTRLS
     debugDw = new QDockWidget();
     debugDw->setObjectName("debugDw");
     debugDw->setWindowTitle("Debug");
@@ -497,58 +508,6 @@ void MainWindow::createGuiControls() {
             emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
         }
     });
-
-    calibrationDw = new QDockWidget();
-    calibrationDw->setObjectName("calibrationDw");
-    calibrationDw->setWindowTitle("Calibration");
-    this->addDockWidget(Qt::RightDockWidgetArea, calibrationDw);
-    dockWidgets.append(calibrationDw);
-
-    calibrationDw->setFloating(true);
-
-    QWidget * calibrationWid = new QWidget;
-    calibrationDw->setWidget(calibrationWid);
-
-    QVBoxLayout * calibrationVl = new QVBoxLayout;
-    calibrationWid->setLayout(calibrationVl);
-
-    int boardsNum;
-    msgDisp->getBoardsNumberFeatures(boardsNum);
-    QSpinBox * boardCalibSbx = new QSpinBox;
-    if (boardsNum > 1) {
-        boardCalibSbx->setRange(0, boardsNum);
-
-    } else {
-        boardCalibSbx->setRange(0, 0);
-    }
-    boardCalibSbx->setValue(0);
-    boardCalibSbx->setSpecialValueText(tr("ALL BOARDS"));
-    calibrationVl->addWidget(boardCalibSbx);
-
-    QPushButton * calibrationAllApplyBtn = new QPushButton("Calibrate");
-    calibrationAllApplyBtn->setCheckable(false);
-    calibrationVl->addWidget(calibrationAllApplyBtn);
-    int channelsPerBoard = currentChannelsNum/boardsNum;
-
-    connect(calibrationAllApplyBtn, &QPushButton::clicked, this, [=] () {
-        std::vector <uint16_t> channelsToCalibrateIdxs;
-
-        if (boardCalibSbx->value() == 0) {
-            for(int i = 0; i < currentChannelsNum; i++) {
-                channelsToCalibrateIdxs.push_back(i);
-            }
-
-        } else {
-            for(int i = channelsPerBoard*(boardCalibSbx->value()-1); i < channelsPerBoard*boardCalibSbx->value(); i++){
-                channelsToCalibrateIdxs.push_back(i);
-            }
-
-        }
-        emit sigPerformCalibration(channelsToCalibrateIdxs);
-    });
-
-    /*! ------------------------------------------------------------ */
-
 #endif
 
     actionRecordingSettings->setEnabled(true);
@@ -578,10 +537,7 @@ void MainWindow::destroyGuiControls() {
         delete protocolDw;
         protocolDw = nullptr;
     }
-    if (calibrationDw != nullptr){
-        delete calibrationDw;
-        calibrationDw = nullptr;
-    }
+
     if (debugDw != nullptr){
         delete debugDw;
         protocolDw = nullptr;
@@ -669,20 +625,6 @@ void MainWindow::saveUISettings() {
 
     tag = settingsRoot + this->objectName() + "/state";
     settings.setValue(tag, this->saveState());
-}
-
-void MainWindow::onCalibLoadingMsg(QString msg){
-//    QMessageBox msgBox;
-//    msgBox.about(this, "Calibration info", msg);
-}
-
-void MainWindow::onCalibLoadingMsg(ErrorCodes_t error) {
-//    ErrorManager e(error);
-}
-
-void MainWindow::onManualCalibDoneMsg(QString msg){
-    QMessageBox msgBox;
-    msgBox.about(this, "Calibration info", msg);
 }
 
 void MainWindow::onNeedToChangeModelCellMsg(QString msg){

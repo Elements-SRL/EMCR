@@ -1,8 +1,10 @@
-#define TITLE "Device controls"
+#include "globaldefines.h"
 
 #include <QVBoxLayout>
 
 #include "devicecontroldockwidget.h"
+
+#define TITLE "Device controls"
 
 DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     QDockWidget(),
@@ -138,6 +140,10 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     if (maxDownsamplingRatio <= 1) {
         downsamplingRatiosGroupBox->setEnabled(false);
     }
+
+#ifdef GLB_HIDE_DEBUG_CTRLS
+    downsamplingRatiosGroupBox->setVisible(false);
+#endif
 
     /*! Clamping modality */
     if (clampingModalities.size() > 0) {

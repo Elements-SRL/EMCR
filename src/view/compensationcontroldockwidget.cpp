@@ -240,7 +240,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
         }
     }
 
-
     // Column captions
     checkAllLayout->addWidget(new QLabel("Cfast"), 0, 0, Qt::AlignHCenter);
     checkAllLayout->addWidget(new QLabel("Cslow - Rs"), 0, 1, Qt::AlignHCenter);
@@ -363,10 +362,8 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     // Column captions
     ccCheckAllLayout->addWidget(new QLabel("Cfast"), 0, 0, Qt::AlignHCenter);
 
-
     QPushButton* checkAllCcCfast = new QPushButton("Check All");
     QPushButton* uncheckAllCcCfast = new QPushButton("Uncheck All");
-
 
     ccCheckAllLayout->addWidget(checkAllCcCfast, 1, 0, Qt::AlignHCenter);
     ccCheckAllLayout->addWidget(uncheckAllCcCfast, 2, 0, Qt::AlignHCenter);
