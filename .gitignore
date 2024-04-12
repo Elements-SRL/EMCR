@@ -48,3 +48,5 @@ EMCR_resource.aps
 *.bit
 *.sln
 *.pdb
+
+FW/

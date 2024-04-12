@@ -2,6 +2,8 @@
 #include "statearraycontroller.h"
 #include "mainwindow.h"
 #include "application_status.h"
+#include <thread>
+#include <chrono> // for std::chrono::seconds
 
 MainController::MainController() {
     /*! Set up device detector */
@@ -146,7 +148,7 @@ void MainController::onMainWindowCreated() {
     \*********/
 
     appStatus = new ApplicationStatus(msgDisp);
-
+    msgDisp->setAllChannelsSelected(true);
     /************\
      * Producer *
     \************/
@@ -323,10 +325,6 @@ void MainController::onMainWindowCreated() {
     for(int i = 0; i < currentChannelsNumber; i++){
         channelIndexes[i] = i;
     }
-
-    msgDisp->setAllChannelsSelected(true);
-
-    msgDisp->setAllChannelsSelected(false);
 
     plotPreferencesController->initializePlotColors();
 

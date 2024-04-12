@@ -60,6 +60,7 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotCo
     connect(stampPlotConsumer, &PlotConsumer::plotDataUpdated,          this,       &ChessboardController::onReplot);
     connect(chessboard, &QDockWidget::visibilityChanged,                this,       &ChessboardController::onSetConsumerStatus);
     mainWindow->setChessboardDw(chessboard);
+    onSelectedPlotsUpdated();
 }
 
 void ChessboardController::onSetConsumerStatus(bool status) {
