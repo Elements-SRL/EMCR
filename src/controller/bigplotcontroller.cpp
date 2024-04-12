@@ -271,7 +271,9 @@ void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void BigPlotController::onBackgroundColorChanged(QColor color) {
-    currentPlot->setCanvasBackground(color);
+    for (auto p : plots) {
+        p->setCanvasBackground(color);
+    }
 }
 
 void BigPlotController::handleZoomInRequest(Rect4 r){
@@ -279,7 +281,9 @@ void BigPlotController::handleZoomInRequest(Rect4 r){
     currentModel->updateCurrentZoom(r);
     auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Current);
     currentPlot->setRect(zoom);
-    emit durationChanged({zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    if (bps == BigPlotStatus::GapFree) {
+        emit durationChanged({ zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+    }
 }
 
 void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoomIn, QPointF mousePosition){
@@ -287,7 +291,7 @@ void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoom
     currentModel->updateCurrentZoom(currentModel->zoomOnSingleAxis(axis, zoomIn, mousePosition));
     auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Current);
     currentPlot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom){
+    if (axis == QwtPlot::Axis::xBottom && bps == BigPlotStatus::GapFree){
         emit durationChanged({zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
     }
 }
@@ -302,13 +306,17 @@ void BigPlotController::handleSingleAxisShiftRequest(QwtPlot::Axis axis, int shi
 void BigPlotController::handleZoomOutRequest(){
     auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Previous);
     currentPlot->setRect(zoom);
-    emit durationChanged({zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    if (bps == BigPlotStatus::GapFree) {
+        emit durationChanged({ zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+    }
 }
 
 void BigPlotController::handleZoomResetRequest(){
     auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Default);
     currentPlot->setRect(zoom);
-    emit durationChanged({zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    if (bps == BigPlotStatus::GapFree) {
+        emit durationChanged({ zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+    }
 }
 
 void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
@@ -374,14 +382,14 @@ void BigPlotController::onExportIvGraph() {
     }
 }
 
-void BigPlotController::saveToCSV(const QString& filePathssasda, const IvMessage & data) {
+void BigPlotController::saveToCSV(const QString& originalFilePath, const IvMessage & data) {
     auto selectedChannels = appStatus->getSelectedChannels();
     for (int i=0; i<currentChannelsNum; i++) {
 //        save to file only selected channels
         if (!selectedChannels[i]) {
             continue;
         }
-        auto filepath = filePathssasda.toStdString();
+        auto filepath = originalFilePath.toStdString();
 //        append the channel number
         size_t pos = filepath.find_last_of('.');
         if (pos != std::string::npos && filepath.substr(pos) == ".csv") {
