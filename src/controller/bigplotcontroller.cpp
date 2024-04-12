@@ -319,7 +319,9 @@ void BigPlotController::handleZoomResetRequest(){
     }
 }
 
-void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
+//todo Bisognerà controllare anche la clampingmodality
+void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    QwtPlot::Axis axisIdx;
     for (int idx = 0; idx < BigPlotStatus::NumberOfStatuses; idx++) {
         switch (idx) {
         case BigPlotStatus::GapFree:

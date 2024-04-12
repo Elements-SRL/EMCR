@@ -40,7 +40,7 @@ public:
     void setName(std::string name);
 
 public slots:
-    void onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx = yLeft);
+    void onRangeUpdated(RangedMeasurement_t newRange);
     void onDurationUpdated(Measurement_t duration);
 
 protected:
@@ -63,7 +63,6 @@ private:
     Measurement_t sweepDuration = {1.0, UnitPfxNone, "s"};
     UnitPfx_t xAxisPrefix = UnitPfxNone;
 
-    QVector <bool> rangeInitialized;
     bool selected = false;
 
     int xAxisMaxMajor;

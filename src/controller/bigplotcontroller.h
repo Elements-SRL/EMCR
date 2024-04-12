@@ -25,7 +25,7 @@ public:
     std::vector<PlotConsumer *> getConsumers();
 
 public slots:
-    void onRangeUpdated(commlib::RangedMeasurement_t newRange, QwtPlot::Axis axisIdx);
+    void onRangeUpdated(commlib::RangedMeasurement_t newRange);
     void onCurrentColorsChanged(QVector <QColor> colors);
     void onCurrentColorChanged(int channelIdx, QColor color);
     void onBackgroundColorChanged(QColor color);

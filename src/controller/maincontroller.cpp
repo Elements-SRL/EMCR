@@ -320,7 +320,7 @@ void MainController::onMainWindowCreated() {
 
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
-    bigPlotController->onRangeUpdated(plotRange, QwtPlot::Axis::xBottom);
+    bigPlotController->onRangeUpdated(plotRange);
 
     /*! Forced initialization at start */
     mainWindow->getDeviceControlsDockWidget()->forceEmit();
@@ -415,8 +415,8 @@ void MainController::onVcCurrentRangeSelected(int) {
         consumer->onCurrentRangeChanged(range);
     }
 
-    chessboardController->onRangeUpdated(range, QwtPlot::yLeft);
-    bigPlotController->onRangeUpdated(range, QwtPlot::yLeft);
+    chessboardController->onRangeUpdated(range);
+    bigPlotController->onRangeUpdated(range);
 }
 
 void MainController::onVcVoltageRangeSelected(int idx) {
@@ -429,8 +429,9 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
     }
-    chessboardController->onRangeUpdated(range, QwtPlot::yRight);
-    bigPlotController->onRangeUpdated(range, QwtPlot::yRight);
+    //this should be useless?
+    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
+    bigPlotController->onRangeUpdated(range);
     mainWindow->getSingleChannelControlsDockWidget()->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
@@ -445,8 +446,8 @@ void MainController::onCcCurrentRangeSelected(int idx) {
         consumer->onCurrentRangeChanged(range);
     }
 
-    chessboardController->onRangeUpdated(range, QwtPlot::yLeft);
-    bigPlotController->onRangeUpdated(range, QwtPlot::yLeft);
+    chessboardController->onRangeUpdated(range);
+    bigPlotController->onRangeUpdated(range);
     mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
@@ -460,8 +461,9 @@ void MainController::onCcVoltageRangeSelected(int) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
     }
-    chessboardController->onRangeUpdated(range, QwtPlot::yRight);
-    bigPlotController->onRangeUpdated(range, QwtPlot::yRight);
+    //this should be useless?
+    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
+    bigPlotController->onRangeUpdated(range);
 }
 
 void MainController::onVcVoltageFilterSelected(int) {

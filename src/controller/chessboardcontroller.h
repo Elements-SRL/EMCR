@@ -31,7 +31,7 @@ public slots:
     void onStimuliTurnedOnOff(bool flag);
     void onDocTurnedOnOff(bool flag);
     void onTracesExpandedOnOff(bool flag);
-    void onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx = QwtPlot::yLeft);
+    void onRangeUpdated(RangedMeasurement_t newRange);
     void onDurationUpdated(Measurement_t duration);
     void onSetPlotData(PlotMessage plotMessage);
     void onReplot();

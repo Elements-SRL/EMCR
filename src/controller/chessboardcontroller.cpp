@@ -160,9 +160,9 @@ void ChessboardController::onTracesExpandedOnOff(bool flag) {
     this->tracesExpandedOnOff(flag);
 }
 
-void ChessboardController::onRangeUpdated(RangedMeasurement_t newRange, QwtPlot::Axis axisIdx) {
+void ChessboardController::onRangeUpdated(RangedMeasurement_t newRange) {
     for (auto plot : plots) {
-        plot->onRangeUpdated(newRange, axisIdx);
+        plot->onRangeUpdated(newRange);
     }
 }
 

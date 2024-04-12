@@ -45,9 +45,6 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     stateLbl->setMargin(0);
     stateLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-    rangeInitialized.resize(axisCnt);
-    rangeInitialized.fill(false);
-
     xAxisMaxMajor = this->axisMaxMajor(xBottom);
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
 
@@ -134,19 +131,10 @@ void StampPlot::removeState(States_t newState) {
     this->setState((States_t)(state &~ newState));
 }
 
-void StampPlot::onRangeUpdated(RangedMeasurement_t newRange, Axis axisIdx) {
-    if (rangeInitialized[axisIdx]) {
-        if (newRange != currentRange[axisIdx]) {
-            currentRange[axisIdx] = newRange;
-
-            this->setAxisScale(axisIdx, newRange.min, newRange.max);
-        }
-
-    } else {
-        currentRange[axisIdx] = newRange;
-        this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
-        rangeInitialized[axisIdx] = true;
-    }
+void StampPlot::onRangeUpdated(RangedMeasurement_t newRange) {
+    Axis axisIdx = QwtPlot::yLeft;
+    currentRange[axisIdx] = newRange;
+    this->setAxisScale(axisIdx, currentRange[axisIdx].min, currentRange[axisIdx].max);
     this->replot();
 }
 
