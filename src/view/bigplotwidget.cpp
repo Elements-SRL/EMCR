@@ -15,7 +15,6 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     auto ivLayout = new QVBoxLayout();
     ivTab = new QWidget();
     ivTab->setLayout(ivLayout);
-    QVBoxLayout tab2Layout(ivTab);
     addTab(ivTab, "IV Graph");
 
     mainVl->setContentsMargins(6, 0, 0, 6);

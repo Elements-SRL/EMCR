@@ -358,22 +358,21 @@ std::vector<PlotConsumer *> BigPlotController::getConsumers(){
 
 void BigPlotController::onExportIvGraph() {
     QString filePath = QFileDialog::getSaveFileName(nullptr,
-                                   "Save File",
-                                   QDir::homePath(), // Initial directory
-                                   "CSV Files (*.csv)");
+                                                    "Save File",
+                                                    QDir::homePath(), // Initial directory
+                                                    "CSV Files (*.csv)");
 
-       // Check if a file path was selected
-       if (!filePath.isEmpty()) {
-           IvMessage ivMessage = std::get<BigPlotStatus::Iv>(messages[BigPlotStatus::Iv]);
-           // Save data to CSV file
-           saveToCSV(filePath, ivMessage);
-       } else {
-           // No file path selected
-           qDebug() << "No file path selected.";
-       }
+    // Check if a file path was selected
+    if (!filePath.isEmpty()) {
+        IvMessage ivMessage = std::get<BigPlotStatus::Iv>(messages[BigPlotStatus::Iv]);
+        // Save data to CSV file
+        saveToCSV(filePath, ivMessage);
+
+    } else {
+        // No file path selected
+        qDebug() << "No file path selected.";
+    }
 }
-
-
 
 void BigPlotController::saveToCSV(const QString& filePathssasda, const IvMessage & data) {
     auto selectedChannels = appStatus->getSelectedChannels();

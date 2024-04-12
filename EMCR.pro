@@ -8,8 +8,7 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
-    DEFINES += GLB_SHOW_DEBUG_CTRLS
-    DEFINES += DEBUG
+
 }
 
 #DEFINES += GLB_ANALYSES_IN_PROTOCOL_EDITOR
@@ -26,6 +25,8 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/main.cpp \
+    src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
@@ -34,7 +35,6 @@ SOURCES += \
     src/controller/plotpreferencescontroller.cpp \
     src/controller/singlechannelcontroller.cpp \
     src/controller/upgradefwcontroller.cpp \
-    src/main.cpp \
     src/controller/bigplotcontroller.cpp \
     src/controller/boardcontroller.cpp \
     src/controller/chessboardcontroller.cpp \
@@ -111,10 +111,14 @@ SOURCES += \
     src/view/questionmarkmenu/supportdialog.cpp \
     src/view/questionmarkmenu/deviceinfodialog.cpp \
     src/view/questionmarkmenu/messagedialog.cpp \
-    src/abf/axon.cpp \
     src/view/upgradefwview.cpp
 
 HEADERS += \
+    src/globaldefines.h \
+    src/protocoldefs.h \
+    src/abf/axon.h \
+    src/abf/axon_defs.h \
+    src/abf/axon_structs.h \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/device/deviceconnector.h \
@@ -123,7 +127,6 @@ HEADERS += \
     src/controller/plotpreferencescontroller.h \
     src/controller/singlechannelcontroller.h \
     src/controller/upgradefwcontroller.h \
-    src/globaldefines.h \
     src/controller/bigplotcontroller.h \
     src/controller/boardcontroller.h \
     src/controller/chessboardcontroller.h \
@@ -203,10 +206,6 @@ HEADERS += \
     src/view/questionmarkmenu/supportdialog.h \
     src/view/questionmarkmenu/deviceinfodialog.h \
     src/view/questionmarkmenu/messagedialog.h \
-    src/protocoldefs.h \
-    src/abf/axon.h \
-    src/abf/axon_defs.h \
-    src/abf/axon_structs.h \
     src/view/upgradefwview.h
 
 INCLUDEPATH += \

@@ -49,6 +49,7 @@ public:
     void setDevicesList(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
+    void setConnectionLabel(QString text);
 
     void setBigPlotWidget(BigPlotWidget * widget);
     void setIvGraphWidget(IvGraphWidget * widget);
@@ -68,9 +69,6 @@ public:
     QLabel * SRLbl = nullptr;
 
 public slots:
-    void onCalibLoadingMsg(QString msg);
-    void onCalibLoadingMsg(ErrorCodes_t error);
-    void onManualCalibDoneMsg(QString msg);
     void onNeedToChangeModelCellMsg(QString msg);
     void onBoardMappingPressed();
     void onAbout();
@@ -118,11 +116,11 @@ private:
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
     IvGraphWidget * ivGraphWidget = nullptr;
 //    BoardMappingDialog * boardMappingDialog= nullptr;
-    QDockWidget * calibrationDw = nullptr;
     QDockWidget * debugDw = nullptr;
 
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
+    QLabel * connectionInfoLbl;
 
     int voltageChannelsNum = 1;
     int currentChannelsNum = 1;
@@ -134,7 +132,6 @@ private:
 signals:
     void setDebugBit(int word, int bit, bool flag);
     void setDebugWord(int word, int value);
-    void sigPerformCalibration(std::vector<std::uint16_t> channelsToCalibrateIdxs);
     void sigModelCellChanged(bool modelCellChanged);
     void sigBoardMappingFileChoosen(QString filename);
     void sigUpgradeFw();
