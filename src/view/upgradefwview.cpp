@@ -17,8 +17,6 @@ UpgradeFwView::UpgradeFwView(QWidget * parent) :
     QHBoxLayout * buttonsHl = new QHBoxLayout;
     mainVl->addLayout(buttonsHl);
 
-    okBtn = new QPushButton("OK");
-    buttonsHl->addWidget(okBtn);
 
     upgradeBtn = new QPushButton("UPGRADE");
     buttonsHl->addWidget(upgradeBtn);
@@ -27,7 +25,6 @@ UpgradeFwView::UpgradeFwView(QWidget * parent) :
     cancelBtn = new QPushButton("Cancel");
     buttonsHl->addWidget(cancelBtn);
 
-    connect(okBtn, &QPushButton::clicked, this, &UpgradeFwView::accept);
     connect(upgradeBtn, &QPushButton::clicked, this, &UpgradeFwView::sigUpgradeFw);
     connect(cancelBtn, &QPushButton::clicked, this, &UpgradeFwView::reject);
 }

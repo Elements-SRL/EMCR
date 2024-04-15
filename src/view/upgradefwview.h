@@ -18,7 +18,6 @@ public slots:
 
 private:
     QLabel * messageLbl;
-    QPushButton * okBtn;
     QPushButton * upgradeBtn;
     QPushButton * cancelBtn;
 
