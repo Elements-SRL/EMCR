@@ -92,6 +92,11 @@ private:
     int voltageChannelsNumber;
     int currentChannelsNumber;
     int boardsNumber;
+    //for now we are using only the previousVcVoltageRange
+    RangedMeasurement * previousVcVoltageRange = nullptr;
+    RangedMeasurement * previousVcCurrentRange = nullptr;
+    RangedMeasurement * previousCcVoltageRange = nullptr;
+    RangedMeasurement * previousCcCurrentRange = nullptr;
 
 signals:
     void startDetecting();

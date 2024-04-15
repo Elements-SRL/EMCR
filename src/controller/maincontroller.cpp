@@ -417,6 +417,11 @@ void MainController::onVcVoltageRangeSelected(int idx) {
 
     RangedMeasurement_t range;
     msgDisp->getVCVoltageRange(range);
+    // first of all we have to initialize the previousVcVoltageRange otherwise the equality check below will crash
+    if (previousVcVoltageRange != nullptr  && *previousVcVoltageRange == range) {
+        return;
+    }
+    previousVcVoltageRange = &range;
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
