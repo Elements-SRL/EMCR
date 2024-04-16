@@ -10,9 +10,8 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
     auto buttonsHl = new QHBoxLayout(containerWidget);
 
     auto exportButton = new QPushButton(this);
-    QPixmap pixmapStop(":/imgs/export protocol.png");
-    QIcon exportIcon(pixmapStop);
-    exportButton->setIcon(exportIcon);
+    exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
+    exportButton->setToolTip("Export to csv");
     buttonsHl->addWidget(exportButton);
     connect(exportButton, &QPushButton::clicked, this, [=](){
         emit exportIvGraph();
@@ -20,6 +19,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
 
     auto calcLineButton = new QPushButton(this);
     calcLineButton->setIcon(QIcon(QPixmap(":/imgs/analysis linear fit.png")));
+    calcLineButton->setToolTip("Calculate least square line");
     buttonsHl->addWidget(calcLineButton);
     connect(calcLineButton, &QPushButton::clicked, this, [=](){
         emit calcMeanSquared();
