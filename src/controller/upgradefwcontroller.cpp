@@ -38,6 +38,7 @@ void UpgradeFwController::openView(QString deviceId) {
 
     } else {
         view->onUpgradeAvailable(false);
+        view->onSetMessage("Device not upgradable.");
     }
     view->exec();
 }
@@ -48,7 +49,8 @@ void UpgradeFwController::run() {
         emit sigEnableView(true);
         emit sigUpgradeAvilable(false);
         emit sigSetMessage("Device successfully upgraded!\n"
-                           "Please unplug the device and plug it back before connecting to it.");
+                           "Please unplug the device and plug it\n"
+                           "back before connecting to it.");
 
     } else {
         emit sigEnableView(true);
@@ -59,6 +61,7 @@ void UpgradeFwController::run() {
 
 void UpgradeFwController::onUpgradeFw() {
     view->setEnabled(false);
-    view->onSetMessage("Upgrading...\nPlease do not disconnect");
+    view->onSetMessage("Upgrading...\n"
+                       "Please do not disconnect");
     this->start();
 }
