@@ -7,18 +7,26 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
     auto containerWidget = new QWidget(this); // Create a container widget
     auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
 
-    auto exportButton = new QPushButton("Export to csv");
-    mainVl->addWidget(exportButton);
+    auto buttonsHl = new QHBoxLayout(containerWidget);
+
+    auto exportButton = new QPushButton(this);
+    QPixmap pixmapStop(":/imgs/export protocol.png");
+    QIcon exportIcon(pixmapStop);
+    exportButton->setIcon(exportIcon);
+    buttonsHl->addWidget(exportButton);
     connect(exportButton, &QPushButton::clicked, this, [=](){
         emit exportIvGraph();
     });
 
-    auto calcLineButton = new QPushButton("Calculate least square line");
-    mainVl->addWidget(calcLineButton);
+    auto calcLineButton = new QPushButton(this);
+    calcLineButton->setIcon(QIcon(QPixmap(":/imgs/analysis linear fit.png")));
+    buttonsHl->addWidget(calcLineButton);
     connect(calcLineButton, &QPushButton::clicked, this, [=](){
         emit calcMeanSquared();
     });
 
+
+    mainVl->addLayout(buttonsHl);
     dataTable = new CopyableTable(containerWidget);
     dataTable->setColumnCount(9);
     dataTable->setRowCount(channelsNum + 1);
