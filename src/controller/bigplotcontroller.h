@@ -68,6 +68,8 @@ private slots:
     void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
     void onExportIvGraph();
     void onCalcMeanSquared();
+    void onStartIvGraph();
+    void onStopIvGraph();
 
 signals:
     void durationChanged(Measurement_t duration);

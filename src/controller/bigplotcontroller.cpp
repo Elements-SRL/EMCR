@@ -72,6 +72,9 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
 
     connect(ivGraphWidget, &IvGraphWidget::exportIvGraph, this, &BigPlotController::onExportIvGraph);
     connect(ivGraphWidget, &IvGraphWidget::calcMeanSquared, this, &BigPlotController::onCalcMeanSquared);
+    connect(ivGraphWidget, &IvGraphWidget::startIvGraph, this, &BigPlotController::onStartIvGraph);
+    connect(ivGraphWidget, &IvGraphWidget::stopIvGraph, this, &BigPlotController::onStopIvGraph);
+
     currentPlot = gapFreePlot;
     currentConsumer = gapFreePlotConsumer;
     currentModel = gapFreeModel;
@@ -471,4 +474,18 @@ void BigPlotController::onCalcMeanSquared() {
         myMap.insert(std::make_pair(chIdx, vals));
     }
     ivGraphWidget->setParams(myMap);
+}
+
+void BigPlotController::onStartIvGraph() {
+    auto c = consumers[BigPlotStatus::Iv];
+    c->onStopConsuming();
+    RangedMeasurement r;
+    appStatus->getMessageDispatcher()->getVCVoltageRange(r);
+    //sending this only to reset the data
+    c->onVoltageRangeChanged(r);
+    c->onStartConsuming();
+}
+
+void BigPlotController::onStopIvGraph() {
+    consumers[BigPlotStatus::Iv]->onStopConsuming();
 }

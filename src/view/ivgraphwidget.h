@@ -25,6 +25,8 @@ public:
 signals:
     void exportIvGraph();
     void calcMeanSquared();
+    void startIvGraph();
+    void stopIvGraph();
 };
 
 #endif // IVGRAPHWIDGET_H

@@ -9,6 +9,19 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
 
     auto buttonsHl = new QHBoxLayout(containerWidget);
 
+
+    auto startButton = new QPushButton(this);
+    startButton->setIcon(QIcon(QPixmap(":/imgs/start protocol.png")));
+    startButton->setToolTip("Start the iv graph analysis if it was previously stopped");
+    buttonsHl->addWidget(startButton);
+    connect(startButton, &QPushButton::clicked, this, &IvGraphWidget::startIvGraph);
+
+    auto stopButton = new QPushButton(this);
+    stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
+    stopButton->setToolTip("Stop the iv graph analysis if it was previously strted");
+    buttonsHl->addWidget(stopButton);
+    connect(stopButton, &QPushButton::clicked, this, &IvGraphWidget::stopIvGraph);
+
     auto exportButton = new QPushButton(this);
     exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
     exportButton->setToolTip("Export to csv");
@@ -24,6 +37,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
     connect(calcLineButton, &QPushButton::clicked, this, [=](){
         emit calcMeanSquared();
     });
+
 
 
     mainVl->addLayout(buttonsHl);
