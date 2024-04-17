@@ -7,7 +7,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
     auto containerWidget = new QWidget(this); // Create a container widget
     auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
 
-    auto buttonsHl = new QHBoxLayout(containerWidget);
+    auto buttonsHl = new QHBoxLayout();
 
 
     auto startButton = new QPushButton(this);
