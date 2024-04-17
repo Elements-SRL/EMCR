@@ -10,7 +10,7 @@
 
 #include "stampplot.h"
 #include "curve.h"
-#include "myleftrightmousepushbutton.h"
+#include "leftrightmousepushbutton.h"
 #include "channeloverviewwidget.h"
 #include "messagedispatcher.h"
 #include <QMouseEvent>
@@ -30,9 +30,9 @@ public:
 private:
     QGridLayout * mainGl = nullptr;
 
-    MyLeftRightMousePushButton * allChannelsSelector = nullptr;
-    QVector <MyLeftRightMousePushButton *> boardSelectors;
-    QVector <MyLeftRightMousePushButton *> rowSelectors;
+    LeftRightMousePushButton * allChannelsSelector = nullptr;
+    QVector <LeftRightMousePushButton *> boardSelectors;
+    QVector <LeftRightMousePushButton *> rowSelectors;
 
     int voltageChannelsNum;
     int currentChannelsNum;

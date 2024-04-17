@@ -8,7 +8,7 @@
 #include <QPushButton>
 
 #include "application_status.h"
-#include "myspinbox.h"
+#include "nowheelspinbox.h"
 #include "errormanager.h"
 
 class SpinBoxWithChannel;
@@ -63,7 +63,7 @@ private:
     QVector <QWidget *> operationButtonWidgets;
     RangedMeasurement_t holdingTunerRange;
     RangedMeasurement_t liquidJunctionRange;
-    QVector <MySpinBox *> setAllChannelsSbxs;
+    QVector <NoWheelSpinBox *> setAllChannelsSbxs;
     void buildOperation(QLayout * layout, int operationType, bool visibility = false);
 
 private slots:
@@ -83,13 +83,13 @@ class SpinBoxWithChannel : public QWidget {
     Q_OBJECT
 
 public:
-    SpinBoxWithChannel(std::string title, MySpinBox * sbx);
+    SpinBoxWithChannel(std::string title, NoWheelSpinBox * sbx);
     void setName(std::string title);
-    MySpinBox * getSpinBox();
+    NoWheelSpinBox * getSpinBox();
 
 private:
     QLabel * channelLbl;
-    MySpinBox * valueSbx;
+    NoWheelSpinBox * valueSbx;
 };
 
 #endif // SINGLECHANNELCONTROLDOCKWIDGET_H

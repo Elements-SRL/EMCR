@@ -74,6 +74,7 @@ SOURCES += \
     src/view/doubleclickmachine.cpp \
     src/view/ivgraphwidget.cpp \
     src/view/lcddisplay.cpp \
+    src/view/leftrightmousepushbutton.cpp \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
@@ -82,8 +83,7 @@ SOURCES += \
     src/view/curve.cpp \
     src/view/measurementsoverviewdockwidget.cpp \
     src/view/multiplechannelcontroldockwidget.cpp \
-    src/view/myleftrightmousepushbutton.cpp \
-    src/view/myspinbox.cpp \
+    src/view/nowheelspinbox.cpp \
     src/view/plotpreferencesdialog.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
     src/view/protocol/protocolcursor.cpp \
@@ -169,6 +169,7 @@ HEADERS += \
     src/view/doubleclickmachine.h \
     src/view/ivgraphwidget.h \
     src/view/lcddisplay.h \
+    src/view/leftrightmousepushbutton.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
@@ -177,8 +178,7 @@ HEADERS += \
     src/view/curve.h \
     src/view/measurementsoverviewdockwidget.h \
     src/view/multiplechannelcontroldockwidget.h \
-    src/view/myleftrightmousepushbutton.h \
-    src/view/myspinbox.h \
+    src/view/nowheelspinbox.h \
     src/view/plotpreferencesdialog.h \
     src/view/protocol/impexpprotocoldialog.h \
     src/view/protocol/protocolcursor.h \

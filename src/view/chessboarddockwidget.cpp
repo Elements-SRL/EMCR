@@ -37,10 +37,10 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     auto maxButtonWidth = qMin(idealPlotWidth, screenGeometry.width()/30);
 
     if (currentChannelsNum > 1) {
-        allChannelsSelector = new MyLeftRightMousePushButton();
+        allChannelsSelector = new LeftRightMousePushButton();
         allChannelsSelector->setText("ALL");
         allChannelsSelector->setFixedSize(maxButtonWidth, maxButtonHeight);
-        connect(allChannelsSelector, &MyLeftRightMousePushButton::clicked, this, &ChessboardDockWidget::sigAllChannelsClicked);
+        connect(allChannelsSelector, &LeftRightMousePushButton::clicked, this, &ChessboardDockWidget::sigAllChannelsClicked);
 
         mainGl->addWidget(allChannelsSelector, 1, 0, Qt::AlignCenter);
     }
@@ -48,10 +48,10 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     if (boardsNum > 1 && channelsPerBoard > 1) {
         boardSelectors.resize(boardsNum);
         for (int boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
-            MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
+            LeftRightMousePushButton * btn = new LeftRightMousePushButton();
             btn->setText(QString("%1").arg(boardIdx+1));
             btn->setFixedSize(maxButtonWidth, maxButtonHeight);
-            connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
+            connect(btn, &LeftRightMousePushButton::clicked, this, [=] (bool selected) {
                 emit sigOneBoardClicked(boardIdx, selected);
             });
 
@@ -61,10 +61,10 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
 
         rowSelectors.resize(channelsPerBoard);
         for (int rowIdx = 0; rowIdx < channelsPerBoard; rowIdx++) {
-            MyLeftRightMousePushButton * btn = new MyLeftRightMousePushButton();
+            LeftRightMousePushButton * btn = new LeftRightMousePushButton();
             btn->setText(QString("%1").arg(rowIdx+1));
             btn->setFixedSize(maxButtonWidth, maxButtonHeight);
-            connect(btn, &MyLeftRightMousePushButton::clicked, this, [=] (bool selected) {
+            connect(btn, &LeftRightMousePushButton::clicked, this, [=] (bool selected) {
                 emit sigOneRowClicked(rowIdx, selected);
             });
 

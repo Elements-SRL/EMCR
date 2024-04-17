@@ -5,7 +5,7 @@
 #include <QHBoxLayout>
 
 #include "messagedispatcher.h"
-#include "myspinbox.h"
+#include "nowheelspinbox.h"
 
 class BoardControlDockWidget : public QDockWidget {
     Q_OBJECT
@@ -19,10 +19,10 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     std::vector<double> previousGateSpinBoxValues;
     std::vector<double> previousSourceSpinBoxValues;
-    std::vector<MySpinBox*>  gateSpinBoxes;
-    std::vector<MySpinBox*>  sourceSpinBoxes;
+    std::vector<NoWheelSpinBox*>  gateSpinBoxes;
+    std::vector<NoWheelSpinBox*>  sourceSpinBoxes;
 
-    std::vector<uint16_t> getChangedChannelIndexes(std::vector<MySpinBox*> spinBoxVector, std::vector<double> previousChannelValues);
+    std::vector<uint16_t> getChangedChannelIndexes(std::vector<NoWheelSpinBox*> spinBoxVector, std::vector<double> previousChannelValues);
     void onApplyButtonClicked();
 
 signals:

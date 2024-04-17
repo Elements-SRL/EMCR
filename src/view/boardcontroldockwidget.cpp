@@ -42,10 +42,10 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
 
     RangedMeasurement_t gateRange;
     if (msgDisp->getGateVoltagesFeatures(gateRange) == Success) {
-        MySpinBox* gateSpinBox;
+        NoWheelSpinBox* gateSpinBox;
         QString gateUnit = QString().fromStdString(gateRange.getFullUnit());
         int row = 1;
-        gateSpinBox = new MySpinBox();
+        gateSpinBox = new NoWheelSpinBox();
         gateSpinBox->setSuffix(QString(" ") + gateUnit);
         gateSpinBox->setRange(gateRange.min, gateRange.max);
         gateSpinBox->setValue(0.0);
@@ -60,7 +60,7 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
             this->onApplyButtonClicked();
         });
         for(row = 3; row < localNumOfBoards+3; row++){
-            gateSpinBox = new MySpinBox();
+            gateSpinBox = new NoWheelSpinBox();
             gateSpinBox->setSuffix(QString(" ") + gateUnit);
             gateSpinBox->setRange(gateRange.min, gateRange.max);
             gateSpinBox->setValue(0.0);
@@ -73,10 +73,10 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
 
     RangedMeasurement_t sourceRange;
     if (msgDisp->getSourceVoltagesFeatures(sourceRange) == Success) {
-        MySpinBox* sourceSpinBox;
+        NoWheelSpinBox* sourceSpinBox;
         QString sourceUnit = QString().fromStdString(sourceRange.getFullUnit());
         int row = 1;
-        sourceSpinBox = new MySpinBox();
+        sourceSpinBox = new NoWheelSpinBox();
         sourceSpinBox->setSuffix(QString(" ") + sourceUnit);
         sourceSpinBox->setRange(sourceRange.min, sourceRange.max);
         sourceSpinBox->setValue(0.0);
@@ -91,7 +91,7 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
             this->onApplyButtonClicked();
         });
         for(row = 3; row < localNumOfBoards+3; row++){
-            sourceSpinBox = new MySpinBox();
+            sourceSpinBox = new NoWheelSpinBox();
             sourceSpinBox->setSuffix(QString(" ") + sourceUnit);
             sourceSpinBox->setRange(sourceRange.min, sourceRange.max);
             sourceSpinBox->setValue(0.0);
@@ -132,7 +132,7 @@ QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
     return scrollHl;
 }
 
-std::vector<uint16_t> BoardControlDockWidget::getChangedChannelIndexes(std::vector<MySpinBox*> spinBoxVector, std::vector<double> previousChannelValues){
+std::vector<uint16_t> BoardControlDockWidget::getChangedChannelIndexes(std::vector<NoWheelSpinBox*> spinBoxVector, std::vector<double> previousChannelValues){
     int j=0;
     std::vector<uint16_t> changedChannelIndexes;
     for(int i = 0; i < spinBoxVector.size(); i++){

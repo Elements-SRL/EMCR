@@ -6,7 +6,7 @@
 #include <QCheckBox>
 
 #include "messagedispatcher.h"
-#include "myspinbox.h"
+#include "nowheelspinbox.h"
 
 class CompensationControlDockWidget: public QDockWidget {
     Q_OBJECT
@@ -22,17 +22,17 @@ private:
     MessageDispatcher * msgDisp = nullptr;
 
     std::vector<QCheckBox*>  cfastCheckBoxes;
-    std::vector<MySpinBox*>  cfastSpinBoxes;
+    std::vector<NoWheelSpinBox*>  cfastSpinBoxes;
     std::vector<QCheckBox*>  cslowRsCheckBoxes;
-    std::vector<MySpinBox*>  cslowSpinBoxes;
-    std::vector<MySpinBox*>  rsSpinBoxes;
+    std::vector<NoWheelSpinBox*>  cslowSpinBoxes;
+    std::vector<NoWheelSpinBox*>  rsSpinBoxes;
     std::vector<QCheckBox*>  rsCpCheckBoxes;
-    std::vector<MySpinBox*>  rsCpSpinBoxes;
+    std::vector<NoWheelSpinBox*>  rsCpSpinBoxes;
     std::vector<QCheckBox*>  rsPgCheckBoxes;
-    std::vector<MySpinBox*>  rsPgSpinBoxes;
+    std::vector<NoWheelSpinBox*>  rsPgSpinBoxes;
     std::vector<QComboBox*>  rsBwComboBoxes;
     std::vector<QCheckBox*>  ccCfastCheckBoxes;
-    std::vector<MySpinBox*>  ccCfastSpinBoxes;
+    std::vector<NoWheelSpinBox*>  ccCfastSpinBoxes;
 
     std::vector<QHBoxLayout*> hbsCfast;
     std::vector<QHBoxLayout*> hbsCslowRs;

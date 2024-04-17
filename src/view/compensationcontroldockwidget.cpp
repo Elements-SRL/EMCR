@@ -85,25 +85,25 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
             cfastEnableCb->setCheckable(true);
             cfastEnableCb->setChecked(false);
             this->cfastCheckBoxes.push_back(cfastEnableCb);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCfast[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsCfast[idx]->addWidget(spacer);
             hbsCfast[idx]->addWidget(cfastEnableCb);
         }
 
-        MySpinBox* cfastSpinBox;
+        NoWheelSpinBox* cfastSpinBox;
         QString cfastUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int idx = 0; idx < localNumOfCurrChans; idx++){
-            cfastSpinBox = new MySpinBox();
+            cfastSpinBox = new NoWheelSpinBox();
             cfastSpinBox->setSuffix(QString(" ") + cfastUnit);
             cfastSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             cfastSpinBox->setValue(defaultParamValue);
             cfastSpinBox->setDecimals(compensationFeatures[idx].decimals());
             this->cfastSpinBoxes.push_back(cfastSpinBox);
             hbsCfast[idx]->addWidget(cfastSpinBox);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCfast[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsCfast[idx]->addWidget(spacer);
         }
     }
 
@@ -115,16 +115,16 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
             cslowRsEnableCb->setCheckable(true);
             cslowRsEnableCb->setChecked(false);
             this->cslowRsCheckBoxes.push_back(cslowRsEnableCb);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCslowRs[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsCslowRs[idx]->addWidget(spacer);
             hbsCslowRs[idx]->addWidget(cslowRsEnableCb);
         }
 
-        MySpinBox* cslowSpinBox;
+        NoWheelSpinBox* cslowSpinBox;
         QString cslowUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int idx = 0; idx < localNumOfCurrChans; idx++){
-            cslowSpinBox = new MySpinBox();
+            cslowSpinBox = new NoWheelSpinBox();
             cslowSpinBox->setSuffix(QString(" ") + cslowUnit);
             cslowSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             cslowSpinBox->setValue(defaultParamValue);
@@ -133,19 +133,19 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
             hbsCslowRs[idx]->addWidget(cslowSpinBox);
         }
 
-        MySpinBox* rsSpinBox;
+        NoWheelSpinBox* rsSpinBox;
         QString rsUnit = QString().fromStdString(compensationFeaturesBis[0].getFullUnit());
         for(int idx = 0; idx < localNumOfCurrChans; idx++){
-            rsSpinBox = new MySpinBox();
+            rsSpinBox = new NoWheelSpinBox();
             rsSpinBox->setSuffix(QString(" ") + rsUnit);
             rsSpinBox->setRange(compensationFeaturesBis[idx].min, compensationFeaturesBis[idx].max);
             rsSpinBox->setValue(defaultParamValueBis);
             rsSpinBox->setDecimals(compensationFeaturesBis[idx].decimals());
             this->rsSpinBoxes.push_back(rsSpinBox);
             hbsCslowRs[idx]->addWidget(rsSpinBox);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCslowRs[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsCslowRs[idx]->addWidget(spacer);
         }
     }
 
@@ -157,25 +157,25 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
             rsCpEnableCb->setCheckable(true);
             rsCpEnableCb->setChecked(false);
             this->rsCpCheckBoxes.push_back(rsCpEnableCb);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsCp[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsRsCp[idx]->addWidget(spacer);
             hbsRsCp[idx]->addWidget(rsCpEnableCb);
         }
 
-        MySpinBox* rsCpSpinBox;
+        NoWheelSpinBox* rsCpSpinBox;
         QString rsCpUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int idx = 0; idx < localNumOfCurrChans; idx++){
-            rsCpSpinBox = new MySpinBox();
+            rsCpSpinBox = new NoWheelSpinBox();
             rsCpSpinBox->setSuffix(QString(" ") + rsCpUnit);
             rsCpSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             rsCpSpinBox->setValue(defaultParamValue);
             rsCpSpinBox->setDecimals(compensationFeatures[idx].decimals());
             this->rsCpSpinBoxes.push_back(rsCpSpinBox);
             hbsRsCp[idx]->addWidget(rsCpSpinBox);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsCp[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsRsCp[idx]->addWidget(spacer);
         }
     }
 
@@ -187,25 +187,25 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
             rsPgEnableCb->setCheckable(true);
             rsPgEnableCb->setChecked(false);
             this->rsPgCheckBoxes.push_back(rsPgEnableCb);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsPg[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsRsPg[idx]->addWidget(spacer);
             hbsRsPg[idx]->addWidget(rsPgEnableCb);
         }
 
-        MySpinBox* rsPgSpinBox;
+        NoWheelSpinBox* rsPgSpinBox;
         QString rsPgUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int idx = 0; idx < localNumOfCurrChans; idx++){
-            rsPgSpinBox = new MySpinBox();
+            rsPgSpinBox = new NoWheelSpinBox();
             rsPgSpinBox->setSuffix(QString(" ") + rsPgUnit);
             rsPgSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             rsPgSpinBox->setValue(defaultParamValue);
             rsPgSpinBox->setDecimals(compensationFeatures[idx].decimals());
             this->rsPgSpinBoxes.push_back(rsPgSpinBox);
             hbsRsPg[idx]->addWidget(rsPgSpinBox);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsPg[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsRsPg[idx]->addWidget(spacer);
         }
     }
 
@@ -326,25 +326,25 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
             ccCfastEnableCb->setCheckable(true);
             ccCfastEnableCb->setChecked(false);
             this->ccCfastCheckBoxes.push_back(ccCfastEnableCb);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCcCfast[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsCcCfast[idx]->addWidget(spacer);
             hbsCcCfast[idx]->addWidget(ccCfastEnableCb);
         }
 
-        MySpinBox* ccCfastSpinBox;
+        NoWheelSpinBox* ccCfastSpinBox;
         QString ccCfastUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
         for(int idx = 0; idx < localNumOfCurrChans; idx++){
-            ccCfastSpinBox = new MySpinBox();
+            ccCfastSpinBox = new NoWheelSpinBox();
             ccCfastSpinBox->setSuffix(QString(" ") + ccCfastUnit);
             ccCfastSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             ccCfastSpinBox->setValue(defaultParamValue);
             ccCfastSpinBox->setDecimals(compensationFeatures[idx].decimals());
             this->ccCfastSpinBoxes.push_back(ccCfastSpinBox);
             hbsCcCfast[idx]->addWidget(ccCfastSpinBox);
-            QWidget* spazietto = new QWidget();
-            spazietto->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCcCfast[idx]->addWidget(spazietto);
+            QWidget* spacer = new QWidget();
+            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+            hbsCcCfast[idx]->addWidget(spacer);
         }
     }
 

@@ -190,7 +190,7 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
         setAllChannelsSbxs[OperationHoldingStimulus]->setRange(holdingTunerRange.min, holdingTunerRange.max);
         setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(holdingTunerRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
             sbx->setDecimals(holdingTunerRange.decimals());
@@ -202,7 +202,7 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
         setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
         setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
             sbx->setDecimals(holdingTunerRange.decimals());
@@ -216,7 +216,7 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
         setAllChannelsSbxs[OperationLiquidJunction]->setRange(liquidJunctionRange.min, liquidJunctionRange.max);
         setAllChannelsSbxs[OperationLiquidJunction]->setDecimals(liquidJunctionRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(liquidJunctionRange.min, liquidJunctionRange.max);
             sbx->setDecimals(liquidJunctionRange.decimals());
@@ -235,7 +235,7 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
         setAllChannelsSbxs[OperationHoldingStimulus]->setRange(holdingTunerRange.min, holdingTunerRange.max);
         setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(holdingTunerRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
             sbx->setDecimals(holdingTunerRange.decimals());
@@ -247,7 +247,7 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
         setAllChannelsSbxs[OperationStimulusHalf]->setRange(holdingTunerRange.min, holdingTunerRange.max);
         setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(holdingTunerRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            MySpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange.min, holdingTunerRange.max);
             sbx->setDecimals(holdingTunerRange.decimals());
@@ -298,7 +298,7 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     QString unit = QString().fromStdString(ranges[0].getFullUnit());
     auto names = appStatus->getNames();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        MySpinBox * sbx = new MySpinBox;
+        NoWheelSpinBox * sbx = new NoWheelSpinBox;
         sbx->setSuffix(QString(" ") + unit);
         sbx->setRange(ranges[0].min, ranges[0].max);
         sbx->setValue(0.0);
@@ -347,7 +347,7 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonGridLayout->setSpacing(0);
     operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
     QString unit = QString().fromStdString(ranges[0].getFullUnit());
-    setAllChannelsSbxs[idx] = new MySpinBox;
+    setAllChannelsSbxs[idx] = new NoWheelSpinBox;
     setAllChannelsSbxs[idx]->setSuffix(QString(" ") + unit);
     setAllChannelsSbxs[idx]->setRange(ranges[0].min, ranges[0].max);
     setAllChannelsSbxs[idx]->setValue(0.0);
@@ -400,7 +400,7 @@ void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
 
 void SingleChannelControlDockWidget::setLiquidJunctionVoltages(std::vector <Measurement_t> voltages){
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        MySpinBox * sbx2 = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
+        NoWheelSpinBox * sbx2 = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
         sbx2->setValue(voltages[channelIdx].value);
     }
 }
@@ -418,7 +418,7 @@ void SingleChannelControlDockWidget::onBoardMappingsLoaded(){
     }
 }
 
-SpinBoxWithChannel::SpinBoxWithChannel(std::string title, MySpinBox * sbx) :
+SpinBoxWithChannel::SpinBoxWithChannel(std::string title, NoWheelSpinBox * sbx) :
     valueSbx(sbx) {
 
     QHBoxLayout * hl = new QHBoxLayout;
@@ -432,7 +432,7 @@ SpinBoxWithChannel::SpinBoxWithChannel(std::string title, MySpinBox * sbx) :
     hl->addWidget(sbx);
 }
 
-MySpinBox * SpinBoxWithChannel::getSpinBox() {
+NoWheelSpinBox * SpinBoxWithChannel::getSpinBox() {
     return valueSbx;
 }
 
