@@ -55,7 +55,10 @@ void UpgradeFwController::run() {
     } else {
         emit sigEnableView(true);
         emit sigUpgradeAvilable(true);
-        emit sigSetMessage("Device upgrade failed.");
+        emit sigSetMessage("Device upgrade failed.\n"
+                           "If you have tried this more than\n"
+                           "once please follow the installation\n"
+                           "guide available at our website.");
     }
 }
 
