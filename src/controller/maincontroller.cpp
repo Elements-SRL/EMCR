@@ -330,6 +330,11 @@ void MainController::onMainWindowCreated() {
 
     /*! Start threads */
     this->startProducerConsumers();
+
+    //for devices with less then 16 channels the traces are expanded by default
+    if (currentChannelsNumber < 16) {
+        multipleChannelController->addRemoveFromBigPlot(true);
+    }
 }
 
 void MainController::destroyControllers() {

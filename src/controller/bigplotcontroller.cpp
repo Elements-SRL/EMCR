@@ -79,6 +79,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     currentConsumer = gapFreePlotConsumer;
     currentModel = gapFreeModel;
     bps = BigPlotStatus::GapFree;
+
 }
 
 void BigPlotController::manageStatus(int idx) {

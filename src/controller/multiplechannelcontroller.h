@@ -13,6 +13,7 @@ class MultipleChannelController : public QObject {
 public:
     MultipleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
     ~MultipleChannelController();
+    void addRemoveFromBigPlot(bool flag);
 
 public slots:
     void onRecordingRequest(bool flag);
@@ -23,7 +24,7 @@ private:
     void turnSelectedStimuliOnOff(bool flag);
     void turnSelectedDocOnOff(bool flag);
     void resetDoc();
-    void addRemoveFromBigPlot(bool flag);
+
 
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
