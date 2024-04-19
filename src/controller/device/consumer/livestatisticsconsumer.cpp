@@ -158,7 +158,7 @@ void LiveStatisticsConsumer::performAnalysis() {
             const Measurement stdCurrentMeasurement = { stdCurrent, currentRange.prefix, currentRange.unit };
             const Measurement conductivityMeasurement = { conductivity, conductivityPfx, "S"};
             const StatisticsResult sr = { chIdx, meanVoltageMeasurement, meanCurrentMeasurement, stdCurrentMeasurement, conductivityMeasurement };
-            results[currentIdx] = sr;
+            results[chIdx] = sr;
         }
         totalAnalysisSamples = 0;
         StatisticsResultWrapper w = {results};

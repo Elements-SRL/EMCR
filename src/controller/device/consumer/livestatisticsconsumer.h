@@ -56,7 +56,7 @@ private:
     std::vector <double> voltageSum2;
     std::vector <double> currentSum;
     std::vector <double> currentSum2;
-    QVector<StatisticsResult> results;
+    std::vector<StatisticsResult> results;
 
     bool isInVec(std::vector<int> vec, int elem);
 

@@ -2,12 +2,12 @@
 #define STATISTICSRESULTWRAPPER_H
 
 #include "statisticsresult.h"
-#include <QVector>
+#include <vector>
 
 using namespace e384CommLib;
 
 struct StatisticsResultWrapper {
-    QVector<StatisticsResult> results;
+    std::vector<StatisticsResult> results;
 };
 
 

@@ -4,21 +4,26 @@
 #include "messagedispatcher.h"
 #include "model/statisticsresult.h"
 #include <vector>
-#include <QVector>
+#include <utility>
+#include <QString>
 
 class MeasurementOverviewModel{
 private:
     std::vector<uint16_t> activeChannelsIdxs;
     int voltageChannelsNum;
     int currentChannelsNum;
-    QVector<StatisticsResult> statisticsResults;
+    std::vector<StatisticsResult> statisticsResults;
     std::vector<Measurement_t> liquidJunctionResults;
+    std::pair<QString, QString> getValueAndUnit(Measurement m) {
+        return std::make_pair(QString::number(m.value), QString::fromStdString(m.getFullUnit()));
+    }
+
 
 public:
     MeasurementOverviewModel(std::vector<uint16_t> activeChannelsIdxs, int voltageChannelsNum, int currentChannelsNum);
-    QVector<StatisticsResult> getStatisticsResult();
+    std::vector<StatisticsResult> getStatisticsResult();
     std::vector<Measurement_t> getLiquidJunctionResults();
-    void setStatisticsResult(QVector<StatisticsResult>);
+    void setStatisticsResult(std::vector<StatisticsResult>);
     void setLiquidJunctionResults(std::vector<Measurement_t>);
     void setActiveChannelsIdxs(std::vector<uint16_t>);
     void exportToCsv(std::string filepath);

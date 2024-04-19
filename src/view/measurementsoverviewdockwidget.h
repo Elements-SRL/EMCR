@@ -31,7 +31,7 @@ private:
 
     std::vector<QPushButton*> buttons;
 
-    void setStatisticsResultsInRowaRow(int row, int ch, StatisticsResult r);
+    void setStatisticsResultsInRowaRow(int row, StatisticsResult r);
     std::vector<uint16_t> activeChannels;
     int voltageChannels;
     int currentChannels;
@@ -40,7 +40,7 @@ public:
     MeasurementsOverviewDockWidget(std::vector<uint16_t> activeChannels, int voltageChannels, int currentChannels, QWidget * parent = nullptr);
     void updateActiveChannels(std::vector<uint16_t> newActiveChannels);
     void setLiquidJunctionResult(std::vector <Measurement_t> result);
-    void onLiveStatisticsResult(QVector<StatisticsResult> result);
+    void onLiveStatisticsResult(std::vector<StatisticsResult> result);
 
 public slots:
     void onUpdate();

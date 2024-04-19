@@ -149,18 +149,17 @@ void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector<Measure
     }
 }
 
-void MeasurementsOverviewDockWidget::onLiveStatisticsResult(QVector<StatisticsResult> results) {
+void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector<StatisticsResult> results) {
     for (int i = 0; i < currentChannels; i++) {
         //the first row is the header
         const auto row = i + 1;
-        const auto ch = activeChannels[i] + 1;
         const auto statisticResult = results[i];
-        setStatisticsResultsInRowaRow(row, ch, statisticResult);
+        setStatisticsResultsInRowaRow(row, statisticResult);
     }
 }
 
-void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, int ch, StatisticsResult r) {
-    dataTable->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(std::to_string(ch))));
+void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, StatisticsResult r) {
+    dataTable->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(std::to_string(r.chIdx + 1))));
     dataTable->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanVoltage.value))));
     dataTable->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(r.meanVoltage.getFullUnit())));
     dataTable->setItem(row, 3, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanCurrent.value))));
