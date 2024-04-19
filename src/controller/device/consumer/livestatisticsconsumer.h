@@ -8,6 +8,7 @@
 #include "devicedataconsumer.h"
 #include "statisticsresult.h"
 #include "statisticsresult.h"
+#include "statisticsresultwrapper.h"
 
 class MeasurementsOverviewDockWidget;
 
@@ -39,9 +40,6 @@ protected:
     QMutex samplingRateMtx;
     QMutex rangesMtx;
 
-    double voltageMultiplier;
-    double currentMultiplier;
-
     std::vector <double> buffer;
 
     QMutex mutex;
@@ -56,16 +54,14 @@ private:
     int minSamples = 0;
     std::vector <double> voltageSum;
     std::vector <double> voltageSum2;
-
     std::vector <double> currentSum;
     std::vector <double> currentSum2;
+    QVector<StatisticsResult> results;
 
-    StatisticsResult * res;
     bool isInVec(std::vector<int> vec, int elem);
-    void removeElem(std::vector<int> vec, int elem);
 
 signals:
-    void sigResult(StatisticsResult * res);
+    void sigResult(StatisticsResultWrapper res);
 };
 
 #endif // LIVESTATISTICSCONSUMER_H

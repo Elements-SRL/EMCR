@@ -3,22 +3,24 @@
 
 #include "messagedispatcher.h"
 #include "model/statisticsresult.h"
+#include <vector>
+#include <QVector>
 
 class MeasurementOverviewModel{
 private:
-    std::vector<int> activeChannelsIdxs;
+    std::vector<uint16_t> activeChannelsIdxs;
     int voltageChannelsNum;
     int currentChannelsNum;
-    StatisticsResult * statisticsResults;
-    QVector<Measurement_t> liquidJunctionResults;
+    QVector<StatisticsResult> statisticsResults;
+    std::vector<Measurement_t> liquidJunctionResults;
 
 public:
-    MeasurementOverviewModel(std::vector<int> activeChannelsIdxs, int voltageChannelsNum, int currentChannelsNum);
-    StatisticsResult * getStatisticsResult();
-    QVector<Measurement_t> getLiquidJunctionResults();
-    void setStatisticsResult(StatisticsResult * );
-    void setLiquidJunctionResults(QVector<Measurement_t>);
-    void setActiveChannelsIdxs(std::vector<int>);
+    MeasurementOverviewModel(std::vector<uint16_t> activeChannelsIdxs, int voltageChannelsNum, int currentChannelsNum);
+    QVector<StatisticsResult> getStatisticsResult();
+    std::vector<Measurement_t> getLiquidJunctionResults();
+    void setStatisticsResult(QVector<StatisticsResult>);
+    void setLiquidJunctionResults(std::vector<Measurement_t>);
+    void setActiveChannelsIdxs(std::vector<uint16_t>);
     void exportToCsv(std::string filepath);
 };
 #endif // MEASUREMENTOVERVIEWMODEL_H

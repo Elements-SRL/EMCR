@@ -95,7 +95,7 @@ void LiveStatisticsConsumer::run() {
 }
 
 void LiveStatisticsConsumer::initAnalysis() {
-    res = new StatisticsResult(voltageChannelsNum, currentChannelsNum);
+    results.resize(currentChannelsNum);
     voltageSum.resize(voltageChannelsNum);
     voltageSum2.resize(voltageChannelsNum);
     currentSum.resize(currentChannelsNum);
@@ -144,26 +144,25 @@ void LiveStatisticsConsumer::performAnalysis() {
     }
 
     if (totalAnalysisSamples*100 >= minSamples) {
-        for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
-            res->meanVoltage[voltageIdx] = voltageSum[voltageIdx]/((double)totalAnalysisSamples);
+        for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+            const auto meanVoltage = (voltageSum[chIdx] / ((double)totalAnalysisSamples));
+
             // res->stdVoltage[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res->meanVoltage[voltageIdx])/((double)totalAnalysisSamples))*voltageMultiplier;
-            res->meanVoltage[voltageIdx] *= voltageMultiplier;
-        }
+            const auto meanCurrent = currentSum[chIdx] / ((double)totalAnalysisSamples);
+            const auto stdCurrent = qSqrt((currentSum2[chIdx] - currentSum[chIdx] * meanCurrent) / ((double)totalAnalysisSamples));
+            const auto conductivity = meanVoltage * meanCurrent <= 0 ? -1.0 : meanCurrent / meanVoltage;
+            const auto conductivityPfx = currentRange.prefix / voltageRange.prefix;
 
-        for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-            res->meanCurrent[currentIdx] = currentSum[currentIdx]/((double)totalAnalysisSamples);
-            res->stdCurrent[currentIdx] = qSqrt((currentSum2[currentIdx]-currentSum[currentIdx]*res->meanCurrent[currentIdx])/((double)totalAnalysisSamples))*currentMultiplier;
-            res->meanCurrent[currentIdx] *= currentMultiplier;
-            if (res->meanVoltage[currentIdx]*res->meanCurrent[currentIdx] <= 0.0) {
-                res->conductivity[currentIdx] = -1.0;
-
-            } else {
-                res->conductivity[currentIdx] = res->meanCurrent[currentIdx]/res->meanVoltage[currentIdx];
-            }
+            const Measurement meanVoltageMeasurement = { meanVoltage , voltageRange.prefix, voltageRange.unit };
+            const Measurement meanCurrentMeasurement = { meanCurrent, currentRange.prefix, currentRange.unit };
+            const Measurement stdCurrentMeasurement = { stdCurrent, currentRange.prefix, currentRange.unit };
+            const Measurement conductivityMeasurement = { conductivity, conductivityPfx, "S"};
+            const StatisticsResult sr = { chIdx, meanVoltageMeasurement, meanCurrentMeasurement, stdCurrentMeasurement, conductivityMeasurement };
+            results[currentIdx] = sr;
         }
         totalAnalysisSamples = 0;
-
-        emit sigResult(res);
+        StatisticsResultWrapper w = {results};
+        emit sigResult(w);
     }
 }
 
@@ -182,14 +181,12 @@ void LiveStatisticsConsumer::updateRanges() {
     if (pushedVoltageRangeFlag) {
         pushedVoltageRangeFlag = false;
         voltageRange = pushedVoltageRange;
-        voltageMultiplier = voltageRange.multiplier();
         this->lockAndResetAnalysis(currentChannelsNum);
     }
 
     if (pushedCurrentRangeFlag) {
         pushedCurrentRangeFlag = false;
         currentRange = pushedCurrentRange;
-        currentMultiplier = currentRange.multiplier();
         this->lockAndResetAnalysis(currentChannelsNum);
     }
 }

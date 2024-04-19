@@ -1,17 +1,16 @@
 #ifndef STATISTICSRESULT_H
 #define STATISTICSRESULT_H
 
-#include <QVector>
+#include "e384commlib_global_addendum.h"
+using namespace e384CommLib;
 
-class StatisticsResult {
-public:
-    StatisticsResult(int voltageChannelsNum, int currentChannelsNum);
-
-    QVector <double> meanVoltage;
-    QVector <double> stdVoltage;
-    QVector <double> meanCurrent;
-    QVector <double> stdCurrent;
-    QVector <double> conductivity;
+struct StatisticsResult {
+    int chIdx;
+    Measurement_t meanVoltage;
+    //Measurement_t stdVoltage;
+    Measurement_t meanCurrent;
+    Measurement_t stdCurrent;
+    Measurement_t conductivity;
 };
 
 
