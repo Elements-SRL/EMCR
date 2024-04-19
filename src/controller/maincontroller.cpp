@@ -241,7 +241,6 @@ void MainController::onMainWindowCreated() {
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, bigPlotController, &BigPlotController::onCurrentColorsChanged);
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  bigPlotController, &BigPlotController::onCurrentColorChanged);
     connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    bigPlotController, &BigPlotController::onBackgroundColorChanged);
-//    connect(mainWindow->getChessboardDockWidget(), &ChessboardDockWidget::sigExportLiveNoiseEstimates, liveNoiseConsumer, &LiveNoiseConsumer::onExportLiveNoiseEstimates);
 
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, chessboardController, &ChessboardController::onCurrentColorsChanged);
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  chessboardController, &ChessboardController::onCurrentColorChanged);

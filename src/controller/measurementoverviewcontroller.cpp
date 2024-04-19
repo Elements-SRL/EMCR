@@ -38,25 +38,6 @@ MeasurementOverviewController::~MeasurementOverviewController(){
     }
 }
 
-void MeasurementOverviewController::onExportLiveNoiseEstimates() {
-    QString filename = "noise";
-    QString filedir = QDir::currentPath() + "/";
-    QString filepath = filedir + filename + ".csv";
-    while (QFile::exists(filepath)) {
-        filename += "_";
-        filepath = filedir + filename + ".csv";
-    }
-
-    QFile file(filepath);
-    file.open(QIODevice::WriteOnly);
-
-    QTextStream stream(&file);
-//    for (auto noise : res->stdCurrent) {
-//        stream << noise << "\n";
-//    }
-    file.close();
-}
-
 void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
     if (!started) {
         std::vector <uint16_t> channelIdxs(currentChannelsNum);
@@ -72,7 +53,7 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             voltages[idx] = stdVoltages[idx];
         }
-
+        modm->setLiquidJunctionResults(voltages);
         modw->setLiquidJunctionResult(voltages);
     }
 }
