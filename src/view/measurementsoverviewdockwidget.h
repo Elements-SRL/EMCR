@@ -18,17 +18,7 @@ class MeasurementsOverviewDockWidget : public QDockWidget {
 private:
     QVBoxLayout * mainVl;
     QWidget * mainWg;
-    QLabel * channelIndexesLabel;
-    QPushButton * meanVoltageBtn;
-    QPushButton * meanCurrentBtn;
-    QPushButton * stdCurrentBtn;
-    QPushButton * conductivityBtn;
-    QPushButton * liquidJunctionBtn;
     QTableWidget* dataTable;
-
-    QGridLayout * gl;
-    void updateButton(QPushButton * bt);
-
     std::vector<QPushButton*> buttons;
 
     void setStatisticsResultsInRowaRow(int row, StatisticsResult r);

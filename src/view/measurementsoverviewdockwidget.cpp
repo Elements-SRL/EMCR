@@ -6,55 +6,24 @@
 MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint16_t> activeChannels, int voltageChannels, int currentChannels, QWidget * parent) :
     QDockWidget(parent), activeChannels(activeChannels), voltageChannels(voltageChannels), currentChannels(currentChannels){
 
-    mainWg = new QWidget();
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWindowTitle("Measurements Overview");
     setObjectName("measurementsOverviewDW");
-    setWidget(mainWg);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    mainVl = new QVBoxLayout();
+    // Create a scroll area
+    QScrollArea* scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true); // Allow the widget inside the scroll area to resize with the scroll area
+    setWidget(scrollArea);
+
+    // Create a widget for the scroll area
+    QWidget* scrollWidget = new QWidget();
+    scrollArea->setWidget(scrollWidget);
+
+    mainVl = new QVBoxLayout(scrollWidget);
     mainVl->setContentsMargins(0, 0, 0, 0);
     mainVl->setSpacing(1);
-    mainWg->setLayout(mainVl);
 
-    QHBoxLayout * buttonsLayout = new QHBoxLayout();
-
-    channelIndexesLabel = new QLabel("Active channels");
-    meanVoltageBtn = new QPushButton("Mean Voltage");
-    meanCurrentBtn = new QPushButton("Mean Current");
-    stdCurrentBtn = new QPushButton("Current RMS");
-    conductivityBtn = new QPushButton("Conductivity");
-    liquidJunctionBtn = new QPushButton("Conductivity");
-
-    meanVoltageBtn->setCheckable(true);
-    meanCurrentBtn->setCheckable(true);
-    stdCurrentBtn->setCheckable(true);
-    conductivityBtn->setCheckable(true);
-    liquidJunctionBtn->setCheckable(true);
-
-    meanVoltageBtn->setChecked(true);
-    meanCurrentBtn->setChecked(true);
-    stdCurrentBtn->setChecked(true);
-    conductivityBtn->setChecked(true);
-    liquidJunctionBtn->setChecked(true);
-
-    buttonsLayout->addWidget(channelIndexesLabel);
-    buttonsLayout->addWidget(meanVoltageBtn);
-    buttonsLayout->addWidget(meanCurrentBtn);
-    buttonsLayout->addWidget(stdCurrentBtn);
-    buttonsLayout->addWidget(conductivityBtn);
-    buttonsLayout->addWidget(liquidJunctionBtn);
-
-    mainVl->addLayout(buttonsLayout);
-
-    channelIndexesLabel->setVisible(false);
-    meanVoltageBtn->setVisible(false);
-    meanCurrentBtn->setVisible(false);
-    stdCurrentBtn->setVisible(false);
-    conductivityBtn->setVisible(false);
-    liquidJunctionBtn->setVisible(false);
-
-    dataTable = new CopyableTable();
+    dataTable = new CopyableTable(scrollWidget);
     dataTable->setColumnCount(11);
     dataTable->setRowCount(currentChannels + 1);
     dataTable->horizontalHeader()->hide();
@@ -74,40 +43,6 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     dataTable->setItem(0, 10, new QTableWidgetItem("Unit"));
     mainVl->addWidget(dataTable);
 
-
-    connect(meanVoltageBtn, &QPushButton::clicked, this, [=](){
-        updateButton(meanVoltageBtn);
-    });
-    connect(meanCurrentBtn, &QPushButton::clicked, this, [=](){
-        updateButton(meanCurrentBtn);
-    });
-    connect(stdCurrentBtn, &QPushButton::clicked, this, [=](){
-        updateButton(stdCurrentBtn);
-    });
-    connect(conductivityBtn, &QPushButton::clicked, this, [=](){
-        updateButton(conductivityBtn);
-    });
-    connect(liquidJunctionBtn, &QPushButton::clicked, this, [=](){
-        updateButton(liquidJunctionBtn);
-    });
-
-    QScrollArea * scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-    mainVl->addWidget(scrollArea);
-
-    QWidget * scrollWg = new QWidget;
-    scrollArea->setWidget(scrollWg);
-
-    QVBoxLayout * scrollVl = new QVBoxLayout;
-    scrollVl->setContentsMargins(0, 0, 0, 0);
-    scrollVl->setSpacing(1);
-    scrollWg->setLayout(scrollVl);
-
-    QGridLayout *gl = new QGridLayout();
-
     QPushButton * extractBtn = new QPushButton("extract");
     connect(extractBtn, &QPushButton::clicked, this, [=](){
         QString filePath = QFileDialog::getSaveFileName(
@@ -116,17 +51,11 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
                 QDir::homePath(), // Default directory
                 "Csv Files (*.csv);;All Files (*)"
             );
-
             if (!filePath.isEmpty()) {
                 emit extract(filePath);
             }
     });
-    scrollVl->addWidget(extractBtn);
-    scrollVl->addLayout(gl);
-}
-
-void MeasurementsOverviewDockWidget::updateButton(QPushButton *){
-    onUpdate();
+    mainVl->addWidget(extractBtn);
 }
 
 void MeasurementsOverviewDockWidget::onUpdate(){
