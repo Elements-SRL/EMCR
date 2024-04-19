@@ -66,7 +66,7 @@ void IvGraphWidget::setParams(std::map<uint32_t, std::vector<Measurement>> param
         const auto key = entry.first;
         const auto values = entry.second;
         const auto tabRow = key + 1;
-        dataTable->setItem(tabRow, 0, new QTableWidgetItem(QString::fromStdString(std::to_string(key))));
+        dataTable->setItem(tabRow, 0, new QTableWidgetItem(QString::fromStdString(std::to_string(tabRow))));
         for (uint32_t i=0; i<values.size(); i++) {
 //            for each data we have both a value and a prefix and the offset is due to the chIdx column
             auto idx = i * 2 + 1;
