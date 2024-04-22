@@ -3,47 +3,45 @@
 #include <QFile>
 #include <QTextStream>
 
-MeasurementOverviewModel::MeasurementOverviewModel(std::vector<int> activeChannelsIdxs, int voltageChannelsNum, int currentChannelsNum) {
+MeasurementOverviewModel::MeasurementOverviewModel(std::vector<uint16_t> activeChannelsIdxs, int voltageChannelsNum, int currentChannelsNum) {
     this->activeChannelsIdxs = activeChannelsIdxs;
     this->voltageChannelsNum = voltageChannelsNum;
     this->currentChannelsNum = currentChannelsNum;
     liquidJunctionResults.resize(currentChannelsNum);
-    liquidJunctionResults.fill({0.0, UnitPfxNone, "V"});
+    liquidJunctionResults.resize(currentChannelsNum);
 }
 
-StatisticsResult * MeasurementOverviewModel::getStatisticsResult(){
+std::vector<StatisticsResult> MeasurementOverviewModel::getStatisticsResult(){
     return statisticsResults;
 }
-QVector<Measurement_t> MeasurementOverviewModel::getLiquidJunctionResults(){
+std::vector<Measurement_t> MeasurementOverviewModel::getLiquidJunctionResults(){
     return liquidJunctionResults;
 }
-void MeasurementOverviewModel::setStatisticsResult(StatisticsResult * sr){
-    statisticsResults = sr;
+void MeasurementOverviewModel::setStatisticsResult(std::vector<StatisticsResult> results){
+    statisticsResults = results;
 }
-void MeasurementOverviewModel::setLiquidJunctionResults(QVector<Measurement_t> ljr){
+void MeasurementOverviewModel::setLiquidJunctionResults(std::vector<Measurement_t> ljr){
     liquidJunctionResults = ljr;
 }
 void MeasurementOverviewModel::exportToCsv(std::string filepath){
     QFile file(QString::fromStdString(filepath));
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        stream << "Channel idx,Mean Voltage,Mean Current,Std Current,Conductivity,Liquid Junction\n";
-        Measurement_t meanVoltage = {0.0, UnitPfxNone, "V"};
-        Measurement_t meanCurrent = {0.0, UnitPfxNone, "A"};
-        Measurement_t stdCurrent = {0.0, UnitPfxNone, "A"};
-        Measurement_t conductivity = {0.0, UnitPfxNone, "S"};
-        for (auto ch: activeChannelsIdxs) {
-            stdCurrent.value = statisticsResults->stdCurrent[ch];
-            meanCurrent.value = statisticsResults->meanCurrent[ch];
-            meanVoltage.value = statisticsResults->meanVoltage[ch];
-            conductivity.value = statisticsResults->conductivity[ch];
-
-            stream << ch+1 << "," << QString::fromStdString(meanVoltage.niceLabel()) << "," << QString::fromStdString(meanCurrent.niceLabel()) << "," << QString::fromStdString(stdCurrent.niceLabel()) << "," << QString::fromStdString(conductivity.niceLabel()) << "," << QString::fromStdString(liquidJunctionResults[ch].niceLabel()) << "\n";
+        stream << "Channel idx,Mean Voltage, unit, Mean Current, unit,Std Current, unit,Conductivity, unit, Liquid Junction, unit\n";
+        for (int i = 0; i < statisticsResults.size(); i++) {
+            auto r = statisticsResults[i];
+            auto lj = liquidJunctionResults[i];
+            std::vector<std::pair<QString, QString>> measurementsStrings = { getValueAndUnit(r.meanVoltage), getValueAndUnit(r.meanCurrent), getValueAndUnit(r.stdCurrent), getValueAndUnit(r.conductivity), getValueAndUnit(lj)};
+            stream << r.chIdx ;
+            for (auto p : measurementsStrings) {
+                stream << "," << p.first << "," << p.second;
+            }
+            stream << "\n";
         }
         file.close();
     }
 }
 
-void MeasurementOverviewModel::setActiveChannelsIdxs(std::vector<int> updatedChIdxs){
+void MeasurementOverviewModel::setActiveChannelsIdxs(std::vector<uint16_t> updatedChIdxs){
     activeChannelsIdxs = updatedChIdxs;
 }

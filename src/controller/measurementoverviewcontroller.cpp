@@ -6,7 +6,7 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
 
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
     currentChannelsNum = appStatus->getCurrentChannelsNum();
-    this->getNewActiveChannels(activeChannelsIdxs);
+    activeChannelsIdxs = appStatus->getSelectedChannelsIndexes();
     modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
     modm = new MeasurementOverviewModel(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
     connect(modw, &MeasurementsOverviewDockWidget::extract, this, [=](QString filepath){
@@ -38,25 +38,6 @@ MeasurementOverviewController::~MeasurementOverviewController(){
     }
 }
 
-void MeasurementOverviewController::onExportLiveNoiseEstimates() {
-    QString filename = "noise";
-    QString filedir = QDir::currentPath() + "/";
-    QString filepath = filedir + filename + ".csv";
-    while (QFile::exists(filepath)) {
-        filename += "_";
-        filepath = filedir + filename + ".csv";
-    }
-
-    QFile file(filepath);
-    file.open(QIODevice::WriteOnly);
-
-    QTextStream stream(&file);
-//    for (auto noise : res->stdCurrent) {
-//        stream << noise << "\n";
-//    }
-    file.close();
-}
-
 void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
     if (!started) {
         std::vector <uint16_t> channelIdxs(currentChannelsNum);
@@ -67,18 +48,18 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
         std::vector <Measurement_t> stdVoltages;
         auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->getLiquidJunctionVoltages(channelIdxs, stdVoltages);
-        QVector <Measurement_t> voltages(currentChannelsNum);
+        std::vector <Measurement_t> voltages(currentChannelsNum);
 
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             voltages[idx] = stdVoltages[idx];
         }
-
+        modm->setLiquidJunctionResults(voltages);
         modw->setLiquidJunctionResult(voltages);
     }
 }
 
 void MeasurementOverviewController::onChannelsUpdated(){
-    this->getNewActiveChannels(activeChannelsIdxs);
+    activeChannelsIdxs = appStatus->getSelectedChannelsIndexes();
     modm->setActiveChannelsIdxs(activeChannelsIdxs);
     modw->updateActiveChannels(activeChannelsIdxs);
 }
@@ -93,9 +74,10 @@ void MeasurementOverviewController::getNewActiveChannels(std::vector <int>& newA
     }
 }
 
-void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResult * result){
-    modm->setStatisticsResult(result);
-    modw->onLiveStatisticsResult(result);
+void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResultWrapper result){
+    const auto r = result.results;
+    modm->setStatisticsResult(r);
+    modw->onLiveStatisticsResult(r);
 }
 
 LiveStatisticsConsumer * MeasurementOverviewController::getLiveStatisticsConsumer(){
@@ -103,6 +85,6 @@ LiveStatisticsConsumer * MeasurementOverviewController::getLiveStatisticsConsume
 }
 
 void MeasurementOverviewController::boardMappingsLoaded(){
-    modw->boardMappingLoaded(appStatus->getNames());
+    modw->updateActiveChannels(appStatus->getSelectedChannelsIndexes());
     onChannelsUpdated();
 }

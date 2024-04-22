@@ -1,132 +1,48 @@
 #include "measurementsoverviewdockwidget.h"
 #include <QScrollBar>
 #include <QScrollArea>
-#include <iostream>
+#include <QHeaderView>
 
-MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> activeChannels, int voltageChannels, int currentChannels, QWidget * parent) :
+MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint16_t> activeChannels, int voltageChannels, int currentChannels, QWidget * parent) :
     QDockWidget(parent), activeChannels(activeChannels), voltageChannels(voltageChannels), currentChannels(currentChannels){
 
-    mainWg = new QWidget();
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWindowTitle("Measurements Overview");
     setObjectName("measurementsOverviewDW");
-    setWidget(mainWg);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    mainVl = new QVBoxLayout();
+    // Create a scroll area
+    QScrollArea* scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true); // Allow the widget inside the scroll area to resize with the scroll area
+    setWidget(scrollArea);
+
+    // Create a widget for the scroll area
+    QWidget* scrollWidget = new QWidget();
+    scrollArea->setWidget(scrollWidget);
+
+    mainVl = new QVBoxLayout(scrollWidget);
     mainVl->setContentsMargins(0, 0, 0, 0);
     mainVl->setSpacing(1);
-    mainWg->setLayout(mainVl);
 
-    QHBoxLayout * buttonsLayout = new QHBoxLayout();
+    dataTable = new CopyableTable(scrollWidget);
+    dataTable->setColumnCount(11);
+    dataTable->setRowCount(currentChannels + 1);
+    dataTable->horizontalHeader()->hide();
+    dataTable->verticalHeader()->hide();
+    mainVl->addWidget(dataTable);
+    this->installEventFilter(dataTable);
+    dataTable->setItem(0, 0, new QTableWidgetItem("Channel index"));
+    dataTable->setItem(0, 1, new QTableWidgetItem("Mean Voltage"));
+    dataTable->setItem(0, 2, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, 3, new QTableWidgetItem("Mean Current"));
+    dataTable->setItem(0, 4, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, 5, new QTableWidgetItem("Current RMS"));
+    dataTable->setItem(0, 6, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, 7, new QTableWidgetItem("Conductivity"));
+    dataTable->setItem(0, 8, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, 9, new QTableWidgetItem("Liquid junction"));
+    dataTable->setItem(0, 10, new QTableWidgetItem("Unit"));
+    mainVl->addWidget(dataTable);
 
-    channelIndexesLabel = new QLabel("Active channels");
-    meanVoltageBtn = new QPushButton("Mean Voltage");
-    meanCurrentBtn = new QPushButton("Mean Current");
-    stdCurrentBtn = new QPushButton("Current RMS");
-    conductivityBtn = new QPushButton("Conductivity");
-    liquidJunctionBtn = new QPushButton("Conductivity");
-
-    meanVoltageBtn->setCheckable(true);
-    meanCurrentBtn->setCheckable(true);
-    stdCurrentBtn->setCheckable(true);
-    conductivityBtn->setCheckable(true);
-    liquidJunctionBtn->setCheckable(true);
-
-    meanVoltageBtn->setChecked(true);
-    meanCurrentBtn->setChecked(true);
-    stdCurrentBtn->setChecked(true);
-    conductivityBtn->setChecked(true);
-    liquidJunctionBtn->setChecked(true);
-
-    buttonsLayout->addWidget(channelIndexesLabel);
-    buttonsLayout->addWidget(meanVoltageBtn);
-    buttonsLayout->addWidget(meanCurrentBtn);
-    buttonsLayout->addWidget(stdCurrentBtn);
-    buttonsLayout->addWidget(conductivityBtn);
-    buttonsLayout->addWidget(liquidJunctionBtn);
-
-    mainVl->addLayout(buttonsLayout);
-
-    channelIndexesLabel->setVisible(false);
-    meanVoltageBtn->setVisible(false);
-    meanCurrentBtn->setVisible(false);
-    stdCurrentBtn->setVisible(false);
-    conductivityBtn->setVisible(false);
-    liquidJunctionBtn->setVisible(false);
-
-    for (int i=0; i< currentChannels; i++) {
-        activeChannelsLabels.push_back(new QLabel(QString(" %1").arg(i+1), mainWg));
-        meanVoltageLabels.push_back(new QLabel(QString("-"), mainWg));
-        meanCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
-        stdCurrentLabels.push_back(new QLabel(QString("-"), mainWg));
-        conductivityLabels.push_back(new QLabel(QString("-"), mainWg));
-        liquidJunctionLabels.push_back(new QLabel(QString("-"), mainWg));
-    }
-
-    connect(meanVoltageBtn, &QPushButton::clicked, this, [=](){
-        updateButton(meanVoltageBtn);
-    });
-    connect(meanCurrentBtn, &QPushButton::clicked, this, [=](){
-        updateButton(meanCurrentBtn);
-    });
-    connect(stdCurrentBtn, &QPushButton::clicked, this, [=](){
-        updateButton(stdCurrentBtn);
-    });
-    connect(conductivityBtn, &QPushButton::clicked, this, [=](){
-        updateButton(conductivityBtn);
-    });
-    connect(liquidJunctionBtn, &QPushButton::clicked, this, [=](){
-        updateButton(liquidJunctionBtn);
-    });
-
-    QScrollArea * scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-    mainVl->addWidget(scrollArea);
-
-    QWidget * scrollWg = new QWidget;
-    scrollArea->setWidget(scrollWg);
-
-    QVBoxLayout * scrollVl = new QVBoxLayout;
-    scrollVl->setContentsMargins(0, 0, 0, 0);
-    scrollVl->setSpacing(1);
-    scrollWg->setLayout(scrollVl);
-
-    QGridLayout *gl = new QGridLayout();
-    // Initial layout structure
-
-    for (int i=0; i<currentChannels; i++){
-        gl->addWidget(new QLabel(QString::fromStdString(" Active Channels")), 0, 0);
-        gl->addWidget(new QLabel(QString::fromStdString(" Mean Voltage")), 0, 1);
-        gl->addWidget(new QLabel(QString::fromStdString( "Mean Current")), 0, 2);
-        gl->addWidget(new QLabel(QString::fromStdString(" Current RMS")), 0, 3);
-        gl->addWidget(new QLabel(QString::fromStdString(" Conductivity")), 0, 4);
-        gl->addWidget(new QLabel(QString::fromStdString(" Liquid Junction")), 0, 5);
-
-        gl->addWidget(activeChannelsLabels[i], i+1, 0);
-        gl->addWidget(meanVoltageLabels[i], i+1, 1);
-        gl->addWidget(meanCurrentLabels[i], i+1, 2);
-        gl->addWidget(stdCurrentLabels[i], i+1, 3);
-        gl->addWidget(conductivityLabels[i], i+1, 4);
-        gl->addWidget(liquidJunctionLabels[i], i+1, 5);
-    }
-    setAllWidgetsInvisible(activeChannelsLabels);
-    setAllWidgetsInvisible(meanVoltageLabels);
-    setAllWidgetsInvisible(meanCurrentLabels);
-    setAllWidgetsInvisible(stdCurrentLabels);
-    setAllWidgetsInvisible(conductivityLabels);
-    setAllWidgetsInvisible(liquidJunctionLabels);
-
-    for(int i: activeChannels){
-        activeChannelsLabels[i]->setVisible(true);
-        meanVoltageLabels[i]->setVisible(true);
-        meanCurrentLabels[i]->setVisible(true);
-        stdCurrentLabels[i]->setVisible(true);
-        conductivityLabels[i]->setVisible(true);
-        liquidJunctionLabels[i]->setVisible(true);
-    }
     QPushButton * extractBtn = new QPushButton("extract");
     connect(extractBtn, &QPushButton::clicked, this, [=](){
         QString filePath = QFileDialog::getSaveFileName(
@@ -135,92 +51,50 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<int> 
                 QDir::homePath(), // Default directory
                 "Csv Files (*.csv);;All Files (*)"
             );
-
             if (!filePath.isEmpty()) {
                 emit extract(filePath);
             }
     });
-    scrollVl->addWidget(extractBtn);
-    scrollVl->addLayout(gl);
-}
-
-void MeasurementsOverviewDockWidget::updateButton(QPushButton *){
-    onUpdate();
-}
-
-template<typename T>
-void MeasurementsOverviewDockWidget::setAllWidgetsInvisible(const std::vector<T>& widgets){
-    for (const auto& widget : widgets) {
-        widget->setVisible(false);
-    }
-}
-
-template<typename T>
-void MeasurementsOverviewDockWidget::setActiveChannelsVisible(const std::vector<T>& widgets, std::vector<int> active_channels){
-    for (auto i : active_channels) {
-        widgets[i]->setVisible(true);
-    }
+    mainVl->addWidget(extractBtn);
 }
 
 void MeasurementsOverviewDockWidget::onUpdate(){
-    setAllWidgetsInvisible(activeChannelsLabels);
-    setAllWidgetsInvisible(meanVoltageLabels);
-    setAllWidgetsInvisible(meanCurrentLabels);
-    setAllWidgetsInvisible(stdCurrentLabels);
-    setAllWidgetsInvisible(conductivityLabels);
-    setAllWidgetsInvisible(liquidJunctionLabels);
-    setActiveChannelsVisible(activeChannelsLabels, activeChannels);
-    if (meanVoltageBtn->isChecked()){
-        setActiveChannelsVisible(meanVoltageLabels, activeChannels);
-    }
-    if (meanCurrentBtn->isChecked()){
-        setActiveChannelsVisible(meanCurrentLabels, activeChannels);
-    }
-    if (stdCurrentBtn->isChecked()){
-        setActiveChannelsVisible(stdCurrentLabels, activeChannels);
-    }
-    if (conductivityBtn->isChecked()){
-        setActiveChannelsVisible(conductivityLabels, activeChannels);
-    }
-    if (liquidJunctionBtn->isChecked()){
-        setActiveChannelsVisible(liquidJunctionLabels, activeChannels);
-    }
+    dataTable->setRowCount(activeChannels.size() + 1);
 }
 
-void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<int> newActiveChannels){
+void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<uint16_t> newActiveChannels){
     activeChannels = newActiveChannels;
     onUpdate();
 }
 
-void MeasurementsOverviewDockWidget::setLiquidJunctionResult(QVector <Measurement_t> result) {
-    applyTextFromMeasurements(liquidJunctionLabels, result);
-}
-
-void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResult * result) {
-    applyTextFromValuesAndPfx(stdCurrentLabels, result->stdCurrent.toStdVector(), "A");
-    applyTextFromValuesAndPfx(meanCurrentLabels, result->meanCurrent.toStdVector(), "A");
-    applyTextFromValuesAndPfx(meanVoltageLabels, result->meanVoltage.toStdVector(), "V");
-    applyTextFromValuesAndPfx(conductivityLabels, result->conductivity.toStdVector(), "S");
-}
-
-template<typename T>
-void MeasurementsOverviewDockWidget::applyTextFromValuesAndPfx(const std::vector<T>& widgets, std::vector<double> values, std::string pfx){
-    QVector<Measurement_t> measurements;
+void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector<Measurement_t> results) {
     for (int i = 0; i < currentChannels; i++) {
-        measurements.push_back({values[i], UnitPfx::UnitPfxNone, pfx});
-    }
-    applyTextFromMeasurements(widgets, measurements);
-}
-
-template<typename T>
-void MeasurementsOverviewDockWidget::applyTextFromMeasurements(const std::vector<T>& widgets, QVector<Measurement_t> meas) {
-    for (int i = 0; i < currentChannels; i++) {
-        widgets[i]->setText(QString::fromStdString(meas[i].niceLabel()));
+        //the first row is the header
+        const auto row = i + 1;
+        const auto ch = activeChannels[i];
+        auto result = results[i];
+        dataTable->setItem(row, 9, new QTableWidgetItem(QString::fromStdString(std::to_string(result.value))));
+        dataTable->setItem(row, 10, new QTableWidgetItem(QString::fromStdString(result.getFullUnit())));
     }
 }
 
-void MeasurementsOverviewDockWidget::boardMappingLoaded(std::vector<std::string> names){
+void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector<StatisticsResult> results) {
     for (int i = 0; i < currentChannels; i++) {
-        activeChannelsLabels[i]->setText(QString::fromStdString(names[i]));
+        //the first row is the header
+        const auto row = i + 1;
+        const auto statisticResult = results[i];
+        setStatisticsResultsInRowaRow(row, statisticResult);
     }
+}
+
+void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, StatisticsResult r) {
+    dataTable->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(std::to_string(r.chIdx + 1))));
+    dataTable->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanVoltage.value))));
+    dataTable->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(r.meanVoltage.getFullUnit())));
+    dataTable->setItem(row, 3, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanCurrent.value))));
+    dataTable->setItem(row, 4, new QTableWidgetItem(QString::fromStdString(r.meanCurrent.getFullUnit())));
+    dataTable->setItem(row, 5, new QTableWidgetItem(QString::fromStdString(std::to_string(r.stdCurrent.value))));
+    dataTable->setItem(row, 6, new QTableWidgetItem(QString::fromStdString(r.stdCurrent.getFullUnit())));
+    dataTable->setItem(row, 7, new QTableWidgetItem(QString::fromStdString(std::to_string(r.conductivity.value))));
+    dataTable->setItem(row, 8, new QTableWidgetItem(QString::fromStdString(r.conductivity.getFullUnit())));
 }

@@ -9,7 +9,6 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
 
     auto buttonsHl = new QHBoxLayout();
 
-
     auto startButton = new QPushButton(this);
     startButton->setIcon(QIcon(QPixmap(":/imgs/start protocol.png")));
     startButton->setToolTip("Start the iv graph analysis if it was previously stopped");
@@ -38,8 +37,6 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
         emit calcMeanSquared();
     });
 
-
-
     mainVl->addLayout(buttonsHl);
     dataTable = new CopyableTable(containerWidget);
     dataTable->setColumnCount(9);
@@ -47,7 +44,6 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
     dataTable->horizontalHeader()->hide();
     dataTable->verticalHeader()->hide();
     mainVl->addWidget(dataTable);
-    this->setWidget(containerWidget);
     this->installEventFilter(dataTable);
     dataTable->setItem(0, 0, new QTableWidgetItem("Channel index"));
     dataTable->setItem(0, 1, new QTableWidgetItem("Conductance"));

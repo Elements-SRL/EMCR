@@ -8,7 +8,7 @@
 #include "application_status.h"
 #include "measurementoverviewmodel.h"
 #include "livestatisticsconsumer.h"
-
+#include "statisticsresultwrapper.h"
 
 class MeasurementOverviewController : public QObject {
     Q_OBJECT
@@ -20,9 +20,7 @@ public:
     void boardMappingsLoaded();
 public slots:
     void onChannelsUpdated();
-    void onExportLiveNoiseEstimates();
     void onLiquidJunctionResult(bool started);
-    void onLiveStatisticsResults(StatisticsResult * result);
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
     ApplicationStatus * appStatus = nullptr;
@@ -31,9 +29,13 @@ private:
     MeasurementOverviewModel * modm = nullptr;
     int voltageChannelsNum;
     int currentChannelsNum;
-    std::vector<int> activeChannelsIdxs;
+    std::vector<uint16_t> activeChannelsIdxs;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
     void onSetConsumerStatus(bool status);
+
+private slots:
+    void onLiveStatisticsResults(StatisticsResultWrapper);
+
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H
