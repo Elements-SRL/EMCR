@@ -63,7 +63,6 @@ SOURCES += \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
     src/model/statearray.cpp \
-    src/model/statisticsresult.cpp \
     src/view/bigplotwidget.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
@@ -159,6 +158,7 @@ HEADERS += \
     src/model/state.h \
     src/model/statearray.h \
     src/model/statisticsresult.h \
+    src/model/statisticsresultwrapper.h \
     src/view/bigplotwidget.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \

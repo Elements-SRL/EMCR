@@ -258,6 +258,25 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         sweepInfoHl->insertWidget(btnCol++, spacer);
     }
+
+    QShortcut * sh;
+    int startKeyOffset = Qt::ControlModifier + Qt::Key_0;
+//    int recordKeyOffset = Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_0;
+    for (int keyIdx = 0; keyIdx < 10; keyIdx++) {
+        sh = new QShortcut(QKeySequence(startKeyOffset+keyIdx), parent);
+        connect(sh, &QShortcut::activated, this, [=] () {
+            voltageProtocolList->startProtocol(keyIdx);
+            currentProtocolList->startProtocol(keyIdx);
+        });
+        shortcuts.append(sh);
+
+//        sh = new QShortcut(QKeySequence(recordKeyOffset+keyIdx), this);
+//        connect(sh, &QShortcut::activated, this, [=] () {
+//            voltageProtocolList->recordProtocol(keyIdx);
+//            currentProtocolList->recordProtocol(keyIdx);
+//        });
+//        shortcuts.append(sh);
+    }
 }
 
 ProtocolDockWidget::~ProtocolDockWidget() {
@@ -280,6 +299,13 @@ ProtocolDockWidget::~ProtocolDockWidget() {
         delete protocolTimer;
         protocolTimer = nullptr;
     }
+
+    for (int shortcutIdx = 0; shortcutIdx < shortcuts.size(); shortcutIdx++) {
+        if (shortcuts[shortcutIdx] != nullptr) {
+            delete shortcuts[shortcutIdx];
+        }
+    }
+    shortcuts.clear();
 }
 
 bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {

@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include <QPushButton>
+#include <QShortcut>
 
 #include "protocollist.h"
 #include "protocolpropertydialog.h"
@@ -41,6 +42,7 @@ private:
     ProtocolList * currentProtocolList = nullptr;
     ClampingModality_t clampingModality = e384CommLib::VOLTAGE_CLAMP;
     TimerDisplay * protocolTimer = nullptr;
+    QVector <QShortcut *> shortcuts;
 
 signals:
     void startProtocol();
