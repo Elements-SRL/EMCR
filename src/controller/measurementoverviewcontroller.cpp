@@ -7,7 +7,7 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     activeChannelsIdxs = appStatus->getSelectedChannelsIndexes();
-    modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
+    modw = new MeasurementsOverviewDockWidget(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum, mainWindow);
     modm = new MeasurementOverviewModel(activeChannelsIdxs, voltageChannelsNum, currentChannelsNum);
     connect(modw, &MeasurementsOverviewDockWidget::extract, this, [=](QString filepath){
         modm->exportToCsv(filepath.toStdString());
