@@ -87,7 +87,7 @@ void EventDetectionConsumer::run() {
                             for (int i = eventBegin; i < eventEnd; i++) {
                                 eventBuffer.push_back(currentValues[channelIdx][i]);
                             }
-                            //WARNING MOIFY THIS WITH THE time counter
+                            //WARNING MODIFY THIS WITH THE time counter
                             const auto eventIdx = bufferLen - eventLen;
                             const auto eventData(eventBuffer);
                             eventDetectionChannels[channelIdx]->pushEvent(Event(eventIdx, eventData));
