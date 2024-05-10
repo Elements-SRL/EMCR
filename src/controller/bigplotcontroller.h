@@ -10,6 +10,7 @@
 #include "application_status.h"
 #include "plotmessage.h"
 #include "ivgraphconsumer.h"
+#include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
 #include "ivgraphwidget.h"
 

@@ -21,6 +21,8 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     mainWindow->setIvGraphWidget(ivGraphWidget);
     auto ivGraphConsumer = new IvGraphConsumer(appStatus, producer);
     auto gapFreePlotConsumer = new GapFreePlotConsumer(appStatus, producer);
+    auto eventDetectionConsumer = new EventDetectionConsumer(appStatus, producer);
+    eventDetectionConsumer->onStartConsuming();
     gapFreePlotConsumer->onDurationChanged(defaultPlotDuration);
 
     auto gapFreePlot = new BigPlot("", "[s]", "", BigPlotStatus::GapFree, bpw);
