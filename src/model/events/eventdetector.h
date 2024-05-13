@@ -11,9 +11,9 @@
 #define MAX_LEN 150
 #define EVENT_PADDING 4
 
-class EventDetectionChannel {
+class EventDetector {
 public:
-    EventDetectionChannel(int sizeHint = -1);
+    EventDetector(int sizeHint = -1);
 
     void pushEvent(Event event);
     std::vector<Event> getEvents();

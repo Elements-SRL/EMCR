@@ -162,7 +162,7 @@ void EventDetectionConsumer::allocateData() {
     }
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
         currentValues.push_back(std::vector<double>(maxSamples));
-        eventDetectionChannels.push_back(new EventDetectionChannel());
+        eventDetectionChannels.push_back(new EventDetector());
     }
     if (wasThisRunning) {
         onStartConsuming();

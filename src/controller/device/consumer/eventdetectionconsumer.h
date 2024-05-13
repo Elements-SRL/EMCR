@@ -7,7 +7,7 @@
 #include "plotconsumer.h"
 #include "plotmessage.h"
 #include "firstorderiirfilter.h"
-#include "eventdetectionchannel.h"
+#include "eventdetector.h"
 
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
@@ -43,7 +43,7 @@ private:
     void calculateBinSize();
     
     //Event stuff
-    std::vector<EventDetectionChannel *> eventDetectionChannels;
+    std::vector<EventDetector *> eventDetectionChannels;
 
 protected:
     void clearData() override;
