@@ -9,6 +9,7 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
 
     plot = new BigPlot("", "[s]", "", BigPlotStatus::GapFree, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
+    bigPlotWidget->setGapFreePlot(plot);
     //    creating curves for gapfree
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));

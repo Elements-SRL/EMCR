@@ -8,8 +8,8 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     consumer = new IvGraphConsumer(appStatus, producer);
     mainWindow->setIvGraphWidget(ivGraphWidget);
     this->mainWindow = mainWindow;
-    auto ivGraph = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bigPlotWidget);
-    bigPlotWidget->setIvGraph(ivGraph);
+    plot = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bigPlotWidget);
+    bigPlotWidget->setIvGraph(plot);
     //    creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypeScatterPlot));

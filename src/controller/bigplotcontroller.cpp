@@ -14,6 +14,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
 //    we only have one widget with multiple tabs
 //    todo maybe we could create a widget for each tab
     bpw = new BigPlotWidget(mainWindow);
+    mainWindow->setBigPlotWidget(bpw);
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
     
     bps = BigPlotStatus::GapFree;
