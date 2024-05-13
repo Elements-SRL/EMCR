@@ -13,6 +13,7 @@
 #include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
 #include "ivgraphwidget.h"
+#include "centralwidgetcontroller.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
@@ -22,18 +23,14 @@ public:
     ~BigPlotController();
 
     BigPlot * getPlot();
-    void clearCurves();
-    std::vector<PlotConsumer *> getConsumers();
+    std::vector<PlotConsumer*> getConsumers();
 
 public slots:
-    void onRangeUpdated(commlib::RangedMeasurement_t newRange);
     void onCurrentColorsChanged(QVector <QColor> colors);
     void onCurrentColorChanged(int channelIdx, QColor color);
     void onBackgroundColorChanged(QColor color);
-
-    void onSetPlotData(PlotMessage plotMessage);
-    void onReplot();
     void onExpandTrace(bool);
+    void onRangeUpdated(RangedMeasurement_t newRange);
 
     void handleZoomInRequest(Rect4 r);
     void handleZoomOutRequest();
@@ -46,12 +43,7 @@ private:
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
-    std::vector<BigPlot *> plots;
-    std::vector<PlotConsumer *> consumers;
-    std::vector<BigPlotModel *> models;
 
-    std::vector<std::vector <Curve *>> currentCurves;
-    std::vector<std::vector <Curve *>> voltageCurves;
     std::vector<PlotMessage> messages;
 
     BigPlot * currentPlot = nullptr;
@@ -59,12 +51,11 @@ private:
     BigPlotModel * currentModel = nullptr;
     IvGraphWidget * ivGraphWidget = nullptr;
 
+    std::vector<CentralWidgetController* > controllers;
+
     int voltageChannelsNum;
     int currentChannelsNum;
-    bool isAtLeastOneChannelExpanded();
     void manageStatus(int);
-    void detachCurves();
-    void attachCurves();
 
 signals:
     void durationChanged(Measurement_t duration);

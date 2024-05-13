@@ -22,19 +22,26 @@ class GapFreeController : public CentralWidgetController {
 public:
     GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController);
     ~GapFreeController();
-
-//public slots:
-//    void onRangeUpdated(commlib::RangedMeasurement_t newRange);
-//    void onCurrentColorsChanged(QVector <QColor> colors);
-//    void onCurrentColorChanged(int channelIdx, QColor color);
-//    void onBackgroundColorChanged(QColor color);
-
+    void stop() override;
+    void start() override;
+    PlotConsumer* getConsumer() override;
 private:
-    BigPlotModel* gapFreeModel = nullptr;
-    GapFreePlotConsumer * gapFreePlotConsumer = nullptr;
-    BigPlot * gapFreePlot = nullptr;
+    BigPlotModel* model = nullptr;
+    GapFreePlotConsumer * consumer = nullptr;
+    BigPlot * plot = nullptr;
     std::vector <Curve*> currentCurves;
     std::vector <Curve*> voltageCurves;
+    void detachCurves() override;
+    void attachCurves() override;
+
+public slots:
+    void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
+    void onCurrentColorsChanged(QVector <QColor> colors) override;
+    void onCurrentColorChanged(int channelIdx, QColor color) override;
+    void onBackgroundColorChanged(QColor color) override;
+    void onReplot() override;
+    void onExpandTrace(bool flag) override;
+    void onSetPlotData(PlotMessage plotMessage) override;
 
 signals:
     void durationChanged(Measurement_t duration);

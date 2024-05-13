@@ -19,14 +19,13 @@ class IvGraphController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController);
+    IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mainWindow);
     ~IvGraphController();
 
-    //public slots:
-    //    void onRangeUpdated(commlib::RangedMeasurement_t newRange);
-    //    void onCurrentColorsChanged(QVector <QColor> colors);
-    //    void onCurrentColorChanged(int channelIdx, QColor color);
-    //    void onBackgroundColorChanged(QColor color);
+    void stop() override;
+    void start() override;
+    PlotConsumer* getConsumer() override;
+    IvGraphWidget* getIvGraphWidget();
 
 private:
     BigPlotModel* model = nullptr;
@@ -34,12 +33,24 @@ private:
     BigPlot* plot = nullptr;
     std::vector <Curve*> currentCurves;
     IvGraphWidget* ivGraphWidget = nullptr;
-    PlotMessage message;
-
+    MainWindow* mainWindow = nullptr;
+    IvMessage message;
     void saveToCSV(const QString& filePath, const IvMessage& data);
+
+    void detachCurves() override;
+    void attachCurves() override;
 
 signals:
     void durationChanged(Measurement_t duration);
+
+public slots:
+    void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
+    void onCurrentColorsChanged(QVector <QColor> colors) override;
+    void onCurrentColorChanged(int channelIdx, QColor color) override;
+    void onBackgroundColorChanged(QColor color) override;
+    void onReplot() override;
+    void onExpandTrace(bool flag);
+    void onSetPlotData(PlotMessage plotMessage) override;
 
 private slots:
     void onExportIvGraph();

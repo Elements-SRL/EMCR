@@ -1,13 +1,15 @@
 #include "ivgraphcontroller.h"
 
-IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController) :
+IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow * mainWindow) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
 
     model = new BigPlotModel();
     ivGraphWidget = new IvGraphWidget(currentChannelsNum, bigPlotWidget);
     consumer = new IvGraphConsumer(appStatus, producer);
-
+    mainWindow->setIvGraphWidget(ivGraphWidget);
+    this->mainWindow = mainWindow;
     auto ivGraph = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bigPlotWidget);
+    bigPlotWidget->setIvGraph(ivGraph);
     //    creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
@@ -20,8 +22,8 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, &BigPlotController::handleSingleAxisShiftRequest);
 
     connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
-    connect(consumer, &PlotConsumer::setPlotData, bigPlotController, &BigPlotController::onSetPlotData);
-    connect(consumer, &PlotConsumer::plotDataUpdated, bigPlotController, &BigPlotController::onReplot);
+    connect(consumer, &PlotConsumer::setPlotData, this, &IvGraphController::onSetPlotData);
+    connect(consumer, &PlotConsumer::plotDataUpdated, this, &IvGraphController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
     consumer->onSelectChannels(false);
@@ -46,10 +48,13 @@ IvGraphController::~IvGraphController() {
         delete plot;
         plot = nullptr;
     }
+    if (ivGraphWidget != nullptr) {
+        delete ivGraphWidget;
+        ivGraphWidget = nullptr;
+        mainWindow->setIvGraphWidget(ivGraphWidget);
+    }
     currentCurves.clear();
 }
-
-
 
 void IvGraphController::onExportIvGraph() {
     QString filePath = QFileDialog::getSaveFileName(nullptr,
@@ -59,9 +64,8 @@ void IvGraphController::onExportIvGraph() {
 
     // Check if a file path was selected
     if (!filePath.isEmpty()) {
-        IvMessage ivMessage = std::get<BigPlotStatus::Iv>(message);
         // Save data to CSV file
-        saveToCSV(filePath, ivMessage);
+        saveToCSV(filePath, message);
 
     }
     else {
@@ -116,13 +120,11 @@ void IvGraphController::onCalcMeanSquared() {
     auto vUnitPfx = vRange.prefix;
     auto iUnitPfx = iRange.prefix;
 
-    IvMessage ivMessage = std::get<BigPlotStatus::Iv>(message);
-
     auto selectedChannels = appStatus->getSelectedChannels();
     for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
-        const auto nItems = ivMessage.dataSize[chIdx];
-        const auto currentData = ivMessage.currentValues[chIdx];
-        const auto voltageData = ivMessage.voltageValues[chIdx];
+        const auto nItems = message.dataSize[chIdx];
+        const auto currentData = message.currentValues[chIdx];
+        const auto voltageData = message.voltageValues[chIdx];
         // calc regression only for active channels
         if (!selectedChannels[chIdx] || nItems == 0) {
             continue;
@@ -171,4 +173,107 @@ void IvGraphController::onStartIvGraph() {
 
 void IvGraphController::onStopIvGraph() {
     consumer->onStopConsuming();
+}
+
+void IvGraphController::start() {
+    ivGraphWidget->show();
+    //onSetPlotData(messages[idx]);
+    attachCurves();
+    if (isAtLeastOneChannelExpanded()) {
+        consumer->onStartConsuming();
+    }
+}
+
+void IvGraphController::stop() {
+    consumer->onStopConsuming();
+    detachCurves();
+}
+
+void IvGraphController::detachCurves() {
+    for (auto c : currentCurves) {
+        c->detach();
+    }
+    plot->replot();
+}
+
+void IvGraphController::attachCurves() {
+    for (auto c : currentCurves) {
+        c->attach(plot);
+    }
+    plot->replot();
+}
+
+IvGraphWidget* IvGraphController::getIvGraphWidget() {
+    return ivGraphWidget;
+}
+
+void IvGraphController::onCurrentColorsChanged(QVector <QColor> colors) {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentCurves[idx]->setColor(colors[idx]);
+    }
+}
+
+void IvGraphController::onCurrentColorChanged(int channelIdx, QColor color) {
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentCurves[channelIdx]->setColor(color);
+    }
+}
+
+void IvGraphController::onBackgroundColorChanged(QColor color) {
+    if (plot != nullptr) {
+        plot->setCanvasBackground(color);
+    }
+}
+
+void IvGraphController::onReplot() {
+    if (plot != nullptr) {
+        plot->replot();
+    }
+}
+
+//todo Check clampingmodality as well
+void IvGraphController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    QwtPlot::Axis axisIdx;
+    if (newRange.unit == "s") {
+        return;
+    }
+    else if (newRange.unit == "V") {
+        axisIdx = QwtPlot::xBottom;
+    }
+    else if (newRange.unit == "A") {
+        axisIdx = QwtPlot::yLeft;
+    }
+    model->setCurrentRange(axisIdx, newRange);
+    plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
+    plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
+    plot->replot();
+}
+
+void IvGraphController::onExpandTrace(bool flag) {
+    auto isRunning = consumer->isRunning();
+    stop();
+    consumer->onSelectChannels(flag);
+    if (isRunning) {
+        start();
+    }
+}
+
+void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
+    RangedMeasurement v;
+    RangedMeasurement i;
+    // IvGraph message
+    appStatus->getMessageDispatcher()->getVCVoltageRange(v);
+    appStatus->getMessageDispatcher()->getVCCurrentRange(i);
+    plot->setRect(model->initRect(v.min, v.max, i.min, i.max));
+    message = std::get<1>(plotmessage);
+    if (message.currentValues.size() == 0 || message.voltageValues.size() == 0 || message.dataSize.size() == 0) {
+        return;
+    }
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentCurves[idx]->setRawSamples(message.voltageValues[idx], message.currentValues[idx], message.dataSize[idx]);
+    }
+}
+
+PlotConsumer* IvGraphController::getConsumer() {
+    return consumer;
 }

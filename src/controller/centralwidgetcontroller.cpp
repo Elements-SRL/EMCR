@@ -23,3 +23,13 @@ CentralWidgetController::~CentralWidgetController() {
 		bigPlotWidget = nullptr;
 	}
 }
+
+bool CentralWidgetController::isAtLeastOneChannelExpanded() {
+	auto channels = appStatus->getChannels();
+	for (auto c : channels) {
+		if (c->isExpanded()) {
+			return true;
+		}
+	}
+	return false;
+}
