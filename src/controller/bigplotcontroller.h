@@ -35,6 +35,12 @@ public slots:
     void onReplot();
     void onExpandTrace(bool);
 
+    void handleZoomInRequest(Rect4 r);
+    void handleZoomOutRequest();
+    void handleZoomResetRequest();
+    void handleSingleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
+    void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
+
 private:
     BigPlotStatus bps;
     ApplicationStatus * appStatus = nullptr;
@@ -62,11 +68,6 @@ private:
     void saveToCSV(const QString& filePath, const IvMessage & data);
 
 private slots:
-    void handleZoomInRequest(Rect4 r);
-    void handleZoomOutRequest();
-    void handleZoomResetRequest();
-    void handleSingleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
-    void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
     void onExportIvGraph();
     void onCalcMeanSquared();
     void onStartIvGraph();

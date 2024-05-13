@@ -13,6 +13,7 @@
 #include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
 #include "ivgraphwidget.h"
+#include "application_status.h"
 
 class CentralWidgetController : public QObject {
     Q_OBJECT
@@ -21,7 +22,7 @@ public:
     CentralWidgetController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget);
     ~CentralWidgetController();
 
-    void clean();
+    //void clean();
 
 protected:
     BigPlotWidget* bigPlotWidget;
@@ -30,16 +31,6 @@ protected:
 
     int currentChannelsNum;
     int voltageChannelsNum;
-
-public slots:
-    void onRangeUpdated(commlib::RangedMeasurement_t newRange);
-    void onCurrentColorsChanged(QVector <QColor> colors);
-    void onCurrentColorChanged(int channelIdx, QColor color);
-    void onBackgroundColorChanged(QColor color);
-
-    void onSetPlotData(PlotMessage plotMessage);
-    void onReplot();
-    void onExpandTrace(bool);
 };
 
 #endif // CENTRALWIDGETCONTROLLER_H

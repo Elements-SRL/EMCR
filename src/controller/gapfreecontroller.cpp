@@ -1,6 +1,6 @@
 #include "gapfreecontroller.h"
 
-GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget):
+GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
 
     gapFreeModel = new BigPlotModel();
@@ -15,21 +15,35 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
         voltageCurves.push_back(new Curve(CurveType_t::CurveTypePlotDashed));
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
-    for (auto p : plots) {
-        connect(p, &BigPlot::zoomInRequest, this, &BigPlotController::handleZoomInRequest);
-        connect(p, &BigPlot::zoomOutRequest, this, &BigPlotController::handleZoomOutRequest);
-        connect(p, &BigPlot::zoomResetRequest, this, &BigPlotController::handleZoomResetRequest);
-        connect(p, &BigPlot::singleAxisZoomRequest, this, &BigPlotController::handleSingleAxisZoomRequest);
-        connect(p, &BigPlot::singleAxisShiftRequest, this, &BigPlotController::handleSingleAxisShiftRequest);
-    }
 
-    for (auto c : consumers) {
-        connect(this, &BigPlotController::durationChanged, c, &PlotConsumer::onDurationChanged);
-        connect(c, &PlotConsumer::setPlotData, this, &BigPlotController::onSetPlotData);
-        connect(c, &PlotConsumer::plotDataUpdated, this, &BigPlotController::onReplot);
-        c->forceAxisUpdate();
-        c->setMaxSamplesPerPlot(4096);
-        c->onSelectChannels(false);
-        c->onStopConsuming();
+    connect(gapFreePlot, &BigPlot::zoomInRequest, bigPlotController, &BigPlotController::handleZoomInRequest);
+    connect(gapFreePlot, &BigPlot::zoomOutRequest, bigPlotController, &BigPlotController::handleZoomOutRequest);
+    connect(gapFreePlot, &BigPlot::zoomResetRequest, bigPlotController, &BigPlotController::handleZoomResetRequest);
+    connect(gapFreePlot, &BigPlot::singleAxisZoomRequest, bigPlotController, &BigPlotController::handleSingleAxisZoomRequest);
+    connect(gapFreePlot, &BigPlot::singleAxisShiftRequest, bigPlotController, &BigPlotController::handleSingleAxisShiftRequest);
+
+    connect(bigPlotController, &BigPlotController::durationChanged, gapFreePlotConsumer, &PlotConsumer::onDurationChanged);
+    connect(gapFreePlotConsumer, &PlotConsumer::setPlotData, bigPlotController, &BigPlotController::onSetPlotData);
+    connect(gapFreePlotConsumer, &PlotConsumer::plotDataUpdated, bigPlotController, &BigPlotController::onReplot);
+    gapFreePlotConsumer->forceAxisUpdate();
+    gapFreePlotConsumer->setMaxSamplesPerPlot(4096);
+    gapFreePlotConsumer->onSelectChannels(false);
+    gapFreePlotConsumer->onStopConsuming();
+}
+
+GapFreeController::~GapFreeController() {
+    if (gapFreeModel != nullptr) {
+        delete gapFreeModel;
+        gapFreeModel = nullptr;
     }
+    if (gapFreePlotConsumer != nullptr) {
+        delete gapFreePlotConsumer;
+        gapFreePlotConsumer = nullptr;
+    }
+    if (gapFreePlot != nullptr) {
+        delete gapFreePlot;
+        gapFreePlot = nullptr;
+    }
+    currentCurves.clear();
+    voltageCurves.clear();
 }
