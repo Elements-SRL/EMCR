@@ -28,7 +28,9 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     auto gapFreePlot = new BigPlot("", "[s]", "", BigPlotStatus::GapFree, bpw);
     gapFreePlot->enableAxis(QwtPlot::yRight);
     bpw->setGapFreePlot(gapFreePlot);
+
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
+    
     auto ivGraph = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bpw);
     bpw->setIvGraph(ivGraph);
 
@@ -71,11 +73,6 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
         c->onSelectChannels(false);
         c->onStopConsuming();
     }
-
-    connect(ivGraphWidget, &IvGraphWidget::exportIvGraph, this, &BigPlotController::onExportIvGraph);
-    connect(ivGraphWidget, &IvGraphWidget::calcMeanSquared, this, &BigPlotController::onCalcMeanSquared);
-    connect(ivGraphWidget, &IvGraphWidget::startIvGraph, this, &BigPlotController::onStartIvGraph);
-    connect(ivGraphWidget, &IvGraphWidget::stopIvGraph, this, &BigPlotController::onStopIvGraph);
 
     currentPlot = gapFreePlot;
     currentConsumer = gapFreePlotConsumer;
@@ -369,126 +366,4 @@ void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
 
 std::vector<PlotConsumer *> BigPlotController::getConsumers(){
     return consumers;
-}
-
-void BigPlotController::onExportIvGraph() {
-    QString filePath = QFileDialog::getSaveFileName(nullptr,
-                                                    "Save File",
-                                                    QDir::homePath(), // Initial directory
-                                                    "CSV Files (*.csv)");
-
-    // Check if a file path was selected
-    if (!filePath.isEmpty()) {
-        IvMessage ivMessage = std::get<BigPlotStatus::Iv>(messages[BigPlotStatus::Iv]);
-        // Save data to CSV file
-        saveToCSV(filePath, ivMessage);
-
-    } else {
-        // No file path selected
-        qDebug() << "No file path selected.";
-    }
-}
-
-void BigPlotController::saveToCSV(const QString& originalFilePath, const IvMessage & data) {
-    auto selectedChannels = appStatus->getSelectedChannels();
-    for (int i=0; i<currentChannelsNum; i++) {
-//        save to file only selected channels
-        if (!selectedChannels[i]) {
-            continue;
-        }
-        auto filepath = originalFilePath.toStdString();
-//        append the channel number
-        size_t pos = filepath.find_last_of('.');
-        if (pos != std::string::npos && filepath.substr(pos) == ".csv") {
-            filepath.insert(pos, "_" + std::to_string(i));
-        }
-
-        QFile file(QString::fromStdString(filepath));
-
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QMessageBox::warning(nullptr, "Warning", "File could not be saved.");
-            return;
-        }
-
-        QTextStream out(&file);
-        RangedMeasurement vRange;
-        RangedMeasurement iRange;
-        appStatus->getMessageDispatcher()->getVoltageRange(vRange);
-        appStatus->getMessageDispatcher()->getCurrentRange(iRange);
-        // Write header
-        out << "Voltage " << QString::fromStdString(vRange.label()) << ", Current " << QString::fromStdString(iRange.label()) << "\n";
-        // Write data
-        int numRows = data.dataSize[i];
-        for (int row = 0; row < numRows; row++) {
-            out << data.voltageValues[i][row] << "," << data.currentValues[i][row] << "\n";
-        }
-        file.close();
-    }
-}
-
-void BigPlotController::onCalcMeanSquared() {
-    std::map<std::uint32_t, std::vector<Measurement>> myMap;
-    RangedMeasurement vRange;
-    RangedMeasurement iRange;
-    appStatus->getMessageDispatcher()->getVoltageRange(vRange);
-    appStatus->getMessageDispatcher()->getCurrentRange(iRange);
-    auto vUnitPfx = vRange.prefix;
-    auto iUnitPfx = iRange.prefix;
-
-    IvMessage ivMessage = std::get<BigPlotStatus::Iv>(messages[BigPlotStatus::Iv]);
-
-    auto selectedChannels = appStatus->getSelectedChannels();
-    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
-        const auto nItems = ivMessage.dataSize[chIdx];
-        const auto currentData = ivMessage.currentValues[chIdx];
-        const auto voltageData = ivMessage.voltageValues[chIdx];
-        // calc regression only for active channels
-        if (!selectedChannels[chIdx] || nItems == 0) {
-            continue;
-        }
-        double xSum = 0.0;
-        double ySum = 0.0;
-
-        for (int i = 0; i < nItems; i++) {
-            xSum += voltageData[i];
-            ySum += currentData[i];
-        }
-        const auto nItemsD = (double) nItems;
-        const double meanX = xSum / nItemsD;
-        const double meanY = ySum / nItemsD;
-
-        double bDenom = 0.0;
-        double bNum = 0.0;
-        for (int i = 0; i < nItems; i++) {
-            const auto xMinusMean = voltageData[i] - meanX;
-            const auto yMinusMean = currentData[i] - meanY;
-            bDenom += pow(xMinusMean, 2.0);
-            bNum += xMinusMean * yMinusMean;
-        }
-        const auto b = bNum / bDenom;
-        const auto a = meanY - (b*meanX);
-
-        const Measurement conductance = {b, iUnitPfx/vUnitPfx, "S"};
-        const Measurement resistance = {((double) 1) / conductance.value, UnitPfx::UnitPfxNone/conductance.prefix, "Ohm"};
-        const Measurement invPot = {((0.0 - a)/ b), vUnitPfx, "V"};
-        const Measurement iOffset = {a, iUnitPfx, "A"};
-
-        std::vector<Measurement> vals = {conductance, resistance, invPot, iOffset};
-        myMap.insert(std::make_pair(chIdx, vals));
-    }
-    ivGraphWidget->setParams(myMap);
-}
-
-void BigPlotController::onStartIvGraph() {
-    auto c = consumers[BigPlotStatus::Iv];
-    c->onStopConsuming();
-    RangedMeasurement r;
-    appStatus->getMessageDispatcher()->getVCVoltageRange(r);
-    //sending this only to reset the data
-    c->onVoltageRangeChanged(r);
-    c->onStartConsuming();
-}
-
-void BigPlotController::onStopIvGraph() {
-    consumers[BigPlotStatus::Iv]->onStopConsuming();
 }

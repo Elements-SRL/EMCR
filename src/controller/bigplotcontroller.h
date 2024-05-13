@@ -65,13 +65,6 @@ private:
     void manageStatus(int);
     void detachCurves();
     void attachCurves();
-    void saveToCSV(const QString& filePath, const IvMessage & data);
-
-private slots:
-    void onExportIvGraph();
-    void onCalcMeanSquared();
-    void onStartIvGraph();
-    void onStopIvGraph();
 
 signals:
     void durationChanged(Measurement_t duration);
