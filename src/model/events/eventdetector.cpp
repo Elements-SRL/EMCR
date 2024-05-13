@@ -1,8 +1,8 @@
-#include "eventdetectionchannel.h"
+#include "eventdetector.h"
 #include <cmath>
 #include <iostream>
 
-EventDetectionChannel::EventDetectionChannel(int sizeHint) {
+EventDetector::EventDetector(int sizeHint) {
     double coef_a_high = -0.50952545;
     std::pair<double, double> coeffs_b_high = std::make_pair(0.24523728, 0.24523728);
     high = new FirstOrderIirFilter(coef_a_high, coeffs_b_high);
@@ -15,20 +15,20 @@ EventDetectionChannel::EventDetectionChannel(int sizeHint) {
     }
 }
 
-void EventDetectionChannel::pushEvent(Event event) {
+void EventDetector::pushEvent(Event event) {
     events.push_back(event);
 }
 
-std::vector<Event> EventDetectionChannel::getEvents() {
+std::vector<Event> EventDetector::getEvents() {
     return events;
 }
 
-double EventDetectionChannel::calculateThreshold(const std::vector<double>& data) {
+double EventDetector::calculateThreshold(const std::vector<double>& data) {
     const auto stdDev = calcStdDev(data);
     return stdDev != -1 ? EVENT_TH * stdDev : stdDev;
 }
 
-double EventDetectionChannel::calcStdDev(const std::vector<double>& data) {
+double EventDetector::calcStdDev(const std::vector<double>& data) {
     const size_t n = data.size();
     if (n <= 1) {
         return -1.0; // Standard deviation is undefined for one or zero elements
@@ -58,7 +58,7 @@ double EventDetectionChannel::calcStdDev(const std::vector<double>& data) {
     return std::sqrt(variance);
 }
 
-std::optional<std::pair<int, int>> EventDetectionChannel::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
+std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
     //TODO, For now just reinit everything
     if (idx == 0) {
         threshold = calculateThreshold(bandPassFilterData);
