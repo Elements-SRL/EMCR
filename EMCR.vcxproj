@@ -1,0 +1,487 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{49E6003E-54F1-356C-90E4-D7A34EB2C6C0}</ProjectGuid>
+    <RootNamespace>EMCR</RootNamespace>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.22000.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <PlatformToolset>v143</PlatformToolset>
+    <OutputDirectory>release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>release\</IntermediateDirectory>
+    <PrimaryOutput>EMCR</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <PlatformToolset>v143</PlatformToolset>
+    <OutputDirectory>debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>debug\</IntermediateDirectory>
+    <PrimaryOutput>EMCR</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>5.12.11_msvc2017_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtInstall>5.12.11_msvc2017_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">EMCR</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EMCR</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;..\..\..\..\ElemLibraries\e384CommLib\include;..\..\..\..\ElemLibraries\e384CommLib\include\model;..\..\..\..\ElemLibraries\CyAPI\include;..\..\..\..\ElemLibraries\FrontPanel\include;..\..\..\..\ElemLibraries\ftd2xx\include;..\..\..\..\ElemLibraries\yaml-cpp\include;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\contrib;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node\detail;..\..\..\..\ElemLibraries\protocol-serializer\include;release;\include;%(AdditionalIncludeDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>release\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QT_NO_DEBUG;NDEBUG;QWT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\ElemLibraries\e384CommLib\lib\release\e384commlib.lib;C:\ElemLibraries\CyAPI\lib\x64\CyAPI.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.22000.0\um\x64\setupapi.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.22000.0\um\x64\user32.lib";"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\lib\x64\legacy_stdio_definitions.lib";C:\ElemLibraries\FrontPanel\lib\x64\okFrontPanel.lib;C:\ElemLibraries\ftd2xx\lib\win\x64\libMPSSE.lib;C:\ElemLibraries\ftd2xx\lib\win\x64\ftd2xx.lib;C:\ElemLibraries\yaml-cpp\lib\release\yaml-cpp.lib;C:\ElemLibraries\protocol-serializer\lib\release\protocol-serializer.lib;shell32.lib;C:\ElemLibraries\Qwt-6.1.4-VS\lib\qwt.lib;C:\ElemLibraries\Qwt-6.1.4-VS\lib\qwtmathml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\ElemLibraries\e384CommLib\lib\release;C:\ElemLibraries\CyAPI\lib\x64;C:\ElemLibraries\FrontPanel\lib\x64;C:\ElemLibraries\ftd2xx\lib\win\x64;C:\ElemLibraries\yaml-cpp\lib\release;C:\ElemLibraries\protocol-serializer\lib\release;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\lib</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\EMCR.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <InitFuncName>resources</InitFuncName>
+      <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;..\..\..\..\ElemLibraries\e384CommLib\include;..\..\..\..\ElemLibraries\e384CommLib\include\model;..\..\..\..\ElemLibraries\CyAPI\include;..\..\..\..\ElemLibraries\FrontPanel\include;..\..\..\..\ElemLibraries\ftd2xx\include;..\..\..\..\ElemLibraries\yaml-cpp\include;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\contrib;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node\detail;..\..\..\..\ElemLibraries\protocol-serializer\include;debug;\include;%(AdditionalIncludeDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O0 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>debug\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QWT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\ElemLibraries\e384CommLib\lib\debug\e384commlibd.lib;C:\ElemLibraries\CyAPI\lib\x64\CyAPI.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.22000.0\um\x64\setupapi.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.22000.0\um\x64\user32.lib";"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\lib\x64\legacy_stdio_definitions.lib";C:\ElemLibraries\FrontPanel\lib\x64\okFrontPanel.lib;C:\ElemLibraries\ftd2xx\lib\win\x64\libMPSSE.lib;C:\ElemLibraries\ftd2xx\lib\win\x64\ftd2xx.lib;C:\ElemLibraries\yaml-cpp\lib\debug\yaml-cppd.lib;C:\ElemLibraries\protocol-serializer\lib\debug\protocol-serializerd.lib;shell32.lib;C:\ElemLibraries\Qwt-6.1.4-VS\lib\qwtd.lib;C:\ElemLibraries\Qwt-6.1.4-VS\lib\qwtmathmld.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\ElemLibraries\e384CommLib\lib\debug;C:\ElemLibraries\CyAPI\lib\x64;C:\ElemLibraries\FrontPanel\lib\x64;C:\ElemLibraries\ftd2xx\lib\win\x64;C:\ElemLibraries\yaml-cpp\lib\debug;C:\ElemLibraries\protocol-serializer\lib\debug;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\lib</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>$(OutDir)\EMCR.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <Compression>default</Compression>
+      <InitFuncName>resources</InitFuncName>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp" />
+    <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
+    <ClCompile Include="src\view\addtagdialog.cpp" />
+    <ClCompile Include="src\model\analysiscursor.cpp" />
+    <ClCompile Include="src\model\application_status.cpp" />
+    <ClCompile Include="src\abf\axon.cpp" />
+    <ClCompile Include="src\view\bigplot.cpp" />
+    <ClCompile Include="src\controller\bigplotcontroller.cpp" />
+    <ClCompile Include="src\model\bigplotmodel.cpp" />
+    <ClCompile Include="src\view\bigplotwidget.cpp" />
+    <ClCompile Include="src\view\boardcontroldockwidget.cpp" />
+    <ClCompile Include="src\controller\boardcontroller.cpp" />
+    <ClCompile Include="src\controller\centralwidgets\centralwidgetcontroller.cpp" />
+    <ClCompile Include="src\view\channeloverviewwidget.cpp" />
+    <ClCompile Include="src\controller\chessboardcontroller.cpp" />
+    <ClCompile Include="src\view\chessboarddockwidget.cpp" />
+    <ClCompile Include="src\view\colorselectionbutton.cpp" />
+    <ClCompile Include="src\view\compensationcontroldockwidget.cpp" />
+    <ClCompile Include="src\controller\compensationcontroller.cpp" />
+    <ClCompile Include="src\view\conversionscaledraw.cpp" />
+    <ClCompile Include="src\view\copyabletable.cpp" />
+    <ClCompile Include="src\controller\protocol\cursorsmanager.cpp" />
+    <ClCompile Include="src\view\curve.cpp" />
+    <ClCompile Include="src\controller\device\consumer\datawriterconsumer.cpp" />
+    <ClCompile Include="src\controller\device\deviceconnector.cpp" />
+    <ClCompile Include="src\view\devicecontroldockwidget.cpp" />
+    <ClCompile Include="src\controller\devicecontroller.cpp" />
+    <ClCompile Include="src\controller\device\devicedataconsumer.cpp" />
+    <ClCompile Include="src\controller\device\devicedataproducer.cpp" />
+    <ClCompile Include="src\controller\device\devicedetector.cpp" />
+    <ClCompile Include="src\view\questionmarkmenu\deviceinfodialog.cpp" />
+    <ClCompile Include="src\view\doubleclickmachine.cpp" />
+    <ClCompile Include="src\view\elementslogowidget.cpp" />
+    <ClCompile Include="src\view\errormanager.cpp" />
+    <ClCompile Include="src\model\events\eventdetector.cpp" />
+    <ClCompile Include="src\model\filters\firstorderiirfilter.cpp" />
+    <ClCompile Include="src\controller\centralwidgets\gapfreecontroller.cpp" />
+    <ClCompile Include="src\view\protocol\impexpprotocoldialog.cpp" />
+    <ClCompile Include="src\model\ivaccumulator.cpp" />
+    <ClCompile Include="src\model\ivchannel.cpp" />
+    <ClCompile Include="src\controller\device\consumer\ivgraphconsumer.cpp" />
+    <ClCompile Include="src\controller\centralwidgets\ivgraphcontroller.cpp" />
+    <ClCompile Include="src\view\ivgraphwidget.cpp" />
+    <ClCompile Include="src\view\lcddisplay.cpp" />
+    <ClCompile Include="src\view\leftrightmousepushbutton.cpp" />
+    <ClCompile Include="src\controller\device\consumer\livestatisticsconsumer.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\controller\maincontroller.cpp" />
+    <ClCompile Include="src\view\mainwindow.cpp" />
+    <ClCompile Include="src\controller\measurementoverviewcontroller.cpp" />
+    <ClCompile Include="src\model\measurementoverviewmodel.cpp" />
+    <ClCompile Include="src\view\measurementsoverviewdockwidget.cpp" />
+    <ClCompile Include="src\view\questionmarkmenu\messagedialog.cpp" />
+    <ClCompile Include="src\view\multiplechannelcontroldockwidget.cpp" />
+    <ClCompile Include="src\controller\multiplechannelcontroller.cpp" />
+    <ClCompile Include="src\view\nowheelspinbox.cpp" />
+    <ClCompile Include="src\controller\device\consumer\plotconsumer.cpp" />
+    <ClCompile Include="src\controller\plotpreferencescontroller.cpp" />
+    <ClCompile Include="src\view\plotpreferencesdialog.cpp" />
+    <ClCompile Include="src\model\plotpreferencesmodel.cpp" />
+    <ClCompile Include="src\view\protocol\protocolcursor.cpp" />
+    <ClCompile Include="src\view\protocol\protocoldockwidget.cpp" />
+    <ClCompile Include="src\view\protocol\protocoldragitem.cpp" />
+    <ClCompile Include="src\view\protocol\protocoldropitem.cpp" />
+    <ClCompile Include="src\view\protocol\protocoldropitemparam.cpp" />
+    <ClCompile Include="src\view\protocol\protocoleditor.cpp" />
+    <ClCompile Include="src\view\protocol\protocolitem.cpp" />
+    <ClCompile Include="src\controller\protocol\protocolitemctrlmanager.cpp" />
+    <ClCompile Include="src\view\protocol\protocolitemdraglist.cpp" />
+    <ClCompile Include="src\view\protocol\protocolitemdroplist.cpp" />
+    <ClCompile Include="src\view\protocol\protocollist.cpp" />
+    <ClCompile Include="src\controller\protocol\protocolmanager.cpp" />
+    <ClCompile Include="src\model\protocolmodel.cpp" />
+    <ClCompile Include="src\view\protocol\protocolplot.cpp" />
+    <ClCompile Include="src\view\protocol\protocolpreview.cpp" />
+    <ClCompile Include="src\view\protocol\protocolpropertydialog.cpp" />
+    <ClCompile Include="src\view\protocol\protocolsection.cpp" />
+    <ClCompile Include="src\controller\protocol\protocolutils.cpp" />
+    <ClCompile Include="src\view\protocol\protocolwidget.cpp" />
+    <ClCompile Include="src\view\recordsettingsdialog.cpp" />
+    <ClCompile Include="src\view\rect4.cpp" />
+    <ClCompile Include="src\view\singlechannelcontroldockwidget.cpp" />
+    <ClCompile Include="src\controller\singlechannelcontroller.cpp" />
+    <ClCompile Include="src\view\stampplot.cpp" />
+    <ClCompile Include="src\model\state.cpp" />
+    <ClCompile Include="src\model\statearray.cpp" />
+    <ClCompile Include="src\controller\statearraycontroller.cpp" />
+    <ClCompile Include="src\view\statearray\statearraydockwidget.cpp" />
+    <ClCompile Include="src\view\questionmarkmenu\supportdialog.cpp" />
+    <ClCompile Include="src\controller\upgradefwcontroller.cpp" />
+    <ClCompile Include="src\view\upgradefwview.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h" />
+    <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h" />
+    <ClInclude Include="src\view\addtagdialog.h" />
+    <ClInclude Include="src\model\analysiscursor.h" />
+    <ClInclude Include="src\model\application_status.h" />
+    <ClInclude Include="src\abf\axon.h" />
+    <ClInclude Include="src\abf\axon_defs.h" />
+    <ClInclude Include="src\abf\axon_structs.h" />
+    <QtMoc Include="src\view\bigplot.h" />
+    <QtMoc Include="src\controller\bigplotcontroller.h" />
+    <QtMoc Include="src\model\bigplotmodel.h" />
+    <QtMoc Include="src\view\bigplotwidget.h" />
+    <QtMoc Include="src\view\boardcontroldockwidget.h" />
+    <QtMoc Include="src\controller\boardcontroller.h" />
+    <QtMoc Include="src\controller\centralwidgets\centralwidgetcontroller.h" />
+    <ClInclude Include="src\model\channel_and_name.h" />
+    <ClInclude Include="src\model\channel_mapping.h" />
+    <QtMoc Include="src\view\channeloverviewwidget.h" />
+    <QtMoc Include="src\controller\chessboardcontroller.h" />
+    <QtMoc Include="src\view\chessboarddockwidget.h" />
+    <QtMoc Include="src\view\colorselectionbutton.h" />
+    <QtMoc Include="src\view\compensationcontroldockwidget.h" />
+    <QtMoc Include="src\controller\compensationcontroller.h" />
+    <ClInclude Include="src\view\conversionscaledraw.h" />
+    <QtMoc Include="src\view\copyabletable.h" />
+    <QtMoc Include="src\controller\protocol\cursorsmanager.h" />
+    <ClInclude Include="src\view\curve.h" />
+    <QtMoc Include="src\controller\device\consumer\datawriterconsumer.h" />
+    <QtMoc Include="src\controller\device\deviceconnector.h" />
+    <QtMoc Include="src\view\devicecontroldockwidget.h" />
+    <QtMoc Include="src\controller\devicecontroller.h" />
+    <QtMoc Include="src\controller\device\devicedataconsumer.h" />
+    <QtMoc Include="src\controller\device\devicedataproducer.h" />
+    <QtMoc Include="src\controller\device\devicedetector.h" />
+    <QtMoc Include="src\view\questionmarkmenu\deviceinfodialog.h" />
+    <ClInclude Include="src\view\doubleclickmachine.h" />
+    <QtMoc Include="src\view\elementslogowidget.h" />
+    <QtMoc Include="src\view\errormanager.h" />
+    <ClInclude Include="src\model\events\event.h" />
+    <ClInclude Include="src\model\events\eventdetector.h" />
+    <ClInclude Include="src\model\filters\filter.h" />
+    <ClInclude Include="src\model\filters\firstorderiirfilter.h" />
+    <QtMoc Include="src\controller\centralwidgets\gapfreecontroller.h" />
+    <ClInclude Include="src\globaldefines.h" />
+    <QtMoc Include="src\view\protocol\impexpprotocoldialog.h" />
+    <ClInclude Include="src\model\ivaccumulator.h" />
+    <ClInclude Include="src\model\ivchannel.h" />
+    <QtMoc Include="src\controller\device\consumer\ivgraphconsumer.h" />
+    <QtMoc Include="src\controller\centralwidgets\ivgraphcontroller.h" />
+    <QtMoc Include="src\view\ivgraphwidget.h" />
+    <QtMoc Include="src\view\lcddisplay.h" />
+    <QtMoc Include="src\view\leftrightmousepushbutton.h" />
+    <QtMoc Include="src\controller\device\consumer\livestatisticsconsumer.h" />
+    <QtMoc Include="src\controller\maincontroller.h" />
+    <QtMoc Include="src\view\mainwindow.h" />
+    <QtMoc Include="src\controller\measurementoverviewcontroller.h" />
+    <ClInclude Include="src\model\measurementoverviewmodel.h" />
+    <QtMoc Include="src\view\measurementsoverviewdockwidget.h" />
+    <ClInclude Include="src\view\questionmarkmenu\messagedialog.h" />
+    <QtMoc Include="src\view\multiplechannelcontroldockwidget.h" />
+    <QtMoc Include="src\controller\multiplechannelcontroller.h" />
+    <QtMoc Include="src\view\nowheelspinbox.h" />
+    <QtMoc Include="src\controller\device\consumer\plotconsumer.h" />
+    <ClInclude Include="src\model\plotmessage.h" />
+    <QtMoc Include="src\controller\plotpreferencescontroller.h" />
+    <QtMoc Include="src\view\plotpreferencesdialog.h" />
+    <ClInclude Include="src\model\plotpreferencesmodel.h" />
+    <QtMoc Include="src\view\protocol\protocolcursor.h" />
+    <ClInclude Include="src\protocoldefs.h" />
+    <QtMoc Include="src\view\protocol\protocoldockwidget.h" />
+    <ClInclude Include="src\view\protocol\protocoldragitem.h" />
+    <QtMoc Include="src\view\protocol\protocoldropitem.h" />
+    <QtMoc Include="src\view\protocol\protocoldropitemparam.h" />
+    <QtMoc Include="src\view\protocol\protocoleditor.h" />
+    <ClInclude Include="src\view\protocol\protocolitem.h" />
+    <QtMoc Include="src\controller\protocol\protocolitemctrlmanager.h" />
+    <ClInclude Include="src\view\protocol\protocolitemdraglist.h" />
+    <QtMoc Include="src\view\protocol\protocolitemdroplist.h" />
+    <QtMoc Include="src\view\protocol\protocollist.h" />
+    <QtMoc Include="src\controller\protocol\protocolmanager.h" />
+    <ClInclude Include="src\model\protocolmodel.h" />
+    <QtMoc Include="src\view\protocol\protocolplot.h" />
+    <QtMoc Include="src\view\protocol\protocolpreview.h" />
+    <ClInclude Include="src\view\protocol\protocolpropertydialog.h" />
+    <ClInclude Include="src\view\protocol\protocolsection.h" />
+    <ClInclude Include="src\controller\protocol\protocolutils.h" />
+    <QtMoc Include="src\view\protocol\protocolwidget.h" />
+    <QtMoc Include="src\view\recordsettingsdialog.h" />
+    <ClInclude Include="src\view\rect4.h" />
+    <QtMoc Include="src\view\singlechannelcontroldockwidget.h" />
+    <QtMoc Include="src\controller\singlechannelcontroller.h" />
+    <QtMoc Include="src\view\stampplot.h" />
+    <ClInclude Include="src\model\state.h" />
+    <ClInclude Include="src\model\statearray.h" />
+    <QtMoc Include="src\controller\statearraycontroller.h" />
+    <QtMoc Include="src\view\statearray\statearraydockwidget.h" />
+    <ClInclude Include="src\model\statisticsresult.h" />
+    <ClInclude Include="src\model\statisticsresultwrapper.h" />
+    <QtMoc Include="src\view\questionmarkmenu\supportdialog.h" />
+    <QtMoc Include="src\controller\upgradefwcontroller.h" />
+    <QtMoc Include="src\view\upgradefwview.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O0 -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\moc_predefs.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -O2 -MD -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\moc_predefs.h;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="N.png" />
+    <None Include="imgs\P" />
+    <None Include="imgs\add" />
+    <None Include="imgs\analysis" />
+    <None Include="ap" />
+    <None Include="bin" />
+    <None Include="closed.png" />
+    <None Include="imgs\constant" />
+    <None Include="control.png" />
+    <None Include="imgs\copy" />
+    <None Include="imgs\current" />
+    <None Include="imgs\edit" />
+    <None Include="imgs\episodic" />
+    <None Include="estimation.png" />
+    <None Include="imgs\export" />
+    <None Include="fit.png" />
+    <None Include="imgs\folder" />
+    <None Include="free" />
+    <None Include="imgs\frequency" />
+    <None Include="imgs\gapfree" />
+    <None Include="imgs\gap" />
+    <None Include="graph.png" />
+    <None Include="handle.png" />
+    <None Include="imgs\help" />
+    <None Include="histogram.png" />
+    <None Include="imgs\holding" />
+    <None Include="icon.png" />
+    <None Include="imgs\import" />
+    <None Include="imgs\infinite" />
+    <None Include="iv" />
+    <None Include="last" />
+    <None Include="linear" />
+    <None Include="imgs\logo_with_name.png" />
+    <None Include="membrane" />
+    <None Include="noise" />
+    <None Include="imgs\number" />
+    <None Include="open.png" />
+    <None Include="over" />
+    <None Include="parameters.png" />
+    <None Include="protocol.png" />
+    <None Include="imgs\protocols" />
+    <None Include="protocols" />
+    <None Include="ramp.png" />
+    <None Include="imgs\record" />
+    <None Include="imgs\recording" />
+    <None Include="imgs\remove" />
+    <None Include="imgs\repeat" />
+    <None Include="repeat" />
+    <None Include="report.png" />
+    <None Include="resistance" />
+    <QtRcc Include="resources.qrc" />
+    <None Include="imgs\rest.png" />
+    <None Include="imgs\save" />
+    <None Include="sequence.png" />
+    <None Include="settings.png" />
+    <None Include="shortcuts.png" />
+    <None Include="sin.png" />
+    <None Include="spectrum.png" />
+    <None Include="imgs\splitter" />
+    <None Include="imgs\start" />
+    <None Include="statistics.png" />
+    <None Include="step.png" />
+    <None Include="steps.png" />
+    <None Include="step" />
+    <None Include="stimulus.png" />
+    <None Include="imgs\stimulus" />
+    <None Include="imgs\stop" />
+    <None Include="tag.png" />
+    <None Include="test.png" />
+    <None Include="threshold.png" />
+    <None Include="imgs\time" />
+    <None Include="time" />
+    <None Include="imgs\trash" />
+    <None Include="imgs\voltage" />
+    <None Include="imgs\warning" />
+    <None Include="with" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include=".\EMCR_resource.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

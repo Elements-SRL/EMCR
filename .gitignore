@@ -37,16 +37,13 @@ EMCR.pro.user
 Protocols/*
 .qmake.stash
 .vs/
-EMCR.vcxproj
-EMCR.vcxproj.filters
 EMCR.vcxproj.user
 EMCR_resource.rc
 debug/
 release/
 EMCR_resource.aps
-
 *.bit
-*.sln
 *.pdb
 
 FW/
+mocinclude.opt

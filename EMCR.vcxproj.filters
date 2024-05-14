@@ -1,0 +1,860 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\addtagdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\analysiscursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\application_status.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\abf\axon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\bigplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\bigplotcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\bigplotmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\bigplotwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\boardcontroldockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\boardcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\centralwidgets\centralwidgetcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\channeloverviewwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\chessboardcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\chessboarddockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\colorselectionbutton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\compensationcontroldockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\compensationcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\conversionscaledraw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\copyabletable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\protocol\cursorsmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\curve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\datawriterconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\deviceconnector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\devicecontroldockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\devicecontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\devicedataconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\devicedataproducer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\devicedetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\questionmarkmenu\deviceinfodialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\doubleclickmachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\elementslogowidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\errormanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\events\eventdetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\filters\firstorderiirfilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\centralwidgets\gapfreecontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\impexpprotocoldialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\ivaccumulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\ivchannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\ivgraphconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\centralwidgets\ivgraphcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\ivgraphwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\lcddisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\leftrightmousepushbutton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\livestatisticsconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\maincontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\mainwindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\measurementoverviewcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\measurementoverviewmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\measurementsoverviewdockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\questionmarkmenu\messagedialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\multiplechannelcontroldockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\multiplechannelcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\nowheelspinbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\plotconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\plotpreferencescontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\plotpreferencesdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\plotpreferencesmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolcursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocoldockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocoldragitem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocoldropitem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocoldropitemparam.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocoleditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolitem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\protocol\protocolitemctrlmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolitemdraglist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolitemdroplist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocollist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\protocol\protocolmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\protocolmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolpreview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolpropertydialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolsection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\protocol\protocolutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\protocol\protocolwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\recordsettingsdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\rect4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\singlechannelcontroldockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\singlechannelcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\stampplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\statearray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\statearraycontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\statearray\statearraydockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\questionmarkmenu\supportdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\upgradefwcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\upgradefwview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\addtagdialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\analysiscursor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\application_status.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\abf\axon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\abf\axon_defs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\abf\axon_structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\bigplot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\bigplotcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\model\bigplotmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\bigplotwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\boardcontroldockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\boardcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\centralwidgets\centralwidgetcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\channel_and_name.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\channel_mapping.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\channeloverviewwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\chessboardcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\chessboarddockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\colorselectionbutton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\compensationcontroldockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\compensationcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\conversionscaledraw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\copyabletable.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\protocol\cursorsmanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\curve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\controller\device\consumer\datawriterconsumer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\deviceconnector.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\devicecontroldockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\devicecontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\devicedataconsumer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\devicedataproducer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\devicedetector.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\questionmarkmenu\deviceinfodialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\doubleclickmachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\elementslogowidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\errormanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\events\event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\events\eventdetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\filters\filter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\filters\firstorderiirfilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\controller\centralwidgets\gapfreecontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\globaldefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\protocol\impexpprotocoldialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\ivaccumulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\ivchannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\controller\device\consumer\ivgraphconsumer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\centralwidgets\ivgraphcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\ivgraphwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\lcddisplay.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\leftrightmousepushbutton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\livestatisticsconsumer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\maincontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\mainwindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\measurementoverviewcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\measurementoverviewmodel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\measurementsoverviewdockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\questionmarkmenu\messagedialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\multiplechannelcontroldockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\multiplechannelcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\nowheelspinbox.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\plotconsumer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\plotmessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\controller\plotpreferencescontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\plotpreferencesdialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\plotpreferencesmodel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\protocol\protocolcursor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\protocoldefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\protocol\protocoldockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\protocol\protocoldragitem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\protocol\protocoldropitem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\protocol\protocoldropitemparam.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\protocol\protocoleditor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\protocol\protocolitem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\controller\protocol\protocolitemctrlmanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\protocol\protocolitemdraglist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\protocol\protocolitemdroplist.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\protocol\protocollist.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\protocol\protocolmanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\protocolmodel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\protocol\protocolplot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\protocol\protocolpreview.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\protocol\protocolpropertydialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\protocol\protocolsection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\controller\protocol\protocolutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\protocol\protocolwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\recordsettingsdialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\view\rect4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\singlechannelcontroldockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\singlechannelcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\stampplot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\statearray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\controller\statearraycontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\statearray\statearraydockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\model\statisticsresult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\statisticsresultwrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\view\questionmarkmenu\supportdialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\upgradefwcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\upgradefwview.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="N.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\P">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\add">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\analysis">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ap">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="closed.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\constant">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="control.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\copy">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\current">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\edit">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\episodic">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="estimation.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\export">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fit.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\folder">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="free">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\frequency">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\gapfree">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\gap">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="graph.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="handle.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\help">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="histogram.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\holding">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\import">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\infinite">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="iv">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="last">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="linear">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\logo_with_name.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="membrane">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="noise">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\number">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="open.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="over">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="parameters.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="protocol.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\protocols">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="protocols">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ramp.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\record">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\recording">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\remove">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\repeat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="repeat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="report.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resistance">
+      <Filter>Resource Files</Filter>
+    </None>
+    <QtRcc Include="resources.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <None Include="imgs\rest.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\save">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sequence.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="settings.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shortcuts.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sin.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="spectrum.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\splitter">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\start">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="statistics.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="step.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="steps.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="step">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="stimulus.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\stimulus">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\stop">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="tag.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="test.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="threshold.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\time">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="time">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\trash">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\voltage">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="imgs\warning">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="with">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include=".\EMCR_resource.rc" />
+  </ItemGroup>
+</Project>
