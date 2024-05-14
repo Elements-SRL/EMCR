@@ -176,12 +176,12 @@ void IvGraphController::onStopIvGraph() {
 }
 
 void IvGraphController::start() {
-    ivGraphWidget->show();
-    //onSetPlotData(messages[idx]);
-    attachCurves();
-    if (isAtLeastOneChannelExpanded()) {
-        consumer->onStartConsuming();
+    if (!isAtLeastOneChannelExpanded()) {
+        return;
     }
+    ivGraphWidget->show();
+    attachCurves();
+    consumer->onStartConsuming();
 }
 
 void IvGraphController::stop() {
@@ -250,11 +250,14 @@ void IvGraphController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
 }
 
 void IvGraphController::onExpandTrace(bool flag) {
-    auto isRunning = consumer->isRunning();
-    stop();
-    consumer->onSelectChannels(flag);
-    if (isRunning || isAtLeastOneChannelExpanded()) {
+    auto wasRunning = consumer->isRunning();
+    if (wasRunning) {
+        stop();
+        consumer->onSelectChannels(flag);
         start();
+    }
+    else {
+        consumer->onSelectChannels(flag);
     }
 }
 

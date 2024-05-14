@@ -118,6 +118,9 @@ void BigPlotController::onExpandTrace(bool flag) {
     for (auto c : controllers) {
         c->onExpandTrace(flag);
     }
+    if (flag) {
+        controllers[bps]->start();
+    }
 }
 
 std::vector<PlotConsumer*> BigPlotController::getConsumers() {

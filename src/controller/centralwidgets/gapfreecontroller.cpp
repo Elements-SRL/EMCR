@@ -72,11 +72,11 @@ void GapFreeController::attachCurves() {
 }
 
 void GapFreeController::start() {
-    //onSetPlotData(messages[idx]);
-    attachCurves();
-    if (isAtLeastOneChannelExpanded()) {
-        consumer->onStartConsuming();
+    if (!isAtLeastOneChannelExpanded()) {
+        return;
     }
+    attachCurves();
+    consumer->onStartConsuming();
 }
 
 void GapFreeController::stop() {
@@ -135,11 +135,14 @@ void GapFreeController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
 }
 
 void GapFreeController::onExpandTrace(bool flag) {
-    auto isRunning = consumer->isRunning();
-    stop();
-    consumer->onSelectChannels(flag);
-    if (isRunning || isAtLeastOneChannelExpanded()) {
+    auto wasRunning = consumer->isRunning();
+    if (wasRunning) {
+        stop();
+        consumer->onSelectChannels(flag);
         start();
+    }
+    else {
+        consumer->onSelectChannels(flag);
     }
 }
 
