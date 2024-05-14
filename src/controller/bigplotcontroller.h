@@ -12,7 +12,6 @@
 #include "ivgraphconsumer.h"
 #include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
-#include "ivgraphwidget.h"
 #include "centralwidgetcontroller.h"
 
 class BigPlotController : public QObject {
@@ -49,7 +48,6 @@ private:
     BigPlot * currentPlot = nullptr;
     PlotConsumer * currentConsumer = nullptr;
     BigPlotModel * currentModel = nullptr;
-    IvGraphWidget * ivGraphWidget = nullptr;
 
     std::vector<CentralWidgetController* > controllers;
 

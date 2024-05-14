@@ -57,7 +57,6 @@ private slots:
     void onCalcMeanSquared();
     void onStartIvGraph();
     void onStopIvGraph();
-
 };
 
 #endif // IVGRAPHCONTROLLER_H

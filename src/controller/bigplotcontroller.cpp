@@ -3,6 +3,7 @@
 #include <cmath>
 #include "gapfreecontroller.h"
 #include "ivgraphcontroller.h"
+#include "eventdetectioncontroller.h"
 
 BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
@@ -20,6 +21,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     bps = BigPlotStatus::GapFree;
     controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
+    controllers.push_back(new EventDetectionController(appStatus, producer));
     controllers[bps]->start();
 }
 
@@ -94,7 +96,6 @@ void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
         c->onRangeUpdated(newRange);
     }
 }
-
 
 void BigPlotController::onCurrentColorsChanged(QVector <QColor> colors) {
     for (auto c : controllers) {

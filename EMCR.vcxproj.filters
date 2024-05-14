@@ -310,6 +310,12 @@
     <ClCompile Include="src\view\upgradefwview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\controller\centralwidgets\eventdetectioncontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -613,6 +619,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\upgradefwview.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\centralwidgets\eventdetectioncontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
