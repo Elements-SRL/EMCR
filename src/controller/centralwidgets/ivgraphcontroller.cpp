@@ -253,7 +253,7 @@ void IvGraphController::onExpandTrace(bool flag) {
     auto isRunning = consumer->isRunning();
     stop();
     consumer->onSelectChannels(flag);
-    if (isRunning) {
+    if (isRunning || isAtLeastOneChannelExpanded()) {
         start();
     }
 }
