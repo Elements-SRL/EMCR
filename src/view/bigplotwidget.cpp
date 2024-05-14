@@ -20,7 +20,7 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     // Create the third tab
     auto eventDetectionLayout = new QVBoxLayout();
     eventDetectionTab = new QWidget();
-    eventDetectionTab->setLayout(ivLayout);
+    eventDetectionTab->setLayout(eventDetectionLayout);
     addTab(eventDetectionTab, "Event Detection");
 
     mainVl->setContentsMargins(6, 0, 0, 6);

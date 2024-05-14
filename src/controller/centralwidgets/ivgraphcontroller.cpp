@@ -2,15 +2,14 @@
 
 IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow * mainWindow) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
-
+    this->mainWindow = mainWindow;
     model = new BigPlotModel();
     ivGraphWidget = new IvGraphWidget(currentChannelsNum, bigPlotWidget);
     consumer = new IvGraphConsumer(appStatus, producer);
-    mainWindow->setIvGraphWidget(ivGraphWidget);
-    this->mainWindow = mainWindow;
+    this->mainWindow->setIvGraphWidget(ivGraphWidget);
     plot = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bigPlotWidget);
     bigPlotWidget->setIvGraph(plot);
-    //    creating curves for iv
+    // creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
     }
