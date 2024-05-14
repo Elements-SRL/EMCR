@@ -53,6 +53,9 @@ SOURCES += \
     src/controller/device/consumer/plotconsumer.cpp \
     src/controller/device/consumer/datawriterconsumer.cpp \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
+    src/controller/centralwidgets/centralwidgetcontroller.cpp \
+    src/controller/centralwidgets/ivgraphcontroller.cpp \
+    src/controller/centralwidgets/gapfreecontroller.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -63,6 +66,8 @@ SOURCES += \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
     src/model/statearray.cpp \
+    src/model/filters/firstorderiirfilter.cpp \
+    src/model/events/eventdetector.cpp \
     src/view/bigplotwidget.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
@@ -144,6 +149,9 @@ HEADERS += \
     src/controller/device/consumer/plotconsumer.h \
     src/controller/device/consumer/datawriterconsumer.h \
     src/controller/device/consumer/abfdatawriterconsumer.h \
+    src/controller/centralwidgets/centralwidgetcontroller.h \
+    src/controller/centralwidgets/ivgraphcontroller.h \
+    src/controller/centralwidgets/gapfreecontroller.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
@@ -159,6 +167,10 @@ HEADERS += \
     src/model/statearray.h \
     src/model/statisticsresult.h \
     src/model/statisticsresultwrapper.h \
+    src/model/filters/filter.h \
+    src/model/filters/firstorderiirfilter.h \
+    src/model/events/event.h \
+    src/model/events/eventdetector.h \
     src/view/bigplotwidget.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \
@@ -215,7 +227,10 @@ INCLUDEPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
+    ./src/controller/centralwidgets \
     ./src/model \
+    ./src/model/filters \
+    ./src/model/events \
     ./src/view \
     ./src/view/statearray \
     ./src/view/protocol \
@@ -228,7 +243,10 @@ DEPENDPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
+    ./src/controller/centralwidgets \
     ./src/model \
+    ./src/model/filters \
+    ./src/model/events \
     ./src/view \
     ./src/view/statearray \
     ./src/view/protocol \
