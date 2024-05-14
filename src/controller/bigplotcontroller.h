@@ -42,7 +42,6 @@ private:
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
 
-    std::vector<PlotMessage> messages;
     std::vector<CentralWidgetController* > controllers;
 
     int voltageChannelsNum;
