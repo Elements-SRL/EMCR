@@ -630,6 +630,9 @@
     <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\view\centralwidgets\eventdetectionwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -871,10 +874,5 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\EMCR_resource.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\view\centralwidgets\eventdetectionwidget.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

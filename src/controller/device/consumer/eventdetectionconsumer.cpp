@@ -91,6 +91,9 @@ void EventDetectionConsumer::run() {
                             const auto eventIdx = bufferLen - eventLen;
                             const auto eventData(eventBuffer);
                             eventDetectionChannels[channelIdx]->pushEvent(Event(eventIdx, eventData));
+                            if (eventDetectionChannels[channelIdx]->getEvents().size() > 10) {
+                                eventDetectionChannels[channelIdx]->getEvents().clear();
+                            }
                         }
                     }
                     bufferIdx++;
