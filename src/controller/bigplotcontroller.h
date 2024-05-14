@@ -21,7 +21,6 @@ public:
     BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~BigPlotController();
 
-    BigPlot * getPlot();
     std::vector<PlotConsumer*> getConsumers();
 
 public slots:
@@ -31,11 +30,11 @@ public slots:
     void onExpandTrace(bool);
     void onRangeUpdated(RangedMeasurement_t newRange);
 
-    void handleZoomInRequest(Rect4 r);
-    void handleZoomOutRequest();
-    void handleZoomResetRequest();
-    void handleSingleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
-    void handleSingleAxisShiftRequest(QwtPlot::Axis, int);
+    void handleZoomInRequest(BigPlotModel* model, BigPlot* plot, Rect4 r);
+    void handleZoomOutRequest(BigPlotModel* model, BigPlot* plot);
+    void handleZoomResetRequest(BigPlotModel* model, BigPlot* plot);
+    void handleSingleAxisZoomRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int, QPointF);
+    void handleSingleAxisShiftRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int);
 
 private:
     BigPlotStatus bps;
@@ -44,11 +43,6 @@ private:
     BigPlotWidget * bpw = nullptr;
 
     std::vector<PlotMessage> messages;
-
-    BigPlot * currentPlot = nullptr;
-    PlotConsumer * currentConsumer = nullptr;
-    BigPlotModel * currentModel = nullptr;
-
     std::vector<CentralWidgetController* > controllers;
 
     int voltageChannelsNum;

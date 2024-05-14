@@ -43,50 +43,46 @@ BigPlotController::~BigPlotController() {
     }
 }
 
-BigPlot * BigPlotController::getPlot(){
-    return currentPlot;
-}
-
-void BigPlotController::handleZoomInRequest(Rect4 r){
+void BigPlotController::handleZoomInRequest(BigPlotModel* model, BigPlot* plot, Rect4 r) {
 //    non idale, rischio di incoerenza con le altre chiamate nel model
-    currentModel->updateCurrentZoom(r);
-    auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Current);
-    currentPlot->setRect(zoom);
+    model->updateCurrentZoom(r);
+    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
+    plot->setRect(zoom);
     if (bps == BigPlotStatus::GapFree) {
-        emit durationChanged({ zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+        emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
 
-void BigPlotController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoomIn, QPointF mousePosition){
+void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis axis, int zoomIn, QPointF mousePosition){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
-    currentModel->updateCurrentZoom(currentModel->zoomOnSingleAxis(axis, zoomIn, mousePosition));
-    auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Current);
-    currentPlot->setRect(zoom);
+    model->updateCurrentZoom(model->zoomOnSingleAxis(axis, zoomIn, mousePosition));
+    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
+    plot->setRect(zoom);
     if (axis == QwtPlot::Axis::xBottom && bps == BigPlotStatus::GapFree){
-        emit durationChanged({zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
     }
 }
 
-void BigPlotController::handleSingleAxisShiftRequest(QwtPlot::Axis axis, int shift){
+void BigPlotController::handleSingleAxisShiftRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis axis, int shift){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
-    currentModel->updateCurrentZoom(currentModel->shiftOnSingleAxis(axis, shift));
-    auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Current);
-    currentPlot->setRect(zoom);
+    model->updateCurrentZoom(model->shiftOnSingleAxis(axis, shift));
+    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
+    plot->setRect(zoom);
 }
 
-void BigPlotController::handleZoomOutRequest(){
-    auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Previous);
-    currentPlot->setRect(zoom);
+void BigPlotController::handleZoomOutRequest(BigPlotModel* model, BigPlot* plot){
+    auto zoom = model->getZoom(BigPlotModel::Zoom::Previous);
+    plot->setRect(zoom);
     if (bps == BigPlotStatus::GapFree) {
-        emit durationChanged({ zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+        emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
 
-void BigPlotController::handleZoomResetRequest(){
-    auto zoom = currentModel->getZoom(BigPlotModel::Zoom::Default);
-    currentPlot->setRect(zoom);
+void BigPlotController::handleZoomResetRequest(BigPlotModel* model, BigPlot* plot){
+    auto zoom = model->getZoom(BigPlotModel::Zoom::Default);
+    plot->setRect(zoom);
     if (bps == BigPlotStatus::GapFree) {
-        emit durationChanged({ zoom[QwtPlot::xBottom].width(), currentModel->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+        emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
 

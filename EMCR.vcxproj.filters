@@ -316,6 +316,9 @@
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -868,5 +871,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\EMCR_resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\view\centralwidgets\eventdetectionwidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

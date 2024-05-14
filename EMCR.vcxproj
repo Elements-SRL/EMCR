@@ -73,7 +73,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;..\..\..\..\ElemLibraries\e384CommLib\include;..\..\..\..\ElemLibraries\e384CommLib\include\model;..\..\..\..\ElemLibraries\CyAPI\include;..\..\..\..\ElemLibraries\FrontPanel\include;..\..\..\..\ElemLibraries\ftd2xx\include;..\..\..\..\ElemLibraries\yaml-cpp\include;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\contrib;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node\detail;..\..\..\..\ElemLibraries\protocol-serializer\include;release;\include;%(AdditionalIncludeDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\centralwidgets;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;..\..\..\..\ElemLibraries\e384CommLib\include;..\..\..\..\ElemLibraries\e384CommLib\include\model;..\..\..\..\ElemLibraries\CyAPI\include;..\..\..\..\ElemLibraries\FrontPanel\include;..\..\..\..\ElemLibraries\ftd2xx\include;..\..\..\..\ElemLibraries\yaml-cpp\include;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\contrib;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node\detail;..\..\..\..\ElemLibraries\protocol-serializer\include;release;\include;%(AdditionalIncludeDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\include</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -132,7 +132,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;..\..\..\..\ElemLibraries\e384CommLib\include;..\..\..\..\ElemLibraries\e384CommLib\include\model;..\..\..\..\ElemLibraries\CyAPI\include;..\..\..\..\ElemLibraries\FrontPanel\include;..\..\..\..\ElemLibraries\ftd2xx\include;..\..\..\..\ElemLibraries\yaml-cpp\include;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\contrib;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node\detail;..\..\..\..\ElemLibraries\protocol-serializer\include;debug;\include;%(AdditionalIncludeDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\centralwidgets;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;..\..\..\..\ElemLibraries\e384CommLib\include;..\..\..\..\ElemLibraries\e384CommLib\include\model;..\..\..\..\ElemLibraries\CyAPI\include;..\..\..\..\ElemLibraries\FrontPanel\include;..\..\..\..\ElemLibraries\ftd2xx\include;..\..\..\..\ElemLibraries\yaml-cpp\include;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\contrib;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node;..\..\..\..\ElemLibraries\yaml-cpp\include\yaml-cpp\node\detail;..\..\..\..\ElemLibraries\protocol-serializer\include;debug;\include;%(AdditionalIncludeDirectories);..\..\..\..\ElemLibraries\Qwt-6.1.4-VS\include</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O0 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -190,6 +190,7 @@
     <ClCompile Include="src\controller\centralwidgets\eventdetectioncontroller.cpp" />
     <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp" />
+    <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
     <ClCompile Include="src\view\addtagdialog.cpp" />
     <ClCompile Include="src\model\analysiscursor.cpp" />
@@ -307,6 +308,7 @@
     <QtMoc Include="src\view\colorselectionbutton.h" />
     <QtMoc Include="src\view\compensationcontroldockwidget.h" />
     <QtMoc Include="src\controller\compensationcontroller.h" />
+    <ClInclude Include="src\view\centralwidgets\eventdetectionwidget.h" />
     <ClInclude Include="src\view\conversionscaledraw.h" />
     <QtMoc Include="src\view\copyabletable.h" />
     <QtMoc Include="src\controller\protocol\cursorsmanager.h" />
