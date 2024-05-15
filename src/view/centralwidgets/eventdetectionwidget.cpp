@@ -7,6 +7,10 @@
 EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     : QWidget(parent)
 {
+    // Initialize QLabel widgets for displaying information
+    numberOfEventsLabel = new QLabel("Number of Events: ");
+    avgLenLabel = new QLabel("Average Length: ");
+
     // Upper Left Histogram
     upperLeftHistogram = new QwtPlotHistogram("Upper Left Histogram");
     upperLeftHistogram->attach(new QwtPlot());
@@ -33,9 +37,12 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     QVBoxLayout* inputLayout = new QVBoxLayout;
     inputLayout->addWidget(inputField1);
     inputLayout->addWidget(inputField2);
+    inputLayout->addWidget(numberOfEventsLabel);
+    inputLayout->addWidget(avgLenLabel);
     upperLayout->addLayout(inputLayout);
     layout->addLayout(upperLayout);
-
+    // Add QLabel widgets to display information in the upper right part
+    
     // Bottom part
     QHBoxLayout* bottomLayout = new QHBoxLayout;
     bottomLayout->addWidget(bottomLeftPlot);
@@ -56,4 +63,14 @@ EventDetectionWidget::~EventDetectionWidget(){
 
 QwtPlot* EventDetectionWidget::getPlot() {
     return bottomLeftPlot;
+}
+
+void EventDetectionWidget::setNumberOfEvents(uint32_t numEvents) {
+    numberOfEventsLabel->setText("Number of Events: " + QString::number(numEvents));
+
+}
+
+void EventDetectionWidget::setAvgLen(double avgLength) {
+    avgLenLabel->setText("Average Length: " + QString::number(avgLength));
+
 }

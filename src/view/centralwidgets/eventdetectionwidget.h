@@ -7,6 +7,7 @@
 #include <qwt_legend.h>
 #include <qwt_legend_label.h>
 #include <QLineEdit>
+#include <QLabel>
 
 class EventDetectionWidget : public QWidget
 {
@@ -17,7 +18,8 @@ public:
     ~EventDetectionWidget();
 
     QwtPlot* getPlot();
-
+    void setNumberOfEvents(uint32_t);
+    void setAvgLen(double);
 private:
     // Widgets for different parts of the layout
     QwtPlotHistogram* upperLeftHistogram;
@@ -25,6 +27,8 @@ private:
     QLineEdit* inputField1;
     QLineEdit* inputField2;
     QwtPlot* bottomLeftPlot;
+    QLabel* numberOfEventsLabel; 
+    QLabel* avgLenLabel;
 };
 
 #endif // EVENTDETECTIONWIDGET_H

@@ -1,6 +1,7 @@
 #include "eventdetectionconsumer.h"
 #include <QTime>
 #include <iostream>
+#include <QDebug>
 
 EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer) :
     PlotConsumer(appStatus, producer) {
@@ -54,7 +55,7 @@ void EventDetectionConsumer::run() {
 
     //vector used only to accomodate events
     std::vector<double> eventBuffer(minDataBatchSize);
-
+    bool atLeastOneFound = false;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
@@ -68,6 +69,7 @@ void EventDetectionConsumer::run() {
             idx = 0;
             bufferIdx = 0;
             bufferLen = buffer.size();
+            atLeastOneFound = false;
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
                 //let's ignore voltages for now
@@ -80,6 +82,8 @@ void EventDetectionConsumer::run() {
                         currentValues[channelIdx].push_back(currentValue);
                         const auto optEvent = eventDetectionChannels[channelIdx]->analyze(currentValue, idx, bufferLen);
                         if (optEvent.has_value()) {
+                            atLeastOneFound = true;
+                            qDebug() << "found";
                             const auto event = optEvent.value();
                             processEvent(event, channelIdx, eventBuffer);
                         }
@@ -89,7 +93,7 @@ void EventDetectionConsumer::run() {
                 idx++;
             }
             currentTimeMs = updateDataTimer.elapsed();
-            if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
+            if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS && atLeastOneFound) {
                 emitPlotData();
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;

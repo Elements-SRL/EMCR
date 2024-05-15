@@ -1,9 +1,15 @@
 #include "firstorderiirfilter.h"
 #include <iostream>
-FirstOrderIirFilter::FirstOrderIirFilter(double a_val, std::pair<double, double> b_val) {
-    this->a = a_val;
-    this->b0 = b_val.first;
-    this->b1 = b_val.second;
+#include <qmath.h>
+
+FirstOrderIirFilter::FirstOrderIirFilter(double samplingRate, double cutoffFrequency) {
+    const double w = 2.0 * M_PI * cutoffFrequency;
+    const double dt = 1.0 / samplingRate;
+    const double commonPart = w * dt;
+    const double b = commonPart / (2.0 + commonPart);
+    this->a = -(2 - commonPart)/(2.0 + commonPart);
+    this->b0 = b;
+    this->b1 = b;
     x_prev = 0;
     y_prev = 0;
 }
