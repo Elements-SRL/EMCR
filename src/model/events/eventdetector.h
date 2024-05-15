@@ -19,7 +19,7 @@ public:
     std::vector<Event> getEvents();
 
     std::optional<std::pair<int, int>> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
-
+    void clear();
 private:
     double threshold = -1;
     double calculateThreshold(const std::vector<double>& data);

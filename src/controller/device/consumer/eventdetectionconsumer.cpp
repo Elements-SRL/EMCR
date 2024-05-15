@@ -62,17 +62,18 @@ void EventDetectionConsumer::run() {
         }
         consumptionLock.unlock();
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
+            for (int i = 0; i < currentChannelsNum; i++) {
+                currentValues[i].clear();
+            }
             idx = 0;
             bufferIdx = 0;
             bufferLen = buffer.size();
-
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
                 //let's ignore voltages for now
                 bufferIdx += voltageChannelsNum;
                 //currents
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                    currentValues[channelIdx].clear();
                     if (plottedChannels[channelIdx]) {
                         const auto currentValue = buffer[bufferIdx];
                         //current copied in currentValues
@@ -80,55 +81,19 @@ void EventDetectionConsumer::run() {
                         const auto optEvent = eventDetectionChannels[channelIdx]->analyze(currentValue, idx, bufferLen);
                         if (optEvent.has_value()) {
                             const auto event = optEvent.value();
-                            const auto eventBegin = event.first;
-                            const auto eventEnd = event.second;
-                            const auto eventLen = eventEnd - eventBegin;
-                            eventBuffer.clear();
-                            for (int i = eventBegin; i < eventEnd; i++) {
-                                eventBuffer.push_back(currentValues[channelIdx][i]);
-                            }
-                            //WARNING MODIFY THIS WITH THE time counter
-                            const auto eventIdx = bufferLen - eventLen;
-                            const auto eventData(eventBuffer);
-                            eventDetectionChannels[channelIdx]->pushEvent(Event(eventIdx, eventData));
-                            if (eventDetectionChannels[channelIdx]->getEvents().size() > 10) {
-                                eventDetectionChannels[channelIdx]->getEvents().clear();
-                            }
+                            processEvent(event, channelIdx, eventBuffer);
                         }
                     }
                     bufferIdx++;
                 }
-
                 idx++;
             }
-
-            /*currentTimeMs = updateDataTimer.elapsed();
+            currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
-                for (int i = 0; i < currentChannelsNum; i++) {
-                    int counterOfSomeVariant = 0;
-                    for (int c_idx = 0; c_idx < currents.size(); c_idx++) {
-                        const auto current = currents[c_idx];
-                        if (current.has_value()) {
-                            voltageData[i][counterOfSomeVariant] = voltageBins[c_idx];
-                            currentValues[i][counterOfSomeVariant] = current.value();
-                            counterOfSomeVariant++;
-                        }
-                    }
-                    dataSize[i] = counterOfSomeVariant;
-                }
-                bool isDataChanged = false;
-                for (int i = 0; i < currentChannelsNum; i++) {
-                    if (dataSize[i] != officialDataSize[i]) {
-                        officialDataSize[i] = dataSize[i];
-                        isDataChanged = true;
-                    }
-                }
-                if (isDataChanged) {
-                    emitPlotData();
-                }
+                emitPlotData();
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
-            }*/
+            }
         }
     }
     emit plotDataUpdated();
@@ -172,6 +137,25 @@ void EventDetectionConsumer::allocateData() {
     }
 }
 
+void EventDetectionConsumer::processEvent(std::pair<int, int> evtBegingEnd, uint32_t chIdx, std::vector<double>& eventBuffer) {
+    const uint32_t size = currentValues[chIdx].size();
+    const uint32_t eventBegin = evtBegingEnd.first;
+    const uint32_t eventEnd = evtBegingEnd.second;
+    const uint32_t eventLen = eventEnd - eventBegin;
+    if (eventBegin < 0 || eventEnd >= size || eventBegin > eventEnd) {
+        return;
+    }
+    eventBuffer.clear();
+    eventBuffer.resize(eventLen);
+    for (uint32_t i = 0; i < eventLen; i++) {
+        eventBuffer[i] = currentValues[chIdx][i+eventBegin];
+    }
+    ////WARNING MODIFY THIS WITH THE time counter
+    const auto eventIdx = eventLen;
+    std::vector<double> eventData = eventBuffer;
+    eventDetectionChannels[chIdx]->pushEvent(Event(eventIdx, eventData));
+}
+
 //todo call this method when bin size changes or when voltage range changes
 void EventDetectionConsumer::calculateBinSize() {
     // Calculate the size of each bin
@@ -179,8 +163,15 @@ void EventDetectionConsumer::calculateBinSize() {
 }
 
 void EventDetectionConsumer::emitPlotData() {
-    //IvMessage message = { voltageData, currentValues, dataSize };
-    //emit setPlotData(message);
+    std::map<uint32_t, std::vector<Event>> events;
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        events[chIdx] = eventDetectionChannels[chIdx]->getEvents();
+    }
+    EventDetectionMessage message = { events };
+    emit setPlotData(message);
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        eventDetectionChannels[chIdx]->clear();
+    }
 }
 
 void EventDetectionConsumer::clearData() {

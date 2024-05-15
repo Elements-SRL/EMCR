@@ -10,28 +10,19 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     // Upper Left Histogram
     upperLeftHistogram = new QwtPlotHistogram("Upper Left Histogram");
     upperLeftHistogram->attach(new QwtPlot());
-    QVector<QwtIntervalSample> samples1;
-    for (double x = 1; x <= 10; ++x)
-        samples1.push_back(QwtIntervalSample(x, x * x, x + 0.5));
-    upperLeftHistogram->setData(new QwtIntervalSeriesData(samples1));
 
     // Bottom Right Histogram
     bottomRightHistogram = new QwtPlotHistogram("Bottom Right Histogram");
     bottomRightHistogram->attach(new QwtPlot());
-    QVector<QwtIntervalSample> samples2;
-    for (double x = 1; x <= 10; ++x)
-        samples2.push_back(QwtIntervalSample(x, x * x, x + 0.5));
-    bottomRightHistogram->setData(new QwtIntervalSeriesData(samples2));
-
-    // Upper Right Plot
-    upperRightPlot = new QwtPlot();
-    upperRightPlot->setTitle("Upper Right Plot");
-    upperRightPlot->setCanvasBackground(Qt::white);
 
     // Bottom Left Plot
     bottomLeftPlot = new QwtPlot();
     bottomLeftPlot->setTitle("Bottom Left Plot");
     bottomLeftPlot->setCanvasBackground(Qt::white);
+
+    // Input fields for upper right corner
+    inputField1 = new QLineEdit();
+    inputField2 = new QLineEdit();
 
     // Set up layout
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -39,7 +30,10 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     // Upper part
     QHBoxLayout* upperLayout = new QHBoxLayout;
     upperLayout->addWidget(upperLeftHistogram->plot());
-    upperLayout->addWidget(upperRightPlot);
+    QVBoxLayout* inputLayout = new QVBoxLayout;
+    inputLayout->addWidget(inputField1);
+    inputLayout->addWidget(inputField2);
+    upperLayout->addLayout(inputLayout);
     layout->addLayout(upperLayout);
 
     // Bottom part
@@ -55,6 +49,11 @@ EventDetectionWidget::~EventDetectionWidget(){
     // Cleanup
     delete upperLeftHistogram;
     delete bottomRightHistogram;
-    delete upperRightPlot;
+    delete inputField1;
+    delete inputField2;
     delete bottomLeftPlot;
+}
+
+QwtPlot* EventDetectionWidget::getPlot() {
+    return bottomLeftPlot;
 }

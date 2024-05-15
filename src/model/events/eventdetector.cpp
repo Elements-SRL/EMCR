@@ -107,3 +107,8 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     eventAlreadyBegun = false;
     eventLen = 0;
 }
+
+
+void EventDetector::clear() {
+    events.clear();
+}
