@@ -30,6 +30,7 @@ SOURCES += \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
+    src/controller/device/consumer/eventdetectionconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
@@ -56,6 +57,7 @@ SOURCES += \
     src/controller/centralwidgets/centralwidgetcontroller.cpp \
     src/controller/centralwidgets/ivgraphcontroller.cpp \
     src/controller/centralwidgets/gapfreecontroller.cpp \
+    src/controller/centralwidgets/eventdetectioncontroller.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -89,6 +91,7 @@ SOURCES += \
     src/view/multiplechannelcontroldockwidget.cpp \
     src/view/nowheelspinbox.cpp \
     src/view/plotpreferencesdialog.cpp \
+    src/view/centralwidgets/eventdetectionwidget.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
     src/view/protocol/protocolcursor.cpp \
     src/view/protocol/protocoldockwidget.cpp \
@@ -126,6 +129,7 @@ HEADERS += \
     src/abf/axon_structs.h \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
+    src/controller/device/consumer/eventdetectionconsumer.h \
     src/controller/device/deviceconnector.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
@@ -152,6 +156,7 @@ HEADERS += \
     src/controller/centralwidgets/centralwidgetcontroller.h \
     src/controller/centralwidgets/ivgraphcontroller.h \
     src/controller/centralwidgets/gapfreecontroller.h \
+    src/controller/centralwidgets/eventdetectioncontroller.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
@@ -192,6 +197,7 @@ HEADERS += \
     src/view/multiplechannelcontroldockwidget.h \
     src/view/nowheelspinbox.h \
     src/view/plotpreferencesdialog.h \
+    src/view/centralwidgets/eventdetectionwidget.h \
     src/view/protocol/impexpprotocoldialog.h \
     src/view/protocol/protocolcursor.h \
     src/view/protocol/protocoldockwidget.h \
@@ -233,6 +239,7 @@ INCLUDEPATH += \
     ./src/model/events \
     ./src/view \
     ./src/view/statearray \
+    ./src/view/centralwidgets \
     ./src/view/protocol \
     ./src/view/questionmarkmenu \
     ./src/abf
@@ -249,6 +256,7 @@ DEPENDPATH += \
     ./src/model/events \
     ./src/view \
     ./src/view/statearray \
+    ./src/view/centralwidgets \
     ./src/view/protocol \
     ./src/view/questionmarkmenu \
     ./src/abf
