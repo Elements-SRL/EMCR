@@ -21,7 +21,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     bps = BigPlotStatus::GapFree;
     controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
-    controllers.push_back(new EventDetectionController(appStatus, producer));
+    controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
     controllers[bps]->start();
 }
 

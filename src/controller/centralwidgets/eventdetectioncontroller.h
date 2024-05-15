@@ -12,7 +12,7 @@ class EventDetectionController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer);
+    EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bpw);
     ~EventDetectionController();
 
     void stop() override;

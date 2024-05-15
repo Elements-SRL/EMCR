@@ -308,7 +308,7 @@
     <QtMoc Include="src\view\colorselectionbutton.h" />
     <QtMoc Include="src\view\compensationcontroldockwidget.h" />
     <QtMoc Include="src\controller\compensationcontroller.h" />
-    <ClInclude Include="src\view\centralwidgets\eventdetectionwidget.h" />
+    <QtMoc Include="src\view\centralwidgets\eventdetectionwidget.h" />
     <ClInclude Include="src\view\conversionscaledraw.h" />
     <QtMoc Include="src\view\copyabletable.h" />
     <QtMoc Include="src\controller\protocol\cursorsmanager.h" />

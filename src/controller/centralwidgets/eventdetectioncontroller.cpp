@@ -1,8 +1,9 @@
 #include "eventdetectioncontroller.h"
+#include "eventdetectionwidget.h"
 
-EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer) :
+EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bpw) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
-
+    bpw->setEventDetectionTab(new EventDetectionWidget());
     consumer = new EventDetectionConsumer(appStatus, producer);
     // creating curves for eventdetection
     for (int i = 0; i < currentChannelsNum; i++) {
