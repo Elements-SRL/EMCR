@@ -130,23 +130,26 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     for (const auto& pair : message.events) {
         auto chIdx = pair.first;
         uint64_t acc = 0;
-        for (const auto& event : pair.second) {
-            QwtPlotCurve* curve = new QwtPlotCurve();
-            eventCurves[chIdx].push_back(curve);
-            std::vector<double> data = event.event;
+        const auto& events = pair.second;
+        for (int eventIdx = 0; eventIdx < events.size(); eventIdx++) {
+            const std::vector<double> data = events[eventIdx].event;
             acc += data.size();
-            QVector<double> yData(data.size());
-            std::copy(data.begin(), data.end(), yData.begin());
-            QVector<double> xData;
-            for (int i = 0; i < yData.size(); i++) {
-                xData << i;
+            if (eventIdx < 10) {
+                QwtPlotCurve* curve = new QwtPlotCurve();
+                eventCurves[chIdx].push_back(curve);
+                QVector<double> yData(data.size());
+                std::copy(data.begin(), data.end(), yData.begin());
+                QVector<double> xData;
+                for (int i = 0; i < yData.size(); i++) {
+                    xData << i;
+                }
+                curve->setSamples(xData, yData);
+                curve->attach(plot);
             }
-            curve->setSamples(xData, yData);
-            curve->attach(plot);
         }
         uint32_t len = pair.second.size();
         if (len > 0) {
-            widget->setAvgLen((double)(acc / len / appStatus->getSamplingRate().value));
+            widget->setAvgLen((double)((double) acc / (double) len / appStatus->getSamplingRate().value));
             widget->setNumberOfEvents(len);
         }
     }
