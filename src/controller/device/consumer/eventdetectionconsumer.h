@@ -11,7 +11,7 @@
 
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
-
+constexpr double MINIMUM_DATA_FOR_ANALYSIS = 0.1; //0.1s
 
 class EventDetectionConsumer : public PlotConsumer
 {
@@ -23,7 +23,7 @@ public:
 
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
-    //    void onBinsNuberChanged(int numberOfBins);
+    void onSamplingRateChanged(Measurement_t samplingRate) override;
 
 private:
 

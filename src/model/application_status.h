@@ -35,6 +35,7 @@ public:
     MessageDispatcher * getMessageDispatcher();
     std::vector <int> getVisibleChannels();
     std::vector<std::string> getNames();
+    Measurement getSamplingRate();
 };
 
 
