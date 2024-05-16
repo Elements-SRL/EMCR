@@ -7,7 +7,7 @@ FirstOrderIirFilter::FirstOrderIirFilter(double samplingRate, double cutoffFrequ
     const double dt = 1.0 / samplingRate;
     const double commonPart = w * dt;
     const double b = commonPart / (2.0 + commonPart);
-    this->a = -(2 - commonPart)/(2.0 + commonPart);
+    this->a = -(2.0 - commonPart)/(2.0 + commonPart);
     this->b0 = b;
     this->b1 = b;
     x_prev = 0;
@@ -15,7 +15,9 @@ FirstOrderIirFilter::FirstOrderIirFilter(double samplingRate, double cutoffFrequ
 }
 
 double FirstOrderIirFilter::sfilt(const double& x) {
-    return (b0 * x) + (b1 * x_prev) - (a * y_prev);
+    const auto y = (b0 * x) + (b1 * x_prev) - (a * y_prev);
+    update(x, y);
+    return y;
 }
 
 std::vector<double> FirstOrderIirFilter::filt(const std::vector<double>& input) {

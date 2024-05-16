@@ -133,7 +133,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
 
         uint64_t acc = 0;
         eventCurves[chIdx].clear();
-        qDebug() << "recieved";
+        qDebug() << "received";
 
         for (const auto& event : pair.second) {
             QwtPlotCurve* curve = new QwtPlotCurve();

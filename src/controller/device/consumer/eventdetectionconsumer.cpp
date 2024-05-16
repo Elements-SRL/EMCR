@@ -68,7 +68,6 @@ void EventDetectionConsumer::run() {
             idx = 0;
             bufferIdx = 0;
             bufferLen = buffer.size();
-            atLeastOneFound = false;
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
                 //let's ignore voltages for now
@@ -79,23 +78,33 @@ void EventDetectionConsumer::run() {
                         const auto currentValue = buffer[bufferIdx];
                         //current copied in currentValues
                         currentValues[channelIdx].push_back(currentValue);
-                        const auto optEvent = eventDetectionChannels[channelIdx]->analyze(currentValue, idx, bufferLen);
-                        if (optEvent.has_value()) {
-                            atLeastOneFound = true;
-                            qDebug() << "found";
-                            const auto event = optEvent.value();
-                            processEvent(event, channelIdx, eventBuffer);
-                        }
                     }
                     bufferIdx++;
                 }
                 idx++;
+            }
+
+            for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                if (plottedChannels[channelIdx]) {
+                    const auto valuesSize = currentValues[channelIdx].size();
+                    for (idx = 0; idx < valuesSize; idx++) {
+                        const auto currentValue = currentValues[channelIdx][idx];
+                        const auto optEvent = eventDetectionChannels[channelIdx]->analyze(currentValue, idx, valuesSize);
+                        if (optEvent.has_value()) {
+                            atLeastOneFound = true;
+                            //qDebug() << "found";
+                            const auto event = optEvent.value();
+                            processEvent(event, channelIdx, eventBuffer);
+                        }
+                    }
+                }
             }
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS && atLeastOneFound) {
                 emitPlotData();
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
+                atLeastOneFound = false;
             }
         }
     }
@@ -155,8 +164,7 @@ void EventDetectionConsumer::processEvent(std::pair<int, int> evtBegingEnd, uint
     }
     ////WARNING MODIFY THIS WITH THE time counter
     const auto eventIdx = eventLen;
-    std::vector<double> eventData = eventBuffer;
-    eventDetectionChannels[chIdx]->pushEvent(Event(eventIdx, eventData));
+    eventDetectionChannels[chIdx]->pushEvent(Event(eventIdx, eventBuffer));
 }
 
 //todo call this method when bin size changes or when voltage range changes

@@ -3,8 +3,8 @@
 #include <iostream>
 
 EventDetector::EventDetector(int sizeHint) {
-    high = new FirstOrderIirFilter(2e6, 500e3);
-    low = new FirstOrderIirFilter(2e6, 100);
+    high = new FirstOrderIirFilter(40.0e6, 500.0e3);
+    low = new FirstOrderIirFilter(40.0e6, 100.0);
     if (sizeHint != -1) {
         events.reserve(sizeHint);
     }
