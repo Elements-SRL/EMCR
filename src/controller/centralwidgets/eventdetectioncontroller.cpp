@@ -129,20 +129,14 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     events = message.events;
     for (const auto& pair : message.events) {
         auto chIdx = pair.first;
-        //qDebug() << pair.second.size();
-
         uint64_t acc = 0;
-        qDebug() << "received";
-
         for (const auto& event : pair.second) {
             QwtPlotCurve* curve = new QwtPlotCurve();
             eventCurves[chIdx].push_back(curve);
-            
             std::vector<double> data = event.event;
             acc += data.size();
             QVector<double> yData(data.size());
             std::copy(data.begin(), data.end(), yData.begin());
-
             QVector<double> xData;
             for (int i = 0; i < yData.size(); i++) {
                 xData << i;
@@ -151,10 +145,11 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             curve->attach(plot);
         }
         uint32_t len = pair.second.size();
-        widget->setAvgLen((double)acc/len);
-        widget->setNumberOfEvents(len);
+        if (len > 0) {
+            widget->setAvgLen((double)(acc / len / appStatus->getSamplingRate().value));
+            widget->setNumberOfEvents(len);
+        }
     }
-
     plot->show();
     plot->replot();
 }
