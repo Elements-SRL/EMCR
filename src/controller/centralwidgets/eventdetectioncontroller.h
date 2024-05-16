@@ -7,6 +7,7 @@
 #include "plotmessage.h"
 #include "eventdetectionconsumer.h"
 #include "centralwidgetcontroller.h"
+#include "eventdetectionwidget.h"
 
 class EventDetectionController : public CentralWidgetController {
     Q_OBJECT
@@ -21,9 +22,10 @@ public:
 
 private:
     EventDetectionConsumer* consumer = nullptr;
-    std::vector <Curve*> currentCurves;
+    std::map<uint32_t, std::vector<Event>> events;
+    std::map<uint32_t, std::vector<QwtPlotCurve*>> eventCurves;
     EventDetectionMessage message;
-
+    EventDetectionWidget* widget = nullptr;
     void detachCurves() override;
     void attachCurves() override;
 

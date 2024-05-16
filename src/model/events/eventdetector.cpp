@@ -3,13 +3,8 @@
 #include <iostream>
 
 EventDetector::EventDetector(int sizeHint) {
-    double coef_a_high = -0.50952545;
-    std::pair<double, double> coeffs_b_high = std::make_pair(0.24523728, 0.24523728);
-    high = new FirstOrderIirFilter(coef_a_high, coeffs_b_high);
-    double coef_a_low = -0.9994;
-    std::pair<double, double> coeffs_b_low = std::make_pair(0.0003, 0.0003);
-    low = new FirstOrderIirFilter(coef_a_low, coeffs_b_low);
-    std::cout << "creating event detection" << std::endl;
+    high = new FirstOrderIirFilter(2e6, 500e3);
+    low = new FirstOrderIirFilter(2e6, 100);
     if (sizeHint != -1) {
         events.reserve(sizeHint);
     }
@@ -97,6 +92,7 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     //event already begun
     if (eventLen >= MAX_LEN) {
         low->init(currentValue);
+        eventAlreadyBegun = false;
         return std::nullopt;
     }
     if (eventLen > MIN_LEN) {
@@ -106,4 +102,9 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     }
     eventAlreadyBegun = false;
     eventLen = 0;
+}
+
+
+void EventDetector::clear() {
+    events.clear();
 }

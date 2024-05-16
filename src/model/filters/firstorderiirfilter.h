@@ -14,7 +14,7 @@ private:
 
     void update(double x_prev_val, double y_prev_val);
 public:
-    FirstOrderIirFilter(double a_val, std::pair<double, double> b_val);
+    FirstOrderIirFilter(double samplingRate, double cutoffFrequency);
 
     // Implementing the interface functions
     std::vector<double> filt(const std::vector<double>& input) override;

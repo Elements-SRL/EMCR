@@ -1,14 +1,16 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
+#include <QVector>
 
 EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bpw) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
-    bpw->setEventDetectionTab(new EventDetectionWidget());
+    widget = new EventDetectionWidget();
+    bpw->setEventDetectionTab(widget);
     consumer = new EventDetectionConsumer(appStatus, producer);
     // creating curves for eventdetection
-    for (int i = 0; i < currentChannelsNum; i++) {
-        currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
-    }
+    //for (int i = 0; i < currentChannelsNum; i++) {
+    //    currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
+    //}
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
@@ -22,14 +24,19 @@ EventDetectionController::~EventDetectionController() {
         delete consumer;
         consumer = nullptr;
     }
-    currentCurves.clear();
+    //for (auto eventsInChannel : events) {
+    //    eventsInChannel.clear();
+    //}
+    events.clear();
 }
 
 void EventDetectionController::detachCurves() {
-    //for (auto c : currentCurves) {
-    //    c->detach();
-    //}
-    //plot->replot();
+    for (auto curvesInChannel: eventCurves) {
+        for (auto c : curvesInChannel.second) {
+            c->detach();
+        }
+    }
+    widget->getPlot()->replot();
 }
 
 void EventDetectionController::attachCurves() {
@@ -53,15 +60,15 @@ void EventDetectionController::stop() {
 }
 
 void EventDetectionController::onCurrentColorsChanged(QVector <QColor> colors) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[idx]->setColor(colors[idx]);
-    }
+    //for (int idx = 0; idx < currentChannelsNum; idx++) {
+    //    events[idx]->setColor(colors[idx]);
+    //}
 }
 
 void EventDetectionController::onCurrentColorChanged(int channelIdx, QColor color) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[channelIdx]->setColor(color);
-    }
+    //for (int idx = 0; idx < currentChannelsNum; idx++) {
+    //    currentCurves[channelIdx]->setColor(color);
+    //}
 }
 
 void EventDetectionController::onBackgroundColorChanged(QColor color) {
@@ -113,7 +120,44 @@ void EventDetectionController::onExpandTrace(bool flag) {
 }
 
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
+    message = std::get<2>(plotmessage);
+    auto plot = widget->getPlot();
+    detachCurves();
+    for (int i = 0; i < currentChannelsNum; i++) {
+        eventCurves[i].clear();
+    }
+    events = message.events;
+    for (const auto& pair : message.events) {
+        auto chIdx = pair.first;
+        //qDebug() << pair.second.size();
 
+        uint64_t acc = 0;
+        eventCurves[chIdx].clear();
+        qDebug() << "recieved";
+
+        for (const auto& event : pair.second) {
+            QwtPlotCurve* curve = new QwtPlotCurve();
+            eventCurves[chIdx].push_back(curve);
+            
+            std::vector<double> data = event.event;
+            acc += data.size();
+            QVector<double> yData(data.size());
+            std::copy(data.begin(), data.end(), yData.begin());
+
+            QVector<double> xData;
+            for (int i = 0; i < yData.size(); i++) {
+                xData << i;
+            }
+            curve->setSamples(xData, yData);
+            curve->attach(plot);
+        }
+        uint32_t len = pair.second.size();
+        widget->setAvgLen((double)acc/len);
+        widget->setNumberOfEvents(len);
+    }
+
+    plot->show();
+    plot->replot();
 }
 
 PlotConsumer* EventDetectionController::getConsumer() {

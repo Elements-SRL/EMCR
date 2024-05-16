@@ -44,7 +44,7 @@ private:
     
     //Event stuff
     std::vector<EventDetector *> eventDetectionChannels;
-
+    void processEvent(std::pair<int, int> evtBegingEnd, uint32_t chIdx, std::vector<double>& eventBuffer);
 protected:
     void clearData() override;
     void run() override;

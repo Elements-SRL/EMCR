@@ -47,3 +47,5 @@ EMCR_resource.aps
 
 FW/
 mocinclude.opt
+*.dat
+
