@@ -75,9 +75,8 @@ void EventDetectionConsumer::run() {
                 //currents
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
-                        const auto currentValue = buffer[bufferIdx];
                         //current copied in currentValues
-                        currentValues[channelIdx].push_back(currentValue);
+                        currentValues[channelIdx].push_back(buffer[bufferIdx]);
                     }
                     bufferIdx++;
                 }
@@ -187,6 +186,7 @@ void EventDetectionConsumer::emitPlotData() {
 
 void EventDetectionConsumer::clearData() {
     currentValues.clear();
+    eventDetectionChannels.clear();
     for (int i = 0; i < voltageData.size(); i++) {
         delete[] voltageData[i];
     }

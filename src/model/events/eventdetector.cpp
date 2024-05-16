@@ -98,6 +98,8 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     if (eventLen > MIN_LEN) {
         const auto e0 = eventBeginIdx - (EVENT_PADDING * eventLen);
         const auto e1 = eventBeginIdx + eventLen + (EVENT_PADDING * eventLen);
+        eventAlreadyBegun = false;
+        eventLen = 0;
         return std::make_pair((e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1);
     }
     eventAlreadyBegun = false;
