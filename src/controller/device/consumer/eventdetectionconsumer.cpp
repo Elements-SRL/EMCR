@@ -5,8 +5,7 @@
 
 EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer) :
     PlotConsumer(appStatus, producer) {
-    //check abfdatawriter for a suggest size
-    //minDataBatchSize = ;
+    minDataBatchSize = currentChannelsNum * appStatus->getSamplingRate().value * MINIMUM_DATA_FOR_ANALYSIS;
 
     this->nBins = 3201;
     calculateBinSize();
@@ -187,4 +186,9 @@ void EventDetectionConsumer::clearData() {
     voltageBins.clear();
     dataSize.clear();
     officialDataSize.clear();
+}
+
+void EventDetectionConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
+    PlotConsumer::onSamplingRateChanged(samplingRate);
+    minDataBatchSize = samplingRate.value * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
 }

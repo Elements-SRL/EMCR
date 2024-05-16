@@ -142,3 +142,9 @@ std::vector<std::string> ApplicationStatus::getNames(){
     }
     return names;
 }
+
+Measurement ApplicationStatus::getSamplingRate() {
+    Measurement_t sr;
+    auto err = msgDisp->getSamplingRate(sr);
+    return sr;
+}

@@ -6,10 +6,10 @@
 #include "event.h"
 #include "firstorderiirfilter.h"
 
-#define EVENT_TH 3 /*To be considered an event the signal must be EVENT_TH times the std dev*/
-#define MIN_LEN 1
-#define MAX_LEN 150
-#define EVENT_PADDING 4
+constexpr uint32_t EVENT_TH = 3; /*To be considered an event the signal must be EVENT_TH times the std dev*/
+constexpr uint32_t MIN_LEN = 80;
+constexpr uint32_t MAX_LEN = 4000;
+constexpr uint32_t EVENT_PADDING = 4;
 
 class EventDetector {
 public:
