@@ -94,8 +94,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>e384commlib.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cpp.lib;protocol-serializer.lib;shell32.lib;qwt.lib;qwtmathml.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\release;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\release;$(PROTOCOL_SERIALIZER_PATH)lib\release;$(QWT_6_1_4_VS_PATH)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>e384commlib.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cpp.lib;protocol-serializer.lib;shell32.lib;qwt.lib;qwtmathml.lib;libhdf5.lib;libhdf5_cpp.lib;libszaec.lib;libaec.lib;libzlib.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\release;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\release;$(PROTOCOL_SERIALIZER_PATH)lib\release;$(QWT_6_1_4_VS_PATH)lib;$(HDF5_PATH)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -142,7 +142,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>debug\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QWT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QWT_DLL;H5_BUILT_AS_DYNAMIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -151,8 +151,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>e384commlibd.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cppd.lib;protocol-serializerd.lib;shell32.lib;qwtd.lib;qwtmathmld.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\debug;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\debug;$(PROTOCOL_SERIALIZER_PATH)lib\debug;$(QWT_6_1_4_VS_PATH)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>e384commlibd.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cppd.lib;protocol-serializerd.lib;shell32.lib;qwtd.lib;qwtmathmld.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\debug;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\debug;$(PROTOCOL_SERIALIZER_PATH)lib\debug;$(QWT_6_1_4_VS_PATH)lib;$(HDF5_PATH)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
