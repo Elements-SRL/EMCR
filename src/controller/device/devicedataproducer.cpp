@@ -296,6 +296,46 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
     return true;
 }
 
+bool DataHook::getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
+    int waitCount = 0;
+    dataLock.lockForRead();
+    while ((((dataIdx + minDataBatchSize - dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
+        (!exitedDataProducingLoop) &&
+        waitCount++ < DDP_MAX_WAIT_COUNT) {
+        dataCv.wait(&dataLock, 100);
+    }
+
+    if (waitCount >= DDP_MAX_WAIT_COUNT) {
+        dataLock.unlock();
+        return false;
+    }
+
+    unsigned int dataPacketsMax = dataPacketsIdx;
+    dataLock.unlock();
+
+    unsigned int dataPacketsToBuffer;
+    if (dataIdx <= dataPacketsMax) {
+        dataPacketsToBuffer = dataPacketsMax - dataIdx;
+
+    }
+    else {
+        dataPacketsToBuffer = dataPacketsMax + bufferSize - dataIdx;
+    }
+
+    doubleBuffer.resize(dataPacketsToBuffer * totalChannelsNum);
+    intBuffer.resize(dataPacketsToBuffer * totalChannelsNum);
+    int count = 0;
+    int chIdx;
+    while (dataIdx != dataPacketsMax) {
+        for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
+            doubleBuffer[count++] = floatDataSamplesBuffer[dataIdx][chIdx];
+            intBuffer[count++] = dataSamplesBuffer[dataIdx][chIdx];
+        }
+        dataIdx = (dataIdx + 1) & bufferMask;
+    }
+    return true;
+}
+
 void DataHook::flush() {
     dataLock.lockForRead();
     dataIdx = dataPacketsIdx;
