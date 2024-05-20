@@ -287,6 +287,7 @@
     <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h" />
     <QtMoc Include="src\controller\centralwidgets\eventdetectioncontroller.h" />
     <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h" />
+    <ClInclude Include="src\model\events\baseline.h" />
     <ClInclude Include="src\view\addtagdialog.h" />
     <ClInclude Include="src\model\analysiscursor.h" />
     <ClInclude Include="src\model\application_status.h" />

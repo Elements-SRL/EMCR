@@ -328,7 +328,7 @@ bool DataHook::getDataChunks(std::vector <double>& doubleBuffer, std::vector <sh
     int chIdx;
     while (dataIdx != dataPacketsMax) {
         for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
-            doubleBuffer[count++] = floatDataSamplesBuffer[dataIdx][chIdx];
+            doubleBuffer[count] = floatDataSamplesBuffer[dataIdx][chIdx];
             intBuffer[count++] = dataSamplesBuffer[dataIdx][chIdx];
         }
         dataIdx = (dataIdx + 1) & bufferMask;

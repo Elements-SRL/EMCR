@@ -22,7 +22,7 @@ public:
 
 private:
     EventDetectionConsumer* consumer = nullptr;
-    std::map<uint32_t, std::vector<Event>> events;
+    std::map<uint32_t, std::pair<std::vector<Event>, Baseline>> eventsInfo;
     std::map<uint32_t, std::vector<QwtPlotCurve*>> eventCurves;
     EventDetectionMessage message;
     EventDetectionWidget* widget = nullptr;

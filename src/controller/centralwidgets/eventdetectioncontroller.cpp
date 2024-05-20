@@ -27,7 +27,7 @@ EventDetectionController::~EventDetectionController() {
     //for (auto eventsInChannel : events) {
     //    eventsInChannel.clear();
     //}
-    events.clear();
+    eventsInfo.clear();
 }
 
 void EventDetectionController::detachCurves() {
@@ -126,13 +126,17 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     for (int i = 0; i < currentChannelsNum; i++) {
         eventCurves[i].clear();
     }
-    events = message.events;
-    for (const auto& pair : message.events) {
+    eventsInfo = message.eventsInfo;
+    for (const auto& pair : eventsInfo) {
         auto chIdx = pair.first;
         uint64_t acc = 0;
-        const auto& events = pair.second;
+        const auto& eventsAndBaseline = pair.second;
+        const auto& events = eventsAndBaseline.first;
+        const auto& baseline = eventsAndBaseline.second;
+        uint32_t len = events.size();
         for (int eventIdx = 0; eventIdx < events.size(); eventIdx++) {
-            const std::vector<double> data = events[eventIdx].event;
+            const std::vector<int16_t> data = events[eventIdx].event;
+            const auto resolution = events[eventIdx].resolution;
             acc += data.size();
             if (eventIdx < 10) {
                 QwtPlotCurve* curve = new QwtPlotCurve();
@@ -141,13 +145,13 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 std::copy(data.begin(), data.end(), yData.begin());
                 QVector<double> xData;
                 for (int i = 0; i < yData.size(); i++) {
+                    yData[i] = ((double) data[i]) * resolution;
                     xData << i;
                 }
                 curve->setSamples(xData, yData);
                 curve->attach(plot);
             }
         }
-        uint32_t len = pair.second.size();
         if (len > 0) {
             widget->setAvgLen((double)((double) acc / (double) len / appStatus->getSamplingRate().value));
             widget->setNumberOfEvents(len);

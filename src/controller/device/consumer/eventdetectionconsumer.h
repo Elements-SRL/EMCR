@@ -31,8 +31,15 @@ private:
     int nBins;
     int subSamplingRatio = 1;
     double binSize;
-    std::vector<double> buffer;
-    std::vector<std::vector<double>> currentValues;
+    std::vector<double> doubleBuffer;
+
+    //this is used to pass data to the event saver
+    std::vector<int16_t> intBuffer;
+    std::vector<int16_t> baseline;
+    std::vector<std::vector<int16_t>> currentValuesInt;
+    std::vector<std::vector<double>> currentValuesDouble;
+    std::vector<std::vector<double>> voltageValues;
+
     std::vector<double*> voltageData;
     std::vector<int> dataSize;
     QMutex voltageAxisMtx;
@@ -44,7 +51,7 @@ private:
     
     //Event stuff
     std::vector<EventDetector *> eventDetectionChannels;
-    void processEvent(std::pair<int, int> evtBegingEnd, uint32_t chIdx, std::vector<double>& eventBuffer);
+
 protected:
     void clearData() override;
     void run() override;

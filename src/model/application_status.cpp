@@ -148,3 +148,9 @@ Measurement ApplicationStatus::getSamplingRate() {
     auto err = msgDisp->getSamplingRate(sr);
     return sr;
 }
+
+RangedMeasurement ApplicationStatus::getVoltageRange() {
+    RangedMeasurement vr;
+    auto err = msgDisp->getVoltageRange(vr);
+    return vr;
+}

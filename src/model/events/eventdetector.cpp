@@ -3,19 +3,23 @@
 #include <iostream>
 
 EventDetector::EventDetector(int sizeHint) {
+    const auto lowCutoffFrequency = 100.0;
     high = new FirstOrderIirFilter(40.0e6, 500.0e3);
-    low = new FirstOrderIirFilter(40.0e6, 100.0);
+    low = new FirstOrderIirFilter(40.0e6, lowCutoffFrequency);
     if (sizeHint != -1) {
         events.reserve(sizeHint);
     }
+    baselineSamplingRate = lowCutoffFrequency * 5;
+    baselineSamplingRateCounter = 0;
 }
 
-void EventDetector::pushEvent(Event event) {
-    events.push_back(event);
-}
-
-std::vector<Event> EventDetector::getEvents() {
-    return events;
+std::pair<std::vector<Event>, Baseline> EventDetector::consumeEventsAndBaseline() {
+    const std::vector<Event> tmpEvents = events;
+    const auto b = Baseline(currentRange.step, baseline, currentRange.unit);
+    const std::vector<int16_t> tmpBaseline = baseline;
+    events.clear();
+    baseline.clear();
+    return std::make_pair(tmpEvents, b);
 }
 
 double EventDetector::calculateThreshold(const std::vector<double>& data) {
@@ -54,19 +58,15 @@ double EventDetector::calcStdDev(const std::vector<double>& data) {
 }
 
 std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
-    //TODO, For now just reinit everything
-    if (idx == 0) {
-        threshold = calculateThreshold(bandPassFilterData);
-        //now that we have an updated value throw away the old ones
-        bandPassFilterData.clear();
-        eventAlreadyBegun = false;
-        eventLen = 0;
-        eventBeginIdx = 0;
-    }
     //begin event analysis
-    const auto baseline = low->sfilt(currentValue);
-    const auto s_no_baseline = currentValue - baseline;
+    const auto singleBaseline = low->sfilt(currentValue);
+    const auto s_no_baseline = currentValue - singleBaseline;
     const auto re_filtered = high->sfilt(s_no_baseline);
+
+    if (baselineSamplingRateCounter++ >= baselineSamplingRate) {
+        baseline.push_back(singleBaseline);
+        baselineSamplingRateCounter = 0;
+    }
 
     // threshold is not initialized yet
     if (threshold == -1) {
@@ -106,6 +106,41 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     eventLen = 0;
 }
 
+void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange) {
+    //TODO, For now just reinit everything
+    threshold = calculateThreshold(bandPassFilterData);
+    this->currentRange = currentRange;
+    this->voltageRange = voltageRange;
+    //now that we have an updated value throw away the old ones
+    bandPassFilterData.clear();
+    eventAlreadyBegun = false;
+    eventLen = 0;
+    eventBeginIdx = 0;
+    for (uint32_t idx = 0; idx < chunkSize; idx++) {
+        const auto currentValue = doubleBuffer[idx];
+        const auto optEvent = analyze(currentValue, idx, chunkSize);
+        if (optEvent.has_value()) {
+            const auto event = optEvent.value();
+            processEvent(event, intBuffer, voltages[idx], 0, chunkSize);
+        }
+    }
+}
+
+void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint64_t offset, uint32_t chunkSize) {
+    const uint32_t eventBegin = evtBegingEnd.first;
+    const uint32_t eventEnd = evtBegingEnd.second;
+    const uint32_t eventLen = eventEnd - eventBegin;
+    if (eventEnd >= chunkSize || eventBegin > eventEnd) {
+        return;
+    }
+    std::vector<int16_t> eventBuffer(eventLen);
+    for (uint32_t i = 0; i < eventLen; i++) {
+        eventBuffer[i] = intBuffer[i + eventBegin];
+    }
+    ////WARNING MODIFY THIS WITH THE time counter
+    const auto eventIdx = eventLen;
+    events.push_back(Event(offset, eventBuffer, voltage, voltageRange.unit, currentRange.step, currentRange.unit));
+}
 
 void EventDetector::clear() {
     events.clear();
