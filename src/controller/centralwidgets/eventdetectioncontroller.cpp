@@ -1,6 +1,56 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
 #include <QVector>
+using namespace H5;
+
+//const H5std_string GROUP_NAME("/events/");
+void append_data(H5::DataSet dataset, std::vector<int16_t> data) {
+    // Get the dataspace of the dataset
+    H5::DataSpace dataspace = dataset.getSpace();
+    // Get the number of dimensions in the dataspace
+    int ndims = dataspace.getSimpleExtentNdims();
+    // Get the size of each dimension
+    std::vector<hsize_t> dims(ndims);
+    dataspace.getSimpleExtentDims(dims.data(), NULL);
+    auto writtenData = dims[0];
+    int len = data.size();
+    hsize_t dimsToWrite[RANK] = { len };
+    hsize_t size[RANK] = { writtenData + len };
+    hsize_t offset[RANK] = { writtenData };
+    dataset.extend(size);
+    DataSpace fspace = dataset.getSpace();
+    fspace.selectHyperslab(H5S_SELECT_SET, dimsToWrite, offset);
+    DataSpace mspace(RANK, dimsToWrite);
+    dataset.write(data.data(), PredType::STD_I16LE, mspace, fspace);
+}
+
+void writeEvent(H5::Group parentGroup, std::vector<int16_t> data, std::string eventName) {
+    H5std_string groupName = eventName;
+    H5::Group group = parentGroup.createGroup(groupName);
+    hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
+    hsize_t maxdims[RANK] = { H5S_UNLIMITED };
+    DataSpace mspace(RANK, dims, maxdims);
+    DSetCreatPropList cparms;
+    hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
+    cparms.setChunk(RANK, chunk_dims);
+
+    DataSet dataset = group.createDataSet("DATASET_NAME", PredType::STD_I16LE, mspace, cparms);
+
+    DataSpace attSpace(H5S_SCALAR);
+
+    StrType strdatatype(0, H5T_VARIABLE);
+    H5::Attribute attr1 = dataset.createAttribute("Uom", strdatatype, attSpace);
+    //const char* description = "This is a dataset of integers.";
+    attr1.write(strdatatype, std::string("pA"));
+    // Create an integer attribute for the dataset
+    H5::Attribute attr2 = dataset.createAttribute("Version", H5::PredType::NATIVE_INT, attSpace);
+    int version = 1;
+    attr2.write(H5::PredType::NATIVE_INT, &version);
+    H5::Attribute attr3 = dataset.createAttribute("Current multiplier", H5::PredType::IEEE_F32LE, attSpace);
+    float multiplier = 3.14;
+    attr3.write(H5::PredType::IEEE_F32LE, &multiplier);
+    append_data(dataset, data);
+}
 
 EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bpw) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
@@ -17,6 +67,61 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     consumer->setMaxSamplesPerPlot(4096);
     consumer->onSelectChannels(false);
     consumer->onStopConsuming();
+    try {
+        /*
+         * Turn off the auto-printing when failure occurs so that we can
+         * handle the errors appropriately
+         */
+        Exception::dontPrint();
+        /*
+        * Create the data space with unlimited dimensions.
+        */
+        hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
+        hsize_t maxdims[RANK] = { H5S_UNLIMITED };
+        DataSpace mspace(RANK, dims, maxdims);
+        /*
+         * Create a new file. If file exists its contents will be overwritten.
+         */
+        H5File file("Events.h5", H5F_ACC_TRUNC);
+         /*
+         * Modify dataset creation properties, i.e. enable chunking.
+         */
+        DSetCreatPropList cparms;
+        hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
+        cparms.setChunk(RANK, chunk_dims);
+        group = file.createGroup("/events");
+        /*
+         * Create a new dataset within the file using cparms
+         * creation properties.
+         */
+        H5::DataSet dataset = group.createDataSet("ExtendibleArray", PredType::STD_I16LE, mspace, cparms);
+        int16_t acc = 0;
+        int16_t incrementing = 5;
+        for (int16_t i = 0; i < 1000; i++) {
+            std::vector<int16_t> dataToWrite;
+            for (int16_t di = 0; di < incrementing; di++) {
+                dataToWrite.push_back(acc++);
+            }
+            append_data(dataset, dataToWrite);
+            incrementing++;
+        }
+    }  // end of try block
+// catch failure caused by the H5File operations
+    catch (FileIException error){
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSet operations
+    catch (DataSetIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (DataSpaceIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (DataTypeIException error) {
+        error.printErrorStack();
+    }
 }
 
 EventDetectionController::~EventDetectionController() {
@@ -138,6 +243,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             const std::vector<int16_t> data = events[eventIdx].event;
             const auto resolution = events[eventIdx].resolution;
             acc += data.size();
+            writeEvent(group, data, "/events/"+std::to_string(eventCounter++));
             if (eventIdx < 10) {
                 QwtPlotCurve* curve = new QwtPlotCurve();
                 eventCurves[chIdx].push_back(curve);

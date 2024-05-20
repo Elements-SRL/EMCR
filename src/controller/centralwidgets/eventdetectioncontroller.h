@@ -8,6 +8,10 @@
 #include "eventdetectionconsumer.h"
 #include "centralwidgetcontroller.h"
 #include "eventdetectionwidget.h"
+#include "H5Cpp.h"
+
+constexpr int RANK = 1;
+constexpr int CHUNK_SIZE = 10000;
 
 class EventDetectionController : public CentralWidgetController {
     Q_OBJECT
@@ -28,7 +32,8 @@ private:
     EventDetectionWidget* widget = nullptr;
     void detachCurves() override;
     void attachCurves() override;
-
+    H5::Group group;
+    uint64_t eventCounter = 0;
 signals:
     void durationChanged(Measurement_t duration);
 
