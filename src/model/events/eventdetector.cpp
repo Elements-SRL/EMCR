@@ -115,6 +115,7 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     threshold = calculateThreshold(bandPassFilterData);
     this->currentRange = currentRange;
     this->voltageRange = voltageRange;
+    this->samplingRate = samplingRate;
     //now that we have an updated value throw away the old ones
     bandPassFilterData.clear();
     eventAlreadyBegun = false;
@@ -127,13 +128,14 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
         const auto currentValue = doubleBuffer[idx];
         const auto optEvent = analyze(currentValue, idx, chunkSize);
         if (optEvent.has_value()) {
-            const auto event = optEvent.value();
-            processEvent(event, intBuffer, voltages[idx], 0, chunkSize);
+            const auto& event = optEvent.value();
+            processEvent(event, intBuffer, voltages[idx], chunkSize);
         }
     }
+    timeCount += chunkSize;
 }
 
-void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint64_t offset, uint32_t chunkSize) {
+void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
     const uint32_t eventBegin = evtBegingEnd.first;
     const uint32_t eventEnd = evtBegingEnd.second;
     const uint32_t eventLen = eventEnd - eventBegin;
@@ -145,8 +147,7 @@ void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<i
         eventBuffer[i] = intBuffer[i + eventBegin];
     }
     ////WARNING MODIFY THIS WITH THE time counter
-    const auto eventIdx = eventLen;
-    events.push_back(Event(offset, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit()));
+    events.push_back(Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit()));
 }
 
 void EventDetector::clear() {

@@ -51,6 +51,7 @@ private:
     
     //Event stuff
     std::vector<EventDetector *> eventDetectionChannels;
+    uint64_t timeCounter = 0;
 
 protected:
     void clearData() override;

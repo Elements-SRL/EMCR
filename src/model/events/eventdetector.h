@@ -45,7 +45,9 @@ private:
 
     double calcStdDev(const std::vector<double>& data);
     std::optional<std::pair<int, int>> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
-    void processEvent(std::pair<int, int> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint64_t offset, uint32_t chunkSize);
+    void processEvent(std::pair<int, int> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize);
+
+    uint64_t timeCount = 0;
 };
 
 

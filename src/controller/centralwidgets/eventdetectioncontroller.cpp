@@ -46,10 +46,6 @@ void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     }
 }
 
-void pippo(H5::Group& parentGroup, const std::string eventName) {
-    H5::Group group = parentGroup.createGroup(eventName);
-}
-
 void writeEvent(H5::Group &parentGroup, const Event& event, const std::string eventName) {
     try {
         //H5std_string groupName = eventName;
@@ -72,6 +68,18 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         attr2.write(H5::PredType::NATIVE_INT, &version);
         H5::Attribute attr3 = dataset.createAttribute("Current resoultion", H5::PredType::IEEE_F64LE, attSpace);
         attr3.write(H5::PredType::IEEE_F64LE, &event.resolution);
+        H5::Attribute attr4 = dataset.createAttribute("Sample Offset", H5::PredType::NATIVE_UINT64, attSpace);
+        attr4.write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
+        H5::Attribute attr5 = dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace);
+        attr5.write(H5::PredType::IEEE_F64LE, &event.stimulus);
+        H5::Attribute attr6 = dataset.createAttribute("Stimulus Uom", strdatatype, attSpace);
+        //const char* description = "This is a dataset of integers.";
+        attr6.write(strdatatype, event.stimulusUom);
+        H5::Attribute attr7 = dataset.createAttribute("Sampling Rate", H5::PredType::IEEE_F64LE, attSpace);
+        attr7.write(H5::PredType::IEEE_F64LE, &event.stimulus);
+        H5::Attribute attr8 = dataset.createAttribute("Sampling Rate Uom", strdatatype, attSpace);
+        //const char* description = "This is a dataset of integers.";
+        attr8.write(strdatatype, event.samplingRateUom);
         append_data(dataset, event.event);
     }  // end of try block
     catch (H5::GroupIException& error) {
