@@ -10,16 +10,16 @@
 
 constexpr uint32_t EVENT_TH = 3; /*To be considered an event the signal must be EVENT_TH times the std dev*/
 constexpr uint32_t MIN_LEN = 80;
-constexpr uint32_t MAX_LEN = 4000;
+constexpr uint32_t MAX_LEN = 8000;
 constexpr uint32_t EVENT_PADDING = 4;
 
 class EventDetector {
 public:
-    EventDetector(int sizeHint = -1);
+    EventDetector(Measurement samplingRate, int sizeHint = -1);
 
     std::pair<std::vector<Event>, Baseline> consumeEventsAndBaseline();
 
-    void setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange);
+    void setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate);
     void clear();
 
 private:
@@ -31,6 +31,7 @@ private:
 
     RangedMeasurement currentRange;
     RangedMeasurement voltageRange;
+    Measurement samplingRate;
 
     FirstOrderIirFilter* high = nullptr;
     FirstOrderIirFilter* low = nullptr;

@@ -92,7 +92,7 @@ void EventDetectionConsumer::run() {
             for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                 if (plottedChannels[channelIdx]) {
                     const auto valuesSize = currentValuesDouble[channelIdx].size();
-                    eventDetectionChannels[channelIdx]->setChunk(currentValuesInt[channelIdx], currentValuesDouble[channelIdx], voltageValues[channelIdx], valuesSize, currentRange, voltageRange);
+                    eventDetectionChannels[channelIdx]->setChunk(currentValuesInt[channelIdx], currentValuesDouble[channelIdx], voltageValues[channelIdx], valuesSize, currentRange, voltageRange, appStatus->getSamplingRate());
                 }
             }
             currentTimeMs = updateDataTimer.elapsed();
@@ -139,7 +139,8 @@ void EventDetectionConsumer::allocateData() {
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
         currentValuesInt.push_back(std::vector<int16_t>(maxSamples));
         currentValuesDouble.push_back(std::vector<double>(maxSamples));
-        eventDetectionChannels.push_back(new EventDetector());
+        const Measurement fakeMeasurement = { 40e6, UnitPfxNone, "s" };
+        eventDetectionChannels.push_back(new EventDetector(fakeMeasurement));
     }
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
         voltageValues.push_back(std::vector<double>(maxSamples));

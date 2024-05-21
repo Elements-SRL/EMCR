@@ -2,10 +2,10 @@
 #include <cmath>
 #include <iostream>
 
-EventDetector::EventDetector(int sizeHint) {
+EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
     const auto lowCutoffFrequency = 100.0;
-    high = new FirstOrderIirFilter(40.0e6, 500.0e3);
-    low = new FirstOrderIirFilter(40.0e6, lowCutoffFrequency);
+    high = new FirstOrderIirFilter(samplingRate.value, 500.0e3);
+    low = new FirstOrderIirFilter(samplingRate.value, lowCutoffFrequency);
     if (sizeHint != -1) {
         events.reserve(sizeHint);
     }
@@ -59,6 +59,7 @@ double EventDetector::calcStdDev(const std::vector<double>& data) {
 
 std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
     //begin event analysis
+    const auto lowParams = low->getParams();
     const auto singleBaseline = low->sfilt(currentValue);
     const auto s_no_baseline = currentValue - singleBaseline;
     const auto re_filtered = high->sfilt(s_no_baseline);
@@ -83,6 +84,7 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     }
     if (isEvent && eventAlreadyBegun) {
         eventLen++;
+        low->init(lowParams.second);
         return std::nullopt;
     }
     bandPassFilterData.push_back(re_filtered);
@@ -106,8 +108,9 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     eventLen = 0;
 }
 
-void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange) {
+void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate) {
     //TODO, For now just reinit everything
+    //TODO, if sampling rate changes rebuild the filters
     const auto oldTh = threshold;
     threshold = calculateThreshold(bandPassFilterData);
     this->currentRange = currentRange;
@@ -143,7 +146,7 @@ void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<i
     }
     ////WARNING MODIFY THIS WITH THE time counter
     const auto eventIdx = eventLen;
-    events.push_back(Event(offset, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit()));
+    events.push_back(Event(offset, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit()));
 }
 
 void EventDetector::clear() {

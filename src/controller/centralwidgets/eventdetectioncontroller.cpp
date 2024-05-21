@@ -53,15 +53,14 @@ void pippo(H5::Group& parentGroup, const std::string eventName) {
 void writeEvent(H5::Group &parentGroup, const Event& event, const std::string eventName) {
     try {
         //H5std_string groupName = eventName;
-        H5::Group group = parentGroup.createGroup(eventName);
+        //H5::Group group = parentGroup.createGroup(eventName);
         hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
         DataSpace mspace(RANK, dims, maxdims);
         DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
         cparms.setChunk(RANK, chunk_dims);
-        const H5std_string DATASET_NAME("Event");
-        DataSet dataset = group.createDataSet(DATASET_NAME, PredType::STD_I16LE, mspace, cparms);
+        DataSet dataset = parentGroup.createDataSet(eventName, PredType::STD_I16LE, mspace, cparms);
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
         H5::Attribute attr1 = dataset.createAttribute("Uom", strdatatype, attSpace);
@@ -74,7 +73,6 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         H5::Attribute attr3 = dataset.createAttribute("Current resoultion", H5::PredType::IEEE_F64LE, attSpace);
         attr3.write(H5::PredType::IEEE_F64LE, &event.resolution);
         append_data(dataset, event.event);
-        group.close();
     }  // end of try block
     catch (H5::GroupIException& error) {
         error.printErrorStack();
@@ -279,7 +277,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             totalEvents++;
             acc += data.size();
             writeEvent(parentGroup, e, "e_"+std::to_string(eventCounter++));
-            if (eventIdx < 10) {
+            if (eventIdx == 0) {
                 QwtPlotCurve* curve = new QwtPlotCurve();
                 eventCurves[chIdx].push_back(curve);
                 QVector<double> yData(data.size());

@@ -22,7 +22,6 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
 
     // Bottom Left Plot
     bottomLeftPlot = new QwtPlot();
-    bottomLeftPlot->setTitle("Bottom Left Plot");
     bottomLeftPlot->setCanvasBackground(Qt::white);
 
     // Input fields for upper right corner

@@ -11,9 +11,11 @@ struct Event {
     double resolution;
     std::string uom;
     std::vector<int16_t> event;
+    double samplingRate;
+    std::string samplingRateUom;
 
-    Event(uint64_t eventIdx_, std::vector<int16_t> event_, double stimulus_, std::string stimulusUom_, double resolution_, std::string uom_)
-        : eventIdx(eventIdx_), event(event_), stimulus(stimulus_), stimulusUom(stimulusUom_), resolution(resolution_), uom(uom_){}
+    Event(uint64_t eventIdx_, std::vector<int16_t> event_, double stimulus_, std::string stimulusUom_, double resolution_, std::string uom_, double samplingRate_, std::string samplingRateUom_)
+        : eventIdx(eventIdx_), event(event_), stimulus(stimulus_), stimulusUom(stimulusUom_), resolution(resolution_), uom(uom_), samplingRate(samplingRate_), samplingRateUom(samplingRateUom_){}
 };
 
 #endif // EVENT_H
