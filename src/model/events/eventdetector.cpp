@@ -139,7 +139,7 @@ void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<i
     }
     ////WARNING MODIFY THIS WITH THE time counter
     const auto eventIdx = eventLen;
-    events.push_back(Event(offset, eventBuffer, voltage, voltageRange.unit, currentRange.step, currentRange.unit));
+    events.push_back(Event(offset, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit()));
 }
 
 void EventDetector::clear() {

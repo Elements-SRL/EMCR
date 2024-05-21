@@ -32,8 +32,8 @@ private:
     EventDetectionWidget* widget = nullptr;
     void detachCurves() override;
     void attachCurves() override;
-    H5::Group group;
     uint64_t eventCounter = 0;
+    H5::Group parentGroup;
 signals:
     void durationChanged(Measurement_t duration);
 
