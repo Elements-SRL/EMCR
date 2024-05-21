@@ -4,7 +4,8 @@
 using namespace H5;
 
 //const H5std_string GROUP_NAME("/events/");
-void append_data(H5::DataSet dataset, const std::vector<int16_t>& data) {
+void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
+    try {
     // Get the dataspace of the dataset
     H5::DataSpace dataspace = dataset.getSpace();
     // Get the number of dimensions in the dataspace
@@ -22,6 +23,27 @@ void append_data(H5::DataSet dataset, const std::vector<int16_t>& data) {
     fspace.selectHyperslab(H5S_SELECT_SET, dimsToWrite, offset);
     H5::DataSpace mspace(RANK, dimsToWrite);
     dataset.write(data.data(), H5::PredType::STD_I16LE, mspace, fspace);
+    }  // end of try block
+    catch (H5::GroupIException& error) {
+        error.printErrorStack();
+        // Handle the exception
+    }
+    // catch failure caused by the H5File operations
+    catch (H5::FileIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSet operations
+    catch (H5::DataSetIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (H5::DataSpaceIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (H5::DataTypeIException error) {
+        error.printErrorStack();
+    }
 }
 
 void pippo(H5::Group& parentGroup, const std::string eventName) {
@@ -114,6 +136,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
         cparms.setChunk(RANK, chunk_dims);
         parentGroup = file.createGroup("/events");
+        baselineDataset = parentGroup.createDataSet("Baseline", PredType::STD_I16LE, mspace, cparms);
     }  // end of try block
 // catch failure caused by the H5File operations
     catch (H5::FileIException error){
@@ -247,11 +270,13 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         const auto& eventsAndBaseline = pair.second;
         const auto& events = eventsAndBaseline.first;
         const auto& baseline = eventsAndBaseline.second;
+        append_data(baselineDataset, baseline.baseline);
         uint32_t len = events.size();
         for (int eventIdx = 0; eventIdx < events.size(); eventIdx++) {
             const auto e = events[eventIdx];
             const std::vector<int16_t> data = e.event;
             const auto resolution = events[eventIdx].resolution;
+            totalEvents++;
             acc += data.size();
             writeEvent(parentGroup, e, "e_"+std::to_string(eventCounter++));
             if (eventIdx < 10) {
@@ -271,6 +296,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         if (len > 0) {
             widget->setAvgLen((double)((double) acc / (double) len / appStatus->getSamplingRate().value));
             widget->setNumberOfEvents(len);
+            widget->setTotalNumberOfEvents(totalEvents);
         }
     }
     plot->show();

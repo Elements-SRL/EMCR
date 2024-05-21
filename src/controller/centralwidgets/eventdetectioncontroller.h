@@ -34,6 +34,15 @@ private:
     void attachCurves() override;
     uint64_t eventCounter = 0;
     H5::Group parentGroup;
+
+    uint32_t totalEvents = 0;
+    uint32_t eventsPerSec = 0;
+    
+    /// <summary>
+    /// HDF5 staff to manage baseline dataset
+    /// </summary>
+    H5::DataSet baselineDataset;
+
 signals:
     void durationChanged(Measurement_t duration);
 

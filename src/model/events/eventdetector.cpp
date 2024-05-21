@@ -9,7 +9,7 @@ EventDetector::EventDetector(int sizeHint) {
     if (sizeHint != -1) {
         events.reserve(sizeHint);
     }
-    baselineSamplingRate = lowCutoffFrequency * 5;
+    baselineSamplingRate = 40.0e6 / (lowCutoffFrequency * 5.0);
     baselineSamplingRateCounter = 0;
 }
 
@@ -63,8 +63,8 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     const auto s_no_baseline = currentValue - singleBaseline;
     const auto re_filtered = high->sfilt(s_no_baseline);
 
-    if (baselineSamplingRateCounter++ >= baselineSamplingRate) {
-        baseline.push_back(singleBaseline);
+    if (++baselineSamplingRateCounter >= baselineSamplingRate) {
+        baseline.push_back(singleBaseline / currentRange.step);
         baselineSamplingRateCounter = 0;
     }
 
@@ -108,6 +108,7 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
 
 void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange) {
     //TODO, For now just reinit everything
+    const auto oldTh = threshold;
     threshold = calculateThreshold(bandPassFilterData);
     this->currentRange = currentRange;
     this->voltageRange = voltageRange;
@@ -116,6 +117,9 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     eventAlreadyBegun = false;
     eventLen = 0;
     eventBeginIdx = 0;
+    if (oldTh == -1 && doubleBuffer.size() > 0) {
+        low->init(doubleBuffer[0]);
+    }
     for (uint32_t idx = 0; idx < chunkSize; idx++) {
         const auto currentValue = doubleBuffer[idx];
         const auto optEvent = analyze(currentValue, idx, chunkSize);

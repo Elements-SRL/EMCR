@@ -20,6 +20,8 @@ public:
     QwtPlot* getPlot();
     void setNumberOfEvents(uint32_t);
     void setAvgLen(double);
+    void setTotalNumberOfEvents(uint32_t numEvents);
+
 private:
     // Widgets for different parts of the layout
     QwtPlotHistogram* upperLeftHistogram;
@@ -28,6 +30,7 @@ private:
     QLineEdit* inputField2;
     QwtPlot* bottomLeftPlot;
     QLabel* numberOfEventsLabel; 
+    QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
 };
 
