@@ -190,6 +190,7 @@
     <ClCompile Include="src\controller\centralwidgets\eventdetectioncontroller.cpp" />
     <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp" />
+    <ClCompile Include="src\model\binner.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
     <ClCompile Include="src\view\addtagdialog.cpp" />
@@ -287,6 +288,7 @@
     <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h" />
     <QtMoc Include="src\controller\centralwidgets\eventdetectioncontroller.h" />
     <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h" />
+    <ClInclude Include="src\model\binner.h" />
     <ClInclude Include="src\model\events\baseline.h" />
     <ClInclude Include="src\model\events\enventinfo.h" />
     <ClInclude Include="src\model\events\eventpacket.h" />

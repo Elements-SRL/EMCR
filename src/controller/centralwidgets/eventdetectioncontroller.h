@@ -10,6 +10,7 @@
 #include "eventdetectionwidget.h"
 #include "H5Cpp.h"
 #include "eventpacket.h"
+#include "binner.h"
 
 constexpr int RANK = 1;
 constexpr int CHUNK_SIZE = 10000;
@@ -41,6 +42,8 @@ private:
     
     double durationAccumulator = 0;
     double amplitudeAccumulator = 0;
+
+    Binner * durationBinner;
     /// <summary>
     /// HDF5 staff to manage baseline dataset
     /// </summary>

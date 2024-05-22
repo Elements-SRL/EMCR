@@ -109,6 +109,8 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     widget = new EventDetectionWidget();
     bpw->setEventDetectionTab(widget);
     consumer = new EventDetectionConsumer(appStatus, producer);
+    //TODO THOSE NEEDS TO BE PASSED
+    durationBinner = new Binner(80.0 / 40e6, 8000.0 / 40e6, 200);
     // creating curves for eventdetection
     //for (int i = 0; i < currentChannelsNum; i++) {
     //    currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
@@ -282,6 +284,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             const auto& ei = eventsInfo[eventIdx];
             const auto& event = ei.event;
             durationAccumulator += ei.duration;
+            durationBinner->put(ei.duration);
             amplitudeAccumulator += ei.amplitude;
             const std::vector<int16_t>& data = event.rawData;
             const auto resolution = event.resolution;
@@ -300,10 +303,16 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 curve->attach(plot);
             }
         }
+
         QVector<QwtIntervalSample> samples;
-        samples.append(QwtIntervalSample(10.0, QwtInterval(0.0, 1.0)));  // Interval [0.0, 1.0] with value 10.0
-        samples.append(QwtIntervalSample(20.0, QwtInterval(1.0, 2.0)));  // Interval [1.0, 2.0] with value 20.0
-        samples.append(QwtIntervalSample(15.0, QwtInterval(2.0, 3.0)));  // Interval [2.0, 3.0] with value 15.0
+        const auto& keys = durationBinner->getKeys();
+        const auto& accs = durationBinner->getValues();
+        const auto step = durationBinner->getStep();
+        for (int i = 0; i < durationBinner->getNBins(); i++) {
+            const auto k = keys[i];
+            samples.append(QwtIntervalSample(accs[i], QwtInterval(k, k + step)));
+        }
+          // Interval [0.0, 1.0] with value 10.0
         if (len > 0) {
             widget->setAvgLen(durationAccumulator / ((double) totalEvents));
             widget->setNumberOfEvents(len);

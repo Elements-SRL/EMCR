@@ -319,6 +319,9 @@
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\binner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -883,6 +886,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\model\events\eventpacket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\binner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
