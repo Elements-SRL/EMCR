@@ -266,9 +266,6 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     message = std::get<2>(plotmessage);
     auto plot = widget->getPlot();
     detachCurves();
-    for (int i = 0; i < currentChannelsNum; i++) {
-        eventCurves[i].clear();
-    }
     for (const auto& pair : message.eventPackets) {
         auto chIdx = pair.first;
         uint64_t acc = 0;
@@ -277,6 +274,9 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         const auto& baseline = eventPacket.baseline;
         append_data(baselineDataset, baseline.baseline);
         uint32_t len = eventsInfo.size();
+        if (len > 0) {
+            eventCurves[chIdx].clear();
+        }
         totalEvents += len;
         for (int eventIdx = 0; eventIdx < eventsInfo.size(); eventIdx++) {
             const auto& ei = eventsInfo[eventIdx];
@@ -300,11 +300,16 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 curve->attach(plot);
             }
         }
+        QVector<QwtIntervalSample> samples;
+        samples.append(QwtIntervalSample(10.0, QwtInterval(0.0, 1.0)));  // Interval [0.0, 1.0] with value 10.0
+        samples.append(QwtIntervalSample(20.0, QwtInterval(1.0, 2.0)));  // Interval [1.0, 2.0] with value 20.0
+        samples.append(QwtIntervalSample(15.0, QwtInterval(2.0, 3.0)));  // Interval [2.0, 3.0] with value 15.0
         if (len > 0) {
             widget->setAvgLen(durationAccumulator / ((double) totalEvents));
             widget->setNumberOfEvents(len);
             widget->setTotalNumberOfEvents(totalEvents);
             widget->setAvgAmplitude(amplitudeAccumulator / ((double)totalEvents));
+            widget->setDurationData(samples);
         }
     }
     plot->show();

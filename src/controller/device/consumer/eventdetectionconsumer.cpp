@@ -66,6 +66,7 @@ void EventDetectionConsumer::run() {
             for (int i = 0; i < currentChannelsNum; i++) {
                 currentValuesInt[i].clear();
                 currentValuesDouble[i].clear();
+                voltageValues[i].clear();
             }
             bufferIdx = 0;
             bufferLen = doubleBuffer.size();

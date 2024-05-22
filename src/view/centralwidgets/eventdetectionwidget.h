@@ -23,6 +23,9 @@ public:
     void setAvgAmplitude(double);
     void setTotalNumberOfEvents(uint32_t numEvents);
 
+    void setDurationData(const QVector<QwtIntervalSample>& samples);
+    void setAmplitudeData(const QVector<QwtIntervalSample>& samples);
+
 private:
     // Widgets for different parts of the layout
     QwtPlotHistogram* upperLeftHistogram;

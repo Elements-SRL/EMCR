@@ -73,7 +73,12 @@ void EventDetectionWidget::setNumberOfEvents(uint32_t numEvents) {
 }
 
 void EventDetectionWidget::setAvgLen(double avgLength) {
-    avgLenLabel->setText("Average Length: " + QString::number(avgLength) + " s");
+    std::string unit = " s";
+    if (avgLength < 0.001) {
+        unit = " ms";
+        avgLength *= 1000;
+    }
+    avgLenLabel->setText("Average Length: " + QString::number(avgLength) + QString::fromStdString(unit));
 }
 
 void EventDetectionWidget::setTotalNumberOfEvents(uint32_t numEvents) {
@@ -82,4 +87,15 @@ void EventDetectionWidget::setTotalNumberOfEvents(uint32_t numEvents) {
 
 void EventDetectionWidget::setAvgAmplitude(double avgAmplitude) {
     avgAmplitudeLabel->setText("Average Amplitude: " + QString::number(avgAmplitude));
+}
+
+// Method to set data for the upper left histogram
+void EventDetectionWidget::setDurationData(const QVector<QwtIntervalSample>& samples) {
+    upperLeftHistogram->setSamples(samples);
+    upperLeftHistogram->plot()->replot();
+}
+
+void EventDetectionWidget::setAmplitudeData(const QVector<QwtIntervalSample>& samples) {
+    upperLeftHistogram->setSamples(samples);
+    upperLeftHistogram->plot()->replot();
 }
