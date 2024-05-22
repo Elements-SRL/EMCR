@@ -5,7 +5,7 @@
 #include <vector>
 #include <QVector>
 #include <tuple>
-#include "event.h"
+#include "eventpacket.h"
 #include <map>
 #include "baseline.h"
 
@@ -23,7 +23,7 @@ struct GapFreeMessage{
 };
 
 struct EventDetectionMessage {
-    std::map<uint32_t, std::pair<std::vector<Event>, Baseline>> eventsInfo;
+    std::map<uint32_t, EventPacket> eventPackets;
 };
 
 // Forward declaration of the variant type

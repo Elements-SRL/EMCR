@@ -157,16 +157,16 @@ void EventDetectionConsumer::calculateBinSize() {
 }
 
 void EventDetectionConsumer::emitPlotData() {
-    std::map<uint32_t, std::pair<std::vector<Event>, Baseline>> eventsAndBaseline;
+    std::map<uint32_t, EventPacket> eventPackets;
     for (uint32_t chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
         if (eventDetectionChannels[chIdx]) {
-            eventsAndBaseline.emplace(
+            eventPackets.emplace(
                 chIdx,
                 eventDetectionChannels[chIdx]->consumeEventsAndBaseline()
             );
         }
     }
-    EventDetectionMessage message = { eventsAndBaseline };
+    EventDetectionMessage message = { eventPackets };
     emit setPlotData(message);
 }
 

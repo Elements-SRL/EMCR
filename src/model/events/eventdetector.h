@@ -3,7 +3,8 @@
 
 #include <vector>
 #include <optional>
-#include "event.h"
+#include "enventinfo.h"
+#include "eventpacket.h"
 #include "firstorderiirfilter.h"
 #include "plotmessage.h"
 #include "messagedispatcher.h"
@@ -17,7 +18,7 @@ class EventDetector {
 public:
     EventDetector(Measurement samplingRate, int sizeHint = -1);
 
-    std::pair<std::vector<Event>, Baseline> consumeEventsAndBaseline();
+    EventPacket consumeEventsAndBaseline();
 
     void setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate);
     void clear();
@@ -40,7 +41,7 @@ private:
     uint32_t baselineSamplingRateCounter = 0;
     //INITIALIZE THOSE  vvvv
     std::vector<double> bandPassFilterData;
-    std::vector<Event> events;
+    std::vector<EventInfo> eventsInfo;
     std::vector<int16_t> baseline;
 
     double calcStdDev(const std::vector<double>& data);

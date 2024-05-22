@@ -80,7 +80,7 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         H5::Attribute attr8 = dataset.createAttribute("Sampling Rate Uom", strdatatype, attSpace);
         //const char* description = "This is a dataset of integers.";
         attr8.write(strdatatype, event.samplingRateUom);
-        append_data(dataset, event.event);
+        append_data(dataset, event.rawData);
     }  // end of try block
     catch (H5::GroupIException& error) {
         error.printErrorStack();
@@ -170,7 +170,7 @@ EventDetectionController::~EventDetectionController() {
     //for (auto eventsInChannel : events) {
     //    eventsInChannel.clear();
     //}
-    eventsInfo.clear();
+    eventPackets.clear();
 }
 
 void EventDetectionController::detachCurves() {
@@ -269,27 +269,28 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     for (int i = 0; i < currentChannelsNum; i++) {
         eventCurves[i].clear();
     }
-    eventsInfo = message.eventsInfo;
-    for (const auto& pair : eventsInfo) {
+    for (const auto& pair : message.eventPackets) {
         auto chIdx = pair.first;
         uint64_t acc = 0;
-        const auto& eventsAndBaseline = pair.second;
-        const auto& events = eventsAndBaseline.first;
-        const auto& baseline = eventsAndBaseline.second;
+        const auto& eventPacket = pair.second;
+        const auto& eventsInfo = eventPacket.eventsinfo;
+        const auto& baseline = eventPacket.baseline;
         append_data(baselineDataset, baseline.baseline);
-        uint32_t len = events.size();
-        for (int eventIdx = 0; eventIdx < events.size(); eventIdx++) {
-            const auto e = events[eventIdx];
-            const std::vector<int16_t> data = e.event;
-            const auto resolution = events[eventIdx].resolution;
-            totalEvents++;
+        uint32_t len = eventsInfo.size();
+        totalEvents += len;
+        for (int eventIdx = 0; eventIdx < eventsInfo.size(); eventIdx++) {
+            const auto& ei = eventsInfo[eventIdx];
+            const auto& event = ei.event;
+            durationAccumulator += ei.duration;
+            amplitudeAccumulator += ei.amplitude;
+            const std::vector<int16_t>& data = event.rawData;
+            const auto resolution = event.resolution;
             acc += data.size();
-            writeEvent(parentGroup, e, "e_"+std::to_string(eventCounter++));
+            writeEvent(parentGroup, event, "e_"+std::to_string(eventCounter++));
             if (eventIdx == 0) {
                 QwtPlotCurve* curve = new QwtPlotCurve();
                 eventCurves[chIdx].push_back(curve);
                 QVector<double> yData(data.size());
-                std::copy(data.begin(), data.end(), yData.begin());
                 QVector<double> xData;
                 for (int i = 0; i < yData.size(); i++) {
                     yData[i] = ((double) data[i]) * resolution;
@@ -300,9 +301,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             }
         }
         if (len > 0) {
-            widget->setAvgLen((double)((double) acc / (double) len / appStatus->getSamplingRate().value));
+            widget->setAvgLen(durationAccumulator / ((double) totalEvents));
             widget->setNumberOfEvents(len);
             widget->setTotalNumberOfEvents(totalEvents);
+            widget->setAvgAmplitude(amplitudeAccumulator / ((double)totalEvents));
         }
     }
     plot->show();

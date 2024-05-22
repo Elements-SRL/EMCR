@@ -1,25 +1,26 @@
 #include "eventdetector.h"
 #include <cmath>
 #include <iostream>
+#include <cstdint>
 
 EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
     const auto lowCutoffFrequency = 100.0;
     high = new FirstOrderIirFilter(samplingRate.value, 500.0e3);
     low = new FirstOrderIirFilter(samplingRate.value, lowCutoffFrequency);
     if (sizeHint != -1) {
-        events.reserve(sizeHint);
+        eventsInfo.reserve(sizeHint);
     }
     baselineSamplingRate = 40.0e6 / (lowCutoffFrequency * 5.0);
     baselineSamplingRateCounter = 0;
 }
 
-std::pair<std::vector<Event>, Baseline> EventDetector::consumeEventsAndBaseline() {
-    const std::vector<Event> tmpEvents = events;
-    const auto b = Baseline(currentRange.step, baseline, currentRange.unit);
-    const std::vector<int16_t> tmpBaseline = baseline;
-    events.clear();
+EventPacket EventDetector::consumeEventsAndBaseline() {
+    const std::vector<EventInfo> tmpEvents = eventsInfo;
+    const auto tmpBaseline = baseline;
+    const auto b = Baseline(currentRange.step, tmpBaseline, currentRange.unit);
+    eventsInfo.clear();
     baseline.clear();
-    return std::make_pair(tmpEvents, b);
+    return EventPacket(tmpEvents, b);
 }
 
 double EventDetector::calculateThreshold(const std::vector<double>& data) {
@@ -142,14 +143,20 @@ void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<i
     if (eventEnd >= chunkSize || eventBegin > eventEnd) {
         return;
     }
+    int16_t min = INT16_MAX;
+    int16_t max = INT16_MIN;
     std::vector<int16_t> eventBuffer(eventLen);
     for (uint32_t i = 0; i < eventLen; i++) {
-        eventBuffer[i] = intBuffer[i + eventBegin];
+        const auto v = intBuffer[i + eventBegin];
+        eventBuffer[i] = v;
+        if (v < min) { min = v; };
+        if (v > max) { max = v; };
     }
-    ////WARNING MODIFY THIS WITH THE time counter
-    events.push_back(Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit()));
+    const Event e = Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit());
+    const EventInfo ei = EventInfo(((double)std::abs(max - min)) * currentRange.step, ((double)eventLen) / samplingRate.getNoPrefixValue(), e);
+    eventsInfo.push_back(ei);
 }
 
 void EventDetector::clear() {
-    events.clear();
+    eventsInfo.clear();
 }

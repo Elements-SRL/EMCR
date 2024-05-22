@@ -9,6 +9,7 @@
 #include "centralwidgetcontroller.h"
 #include "eventdetectionwidget.h"
 #include "H5Cpp.h"
+#include "eventpacket.h"
 
 constexpr int RANK = 1;
 constexpr int CHUNK_SIZE = 10000;
@@ -26,7 +27,7 @@ public:
 
 private:
     EventDetectionConsumer* consumer = nullptr;
-    std::map<uint32_t, std::pair<std::vector<Event>, Baseline>> eventsInfo;
+    std::map<uint32_t, EventPacket> eventPackets;
     std::map<uint32_t, std::vector<QwtPlotCurve*>> eventCurves;
     EventDetectionMessage message;
     EventDetectionWidget* widget = nullptr;
@@ -38,6 +39,8 @@ private:
     uint32_t totalEvents = 0;
     uint32_t eventsPerSec = 0;
     
+    double durationAccumulator = 0;
+    double amplitudeAccumulator = 0;
     /// <summary>
     /// HDF5 staff to manage baseline dataset
     /// </summary>

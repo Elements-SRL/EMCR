@@ -20,6 +20,7 @@ public:
     QwtPlot* getPlot();
     void setNumberOfEvents(uint32_t);
     void setAvgLen(double);
+    void setAvgAmplitude(double);
     void setTotalNumberOfEvents(uint32_t numEvents);
 
 private:
@@ -32,6 +33,7 @@ private:
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
+    QLabel* avgAmplitudeLabel;
 };
 
 #endif // EVENTDETECTIONWIDGET_H
