@@ -14,7 +14,7 @@ void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     std::vector<hsize_t> dims(ndims);
     dataspace.getSimpleExtentDims(dims.data(), NULL);
     auto writtenData = dims[0];
-    int len = data.size();
+    hsize_t len = data.size();
     hsize_t dimsToWrite[RANK] = { len };
     hsize_t size[RANK] = { writtenData + len };
     hsize_t offset[RANK] = { writtenData };
@@ -110,7 +110,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     bpw->setEventDetectionTab(widget);
     consumer = new EventDetectionConsumer(appStatus, producer);
     //TODO THOSE NEEDS TO BE PASSED
-    durationBinner = new Binner(80.0 / 40e6, 8000.0 / 40e6, 200);
+    durationBinner = new Binner(80.0 / 1.0e6, 8000.0 / 1.0e6, 200);
     amplitudeBinner = new Binner(0.0, 10.0, 1000);
 
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);

@@ -140,7 +140,7 @@ void EventDetectionConsumer::allocateData() {
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
         currentValuesInt.push_back(std::vector<int16_t>(maxSamples));
         currentValuesDouble.push_back(std::vector<double>(maxSamples));
-        const Measurement fakeMeasurement = { 40e6, UnitPfxNone, "s" };
+        const Measurement fakeMeasurement = { 1.0e6, UnitPfxNone, "s" };
         eventDetectionChannels.push_back(new EventDetector(fakeMeasurement));
     }
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
