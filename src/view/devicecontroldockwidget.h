@@ -77,6 +77,7 @@ signals:
     void sigVcVoltageFilterSelected(int idx);
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
+    void sigCustomOptionSelected(unsigned int customOptionIdx, int idx);
     void sigDownsamplingRatioSelected(int ratio);
     void sigClampingModalitySelected(ClampingModality_t mode);
 };
