@@ -10,7 +10,7 @@ EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
     if (sizeHint != -1) {
         eventsInfo.reserve(sizeHint);
     }
-    baselineSamplingRate = 1.0e6 / (lowCutoffFrequency * 5.0);
+    baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
     baselineSamplingRateCounter = 0;
 }
 
