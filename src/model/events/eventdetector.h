@@ -8,6 +8,7 @@
 #include "firstorderiirfilter.h"
 #include "plotmessage.h"
 #include "messagedispatcher.h"
+#include <tuple>
 
 constexpr uint32_t EVENT_TH = 3; /*To be considered an event the signal must be EVENT_TH times the std dev*/
 constexpr uint32_t MIN_LEN = 80;
@@ -45,8 +46,8 @@ private:
     std::vector<int16_t> baseline;
 
     double calcStdDev(const std::vector<double>& data);
-    std::optional<std::pair<int, int>> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
-    void processEvent(std::pair<int, int> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize);
+    std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
+    void processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize);
 
     uint64_t timeCount = 0;
 };

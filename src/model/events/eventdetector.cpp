@@ -58,7 +58,7 @@ double EventDetector::calcStdDev(const std::vector<double>& data) {
     return std::sqrt(variance);
 }
 
-std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
+std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
     //begin event analysis
     const auto lowParams = low->getParams();
     const auto singleBaseline = low->sfilt(currentValue);
@@ -102,8 +102,9 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
         const auto e0 = eventBeginIdx - (EVENT_PADDING * eventLen);
         const auto e1 = eventBeginIdx + eventLen + (EVENT_PADDING * eventLen);
         eventAlreadyBegun = false;
+        const std::tuple<uint32_t, uint32_t, uint32_t> res((e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1, eventLen);
         eventLen = 0;
-        return std::make_pair((e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1);
+        return res;
     }
     eventAlreadyBegun = false;
     eventLen = 0;
@@ -136,9 +137,10 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     timeCount += chunkSize;
 }
 
-void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
-    const uint32_t eventBegin = evtBegingEnd.first;
-    const uint32_t eventEnd = evtBegingEnd.second;
+void EventDetector::processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> evtBegingEndLen, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
+    const uint32_t eventBegin = std::get<0>(evtBegingEndLen);
+    const uint32_t eventEnd = std::get<1>(evtBegingEndLen);
+    const auto realLen = std::get<2>(evtBegingEndLen);
     const uint32_t eventLen = eventEnd - eventBegin;
     if (eventEnd >= chunkSize || eventBegin > eventEnd) {
         return;
@@ -153,7 +155,7 @@ void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<i
         if (v > max) { max = v; };
     }
     const Event e = Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit());
-    const EventInfo ei = EventInfo(((double)std::abs(max - min)) * currentRange.step, ((double)eventLen / 9.0) / samplingRate.getNoPrefixValue(), e);
+    const EventInfo ei = EventInfo(((double)std::abs(max - min)) * currentRange.step, ((double) realLen) / samplingRate.getNoPrefixValue(), e);
     eventsInfo.push_back(ei);
 }
 
