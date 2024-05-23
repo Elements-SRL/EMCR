@@ -153,7 +153,7 @@ void EventDetector::processEvent(std::pair<int, int> evtBegingEnd, std::vector<i
         if (v > max) { max = v; };
     }
     const Event e = Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit());
-    const EventInfo ei = EventInfo(((double)std::abs(max - min)) * currentRange.step, ((double)eventLen) / samplingRate.getNoPrefixValue(), e);
+    const EventInfo ei = EventInfo(((double)std::abs(max - min)) * currentRange.step, ((double)eventLen / 9.0) / samplingRate.getNoPrefixValue(), e);
     eventsInfo.push_back(ei);
 }
 
