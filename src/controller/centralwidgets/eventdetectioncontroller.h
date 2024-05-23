@@ -44,6 +44,8 @@ private:
     double amplitudeAccumulator = 0;
 
     Binner * durationBinner;
+    Binner* amplitudeBinner;
+
     /// <summary>
     /// HDF5 staff to manage baseline dataset
     /// </summary>

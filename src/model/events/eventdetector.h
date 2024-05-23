@@ -44,6 +44,8 @@ private:
     std::vector<double> bandPassFilterData;
     std::vector<EventInfo> eventsInfo;
     std::vector<int16_t> baseline;
+    uint32_t chunkSize = 0;
+    double prevEventPerSecond = 0.0;
 
     double calcStdDev(const std::vector<double>& data);
     std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);

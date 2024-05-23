@@ -8,6 +8,7 @@
 #include <qwt_legend_label.h>
 #include <QLineEdit>
 #include <QLabel>
+#include <qwt_plot_barchart.h>
 
 class EventDetectionWidget : public QWidget
 {
@@ -18,18 +19,20 @@ public:
     ~EventDetectionWidget();
 
     QwtPlot* getPlot();
-    void setNumberOfEvents(uint32_t);
+    void setEventsPerSecond(double);
     void setAvgLen(double);
     void setAvgAmplitude(double);
     void setTotalNumberOfEvents(uint32_t numEvents);
 
-    void setDurationData(const QVector<QwtIntervalSample>& samples);
-    void setAmplitudeData(const QVector<QwtIntervalSample>& samples);
+    void setDurationData(const QVector<QPointF>& points);
+    void setAmplitudeData(const QVector<QPointF>& points);
 
 private:
     // Widgets for different parts of the layout
-    QwtPlotHistogram* upperLeftHistogram;
-    QwtPlotHistogram* bottomRightHistogram;
+    QwtPlotBarChart* upperLeftHistogram;
+    QwtPlotBarChart* bottomRightHistogram;
+    QwtPlot* bottomRightPlot;
+    //QwtPlotHistogram* bottomRightHistogram;
     QLineEdit* inputField1;
     QLineEdit* inputField2;
     QwtPlot* bottomLeftPlot;

@@ -15,12 +15,18 @@ EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
 }
 
 EventPacket EventDetector::consumeEventsAndBaseline() {
-    const std::vector<EventInfo> tmpEvents = eventsInfo;
-    const auto tmpBaseline = baseline;
-    const auto b = Baseline(currentRange.step, tmpBaseline, currentRange.unit);
+    uint32_t acc = 0;
+    uint32_t numberOfEvents = eventsInfo.size();
+    for (auto& ei : eventsInfo) {
+        acc += ei.event.rawData.size();
+    }
+    const auto b = Baseline(currentRange.step, baseline, currentRange.unit);
+    const auto eps = (prevEventPerSecond * 0.9) + (((double)numberOfEvents) * (samplingRate.getNoPrefixValue() / ((double)chunkSize)) * 0.1);
+    prevEventPerSecond = std::isnan(eps) ? 0.0 : eps;
+    const EventPacket ep = EventPacket(eventsInfo, b, prevEventPerSecond);
     eventsInfo.clear();
     baseline.clear();
-    return EventPacket(tmpEvents, b);
+    return ep;
 }
 
 double EventDetector::calculateThreshold(const std::vector<double>& data) {
@@ -113,6 +119,7 @@ std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> EventDetector::analyze(d
 void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate) {
     //TODO, For now just reinit everything
     //TODO, if sampling rate changes rebuild the filters
+    this->chunkSize = chunkSize;
     const auto oldTh = threshold;
     threshold = calculateThreshold(bandPassFilterData);
     this->currentRange = currentRange;

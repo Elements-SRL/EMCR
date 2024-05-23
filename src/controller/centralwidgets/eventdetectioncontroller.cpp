@@ -111,10 +111,8 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     consumer = new EventDetectionConsumer(appStatus, producer);
     //TODO THOSE NEEDS TO BE PASSED
     durationBinner = new Binner(80.0 / 40e6, 8000.0 / 40e6, 200);
-    // creating curves for eventdetection
-    //for (int i = 0; i < currentChannelsNum; i++) {
-    //    currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
-    //}
+    amplitudeBinner = new Binner(0.0, 10.0, 1000);
+
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
@@ -268,6 +266,8 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     message = std::get<2>(plotmessage);
     auto plot = widget->getPlot();
     detachCurves();
+    uint32_t eventDurationAcc = 0;
+    uint32_t len;
     for (const auto& pair : message.eventPackets) {
         auto chIdx = pair.first;
         uint64_t acc = 0;
@@ -275,7 +275,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         const auto& eventsInfo = eventPacket.eventsinfo;
         const auto& baseline = eventPacket.baseline;
         append_data(baselineDataset, baseline.baseline);
-        uint32_t len = eventsInfo.size();
+        len = eventsInfo.size();
         if (len > 0) {
             eventCurves[chIdx].clear();
         }
@@ -285,8 +285,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             const auto& event = ei.event;
             durationAccumulator += ei.duration;
             durationBinner->put(ei.duration);
+            amplitudeBinner->put(ei.amplitude);
             amplitudeAccumulator += ei.amplitude;
             const std::vector<int16_t>& data = event.rawData;
+            eventDurationAcc += data.size();
             const auto resolution = event.resolution;
             acc += data.size();
             writeEvent(parentGroup, event, "e_"+std::to_string(eventCounter++));
@@ -303,22 +305,35 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 curve->attach(plot);
             }
         }
-
-        QVector<QwtIntervalSample> samples;
-        const auto& keys = durationBinner->getKeys();
-        const auto& accs = durationBinner->getValues();
-        const auto step = durationBinner->getStep();
-        for (int i = 0; i < durationBinner->getNBins(); i++) {
-            const auto k = keys[i];
-            samples.append(QwtIntervalSample(accs[i], QwtInterval(k, k + step)));
+        const auto ciccia = ((double)len) * (appStatus->getSamplingRate().getNoPrefixValue()/((double)durationAccumulator));
+        QVector<QPointF> durationSamples; 
+        {
+            const auto& keys = durationBinner->getKeys();
+            const auto& accs = durationBinner->getValues();
+            for (int i = 0; i < durationBinner->getNBins(); i++) {
+                const auto k = keys[i];
+                durationSamples.append(QPointF(keys[i], accs[i]));
+            }
         }
-          // Interval [0.0, 1.0] with value 10.0
+
+        QVector<QPointF> amplitudeSamples; 
+        const auto& keys = amplitudeBinner->getKeys();
+        {
+            const auto& accs = amplitudeBinner->getValues();
+
+            for (int i = 0; i < amplitudeBinner->getNBins(); i++) {
+                const auto k = keys[i];
+                amplitudeSamples.append(QPointF(keys[i], accs[i]));
+            }
+        }
+
         if (len > 0) {
             widget->setAvgLen(durationAccumulator / ((double) totalEvents));
-            widget->setNumberOfEvents(len);
+            widget->setEventsPerSecond(eventPacket.eventPerSecond);
             widget->setTotalNumberOfEvents(totalEvents);
             widget->setAvgAmplitude(amplitudeAccumulator / ((double)totalEvents));
-            widget->setDurationData(samples);
+            widget->setDurationData(durationSamples);
+            widget->setAmplitudeData(amplitudeSamples);
         }
     }
     plot->show();

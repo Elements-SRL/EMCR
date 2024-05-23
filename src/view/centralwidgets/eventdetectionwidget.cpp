@@ -3,6 +3,8 @@
 #include <qwt_plot_curve.h>
 #include <qwt_scale_draw.h>
 #include <QVBoxLayout>
+#include <qwt_scale_widget.h>
+#include <qwt_scale_engine.h>
 
 EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     : QWidget(parent)
@@ -14,12 +16,20 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     totalNumberOfEventsLabel = new QLabel("Total Number of Events: ");
 
     // Upper Left Histogram
-    upperLeftHistogram = new QwtPlotHistogram("Upper Left Histogram");
+    upperLeftHistogram = new QwtPlotBarChart("Upper Left Histogram");
     upperLeftHistogram->attach(new QwtPlot());
 
     // Bottom Right Histogram
-    bottomRightHistogram = new QwtPlotHistogram("Bottom Right Histogram");
-    bottomRightHistogram->attach(new QwtPlot());
+    bottomRightHistogram = new QwtPlotBarChart("Amplitudes Histogram");
+    bottomRightPlot = new QwtPlot();
+    bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
+
+    // Customize the Y-axis scale draw to invert labels
+
+    // Set orientation to horizontal
+    bottomRightHistogram->setOrientation(Qt::Horizontal);
+    // Attach the bar chart to the plot
+    bottomRightHistogram->attach(bottomRightPlot);
 
     // Bottom Left Plot
     bottomLeftPlot = new QwtPlot();
@@ -68,8 +78,8 @@ QwtPlot* EventDetectionWidget::getPlot() {
     return bottomLeftPlot;
 }
 
-void EventDetectionWidget::setNumberOfEvents(uint32_t numEvents) {
-    numberOfEventsLabel->setText("Number of Events: " + QString::number(numEvents));
+void EventDetectionWidget::setEventsPerSecond(double eventsPerSecond) {
+    numberOfEventsLabel->setText("Events per second: " + QString::number(eventsPerSecond) + " Event/s");
 }
 
 void EventDetectionWidget::setAvgLen(double avgLength) {
@@ -90,12 +100,14 @@ void EventDetectionWidget::setAvgAmplitude(double avgAmplitude) {
 }
 
 // Method to set data for the upper left histogram
-void EventDetectionWidget::setDurationData(const QVector<QwtIntervalSample>& samples) {
-    upperLeftHistogram->setSamples(samples);
+void EventDetectionWidget::setDurationData(const QVector<QPointF>& points) {
+    upperLeftHistogram->setSamples(points);
     upperLeftHistogram->plot()->replot();
 }
 
-void EventDetectionWidget::setAmplitudeData(const QVector<QwtIntervalSample>& samples) {
-    upperLeftHistogram->setSamples(samples);
-    upperLeftHistogram->plot()->replot();
+void EventDetectionWidget::setAmplitudeData(const QVector<QPointF>& points) {
+    // Set samples to the bar chart
+    bottomRightHistogram->setSamples(points);
+    //bottomRightHistogram->setSamples(samples );
+    bottomRightHistogram->plot()->replot();
 }
