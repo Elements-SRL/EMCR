@@ -47,6 +47,11 @@ private:
     uint32_t chunkSize = 0;
     double prevEventPerSecond = 0.0;
 
+    uint32_t remainingChunkSize = 0;
+    std::vector<int16_t> remainingIntBuffer;
+    std::vector<double> remainingDoubleBuffer;
+    std::vector<double> remainingVoltages;
+
     double calcStdDev(const std::vector<double>& data);
     std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
     void processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize);

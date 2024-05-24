@@ -12,6 +12,11 @@ EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
     }
     baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
     baselineSamplingRateCounter = 0;
+
+    const auto finalPadding = MAX_LEN * EVENT_PADDING;
+    remainingIntBuffer.resize(finalPadding);
+    remainingDoubleBuffer.resize(finalPadding);
+    remainingVoltages.resize(finalPadding);
 }
 
 EventPacket EventDetector::consumeEventsAndBaseline() {
@@ -117,8 +122,13 @@ std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> EventDetector::analyze(d
 }
 
 void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate) {
-    //TODO, For now just reinit everything
     //TODO, if sampling rate changes rebuild the filters
+    //managing remaining stuff from older chunk
+    chunkSize += remainingChunkSize;
+    intBuffer.insert(intBuffer.begin(), remainingIntBuffer.begin(), remainingIntBuffer.end());
+    doubleBuffer.insert(doubleBuffer.begin(), remainingDoubleBuffer.begin(), remainingDoubleBuffer.end());
+    voltages.insert(voltages.begin(), remainingVoltages.begin(), remainingVoltages.end());
+
     this->chunkSize = chunkSize;
     const auto oldTh = threshold;
     threshold = calculateThreshold(bandPassFilterData);
@@ -133,7 +143,18 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     if (oldTh == -1 && doubleBuffer.size() > 0) {
         low->init(doubleBuffer[0]);
     }
-    for (uint32_t idx = 0; idx < chunkSize; idx++) {
+
+    const auto finalPadding = MAX_LEN * EVENT_PADDING;
+    //received chunk smaller than evnet * padding
+    if (chunkSize < finalPadding) {
+        remainingChunkSize = chunkSize;
+        std::copy(intBuffer.begin(), intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
+        std::copy(doubleBuffer.begin(), doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
+        std::copy(voltages.begin(), voltages.begin() + chunkSize, remainingVoltages.begin());
+        return;
+    }
+    const auto earlyStop = chunkSize - finalPadding;
+    for (uint32_t idx = 0; idx < earlyStop; idx++) {
         const auto currentValue = doubleBuffer[idx];
         const auto optEvent = analyze(currentValue, idx, chunkSize);
         if (optEvent.has_value()) {
@@ -141,7 +162,32 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
             processEvent(event, intBuffer, voltages[idx], chunkSize);
         }
     }
-    timeCount += chunkSize;
+    //Try to stop early
+    if (eventAlreadyBegun) {
+        //if an event is being process continue unitl it has been processed
+        uint32_t idx = earlyStop;
+        while (idx < chunkSize) {
+            const auto currentValue = doubleBuffer[idx];
+            const auto optEvent = analyze(currentValue, idx, chunkSize);
+            if (optEvent.has_value()) {
+                const auto& event = optEvent.value();
+                processEvent(event, intBuffer, voltages[idx], chunkSize);
+                break;
+            }
+            idx++;
+        }
+        timeCount += idx;
+        remainingChunkSize = chunkSize - idx;
+        std::copy(intBuffer.begin() + idx, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
+        std::copy(doubleBuffer.begin() + idx, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
+        std::copy(voltages.begin() + idx, voltages.begin() + chunkSize, remainingVoltages.begin());
+    } else {
+        timeCount += earlyStop;
+        remainingChunkSize = finalPadding;
+        std::copy(intBuffer.begin() + earlyStop, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
+        std::copy(doubleBuffer.begin() + earlyStop, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
+        std::copy(voltages.begin() + earlyStop, voltages.begin() + chunkSize, remainingVoltages.begin());
+    }
 }
 
 void EventDetector::processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> evtBegingEndLen, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
