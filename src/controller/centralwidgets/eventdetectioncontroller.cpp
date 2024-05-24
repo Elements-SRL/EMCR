@@ -15,7 +15,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
-    consumer->onSelectChannels(false);
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 }
 
@@ -111,11 +115,11 @@ void EventDetectionController::onExpandTrace(bool flag) {
     auto wasRunning = consumer->isRunning();
     if (wasRunning) {
         stop();
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
         start();
     }
     else {
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
     }
 }
 

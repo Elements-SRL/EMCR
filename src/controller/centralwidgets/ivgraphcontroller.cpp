@@ -35,7 +35,11 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &IvGraphController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
-    consumer->onSelectChannels(false);
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 
     connect(ivGraphWidget, &IvGraphWidget::exportIvGraph, this, &IvGraphController::onExportIvGraph);
@@ -262,11 +266,11 @@ void IvGraphController::onExpandTrace(bool flag) {
     auto wasRunning = consumer->isRunning();
     if (wasRunning) {
         stop();
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
         start();
     }
     else {
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
     }
 }
 
