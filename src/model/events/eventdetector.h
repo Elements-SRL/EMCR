@@ -11,7 +11,7 @@
 #include <tuple>
 
 constexpr uint32_t EVENT_TH = 3; /*To be considered an event the signal must be EVENT_TH times the std dev*/
-constexpr uint32_t MIN_LEN = 80;
+constexpr uint32_t MIN_LEN = 10;
 constexpr uint32_t MAX_LEN = 8000;
 constexpr uint32_t EVENT_PADDING = 4;
 
@@ -45,7 +45,8 @@ private:
     std::vector<EventInfo> eventsInfo;
     std::vector<int16_t> baseline;
     uint32_t chunkSize = 0;
-    double prevEventPerSecond = 0.0;
+    double estimatedInterEventTime = 0.0;
+    long long prevEventStartIdx = 0;
 
     uint32_t remainingChunkSize = 0;
     std::vector<int16_t> remainingIntBuffer;

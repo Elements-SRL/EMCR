@@ -20,15 +20,15 @@ EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
 }
 
 EventPacket EventDetector::consumeEventsAndBaseline() {
-    uint32_t acc = 0;
     uint32_t numberOfEvents = eventsInfo.size();
     for (auto& ei : eventsInfo) {
-        acc += ei.event.rawData.size();
+        estimatedInterEventTime = estimatedInterEventTime * 0.9 + 0.1 * (double)(ei.event.eventIdx - prevEventStartIdx);
+        prevEventStartIdx = ei.event.eventIdx;
     }
     const auto b = Baseline(currentRange.step, baseline, currentRange.unit);
-    const auto eps = (prevEventPerSecond * 0.9) + (((double)numberOfEvents) * (samplingRate.getNoPrefixValue() / ((double)chunkSize)) * 0.1);
-    prevEventPerSecond = std::isnan(eps) ? 0.0 : eps;
-    const EventPacket ep = EventPacket(eventsInfo, b, prevEventPerSecond);
+    double eventPerSecond = 1.0 / estimatedInterEventTime * samplingRate.getNoPrefixValue();
+    eventPerSecond = std::isnan(eventPerSecond) ? 0.0 : eventPerSecond;
+    const EventPacket ep = EventPacket(eventsInfo, b, eventPerSecond);
     eventsInfo.clear();
     baseline.clear();
     return ep;
