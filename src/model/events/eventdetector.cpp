@@ -5,7 +5,7 @@
 
 EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
     const auto lowCutoffFrequency = 100.0;
-    high = new FirstOrderIirFilter(samplingRate.value, 500.0e3);
+    high = new FirstOrderIirFilter(samplingRate.value, 250.0e3);
     low = new FirstOrderIirFilter(samplingRate.value, lowCutoffFrequency);
     if (sizeHint != -1) {
         eventsInfo.reserve(sizeHint);
