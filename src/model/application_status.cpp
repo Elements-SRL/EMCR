@@ -70,6 +70,16 @@ std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
     return selectedChannels;
 };
 
+std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
+    std::vector <uint16_t> expandedChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isExpanded()) {
+            expandedChannels.push_back(ch->getId());
+        }
+    }
+    return expandedChannels;
+};
+
 std::vector <YAML::ChannelMapping> ApplicationStatus::getMappings(){
     return mappings;
 };

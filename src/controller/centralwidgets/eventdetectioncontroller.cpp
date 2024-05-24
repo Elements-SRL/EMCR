@@ -117,7 +117,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
-    consumer->onSelectChannels(false);
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
     try {
         /*
@@ -173,7 +177,7 @@ EventDetectionController::~EventDetectionController() {
     eventPackets.clear();
 }
 
-void EventDetectionController::detachCurves() {
+void EventDetectionController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
     for (auto curvesInChannel: eventCurves) {
         for (auto c : curvesInChannel.second) {
             c->detach();
@@ -182,7 +186,7 @@ void EventDetectionController::detachCurves() {
     widget->getPlot()->replot();
 }
 
-void EventDetectionController::attachCurves() {
+void EventDetectionController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
     //for (auto c : currentCurves) {
     //    c->attach(plot);
     //}
@@ -193,13 +197,17 @@ void EventDetectionController::start() {
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }
-    attachCurves();
+    attachCurves(appStatus->getExpandedChannelsIndexes());
     consumer->onStartConsuming();
 }
 
 void EventDetectionController::stop() {
     consumer->onStopConsuming();
-    detachCurves();
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    detachCurves(allChannels);
 }
 
 void EventDetectionController::onCurrentColorsChanged(QVector <QColor> colors) {
@@ -254,18 +262,22 @@ void EventDetectionController::onExpandTrace(bool flag) {
     auto wasRunning = consumer->isRunning();
     if (wasRunning) {
         stop();
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
         start();
     }
     else {
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
     }
 }
 
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     message = std::get<2>(plotmessage);
     auto plot = widget->getPlot();
-    detachCurves();
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    detachCurves(allChannels);
     uint32_t eventDurationAcc = 0;
     uint32_t len;
     for (const auto& pair : message.eventPackets) {

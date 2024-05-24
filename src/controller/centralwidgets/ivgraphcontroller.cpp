@@ -35,7 +35,11 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &IvGraphController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
-    consumer->onSelectChannels(false);
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 
     connect(ivGraphWidget, &IvGraphWidget::exportIvGraph, this, &IvGraphController::onExportIvGraph);
@@ -189,25 +193,29 @@ void IvGraphController::start() {
         return;
     }
     ivGraphWidget->show();
-    attachCurves();
+    attachCurves(appStatus->getExpandedChannelsIndexes());
     consumer->onStartConsuming();
 }
 
 void IvGraphController::stop() {
     consumer->onStopConsuming();
-    detachCurves();
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    detachCurves(allChannels);
 }
 
-void IvGraphController::detachCurves() {
-    for (auto c : currentCurves) {
-        c->detach();
+void IvGraphController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
+    for (auto ch : channelIndexes) {
+        currentCurves[ch]->detach();
     }
     plot->replot();
 }
 
-void IvGraphController::attachCurves() {
-    for (auto c : currentCurves) {
-        c->attach(plot);
+void IvGraphController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
+    for (auto ch : channelIndexes) {
+        currentCurves[ch]->attach(plot);
     }
     plot->replot();
 }
@@ -262,11 +270,11 @@ void IvGraphController::onExpandTrace(bool flag) {
     auto wasRunning = consumer->isRunning();
     if (wasRunning) {
         stop();
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
         start();
     }
     else {
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
     }
 }
 

@@ -40,7 +40,11 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &GapFreeController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
-    consumer->onSelectChannels(false);
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 }
 
@@ -61,22 +65,22 @@ GapFreeController::~GapFreeController() {
     voltageCurves.clear();
 }
 
-void GapFreeController::detachCurves() {
-    for (auto c : currentCurves) {
-        c->detach();
+void GapFreeController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
+    for (auto ch : channelIndexes) {
+        currentCurves[ch]->detach();
     }
-    for (auto c : voltageCurves) {
-        c->detach();
+    for (auto ch : channelIndexes) {
+        voltageCurves[ch]->detach();
     }
     plot->replot();
 }
 
-void GapFreeController::attachCurves() {
-    for (auto c : currentCurves) {
-        c->attach(plot);
+void GapFreeController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
+    for (auto ch : channelIndexes) {
+        currentCurves[ch]->attach(plot);
     }
-    for (auto c : voltageCurves) {
-        c->attach(plot);
+    for (auto ch : channelIndexes) {
+        voltageCurves[ch]->attach(plot);
     }
     plot->replot();
 }
@@ -85,13 +89,17 @@ void GapFreeController::start() {
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }
-    attachCurves();
+    attachCurves(appStatus->getExpandedChannelsIndexes());
     consumer->onStartConsuming();
 }
 
 void GapFreeController::stop() {
     consumer->onStopConsuming();
-    detachCurves();
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    detachCurves(allChannels);
 }
 
 void GapFreeController::onCurrentColorsChanged(QVector <QColor> colors) {
@@ -148,11 +156,11 @@ void GapFreeController::onExpandTrace(bool flag) {
     auto wasRunning = consumer->isRunning();
     if (wasRunning) {
         stop();
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
         start();
     }
     else {
-        consumer->onSelectChannels(flag);
+        consumer->onPlotSelectedChannels(flag);
     }
 }
 

@@ -37,8 +37,8 @@ private:
     IvMessage message;
     void saveToCSV(const QString& filePath, const IvMessage& data);
 
-    void detachCurves() override;
-    void attachCurves() override;
+    void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
+    void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
 
 signals:
     void durationChanged(Measurement_t duration);

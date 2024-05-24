@@ -11,7 +11,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     msgDisp(msgDisp) {
 
     setObjectName("deviceControlsDw");
-    std::vector<ClampingModality_t> clampingModalities;
+    std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
 
     std::vector <RangedMeasurement_t> vcCurrentRanges;
@@ -39,7 +39,12 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     unsigned int maxDownsamplingRatio;
     msgDisp->getMaxDownsamplingRatioFeature(maxDownsamplingRatio);
 
-    QWidget *window = new QWidget;
+    std::vector <std::string> customOptions;
+    std::vector <std::vector <std::string>> customOptionDescriptions;
+    std::vector <uint16_t> customOptionDefault;
+    msgDisp->getCustomOptions(customOptions, customOptionDescriptions, customOptionDefault);
+
+    QWidget * window = new QWidget;
     this->setWidget(window);
     QVBoxLayout * vLayout = new QVBoxLayout(window);
     vLayout->setContentsMargins(0, 0, 0, 1);
@@ -49,7 +54,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! VC Current range */
     this->vcCurrentRangesGroupBox = setupGroupBox(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons);
-    for (int i = 0; i< vcCurrentRangesRadioButtons.size(); i++){
+    for (int i = 0; i < vcCurrentRangesRadioButtons.size(); i++) {
         connect(vcCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigVcCurrentRangeSelected(i);
@@ -59,7 +64,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! VC Voltage range */
     this->vcVoltageRangesGroupBox = setupGroupBox(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, vLayout, vcVoltageRangesRadioButtons);
-    for (int i = 0; i< vcVoltageRangesRadioButtons.size(); i++){
+    for (int i = 0; i < vcVoltageRangesRadioButtons.size(); i++) {
         connect(vcVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigVcVoltageRangeSelected(i);
@@ -69,7 +74,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! CC Current range */
     this->ccCurrentRangesGroupBox = setupGroupBox(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, vLayout, ccCurrentRangesRadioButtons);
-    for (int i = 0; i< ccCurrentRangesRadioButtons.size(); i++){
+    for (int i = 0; i < ccCurrentRangesRadioButtons.size(); i++) {
         connect(ccCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigCcCurrentRangeSelected(i);
@@ -79,7 +84,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! CC Voltage range */
     this->ccVoltageRangesGroupBox = setupGroupBox(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, vLayout, ccVoltageRangesRadioButtons);
-    for (int i = 0; i< ccVoltageRangesRadioButtons.size(); i++){
+    for (int i = 0; i < ccVoltageRangesRadioButtons.size(); i++) {
         connect(ccVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigCcVoltageRangeSelected(i);
@@ -89,7 +94,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! VC Voltage filter */
     this->vcVoltageFiltersGroupBox = setupGroupBox(DCW_STIMULUS_FILTER_TITLE, vcVoltageFilters, vLayout, vcVoltageFiltersRadioButtons);
-    for (int i = 0; i< vcVoltageFiltersRadioButtons.size(); i++){
+    for (int i = 0; i < vcVoltageFiltersRadioButtons.size(); i++) {
         connect(vcVoltageFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigVcVoltageFilterSelected(i);
@@ -99,7 +104,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! CC Current filter */
     this->ccCurrentFiltersGroupBox = setupGroupBox(DCW_STIMULUS_FILTER_TITLE, ccCurrentFilters, vLayout, ccCurrentFiltersRadioButtons);
-    for (int i = 0; i< ccCurrentFiltersRadioButtons.size(); i++){
+    for (int i = 0; i < ccCurrentFiltersRadioButtons.size(); i++) {
         connect(ccCurrentFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigCcCurrentFilterSelected(i);
@@ -108,8 +113,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! Sampling rate */
-    this->samplingRatesGroupBox = setupGroupBox(DCW_SAMPLING_RATE_TITLE,samplingRates, vLayout, samplingRatesRadioButtons);
-    for (int i = 0; i< samplingRatesRadioButtons.size(); i++){
+    this->samplingRatesGroupBox = setupGroupBox(DCW_SAMPLING_RATE_TITLE, samplingRates, vLayout, samplingRatesRadioButtons);
+    for (int i = 0; i < samplingRatesRadioButtons.size(); i++) {
         connect(samplingRatesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
                 emit sigSamplingRateSelected(i);
@@ -119,6 +124,20 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! Downsampling ratio */
     this->downsamplingRatiosGroupBox = new QGroupBox(DCW_DOWNSAMPLING_RATIO_TITLE);
+
+    /*! Custom options */
+    for (unsigned int customOptionIdx = 0; customOptionIdx < customOptions.size(); customOptionIdx++) {
+        std::vector <QRadioButton *> radioButtons;
+        this->customOptionsGroupBoxes.push_back(setupGroupBox(customOptions[customOptionIdx], customOptionDescriptions[customOptionIdx], vLayout, radioButtons));
+        customOptionsRadioButtons.push_back(radioButtons);
+        for (int i = 0; i < radioButtons.size(); i++) {
+            connect(radioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigCustomOptionSelected(customOptionIdx, i);
+                }
+            });
+        }
+    }
 
     QVBoxLayout * downSamplingRatioVl = new QVBoxLayout();
     downSamplingRatioVl->setContentsMargins(2, 2, 2, 2);
@@ -188,16 +207,13 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         }
     }
 
-    /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
-//    DeviceControlDockWidget::testFunction(vLayout, this->vcCurrentRangesGroupBox, vcCurrentRanges, this->vcCurrentRangesRadioButtons);
-
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
     vLayout->addWidget(spacer);
 }
 
 void DeviceControlDockWidget::forceEmit() {
-    std::vector<ClampingModality_t> clampingModalities;
+    std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities); /*! \todo LRos si può spostare nell'appstatus */
     for (int idx = 0; idx < clampingModalitiesRadioButtons.size(); idx++) {
         QRadioButton* btn = clampingModalitiesRadioButtons[idx];
@@ -263,6 +279,15 @@ void DeviceControlDockWidget::forceEmit() {
     }
 
     emit sigDownsamplingRatioSelected(downsamplingRatioSbx->value());
+
+    for (int customOptionIdx = 0; customOptionIdx < customOptionsRadioButtons.size(); customOptionIdx++) {
+        for (int idx = 0; idx < customOptionsRadioButtons[customOptionIdx].size(); idx++) {
+            QRadioButton * btn = customOptionsRadioButtons[customOptionIdx][idx];
+            if (btn->isChecked()) {
+                emit sigCustomOptionSelected(customOptionIdx, idx);
+            }
+        }
+    }
 }
 
 void DeviceControlDockWidget::updateParameters() {
@@ -346,74 +371,77 @@ void DeviceControlDockWidget::updateParameters() {
     /*! \todo FCON aggiungere controlli per DAC filters */
 }
 
-/*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
-//void DeviceControlDockWidget::testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, std::vector <RangedMeasurement_t> myRanges, std::vector<QRadioButton *> &qRadioButtons){
-//    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-
-//    vLayout->addWidget(qGroupBox);
-//    for (int idx = 0; idx < myRanges.size(); idx++){
-//        auto rm = myRanges[idx];
-//        QRadioButton * qrb = new QRadioButton(QString().fromStdString(rm.getMax().niceLabel()));
-//        radioButtonsBoxLayout->addWidget(qrb);
-//        qRadioButtons.push_back(qrb);
-//        connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {
-//            if (flag) {
-//                emit sigVcCurrentRangeSelected(idx);
-//            }
-//        });
-//    }
-//    if (qRadioButtons.size() > 0) {
-//        qRadioButtons[0]->setChecked(true);
-//    }
-//    qGroupBox->setLayout(radioButtonsBoxLayout);
-//}
-
 void DeviceControlDockWidget::setVcVoltageRangesroupBoxEnabled(bool status){
     setWidgetEnabled(vcVoltageRangesGroupBox, status);
 }
+
 void DeviceControlDockWidget::setVcCurrentRangesGroupBoxEnabled(bool status){
     setWidgetEnabled(vcCurrentRangesGroupBox, status);
 }
+
 void DeviceControlDockWidget::setCcVoltageRangesGroupBoxEnabled(bool status){
     setWidgetEnabled(ccVoltageRangesGroupBox, status);
 }
+
 void DeviceControlDockWidget::setCcCurrentRangesGroupBoxEnabled(bool status){
     setWidgetEnabled(ccCurrentRangesGroupBox, status);
 }
+
 void DeviceControlDockWidget::setSamplingRatesGroupBoxEnabled(bool status){
     setWidgetEnabled(samplingRatesGroupBox, status);
 }
+
 void DeviceControlDockWidget::setDownsamplingRatioSbxEnabled(bool status){
     setWidgetEnabled(downsamplingRatioSbx, status);
 }
 
-template<typename T>
-void DeviceControlDockWidget::setWidgetEnabled(T& widget, bool status) {
+void DeviceControlDockWidget::setWidgetEnabled(QWidget * widget, bool status) {
     if(widget != nullptr){
         widget->setEnabled(status);
     }
 }
 
-template<typename T>
-void DeviceControlDockWidget::setWidgetVisible(T& widget, bool status) {
+void DeviceControlDockWidget::setWidgetVisible(QWidget * widget, bool status) {
     if(widget != nullptr){
         widget->setVisible(status);
     }
 }
 
-QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> &radioButtons){
-    if (rangedMeasurements.size() == 0) {
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+    if (rangedMeasurements.empty()) {
         return nullptr;
     }
-    std::vector<Measurement> measurements;
-    for(auto rm: rangedMeasurements){
-        measurements.push_back(rm.getMax());
+    std::vector <QString> texts;
+    for (auto rm : rangedMeasurements) {
+        texts.push_back(QString::fromStdString(rm.getMax().niceLabel()));
     }
-    return setupGroupBox(title, measurements, parentLayout, radioButtons);
+    return setupGroupBox(title, texts, parentLayout, radioButtons);
 }
 
-QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector<Measurement> measurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> &radioButtons){
-    if (measurements.size() == 0) {
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+    if (measurements.empty()) {
+        return nullptr;
+    }
+    std::vector <QString> texts;
+    for (auto m : measurements) {
+        texts.push_back(QString::fromStdString(m.niceLabel()));
+    }
+    return setupGroupBox(title, texts, parentLayout, radioButtons);
+}
+
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+    if (strings.empty()) {
+        return nullptr;
+    }
+    std::vector <QString> texts;
+    for (auto s : strings) {
+        texts.push_back(QString::fromStdString(s));
+    }
+    return setupGroupBox(title, texts, parentLayout, radioButtons);
+}
+
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+    if (texts.empty()) {
         return nullptr;
     }
     auto gb = new QGroupBox(QString::fromStdString(title));
@@ -421,8 +449,8 @@ QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vecto
     radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
     radioButtonsBoxLayout->setSpacing(2);
     parentLayout->addWidget(gb);
-    for (int idx = 0; idx < measurements.size(); idx++){
-        QRadioButton * qrb = new QRadioButton(QString().fromStdString(measurements[idx].niceLabel()));
+    for (int idx = 0; idx < texts.size(); idx++){
+        QRadioButton * qrb = new QRadioButton(texts[idx]);
         radioButtonsBoxLayout->addWidget(qrb);
         radioButtons.push_back(qrb);
     }
@@ -430,7 +458,7 @@ QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vecto
         radioButtons[0]->setChecked(true);
     }
     gb->setLayout(radioButtonsBoxLayout);
-    if (measurements.size() == 1) {
+    if (texts.size() == 1) {
         gb->setEnabled(false);
     }
     return gb;

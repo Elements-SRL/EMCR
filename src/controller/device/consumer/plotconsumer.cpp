@@ -97,17 +97,20 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
     pushedDurationFlag = true;
 }
 
-void PlotConsumer::onSelectChannels(bool flag) {
-    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
+void PlotConsumer::onPlotSelectedChannels(bool flag) {
+    this->onPlotChannels(appStatus->getSelectedChannelsIndexes(), flag);
+}
+
+void PlotConsumer::onPlotChannels(std::vector <uint16_t> channels, bool flag) {
     if (flag) {
-        for (auto channelIdx : selectedChannels) {
+        for (auto channelIdx : channels) {
             if (!plottedChannels[channelIdx]) {
                 plottedChannels[channelIdx] = true;
             }
         }
 
     } else {
-        for (auto channelIdx : selectedChannels) {
+        for (auto channelIdx : channels) {
             if (plottedChannels[channelIdx]) {
                 plottedChannels[channelIdx] = false;
             }

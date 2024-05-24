@@ -32,8 +32,8 @@ private:
     std::map<uint32_t, std::vector<QwtPlotCurve*>> eventCurves;
     EventDetectionMessage message;
     EventDetectionWidget* widget = nullptr;
-    void detachCurves() override;
-    void attachCurves() override;
+    void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
+    void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
     uint64_t eventCounter = 0;
     H5::Group parentGroup;
 
