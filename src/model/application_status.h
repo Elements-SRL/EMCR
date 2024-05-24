@@ -30,6 +30,7 @@ public:
     std::vector <int> getVisibleChannelsOnRow(int rowIdx);
     std::vector <bool> getSelectedChannels();
     std::vector <uint16_t> getSelectedChannelsIndexes();
+    std::vector <uint16_t> getExpandedChannelsIndexes();
     std::vector <YAML::ChannelMapping> getMappings();
     std::set <int> getVisibleBoards();
     MessageDispatcher * getMessageDispatcher();

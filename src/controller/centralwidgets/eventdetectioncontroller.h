@@ -26,8 +26,8 @@ private:
     std::map<uint32_t, std::vector<QwtPlotCurve*>> eventCurves;
     EventDetectionMessage message;
     EventDetectionWidget* widget = nullptr;
-    void detachCurves() override;
-    void attachCurves() override;
+    void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
+    void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
 
 signals:
     void durationChanged(Measurement_t duration);

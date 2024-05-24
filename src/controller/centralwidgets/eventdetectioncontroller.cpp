@@ -34,7 +34,7 @@ EventDetectionController::~EventDetectionController() {
     events.clear();
 }
 
-void EventDetectionController::detachCurves() {
+void EventDetectionController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
     for (auto curvesInChannel: eventCurves) {
         for (auto c : curvesInChannel.second) {
             c->detach();
@@ -43,7 +43,7 @@ void EventDetectionController::detachCurves() {
     widget->getPlot()->replot();
 }
 
-void EventDetectionController::attachCurves() {
+void EventDetectionController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
     //for (auto c : currentCurves) {
     //    c->attach(plot);
     //}
@@ -54,13 +54,17 @@ void EventDetectionController::start() {
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }
-    attachCurves();
+    attachCurves(appStatus->getExpandedChannelsIndexes());
     consumer->onStartConsuming();
 }
 
 void EventDetectionController::stop() {
     consumer->onStopConsuming();
-    detachCurves();
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    detachCurves(allChannels);
 }
 
 void EventDetectionController::onCurrentColorsChanged(QVector <QColor> colors) {
@@ -126,7 +130,11 @@ void EventDetectionController::onExpandTrace(bool flag) {
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     message = std::get<2>(plotmessage);
     auto plot = widget->getPlot();
-    detachCurves();
+    std::vector <uint16_t> allChannels(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        allChannels[idx] = idx;
+    }
+    detachCurves(allChannels);
     for (int i = 0; i < currentChannelsNum; i++) {
         eventCurves[i].clear();
     }

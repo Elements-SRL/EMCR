@@ -31,8 +31,8 @@ private:
     BigPlot * plot = nullptr;
     std::vector <Curve*> currentCurves;
     std::vector <Curve*> voltageCurves;
-    void detachCurves() override;
-    void attachCurves() override;
+    void detachCurves(const std::vector <uint16_t> &channelIndexes) override;
+    void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
