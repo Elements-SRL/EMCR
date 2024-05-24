@@ -21,8 +21,10 @@ EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
 
 EventPacket EventDetector::consumeEventsAndBaseline() {
     uint32_t numberOfEvents = eventsInfo.size();
+    const auto eventPeakBeginFactor = ((double)EVENT_PADDING / (double)((EVENT_PADDING * 2) + 1));
     for (auto& ei : eventsInfo) {
-        estimatedInterEventTime = estimatedInterEventTime * 0.9 + 0.1 * (double)(ei.event.eventIdx - prevEventStartIdx);
+        const auto realEventIdx = (uint64_t)((double) ei.event.eventIdx + (double) ei.event.rawData.size() * eventPeakBeginFactor);
+        estimatedInterEventTime = estimatedInterEventTime * 0.9 + 0.1 * ( realEventIdx - prevEventStartIdx);
         prevEventStartIdx = ei.event.eventIdx;
     }
     const auto b = Baseline(currentRange.step, baseline, currentRange.unit);
