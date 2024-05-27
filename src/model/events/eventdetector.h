@@ -11,18 +11,20 @@
 #include <tuple>
 
 constexpr uint32_t EVENT_TH = 3; /*To be considered an event the signal must be EVENT_TH times the std dev*/
-constexpr uint32_t MIN_LEN = 10;
-constexpr uint32_t MAX_LEN = 8000;
 constexpr uint32_t EVENT_PADDING = 4;
 
 class EventDetector {
 public:
-    EventDetector(Measurement samplingRate, int sizeHint = -1);
+    EventDetector(Measurement samplingRate, uint32_t minEventLen, uint32_t maxEventLen, int sizeHint = -1);
 
     EventPacket consumeEventsAndBaseline();
 
     void setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate);
     void clear();
+
+    void setMinEventDurationInSamples(uint32_t);
+    void setMaxEventDurationInSamples(uint32_t);
+    void setHighCutoffFrquency(double);
 
 private:
     double threshold = -1;
@@ -30,6 +32,11 @@ private:
     bool eventAlreadyBegun = false;
     uint32_t eventLen = 0;
     uint32_t eventBeginIdx = 0;
+
+    uint32_t minEventLen;
+    uint32_t maxEventLen;
+
+    double highCutoffFrequency;
 
     RangedMeasurement currentRange;
     RangedMeasurement voltageRange;

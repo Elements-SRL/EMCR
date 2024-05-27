@@ -38,6 +38,7 @@ public:
     std::vector<std::string> getNames();
     Measurement getSamplingRate();
     RangedMeasurement getVoltageRange();
+    RangedMeasurement getCurrentRange();
 };
 
 

@@ -3,13 +3,10 @@
 #include <iostream>
 #include <QDebug>
 
-EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer) :
-    PlotConsumer(appStatus, producer) {
-    minDataBatchSize = currentChannelsNum * appStatus->getSamplingRate().value * MINIMUM_DATA_FOR_ANALYSIS;
+EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_):
+    PlotConsumer(appStatus, producer), minEventSamples(minEventSamples_), maxEventSamples(maxEventSamples_) {
+    minDataBatchSize = currentChannelsNum * appStatus->getSamplingRate().getNoPrefixValue() * MINIMUM_DATA_FOR_ANALYSIS;
     intBuffer.reserve(producer->getDataPacketsBufferLen() * totalChannelsNum);
-
-    this->nBins = 3201;
-    calculateBinSize();
     allocateData();
 }
 
@@ -26,7 +23,6 @@ void EventDetectionConsumer::forceAxisUpdate() {
 
 void EventDetectionConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
     PlotConsumer::onVoltageRangeChanged(range);
-    calculateBinSize();
     allocateData();
     emitPlotData();
 }
@@ -112,36 +108,17 @@ void EventDetectionConsumer::run() {
     exitedDataConsumingLoopCv.wakeAll();
 }
 
-// Function to scale a value into a number of bins
-int EventDetectionConsumer::scaleToBins(double value) {
-    // Calculate the adjusted value to lie within [0, 2*v]
-    return static_cast<int>((value - pushedVoltageRange.min) / binSize);
-}
-
 void EventDetectionConsumer::allocateData() {
     bool wasThisRunning = isRunning();
     onStopConsuming();
     clearData();
 
-    double* precalculatedVoltages = new double[nBins];
-    for (int i = 0; i < nBins; i++) {
-        precalculatedVoltages[i] = ((double)i) * binSize + pushedVoltageRange.min;
-    }
-    voltageData.resize(currentChannelsNum);
-    for (int i = 0; i < currentChannelsNum; i++) {
-        voltageData[i] = new double[nBins];
-    }
     dataSize.resize(currentChannelsNum);
-    officialDataSize.resize(currentChannelsNum);
-    voltageBins.resize(nBins);
-    for (int i = 0; i < nBins; i++) {
-        voltageBins[i] = ((double)i) * binSize + pushedVoltageRange.min;
-    }
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
         currentValuesInt.push_back(std::vector<int16_t>(maxSamples));
         currentValuesDouble.push_back(std::vector<double>(maxSamples));
-        const Measurement fakeMeasurement = { 1.0e6, UnitPfxNone, "s" };
-        eventDetectionChannels.push_back(new EventDetector(fakeMeasurement));
+        auto sr = appStatus->getSamplingRate();
+        eventDetectionChannels.push_back(new EventDetector(sr, minEventSamples, maxEventSamples));
     }
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
         voltageValues.push_back(std::vector<double>(maxSamples));
@@ -149,12 +126,6 @@ void EventDetectionConsumer::allocateData() {
     if (wasThisRunning) {
         onStartConsuming();
     }
-}
-
-//todo call this method when bin size changes or when voltage range changes
-void EventDetectionConsumer::calculateBinSize() {
-    // Calculate the size of each bin
-    binSize = pushedVoltageRange.delta() / ((double)(nBins - 1));
 }
 
 void EventDetectionConsumer::emitPlotData() {
@@ -177,16 +148,24 @@ void EventDetectionConsumer::clearData() {
     currentValuesDouble.clear();
     currentValuesInt.clear();
     voltageValues.clear();
-    for (int i = 0; i < voltageData.size(); i++) {
-        delete[] voltageData[i];
-    }
-    voltageData.clear();
-    voltageBins.clear();
     dataSize.clear();
-    officialDataSize.clear();
 }
 
 void EventDetectionConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     PlotConsumer::onSamplingRateChanged(samplingRate);
     minDataBatchSize = samplingRate.value * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
+}
+
+void EventDetectionConsumer::setMinEventDurationInSamples(uint32_t newValue) {
+    minEventSamples = newValue;
+    for (const auto& ed : eventDetectionChannels) {
+        ed->setMinEventDurationInSamples(minEventSamples);
+    }
+}
+
+void EventDetectionConsumer::setMaxEventDurationInSamples(uint32_t newValue) {
+    maxEventSamples = newValue;
+    for (const auto& ed : eventDetectionChannels) {
+        ed->setMaxEventDurationInSamples(maxEventSamples);
+    }
 }

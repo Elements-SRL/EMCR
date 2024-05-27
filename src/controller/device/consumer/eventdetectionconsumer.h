@@ -17,9 +17,12 @@ class EventDetectionConsumer : public PlotConsumer
 {
     Q_OBJECT
 public:
-    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer);
+    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_);
     ~EventDetectionConsumer();
     void forceAxisUpdate() override;
+
+    void setMinEventDurationInSamples(uint32_t);
+    void setMaxEventDurationInSamples(uint32_t);
 
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
@@ -28,7 +31,6 @@ public slots:
 private:
 
     double threshold = -1;
-    int nBins;
     int subSamplingRatio = 1;
     double binSize;
     std::vector<double> doubleBuffer;
@@ -40,15 +42,12 @@ private:
     std::vector<std::vector<double>> currentValuesDouble;
     std::vector<std::vector<double>> voltageValues;
 
-    std::vector<double*> voltageData;
     std::vector<int> dataSize;
     QMutex voltageAxisMtx;
     QMutex currentAxisMtx;
-    int scaleToBins(double value);
-    std::vector<double> voltageBins;
-    std::vector<int> officialDataSize;
-    void calculateBinSize();
-    
+    uint32_t minEventSamples;
+    uint32_t maxEventSamples;
+
     //Event stuff
     std::vector<EventDetector *> eventDetectionChannels;
     uint64_t timeCounter = 0;

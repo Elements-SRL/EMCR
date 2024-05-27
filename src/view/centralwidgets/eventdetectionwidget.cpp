@@ -6,7 +6,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
 
-EventDetectionWidget::EventDetectionWidget(QWidget* parent)
+EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, QWidget* parent)
     : QWidget(parent)
 {
     
@@ -38,12 +38,12 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     bottomLeftPlot->setCanvasBackground(Qt::white);
 
     // Input fields for upper right corner
-    QLabel* minDurationLabel = new QLabel("Minimum event duration (in ms)");
-    QLabel* maxDurationLabel = new QLabel("Maximum event duration (in ms)");
+    QLabel* minDurationLabel = new QLabel("Minimum event duration (in us)");
+    QLabel* maxDurationLabel = new QLabel("Maximum event duration (in us)");
     minDurationInMs = new QDoubleSpinBox();
-    minDurationInMs->setSuffix("ms");
+    minDurationInMs->setSuffix("us");
     maxDurationInMs = new QDoubleSpinBox();
-    maxDurationInMs->setSuffix("ms");
+    maxDurationInMs->setSuffix("us");
     QLabel* amplitudeBinsLabel = new QLabel("Number of amplitude bins");
     amplitudeBins = new QSpinBox();
     QLabel* durationBinsLabel = new QLabel("Number of duration bins");
@@ -52,6 +52,12 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     maxAmplitude = new QDoubleSpinBox();
     startButton = new QPushButton("Start");
     stopButton = new QPushButton("Stop");
+    QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency");
+    cutoffFrequencySpinbox = new QDoubleSpinBox();
+    cutoffFrequencySpinbox->setSuffix("Hz");
+    cutoffFrequencySpinbox->setMinimum(LOW_CUTOFF_FREQUENCY);
+    cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
+    cutoffFrequencySpinbox->setValue(defaultSamplingRate);
 
     // Set up layout
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -65,17 +71,30 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     QVBoxLayout* inputLayout = new QVBoxLayout(inputsWidget);
     inputLayout->addWidget(minDurationLabel);
     inputLayout->addWidget(minDurationInMs);
-    minDurationInMs->setMinimum(0.0);
+    minDurationInMs->setMinimum(ZERO);
+    minDurationInMs->setMaximum(100000.0);
+    minDurationInMs->setValue(defaultMinDurationInSeconds * 1.0e6);
     inputLayout->addWidget(maxDurationLabel);
     inputLayout->addWidget(maxDurationInMs);
-    maxDurationInMs->setMinimum(0.0);
+    maxDurationInMs->setMinimum(ZERO);
+    maxDurationInMs->setMaximum(100000.0);
+    maxDurationInMs->setValue(defaultMaxDurationInSeconds * 1.0e6);
     inputLayout->addWidget(amplitudeBinsLabel);
     inputLayout->addWidget(amplitudeBins);
+    amplitudeBins->setMinimum(2);
+    amplitudeBins->setMaximum(5000);
+    amplitudeBins->setValue(defaultAmplitudeBins);
     inputLayout->addWidget(durationBinsLabel);
     inputLayout->addWidget(durationBins);
+    durationBins->setMinimum(2);
+    durationBins->setMaximum(5000);
+    durationBins->setValue(defaultDurationBins);
     inputLayout->addWidget(maxBinAmplitudeLabel);
     inputLayout->addWidget(maxAmplitude);
-    maxAmplitude->setMinimum(0.0);
+    maxAmplitude->setMinimum(ZERO);
+    inputLayout->addWidget(cutoffFrequencyLabel);
+    inputLayout->addWidget(cutoffFrequencySpinbox);
+    //ADD MULTIPLIER OF THE STD FOR TH AND EXPLENATION
 
     //STATS
     QWidget* statsWidget = new QWidget(this);
@@ -90,17 +109,19 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     upperLayout->addWidget(statsWidget);
     upperLayout->addWidget(inputsWidget);
     layout->addLayout(upperLayout);
-    // Add QLabel widgets to display information in the upper right part
     
     // Bottom part
     QHBoxLayout* bottomLayout = new QHBoxLayout;
     bottomLayout->addWidget(bottomLeftPlot);
     bottomLayout->addWidget(bottomRightHistogram->plot());
     layout->addLayout(bottomLayout);
-    connect(minDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::minDurationChanged);
-    connect(maxDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::maxDurationChanged);
+    connect(minDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit minDurationChanged(value * 1.0e-6); });
+    connect(maxDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit maxDurationChanged(value * 1.0e-6); });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
     connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
+    connect(amplitudeBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::amplitudeBinsChanged);
+    connect(durationBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::durationBinsChanged);
+    connect(cutoffFrequencySpinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::cutoffFrequencyChanged);
 }
 
 EventDetectionWidget::~EventDetectionWidget(){
@@ -148,4 +169,8 @@ void EventDetectionWidget::setAmplitudeData(const QVector<QPointF>& points) {
     bottomRightHistogram->setSamples(points);
     //bottomRightHistogram->setSamples(samples );
     bottomRightHistogram->plot()->replot();
+}
+
+void EventDetectionWidget::setCutoffFrequency(double maxCutoffFrequency) {
+    cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
 }

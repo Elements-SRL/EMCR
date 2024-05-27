@@ -164,3 +164,9 @@ RangedMeasurement ApplicationStatus::getVoltageRange() {
     auto err = msgDisp->getVoltageRange(vr);
     return vr;
 }
+
+RangedMeasurement ApplicationStatus::getCurrentRange() {
+    RangedMeasurement cr;
+    auto err = msgDisp->getCurrentRange(cr);
+    return cr;
+}

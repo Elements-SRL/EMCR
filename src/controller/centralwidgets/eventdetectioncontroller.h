@@ -46,6 +46,13 @@ private:
     Binner * durationBinner;
     Binner* amplitudeBinner;
 
+    double minDurationInSeconds;
+    double maxDurationInSeconds;
+    uint32_t durationBins = 200;
+
+    double minAmplitude = 0.0;
+    double maxAmplitude;
+    uint32_t amplitudeBins = 200;
     /// <summary>
     /// HDF5 staff to manage baseline dataset
     /// </summary>

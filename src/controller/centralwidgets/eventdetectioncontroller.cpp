@@ -106,13 +106,19 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
 
 EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bpw) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
-    widget = new EventDetectionWidget();
-    bpw->setEventDetectionTab(widget);
-    consumer = new EventDetectionConsumer(appStatus, producer);
-    //TODO THOSE NEEDS TO BE PASSED
-    durationBinner = new Binner(80.0 / 1.0e6, 8000.0 / 1.0e6, 200);
-    amplitudeBinner = new Binner(0.0, 10.0, 1000);
+    //TODO THOSE NEEDS TO BE 
+    auto sr = appStatus->getSamplingRate();
+    auto noPrefVal = sr.getNoPrefixValue();
+    minDurationInSeconds = 80.0 / noPrefVal;
+    maxDurationInSeconds = 8000.0 / noPrefVal;
+    minAmplitude = 0.0;
+    maxAmplitude = appStatus->getCurrentRange().getMax().value / 10;
+    durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+    amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
 
+    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal);
+    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, sr.getNoPrefixValue());
+    bpw->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
@@ -127,6 +133,53 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
 
     connect(widget, &EventDetectionWidget::startPressed, this, [=]() {consumer->onStartConsuming(); });
     connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {consumer->onStopConsuming(); });
+    connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](double value) {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        auto sr = appStatus->getSamplingRate();
+        minDurationInSeconds = value;
+        uint32_t durationInSamples = sr.getNoPrefixValue() * value;
+        delete durationBinner;
+        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        totalEvents = 0;
+        durationAccumulator = 0;
+        amplitudeAccumulator = 0;
+        consumer->setMinEventDurationInSamples(durationInSamples);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
+        });
+    connect(widget, &EventDetectionWidget::maxDurationChanged, this, [=](double value) {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        auto sr = appStatus->getSamplingRate();
+        maxDurationInSeconds = value;
+        uint32_t durationInSamples = sr.getNoPrefixValue() * value;
+        delete durationBinner;
+        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        totalEvents = 0;
+        durationAccumulator = 0;
+        amplitudeAccumulator = 0;
+        consumer->setMaxEventDurationInSamples(durationInSamples);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
+        });
+    connect(widget, &EventDetectionWidget::durationBinsChanged, this, [=](int value) {
+        delete durationBinner;
+        durationBins = value;
+        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        });
+    connect(widget, &EventDetectionWidget::amplitudeBinsChanged, this, [=](int value) {
+        delete amplitudeBinner;
+        amplitudeBins = value;
+        amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
+        });
+
     try {
         /*
          * Turn off the auto-printing when failure occurs so that we can

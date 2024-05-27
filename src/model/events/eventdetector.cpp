@@ -3,17 +3,20 @@
 #include <iostream>
 #include <cstdint>
 
-EventDetector::EventDetector(Measurement samplingRate, int sizeHint) {
+EventDetector::EventDetector(Measurement samplingRate, uint32_t minEventLen, uint32_t maxEventLen, int sizeHint) {
     const auto lowCutoffFrequency = 100.0;
-    high = new FirstOrderIirFilter(samplingRate.value, 250.0e3);
-    low = new FirstOrderIirFilter(samplingRate.value, lowCutoffFrequency);
+    this->minEventLen = minEventLen;
+    this->maxEventLen = maxEventLen;
+    highCutoffFrequency = samplingRate.getNoPrefixValue() / 4.0,
+    high = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), highCutoffFrequency);
+    low = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), lowCutoffFrequency);
     if (sizeHint != -1) {
         eventsInfo.reserve(sizeHint);
     }
     baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
     baselineSamplingRateCounter = 0;
 
-    const auto finalPadding = MAX_LEN * EVENT_PADDING;
+    const auto finalPadding = maxEventLen * EVENT_PADDING;
     remainingIntBuffer.resize(finalPadding);
     remainingDoubleBuffer.resize(finalPadding);
     remainingVoltages.resize(finalPadding);
@@ -106,12 +109,12 @@ std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> EventDetector::analyze(d
         return std::nullopt;
     }
     //event already begun
-    if (eventLen >= MAX_LEN) {
+    if (eventLen >= maxEventLen) {
         low->init(currentValue);
         eventAlreadyBegun = false;
         return std::nullopt;
     }
-    if (eventLen > MIN_LEN) {
+    if (eventLen > minEventLen) {
         const auto e0 = eventBeginIdx - (EVENT_PADDING * eventLen);
         const auto e1 = eventBeginIdx + eventLen + (EVENT_PADDING * eventLen);
         eventAlreadyBegun = false;
@@ -146,7 +149,7 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
         low->init(doubleBuffer[0]);
     }
 
-    const auto finalPadding = MAX_LEN * EVENT_PADDING;
+    const auto finalPadding = maxEventLen * EVENT_PADDING;
     //received chunk smaller than evnet * padding
     if (chunkSize < finalPadding) {
         remainingChunkSize = chunkSize;
@@ -216,4 +219,18 @@ void EventDetector::processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> 
 
 void EventDetector::clear() {
     eventsInfo.clear();
+}
+
+void EventDetector::setMinEventDurationInSamples(uint32_t minDuration) {
+    minEventLen = minDuration;
+}
+
+void EventDetector::setMaxEventDurationInSamples(uint32_t maxDuration) {
+    maxEventLen = maxDuration;
+}
+
+void EventDetector::setHighCutoffFrquency(double cf) {
+    highCutoffFrequency = cf;
+    delete high;
+    high = new FirstOrderIirFilter(samplingRate.value, highCutoffFrequency);
 }
