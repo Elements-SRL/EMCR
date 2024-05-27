@@ -16,6 +16,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     avgAmplitudeLabel = new QLabel("Average Amplitude: ");
     totalNumberOfEventsLabel = new QLabel("Total Number of Events: ");
 
+    QGridLayout* gridLayout = new QGridLayout(this);
 
     // Upper Left Histogram
     upperLeftHistogram = new QwtPlotBarChart("Upper Left Histogram");
@@ -59,13 +60,12 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
     cutoffFrequencySpinbox->setValue(defaultSamplingRate);
 
-    // Set up layout
-    QVBoxLayout* layout = new QVBoxLayout(this);
 
     // Upper part
-    QHBoxLayout* upperLayout = new QHBoxLayout;
-    upperLayout->addWidget(upperLeftHistogram->plot());
+    gridLayout->addWidget(upperLeftHistogram->plot(), 0, 0);
 
+    QWidget* upperRightWidget = new QWidget(this);
+    QHBoxLayout * upperRightLayout = new QHBoxLayout(upperRightWidget);
     //INPUTS
     QWidget* inputsWidget = new QWidget(this);
     QVBoxLayout* inputLayout = new QVBoxLayout(inputsWidget);
@@ -106,15 +106,16 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     statsLayout->addWidget(startButton);
     statsLayout->addWidget(stopButton);
 
-    upperLayout->addWidget(statsWidget);
-    upperLayout->addWidget(inputsWidget);
-    layout->addLayout(upperLayout);
-    
+    upperRightLayout->addWidget(statsWidget);
+    upperRightLayout->addWidget(inputsWidget);
+    gridLayout->addWidget(upperRightWidget, 0, 1);
+
     // Bottom part
-    QHBoxLayout* bottomLayout = new QHBoxLayout;
-    bottomLayout->addWidget(bottomLeftPlot);
-    bottomLayout->addWidget(bottomRightHistogram->plot());
-    layout->addLayout(bottomLayout);
+    gridLayout->addWidget(bottomLeftPlot, 1, 0);
+    gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
+
+
+    //layout->addLayout(bottomLayout);
     connect(minDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit minDurationChanged(value * 1.0e-6); });
     connect(maxDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit maxDurationChanged(value * 1.0e-6); });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
