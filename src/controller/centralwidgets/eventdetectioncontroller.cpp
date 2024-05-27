@@ -120,6 +120,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
+        eventCurves[idx] = new QwtPlotCurve();
     }
     consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
@@ -178,19 +179,18 @@ EventDetectionController::~EventDetectionController() {
 }
 
 void EventDetectionController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
-    for (auto curvesInChannel: eventCurves) {
-        for (auto c : curvesInChannel.second) {
-            c->detach();
-        }
+    for (const auto& curvesInChannel: eventCurves) {
+        curvesInChannel.second->detach();
     }
     widget->getPlot()->replot();
 }
 
 void EventDetectionController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
-    //for (auto c : currentCurves) {
-    //    c->attach(plot);
-    //}
-    //plot->replot();
+    auto plot = widget->getPlot();
+    for (const auto& curvesInChannel : eventCurves) {
+        curvesInChannel.second->attach(plot);
+    }
+    plot->replot();
 }
 
 void EventDetectionController::start() {
@@ -277,7 +277,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
     }
-    detachCurves(allChannels);
+    //detachCurves(allChannels);
     uint32_t eventDurationAcc = 0;
     uint32_t len;
     for (const auto& pair : message.eventPackets) {
@@ -288,9 +288,6 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         const auto& baseline = eventPacket.baseline;
         append_data(baselineDataset, baseline.baseline);
         len = eventsInfo.size();
-        if (len > 0) {
-            eventCurves[chIdx].clear();
-        }
         totalEvents += len;
         for (int eventIdx = 0; eventIdx < eventsInfo.size(); eventIdx++) {
             const auto& ei = eventsInfo[eventIdx];
@@ -305,16 +302,17 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             acc += data.size();
             writeEvent(parentGroup, event, "e_"+std::to_string(eventCounter++));
             if (eventIdx == 0) {
-                QwtPlotCurve* curve = new QwtPlotCurve();
-                eventCurves[chIdx].push_back(curve);
+                const auto & curve = eventCurves[chIdx];
                 QVector<double> yData(data.size());
                 QVector<double> xData;
                 for (int i = 0; i < yData.size(); i++) {
                     yData[i] = ((double) data[i]) * resolution;
                     xData << i;
                 }
+                //NOT PLOTTING DATA ANYMORE
                 curve->setSamples(xData, yData);
-                curve->attach(plot);
+                plot->show();
+                plot->replot();
             }
         }
         const auto ciccia = ((double)len) * (appStatus->getSamplingRate().getNoPrefixValue()/((double)durationAccumulator));
@@ -348,8 +346,6 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             widget->setAmplitudeData(amplitudeSamples);
         }
     }
-    plot->show();
-    plot->replot();
 }
 
 PlotConsumer* EventDetectionController::getConsumer() {

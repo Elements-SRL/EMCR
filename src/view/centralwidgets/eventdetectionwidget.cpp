@@ -66,7 +66,6 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
 }
 
 EventDetectionWidget::~EventDetectionWidget(){
-    // Cleanup
     delete upperLeftHistogram;
     delete bottomRightHistogram;
     delete inputField1;
