@@ -329,6 +329,7 @@ void EventDetectionController::onExpandTrace(bool flag) {
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     message = std::get<2>(plotmessage);
     auto plot = widget->getPlot();
+    auto sr = appStatus->getSamplingRate();
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
@@ -361,9 +362,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 const auto & curve = eventCurves[chIdx];
                 QVector<double> yData(data.size());
                 QVector<double> xData;
+                const auto noPrefSr = 1.0 / sr.getNoPrefixValue();
                 for (int i = 0; i < yData.size(); i++) {
                     yData[i] = ((double) data[i]) * resolution;
-                    xData << i;
+                    xData << i * noPrefSr;
                 }
                 //NOT PLOTTING DATA ANYMORE
                 curve->setSamples(xData, yData);
