@@ -6,7 +6,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
 
-EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, QWidget* parent)
+EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, QWidget* parent)
     : QWidget(parent)
 {
     
@@ -39,8 +39,8 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     bottomLeftPlot->setCanvasBackground(Qt::white);
 
     // Input fields for upper right corner
-    QLabel* minDurationLabel = new QLabel("Minimum event duration (in us)");
-    QLabel* maxDurationLabel = new QLabel("Maximum event duration (in us)");
+    QLabel* minDurationLabel = new QLabel("Minimum event duration");
+    QLabel* maxDurationLabel = new QLabel("Maximum event duration");
     minDurationInMs = new QDoubleSpinBox();
     minDurationInMs->setSuffix("us");
     maxDurationInMs = new QDoubleSpinBox();
@@ -53,6 +53,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     maxAmplitude = new QDoubleSpinBox();
     startButton = new QPushButton("Start");
     stopButton = new QPushButton("Stop");
+    maxAmplitude->setValue(defaultMaxAmplitude);
     QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency");
     cutoffFrequencySpinbox = new QDoubleSpinBox();
     cutoffFrequencySpinbox->setSuffix("Hz");
@@ -115,6 +116,8 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
 
 
+    setCurrentRange(currentRange);
+
     //layout->addLayout(bottomLayout);
     connect(minDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit minDurationChanged(value * 1.0e-6); });
     connect(maxDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit maxDurationChanged(value * 1.0e-6); });
@@ -156,7 +159,7 @@ void EventDetectionWidget::setTotalNumberOfEvents(uint32_t numEvents) {
 }
 
 void EventDetectionWidget::setAvgAmplitude(double avgAmplitude) {
-    avgAmplitudeLabel->setText("Average Amplitude: " + QString::number(avgAmplitude));
+    avgAmplitudeLabel->setText("Average Amplitude: " + QString::number(avgAmplitude) + " " + QString::fromStdString(amplitudeUom));
 }
 
 // Method to set data for the upper left histogram
@@ -174,4 +177,10 @@ void EventDetectionWidget::setAmplitudeData(const QVector<QPointF>& points) {
 
 void EventDetectionWidget::setCutoffFrequency(double maxCutoffFrequency) {
     cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
+}
+
+void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
+    amplitudeUom = cr.getFullUnit();
+    maxAmplitude->setSuffix(QString::fromStdString(amplitudeUom));
+    maxAmplitude->setMaximum(cr.max);
 }

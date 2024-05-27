@@ -117,7 +117,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
 
     consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal);
-    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, sr.getNoPrefixValue());
+    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, sr.getNoPrefixValue(), appStatus->getCurrentRange(), maxAmplitude);
     bpw->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);

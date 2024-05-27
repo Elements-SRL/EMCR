@@ -11,6 +11,8 @@
 #include <qwt_plot_barchart.h>
 #include <qspinbox.h>
 #include <qpushbutton.h>
+#include "messagedispatcher.h"
+
 constexpr double LOW_CUTOFF_FREQUENCY = 100.0;
 constexpr double ZERO = 0.0;
 
@@ -19,7 +21,7 @@ class EventDetectionWidget : public QWidget
     Q_OBJECT
 
 public:
-    EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, QWidget* parent = nullptr);
+    EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, QWidget* parent = nullptr);
     ~EventDetectionWidget();
 
     QwtPlot* getPlot();
@@ -32,6 +34,7 @@ public:
     void setAmplitudeData(const QVector<QPointF>& points);
 
     void setCutoffFrequency(double maxCutoffFrequency);
+    void setCurrentRange(RangedMeasurement cr);
 
 private:
     // Widgets for different parts of the layout
@@ -52,7 +55,7 @@ private:
     QLabel* avgLenLabel;
     QLabel* avgAmplitudeLabel;
     QDoubleSpinBox* cutoffFrequencySpinbox;
-
+    std::string amplitudeUom;
 signals:
     void startPressed();
     void stopPressed();
