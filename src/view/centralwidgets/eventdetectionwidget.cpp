@@ -9,11 +9,13 @@
 EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     : QWidget(parent)
 {
+    
     // Initialize QLabel widgets for displaying information
     numberOfEventsLabel = new QLabel("Number of Events: ");
     avgLenLabel = new QLabel("Average Duration: ");
     avgAmplitudeLabel = new QLabel("Average Amplitude: ");
     totalNumberOfEventsLabel = new QLabel("Total Number of Events: ");
+
 
     // Upper Left Histogram
     upperLeftHistogram = new QwtPlotBarChart("Upper Left Histogram");
@@ -36,8 +38,20 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     bottomLeftPlot->setCanvasBackground(Qt::white);
 
     // Input fields for upper right corner
-    inputField1 = new QLineEdit();
-    inputField2 = new QLineEdit();
+    QLabel* minDurationLabel = new QLabel("Minimum event duration (in ms)");
+    QLabel* maxDurationLabel = new QLabel("Maximum event duration (in ms)");
+    minDurationInMs = new QDoubleSpinBox();
+    minDurationInMs->setSuffix("ms");
+    maxDurationInMs = new QDoubleSpinBox();
+    maxDurationInMs->setSuffix("ms");
+    QLabel* amplitudeBinsLabel = new QLabel("Number of amplitude bins");
+    amplitudeBins = new QSpinBox();
+    QLabel* durationBinsLabel = new QLabel("Number of duration bins");
+    durationBins = new QSpinBox();
+    QLabel* maxBinAmplitudeLabel = new QLabel("Max bins amplitude");
+    maxAmplitude = new QDoubleSpinBox();
+    startButton = new QPushButton("Start");
+    stopButton = new QPushButton("Stop");
 
     // Set up layout
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -45,14 +59,36 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     // Upper part
     QHBoxLayout* upperLayout = new QHBoxLayout;
     upperLayout->addWidget(upperLeftHistogram->plot());
-    QVBoxLayout* inputLayout = new QVBoxLayout;
-    inputLayout->addWidget(inputField1);
-    inputLayout->addWidget(inputField2);
-    inputLayout->addWidget(numberOfEventsLabel);
-    inputLayout->addWidget(totalNumberOfEventsLabel);
-    inputLayout->addWidget(avgLenLabel);
-    inputLayout->addWidget(avgAmplitudeLabel);
-    upperLayout->addLayout(inputLayout);
+
+    //INPUTS
+    QWidget* inputsWidget = new QWidget(this);
+    QVBoxLayout* inputLayout = new QVBoxLayout(inputsWidget);
+    inputLayout->addWidget(minDurationLabel);
+    inputLayout->addWidget(minDurationInMs);
+    minDurationInMs->setMinimum(0.0);
+    inputLayout->addWidget(maxDurationLabel);
+    inputLayout->addWidget(maxDurationInMs);
+    maxDurationInMs->setMinimum(0.0);
+    inputLayout->addWidget(amplitudeBinsLabel);
+    inputLayout->addWidget(amplitudeBins);
+    inputLayout->addWidget(durationBinsLabel);
+    inputLayout->addWidget(durationBins);
+    inputLayout->addWidget(maxBinAmplitudeLabel);
+    inputLayout->addWidget(maxAmplitude);
+    maxAmplitude->setMinimum(0.0);
+
+    //STATS
+    QWidget* statsWidget = new QWidget(this);
+    QVBoxLayout* statsLayout = new QVBoxLayout(statsWidget);
+    statsLayout->addWidget(numberOfEventsLabel);
+    statsLayout->addWidget(totalNumberOfEventsLabel);
+    statsLayout->addWidget(avgLenLabel);
+    statsLayout->addWidget(avgAmplitudeLabel);
+    statsLayout->addWidget(startButton);
+    statsLayout->addWidget(stopButton);
+
+    upperLayout->addWidget(statsWidget);
+    upperLayout->addWidget(inputsWidget);
     layout->addLayout(upperLayout);
     // Add QLabel widgets to display information in the upper right part
     
@@ -61,15 +97,18 @@ EventDetectionWidget::EventDetectionWidget(QWidget* parent)
     bottomLayout->addWidget(bottomLeftPlot);
     bottomLayout->addWidget(bottomRightHistogram->plot());
     layout->addLayout(bottomLayout);
-
-    setLayout(layout);
+    connect(minDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::minDurationChanged);
+    connect(maxDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::maxDurationChanged);
+    connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
+    connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
 }
 
 EventDetectionWidget::~EventDetectionWidget(){
+    // Cleanup
     delete upperLeftHistogram;
     delete bottomRightHistogram;
-    delete inputField1;
-    delete inputField2;
+    delete minDurationInMs;
+    delete maxDurationInMs;
     delete bottomLeftPlot;
 }
 

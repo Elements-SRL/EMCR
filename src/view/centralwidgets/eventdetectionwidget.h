@@ -9,6 +9,8 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <qwt_plot_barchart.h>
+#include <qspinbox.h>
+#include <qpushbutton.h>
 
 class EventDetectionWidget : public QWidget
 {
@@ -33,13 +35,24 @@ private:
     QwtPlotBarChart* bottomRightHistogram;
     QwtPlot* bottomRightPlot;
     //QwtPlotHistogram* bottomRightHistogram;
-    QLineEdit* inputField1;
-    QLineEdit* inputField2;
+    QDoubleSpinBox* minDurationInMs;
+    QDoubleSpinBox* maxDurationInMs;
+    QSpinBox* amplitudeBins;
+    QSpinBox* durationBins;
+    QDoubleSpinBox* maxAmplitude;
+    QPushButton* startButton;
+    QPushButton* stopButton;
     QwtPlot* bottomLeftPlot;
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
     QLabel* avgAmplitudeLabel;
+
+signals:
+    void startPressed();
+    void stopPressed();
+    void minDurationChanged(double);
+    void maxDurationChanged(double);
 };
 
 #endif // EVENTDETECTIONWIDGET_H

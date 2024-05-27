@@ -124,6 +124,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     }
     consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
+
+    connect(widget, &EventDetectionWidget::startPressed, this, [=]() {consumer->onStartConsuming(); });
+    connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {consumer->onStopConsuming(); });
     try {
         /*
          * Turn off the auto-printing when failure occurs so that we can
