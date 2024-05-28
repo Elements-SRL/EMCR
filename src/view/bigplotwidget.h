@@ -16,11 +16,13 @@ public:
     BigPlotWidget(QWidget * parent = nullptr);
     void setGapFreePlot(BigPlot * );
     void setIvGraph(BigPlot * );
+    void setEventDetectionTab(QWidget* eventDetectionWidget);
 
 private:
     QVBoxLayout * mainVl;
     QWidget * gapFreeTab;
     QWidget * ivTab;
+    QWidget* eventDetectionTab;
 
 };
 

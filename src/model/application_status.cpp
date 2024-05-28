@@ -20,6 +20,13 @@ ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string fi
     }
 }
 
+ApplicationStatus:: ~ApplicationStatus() {
+    if (msgDisp != nullptr) {
+        delete msgDisp;
+        msgDisp = nullptr;
+    }
+}
+
 void ApplicationStatus::loadChannelMappingFromYaml(std::string pathTofile) {
     YAML::Node yamlNode = YAML::LoadFile(pathTofile);
     mappings = yamlNode.as<std::vector<YAML::ChannelMapping>>();
@@ -61,6 +68,16 @@ std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     return selectedChannels;
+};
+
+std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
+    std::vector <uint16_t> expandedChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isExpanded()) {
+            expandedChannels.push_back(ch->getId());
+        }
+    }
+    return expandedChannels;
 };
 
 std::vector <YAML::ChannelMapping> ApplicationStatus::getMappings(){
@@ -134,4 +151,10 @@ std::vector<std::string> ApplicationStatus::getNames(){
         names.push_back(m.name);
     }
     return names;
+}
+
+Measurement ApplicationStatus::getSamplingRate() {
+    Measurement_t sr;
+    auto err = msgDisp->getSamplingRate(sr);
+    return sr;
 }

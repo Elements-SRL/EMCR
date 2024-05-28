@@ -17,6 +17,15 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     ivTab->setLayout(ivLayout);
     addTab(ivTab, "IV Graph");
 
+    // Create the third tab
+    auto eventDetectionLayout = new QVBoxLayout();
+    eventDetectionTab = new QWidget();
+    eventDetectionTab->setLayout(eventDetectionLayout);
+#ifdef DEBUG
+    addTab(eventDetectionTab, "Event Detection");
+#endif
+    eventDetectionTab->setVisible(false);
+
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
     this->setLayout(mainVl);
@@ -28,4 +37,8 @@ void BigPlotWidget::setGapFreePlot(BigPlot * gapFreePlot) {
 
 void BigPlotWidget::setIvGraph(BigPlot * ivGraph){
     ivTab->layout()->addWidget(ivGraph);
+}
+
+void BigPlotWidget::setEventDetectionTab(QWidget* eventDetectionWidget) {
+    eventDetectionTab->layout()->addWidget(eventDetectionWidget);
 }

@@ -40,43 +40,35 @@ public:
 private:
     MessageDispatcher * msgDisp = nullptr;
     QGroupBox * vcCurrentRangesGroupBox = nullptr;
-    std::vector<QRadioButton *> vcCurrentRangesRadioButtons;
-    bool vcCurrentRangesPrevioueEnableStateBeforeRecording = false;
+    std::vector <QRadioButton *> vcCurrentRangesRadioButtons;
     QGroupBox * vcVoltageRangesGroupBox = nullptr;
-    std::vector<QRadioButton *> vcVoltageRangesRadioButtons;
-    bool vcVoltageRangesPrevioueEnableStateBeforeRecording = false;
+    std::vector <QRadioButton *> vcVoltageRangesRadioButtons;
     QGroupBox * ccCurrentRangesGroupBox = nullptr;
-    std::vector<QRadioButton *> ccCurrentRangesRadioButtons;
-    bool ccCurrentRangesPrevioueEnableStateBeforeRecording = false;
+    std::vector <QRadioButton *> ccCurrentRangesRadioButtons;
     QGroupBox * ccVoltageRangesGroupBox = nullptr;
-    std::vector<QRadioButton *> ccVoltageRangesRadioButtons;
-    bool ccVoltageRangesPrevioueEnableStateBeforeRecording = false;
+    std::vector <QRadioButton *> ccVoltageRangesRadioButtons;
     QGroupBox * vcVoltageFiltersGroupBox = nullptr;
-    std::vector<QRadioButton *> vcVoltageFiltersRadioButtons;
-    bool vcVoltageFiltersPrevioueEnableStateBeforeRecording = false;
+    std::vector <QRadioButton *> vcVoltageFiltersRadioButtons;
     QGroupBox * ccCurrentFiltersGroupBox = nullptr;
-    std::vector<QRadioButton *> ccCurrentFiltersRadioButtons;
-    bool ccCurrentFiltersPrevioueEnableStateBeforeRecording = false;
+    std::vector <QRadioButton *> ccCurrentFiltersRadioButtons;
     QGroupBox * samplingRatesGroupBox = nullptr;
-    std::vector<QRadioButton *> samplingRatesRadioButtons;
-    bool samplingRatesPrevioueEnableStateBeforeRecording = false;
+    std::vector <QRadioButton *> samplingRatesRadioButtons;
     QGroupBox * downsamplingRatiosGroupBox = nullptr;
     QSpinBox * downsamplingRatioSbx;
     QLabel * finalSamplingRateLbl;
-    bool downsamplingRatiosPrevioueEnableStateBeforeRecording = false;
     QGroupBox * clampingModalitiesGroupBox = nullptr;
-    std::vector<QRadioButton *> clampingModalitiesRadioButtons;
-    bool clampingModalitiesPrevioueEnableStateBeforeRecording = false;
-    QGroupBox * setupGroupBox(std::string title, std::vector<RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> &radioButtons);
-    QGroupBox * setupGroupBox(std::string title, std::vector<Measurement> measurements, QVBoxLayout * parentLayout, std::vector<QRadioButton *> &radioButtons);
+    std::vector <QRadioButton *> clampingModalitiesRadioButtons;
+    std::vector <QGroupBox *> customOptionsGroupBoxes;
+    std::vector <std::vector <QRadioButton *>> customOptionsRadioButtons;
 
-    template<typename T>
-    void setWidgetEnabled(T& widget, bool status);
-    template<typename T>
-    void setWidgetVisible(T& widget, bool status);
+    QGroupBox * setupGroupBox(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
+    QGroupBox * setupGroupBox(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
+    QGroupBox * setupGroupBox(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
+    QGroupBox * setupGroupBox(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
 
-    /*! \todo MPAC da ricontrollare con calma, per il momento la si lascia commentata e si genera il widget in maniera esplicita*/
-//    void testFunction(QVBoxLayout* vLayout, QGroupBox* qGroupBox, std::vector <RangedMeasurement_t> myRanges, std::vector<QRadioButton *> &qRadioButtons);
+    void setWidgetEnabled(QWidget * widget, bool status);
+    void setWidgetVisible(QWidget * widget, bool status);
+
 signals:
     void sigVcCurrentRangeSelected(int idx);
     void sigVcVoltageRangeSelected(int idx);
@@ -85,6 +77,7 @@ signals:
     void sigVcVoltageFilterSelected(int idx);
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
+    void sigCustomOptionSelected(unsigned int customOptionIdx, int idx);
     void sigDownsamplingRatioSelected(int ratio);
     void sigClampingModalitySelected(ClampingModality_t mode);
 };

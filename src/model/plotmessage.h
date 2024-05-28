@@ -5,6 +5,7 @@
 #include <vector>
 #include <QVector>
 #include <tuple>
+#include "event.h"
 
 struct IvMessage{
     std::vector<double*> voltageValues;
@@ -19,10 +20,15 @@ struct GapFreeMessage{
     int dataSize;
 };
 
+struct EventDetectionMessage {
+    std::map<uint32_t, std::vector<Event>> events;
+};
+
 // Forward declaration of the variant type
 typedef std::variant<
     GapFreeMessage,
-    IvMessage
+    IvMessage,
+    EventDetectionMessage
 > PlotMessage;
 
 #endif // PLOTMESSAGE_H

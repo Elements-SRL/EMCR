@@ -68,22 +68,23 @@ void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<uint16_t> 
 }
 
 void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector<Measurement_t> results) {
-    for (int i = 0; i < currentChannels; i++) {
-        //the first row is the header
-        const auto row = i + 1;
-        const auto ch = activeChannels[i];
-        auto result = results[i];
+    //the first row is the header
+    int row = 1;
+    for (auto ch : activeChannels) {
+        auto result = results[ch];
         dataTable->setItem(row, 9, new QTableWidgetItem(QString::fromStdString(std::to_string(result.value))));
         dataTable->setItem(row, 10, new QTableWidgetItem(QString::fromStdString(result.getFullUnit())));
+        row++;
     }
 }
 
 void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector<StatisticsResult> results) {
-    for (int i = 0; i < currentChannels; i++) {
-        //the first row is the header
-        const auto row = i + 1;
-        const auto statisticResult = results[i];
+    //the first row is the header
+    int row = 1;
+    for (auto ch : activeChannels) {
+        const auto statisticResult = results[ch];
         setStatisticsResultsInRowaRow(row, statisticResult);
+        row++;
     }
 }
 

@@ -31,7 +31,8 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
     void onDurationChanged(Measurement_t duration);
-    void onSelectChannels(bool flag);
+    void onPlotSelectedChannels(bool flag);
+    void onPlotChannels(std::vector <uint16_t> channels, bool flag);
 
 signals:
     void setPlotData(PlotMessage plotMessage);

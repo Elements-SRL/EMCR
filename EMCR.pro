@@ -30,6 +30,7 @@ SOURCES += \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
+    src/controller/device/consumer/eventdetectionconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
@@ -53,6 +54,10 @@ SOURCES += \
     src/controller/device/consumer/plotconsumer.cpp \
     src/controller/device/consumer/datawriterconsumer.cpp \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
+    src/controller/centralwidgets/centralwidgetcontroller.cpp \
+    src/controller/centralwidgets/ivgraphcontroller.cpp \
+    src/controller/centralwidgets/gapfreecontroller.cpp \
+    src/controller/centralwidgets/eventdetectioncontroller.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -63,6 +68,8 @@ SOURCES += \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
     src/model/statearray.cpp \
+    src/model/filters/firstorderiirfilter.cpp \
+    src/model/events/eventdetector.cpp \
     src/view/bigplotwidget.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
@@ -84,6 +91,7 @@ SOURCES += \
     src/view/multiplechannelcontroldockwidget.cpp \
     src/view/nowheelspinbox.cpp \
     src/view/plotpreferencesdialog.cpp \
+    src/view/centralwidgets/eventdetectionwidget.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
     src/view/protocol/protocolcursor.cpp \
     src/view/protocol/protocoldockwidget.cpp \
@@ -121,6 +129,7 @@ HEADERS += \
     src/abf/axon_structs.h \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
+    src/controller/device/consumer/eventdetectionconsumer.h \
     src/controller/device/deviceconnector.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
@@ -144,6 +153,10 @@ HEADERS += \
     src/controller/device/consumer/plotconsumer.h \
     src/controller/device/consumer/datawriterconsumer.h \
     src/controller/device/consumer/abfdatawriterconsumer.h \
+    src/controller/centralwidgets/centralwidgetcontroller.h \
+    src/controller/centralwidgets/ivgraphcontroller.h \
+    src/controller/centralwidgets/gapfreecontroller.h \
+    src/controller/centralwidgets/eventdetectioncontroller.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
@@ -159,6 +172,10 @@ HEADERS += \
     src/model/statearray.h \
     src/model/statisticsresult.h \
     src/model/statisticsresultwrapper.h \
+    src/model/filters/filter.h \
+    src/model/filters/firstorderiirfilter.h \
+    src/model/events/event.h \
+    src/model/events/eventdetector.h \
     src/view/bigplotwidget.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \
@@ -180,6 +197,7 @@ HEADERS += \
     src/view/multiplechannelcontroldockwidget.h \
     src/view/nowheelspinbox.h \
     src/view/plotpreferencesdialog.h \
+    src/view/centralwidgets/eventdetectionwidget.h \
     src/view/protocol/impexpprotocoldialog.h \
     src/view/protocol/protocolcursor.h \
     src/view/protocol/protocoldockwidget.h \
@@ -215,9 +233,13 @@ INCLUDEPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
+    ./src/controller/centralwidgets \
     ./src/model \
+    ./src/model/filters \
+    ./src/model/events \
     ./src/view \
     ./src/view/statearray \
+    ./src/view/centralwidgets \
     ./src/view/protocol \
     ./src/view/questionmarkmenu \
     ./src/abf
@@ -228,9 +250,13 @@ DEPENDPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
+    ./src/controller/centralwidgets \
     ./src/model \
+    ./src/model/filters \
+    ./src/model/events \
     ./src/view \
     ./src/view/statearray \
+    ./src/view/centralwidgets \
     ./src/view/protocol \
     ./src/view/questionmarkmenu \
     ./src/abf
