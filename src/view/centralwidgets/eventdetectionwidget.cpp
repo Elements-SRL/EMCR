@@ -122,15 +122,36 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     setCurrentRange(currentRange);
 
     //layout->addLayout(bottomLayout);
-    connect(minDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit minDurationChanged(value * 1.0e-6); });
-    connect(maxDurationInMs, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {emit maxDurationChanged(value * 1.0e-6); });
+    connect(minDurationInMs, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = minDurationInMs->value();
+        emit minDurationChanged(value * 1.0e-6); 
+        });
+    connect(maxDurationInMs, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = maxDurationInMs->value();
+        emit maxDurationChanged(value * 1.0e-6);
+        });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
     connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
-    connect(amplitudeBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::amplitudeBinsChanged);
-    connect(durationBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::durationBinsChanged);
-    connect(maxAmplitude, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::maxAmplitudeChanged);
-    connect(cutoffFrequencySpinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::cutoffFrequencyChanged);
-    connect(stdMultiplierSpinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::stdMultiplierChanged);
+    connect(amplitudeBins, &QSpinBox::editingFinished, this, [=]() {
+        const auto value = amplitudeBins->value();
+        emit amplitudeBinsChanged(value);
+        });
+    connect(durationBins, &QSpinBox::editingFinished, this, [=]() {
+        const auto value = durationBins->value();
+        emit durationBinsChanged(value);
+        });
+    connect(maxAmplitude, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = maxAmplitude->value();
+        emit maxAmplitudeChanged(value);
+        });
+    connect(cutoffFrequencySpinbox, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = cutoffFrequencySpinbox->value();
+        emit cutoffFrequencyChanged(value);
+        });
+    connect(stdMultiplierSpinbox, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = stdMultiplierSpinbox->value();
+        emit stdMultiplierChanged(value);
+        });
 }
 
 EventDetectionWidget::~EventDetectionWidget(){
@@ -189,5 +210,5 @@ void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
     maxAmplitude->setSuffix(QString::fromStdString(amplitudeUom));
     maxAmplitude->setMaximum(cr.max);
     bottomLeftPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
-    bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::xBottom);
+    bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
 }
