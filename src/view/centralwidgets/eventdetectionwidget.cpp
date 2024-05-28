@@ -120,6 +120,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
     connect(amplitudeBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::amplitudeBinsChanged);
     connect(durationBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::durationBinsChanged);
+    connect(maxAmplitude, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::maxAmplitudeChanged);
 }
 
 EventDetectionWidget::~EventDetectionWidget(){

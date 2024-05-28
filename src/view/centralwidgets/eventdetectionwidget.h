@@ -65,6 +65,7 @@ signals:
     void stopPressed();
     void minDurationChanged(double);
     void maxDurationChanged(double);
+    void maxAmplitudeChanged(double);
     void amplitudeBinsChanged(int);
     void durationBinsChanged(int);
     void cutoffFrequencyChanged(double);

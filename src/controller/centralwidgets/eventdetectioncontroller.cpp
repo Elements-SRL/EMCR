@@ -179,7 +179,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         amplitudeBins = value;
         amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
         });
-
+    connect(widget, &EventDetectionWidget::maxAmplitudeChanged, this, [=](double value) {
+        delete amplitudeBinner;
+        maxAmplitude = value;
+        amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
+        });
     try {
         /*
          * Turn off the auto-printing when failure occurs so that we can
