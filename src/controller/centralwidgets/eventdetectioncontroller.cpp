@@ -3,7 +3,6 @@
 #include <QVector>
 using namespace H5;
 
-//const H5std_string GROUP_NAME("/events/");
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     try {
     // Get the dataspace of the dataset
@@ -23,6 +22,54 @@ void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     fspace.selectHyperslab(H5S_SELECT_SET, dimsToWrite, offset);
     H5::DataSpace mspace(RANK, dimsToWrite);
     dataset.write(data.data(), H5::PredType::STD_I16LE, mspace, fspace);
+    }  // end of try block
+    catch (H5::GroupIException& error) {
+        error.printErrorStack();
+        // Handle the exception
+    }
+    // catch failure caused by the H5File operations
+    catch (H5::FileIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSet operations
+    catch (H5::DataSetIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (H5::DataSpaceIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (H5::DataTypeIException error) {
+        error.printErrorStack();
+    }
+}
+
+void createBaseline(H5::Group& parentGroup, const std::string datasetName, RangedMeasurement cr, RangedMeasurement vr, Measurement sr) {
+    try {
+        //H5std_string groupName = eventName;
+        //H5::Group group = parentGroup.createGroup(eventName);
+        hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
+        hsize_t maxdims[RANK] = { H5S_UNLIMITED };
+        DataSpace mspace(RANK, dims, maxdims);
+        DSetCreatPropList cparms;
+        hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
+        cparms.setChunk(RANK, chunk_dims);
+        DataSet dataset = parentGroup.createDataSet(datasetName, PredType::STD_I16LE, mspace, cparms);
+        DataSpace attSpace(H5S_SCALAR);
+        StrType strdatatype(0, H5T_VARIABLE);
+        const double multiplier = cr.multiplier();
+        const double stimMultiplier = vr.multiplier();
+        const int version = 1;
+        const double srValue = sr.getNoPrefixValue();
+        dataset.createAttribute("Version", H5::PredType::NATIVE_INT, attSpace).write(H5::PredType::NATIVE_INT, &version);
+        dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
+        dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &multiplier);
+        dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        dataset.createAttribute("Stimulus Uom", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
+        dataset.createAttribute("Stimulus Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        dataset.createAttribute("Sampling Rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
     }  // end of try block
     catch (H5::GroupIException& error) {
         error.printErrorStack();
