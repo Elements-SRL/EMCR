@@ -13,6 +13,13 @@
 constexpr uint32_t EVENT_TH = 3; /*To be considered an event the signal must be EVENT_TH times the std dev*/
 constexpr uint32_t EVENT_PADDING = 4;
 
+struct PartialEvent {
+    uint32_t eventBegin;
+    uint32_t eventEnd;
+    uint32_t realLen;
+    int16_t baseline;
+};
+
 class EventDetector {
 public:
     EventDetector(Measurement samplingRate, uint32_t minEventLen, uint32_t maxEventLen, int sizeHint = -1);
@@ -61,8 +68,8 @@ private:
     std::vector<double> remainingVoltages;
 
     double calcStdDev(const std::vector<double>& data);
-    std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
-    void processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> evtBegingEnd, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize);
+    std::optional<PartialEvent> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
+    void processEvent(const PartialEvent, std::vector<int16_t>& , double , uint32_t );
 
     uint64_t timeCount = 0;
 };

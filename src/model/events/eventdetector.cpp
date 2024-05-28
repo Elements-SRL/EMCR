@@ -74,15 +74,16 @@ double EventDetector::calcStdDev(const std::vector<double>& data) {
     return std::sqrt(variance);
 }
 
-std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
+std::optional<PartialEvent> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
     //begin event analysis
     const auto lowParams = low->getParams();
     const auto singleBaseline = low->sfilt(currentValue);
     const auto s_no_baseline = currentValue - singleBaseline;
     const auto re_filtered = high->sfilt(s_no_baseline);
+    const auto currentBaseline = singleBaseline / currentRange.step;
 
     if (++baselineSamplingRateCounter >= baselineSamplingRate) {
-        baseline.push_back(singleBaseline / currentRange.step);
+        baseline.push_back(currentBaseline);
         baselineSamplingRateCounter = 0;
     }
 
@@ -118,7 +119,7 @@ std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> EventDetector::analyze(d
         const auto e0 = eventBeginIdx - (EVENT_PADDING * eventLen);
         const auto e1 = eventBeginIdx + eventLen + (EVENT_PADDING * eventLen);
         eventAlreadyBegun = false;
-        const std::tuple<uint32_t, uint32_t, uint32_t> res((e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1, eventLen);
+        const PartialEvent res = { (e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1, eventLen, currentBaseline };
         eventLen = 0;
         return res;
     }
@@ -195,10 +196,11 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     }
 }
 
-void EventDetector::processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> evtBegingEndLen, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
-    const uint32_t eventBegin = std::get<0>(evtBegingEndLen);
-    const uint32_t eventEnd = std::get<1>(evtBegingEndLen);
-    const auto realLen = std::get<2>(evtBegingEndLen);
+void EventDetector::processEvent(const PartialEvent partialEvent, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
+    const auto eventBegin = partialEvent.eventBegin;
+    const auto eventEnd = partialEvent.eventEnd;
+    const auto realLen = partialEvent.realLen;
+    const auto baseline = partialEvent.baseline;
     const uint32_t eventLen = eventEnd - eventBegin;
     if (eventEnd >= chunkSize || eventBegin > eventEnd) {
         return;
@@ -207,7 +209,7 @@ void EventDetector::processEvent(const std::tuple<uint32_t, uint32_t, uint32_t> 
     int16_t max = INT16_MIN;
     std::vector<int16_t> eventBuffer(eventLen);
     for (uint32_t i = 0; i < eventLen; i++) {
-        const auto v = intBuffer[i + eventBegin];
+        const auto v = intBuffer[i + eventBegin] - baseline;
         eventBuffer[i] = v;
         if (v < min) { min = v; };
         if (v > max) { max = v; };
