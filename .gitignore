@@ -50,3 +50,5 @@ EMCR_resource.aps
 *.pdb
 
 FW/
+
+*.dat
