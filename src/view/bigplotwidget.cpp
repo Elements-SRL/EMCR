@@ -21,7 +21,10 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     auto eventDetectionLayout = new QVBoxLayout();
     eventDetectionTab = new QWidget();
     eventDetectionTab->setLayout(eventDetectionLayout);
+#ifdef DEBUG
     addTab(eventDetectionTab, "Event Detection");
+#endif
+    eventDetectionTab->setVisible(false);
 
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
