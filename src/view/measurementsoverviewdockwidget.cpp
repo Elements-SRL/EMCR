@@ -4,7 +4,12 @@
 #include <QHeaderView>
 
 MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint16_t> activeChannels, int voltageChannels, int currentChannels, QWidget * parent) :
-    QDockWidget(parent), activeChannels(activeChannels), voltageChannels(voltageChannels), currentChannels(currentChannels){
+    QDockWidget(parent),
+    activeChannels(activeChannels),
+    voltageChannels(voltageChannels),
+    currentChannels(currentChannels) {
+
+    this->setVisible(false);
 
     setWindowTitle("Measurements Overview");
     setObjectName("measurementsOverviewDW");

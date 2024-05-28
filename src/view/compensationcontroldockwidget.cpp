@@ -11,6 +11,8 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     QDockWidget(parent),
     msgDisp(msgDisp) {
 
+    this->setVisible(false);
+
     int localNumOfVoltChans;
     int localNumOfCurrChans;
     msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);

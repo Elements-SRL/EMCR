@@ -7,6 +7,8 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     QDockWidget(parent),
     appStatus(appStatus) {
 
+    this->setVisible(false);
+
     QWidget * mainWg = new QWidget(parent);
     mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWindowTitle("Single channel controls");
