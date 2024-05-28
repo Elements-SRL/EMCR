@@ -2,16 +2,14 @@
 #define EVENTDETECTIONWIDGET_H
 
 #include <QWidget>
-#include <qwt_plot.h>
-#include <qwt_plot_histogram.h>
-#include <qwt_legend.h>
-#include <qwt_legend_label.h>
-#include <QLineEdit>
-#include <QLabel>
+#include <qlabel.h>
 #include <qwt_plot_barchart.h>
 #include <qspinbox.h>
 #include <qpushbutton.h>
-#include "messagedispatcher.h"
+#include "e384commlib_global_addendum.h"
+#include "baseplot.h"
+
+using namespace e384CommLib;
 
 constexpr double LOW_CUTOFF_FREQUENCY = 100.0;
 constexpr double ZERO = 0.0;
@@ -24,7 +22,7 @@ public:
     EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, QWidget* parent = nullptr);
     ~EventDetectionWidget();
 
-    QwtPlot* getPlot();
+    BasePlot* getPlot();
     void setEventsPerSecond(double);
     void setAvgLen(double);
     void setAvgAmplitude(double);
@@ -40,7 +38,11 @@ private:
     // Widgets for different parts of the layout
     QwtPlotBarChart* upperLeftHistogram;
     QwtPlotBarChart* bottomRightHistogram;
-    QwtPlot* bottomRightPlot;
+    
+    BasePlot* upperLetPlot;
+    BasePlot* bottomLeftPlot;
+    BasePlot* bottomRightPlot;
+    
     //QwtPlotHistogram* bottomRightHistogram;
     QDoubleSpinBox* minDurationInMs;
     QDoubleSpinBox* maxDurationInMs;
@@ -49,13 +51,15 @@ private:
     QDoubleSpinBox* maxAmplitude;
     QPushButton* startButton;
     QPushButton* stopButton;
-    QwtPlot* bottomLeftPlot;
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
     QLabel* avgAmplitudeLabel;
     QDoubleSpinBox* cutoffFrequencySpinbox;
     std::string amplitudeUom;
+    void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
+    void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
+
 signals:
     void startPressed();
     void stopPressed();

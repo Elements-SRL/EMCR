@@ -1,15 +1,11 @@
 #include "eventdetectionwidget.h"
-#include <qwt_column_symbol.h>
-#include <qwt_plot_curve.h>
-#include <qwt_scale_draw.h>
 #include <QVBoxLayout>
-#include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
+#include <QLabel>
 
 EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, QWidget* parent)
     : QWidget(parent)
 {
-    
     // Initialize QLabel widgets for displaying information
     numberOfEventsLabel = new QLabel("Number of Events: ");
     avgLenLabel = new QLabel("Average Duration: ");
@@ -20,11 +16,12 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
 
     // Upper Left Histogram
     upperLeftHistogram = new QwtPlotBarChart("Upper Left Histogram");
-    upperLeftHistogram->attach(new QwtPlot());
+    upperLetPlot = new BasePlot("Duration Histogram", "s", "count", this);
+    upperLeftHistogram->attach(upperLetPlot);
 
     // Bottom Right Histogram
     bottomRightHistogram = new QwtPlotBarChart("Amplitudes Histogram");
-    bottomRightPlot = new QwtPlot();
+    bottomRightPlot = new BasePlot("Amplitue Histogram", "count", "A", this);
     bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
 
     // Customize the Y-axis scale draw to invert labels
@@ -35,8 +32,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     bottomRightHistogram->attach(bottomRightPlot);
 
     // Bottom Left Plot
-    bottomLeftPlot = new QwtPlot();
-    bottomLeftPlot->setCanvasBackground(Qt::white);
+    bottomLeftPlot = new BasePlot("Events", "s", "A", this);
 
     // Input fields for upper right corner
     QLabel* minDurationLabel = new QLabel("Minimum event duration");
@@ -115,7 +111,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     gridLayout->addWidget(bottomLeftPlot, 1, 0);
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
 
-
     setCurrentRange(currentRange);
 
     //layout->addLayout(bottomLayout);
@@ -125,7 +120,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
     connect(amplitudeBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::amplitudeBinsChanged);
     connect(durationBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::durationBinsChanged);
-    connect(cutoffFrequencySpinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::cutoffFrequencyChanged);
 }
 
 EventDetectionWidget::~EventDetectionWidget(){
@@ -137,7 +131,7 @@ EventDetectionWidget::~EventDetectionWidget(){
     delete bottomLeftPlot;
 }
 
-QwtPlot* EventDetectionWidget::getPlot() {
+BasePlot* EventDetectionWidget::getPlot() {
     return bottomLeftPlot;
 }
 
@@ -183,4 +177,6 @@ void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
     amplitudeUom = cr.getFullUnit();
     maxAmplitude->setSuffix(QString::fromStdString(amplitudeUom));
     maxAmplitude->setMaximum(cr.max);
+    bottomLeftPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
+    bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::xBottom);
 }

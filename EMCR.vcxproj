@@ -192,6 +192,7 @@
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp" />
     <ClCompile Include="src\model\binner.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
+    <ClCompile Include="src\view\baseplot.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
     <ClCompile Include="src\view\addtagdialog.cpp" />
     <ClCompile Include="src\model\analysiscursor.cpp" />
@@ -349,6 +350,7 @@
     <QtMoc Include="src\controller\measurementoverviewcontroller.h" />
     <ClInclude Include="src\model\measurementoverviewmodel.h" />
     <QtMoc Include="src\view\measurementsoverviewdockwidget.h" />
+    <QtMoc Include="src\view\baseplot.h" />
     <ClInclude Include="src\view\questionmarkmenu\messagedialog.h" />
     <QtMoc Include="src\view\multiplechannelcontroldockwidget.h" />
     <QtMoc Include="src\controller\multiplechannelcontroller.h" />

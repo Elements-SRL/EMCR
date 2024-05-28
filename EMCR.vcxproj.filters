@@ -322,6 +322,9 @@
     <ClCompile Include="src\model\binner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\view\baseplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -634,6 +637,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\centralwidgets\eventdetectionwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\baseplot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
