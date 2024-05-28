@@ -19,7 +19,7 @@ class EventDetectionWidget : public QWidget
     Q_OBJECT
 
 public:
-    EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, QWidget* parent = nullptr);
+    EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, QWidget* parent = nullptr);
     ~EventDetectionWidget();
 
     BasePlot* getPlot();
@@ -56,6 +56,7 @@ private:
     QLabel* avgLenLabel;
     QLabel* avgAmplitudeLabel;
     QDoubleSpinBox* cutoffFrequencySpinbox;
+    QDoubleSpinBox* stdMultiplierSpinbox;
     std::string amplitudeUom;
     void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
@@ -69,6 +70,7 @@ signals:
     void amplitudeBinsChanged(int);
     void durationBinsChanged(int);
     void cutoffFrequencyChanged(double);
+    void stdMultiplierChanged(double);
 };
 
 #endif // EVENTDETECTIONWIDGET_H

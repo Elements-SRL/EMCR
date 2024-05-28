@@ -3,7 +3,7 @@
 #include <qwt_scale_engine.h>
 #include <QLabel>
 
-EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, QWidget* parent)
+EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, QWidget* parent)
     : QWidget(parent)
 {
     // Initialize QLabel widgets for displaying information
@@ -57,6 +57,12 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
     cutoffFrequencySpinbox->setValue(defaultSamplingRate);
 
+    QLabel* stdMultiplierLabel = new QLabel("Std multiplier");
+    stdMultiplierSpinbox = new QDoubleSpinBox();
+    stdMultiplierSpinbox->setMinimum(1.0);
+    stdMultiplierSpinbox->setMaximum(maxCutoffFrequency);
+    stdMultiplierSpinbox->setValue(defaultStdMultiplier);
+
 
     // Upper part
     gridLayout->addWidget(upperLeftHistogram->plot(), 0, 0);
@@ -91,6 +97,8 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     maxAmplitude->setMinimum(ZERO);
     inputLayout->addWidget(cutoffFrequencyLabel);
     inputLayout->addWidget(cutoffFrequencySpinbox);
+    inputLayout->addWidget(stdMultiplierLabel);
+    inputLayout->addWidget(stdMultiplierSpinbox);
     //ADD MULTIPLIER OF THE STD FOR TH AND EXPLENATION
 
     //STATS
@@ -122,6 +130,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     connect(durationBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::durationBinsChanged);
     connect(maxAmplitude, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::maxAmplitudeChanged);
     connect(cutoffFrequencySpinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::cutoffFrequencyChanged);
+    connect(stdMultiplierSpinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::stdMultiplierChanged);
 }
 
 EventDetectionWidget::~EventDetectionWidget(){

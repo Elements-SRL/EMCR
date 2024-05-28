@@ -10,7 +10,6 @@
 #include "messagedispatcher.h"
 #include <tuple>
 
-constexpr uint32_t EVENT_TH = 3; /*To be considered an event the signal must be EVENT_TH times the std dev*/
 constexpr uint32_t EVENT_PADDING = 4;
 
 struct PartialEvent {
@@ -22,7 +21,7 @@ struct PartialEvent {
 
 class EventDetector {
 public:
-    EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen);
+    EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_);
 
     EventPacket consumeEventsAndBaseline();
 
@@ -32,6 +31,7 @@ public:
     void setMinEventDurationInSamples(uint32_t);
     void setMaxEventDurationInSamples(uint32_t);
     void setHighCutoffFrquency(double);
+    void setStdMultiplier(double newValue);
 
 private:
     double threshold = -1;
@@ -44,7 +44,7 @@ private:
     uint32_t maxEventLen;
 
     double highCutoffFrequency;
-
+    double stdMultiplier;
     RangedMeasurement currentRange;
     RangedMeasurement voltageRange;
     Measurement samplingRate;

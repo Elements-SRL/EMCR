@@ -3,11 +3,12 @@
 #include <iostream>
 #include <cstdint>
 
-EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen) {
+EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_) {
     const auto lowCutoffFrequency = 100.0;
     this->minEventLen = minEventLen;
     this->maxEventLen = maxEventLen;
-    this->highCutoffFrequency = highCutoffFrequency,
+    this->highCutoffFrequency = highCutoffFrequency;
+    this->stdMultiplier = stdMultiplier_;
     high = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), highCutoffFrequency);
     low = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), lowCutoffFrequency);
     baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
@@ -38,7 +39,7 @@ EventPacket EventDetector::consumeEventsAndBaseline() {
 
 double EventDetector::calculateThreshold(const std::vector<double>& data) {
     const auto stdDev = calcStdDev(data);
-    return stdDev != -1 ? EVENT_TH * stdDev : stdDev;
+    return stdDev != -1 ? stdMultiplier * stdDev : stdDev;
 }
 
 double EventDetector::calcStdDev(const std::vector<double>& data) {
@@ -233,4 +234,8 @@ void EventDetector::setHighCutoffFrquency(double cf) {
     delete high;
     //TODO, think this better
     high = new FirstOrderIirFilter(samplingRate.value, highCutoffFrequency);
+}
+
+void EventDetector::setStdMultiplier(double newValue) {
+    stdMultiplier = newValue;
 }

@@ -14,6 +14,7 @@
 
 constexpr int RANK = 1;
 constexpr int CHUNK_SIZE = 10000;
+constexpr double STD_MULTIPLIER = 3.0;
 
 class EventDetectionController : public CentralWidgetController {
     Q_OBJECT
