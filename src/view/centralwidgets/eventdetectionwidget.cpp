@@ -121,6 +121,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     connect(amplitudeBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::amplitudeBinsChanged);
     connect(durationBins, QOverload<int>::of(&QSpinBox::valueChanged), this, &EventDetectionWidget::durationBinsChanged);
     connect(maxAmplitude, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::maxAmplitudeChanged);
+    connect(cutoffFrequencySpinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &EventDetectionWidget::cutoffFrequencyChanged);
 }
 
 EventDetectionWidget::~EventDetectionWidget(){

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <QDebug>
 
-EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_):
-    PlotConsumer(appStatus, producer), minEventSamples(minEventSamples_), maxEventSamples(maxEventSamples_) {
+EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_, double highCutoffFrequency_):
+    PlotConsumer(appStatus, producer), minEventSamples(minEventSamples_), maxEventSamples(maxEventSamples_), highCutoffFrequency(highCutoffFrequency_) {
     minDataBatchSize = currentChannelsNum * appStatus->getSamplingRate().getNoPrefixValue() * MINIMUM_DATA_FOR_ANALYSIS;
     intBuffer.reserve(producer->getDataPacketsBufferLen() * totalChannelsNum);
     allocateData();
@@ -85,7 +85,6 @@ void EventDetectionConsumer::run() {
                     bufferIdx++;
                 }
             }
-
             for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                 if (plottedChannels[channelIdx]) {
                     const auto valuesSize = currentValuesDouble[channelIdx].size();
@@ -118,7 +117,7 @@ void EventDetectionConsumer::allocateData() {
         currentValuesInt.push_back(std::vector<int16_t>(maxSamples));
         currentValuesDouble.push_back(std::vector<double>(maxSamples));
         auto sr = appStatus->getSamplingRate();
-        eventDetectionChannels.push_back(new EventDetector(sr, minEventSamples, maxEventSamples));
+        eventDetectionChannels.push_back(new EventDetector(sr, highCutoffFrequency, minEventSamples, maxEventSamples));
     }
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
         voltageValues.push_back(std::vector<double>(maxSamples));
@@ -167,5 +166,12 @@ void EventDetectionConsumer::setMaxEventDurationInSamples(uint32_t newValue) {
     maxEventSamples = newValue;
     for (const auto& ed : eventDetectionChannels) {
         ed->setMaxEventDurationInSamples(maxEventSamples);
+    }
+}
+
+void EventDetectionConsumer::setHighCutoffFrequency(double newValue) {
+    highCutoffFrequency = newValue;
+    for (const auto& ed : eventDetectionChannels) {
+        ed->setHighCutoffFrquency(highCutoffFrequency);
     }
 }

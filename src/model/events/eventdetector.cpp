@@ -3,16 +3,13 @@
 #include <iostream>
 #include <cstdint>
 
-EventDetector::EventDetector(Measurement samplingRate, uint32_t minEventLen, uint32_t maxEventLen, int sizeHint) {
+EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen) {
     const auto lowCutoffFrequency = 100.0;
     this->minEventLen = minEventLen;
     this->maxEventLen = maxEventLen;
-    highCutoffFrequency = samplingRate.getNoPrefixValue() / 4.0,
+    this->highCutoffFrequency = highCutoffFrequency,
     high = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), highCutoffFrequency);
     low = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), lowCutoffFrequency);
-    if (sizeHint != -1) {
-        eventsInfo.reserve(sizeHint);
-    }
     baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
     baselineSamplingRateCounter = 0;
 
@@ -234,5 +231,6 @@ void EventDetector::setMaxEventDurationInSamples(uint32_t maxDuration) {
 void EventDetector::setHighCutoffFrquency(double cf) {
     highCutoffFrequency = cf;
     delete high;
+    //TODO, think this better
     high = new FirstOrderIirFilter(samplingRate.value, highCutoffFrequency);
 }

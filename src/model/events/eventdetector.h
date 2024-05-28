@@ -22,7 +22,7 @@ struct PartialEvent {
 
 class EventDetector {
 public:
-    EventDetector(Measurement samplingRate, uint32_t minEventLen, uint32_t maxEventLen, int sizeHint = -1);
+    EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen);
 
     EventPacket consumeEventsAndBaseline();
 

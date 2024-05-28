@@ -115,9 +115,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     maxAmplitude = appStatus->getCurrentRange().getMax().value / 10;
     durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
     amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
-
-    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal);
-    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, sr.getNoPrefixValue(), appStatus->getCurrentRange(), maxAmplitude);
+    const auto highCutoffFrequency = sr.getNoPrefixValue() / 4.0;
+    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal, highCutoffFrequency);
+    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude);
     bpw->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
@@ -183,6 +183,16 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         delete amplitudeBinner;
         maxAmplitude = value;
         amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
+        });
+    connect(widget, &EventDetectionWidget::cutoffFrequencyChanged, this, [=](double value) {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        consumer->setHighCutoffFrequency(value);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
         });
     try {
         /*
