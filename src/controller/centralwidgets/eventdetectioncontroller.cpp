@@ -162,7 +162,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
-        eventCurves[idx] = new QwtPlotCurve();
+        eventCurves[idx] = new Curve();
     }
     consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
@@ -318,13 +318,13 @@ void EventDetectionController::stop() {
 }
 
 void EventDetectionController::onCurrentColorsChanged(QVector <QColor> colors) {
-    //for (int idx = 0; idx < currentChannelsNum; idx++) {
-    //    events[idx]->setColor(colors[idx]);
-    //}
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        eventCurves[idx]->setColor(colors[idx]);
+    }
 }
 
 void EventDetectionController::onCurrentColorChanged(int channelIdx, QColor color) {
-    //eventCurves[channelIdx]->
+    eventCurves[channelIdx]->setColor(color);
 }
 
 void EventDetectionController::onBackgroundColorChanged(QColor color) {

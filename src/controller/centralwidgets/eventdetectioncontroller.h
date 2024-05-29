@@ -30,7 +30,7 @@ public:
 private:
     EventDetectionConsumer* consumer = nullptr;
     std::map<uint32_t, EventPacket> eventPackets;
-    std::map<uint32_t, QwtPlotCurve*> eventCurves;
+    std::map<uint32_t, Curve*> eventCurves;
     EventDetectionMessage message;
     EventDetectionWidget* widget = nullptr;
     void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
