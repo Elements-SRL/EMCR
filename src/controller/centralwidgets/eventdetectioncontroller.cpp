@@ -241,33 +241,22 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
         });
     try {
-        /*
-         * Turn off the auto-printing when failure occurs so that we can
-         * handle the errors appropriately
-         */
         //Exception::dontPrint();
-        /*
-        * Create the data space with unlimited dimensions.
-        */
+        //Create the data space with unlimited dimensions.
         hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
         H5::DataSpace mspace(RANK, dims, maxdims);
-        /*
-         * Create a new file. If file exists its contents will be overwritten.
-         */
+        // Create a new file. If file exists its contents will be overwritten.
         H5::H5File file("Events.h5", H5F_ACC_TRUNC);
-         /*
-         * Modify dataset creation properties, i.e. enable chunking.
-         */
+         //Modify dataset creation properties, i.e. enable chunking.
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
         cparms.setChunk(RANK, chunk_dims);
         parentGroup = file.createGroup("/ch_0");
         Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
         baselineDataset = createBaseline(parentGroup, "Baseline", appStatus->getCurrentRange(), appStatus->getVoltageRange(), baselineSr);
-        //baselineDataset = parentGroup.createDataSet("Baseline", PredType::STD_I16LE, mspace, cparms);
     }  // end of try block
-// catch failure caused by the H5File operations
+    // catch failure caused by the H5File operations
     catch (H5::FileIException error){
         error.printErrorStack();
     }
@@ -335,15 +324,14 @@ void EventDetectionController::onCurrentColorsChanged(QVector <QColor> colors) {
 }
 
 void EventDetectionController::onCurrentColorChanged(int channelIdx, QColor color) {
-    //for (int idx = 0; idx < currentChannelsNum; idx++) {
-    //    currentCurves[channelIdx]->setColor(color);
-    //}
+    //eventCurves[channelIdx]->
 }
 
 void EventDetectionController::onBackgroundColorChanged(QColor color) {
-    //if (plot != nullptr) {
-    //    plot->setCanvasBackground(color);
-    //}
+    const auto& plot = widget->getPlot();
+    if (plot != nullptr) {
+        plot->setCanvasBackground(color);
+    }
 }
 
 void EventDetectionController::onReplot() {
