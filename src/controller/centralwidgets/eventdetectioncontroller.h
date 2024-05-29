@@ -36,7 +36,7 @@ private:
     void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
     void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
     uint64_t eventCounter = 0;
-    H5::Group parentGroup;
+    H5::Group eventsGroup;
 
     uint32_t totalEvents = 0;
     uint32_t eventsPerSec = 0;

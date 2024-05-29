@@ -64,7 +64,7 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
         dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
         dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
         dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &multiplier);
-        dataset.createAttribute("Sampling Rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
+        dataset.createAttribute("Sampling rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
         return dataset;
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -106,18 +106,56 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.resolution);
         dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.multiplier);
         dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, event.uom);
-        dataset.createAttribute("Sample Offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
+        dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
         dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulus);
-        dataset.createAttribute("Stimulus Uom", strdatatype, attSpace).write(strdatatype, event.stimulusUom);
+        dataset.createAttribute("Stimulus uom", strdatatype, attSpace).write(strdatatype, event.stimulusUom);
         dataset.createAttribute("Stimulus multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulusMultiplier);
-        dataset.createAttribute("Sampling Rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.samplingRate);
-        dataset.createAttribute("Sampling Rate Uom", strdatatype, attSpace).write(strdatatype, event.samplingRateUom);
+        dataset.createAttribute("Sampling rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.samplingRate);
+        dataset.createAttribute("Sampling rate uom", strdatatype, attSpace).write(strdatatype, event.samplingRateUom);
         append_data(dataset, event.rawData);
     }  // end of try block
     catch (H5::GroupIException& error) {
         error.printErrorStack();
         // Handle the exception
     }
+    // catch failure caused by the H5File operations
+    catch (H5::FileIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSet operations
+    catch (H5::DataSetIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (H5::DataSpaceIException error) {
+        error.printErrorStack();
+    }
+    // catch failure caused by the DataSpace operations
+    catch (H5::DataTypeIException error) {
+        error.printErrorStack();
+    }
+}
+
+std::pair<H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
+    try {
+        //Exception::dontPrint();
+        //Create the data space with unlimited dimensions.
+        hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
+        hsize_t maxdims[RANK] = { H5S_UNLIMITED };
+        H5::DataSpace mspace(RANK, dims, maxdims);
+        // Create a new file. If file exists its contents will be overwritten.
+        H5::H5File file("Events.h5", H5F_ACC_TRUNC);
+        //Modify dataset creation properties, i.e. enable chunking.
+        H5::DSetCreatPropList cparms;
+        hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
+        cparms.setChunk(RANK, chunk_dims);
+        H5::Group chGroup = file.createGroup("/ch_0");
+        H5::Group baselineGroup = chGroup.createGroup("Baseline");
+        H5::Group eventsGroup = chGroup.createGroup("Events");
+        Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
+        const auto baselineDataset = createBaseline(baselineGroup, "Baseline", appStatus->getCurrentRange(), appStatus->getVoltageRange(), baselineSr);
+        return std::make_pair(baselineDataset, eventsGroup);
+    }  // end of try block
     // catch failure caused by the H5File operations
     catch (H5::FileIException error) {
         error.printErrorStack();
@@ -236,38 +274,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    try {
-        //Exception::dontPrint();
-        //Create the data space with unlimited dimensions.
-        hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
-        hsize_t maxdims[RANK] = { H5S_UNLIMITED };
-        H5::DataSpace mspace(RANK, dims, maxdims);
-        // Create a new file. If file exists its contents will be overwritten.
-        H5::H5File file("Events.h5", H5F_ACC_TRUNC);
-         //Modify dataset creation properties, i.e. enable chunking.
-        H5::DSetCreatPropList cparms;
-        hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
-        cparms.setChunk(RANK, chunk_dims);
-        parentGroup = file.createGroup("/ch_0");
-        Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
-        baselineDataset = createBaseline(parentGroup, "Baseline", appStatus->getCurrentRange(), appStatus->getVoltageRange(), baselineSr);
-    }  // end of try block
-    // catch failure caused by the H5File operations
-    catch (H5::FileIException error){
-        error.printErrorStack();
-    }
-    // catch failure caused by the DataSet operations
-    catch (H5::DataSetIException error) {
-        error.printErrorStack();
-    }
-    // catch failure caused by the DataSpace operations
-    catch (H5::DataSpaceIException error) {
-        error.printErrorStack();
-    }
-    // catch failure caused by the DataSpace operations
-    catch (H5::DataTypeIException error) {
-        error.printErrorStack();
-    }
+    const auto baselineAndEvents = createFile(appStatus);
+    baselineDataset = baselineAndEvents.first;
+    eventsGroup = baselineAndEvents.second;
 }
 
 EventDetectionController::~EventDetectionController() {
@@ -403,7 +412,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             eventDurationAcc += data.size();
             const auto resolution = event.resolution;
             acc += data.size();
-            writeEvent(parentGroup, event, "e_"+std::to_string(eventCounter++));
+            writeEvent(eventsGroup, event, "e_"+std::to_string(eventCounter++));
             if (eventIdx == 0) {
                 const auto & curve = eventCurves[chIdx];
                 QVector<double> yData(data.size());
