@@ -105,6 +105,11 @@ void MainController::onConnect(bool flag) {
         mainWindow->connectDevice(false, Success);
         this->destroyControllers();
 
+        if (appStatus != nullptr) {
+            delete appStatus;
+            appStatus = nullptr;
+        }
+
         if (msgDisp != nullptr) {
             msgDisp->disconnectDevice();
             deviceConnector->destroyMessageDispatcher();

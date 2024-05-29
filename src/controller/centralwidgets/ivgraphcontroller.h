@@ -49,7 +49,7 @@ public slots:
     void onCurrentColorChanged(int channelIdx, QColor color) override;
     void onBackgroundColorChanged(QColor color) override;
     void onReplot() override;
-    void onExpandTrace(bool flag);
+    void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
 
 private slots:

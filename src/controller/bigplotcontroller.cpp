@@ -37,6 +37,9 @@ void BigPlotController::manageStatus(int idx) {
 }
 
 BigPlotController::~BigPlotController() {
+    for (auto &c : controllers) {
+        delete c;
+    }
     controllers.clear();
     if (bpw != nullptr) {
         delete bpw;

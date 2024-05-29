@@ -20,13 +20,6 @@ ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string fi
     }
 }
 
-ApplicationStatus:: ~ApplicationStatus() {
-    if (msgDisp != nullptr) {
-        delete msgDisp;
-        msgDisp = nullptr;
-    }
-}
-
 void ApplicationStatus::loadChannelMappingFromYaml(std::string pathTofile) {
     YAML::Node yamlNode = YAML::LoadFile(pathTofile);
     mappings = yamlNode.as<std::vector<YAML::ChannelMapping>>();

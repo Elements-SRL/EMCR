@@ -9,21 +9,6 @@ CentralWidgetController::CentralWidgetController(ApplicationStatus* appStatus, D
 	voltageChannelsNum = appStatus->getVoltageChannelsNum();
 }
 
-CentralWidgetController::~CentralWidgetController() {
-	if (appStatus != nullptr) {
-		delete appStatus;
-		appStatus = nullptr;
-	}
-	if (producer != nullptr) {
-		delete producer;
-		producer = nullptr;
-	}
-	if (bigPlotWidget != nullptr) {
-		delete bigPlotWidget;
-		bigPlotWidget = nullptr;
-	}
-}
-
 bool CentralWidgetController::isAtLeastOneChannelExpanded() {
 	auto channels = appStatus->getChannels();
 	for (auto c : channels) {

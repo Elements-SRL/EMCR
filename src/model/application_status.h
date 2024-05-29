@@ -17,7 +17,6 @@ private:
 
 public:
     ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath = "");
-    ~ApplicationStatus();
     void loadChannelMappingFromYaml(std::string pathTofile);
     void setAllChannelsSelected(bool state);
     void printEverything();
