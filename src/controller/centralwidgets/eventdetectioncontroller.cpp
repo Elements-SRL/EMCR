@@ -60,9 +60,7 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
         StrType strdatatype(0, H5T_VARIABLE);
         const double multiplier = cr.multiplier();
         const double stimMultiplier = vr.multiplier();
-        const int version = 1;
         const double srValue = sr.getNoPrefixValue();
-        dataset.createAttribute("Version", H5::PredType::NATIVE_INT, attSpace).write(H5::PredType::NATIVE_INT, &version);
         dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
         dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
         dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &multiplier);
@@ -105,8 +103,6 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
-        int version = 1;
-        dataset.createAttribute("Version", H5::PredType::NATIVE_INT, attSpace).write(H5::PredType::NATIVE_INT, &version);
         dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.resolution);
         dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.multiplier);
         dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, event.uom);
