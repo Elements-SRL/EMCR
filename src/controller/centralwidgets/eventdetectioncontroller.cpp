@@ -45,7 +45,7 @@ void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     }
 }
 
-void createBaseline(H5::Group& parentGroup, const std::string datasetName, RangedMeasurement cr, RangedMeasurement vr, Measurement sr) {
+H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName, RangedMeasurement cr, RangedMeasurement vr, Measurement sr) {
     try {
         //H5std_string groupName = eventName;
         //H5::Group group = parentGroup.createGroup(eventName);
@@ -66,10 +66,8 @@ void createBaseline(H5::Group& parentGroup, const std::string datasetName, Range
         dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
         dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
         dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &multiplier);
-        dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
-        dataset.createAttribute("Stimulus Uom", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
-        dataset.createAttribute("Stimulus Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
         dataset.createAttribute("Sampling Rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
+        return dataset;
     }  // end of try block
     catch (H5::GroupIException& error) {
         error.printErrorStack();
@@ -106,27 +104,18 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         DataSet dataset = parentGroup.createDataSet(eventName, PredType::STD_I16LE, mspace, cparms);
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
-        H5::Attribute attr1 = dataset.createAttribute("Uom", strdatatype, attSpace);
-        //const char* description = "This is a dataset of integers.";
-        attr1.write(strdatatype, event.uom);
         // Create an integer attribute for the dataset
-        H5::Attribute attr2 = dataset.createAttribute("Version", H5::PredType::NATIVE_INT, attSpace);
         int version = 1;
-        attr2.write(H5::PredType::NATIVE_INT, &version);
-        H5::Attribute attr3 = dataset.createAttribute("Current resoultion", H5::PredType::IEEE_F64LE, attSpace);
-        attr3.write(H5::PredType::IEEE_F64LE, &event.resolution);
-        H5::Attribute attr4 = dataset.createAttribute("Sample Offset", H5::PredType::NATIVE_UINT64, attSpace);
-        attr4.write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
-        H5::Attribute attr5 = dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace);
-        attr5.write(H5::PredType::IEEE_F64LE, &event.stimulus);
-        H5::Attribute attr6 = dataset.createAttribute("Stimulus Uom", strdatatype, attSpace);
-        //const char* description = "This is a dataset of integers.";
-        attr6.write(strdatatype, event.stimulusUom);
-        H5::Attribute attr7 = dataset.createAttribute("Sampling Rate", H5::PredType::IEEE_F64LE, attSpace);
-        attr7.write(H5::PredType::IEEE_F64LE, &event.stimulus);
-        H5::Attribute attr8 = dataset.createAttribute("Sampling Rate Uom", strdatatype, attSpace);
-        //const char* description = "This is a dataset of integers.";
-        attr8.write(strdatatype, event.samplingRateUom);
+        dataset.createAttribute("Version", H5::PredType::NATIVE_INT, attSpace).write(H5::PredType::NATIVE_INT, &version);
+        dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.resolution);
+        dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.multiplier);
+        dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, event.uom);
+        dataset.createAttribute("Sample Offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
+        dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulus);
+        dataset.createAttribute("Stimulus Uom", strdatatype, attSpace).write(strdatatype, event.stimulusUom);
+        dataset.createAttribute("Stimulus multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulusMultiplier);
+        dataset.createAttribute("Sampling Rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.samplingRate);
+        dataset.createAttribute("Sampling Rate Uom", strdatatype, attSpace).write(strdatatype, event.samplingRateUom);
         append_data(dataset, event.rawData);
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -273,8 +262,10 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
         cparms.setChunk(RANK, chunk_dims);
-        parentGroup = file.createGroup("/events");
-        baselineDataset = parentGroup.createDataSet("Baseline", PredType::STD_I16LE, mspace, cparms);
+        parentGroup = file.createGroup("/ch_0");
+        Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
+        baselineDataset = createBaseline(parentGroup, "Baseline", appStatus->getCurrentRange(), appStatus->getVoltageRange(), baselineSr);
+        //baselineDataset = parentGroup.createDataSet("Baseline", PredType::STD_I16LE, mspace, cparms);
     }  // end of try block
 // catch failure caused by the H5File operations
     catch (H5::FileIException error){

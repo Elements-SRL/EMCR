@@ -212,7 +212,7 @@ void EventDetector::processEvent(const PartialEvent partialEvent, std::vector<in
         if (v < min) { min = v; };
         if (v > max) { max = v; };
     }
-    const Event e = Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.value, samplingRate.getFullUnit());
+    const Event e = Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.getNoPrefixValue(), samplingRate.unit, currentRange.multiplier(), voltageRange.multiplier());
     const EventInfo ei = EventInfo(((double)std::abs(max - min)) * currentRange.step, ((double) realLen) / samplingRate.getNoPrefixValue(), e);
     eventsInfo.push_back(ei);
 }
