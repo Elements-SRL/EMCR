@@ -153,7 +153,7 @@ std::pair<H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
         H5::Group baselineGroup = chGroup.createGroup("Baseline");
         H5::Group eventsGroup = chGroup.createGroup("Events");
         Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
-        const auto baselineDataset = createBaseline(baselineGroup, "Baseline", appStatus->getCurrentRange(), appStatus->getVoltageRange(), baselineSr);
+        const auto baselineDataset = createBaseline(baselineGroup, "I", appStatus->getCurrentRange(), appStatus->getVoltageRange(), baselineSr);
         return std::make_pair(baselineDataset, eventsGroup);
     }  // end of try block
     // catch failure caused by the H5File operations
