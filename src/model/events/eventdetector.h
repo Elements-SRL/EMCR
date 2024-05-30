@@ -10,7 +10,7 @@
 #include "messagedispatcher.h"
 #include <tuple>
 
-constexpr uint32_t EVENT_PADDING = 4;
+constexpr uint32_t EVENT_PADDING = 3;
 
 struct PartialEvent {
     uint32_t eventBegin;

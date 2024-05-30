@@ -290,7 +290,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    initHDF5();
 }
 
 EventDetectionController::~EventDetectionController() {
