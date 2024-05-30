@@ -160,10 +160,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         downsamplingRatiosGroupBox->setEnabled(false);
     }
 
-#ifdef GLB_HIDE_DEBUG_CTRLS
-    downsamplingRatiosGroupBox->setVisible(false);
-#endif
-
     /*! Clamping modality */
     if (clampingModalities.size() > 0) {
         this->clampingModalitiesGroupBox = new QGroupBox(DCW_CLMAPINGMODALITY_TITLE);

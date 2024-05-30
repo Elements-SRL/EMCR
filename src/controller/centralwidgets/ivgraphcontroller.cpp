@@ -58,7 +58,7 @@ IvGraphController::~IvGraphController() {
         consumer = nullptr;
     }
     if (plot != nullptr) {
-        delete plot;
+//        delete plot;
         plot = nullptr;
     }
     if (ivGraphWidget != nullptr) {

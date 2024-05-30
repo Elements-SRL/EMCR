@@ -20,7 +20,6 @@ class CentralWidgetController : public QObject {
 
 public:
     CentralWidgetController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget);
-    ~CentralWidgetController();
 
     //void clean();
     virtual void stop() = 0;

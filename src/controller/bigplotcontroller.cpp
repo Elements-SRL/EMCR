@@ -21,7 +21,9 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     bps = BigPlotStatus::GapFree;
     controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
+#ifdef DEBUG
     controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
+#endif
     controllers[bps]->start();
 }
 
@@ -35,6 +37,9 @@ void BigPlotController::manageStatus(int idx) {
 }
 
 BigPlotController::~BigPlotController() {
+    for (auto &c : controllers) {
+        delete c;
+    }
     controllers.clear();
     if (bpw != nullptr) {
         delete bpw;
