@@ -57,7 +57,8 @@ private:
     /// <summary>
     /// HDF5 staff to manage baseline dataset
     /// </summary>
-    H5::DataSet baselineDataset;
+    H5::DataSet iBaselineDataset;
+    H5::DataSet vBaselineDataset;
     void initHDF5();
 
 signals:
