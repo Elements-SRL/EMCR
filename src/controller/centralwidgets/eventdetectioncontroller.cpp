@@ -1,6 +1,8 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
 #include <QVector>
+#include <iomanip>
+
 using namespace H5;
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
@@ -137,6 +139,17 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
 }
 
 std::pair<H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
+    auto now = std::chrono::system_clock::now();
+    // Convert to time_t which represents the time in seconds since epoch
+    std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
+    // Convert to tm struct for local time
+    std::tm* localTime = std::localtime(&currentTime);
+    // Create a string stream to format the time
+    std::ostringstream oss;
+    oss << std::put_time(localTime, "_%H_%M_%S");
+    // Get the string from the string stream
+    std::string timeStr = oss.str();
+    std::string filename = "Events" + timeStr + ".h5";
     try {
         //Exception::dontPrint();
         //Create the data space with unlimited dimensions.
@@ -144,7 +157,7 @@ std::pair<H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
         H5::DataSpace mspace(RANK, dims, maxdims);
         // Create a new file. If file exists its contents will be overwritten.
-        H5::H5File file("Events.h5", H5F_ACC_TRUNC);
+        H5::H5File file(filename, H5F_ACC_TRUNC);
         //Modify dataset creation properties, i.e. enable chunking.
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
@@ -201,7 +214,10 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 
-    connect(widget, &EventDetectionWidget::startPressed, this, [=]() {consumer->onStartConsuming(); });
+    connect(widget, &EventDetectionWidget::startPressed, this, [=]() {
+        initHDF5();
+        consumer->onStartConsuming();
+        });
     connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {consumer->onStopConsuming(); });
     connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](double value) {
         const auto wasThisRunning = consumer->isRunning();
@@ -274,9 +290,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    const auto baselineAndEvents = createFile(appStatus);
-    baselineDataset = baselineAndEvents.first;
-    eventsGroup = baselineAndEvents.second;
+    initHDF5();
 }
 
 EventDetectionController::~EventDetectionController() {
@@ -306,6 +320,7 @@ void EventDetectionController::attachCurves(const std::vector <uint16_t>& channe
 }
 
 void EventDetectionController::start() {
+    initHDF5();
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }
@@ -463,4 +478,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
 
 PlotConsumer* EventDetectionController::getConsumer() {
     return consumer;
+}
+
+void EventDetectionController::initHDF5() {
+    const auto baselineAndEvents = createFile(appStatus);
+    baselineDataset = baselineAndEvents.first;
+    eventsGroup = baselineAndEvents.second;
 }

@@ -58,6 +58,7 @@ private:
     /// HDF5 staff to manage baseline dataset
     /// </summary>
     H5::DataSet baselineDataset;
+    void initHDF5();
 
 signals:
     void durationChanged(Measurement_t duration);
