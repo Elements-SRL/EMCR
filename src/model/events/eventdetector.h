@@ -10,7 +10,7 @@
 #include "messagedispatcher.h"
 #include <tuple>
 
-constexpr uint32_t EVENT_PADDING = 4;
+constexpr uint32_t EVENT_PADDING = 3;
 
 struct PartialEvent {
     uint32_t eventBegin;
@@ -58,6 +58,8 @@ private:
     std::vector<double> bandPassFilterData;
     std::vector<EventInfo> eventsInfo;
     std::vector<int16_t> baseline;
+    std::vector<int16_t> baselineStimulus;
+
     uint32_t chunkSize = 0;
     double estimatedInterEventTime = 0.0;
     long long prevEventStartIdx = 0;
@@ -68,7 +70,7 @@ private:
     std::vector<double> remainingVoltages;
 
     double calcStdDev(const std::vector<double>& data);
-    std::optional<PartialEvent> analyze(double currentValue, uint32_t idx, uint32_t bufferSize);
+    std::optional<PartialEvent> analyze(double currentValue, double voltage, uint32_t idx, uint32_t bufferSize);
     void processEvent(const PartialEvent, std::vector<int16_t>& , double , uint32_t );
 
     uint64_t timeCount = 0;

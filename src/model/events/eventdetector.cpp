@@ -28,10 +28,11 @@ EventPacket EventDetector::consumeEventsAndBaseline() {
         estimatedInterEventTime = estimatedInterEventTime * 0.9 + 0.1 * ( realEventIdx - prevEventStartIdx);
         prevEventStartIdx = ei.event.eventIdx;
     }
-    const auto b = Baseline(currentRange.step, baseline, currentRange.unit);
+    const auto bi = Baseline(currentRange.step, baseline, currentRange.unit);
+    const auto bv = Baseline(voltageRange.step, baselineStimulus, voltageRange.unit);
     double eventPerSecond = 1.0 / estimatedInterEventTime * samplingRate.getNoPrefixValue();
     eventPerSecond = std::isnan(eventPerSecond) ? 0.0 : eventPerSecond;
-    const EventPacket ep = EventPacket(eventsInfo, b, eventPerSecond);
+    const EventPacket ep = EventPacket(eventsInfo, bi, bv, eventPerSecond);
     eventsInfo.clear();
     baseline.clear();
     return ep;
@@ -72,7 +73,7 @@ double EventDetector::calcStdDev(const std::vector<double>& data) {
     return std::sqrt(variance);
 }
 
-std::optional<PartialEvent> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
+std::optional<PartialEvent> EventDetector::analyze(double currentValue, double voltage, uint32_t idx, uint32_t clipValue) {
     //begin event analysis
     const auto lowParams = low->getParams();
     const auto singleBaseline = low->sfilt(currentValue);
@@ -82,6 +83,7 @@ std::optional<PartialEvent> EventDetector::analyze(double currentValue, uint32_t
 
     if (++baselineSamplingRateCounter >= baselineSamplingRate) {
         baseline.push_back(currentBaseline);
+        baselineStimulus.push_back(voltage);
         baselineSamplingRateCounter = 0;
     }
 
@@ -146,6 +148,7 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     eventBeginIdx = 0;
     if (oldTh == -1 && doubleBuffer.size() > 0) {
         low->init(doubleBuffer[0]);
+        high->init(doubleBuffer[0]);
     }
 
     const auto finalPadding = maxEventLen * EVENT_PADDING;
@@ -160,7 +163,8 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     const auto earlyStop = chunkSize - finalPadding;
     for (uint32_t idx = 0; idx < earlyStop; idx++) {
         const auto currentValue = doubleBuffer[idx];
-        const auto optEvent = analyze(currentValue, idx, chunkSize);
+        const auto voltage = voltages[idx];
+        const auto optEvent = analyze(currentValue, voltage, idx, chunkSize);
         if (optEvent.has_value()) {
             const auto& event = optEvent.value();
             processEvent(event, intBuffer, voltages[idx], chunkSize);
@@ -172,7 +176,8 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
         uint32_t idx = earlyStop;
         while (idx < chunkSize) {
             const auto currentValue = doubleBuffer[idx];
-            const auto optEvent = analyze(currentValue, idx, chunkSize);
+            const auto voltage = voltages[idx];
+            const auto optEvent = analyze(currentValue, voltage, idx, chunkSize);
             if (optEvent.has_value()) {
                 const auto& event = optEvent.value();
                 processEvent(event, intBuffer, voltages[idx], chunkSize);

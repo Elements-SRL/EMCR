@@ -1,6 +1,8 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
 #include <QVector>
+#include <iomanip>
+
 using namespace H5;
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
@@ -45,7 +47,7 @@ void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     }
 }
 
-H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName, RangedMeasurement cr, RangedMeasurement vr, Measurement sr) {
+H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName, RangedMeasurement rm, Measurement sr) {
     try {
         //H5std_string groupName = eventName;
         //H5::Group group = parentGroup.createGroup(eventName);
@@ -58,11 +60,10 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
         DataSet dataset = parentGroup.createDataSet(datasetName, PredType::STD_I16LE, mspace, cparms);
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
-        const double multiplier = cr.multiplier();
-        const double stimMultiplier = vr.multiplier();
+        const double multiplier = rm.multiplier();
         const double srValue = sr.getNoPrefixValue();
-        dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
-        dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, rm.getFullUnit());
+        dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &rm.step);
         dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &multiplier);
         dataset.createAttribute("Sampling rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
         return dataset;
@@ -136,7 +137,18 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
     }
 }
 
-std::pair<H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
+std::tuple<H5::DataSet, H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
+    auto now = std::chrono::system_clock::now();
+    // Convert to time_t which represents the time in seconds since epoch
+    std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
+    // Convert to tm struct for local time
+    std::tm* localTime = std::localtime(&currentTime);
+    // Create a string stream to format the time
+    std::ostringstream oss;
+    oss << std::put_time(localTime, "_%H_%M_%S");
+    // Get the string from the string stream
+    std::string timeStr = oss.str();
+    std::string filename = "Events" + timeStr + ".h5";
     try {
         //Exception::dontPrint();
         //Create the data space with unlimited dimensions.
@@ -144,7 +156,7 @@ std::pair<H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
         H5::DataSpace mspace(RANK, dims, maxdims);
         // Create a new file. If file exists its contents will be overwritten.
-        H5::H5File file("Events.h5", H5F_ACC_TRUNC);
+        H5::H5File file(filename, H5F_ACC_TRUNC);
         //Modify dataset creation properties, i.e. enable chunking.
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
@@ -153,8 +165,9 @@ std::pair<H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
         H5::Group baselineGroup = chGroup.createGroup("Baseline");
         H5::Group eventsGroup = chGroup.createGroup("Events");
         Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
-        const auto baselineDataset = createBaseline(baselineGroup, "I", appStatus->getCurrentRange(), appStatus->getVoltageRange(), baselineSr);
-        return std::make_pair(baselineDataset, eventsGroup);
+        const auto iBaselineDataset = createBaseline(baselineGroup, "I", appStatus->getCurrentRange(), baselineSr);
+        const auto vBaselineDataset = createBaseline(baselineGroup, "V", appStatus->getVoltageRange(), baselineSr);
+        return std::make_tuple(iBaselineDataset, vBaselineDataset, eventsGroup);
     }  // end of try block
     // catch failure caused by the H5File operations
     catch (H5::FileIException error) {
@@ -201,7 +214,10 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 
-    connect(widget, &EventDetectionWidget::startPressed, this, [=]() {consumer->onStartConsuming(); });
+    connect(widget, &EventDetectionWidget::startPressed, this, [=]() {
+        initHDF5();
+        consumer->onStartConsuming();
+        });
     connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {consumer->onStopConsuming(); });
     connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](double value) {
         const auto wasThisRunning = consumer->isRunning();
@@ -274,9 +290,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    const auto baselineAndEvents = createFile(appStatus);
-    baselineDataset = baselineAndEvents.first;
-    eventsGroup = baselineAndEvents.second;
 }
 
 EventDetectionController::~EventDetectionController() {
@@ -306,6 +319,7 @@ void EventDetectionController::attachCurves(const std::vector <uint16_t>& channe
 }
 
 void EventDetectionController::start() {
+    initHDF5();
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }
@@ -397,8 +411,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         uint64_t acc = 0;
         const auto& eventPacket = pair.second;
         const auto& eventsInfo = eventPacket.eventsinfo;
-        const auto& baseline = eventPacket.baseline;
-        append_data(baselineDataset, baseline.baseline);
+        const auto& ib = eventPacket.iBaseline;
+        const auto& iv = eventPacket.vBaseline;
+        append_data(iBaselineDataset, ib.baseline);
+        append_data(vBaselineDataset, iv.baseline);
         len = eventsInfo.size();
         totalEvents += len;
         for (int eventIdx = 0; eventIdx < eventsInfo.size(); eventIdx++) {
@@ -463,4 +479,11 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
 
 PlotConsumer* EventDetectionController::getConsumer() {
     return consumer;
+}
+
+void EventDetectionController::initHDF5() {
+    const auto baselineAndEvents = createFile(appStatus);
+    iBaselineDataset= std::get<0>(baselineAndEvents);
+    vBaselineDataset= std::get<1>(baselineAndEvents);
+    eventsGroup = std::get<2>(baselineAndEvents);
 }

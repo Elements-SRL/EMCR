@@ -8,10 +8,11 @@
 
 struct EventPacket {
     std::vector<EventInfo> eventsinfo;
-    Baseline baseline;
+    Baseline iBaseline;
+    Baseline vBaseline;
     double eventPerSecond;
-    EventPacket(std::vector<EventInfo> eventsinfo_, Baseline baseline_, double eventPerSecond_)
-        : eventsinfo(eventsinfo_), baseline(baseline_), eventPerSecond(eventPerSecond_) {}
+    EventPacket(std::vector<EventInfo> eventsinfo_, Baseline iBaseline_, Baseline vBaseline_, double eventPerSecond_)
+        : eventsinfo(eventsinfo_), iBaseline(iBaseline_), vBaseline(vBaseline_), eventPerSecond(eventPerSecond_) {}
 };
 
 #endif // EVENTPACKET_H
