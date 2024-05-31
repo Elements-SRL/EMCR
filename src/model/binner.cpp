@@ -34,3 +34,9 @@ std::vector<uint32_t> Binner::getValues() {
 uint32_t Binner::getNBins() const {
     return nBins;
 }
+
+void Binner::clear() {
+    for (auto& a : accumulators) {
+        a = 0;
+    }
+}

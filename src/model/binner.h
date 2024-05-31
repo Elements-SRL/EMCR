@@ -14,6 +14,7 @@ public:
     uint32_t getNBins() const;
     std::vector<double> getKeys() const;
     std::vector<uint32_t> getValues();
+    void clear();
 
 private:
     int nBins;
