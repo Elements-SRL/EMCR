@@ -148,7 +148,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     downsamplingRatioSbx->setRange(1, maxDownsamplingRatio);
     downsamplingRatioSbx->setValue(1);
     downSamplingRatioVl->addWidget(downsamplingRatioSbx);
-    connect(downsamplingRatioSbx, QOverload <int> ::of(&QSpinBox::valueChanged), this, [=] (int value) {
+    connect(downsamplingRatioSbx, &QSpinBox::editingFinished, this, [=] () {
+        const auto value = downsamplingRatioSbx->value();
         emit sigDownsamplingRatioSelected(value);
     });
 
