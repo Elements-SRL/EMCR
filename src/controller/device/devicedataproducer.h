@@ -76,7 +76,7 @@ public:
 protected:
     int voltageChannelsNum;
     int currentChannelsNum;
-    int totalChannelsNum;
+    unsigned int totalChannelsNum;
 
     bool initialized = false;
 

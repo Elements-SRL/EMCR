@@ -93,7 +93,7 @@ void DeviceDataProducer::run() {
     ret = msgDisp->allocateRxDataBuffer(datain);
     /*! \todo what to do if the memory is not initialized? */
 
-    int chIdx;
+    unsigned int chIdx;
     unsigned int dataSampleBufferIdx;
 
     connectionLock.unlock();
@@ -205,8 +205,8 @@ bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, u
     }
 
     buffer.resize(dataPacketsToBuffer*totalChannelsNum);
-    int count = 0;
-    int chIdx;
+    unsigned int count = 0;
+    unsigned int chIdx;
     while (dataIdx != dataPacketsMax) {
         for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
             buffer[count++] = dataSamplesBuffer[dataIdx][chIdx];

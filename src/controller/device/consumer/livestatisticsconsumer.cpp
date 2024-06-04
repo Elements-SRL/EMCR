@@ -7,11 +7,7 @@
 
 LiveStatisticsConsumer::LiveStatisticsConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
-    buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum); /*! \todo FCON magari renderlo comportamneto di default della classe base */
-}
-
-LiveStatisticsConsumer::~LiveStatisticsConsumer() {
-
+    buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum); /*! \todo FCON magari renderlo comportamento di default della classe base */
 }
 
 void LiveStatisticsConsumer::onStartConsuming() {
@@ -127,7 +123,7 @@ void LiveStatisticsConsumer::performAnalysis() {
         std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
     }
 
-    for (analysisIdx = 0; analysisIdx < bufferLen; analysisIdx += totalChannelsNum*100) {
+    for (analysisIdx = 0; analysisIdx < bufferLen; analysisIdx += totalChannelsNum) {
         for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
             channelIdx = analysisIdx+voltageIdx;
             voltageSum[voltageIdx] += buffer[channelIdx];
@@ -143,14 +139,14 @@ void LiveStatisticsConsumer::performAnalysis() {
         totalAnalysisSamples++;
     }
 
-    if (totalAnalysisSamples*100 >= minSamples) {
+    if (totalAnalysisSamples >= minSamples) {
         for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
             const auto meanVoltage = (voltageSum[chIdx] / ((double)totalAnalysisSamples));
 
             // res->stdVoltage[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res->meanVoltage[voltageIdx])/((double)totalAnalysisSamples))*voltageMultiplier;
             const auto meanCurrent = currentSum[chIdx] / ((double)totalAnalysisSamples);
             const auto stdCurrent = qSqrt((currentSum2[chIdx] - currentSum[chIdx] * meanCurrent) / ((double)totalAnalysisSamples));
-            const auto conductivity = meanVoltage * meanCurrent <= 0 ? -1.0 : meanCurrent / meanVoltage;
+            const auto conductivity = meanVoltage * meanCurrent <= 0.0 ? -1.0 : meanCurrent / meanVoltage;
             const auto conductivityPfx = currentRange.prefix / voltageRange.prefix;
 
             const Measurement meanVoltageMeasurement = { meanVoltage , voltageRange.prefix, voltageRange.unit };

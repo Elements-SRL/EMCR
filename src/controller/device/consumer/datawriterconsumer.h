@@ -4,7 +4,7 @@
 #define DWC_TIME_FORMAT "hh:mm:ss.zzz"
 
 #define DWC_DAT_RAW_BUFFER_LEN 1048576
-#define DWC_MIN_BATCH_DURATION 0.1
+#define DWC_MIN_BATCH_DURATION 0.05
 
 #include <QDateTime>
 
