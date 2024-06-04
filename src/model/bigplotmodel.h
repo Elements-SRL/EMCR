@@ -19,7 +19,7 @@ private:
     Rect4 currentZoom;
     bool isEmptyZoomStack();
     void clearZoomStack();
-    double yScale;
+    double yScale = 1.0;
     RangedMeasurement_t currentRange[QwtPlot::axisCnt];
     UnitPfx_t xAxisPrefix = UnitPfxNone;
     void pushZoomStack(Rect4);

@@ -9,9 +9,9 @@ class ApplicationStatus {
 //    TODO maybe use a status and act as a state machin, if the configuration is not the default one do we need another way to get channels num and board num?
 private:
     std::vector<YAML::ChannelMapping> mappings;
-    int voltageChannelsNum;
-    int currentChannelsNum;
-    int boardsNum;
+    int voltageChannelsNum = 1;
+    int currentChannelsNum = 1;
+    int boardsNum = 1;
     MessageDispatcher * msgDisp;
     std::vector<int> filterVisibleChannels(std::vector<int>);
 
