@@ -2,7 +2,7 @@
 #define LIVESTATISTICSCONSUMER_H
 
 #define LSC_MIN_INTERVAL_S 1.0
-#define LSC_MIN_BATCH_INTERVAL_S 0.01
+#define LSC_MIN_BATCH_INTERVAL_S 0.001
 
 #include "application_status.h"
 #include "devicedataconsumer.h"
