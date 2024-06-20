@@ -60,10 +60,10 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
             auto s = stateArray.states[i];
             switch (s.triggerType) {
             case YAML::CURRENT:
-                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel, UnitPfxPico, "A"},{s.maxTrigLevel, UnitPfxPico, "A"}, s.triggerState, s.activeTrigger, s.delta);
+                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, {s.timeout,UnitPfxNone, "s"}, s.timeoutState, {s.minTrigLevel, UnitPfxPico, "A"},{s.maxTrigLevel, UnitPfxPico, "A"}, s.triggerState, s.activeTrigger, s.delta);
                 break;
             case YAML::CONDUCTANCE:
-                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, s.timeout, s.timeoutState, {s.minTrigLevel*s.voltage, UnitPfxPico, "A"},{s.maxTrigLevel*s.voltage, UnitPfxPico, "A"}, s.triggerState, s.activeTrigger, s.delta);
+                md->setSateArrayState(i, {s.voltage,UnitPfxNone, "V"}, s.activeTimeout, {s.timeout,UnitPfxNone, "s"}, s.timeoutState, {s.minTrigLevel*s.voltage, UnitPfxPico, "A"},{s.maxTrigLevel*s.voltage, UnitPfxPico, "A"}, s.triggerState, s.activeTrigger, s.delta);
                 break;
             }
         }
