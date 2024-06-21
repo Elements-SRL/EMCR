@@ -38,12 +38,20 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "Not connected to device EEPROM";
         break;
 
+    case ErrorEepromWriteFailed:
+        error = "Write to device EEPROM failed";
+        break;
+
     case ErrorEepromReadFailed:
         error = "Read from device EEPROM failed";
         break;
 
     case ErrorEepromNotRecognized:
         error = "Device EEPROM not recognized";
+        break;
+
+    case ErrorEepromInvalidAddress:
+        error = "Trying to write to invalid EEPROM address";
         break;
 
     case ErrorDeviceTypeNotRecognized:
@@ -114,8 +122,44 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "Value out of range for the device";
         break;
 
+    case ErrorUnchangedValue:
+        error = "Trying to issue a command with an unchanged value";
+        break;
+
+    case ErrorBadlyFormedProtocolLoop:
+        error = "The protocol has an invalid loop";
+        break;
+
     case ErrorNoDataAvailable:
         error = "No data available";
+        break;
+
+    case ErrorRepeatedHeader:
+        error = "Header packet received more than once";
+        break;
+
+    case ErrorRepeatedTail:
+        error = "Tail packet received more than once";
+        break;
+
+    case ErrorIllFormedMessage:
+        error = "Received ill formed packet";
+        break;
+
+    case ErrorWrongClampModality:
+        error = "Traying to perform an operation in an invalid clamping modality";
+        break;
+
+    case WarningValueClipped:
+        error = "Value out of range for the device";
+        break;
+
+    case ErrorCompensationNotEnabled:
+        error = "Trying to an unavailable compensation";
+        break;
+
+    case ErrorLiquidJunctionAndRecalibration:
+        error = "Cannot do the offset recalibration and the liquid junction compensation at the same time";
         break;
 
     case ErrorFeatureNotImplemented:
@@ -128,6 +172,42 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
 
     case ErrorExpiredDevice:
         error = "Expired device";
+        break;
+
+    case ErrorMemoryInitialization:
+        error = "Failed to initialize the memory needed by the software";
+        break;
+
+    case ErrorCalibrationDirMissing:
+        error = "Calibration directory missing";
+        break;
+
+    case ErrorCalibrationMappingNotOpened:
+        error = "Calibration mapping file missing";
+        break;
+
+    case ErrorCalibrationMappingCorrupted:
+        error = "Calibration mapping file corrupted";
+        break;
+
+    case ErrorCalibrationFileCorrupted:
+        error = "Calibration mapping file corrupted";
+        break;
+
+    case ErrorCalibrationFileMissing:
+        error = "Calibration file missing";
+        break;
+
+    case ErrorCalibrationSoftwareBug:
+        error = "Calibration loading procedure failed";
+        break;
+
+    case ErrorCalibrationNotLoadedYet:
+        error = "Calibrations not loaded yet";
+        break;
+
+    case ErrorCalibrationMappingWrongNumbering:
+        error = "Wrong numbering of the caliration mapping file";
         break;
 
     case ErrorUnknown:
@@ -173,12 +253,20 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
         info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
+    case ErrorEepromWriteFailed:
+        info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
+        break;
+
     case ErrorEepromReadFailed:
         info = "Try to unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
         break;
 
     case ErrorEepromNotRecognized:
         info = "This device probably is not usable with " + GLB_SOFTWARE_NAME + ".";
+        break;
+
+    case ErrorEepromInvalidAddress:
+        info = "Please try again or write to support@elements-ic.com for support.";
         break;
 
     case ErrorDeviceTypeNotRecognized:
@@ -246,19 +334,55 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
         break;
 
     case ErrorCommandNotImplemented:
-        info = "";
+        info = "The command won't be issued";
         break;
 
     case ErrorValueOutOfRange:
-        info = "";
+        info = "The command won't be issued";
+        break;
+
+    case ErrorUnchangedValue:
+        info = "The command won't be issued";
+        break;
+
+    case ErrorBadlyFormedProtocolLoop:
+        info = "Try to rearrange the loop items in the protocol";
         break;
 
     case ErrorNoDataAvailable:
         info = "";
         break;
 
+    case ErrorRepeatedHeader:
+        info = "Ignoring subsequent headers";
+        break;
+
+    case ErrorRepeatedTail:
+        info = "Ignoring subsequent tails";
+        break;
+
+    case ErrorIllFormedMessage:
+        info = "Ignoring the data contained within";
+        break;
+
+    case ErrorWrongClampModality:
+        info = "Try changing clamping modality";
+        break;
+
+    case WarningValueClipped:
+        info = "The value has been clipped";
+        break;
+
+    case ErrorCompensationNotEnabled:
+        info = "The command won't be issued";
+        break;
+
+    case ErrorLiquidJunctionAndRecalibration:
+        info = "Stop the execution of one of the two before starting the other";
+        break;
+
     case ErrorFeatureNotImplemented:
-        info = "";
+        info = "The command won't be issued";
         break;
 
     case ErrorUpgradesNotAvailable:
@@ -266,7 +390,47 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
         break;
 
     case ErrorExpiredDevice:
-        info = "Contact support@elements-ic.com to renew your device.";
+        info = "Contact support@elements-ic.com to renew your device";
+        break;
+
+    case ErrorMemoryInitialization:
+        info = "Try to restart " + GLB_SOFTWARE_NAME + ". If the problem persists consider restarting the computer or using another PC.";
+        break;
+
+    case ErrorCalibrationDirMissing:
+        info = "Please copy all the calibration files as explained after the purchase";
+        break;
+
+    case ErrorCalibrationMappingNotOpened:
+        info = "Please copy all the calibration files as explained after the purchase";
+        break;
+
+    case ErrorCalibrationMappingCorrupted:
+        info = "Please copy all the calibration files as explained after the purchase.\n"
+               "If the problem persists, contact support@elements-ic.com";
+        break;
+
+    case ErrorCalibrationFileCorrupted:
+        info = "Please copy all the calibration files as explained after the purchase.\n"
+               "If the problem persists, contact support@elements-ic.com";
+        break;
+
+    case ErrorCalibrationFileMissing:
+        info = "Please copy all the calibration files as explained after the purchase";
+        break;
+
+    case ErrorCalibrationSoftwareBug:
+        info = "Please copy all the calibration files as explained after the purchase.\n"
+               "If the problem persists, contact support@elements-ic.com";
+        break;
+
+    case ErrorCalibrationNotLoadedYet:
+        info = "";
+        break;
+
+    case ErrorCalibrationMappingWrongNumbering:
+        info = "Please copy all the calibration files as explained after the purchase.\n"
+               "If the problem persists, contact support@elements-ic.com";
         break;
 
     case ErrorUnknown:

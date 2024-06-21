@@ -230,16 +230,24 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
 
-    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,       this,                           &MainController::onStartRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,        this,                           &MainController::onStopRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, bigPlotController,              &BigPlotController::onExpandTrace);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot, chessboardController,           &ChessboardController::onTracesExpandedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,  chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,   chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       chessboardController,           &ChessboardController::onDocTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       measurementOverviewController,  &MeasurementOverviewController::onLiquidJunctionResult);
-    connect(multipleChannelController, &MultipleChannelController::sigDocTurnedOnOff,       singleChannelController,        &SingleChannelController::onLiquidJunctionResult);
-    connect(multipleChannelController, &MultipleChannelController::sigDocResetted,          this, [=] () {
+    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,                   this,                           &MainController::onStartRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,                    this,                           &MainController::onStopRecording);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             bigPlotController,              &BigPlotController::onExpandTrace);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff,  chessboardController,           &ChessboardController::onCalibrationResistorsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,               chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   chessboardController,           &ChessboardController::onOffsetRecalibrationTurnedOnOff);
+//    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   measurementOverviewController,  &MeasurementOverviewController::onOffsetRecalibrationResult);
+//    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   singleChannelController,        &SingleChannelController::onOffsetRecalibrationResult);
+//    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationResetted,      this, [=] () {
+//        measurementOverviewController->onLiquidJunctionResult(false);
+//        singleChannelController->onLiquidJunctionResult();
+//    });
+    connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   chessboardController,           &ChessboardController::onLjcTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   measurementOverviewController,  &MeasurementOverviewController::onLiquidJunctionResult);
+    connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   singleChannelController,        &SingleChannelController::onLiquidJunctionResult);
+    connect(multipleChannelController, &MultipleChannelController::sigLjResetted,                       this, [=] () {
         measurementOverviewController->onLiquidJunctionResult(false);
         singleChannelController->onLiquidJunctionResult();
     });
