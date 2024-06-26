@@ -86,6 +86,7 @@ private:
     QMenu * menuRecordings = nullptr;
     QMenu * menuPreferences = nullptr;
     QMenu * menuAdvanced = nullptr;
+    QMenu * menuHwReset = nullptr;
     QMenu * menuQuestionMark = nullptr;
 
     bool interfaceCreated = false;
@@ -96,10 +97,12 @@ private:
     QAction * actionBoardMapping = nullptr;
 
     QAction * actionUpgradeFw = nullptr;
+    QAction * actionHwReset = nullptr;
+    QAction * actionHwResetHelp = nullptr;
+
     QAction * actionAbout = nullptr;
     QAction* actionDeviceInfo = nullptr;
     QAction* actionSupport = nullptr;
-
 
     QDockWidget * deviceDetectorDw = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
@@ -129,11 +132,15 @@ private:
     QVector <QDockWidget *> dockWidgets;
     QVector <QDockWidget *> analysisWidgets;
 
+private slots:
+    void onResetHwHelp();
+
 signals:
     void setDebugBit(int word, int bit, bool flag);
     void setDebugWord(int word, int value);
     void sigModelCellChanged(bool modelCellChanged);
     void sigBoardMappingFileChoosen(QString filename);
     void sigUpgradeFw();
+    void sigResetHw();
 };
 #endif // MAINWINDOW_H

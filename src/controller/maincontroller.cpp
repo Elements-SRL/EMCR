@@ -57,6 +57,7 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
     connect(mainWindow, &MainWindow::sigUpgradeFw, this, &MainController::onUpgradeFw);
+    connect(mainWindow, &MainWindow::sigResetHw, this, &MainController::onResetHw);
 
     mainWindow->show();
     emit startDetecting();
@@ -122,6 +123,12 @@ void MainController::onConnect(bool flag) {
 
 void MainController::onUpgradeFw() {
     upgradeFwController->openView(mainWindow->getSelectedSerialNumber());
+}
+
+void MainController::onResetHw() {
+    msgDisp->resetAsic(true);
+    QThread::msleep(10);
+    msgDisp->resetAsic(false);
 }
 
 void MainController::onDeviceConnected(ErrorCodes_t ret) {

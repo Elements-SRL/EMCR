@@ -38,6 +38,7 @@ public slots:
     void onDevicesListChanged(std::vector <std::string> devicesList);
     void onConnect(bool flag);
     void onUpgradeFw();
+    void onResetHw();
     void onDeviceConnected(ErrorCodes_t ret);
     void onMainWindowCreated();
     void onVcCurrentRangeSelected(int idx);

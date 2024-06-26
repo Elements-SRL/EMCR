@@ -138,7 +138,7 @@ void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) 
 void MultipleChannelController::resetOffsetRecalibration() {
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
-//    msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
+    msgDisp->resetOffsetRecalibration(selectedChannels, true);
 
     emit sigOffsetRecalibrationResetted();
 }
@@ -147,7 +147,7 @@ void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     std::vector <bool> values(selectedChannels.size(), flag);
-    ErrorCodes_t err = msgDisp->digitalOffsetCompensation(selectedChannels, values, true);
+    ErrorCodes_t err = msgDisp->liquidJunctionCompensation(selectedChannels, values, true);
     if (err == Success) {
         emit sigLjcTurnedOnOff(flag);
 
