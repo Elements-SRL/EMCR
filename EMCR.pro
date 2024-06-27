@@ -26,6 +26,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/device/consumer/spectrumconsumer.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -122,6 +123,7 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
+    src/controller/device/consumer/spectrumconsumer.h \
     src/globaldefines.h \
     src/protocoldefs.h \
     src/abf/axon.h \
@@ -267,6 +269,7 @@ ICON = imgs/Elements.ico.icns
 include($$(E384COMMLIB_PATH)includecommlib.pri)
 include($$(QWT_PATH)includeqwt.pri)
 include($$(PROTOCOL_SERIALIZER_PATH)includeprotocolserializer.pri)
+include($$(FFTW_3_3_PATH)includefftw3.3.pri)
 
 RESOURCES += \
     resources.qrc

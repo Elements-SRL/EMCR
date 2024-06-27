@@ -24,11 +24,18 @@ struct EventDetectionMessage {
     std::map<uint32_t, std::vector<Event>> events;
 };
 
+struct SpectrumMessage {
+    double * frequencyValues;
+    std::vector <double *> currentValues;
+    std::vector <int> dataSize;
+};
+
 // Forward declaration of the variant type
 typedef std::variant<
     GapFreeMessage,
     IvMessage,
-    EventDetectionMessage
+    EventDetectionMessage,
+SpectrumMessage
 > PlotMessage;
 
 #endif // PLOTMESSAGE_H

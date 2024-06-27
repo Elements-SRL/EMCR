@@ -9,8 +9,8 @@
 #include "firstorderiirfilter.h"
 #include "eventdetector.h"
 
-#define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
-#define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
+#define EDC_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
+#define EDC_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
 constexpr double MINIMUM_DATA_FOR_ANALYSIS = 0.1; //0.1s
 
 class EventDetectionConsumer : public PlotConsumer
