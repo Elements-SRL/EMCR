@@ -72,7 +72,7 @@ void IvGraphConsumer::run() {
                 bufferIdx+=currentChannelsNum;
             }
             currentTimeMs = updateDataTimer.elapsed();
-            if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
+            if (currentTimeMs-lastUpdateTimeMs > IVC_MIN_UPDATE_PLOT_TIME_MS) {
                 for (int i=0; i<currentChannelsNum; i++) {
                     auto currents = ivChannels[i]->getCurrents();
                     int counterOfSomeVariant = 0;

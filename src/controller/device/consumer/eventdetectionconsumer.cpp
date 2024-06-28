@@ -99,7 +99,7 @@ void EventDetectionConsumer::run() {
                 }
             }
             currentTimeMs = updateDataTimer.elapsed();
-            if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS && atLeastOneFound) {
+            if (currentTimeMs - lastUpdateTimeMs > EDC_MIN_UPDATE_PLOT_TIME_MS && atLeastOneFound) {
                 emitPlotData();
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;

@@ -2,13 +2,12 @@
 #define IVGRAPHCONSUMER_H
 
 #include <QObject>
-#include "devicedataconsumer.h"
+
 #include "ivchannel.h"
 #include "plotconsumer.h"
 #include "plotmessage.h"
 
-#define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
-#define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
+#define IVC_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 
 class IvGraphConsumer : public PlotConsumer
 {
