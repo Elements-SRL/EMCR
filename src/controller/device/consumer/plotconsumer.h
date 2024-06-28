@@ -50,7 +50,7 @@ protected:
     virtual void emitPlotData() = 0;
     void updateTimeAxis();
     void computeTimeAxis();
-    void updateRangeAxis();
+    virtual void updateRangeAxis();
 
     std::vector<double *> voltageValues;
     std::vector<double *> currentValues;

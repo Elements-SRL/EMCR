@@ -20,27 +20,33 @@ public:
     SpectrumConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~SpectrumConsumer();
     void forceAxisUpdate() override;
-    void updateFrequencyAxis();
 
 public slots:
-    void onCurrentRangeChanged(RangedMeasurement_t range) override;
-
-private:
-    int nBins;
-    int n2Bins;
-    int subSamplingRatio = 1;
-    double binSize;
-    std::vector<int> dataSize;
-    double * frequencyValues = nullptr;
-    std::vector <double *> fftIn;
-    std::vector <std::complex <double> *> fftOut;
-    fftw_plan fftwPlan;
+    void onIntegrationWindowChanged(Measurement_t window);
 
 protected:
+    void updateFrequencyAxis();
+    void computeFrequencyAxis();
+    virtual void updateRangeAxis() override;
     void clearData() override;
     void run() override;
     void allocateData() override;
     void emitPlotData() override;
+
+private:
+    bool pushedIntegrationWindowFlag = false;
+    double pushedIntegrationWindowS = 0.5;
+    double integrationWindowS = 0.5;
+    int integrationRounds = 1;
+    int integrationRoundIdx = 0;
+    double normalizationFactor = 1.0;
+
+    int nBins;
+    int n2Bins;
+    double * frequencyValues = nullptr;
+    std::vector <double *> fftIn;
+    std::vector <std::complex <double> *> fftOut;
+    std::vector <fftw_plan> fftwPlans;
 };
 
 #endif // SPECTRUMCONSUMER_H
