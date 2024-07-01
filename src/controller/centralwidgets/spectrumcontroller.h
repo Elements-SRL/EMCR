@@ -1,5 +1,5 @@
-#ifndef GAPFREECONTROLLER_H
-#define GAPFREECONTROLLER_H
+#ifndef SPECTRUMCONTROLLER_H
+#define SPECTRUMCONTROLLER_H
 
 #include <QPointF>
 
@@ -7,32 +7,29 @@
 #include "mainwindow.h"
 #include "messagedispatcher.h"
 #include "bigplotmodel.h"
-#include "plotconsumer.h"
+#include "spectrumconsumer.h"
 #include "application_status.h"
 #include "plotmessage.h"
-#include "ivgraphconsumer.h"
-#include "eventdetectionconsumer.h"
-#include "ivgraphwidget.h"
 #include "centralwidgetcontroller.h"
 #include "bigplotcontroller.h"
 
-class GapFreeController : public CentralWidgetController {
+class SpectrumController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController);
-    ~GapFreeController();
+    SpectrumController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController);
+    ~SpectrumController();
     void stop() override;
     void start() override;
     PlotConsumer* getConsumer() override;
+
 private:
-    BigPlotModel* model = nullptr;
-    GapFreePlotConsumer * consumer = nullptr;
+    BigPlotModel * model = nullptr;
+    SpectrumConsumer * consumer = nullptr;
     BigPlot * plot = nullptr;
-    std::vector <Curve*> currentCurves;
-    std::vector <Curve*> voltageCurves;
+    std::vector <Curve *> currentCurves;
     void detachCurves(const std::vector <uint16_t> &channelIndexes) override;
-    void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
+    void attachCurves(const std::vector <uint16_t> &channelIndexes) override;
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
@@ -44,8 +41,7 @@ public slots:
     void onSetPlotData(PlotMessage plotMessage) override;
 
 signals:
-    void durationChanged(Measurement_t duration);
+    void integrationWindowChanged(Measurement_t integrationWindow);
 };
 
-#endif // GAPFREECONTROLLER_H
-#pragma once
+#endif // SPECTRUMCONTROLLER_H

@@ -56,6 +56,7 @@ void SpectrumConsumer::computeFrequencyAxis() {
     n2Bins = nBins/2; // floor rounding: if nBins is even the DC frequeny is removed, but SR/2 is included, if nBins is odd DC included, SR/2 does not exist
 
     integrationRoundIdx = 0;
+    binIndex = 0;
 
     double df = samplingRateHz/(double)nBins;
     for (int binIdx = 0; binIdx < n2Bins; binIdx++) {
@@ -66,6 +67,11 @@ void SpectrumConsumer::computeFrequencyAxis() {
         fftw_plan_dft_r2c_1d(nBins, fftIn[channelIdx], reinterpret_cast <fftw_complex *> (fftOut[channelIdx]), FFTW_ESTIMATE);
         // va fatto anche il destroy dei plan? ha impatto? dove andrebbe fatto e come si verifica se il piano esiste?
     }
+    /*! This ensures that integrating the power spectrum (int{S*dF}) returns the signal variance
+     *  2 because the spectrum is mono lateral
+     *  samplingRateHz to give information about the x axis (it will cancel out with dF = Fs/nBins in the integral)
+     *  nBins to take into account that the fft is computed from the sum of nBins elements */
+    normalizationFactor = 2.0/(samplingRateHz*(double)(integrationRounds*nBins-1));
 
     this->emitPlotData();
 }
@@ -87,7 +93,7 @@ void SpectrumConsumer::run() {
     int bufferIdx;
     int bufferLen = 0;
     int channelIdx;
-    int binIndex = 0;
+    bool emitFlag = false;
 
     QMutexLocker consumptionLock(&consumptionMtx);
     consumptionLock.unlock();
@@ -104,7 +110,7 @@ void SpectrumConsumer::run() {
             bufferIdx = voltageChannelsNum;
             bufferLen = buffer.size();
 
-            /*! Copy data in curves */
+            /*! Copy data in buffers for FFT evaluation */
             while (bufferIdx < bufferLen) {
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
@@ -142,20 +148,23 @@ void SpectrumConsumer::run() {
                         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                             if (plottedChannels[channelIdx]) {
                                 for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    currentValues[channelIdx][binIndex] *= normalizationFactor;
+                                    currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
                                 }
                             }
                         }
                         emitPlotData();
                         emit plotDataUpdated();
                         integrationRoundIdx = 0;
+                        emitFlag = true;
                     }
                     binIndex = 0;
-
-                    // salvare i dati in eccesso nel buffer successivo
                 }
             }
-
+            if (emitFlag) {
+                emitPlotData();
+                emit plotDataUpdated();
+                emitFlag = false;
+            }
         }
     }
     emit plotDataUpdated();
@@ -168,11 +177,9 @@ void SpectrumConsumer::run() {
 void SpectrumConsumer::allocateData() {
     frequencyValues = new double[maxSamples/2];
 
-    dataSize.resize(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[maxSamples]);
-    }
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        currentSpectrumValues.push_back(new double[maxSamples]);
         fftIn.push_back(new double[nBins]);
         fftOut.push_back(new std::complex <double> [maxSamples]);
     }
@@ -184,6 +191,11 @@ void SpectrumConsumer::clearData() {
         delete [] currentValues[i];
     }
     currentValues.clear();
+
+    for (int i = 0; i < currentSpectrumValues.size(); i++) {
+        delete [] currentSpectrumValues[i];
+    }
+    currentSpectrumValues.clear();
     for (int i = 0; i < fftIn.size(); i++) {
         delete [] fftIn[i];
     }
@@ -194,10 +206,9 @@ void SpectrumConsumer::clearData() {
     fftOut.clear();
     delete [] frequencyValues;
     frequencyValues = nullptr;
-    dataSize.clear();
 }
 
 void SpectrumConsumer::emitPlotData() {
-    SpectrumMessage message = {frequencyValues, currentValues, dataSize};
+    SpectrumMessage message = {frequencyValues, currentSpectrumValues, n2Bins};
     emit setPlotData(message);
 };

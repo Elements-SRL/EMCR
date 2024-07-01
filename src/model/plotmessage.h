@@ -27,7 +27,7 @@ struct EventDetectionMessage {
 struct SpectrumMessage {
     double * frequencyValues;
     std::vector <double *> currentValues;
-    std::vector <int> dataSize;
+    int dataSize;
 };
 
 // Forward declaration of the variant type

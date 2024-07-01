@@ -39,6 +39,7 @@ private:
     double integrationWindowS = 0.5;
     int integrationRounds = 1;
     int integrationRoundIdx = 0;
+    int binIndex = 0;
     double normalizationFactor = 1.0;
 
     int nBins;
@@ -47,6 +48,7 @@ private:
     std::vector <double *> fftIn;
     std::vector <std::complex <double> *> fftOut;
     std::vector <fftw_plan> fftwPlans;
+    std::vector<double *> currentSpectrumValues;
 };
 
 #endif // SPECTRUMCONSUMER_H
