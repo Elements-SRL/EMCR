@@ -172,8 +172,6 @@ void PlotConsumer::updateRangeAxis() {
             }
         }
         voltageRange = pushedVoltageRange;
-
-        emit voltageRangeUpdated(voltageRange);
     }
 
     if (pushedCurrentRangeFlag) {
@@ -190,9 +188,6 @@ void PlotConsumer::updateRangeAxis() {
             }
         }
         currentRange = pushedCurrentRange;
-
-        emit currentRangeUpdated(currentRange) // questo segnale deve essere ricevuto per cambiare le label
-                                               // o comunque controllare che non vengano cambiate con un altro meccanismo
     }
 }
 

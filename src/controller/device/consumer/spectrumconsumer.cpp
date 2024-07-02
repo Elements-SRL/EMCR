@@ -81,8 +81,6 @@ void SpectrumConsumer::updateRangeAxis() {
     if (pushedCurrentRangeFlag) {
         pushedCurrentRangeFlag = false;
         currentRange = pushedCurrentRange;
-
-        emit currentRangeUpdated(currentRange);
     }
 }
 

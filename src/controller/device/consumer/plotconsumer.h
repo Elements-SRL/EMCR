@@ -90,8 +90,6 @@ protected:
     QTextStream logStream;
 
 signals:
-    void voltageRangeUpdated(RangedMeasurement_t range);
-    void currentRangeUpdated(RangedMeasurement_t range);
     void plotDataUpdated();
 };
 

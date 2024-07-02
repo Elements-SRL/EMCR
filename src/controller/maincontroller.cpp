@@ -162,12 +162,14 @@ void MainController::onMainWindowCreated() {
 
     appStatus = new ApplicationStatus(msgDisp);
     msgDisp->setChannelSelected(0, true);
+
     /************\
      * Producer *
     \************/
 
     deviceDataProducer = new DeviceDataProducer(appStatus);
     auto stampPlotConsumer =  new GapFreePlotConsumer(appStatus, deviceDataProducer);
+    consumers.append(stampPlotConsumer);
 
     /***************\
      * Controllers *

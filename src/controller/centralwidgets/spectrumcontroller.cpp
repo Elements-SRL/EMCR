@@ -1,14 +1,17 @@
 #include "spectrumcontroller.h"
 
+#include <qwt_date_scale_engine.h>
+
 SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotBandwidth, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
 
     model = new BigPlotModel();
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
-    fare il plot logaritmico
 
-    plot = new BigPlot("", "[Hz]", "", BigPlotStatus::GapFree, bigPlotWidget);
+    plot = new BigPlot("", "[Hz]", "", BigPlotStatus::Spectrum, bigPlotWidget);
+    plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
+    plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
     bigPlotWidget->setSpectrumPlot(plot);
     //    creating curves for spectra
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -118,13 +121,7 @@ void SpectrumController::onReplot() {
 /*! todo Check clamping modality too */
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     QwtPlot::Axis axisIdx;
-    if (newRange.unit == "Hz") {
-        axisIdx = QwtPlot::xBottom;
-        model->setCurrentRange(axisIdx, newRange);
-        Measurement_t duration = { model->getZoom(BigPlotModel::Zoom::Current)[axisIdx].width(), model->getCurrentRange(axisIdx).prefix, "Hz" };
-        emit durationChanged(duration);
-
-    } else if (newRange.unit == "A") {
+    if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRangeSquared(axisIdx, newRange);
     }

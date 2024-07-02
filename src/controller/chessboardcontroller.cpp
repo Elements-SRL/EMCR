@@ -208,23 +208,31 @@ void ChessboardController::onDurationUpdated(Measurement_t duration) {
 }
 
 void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
-    GapFreeMessage gapFreeMessage;
-    IvMessage ivMessage;
     switch (plotMessage.index()) {
     //    GapFree message
-    case 0:
-        gapFreeMessage = std::get<0>(plotMessage);
+    case 0:{
+        GapFreeMessage message = std::get<0>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
+            currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
         }
         break;
+    }
         //    IvGraph message
-    case 1:
-        ivMessage = std::get<1>(plotMessage);
+    case 1:{
+        IvMessage message = std::get<1>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(ivMessage.voltageValues[idx], ivMessage.currentValues[idx], ivMessage.dataSize[idx]);
+            currentCurves.at(idx)->setRawSamples(message.voltageValues[idx], message.currentValues[idx], message.dataSize[idx]);
         }
         break;
+    }
+        //    IvGraph message
+    case 3:{
+        SpectrumMessage message = std::get<3>(plotMessage);
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.currentValues[idx], message.dataSize);
+        }
+        break;
+    }
     }
 }
 

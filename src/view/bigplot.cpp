@@ -134,7 +134,12 @@ void BigPlot::setRect(Rect4 r) {
     case GapFree:
         this->setAxisScale(xBottom, 0.0, r[xBottom].width());
         break;
+
     case Iv:
+        this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
+        break;
+
+    case Spectrum:
         this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
         break;
     }
