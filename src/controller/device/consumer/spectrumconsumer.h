@@ -12,6 +12,7 @@
 
 #define SPC_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define SPC_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
+#define SPC_MAX_SAMPLES (2048)
 
 class SpectrumConsumer : public PlotConsumer {
     Q_OBJECT

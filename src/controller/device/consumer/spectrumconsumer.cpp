@@ -3,7 +3,7 @@
 SpectrumConsumer::SpectrumConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     PlotConsumer(appStatus, producer) {
 
-    maxSamples = 2048;
+    maxSamples = SPC_MAX_SAMPLES;
     this->allocateData();
     this->updateFrequencyAxis();
 }

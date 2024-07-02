@@ -6,9 +6,10 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     model = new BigPlotModel();
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
+    fare il plot logaritmico
 
     plot = new BigPlot("", "[Hz]", "", BigPlotStatus::GapFree, bigPlotWidget);
-    bigPlotWidget->setGapFreePlot(plot);
+    bigPlotWidget->setSpectrumPlot(plot);
     //    creating curves for spectra
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
@@ -30,11 +31,11 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
         bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
         });
 
-    connect(bigPlotController, &SpectrumController::integrationWindowChanged, consumer, &SpectrumConsumer::onIntegrationWindowChanged);
+    connect(this, &SpectrumController::integrationWindowChanged, consumer, &SpectrumConsumer::onIntegrationWindowChanged);
     connect(consumer, &PlotConsumer::setPlotData, this, &SpectrumController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &SpectrumController::onReplot);
     consumer->forceAxisUpdate();
-    consumer->setMaxSamplesPerPlot(4096);
+    consumer->setMaxSamplesPerPlot(SPC_MAX_SAMPLES);
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
@@ -43,7 +44,7 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     consumer->onStopConsuming();
 }
 
-GapFreeController::~GapFreeController() {
+SpectrumController::~SpectrumController() {
     if (model != nullptr) {
         delete model;
         model = nullptr;
@@ -57,30 +58,23 @@ GapFreeController::~GapFreeController() {
         plot = nullptr;
     }
     currentCurves.clear();
-    voltageCurves.clear();
 }
 
-void GapFreeController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
+void SpectrumController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
     for (auto ch : channelIndexes) {
         currentCurves[ch]->detach();
     }
-    for (auto ch : channelIndexes) {
-        voltageCurves[ch]->detach();
-    }
     plot->replot();
 }
 
-void GapFreeController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
+void SpectrumController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
     for (auto ch : channelIndexes) {
         currentCurves[ch]->attach(plot);
     }
-    for (auto ch : channelIndexes) {
-        voltageCurves[ch]->attach(plot);
-    }
     plot->replot();
 }
 
-void GapFreeController::start() {
+void SpectrumController::start() {
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }
@@ -88,7 +82,7 @@ void GapFreeController::start() {
     consumer->onStartConsuming();
 }
 
-void GapFreeController::stop() {
+void SpectrumController::stop() {
     consumer->onStopConsuming();
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
@@ -97,57 +91,49 @@ void GapFreeController::stop() {
     detachCurves(allChannels);
 }
 
-void GapFreeController::onCurrentColorsChanged(QVector <QColor> colors) {
+void SpectrumController::onCurrentColorsChanged(QVector <QColor> colors) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->setColor(colors[idx]);
-        voltageCurves[idx]->setColor(colors[idx]);
     }
 }
 
-void GapFreeController::onCurrentColorChanged(int channelIdx, QColor color) {
+void SpectrumController::onCurrentColorChanged(int channelIdx, QColor color) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[channelIdx]->setColor(color);
-        voltageCurves[channelIdx]->setColor(color);
     }
 }
 
-void GapFreeController::onBackgroundColorChanged(QColor color) {
+void SpectrumController::onBackgroundColorChanged(QColor color) {
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
     }
 }
 
-void GapFreeController::onReplot() {
+void SpectrumController::onReplot() {
     if (plot != nullptr) {
         plot->replot();
     }
 }
 
-//todo Check clamping modality too
-void GapFreeController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+/*! todo Check clamping modality too */
+void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     QwtPlot::Axis axisIdx;
-    if (newRange.unit == "s") {
+    if (newRange.unit == "Hz") {
         axisIdx = QwtPlot::xBottom;
         model->setCurrentRange(axisIdx, newRange);
-        Measurement_t duration = { model->getZoom(BigPlotModel::Zoom::Current)[axisIdx].width(), model->getCurrentRange(axisIdx).prefix, "s" };
+        Measurement_t duration = { model->getZoom(BigPlotModel::Zoom::Current)[axisIdx].width(), model->getCurrentRange(axisIdx).prefix, "Hz" };
         emit durationChanged(duration);
 
-    }
-    else if (newRange.unit == "V") {
-        axisIdx = QwtPlot::yRight;
-        model->setCurrentRange(axisIdx, newRange);
-
-    }
-    else if (newRange.unit == "A") {
+    } else if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
-        model->setCurrentRange(axisIdx, newRange);
+        model->setCurrentRangeSquared(axisIdx, newRange);
     }
     plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
-    plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
+    plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
     plot->replot();
 }
 
-void GapFreeController::onExpandTrace(bool flag) {
+void SpectrumController::onExpandTrace(bool flag) {
     auto wasRunning = consumer->isRunning();
     if (wasRunning) {
         stop();
@@ -159,14 +145,13 @@ void GapFreeController::onExpandTrace(bool flag) {
     }
 }
 
-void GapFreeController::onSetPlotData(PlotMessage plotmessage) {
-    GapFreeMessage gapFreeMessage = std::get<0>(plotmessage);
+void SpectrumController::onSetPlotData(PlotMessage plotmessage) {
+    SpectrumMessage message = std::get <3> (plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
-        voltageCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues[idx], gapFreeMessage.dataSize);
+        currentCurves[idx]->setRawSamples(message.frequencyValues, message.currentValues[idx], message.dataSize);
     }
 }
 
-PlotConsumer* GapFreeController::getConsumer() {
+PlotConsumer * SpectrumController::getConsumer() {
     return consumer;
 }

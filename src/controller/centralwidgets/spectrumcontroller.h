@@ -17,7 +17,7 @@ class SpectrumController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    SpectrumController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController);
+    SpectrumController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotBandwidth, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController);
     ~SpectrumController();
     void stop() override;
     void start() override;

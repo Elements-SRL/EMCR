@@ -22,15 +22,14 @@ namespace commlib = e384CommLib;
 enum BigPlotStatus {
     GapFree,
     Iv,
+    Event,
+    Spectrum,
     NumberOfStatuses
 };
 
 class BigPlot : public QwtPlot {
     Q_OBJECT
 
-private:
-    void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
-    BigPlotStatus status;
 public:
     BigPlot(QString titleString, QString xUnitString, QString yUnitString, BigPlotStatus status, QWidget * parent = nullptr);
 
@@ -85,7 +84,9 @@ protected slots:
 
 private:
     void handleLabelsPosition();
+    void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
 
+    BigPlotStatus status;
     QVector <bool> rangeInitialized;
 
 signals:

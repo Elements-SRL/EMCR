@@ -98,14 +98,16 @@ void BigPlot::drawCanvas(QPainter * p) {
     this->handleLabelsPosition();
 }
 
-void BigPlot::setLabel(QString text, QwtPlot::Axis axis){
+void BigPlot::setLabel(QString text, QwtPlot::Axis axis) {
     switch (axis) {
     case QwtPlot::Axis::xBottom:
         setAndFormatText(text, xUnit);
         break;
+
     case QwtPlot::Axis::yLeft:
         setAndFormatText(text, yUnit);
         break;
+
     case QwtPlot::Axis::yRight:
         setAndFormatText(text, plotTitle, Qt::AlignRight);
         break;
