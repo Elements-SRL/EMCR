@@ -10,6 +10,7 @@
 #include "plotmessage.h"
 #include "centralwidgetcontroller.h"
 #include "bigplotcontroller.h"
+#include "spectrumwidget.h"
 
 class SpectrumController : public CentralWidgetController {
     Q_OBJECT

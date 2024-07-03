@@ -9,6 +9,8 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     model = new BigPlotModel();
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
+    spectrumWidget = new SpectrumWidget(currentChannelsNum, bigPlotWidget);
+    mainWindow->setSpectrumWidget(spectrumWidget);
 
     plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
     plot->setAxisAutoScale(QwtPlot::xBottom, true);
