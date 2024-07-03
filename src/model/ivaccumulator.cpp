@@ -4,10 +4,6 @@ IvAccumulator::IvAccumulator() {
 
 }
 
-IvAccumulator::~IvAccumulator(){
-}
-
-
 void IvAccumulator::pushValue(double v){
     sum+=v;
     number_of_elements++;

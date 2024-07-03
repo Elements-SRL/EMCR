@@ -23,22 +23,37 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     eventDetectionTab->setLayout(eventDetectionLayout);
 #ifdef DEBUG
     addTab(eventDetectionTab, "Event Detection");
-#endif
+#else
     eventDetectionTab->setVisible(false);
+#endif
+
+    // Create the fourth tab
+    auto spectrumLayout = new QVBoxLayout();
+    spectrumTab = new QWidget();
+    spectrumTab->setLayout(spectrumLayout);
+#ifdef DEBUG
+    addTab(spectrumTab, "Spectrum");
+#else
+    spectrumTab->setVisible(false);
+#endif
 
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
     this->setLayout(mainVl);
 }
 
-void BigPlotWidget::setGapFreePlot(BigPlot * gapFreePlot) {
-    gapFreeTab->layout()->addWidget(gapFreePlot);
+void BigPlotWidget::setGapFreePlot(BigPlot * wid) {
+    gapFreeTab->layout()->addWidget(wid);
 }
 
-void BigPlotWidget::setIvGraph(BigPlot * ivGraph){
-    ivTab->layout()->addWidget(ivGraph);
+void BigPlotWidget::setIvGraph(BigPlot * wid){
+    ivTab->layout()->addWidget(wid);
 }
 
-void BigPlotWidget::setEventDetectionTab(QWidget* eventDetectionWidget) {
-    eventDetectionTab->layout()->addWidget(eventDetectionWidget);
+void BigPlotWidget::setEventDetectionTab(QWidget * wid) {
+    eventDetectionTab->layout()->addWidget(wid);
+}
+
+void BigPlotWidget::setSpectrumPlot(BigPlot * wid) {
+    spectrumTab->layout()->addWidget(wid);
 }

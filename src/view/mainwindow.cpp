@@ -284,6 +284,15 @@ void MainWindow::setIvGraphWidget(IvGraphWidget * widget) {
     }
 }
 
+void MainWindow::setSpectrumWidget(SpectrumWidget * widget) {
+    spectrumWidget = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::LeftDockWidgetArea, ivGraphWidget);
+        spectrumWidget->setFloating(true);
+        dockWidgets.append(spectrumWidget);
+    }
+}
+
 void MainWindow::setChessboardDw(ChessboardDockWidget * widget) {
     chessboardDw = widget;
     if (widget != nullptr) {

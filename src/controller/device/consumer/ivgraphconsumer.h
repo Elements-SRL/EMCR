@@ -9,9 +9,9 @@
 
 #define IVC_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 
-class IvGraphConsumer : public PlotConsumer
-{
+class IvGraphConsumer : public PlotConsumer {
     Q_OBJECT
+
 public:
     IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~IvGraphConsumer();

@@ -1,6 +1,8 @@
 #include "ivgraphwidget.h"
 
-IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget *) {
+IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget * parent) :
+    QDockWidget(parent) {
+
     this->setObjectName("ivGraph");
     this->setWindowTitle("Iv Graph");
 

@@ -24,16 +24,16 @@ public:
 
     void stop() override;
     void start() override;
-    PlotConsumer* getConsumer() override;
-    IvGraphWidget* getIvGraphWidget();
+    PlotConsumer * getConsumer() override;
+    IvGraphWidget * getIvGraphWidget();
 
 private:
-    BigPlotModel* model = nullptr;
-    IvGraphConsumer* consumer = nullptr;
-    BigPlot* plot = nullptr;
-    std::vector <Curve*> currentCurves;
-    IvGraphWidget* ivGraphWidget = nullptr;
-    MainWindow* mainWindow = nullptr;
+    BigPlotModel * model = nullptr;
+    IvGraphConsumer * consumer = nullptr;
+    BigPlot * plot = nullptr;
+    std::vector <Curve *> currentCurves;
+    IvGraphWidget * ivGraphWidget = nullptr;
+    MainWindow * mainWindow = nullptr;
     IvMessage message;
     void saveToCSV(const QString& filePath, const IvMessage& data);
 

@@ -63,7 +63,7 @@ void IvGraphConsumer::run() {
 //                      use the voltage value to index the currents
                         auto binIndex = scaleToBins(voltage);
                         auto currentValue = buffer[bufferIdx + voltageChannelsNum];
-                        if (ivChannels[channelIdx] != NULL) {
+                        if (ivChannels[channelIdx] != nullptr) {
                             ivChannels[channelIdx]->pushValue(binIndex, currentValue);
                         }    
                     }
@@ -120,10 +120,6 @@ void IvGraphConsumer::allocateData() {
     clearData();
     ivChannels.resize(currentChannelsNum);
 
-    double * precalculatedVoltages = new double[nBins];
-    for (int i = 0; i<nBins; i++){
-        precalculatedVoltages[i] = ((double) i) * binSize + pushedVoltageRange.min;
-    }
     voltageData.resize(currentChannelsNum);
     for (int i=0; i< currentChannelsNum; i++) {
         voltageData[i] = new double[nBins];
