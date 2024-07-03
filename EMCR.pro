@@ -73,6 +73,7 @@ SOURCES += \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/bigplotwidget.cpp \
+    src/view/spectrumwidget.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
     src/view/compensationcontroldockwidget.cpp \
@@ -181,6 +182,7 @@ HEADERS += \
     src/model/events/event.h \
     src/model/events/eventdetector.h \
     src/view/bigplotwidget.h \
+    src/view/spectrumwidget.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \
     src/view/compensationcontroldockwidget.h \

@@ -2,8 +2,9 @@
 
 #include <qwt_date_scale_engine.h>
 
-SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotBandwidth, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController):
-    CentralWidgetController(appStatus, producer, bigPlotWidget) {
+SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotBandwidth, BigPlotWidget * bigPlotWidget, BigPlotController * bigPlotController, MainWindow * mainWindow):
+    CentralWidgetController(appStatus, producer, bigPlotWidget),
+    mainWindow(mainWindow){
 
     model = new BigPlotModel();
     consumer = new SpectrumConsumer(appStatus, producer);

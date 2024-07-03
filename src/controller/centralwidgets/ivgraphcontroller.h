@@ -31,9 +31,9 @@ private:
     BigPlotModel * model = nullptr;
     IvGraphConsumer * consumer = nullptr;
     BigPlot * plot = nullptr;
-    std::vector <Curve*> currentCurves;
-    IvGraphWidget* ivGraphWidget = nullptr;
-    MainWindow* mainWindow = nullptr;
+    std::vector <Curve *> currentCurves;
+    IvGraphWidget * ivGraphWidget = nullptr;
+    MainWindow * mainWindow = nullptr;
     IvMessage message;
     void saveToCSV(const QString& filePath, const IvMessage& data);
 

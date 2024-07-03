@@ -1,8 +1,9 @@
 #include "ivgraphcontroller.h"
 
-IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow * mainWindow) :
-    CentralWidgetController(appStatus, producer, bigPlotWidget) {
-    this->mainWindow = mainWindow;
+IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer * producer, BigPlotWidget * bigPlotWidget, BigPlotController * bigPlotController, MainWindow * mainWindow) :
+    CentralWidgetController(appStatus, producer, bigPlotWidget),
+    mainWindow(mainWindow) {
+
     model = new BigPlotModel();
     ivGraphWidget = new IvGraphWidget(currentChannelsNum, bigPlotWidget);
     consumer = new IvGraphConsumer(appStatus, producer);
