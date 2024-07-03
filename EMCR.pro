@@ -26,13 +26,12 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/centralwidgets/spectrumcontroller.cpp \
-    src/controller/device/consumer/spectrumconsumer.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/device/consumer/eventdetectionconsumer.cpp \
+    src/controller/device/consumer/spectrumconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
@@ -60,6 +59,7 @@ SOURCES += \
     src/controller/centralwidgets/ivgraphcontroller.cpp \
     src/controller/centralwidgets/gapfreecontroller.cpp \
     src/controller/centralwidgets/eventdetectioncontroller.cpp \
+    src/controller/centralwidgets/spectrumcontroller.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -124,8 +124,6 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
-    src/controller/centralwidgets/spectrumcontroller.h \
-    src/controller/device/consumer/spectrumconsumer.h \
     src/globaldefines.h \
     src/protocoldefs.h \
     src/abf/axon.h \
@@ -134,6 +132,7 @@ HEADERS += \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/device/consumer/eventdetectionconsumer.h \
+    src/controller/device/consumer/spectrumconsumer.h \
     src/controller/device/deviceconnector.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
@@ -161,6 +160,7 @@ HEADERS += \
     src/controller/centralwidgets/ivgraphcontroller.h \
     src/controller/centralwidgets/gapfreecontroller.h \
     src/controller/centralwidgets/eventdetectioncontroller.h \
+    src/controller/centralwidgets/spectrumcontroller.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \

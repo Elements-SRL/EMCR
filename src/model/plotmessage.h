@@ -38,7 +38,7 @@ typedef std::variant<
     GapFreeMessage,
     IvMessage,
     EventDetectionMessage,
-SpectrumMessage
+    SpectrumMessage
 > PlotMessage;
 
 #endif // PLOTMESSAGE_H

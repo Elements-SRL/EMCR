@@ -7,7 +7,7 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     ivGraphWidget = new IvGraphWidget(currentChannelsNum, bigPlotWidget);
     consumer = new IvGraphConsumer(appStatus, producer);
     this->mainWindow->setIvGraphWidget(ivGraphWidget);
-    plot = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bigPlotWidget);
+    plot = new BigPlot("", "[V]", "", BigPlot::Iv, bigPlotWidget);
     bigPlotWidget->setIvGraph(plot);
     // creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {

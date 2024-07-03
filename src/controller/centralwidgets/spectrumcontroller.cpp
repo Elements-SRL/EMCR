@@ -9,7 +9,9 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
 
-    plot = new BigPlot("", "[Hz]", "", BigPlotStatus::Spectrum, bigPlotWidget);
+    plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
+    plot->setAxisAutoScale(QwtPlot::xBottom, true);
+    plot->setAxisAutoScale(QwtPlot::yLeft, true);
     plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
     plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
     bigPlotWidget->setSpectrumPlot(plot);
@@ -124,6 +126,9 @@ void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRangeSquared(axisIdx, newRange);
+
+    } else {
+        return;
     }
     plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
     plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);

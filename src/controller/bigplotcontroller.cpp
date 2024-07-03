@@ -19,7 +19,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     mainWindow->setBigPlotWidget(bpw);
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
     
-    bps = BigPlotStatus::GapFree;
+    bps = BigPlot::GapFree;
     controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
 #ifdef DEBUG
@@ -34,7 +34,7 @@ void BigPlotController::manageStatus(int idx) {
         return;
     }
     controllers[bps]->stop();
-    bps = static_cast<BigPlotStatus>(idx < 0 ? static_cast<int>(BigPlotStatus::NumberOfStatuses) : idx);
+    bps = static_cast<BigPlot::BigPlotStatus>(idx < 0 ? static_cast<int>(BigPlot::BigPlotStatus::NumberOfStatuses) : idx);
     controllers[bps]->start();
 }
 
@@ -55,7 +55,7 @@ void BigPlotController::handleZoomInRequest(BigPlotModel * model, BigPlot* plot,
     model->updateCurrentZoom(r);
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
-    if (bps == BigPlotStatus::GapFree) {
+    if (bps == BigPlot::GapFree) {
         emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
@@ -65,7 +65,7 @@ void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlo
     model->updateCurrentZoom(model->zoomOnSingleAxis(axis, zoomIn, mousePosition));
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom && bps == BigPlotStatus::GapFree){
+    if (axis == QwtPlot::Axis::xBottom && bps == BigPlot::GapFree){
         emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
     }
 }
@@ -80,7 +80,7 @@ void BigPlotController::handleSingleAxisShiftRequest(BigPlotModel * model, BigPl
 void BigPlotController::handleZoomOutRequest(BigPlotModel * model, BigPlot * plot){
     auto zoom = model->getZoom(BigPlotModel::Zoom::Previous);
     plot->setRect(zoom);
-    if (bps == BigPlotStatus::GapFree) {
+    if (bps == BigPlot::GapFree) {
         emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
@@ -88,7 +88,7 @@ void BigPlotController::handleZoomOutRequest(BigPlotModel * model, BigPlot * plo
 void BigPlotController::handleZoomResetRequest(BigPlotModel* model, BigPlot * plot){
     auto zoom = model->getZoom(BigPlotModel::Zoom::Default);
     plot->setRect(zoom);
-    if (bps == BigPlotStatus::GapFree) {
+    if (bps == BigPlot::GapFree) {
         emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }

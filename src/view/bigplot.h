@@ -19,18 +19,18 @@
 
 namespace commlib = e384CommLib;
 
-enum BigPlotStatus {
-    GapFree,
-    Iv,
-    Event,
-    Spectrum,
-    NumberOfStatuses
-};
-
 class BigPlot : public QwtPlot {
     Q_OBJECT
 
 public:
+    enum BigPlotStatus {
+        GapFree,
+        Iv,
+        Event,
+        Spectrum,
+        NumberOfStatuses
+    };
+
     BigPlot(QString titleString, QString xUnitString, QString yUnitString, BigPlotStatus status, QWidget * parent = nullptr);
 
     QSize sizeHint() const override;
