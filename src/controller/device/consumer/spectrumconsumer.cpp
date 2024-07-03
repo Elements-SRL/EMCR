@@ -64,7 +64,7 @@ void SpectrumConsumer::computeFrequencyAxis() {
     }
 
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        fftw_plan_dft_r2c_1d(nBins, fftIn[channelIdx], reinterpret_cast <fftw_complex *> (fftOut[channelIdx]), FFTW_ESTIMATE);
+        fftwPlans[channelIdx] = fftw_plan_dft_r2c_1d(nBins, fftIn[channelIdx], reinterpret_cast <fftw_complex *> (fftOut[channelIdx]), FFTW_ESTIMATE);
         // va fatto anche il destroy dei plan? ha impatto? dove andrebbe fatto e come si verifica se il piano esiste?
     }
     /*! This ensures that integrating the power spectrum (int{S*dF}) returns the signal variance
@@ -105,11 +105,11 @@ void SpectrumConsumer::run() {
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
             this->updateFrequencyAxis();
             this->updateRangeAxis();
-            bufferIdx = voltageChannelsNum;
+            bufferIdx = 0;
             bufferLen = buffer.size();
 
             /*! Copy data in buffers for FFT evaluation */
-            while (bufferIdx < bufferLen) {
+            while (bufferIdx + voltageChannelsNum < bufferLen) {
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
                         auto currentValue = buffer[bufferIdx + voltageChannelsNum];
@@ -133,10 +133,12 @@ void SpectrumConsumer::run() {
                         }
 
                     } else {
-                        if (plottedChannels[channelIdx]) {
-                            fftw_execute(fftwPlans[channelIdx]);
-                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
+                        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                            if (plottedChannels[channelIdx]) {
+                                fftw_execute(fftwPlans[channelIdx]);
+                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                    currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
+                                }
                             }
                         }
                     }
@@ -150,8 +152,6 @@ void SpectrumConsumer::run() {
                                 }
                             }
                         }
-                        emitPlotData();
-                        emit plotDataUpdated();
                         integrationRoundIdx = 0;
                         emitFlag = true;
                     }
@@ -159,7 +159,6 @@ void SpectrumConsumer::run() {
                 }
             }
             if (emitFlag) {
-                emitPlotData();
                 emit plotDataUpdated();
                 emitFlag = false;
             }
@@ -178,7 +177,7 @@ void SpectrumConsumer::allocateData() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[maxSamples]);
         currentSpectrumValues.push_back(new double[maxSamples]);
-        fftIn.push_back(new double[nBins]);
+        fftIn.push_back(new double[maxSamples]);
         fftOut.push_back(new std::complex <double> [maxSamples]);
     }
     fftwPlans.resize(currentChannelsNum);
