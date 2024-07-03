@@ -67,11 +67,11 @@ void BigPlotModel::setCurrentRange(QwtPlot::Axis axisIdx, RangedMeasurement newR
     yScale = 0.5*coeff*interval.width();
 }
 
-void BigPlotModel::setCurrentRangeSquared(QwtPlot::Axis axisIdx, RangedMeasurement newRange){
+void BigPlotModel::setCurrentRangeLog(QwtPlot::Axis axisIdx, RangedMeasurement newRange){
     if (!isRangeInitialized(axisIdx)) {
         currentRange[axisIdx] = newRange;
         rangeInitialized[axisIdx] = true;
-        setCurrentZoom(axisIdx, 0.0, newRange.max*newRange.max);
+        setCurrentZoom(axisIdx, newRange.max/1.0e15, newRange.max);
         yScale = getCurrentZoomInterval(axisIdx).width();
         return;
     }
@@ -80,8 +80,8 @@ void BigPlotModel::setCurrentRangeSquared(QwtPlot::Axis axisIdx, RangedMeasureme
     }
     currentRange[axisIdx].max = 1.0;
     currentRange[axisIdx].convertValues(newRange.prefix);
-    double coeff = currentRange[axisIdx].max*currentRange[axisIdx].max;
-    currentRange[axisIdx].max = newRange.max*newRange.max;
+    double coeff = currentRange[axisIdx].max;
+    currentRange[axisIdx].max = newRange.max;
     currentRange[axisIdx].min = 0.0;
     auto interval = getCurrentZoomInterval(axisIdx);
     setCurrentZoom(axisIdx, coeff*interval.minValue(), coeff*interval.maxValue());

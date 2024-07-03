@@ -17,6 +17,7 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     plot->setAxisAutoScale(QwtPlot::yLeft, true);
     plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
     plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
+
     bigPlotWidget->setSpectrumPlot(plot);
     //    creating curves for spectra
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -25,23 +26,28 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
 
     connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
         bigPlotController->handleZoomInRequest(model, plot, r);
-        });
+    });
     connect(plot, &BigPlot::zoomOutRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomOutRequest(model, plot);
-        });
+    });
     connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomResetRequest(model, plot);
-        });
+    });
     connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
         bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
-        });
+    });
     connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
         bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
-        });
+    });
 
-    connect(this, &SpectrumController::integrationWindowChanged, consumer, &SpectrumConsumer::onIntegrationWindowChanged);
     connect(consumer, &PlotConsumer::setPlotData, this, &SpectrumController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &SpectrumController::onReplot);
+    connect(consumer, &SpectrumConsumer::sigRangeUpdate, this, &SpectrumController::onRangeUpdated);
+    connect(spectrumWidget, &SpectrumWidget::integrationWindowChanged, this, [=] (double windowS) {
+        consumer->onIntegrationWindowChanged({windowS, UnitPfxNone, "s"});
+    });
+    connect(spectrumWidget, &SpectrumWidget::startPressed, consumer, &SpectrumConsumer::onStartConsuming);
+    connect(spectrumWidget, &SpectrumWidget::stopPressed, consumer, &SpectrumConsumer::onStopConsuming);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(SPC_MAX_SAMPLES);
     std::vector <uint16_t> allChannels(currentChannelsNum);
@@ -128,7 +134,11 @@ void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     QwtPlot::Axis axisIdx;
     if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
-        model->setCurrentRangeSquared(axisIdx, newRange);
+        model->setCurrentRangeLog(axisIdx, newRange);
+
+    } else if (newRange.unit == "Hz") {
+        axisIdx = QwtPlot::xBottom;
+        model->setCurrentRange(axisIdx, newRange);
 
     } else {
         return;

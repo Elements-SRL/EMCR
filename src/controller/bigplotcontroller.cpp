@@ -25,7 +25,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
 #ifdef DEBUG
     controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
 #endif
-    controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, this));
+    controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, this, mainWindow));
     controllers[bps]->start();
 }
 
@@ -85,16 +85,20 @@ void BigPlotController::handleZoomOutRequest(BigPlotModel * model, BigPlot * plo
     }
 }
 
-void BigPlotController::handleZoomResetRequest(BigPlotModel* model, BigPlot * plot){
+void BigPlotController::handleZoomResetRequest(BigPlotModel * model, BigPlot * plot){
     auto zoom = model->getZoom(BigPlotModel::Zoom::Default);
     plot->setRect(zoom);
     if (bps == BigPlot::GapFree) {
         emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+
+    } else if (bps == BigPlot::Spectrum) {
+        plot->setAxisAutoScale(QwtPlot::xBottom, true);
+        plot->setAxisAutoScale(QwtPlot::yLeft, true);
     }
 }
 
 //todo Bisognerà controllare anche la clampingmodality
-void BigPlotController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+void BigPlotController::onRangeUpdated(RangedMeasurement_t newRange) {
     for (auto c : controllers) {
         c->onRangeUpdated(newRange);
     }

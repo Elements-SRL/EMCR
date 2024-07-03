@@ -31,7 +31,7 @@ void SpectrumConsumer::updateFrequencyAxis() {
     QMutexLocker locker(&timeAxisMtx);
     if (pushedIntegrationWindowFlag) {
         pushedIntegrationWindowFlag = false;
-        xAxisDuration = pushedIntegrationWindowS;
+        integrationWindowS = pushedIntegrationWindowS;
 
         if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeTimeAxisMethod is performed later
             locker.unlock();
@@ -74,6 +74,7 @@ void SpectrumConsumer::computeFrequencyAxis() {
     normalizationFactor = 2.0/(samplingRateHz*(double)(integrationRounds*nBins-1));
 
     this->emitPlotData();
+    emit sigRangeUpdate({frequencyValues[0], frequencyValues[n2Bins-1], df, UnitPfxNone, "Hz"});
 }
 
 void SpectrumConsumer::updateRangeAxis() {

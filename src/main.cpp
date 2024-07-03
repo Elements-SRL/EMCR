@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType <ErrorCodes_t> ("ErrorCodes_t");
     qRegisterMetaType <StatisticsResult *> ("StatisticsResult *");
     qRegisterMetaType <QVector <Measurement_t>> ("QVector <Measurement_t>");
+    qRegisterMetaType <RangedMeasurement_t> ("RangedMeasurement_t");
     qRegisterMetaType <RecordSettingsDialog::RecordSettings_t> ("RecordSettingsDialog::RecordSettings_t");
     qRegisterMetaType <e384CommLib::ClampingModality_t> ("e384CommLib::ClampingModality_t");
     qRegisterMetaType <ProtocolWidget *> ("ProtocolWidget *");

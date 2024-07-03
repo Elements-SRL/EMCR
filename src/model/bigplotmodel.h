@@ -36,7 +36,7 @@ public:
 //    void shiftVertAxis(QwtPlot::Axis axis, double shiftValue);
 //    RangedMeasurement getCurrentRange(QwtPlot::Axis);
     void setCurrentRange(QwtPlot::Axis axis, RangedMeasurement currentRange);
-    void setCurrentRangeSquared(QwtPlot::Axis axis, RangedMeasurement currentRange);
+    void setCurrentRangeLog(QwtPlot::Axis axis, RangedMeasurement currentRange);
     bool isRangeInitialized(QwtPlot::Axis);
     RangedMeasurement_t getCurrentRange(QwtPlot::Axis);
 //    getCurrentZoom will take an enum

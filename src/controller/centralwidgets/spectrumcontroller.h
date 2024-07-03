@@ -42,9 +42,6 @@ public slots:
     void onReplot() override;
     void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
-
-signals:
-    void integrationWindowChanged(Measurement_t integrationWindow);
 };
 
 #endif // SPECTRUMCONTROLLER_H

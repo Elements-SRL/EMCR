@@ -10,6 +10,8 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, QWidget * parent) :
     this->setWindowTitle("Spectrum");
 
     auto containerWidget = new QWidget(this); // Create a container widget
+    this->setWidget(containerWidget);
+
     auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
 
     auto buttonsHl = new QHBoxLayout();

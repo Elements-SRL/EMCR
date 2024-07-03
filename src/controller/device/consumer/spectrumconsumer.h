@@ -50,6 +50,9 @@ private:
     std::vector <std::complex <double> *> fftOut;
     std::vector <fftw_plan> fftwPlans;
     std::vector <double *> currentSpectrumValues;
+
+signals:
+    void sigRangeUpdate(RangedMeasurement_t newRange);
 };
 
 #endif // SPECTRUMCONSUMER_H
