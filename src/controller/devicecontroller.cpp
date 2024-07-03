@@ -50,6 +50,9 @@ DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mai
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCustomOptionSelected,   this, [=](uint32_t customOptionIdx, int selectedCustomOptionIdx) {
         onCustomOptionSelected(customOptionIdx, selectedCustomOptionIdx);
     });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCustomDoubleChanged,   this, [=](uint32_t customDoubleIdx, double value) {
+        onCustomDoubleChanged(customDoubleIdx, value);
+    });
 
     if (msgDisp->hasProtocols() == Success) {
         connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedCcCurrentRangeIndex) {
@@ -190,6 +193,10 @@ void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
 
 void DeviceController::onCustomOptionSelected(uint32_t customOptionIdx, int idx) {
     msgDisp->setCustomOption(customOptionIdx, idx, true);
+}
+
+void DeviceController::onCustomDoubleChanged(uint32_t customDoubleIdx, double value) {
+    msgDisp->setCustomDouble(customDoubleIdx, value, true);
 }
 
 bool DeviceController::calcDefaultStatus(int size, bool recording) {

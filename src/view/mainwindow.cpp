@@ -64,6 +64,18 @@ MainWindow::MainWindow(QWidget * parent) :
     actionUpgradeFw = new QAction("Upgrade FW");
     menuAdvanced->addAction(actionUpgradeFw);
 
+    menuHwReset = new QMenu("HW reset");
+    menuAdvanced->addMenu(menuHwReset);
+
+    actionHwReset = new QAction("Apply");
+    menuHwReset->addAction(actionHwReset);
+
+    actionHwResetHelp = new QAction("Help");
+    menuHwReset->addAction(actionHwResetHelp);
+
+    connect(actionHwReset, &QAction::triggered, this, &MainWindow::sigResetHw);
+    connect(actionHwResetHelp, &QAction::triggered, this, &MainWindow::onResetHwHelp);
+
     /*! ? menu */
     menuQuestionMark = new QMenu("?");
     menuBar->addMenu(menuQuestionMark);
@@ -269,6 +281,15 @@ void MainWindow::setIvGraphWidget(IvGraphWidget * widget) {
         addDockWidget(Qt::LeftDockWidgetArea, ivGraphWidget);
         ivGraphWidget->setFloating(true);
         dockWidgets.append(ivGraphWidget);
+    }
+}
+
+void MainWindow::setSpectrumWidget(SpectrumWidget * widget) {
+    spectrumWidget = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::LeftDockWidgetArea, ivGraphWidget);
+        spectrumWidget->setFloating(true);
+        dockWidgets.append(spectrumWidget);
     }
 }
 
@@ -661,4 +682,24 @@ void MainWindow::onDeviceInfo() {
 void MainWindow::onSupport() {
     SupportDialog a(this);
     a.exec();
+}
+
+void MainWindow::onResetHwHelp() {
+    MessageDialog msg("HW reset usage", false, this);
+    msg.addMainText("The HW reset should be used if the device seems stuck in saturation.\n"
+                    "Before using the HW reset feature please check that the saturation is\n"
+                    "actually due to a front end problem."
+                    "In order to do so check that:\n"
+                    "- you are using a proper current range in Voltage clamp; increase the current\n"
+                    "  range and zoom out vertically to verify that the current trace is always stuck\n"
+                    "  on the top or bottom value of the selected range;\n"
+                    "- the resistance of your DUT is not too low in voltage clamp or too high in current\n"
+                    "  clamp; in particular short circuits always saturate the voltage clamp front end\n"
+                    "  and open circuits always saturate the current clamp front end;\n"
+                    "- you are using a proper zoom to visualize the traces; in order to completely reset\n"
+                    "  the zoom and center it around the traces double right click on any plot and click\n"
+                    "  the Full trace zoom in the higher left corner of any plot window.");
+    msg.addDefaultButtonBox();
+    msg.centerOnParent(this);
+    msg.exec();
 }

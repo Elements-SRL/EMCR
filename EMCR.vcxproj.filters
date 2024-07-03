@@ -322,7 +322,16 @@
     <ClCompile Include="src\model\binner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\view\baseplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\spectrumwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -637,6 +646,15 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\centralwidgets\eventdetectionwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\spectrumwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\centralwidgets\spectrumcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\spectrumconsumer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\baseplot.h">

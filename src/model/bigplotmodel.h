@@ -6,8 +6,7 @@
 #include "messagedispatcher.h"
 #include "rect4.h"
 
-class BigPlotModel: public QObject
-{
+class BigPlotModel: public QObject {
     Q_OBJECT
 
 private:
@@ -19,7 +18,7 @@ private:
     Rect4 currentZoom;
     bool isEmptyZoomStack();
     void clearZoomStack();
-    double yScale;
+    double yScale = 1.0;
     RangedMeasurement_t currentRange[QwtPlot::axisCnt];
     UnitPfx_t xAxisPrefix = UnitPfxNone;
     void pushZoomStack(Rect4);
@@ -37,6 +36,7 @@ public:
 //    void shiftVertAxis(QwtPlot::Axis axis, double shiftValue);
 //    RangedMeasurement getCurrentRange(QwtPlot::Axis);
     void setCurrentRange(QwtPlot::Axis axis, RangedMeasurement currentRange);
+    void setCurrentRangeLog(QwtPlot::Axis axis, RangedMeasurement currentRange);
     bool isRangeInitialized(QwtPlot::Axis);
     RangedMeasurement_t getCurrentRange(QwtPlot::Axis);
 //    getCurrentZoom will take an enum

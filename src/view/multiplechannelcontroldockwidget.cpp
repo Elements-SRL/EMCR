@@ -33,6 +33,19 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         qhblChannels_input->addWidget(switchChannelsOffBtn);
     }
 
+    if (msgDisp->hasCalSw() == Success) {
+        auto calib_gb = new QGroupBox(QString::fromStdString("Calibration resistors"));
+        auto qhbl = new QHBoxLayout();
+        calib_gb->setLayout(qhbl);
+        mainLayout->addWidget(calib_gb);
+        calibrationResistorsOnBtn = new QPushButton("ON (R)");
+        connect(calibrationResistorsOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn);
+        qhbl->addWidget(calibrationResistorsOnBtn);
+        calibrationResistorsOffBtn = new QPushButton("OFF");
+        connect(calibrationResistorsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOff);
+        qhbl->addWidget(calibrationResistorsOffBtn);
+    }
+
     if (msgDisp->hasStimulusSwitches() == Success) {
         auto gb = new QGroupBox(QString::fromStdString("Stimulus"));
         auto qhbl = new QHBoxLayout();
@@ -47,19 +60,35 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     }
 
     if (msgDisp->hasOffsetCompensation() == Success) {
-        auto gb = new QGroupBox(QString::fromStdString("Offset compensation"));
+        auto gb = new QGroupBox(QString::fromStdString("Offset recalibration"));
         auto qhbl = new QHBoxLayout();
         gb->setLayout(qhbl);
         mainLayout->addWidget(gb);
-        offsetCompensationOnBtn = new QPushButton("ON (C)");
-        connect(offsetCompensationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnDocOn);
-        qhbl->addWidget(offsetCompensationOnBtn);
-        offsetCompensationOffBtn = new QPushButton("OFF");
-        connect(offsetCompensationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnDocOff);
-        qhbl->addWidget(offsetCompensationOffBtn);
-        offsetCompensationResetBtn = new QPushButton("RESET");
-        connect(offsetCompensationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetDoc);
-        qhbl->addWidget(offsetCompensationResetBtn);
+        offsetRecalibrationOnBtn = new QPushButton("ON (C)");
+        connect(offsetRecalibrationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn);
+        qhbl->addWidget(offsetRecalibrationOnBtn);
+        offsetRecalibrationOffBtn = new QPushButton("OFF");
+        connect(offsetRecalibrationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOff);
+        qhbl->addWidget(offsetRecalibrationOffBtn);
+        offsetRecalibrationResetBtn = new QPushButton("RESET");
+        connect(offsetRecalibrationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetOffsetRecalibration);
+        qhbl->addWidget(offsetRecalibrationResetBtn);
+    }
+
+    if (msgDisp->hasOffsetCompensation() == Success) {
+        auto gb = new QGroupBox(QString::fromStdString("Liquid junction compensation"));
+        auto qhbl = new QHBoxLayout();
+        gb->setLayout(qhbl);
+        mainLayout->addWidget(gb);
+        liquidJunctionCompensationOnBtn = new QPushButton("ON (J)");
+        connect(liquidJunctionCompensationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnLjcOn);
+        qhbl->addWidget(liquidJunctionCompensationOnBtn);
+        liquidJunctionCompensationOffBtn = new QPushButton("OFF");
+        connect(liquidJunctionCompensationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnLjcOff);
+        qhbl->addWidget(liquidJunctionCompensationOffBtn);
+        liquidJunctionCompensationResetBtn = new QPushButton("RESET");
+        connect(liquidJunctionCompensationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetLj);
+        qhbl->addWidget(liquidJunctionCompensationResetBtn);
     }
 
 //    mainGl->addWidget(new QLabel("Expand trace"), rowIdx, 0, Qt::AlignRight);

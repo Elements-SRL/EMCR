@@ -23,8 +23,10 @@ public:
         StateNoEffects = 0x0000,
         StateSwitchedOff = 0x0001,
         StateStimuliDisabled = 0x0002,
-        StateOffsetCompensation = 0x0004,
-        StateTraceExpanded = 0x0008
+        StateLiquidJunctionCompensation = 0x0004,
+        StateTraceExpanded = 0x0008,
+        StateCalibrationResistorsOn = 0x0010,
+        StateOffsetRecalibrationOn = 0x0020
     } States_t;
 
     StampPlot(int channelIdx, std::string channelname, int idealPlotWidth, int idealPlotHeight, QWidget * parent = nullptr);

@@ -27,6 +27,7 @@ public slots:
     void onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex);
     void onClampingModalitySelected(ClampingModality_t mode);
     void onCustomOptionSelected(uint32_t customOptionIdx, int idx);
+    void onCustomDoubleChanged(uint32_t customDoubleIdx, double value);
 
 private:
     std::vector<ClampingModality_t> clampingModalities;

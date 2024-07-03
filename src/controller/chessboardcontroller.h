@@ -20,16 +20,20 @@ public:
     void clearCurves();
     void clearPlots();
     void channelsTurnedOnOff(bool flag);
+    void calibrationResistorsTurnedOnOff(bool flag);
     void stimuliTurnedOnOff(bool flag);
-    void docTurnedOnOff(bool flag);
+    void offsetRecalibrationTurnedOnOff(bool flag);
+    void ljcTurnedOnOff(bool flag);
     void tracesExpandedOnOff(bool flag);
     PlotConsumer * getPlotConsumer();
     void onBoardMappingLoaded();
 
 public slots:
     void onChannelsTurnedOnOff(bool flag);
+    void onCalibrationResistorsTurnedOnOff(bool flag);
     void onStimuliTurnedOnOff(bool flag);
-    void onDocTurnedOnOff(bool flag);
+    void onOffsetRecalibrationTurnedOnOff(bool flag);
+    void onLjcTurnedOnOff(bool flag);
     void onTracesExpandedOnOff(bool flag);
     void onRangeUpdated(RangedMeasurement_t newRange);
     void onDurationUpdated(Measurement_t duration);

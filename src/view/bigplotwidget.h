@@ -14,15 +14,17 @@ class BigPlotWidget : public QTabWidget {
 
 public:
     BigPlotWidget(QWidget * parent = nullptr);
-    void setGapFreePlot(BigPlot * );
-    void setIvGraph(BigPlot * );
-    void setEventDetectionTab(QWidget* eventDetectionWidget);
+    void setGapFreePlot(BigPlot * wid);
+    void setIvGraph(BigPlot * wid);
+    void setEventDetectionTab(QWidget * wid);
+    void setSpectrumPlot(BigPlot * wid);
 
 private:
     QVBoxLayout * mainVl;
     QWidget * gapFreeTab;
     QWidget * ivTab;
-    QWidget* eventDetectionTab;
+    QWidget * eventDetectionTab;
+    QWidget * spectrumTab;
 
 };
 
