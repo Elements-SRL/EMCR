@@ -83,7 +83,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;VERSION_MAJOR=0;VERSION_MINOR=14;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QT_NO_DEBUG;NDEBUG;QWT_DLL;_MATH_DEFINES_DEFINED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;VERSION_MAJOR=0;VERSION_MINOR=17;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QT_NO_DEBUG;NDEBUG;QWT_DLL;_MATH_DEFINES_DEFINED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <ProgramDataBaseFileName>
       </ProgramDataBaseFileName>
@@ -143,7 +143,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>debug\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QWT_DLL;H5_BUILT_AS_DYNAMIC_LIB;_MATH_DEFINES_DEFINED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=17;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QWT_DLL;H5_BUILT_AS_DYNAMIC_LIB;_MATH_DEFINES_DEFINED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
