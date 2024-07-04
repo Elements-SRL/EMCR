@@ -150,6 +150,9 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         this->customDoublesGroupBoxes.push_back(setupGroupBox(customDoubles[customDoubleIdx], vLayout, customDoublesRanges[customDoubleIdx], customDoublesDefault[customDoubleIdx], spinBox));
         customDoublesSpinBoxes.push_back(spinBox);
         emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
+        connect(customDoublesSpinBoxes[customDoubleIdx], &QDoubleSpinBox::editingFinished, this, [=] () {
+            emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
+        });
     }
 
     QVBoxLayout * downSamplingRatioVl = new QVBoxLayout();
