@@ -62,7 +62,7 @@ void BigPlotController::handleZoomInRequest(BigPlotModel * model, BigPlot* plot,
 
 void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, int zoomIn, QPointF mousePosition){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
-    model->updateCurrentZoom(model->zoomOnSingleAxis(axis, zoomIn, mousePosition));
+    model->updateCurrentZoom(model->zoomOnSingleAxis(axis, zoomIn, mousePosition, bps));
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
     if (axis == QwtPlot::Axis::xBottom && bps == BigPlot::GapFree){
