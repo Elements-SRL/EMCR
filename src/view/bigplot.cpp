@@ -1,5 +1,5 @@
 #include "bigplot.h"
-
+#include <cmath>
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_canvas.h"
@@ -213,14 +213,28 @@ void BigPlot::recomputeXAxisFactor(double duration) {
 
 void BigPlot::onZoomInPickerAppended(const QPointF &p) {
     pickerFirstCornerPos = p;
-    pickerZoomDiscriminantNorm = (this->axisInterval(yLeft).width()*(double)this->canvas()->width())/(this->axisInterval(xBottom).width()*(double)this->canvas()->height());
+    auto dy = this->axisInterval(yLeft).width();
+    auto cdx = (double)this->canvas()->width();
+    auto dx = this->axisInterval(xBottom).width();
+    auto cdy = (double)this->canvas()->height();
+    if (status == BigPlotStatus::Spectrum) {
+        dy = log10(dy);
+        dx = log10(dx);
+    }
+    pickerZoomDiscriminantNorm = (dy*cdx) /(dx * cdy);
     zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
     pickerZoomType = PickerZoomRect;
 }
 
 void BigPlot::onZoomInPickerMoved(const QPointF &p) {
     QPointF deltaP = pickerFirstCornerPos-p;
-    double zoomDiscriminantRatio = abs(deltaP.x()/deltaP.y())*pickerZoomDiscriminantNorm;
+    auto dx = deltaP.x();
+    auto dy = deltaP.y();
+    if (status == BigPlotStatus::Spectrum) {
+        dy = log10(dy);
+        dx = log10(dx);
+    }
+    double zoomDiscriminantRatio = abs(dx / dy)*pickerZoomDiscriminantNorm;
     if (zoomDiscriminantRatio < 0.1) {
         zoomInPicker->setRubberBand(QwtPlotPicker::VLineRubberBand);
         pickerZoomType = PickerZoomVert;

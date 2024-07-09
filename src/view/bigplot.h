@@ -13,6 +13,7 @@
 #include "doubleclickmachine.h"
 #include "rect4.h"
 #include "e384commlib_global.h"
+#include "bigplot.h"
 
 namespace commlib = e384CommLib;
 

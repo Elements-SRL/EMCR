@@ -32,11 +32,14 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     });
     connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomResetRequest(model, plot);
+        plot->setAxisAutoScale(QwtPlot::yLeft, true);
     });
     connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
+        plot->setAxisAutoScale(QwtPlot::yLeft, false);
         bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
     });
     connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
+        plot->setAxisAutoScale(QwtPlot::yLeft, false);
         bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
     });
 
@@ -135,16 +138,17 @@ void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRangeLog(axisIdx, newRange);
+        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
 
     } else if (newRange.unit == "Hz") {
         axisIdx = QwtPlot::xBottom;
         model->setCurrentRange(axisIdx, newRange);
+        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
 
     } else {
         return;
     }
     plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
-    plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
     plot->replot();
 }
 
