@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "enventinfo.h"
+#include "eventinfo.h"
 #include "baseline.h"
 
 struct EventPacket {

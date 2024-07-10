@@ -11,6 +11,7 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += -O2
 }
+DEFINES += _MATH_DEFINES_DEFINED
 
 #DEFINES += GLB_ANALYSES_IN_PROTOCOL_EDITOR
 #DEFINES += GLB_CURSORS_IN_PROTOCOL_EDITOR
@@ -183,9 +184,9 @@ HEADERS += \
     src/model/filters/filter.h \
     src/model/filters/firstorderiirfilter.h \
     src/model/events/event.h \
+    src/model/events/eventinfo.h \
     src/model/events/eventdetector.h \
     src/model/events/baseline.h \
-    src/model/events/eventinfo.h \
     src/model/events/eventpacket.h \
     src/model/events/eventsandbaseline.h \
     src/view/bigplotwidget.h \

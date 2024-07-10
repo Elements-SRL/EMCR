@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <optional>
-#include "enventinfo.h"
+#include "eventinfo.h"
 #include "eventpacket.h"
 #include "firstorderiirfilter.h"
 #include "plotmessage.h"
