@@ -109,6 +109,17 @@ void ChessboardController::channelsTurnedOnOff(bool flag) {
     }
 }
 
+void ChessboardController::calibrationResistorsTurnedOnOff(bool flag) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->addState(StampPlot::StateCalibrationResistorsOn);
+
+        } else {
+            plots[channelIdx]->removeState(StampPlot::StateCalibrationResistorsOn);
+        }
+    }
+}
+
 void ChessboardController::stimuliTurnedOnOff(bool flag) {
     for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
@@ -120,13 +131,24 @@ void ChessboardController::stimuliTurnedOnOff(bool flag) {
     }
 }
 
-void ChessboardController::docTurnedOnOff(bool flag) {
+void ChessboardController::offsetRecalibrationTurnedOnOff(bool flag) {
     for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
-            plots[channelIdx]->addState(StampPlot::StateOffsetCompensation);
+            plots[channelIdx]->addState(StampPlot::StateOffsetRecalibrationOn);
 
         } else {
-            plots[channelIdx]->removeState(StampPlot::StateOffsetCompensation);
+            plots[channelIdx]->removeState(StampPlot::StateOffsetRecalibrationOn);
+        }
+    }
+}
+
+void ChessboardController::ljcTurnedOnOff(bool flag) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->addState(StampPlot::StateLiquidJunctionCompensation);
+
+        } else {
+            plots[channelIdx]->removeState(StampPlot::StateLiquidJunctionCompensation);
         }
     }
 }
@@ -153,12 +175,20 @@ void ChessboardController::onChannelsTurnedOnOff(bool flag) {
     this->channelsTurnedOnOff(flag);
 }
 
+void ChessboardController::onCalibrationResistorsTurnedOnOff(bool flag) {
+    this->calibrationResistorsTurnedOnOff(flag);
+}
+
 void ChessboardController::onStimuliTurnedOnOff(bool flag) {
     this->stimuliTurnedOnOff(flag);
 }
 
-void ChessboardController::onDocTurnedOnOff(bool flag) {
-    this->docTurnedOnOff(flag);
+void ChessboardController::onOffsetRecalibrationTurnedOnOff(bool flag) {
+    this->offsetRecalibrationTurnedOnOff(flag);
+}
+
+void ChessboardController::onLjcTurnedOnOff(bool flag) {
+    this->ljcTurnedOnOff(flag);
 }
 
 void ChessboardController::onTracesExpandedOnOff(bool flag) {
@@ -178,23 +208,31 @@ void ChessboardController::onDurationUpdated(Measurement_t duration) {
 }
 
 void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
-    GapFreeMessage gapFreeMessage;
-    IvMessage ivMessage;
     switch (plotMessage.index()) {
     //    GapFree message
-    case 0:
-        gapFreeMessage = std::get<0>(plotMessage);
+    case 0:{
+        GapFreeMessage message = std::get<0>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
+            currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
         }
         break;
+    }
         //    IvGraph message
-    case 1:
-        ivMessage = std::get<1>(plotMessage);
+    case 1:{
+        IvMessage message = std::get<1>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(ivMessage.voltageValues[idx], ivMessage.currentValues[idx], ivMessage.dataSize[idx]);
+            currentCurves.at(idx)->setRawSamples(message.voltageValues[idx], message.currentValues[idx], message.dataSize[idx]);
         }
         break;
+    }
+        //    IvGraph message
+    case 3:{
+        SpectrumMessage message = std::get<3>(plotMessage);
+        for (int idx = 0; idx < currentChannelsNum; idx++) {
+            currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.currentValues[idx], message.dataSize);
+        }
+        break;
+    }
     }
 }
 

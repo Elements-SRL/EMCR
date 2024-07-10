@@ -95,6 +95,14 @@ void StampPlot::setState(States_t newState) {
         anyLabelAssigned = true;
     }
 
+    if (state & StateCalibrationResistorsOn) {
+        if (anyLabelAssigned) {
+            stateText += ",";
+        }
+        stateText += "R";
+        anyLabelAssigned = true;
+    }
+
     if (state & StateStimuliDisabled) {
         if (anyLabelAssigned) {
             stateText += ",";
@@ -103,11 +111,19 @@ void StampPlot::setState(States_t newState) {
         anyLabelAssigned = true;
     }
 
-    if (state & StateOffsetCompensation) {
+    if (state & StateOffsetRecalibrationOn) {
         if (anyLabelAssigned) {
             stateText += ",";
         }
         stateText += "C";
+        anyLabelAssigned = true;
+    }
+
+    if (state & StateLiquidJunctionCompensation) {
+        if (anyLabelAssigned) {
+            stateText += ",";
+        }
+        stateText += "J";
         anyLabelAssigned = true;
     }
 

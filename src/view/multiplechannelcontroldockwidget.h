@@ -22,11 +22,16 @@ private:
 
     QPushButton * switchChannelsOnBtn = nullptr;
     QPushButton * switchChannelsOffBtn = nullptr;
+    QPushButton * calibrationResistorsOnBtn = nullptr;
+    QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
-    QPushButton * offsetCompensationOnBtn = nullptr;
-    QPushButton * offsetCompensationOffBtn = nullptr;
-    QPushButton * offsetCompensationResetBtn = nullptr;
+    QPushButton * offsetRecalibrationOnBtn = nullptr;
+    QPushButton * offsetRecalibrationOffBtn = nullptr;
+    QPushButton * offsetRecalibrationResetBtn = nullptr;
+    QPushButton * liquidJunctionCompensationOnBtn = nullptr;
+    QPushButton * liquidJunctionCompensationOffBtn = nullptr;
+    QPushButton * liquidJunctionCompensationResetBtn = nullptr;
     QPushButton * expandTraceBtn = nullptr;
     QPushButton * reduceTraceBtn = nullptr;
     QPushButton * recordingStartBtn = nullptr;
@@ -35,12 +40,18 @@ private:
     QLineEdit * recordPathLineEdit = nullptr;
     void emitFileName();
     void emitFilePath();
+
 signals:
     void sigTurnChannelOn();
     void sigTurnChannelOff();
-    void sigTurnDocOn();
-    void sigTurnDocOff();
-    void sigResetDoc();
+    void sigTurnCalibrationResistorsOn();
+    void sigTurnCalibrationResistorsOff();
+    void sigTurnOffsetRecalibrationOn();
+    void sigTurnOffsetRecalibrationOff();
+    void sigResetOffsetRecalibration();
+    void sigTurnLjcOn();
+    void sigTurnLjcOff();
+    void sigResetLj();
     void sigTurnStimulsOn();
     void sigTurnStimulsOff();
     void sigStartRecording();

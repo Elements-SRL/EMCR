@@ -1,13 +1,15 @@
 #include "ivgraphcontroller.h"
 
-IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow * mainWindow) :
-    CentralWidgetController(appStatus, producer, bigPlotWidget) {
-    this->mainWindow = mainWindow;
+IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer * producer, BigPlotWidget * bigPlotWidget, BigPlotController * bigPlotController, MainWindow * mainWindow) :
+    CentralWidgetController(appStatus, producer, bigPlotWidget),
+    mainWindow(mainWindow) {
+
     model = new BigPlotModel();
     ivGraphWidget = new IvGraphWidget(currentChannelsNum, bigPlotWidget);
     consumer = new IvGraphConsumer(appStatus, producer);
-    this->mainWindow->setIvGraphWidget(ivGraphWidget);
-    plot = new BigPlot("", "[V]", "", BigPlotStatus::Iv, bigPlotWidget);
+
+    mainWindow->setIvGraphWidget(ivGraphWidget);
+    plot = new BigPlot("", "[V]", "", BigPlot::Iv, bigPlotWidget);
     bigPlotWidget->setIvGraph(plot);
     // creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -16,19 +18,19 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
 
     connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
         bigPlotController->handleZoomInRequest(model, plot, r);
-        });
+    });
     connect(plot, &BigPlot::zoomOutRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomOutRequest(model, plot);
-        });
+    });
     connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomResetRequest(model, plot);
-        });
+    });
     connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
-            bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
-        });
+        bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
+    });
     connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
         bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
-        });
+    });
 
     connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
     connect(consumer, &PlotConsumer::setPlotData, this, &IvGraphController::onSetPlotData);

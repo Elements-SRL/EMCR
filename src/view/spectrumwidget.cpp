@@ -1,0 +1,45 @@
+#include "spectrumwidget.h"
+
+#include <QBoxLayout>
+#include <QLabel>
+
+SpectrumWidget::SpectrumWidget(uint32_t channelsNum, QWidget * parent) :
+    QDockWidget(parent) {
+
+    this->setObjectName("spectrum");
+    this->setWindowTitle("Spectrum");
+
+    auto containerWidget = new QWidget(this); // Create a container widget
+    this->setWidget(containerWidget);
+
+    auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
+
+    auto buttonsHl = new QHBoxLayout();
+
+    auto startButton = new QPushButton(this);
+    startButton->setIcon(QIcon(QPixmap(":/imgs/start protocol.png")));
+    startButton->setToolTip("Start the spectrum analysis if it was previously stopped");
+    buttonsHl->addWidget(startButton);
+    connect(startButton, &QPushButton::clicked, this, &SpectrumWidget::startPressed);
+
+    auto stopButton = new QPushButton(this);
+    stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
+    stopButton->setToolTip("Stop the spectrum analysis if it was previously strted");
+    buttonsHl->addWidget(stopButton);
+    connect(stopButton, &QPushButton::clicked, this, &SpectrumWidget::stopPressed);
+
+    mainVl->addLayout(buttonsHl);
+
+    mainVl->addWidget(new QLabel("Integration window [s]"));
+
+    integrationWindowS = new QDoubleSpinBox;
+    integrationWindowS->setRange(0.5, 10.0);
+    integrationWindowS->setValue(0.5);
+
+    mainVl->addWidget(integrationWindowS);
+
+    connect(integrationWindowS, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = integrationWindowS->value();
+        emit integrationWindowChanged(value);
+    });
+}

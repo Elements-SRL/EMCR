@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-/*!Recordings settings*/
+/*! Recordings settings*/
 #define PSD_DEFAULT_RECORD_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "/Recordings/")
 #define PSD_DEFAULT_RECORD_NAME QString("file")
 

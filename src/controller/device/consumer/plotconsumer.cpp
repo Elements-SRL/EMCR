@@ -1,7 +1,6 @@
 #include "plotconsumer.h"
 
 #include <QTime>
-#include <iostream>
 
 PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
@@ -125,8 +124,10 @@ void PlotConsumer::updateTimeAxis() {
         pushedDurationFlag = false;
         xAxisDuration = pushedDuration;
 
-        locker.unlock();
-        this->computeTimeAxis();
+        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeTimeAxisMethod is performed later
+            locker.unlock();
+            this->computeTimeAxis();
+        }
     }
 
     if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
@@ -171,8 +172,6 @@ void PlotConsumer::updateRangeAxis() {
             }
         }
         voltageRange = pushedVoltageRange;
-
-        emit voltageRangeUpdated(voltageRange);
     }
 
     if (pushedCurrentRangeFlag) {
@@ -189,8 +188,6 @@ void PlotConsumer::updateRangeAxis() {
             }
         }
         currentRange = pushedCurrentRange;
-
-        emit currentRangeUpdated(currentRange);
     }
 }
 

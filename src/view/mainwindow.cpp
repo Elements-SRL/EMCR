@@ -64,6 +64,18 @@ MainWindow::MainWindow(QWidget * parent) :
     actionUpgradeFw = new QAction("Upgrade FW");
     menuAdvanced->addAction(actionUpgradeFw);
 
+    menuHwReset = new QMenu("HW reset");
+    menuAdvanced->addMenu(menuHwReset);
+
+    actionHwReset = new QAction("Apply");
+    menuHwReset->addAction(actionHwReset);
+
+    actionHwResetHelp = new QAction("Help");
+    menuHwReset->addAction(actionHwResetHelp);
+
+    connect(actionHwReset, &QAction::triggered, this, &MainWindow::sigResetHw);
+    connect(actionHwResetHelp, &QAction::triggered, this, &MainWindow::onResetHwHelp);
+
     /*! ? menu */
     menuQuestionMark = new QMenu("?");
     menuBar->addMenu(menuQuestionMark);
@@ -272,6 +284,15 @@ void MainWindow::setIvGraphWidget(IvGraphWidget * widget) {
     }
 }
 
+void MainWindow::setSpectrumWidget(SpectrumWidget * widget) {
+    spectrumWidget = widget;
+    if (widget != nullptr) {
+        addDockWidget(Qt::LeftDockWidgetArea, ivGraphWidget);
+        spectrumWidget->setFloating(true);
+        dockWidgets.append(spectrumWidget);
+    }
+}
+
 void MainWindow::setChessboardDw(ChessboardDockWidget * widget) {
     chessboardDw = widget;
     if (widget != nullptr) {
@@ -417,86 +438,124 @@ void MainWindow::createGuiControls() {
     debugWid->setLayout(debugVl);
 
     debugVl->addWidget(new QLabel("Word"));
+    QHBoxLayout * debugWordHl = new QHBoxLayout;
+    debugVl->addLayout(debugWordHl);
+
     QSpinBox * debugWordSbx = new QSpinBox;
     debugWordSbx->setRange(0, 32767);
     debugWordSbx->setValue(0);
-    debugVl->addWidget(debugWordSbx);
+    debugWordHl->addWidget(debugWordSbx);
 
-    QCheckBox * debugRangeWordChx = new QCheckBox("Enable word range");
-    debugVl->addWidget(debugRangeWordChx);
+    QCheckBox * debugRangeWordChx = new QCheckBox("Range");
+    debugWordHl->addWidget(debugRangeWordChx);
 
     QSpinBox * debugLastWordSbx = new QSpinBox;
     debugLastWordSbx->setRange(0, 32767);
     debugLastWordSbx->setValue(0);
     debugLastWordSbx->setEnabled(false);
-    debugVl->addWidget(debugLastWordSbx);
+    debugWordHl->addWidget(debugLastWordSbx);
 
     connect(debugRangeWordChx, &QCheckBox::clicked, debugLastWordSbx, &QWidget::setEnabled);
 
     debugVl->addWidget(new QLabel("Bit"));
+    QHBoxLayout * debugBitHl = new QHBoxLayout;
+    debugVl->addLayout(debugBitHl);
+
     QSpinBox * debugBitSbx = new QSpinBox;
     debugBitSbx->setRange(0, 15);
     debugBitSbx->setValue(0);
-    debugVl->addWidget(debugBitSbx);
+    debugBitHl->addWidget(debugBitSbx);
 
-    QCheckBox * debugRangeBitChx = new QCheckBox("Enable bit range");
-    debugVl->addWidget(debugRangeBitChx);
+    QCheckBox * debugRangeBitChx = new QCheckBox("Range");
+    debugBitHl->addWidget(debugRangeBitChx);
 
     QSpinBox * debugLastBitSbx = new QSpinBox;
     debugLastBitSbx->setRange(0, 15);
     debugLastBitSbx->setValue(0);
     debugLastBitSbx->setEnabled(false);
-    debugVl->addWidget(debugLastBitSbx);
+    debugBitHl->addWidget(debugLastBitSbx);
 
     connect(debugRangeBitChx, &QCheckBox::clicked, debugLastBitSbx, &QWidget::setEnabled);
 
-    QCheckBox * debugStatusChx = new QCheckBox("Status");
-    debugVl->addWidget(debugStatusChx);
+    QHBoxLayout * debugBitSetHl = new QHBoxLayout;
+    debugVl->addLayout(debugBitSetHl);
 
-    QPushButton * debugApplyBtn = new QPushButton("Apply bit");
-    debugApplyBtn->setCheckable(false);
-    debugVl->addWidget(debugApplyBtn);
+    QPushButton * debugResetBitBtn = new QPushButton("RESET bit");
+    debugResetBitBtn->setCheckable(false);
+    debugBitSetHl->addWidget(debugResetBitBtn);
 
-    connect(debugApplyBtn, &QPushButton::clicked, this, [=] () {
+    QPushButton * debugSetBitBtn = new QPushButton("SET bit");
+    debugSetBitBtn->setCheckable(false);
+    debugBitSetHl->addWidget(debugSetBitBtn);
+
+    connect(debugResetBitBtn, &QPushButton::clicked, this, [=] () {
         if (debugRangeWordChx->isChecked()) {
             for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
                 if (debugRangeBitChx->isChecked()) {
                     for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
-                        emit setDebugBit(wordIdx, bitIdx, debugStatusChx->isChecked());
+                        emit setDebugBit(wordIdx, bitIdx, false);
                     }
 
                 } else {
-                    emit setDebugBit(wordIdx, debugBitSbx->value(), debugStatusChx->isChecked());
+                    emit setDebugBit(wordIdx, debugBitSbx->value(), false);
                 }
             }
 
         } else {
             if (debugRangeBitChx->isChecked()) {
                 for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
-                    emit setDebugBit(debugWordSbx->value(), bitIdx, debugStatusChx->isChecked());
+                    emit setDebugBit(debugWordSbx->value(), bitIdx, false);
                 }
 
             } else {
-                emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), debugStatusChx->isChecked());
+                emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), false);
+            }
+        }
+    });
+
+    connect(debugSetBitBtn, &QPushButton::clicked, this, [=] () {
+        if (debugRangeWordChx->isChecked()) {
+            for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
+                if (debugRangeBitChx->isChecked()) {
+                    for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                        emit setDebugBit(wordIdx, bitIdx, true);
+                    }
+
+                } else {
+                    emit setDebugBit(wordIdx, debugBitSbx->value(), true);
+                }
+            }
+
+        } else {
+            if (debugRangeBitChx->isChecked()) {
+                for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                    emit setDebugBit(debugWordSbx->value(), bitIdx, true);
+                }
+
+            } else {
+                emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), true);
             }
         }
     });
 
     debugVl->addWidget(new QLabel("Value"));
+    QHBoxLayout * debugValueSetHl = new QHBoxLayout;
+    debugVl->addLayout(debugValueSetHl);
+
     QSpinBox * debugValueSbx = new QSpinBox;
     debugValueSbx->setRange(0, 65535);
     debugValueSbx->setValue(0);
-    debugVl->addWidget(debugValueSbx);
+    debugValueSetHl->addWidget(debugValueSbx);
 
-    QLabel * debugValueHexLbl = new QLabel;
-    debugVl->addWidget(debugValueHexLbl);
+    QLabel * debugValueHexLbl = new QLabel("0x0000");
+    debugValueSetHl->addWidget(debugValueHexLbl);
     connect(debugValueSbx, QOverload <int> ::of (&QSpinBox::valueChanged), this, [=] (int value) {
         debugValueHexLbl->setText(QString("0x%1").arg(value, 4, 16, QLatin1Char('0')));
     });
 
-    QPushButton * debugApplyValueBtn = new QPushButton("Apply value");
+    QPushButton * debugApplyValueBtn = new QPushButton("SET value");
     debugApplyValueBtn->setCheckable(false);
-    debugVl->addWidget(debugApplyValueBtn);
+    debugValueSetHl->addWidget(debugApplyValueBtn);
 
     connect(debugApplyValueBtn, &QPushButton::clicked, this, [=] () {
         if (debugRangeWordChx->isChecked()) {
@@ -508,6 +567,11 @@ void MainWindow::createGuiControls() {
             emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
         }
     });
+
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    debugVl->addWidget(spacer);
+
 #endif
 
     actionRecordingSettings->setEnabled(true);
@@ -661,4 +725,24 @@ void MainWindow::onDeviceInfo() {
 void MainWindow::onSupport() {
     SupportDialog a(this);
     a.exec();
+}
+
+void MainWindow::onResetHwHelp() {
+    MessageDialog msg("HW reset usage", false, this);
+    msg.addMainText("The HW reset should be used if the device seems stuck in saturation.\n"
+                    "Before using the HW reset feature please check that the saturation is\n"
+                    "actually due to a front end problem."
+                    "In order to do so check that:\n"
+                    "- you are using a proper current range in Voltage clamp; increase the current\n"
+                    "  range and zoom out vertically to verify that the current trace is always stuck\n"
+                    "  on the top or bottom value of the selected range;\n"
+                    "- the resistance of your DUT is not too low in voltage clamp or too high in current\n"
+                    "  clamp; in particular short circuits always saturate the voltage clamp front end\n"
+                    "  and open circuits always saturate the current clamp front end;\n"
+                    "- you are using a proper zoom to visualize the traces; in order to completely reset\n"
+                    "  the zoom and center it around the traces double right click on any plot and click\n"
+                    "  the Full trace zoom in the higher left corner of any plot window.");
+    msg.addDefaultButtonBox();
+    msg.centerOnParent(this);
+    msg.exec();
 }

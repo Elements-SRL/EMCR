@@ -19,19 +19,18 @@
 
 namespace commlib = e384CommLib;
 
-enum BigPlotStatus {
-    GapFree,
-    Iv,
-    NumberOfStatuses
-};
-
 class BigPlot : public QwtPlot {
     Q_OBJECT
 
-private:
-    void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
-    BigPlotStatus status;
 public:
+    enum BigPlotStatus {
+        GapFree,
+        Iv,
+        Event,
+        Spectrum,
+        NumberOfStatuses
+    };
+
     BigPlot(QString titleString, QString xUnitString, QString yUnitString, BigPlotStatus status, QWidget * parent = nullptr);
 
     QSize sizeHint() const override;
@@ -85,7 +84,9 @@ protected slots:
 
 private:
     void handleLabelsPosition();
+    void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
 
+    BigPlotStatus status;
     QVector <bool> rangeInitialized;
 
 signals:

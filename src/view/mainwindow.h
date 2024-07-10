@@ -23,6 +23,7 @@
 #include "measurementsoverviewdockwidget.h"
 #include "plotpreferencesdialog.h"
 #include "ivgraphwidget.h"
+#include "spectrumwidget.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -53,6 +54,7 @@ public:
 
     void setBigPlotWidget(BigPlotWidget * widget);
     void setIvGraphWidget(IvGraphWidget * widget);
+    void setSpectrumWidget(SpectrumWidget * widget);
     void setChessboardDw(ChessboardDockWidget * widget);
     void setCompensationControlsDw(CompensationControlDockWidget * widget);
     void setSingleChannelControlsDw(SingleChannelControlDockWidget * widget);
@@ -86,6 +88,7 @@ private:
     QMenu * menuRecordings = nullptr;
     QMenu * menuPreferences = nullptr;
     QMenu * menuAdvanced = nullptr;
+    QMenu * menuHwReset = nullptr;
     QMenu * menuQuestionMark = nullptr;
 
     bool interfaceCreated = false;
@@ -96,10 +99,12 @@ private:
     QAction * actionBoardMapping = nullptr;
 
     QAction * actionUpgradeFw = nullptr;
+    QAction * actionHwReset = nullptr;
+    QAction * actionHwResetHelp = nullptr;
+
     QAction * actionAbout = nullptr;
     QAction* actionDeviceInfo = nullptr;
     QAction* actionSupport = nullptr;
-
 
     QDockWidget * deviceDetectorDw = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
@@ -115,6 +120,7 @@ private:
     MeasurementsOverviewDockWidget * measurementsOverviewDw = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
     IvGraphWidget * ivGraphWidget = nullptr;
+    SpectrumWidget * spectrumWidget = nullptr;
 //    BoardMappingDialog * boardMappingDialog= nullptr;
     QDockWidget * debugDw = nullptr;
 
@@ -129,11 +135,15 @@ private:
     QVector <QDockWidget *> dockWidgets;
     QVector <QDockWidget *> analysisWidgets;
 
+private slots:
+    void onResetHwHelp();
+
 signals:
     void setDebugBit(int word, int bit, bool flag);
     void setDebugWord(int word, int value);
     void sigModelCellChanged(bool modelCellChanged);
     void sigBoardMappingFileChoosen(QString filename);
     void sigUpgradeFw();
+    void sigResetHw();
 };
 #endif // MAINWINDOW_H

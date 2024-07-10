@@ -44,6 +44,11 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     std::vector <uint16_t> customOptionDefault;
     msgDisp->getCustomOptions(customOptions, customOptionDescriptions, customOptionDefault);
 
+    std::vector <std::string> customDoubles;
+    std::vector <RangedMeasurement_t> customDoublesRanges;
+    std::vector <double> customDoublesDefault;
+    msgDisp->getCustomDoubles(customDoubles, customDoublesRanges, customDoublesDefault);
+
     QWidget * window = new QWidget;
     this->setWidget(window);
     QVBoxLayout * vLayout = new QVBoxLayout(window);
@@ -139,6 +144,17 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         }
     }
 
+    /*! Custom doubles */
+    for (unsigned int customDoubleIdx = 0; customDoubleIdx < customDoubles.size(); customDoubleIdx++) {
+        QDoubleSpinBox * spinBox;
+        this->customDoublesGroupBoxes.push_back(setupGroupBox(customDoubles[customDoubleIdx], vLayout, customDoublesRanges[customDoubleIdx], customDoublesDefault[customDoubleIdx], spinBox));
+        customDoublesSpinBoxes.push_back(spinBox);
+        emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
+        connect(customDoublesSpinBoxes[customDoubleIdx], &QDoubleSpinBox::editingFinished, this, [=] () {
+            emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
+        });
+    }
+
     QVBoxLayout * downSamplingRatioVl = new QVBoxLayout();
     downSamplingRatioVl->setContentsMargins(2, 2, 2, 2);
     downSamplingRatioVl->setSpacing(2);
@@ -148,7 +164,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     downsamplingRatioSbx->setRange(1, maxDownsamplingRatio);
     downsamplingRatioSbx->setValue(1);
     downSamplingRatioVl->addWidget(downsamplingRatioSbx);
-    connect(downsamplingRatioSbx, QOverload <int> ::of(&QSpinBox::valueChanged), this, [=] (int value) {
+    connect(downsamplingRatioSbx, &QSpinBox::editingFinished, this, [=] () {
+        const auto value = downsamplingRatioSbx->value();
         emit sigDownsamplingRatioSelected(value);
     });
 
@@ -283,6 +300,10 @@ void DeviceControlDockWidget::forceEmit() {
                 emit sigCustomOptionSelected(customOptionIdx, idx);
             }
         }
+    }
+
+    for (int customDoubleIdx = 0; customDoubleIdx < customDoublesSpinBoxes.size(); customDoubleIdx++) {
+        emit sigCustomDoubleChanged(customDoubleIdx, customDoublesSpinBoxes[customDoubleIdx]->value());
     }
 }
 
@@ -441,21 +462,38 @@ QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, std::vecto
         return nullptr;
     }
     auto gb = new QGroupBox(QString::fromStdString(title));
-    QVBoxLayout * radioButtonsBoxLayout = new QVBoxLayout();
-    radioButtonsBoxLayout->setContentsMargins(2, 2, 2, 2);
-    radioButtonsBoxLayout->setSpacing(2);
+    QVBoxLayout * layout = new QVBoxLayout();
+    layout->setContentsMargins(2, 2, 2, 2);
+    layout->setSpacing(2);
     parentLayout->addWidget(gb);
     for (int idx = 0; idx < texts.size(); idx++){
         QRadioButton * qrb = new QRadioButton(texts[idx]);
-        radioButtonsBoxLayout->addWidget(qrb);
+        layout->addWidget(qrb);
         radioButtons.push_back(qrb);
     }
     if (radioButtons.size() > 0) {
         radioButtons[0]->setChecked(true);
     }
-    gb->setLayout(radioButtonsBoxLayout);
+    gb->setLayout(layout);
     if (texts.size() == 1) {
         gb->setEnabled(false);
     }
+    return gb;
+}
+
+
+QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, QVBoxLayout * parentLayout, RangedMeasurement_t range, double valueDefault, QDoubleSpinBox * &spinbox) {
+    auto gb = new QGroupBox(QString::fromStdString(title));
+    QHBoxLayout * layout = new QHBoxLayout();
+    layout->setContentsMargins(2, 2, 2, 2);
+    layout->setSpacing(2);
+    parentLayout->addWidget(gb);
+    spinbox = new QDoubleSpinBox;
+    spinbox->setRange(range.min, range.max);
+    spinbox->setDecimals(range.decimals());
+    spinbox->setValue(valueDefault);
+    layout->addWidget(spinbox);
+    layout->addWidget(new QLabel(QString::fromStdString(range.getFullUnit())));
+    gb->setLayout(layout);
     return gb;
 }

@@ -7,7 +7,6 @@
 class IvAccumulator {
 public:
     IvAccumulator();
-    ~IvAccumulator();
     std::optional<double> getMean();
     void pushValue(double v);
 

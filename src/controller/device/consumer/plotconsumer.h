@@ -50,7 +50,7 @@ protected:
     virtual void emitPlotData() = 0;
     void updateTimeAxis();
     void computeTimeAxis();
-    void updateRangeAxis();
+    virtual void updateRangeAxis();
 
     std::vector<double *> voltageValues;
     std::vector<double *> currentValues;
@@ -90,8 +90,6 @@ protected:
     QTextStream logStream;
 
 signals:
-    void voltageRangeUpdated(RangedMeasurement_t range);
-    void currentRangeUpdated(RangedMeasurement_t range);
     void plotDataUpdated();
 };
 

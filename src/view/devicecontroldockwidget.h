@@ -60,11 +60,14 @@ private:
     std::vector <QRadioButton *> clampingModalitiesRadioButtons;
     std::vector <QGroupBox *> customOptionsGroupBoxes;
     std::vector <std::vector <QRadioButton *>> customOptionsRadioButtons;
+    std::vector <QGroupBox *> customDoublesGroupBoxes;
+    std::vector <QDoubleSpinBox *> customDoublesSpinBoxes;
 
     QGroupBox * setupGroupBox(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
     QGroupBox * setupGroupBox(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
     QGroupBox * setupGroupBox(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
     QGroupBox * setupGroupBox(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
+    QGroupBox * setupGroupBox(std::string title, QVBoxLayout * parentLayout, RangedMeasurement_t range, double valueDefault, QDoubleSpinBox * &spinbox);
 
     void setWidgetEnabled(QWidget * widget, bool status);
     void setWidgetVisible(QWidget * widget, bool status);
@@ -78,6 +81,7 @@ signals:
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
     void sigCustomOptionSelected(unsigned int customOptionIdx, int idx);
+    void sigCustomDoubleChanged(unsigned int customDoubleIdx, double value);
     void sigDownsamplingRatioSelected(int ratio);
     void sigClampingModalitySelected(ClampingModality_t mode);
 };

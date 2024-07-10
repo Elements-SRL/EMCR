@@ -21,10 +21,12 @@ public slots:
 
 private:
     void turnSelectedChannelsOnOff(bool flag);
+    void turnSelectedCalibrationResistorsOnOff(bool flag);
     void turnSelectedStimuliOnOff(bool flag);
-    void turnSelectedDocOnOff(bool flag);
-    void resetDoc();
-
+    void turnSelectedOffsetRecalibrationOnOff(bool flag);
+    void resetOffsetRecalibration();
+    void turnSelectedLjcOnOff(bool flag);
+    void resetLj();
 
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
@@ -35,9 +37,12 @@ signals:
     void sigStopRecording();
 
     void sigChannelsTurnedOnOff(bool flag);
+    void sigCalibrationResistorsTurnedOnOff(bool flag);
     void sigStimuliTurnedOnOff(bool flag);
-    void sigDocTurnedOnOff(bool flag);
-    void sigDocResetted();
+    void sigOffsetRecalibrationTurnedOnOff(bool flag);
+    void sigOffsetRecalibrationResetted();
+    void sigLjcTurnedOnOff(bool flag);
+    void sigLjResetted();
     void sigAddRemoveFromBigPlot(bool flag);
 };
 

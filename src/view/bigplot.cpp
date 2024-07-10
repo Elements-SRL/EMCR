@@ -98,14 +98,16 @@ void BigPlot::drawCanvas(QPainter * p) {
     this->handleLabelsPosition();
 }
 
-void BigPlot::setLabel(QString text, QwtPlot::Axis axis){
+void BigPlot::setLabel(QString text, QwtPlot::Axis axis) {
     switch (axis) {
     case QwtPlot::Axis::xBottom:
         setAndFormatText(text, xUnit);
         break;
+
     case QwtPlot::Axis::yLeft:
         setAndFormatText(text, yUnit);
         break;
+
     case QwtPlot::Axis::yRight:
         setAndFormatText(text, plotTitle, Qt::AlignRight);
         break;
@@ -132,7 +134,12 @@ void BigPlot::setRect(Rect4 r) {
     case GapFree:
         this->setAxisScale(xBottom, 0.0, r[xBottom].width());
         break;
+
     case Iv:
+        this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
+        break;
+
+    case Spectrum:
         this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
         break;
     }
@@ -191,7 +198,7 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
 }
 
 void BigPlot::recomputeXAxisFactor(double duration) {
-    if (status != BigPlotStatus::GapFree) {
+    if (status != BigPlot::GapFree) {
         return;
     }
     Measurement_t durationMeas = {duration, commlib::UnitPfxNone, "s"};

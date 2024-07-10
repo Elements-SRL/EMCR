@@ -73,7 +73,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\centralwidgets;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;$(E384COMMLIB_PATH)include;$(E384COMMLIB_PATH)include\model;$(CY_API_PATH)include;$(FRONT_PANEL_PATH)include;$(FTD2XX_PATH)include;$(YAML_CPP_PATH)include;$(YAML_CPP_PATH)include\yaml-cpp;$(YAML_CPP_PATH)include\yaml-cpp\contrib;$(YAML_CPP_PATH)include\yaml-cpp\node;$(YAML_CPP_PATH)include\yaml-cpp\node\detail;$(PROTOCOL_SERIALIZER_PATH)include;$(QWT_6_1_4_VS_PATH)include;release;%(AdditionalIncludeDirectories);$(HDF5_PATH)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\centralwidgets;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;$(E384COMMLIB_PATH)include;$(E384COMMLIB_PATH)include\model;$(CY_API_PATH)include;$(FRONT_PANEL_PATH)include;$(FTD2XX_PATH)include;$(YAML_CPP_PATH)include;$(YAML_CPP_PATH)include\yaml-cpp;$(YAML_CPP_PATH)include\yaml-cpp\contrib;$(YAML_CPP_PATH)include\yaml-cpp\node;$(YAML_CPP_PATH)include\yaml-cpp\node\detail;$(PROTOCOL_SERIALIZER_PATH)include;$(QWT_6_1_4_VS_PATH)include;$(HDF5_PATH)include;$(FFTW_3_3_PATH)include;$(FFTW_3_3_PATH)include\api;$(FFTW_3_3_PATH)include\dft;$(FFTW_3_3_PATH)include\dft/scalar;$(FFTW_3_3_PATH)include\dft/scalar/codelets;$(FFTW_3_3_PATH)include\dft/simd;$(FFTW_3_3_PATH)include\rdft;$(FFTW_3_3_PATH)include\rdft/scalar;$(FFTW_3_3_PATH)include\rdft\simd;$(FFTW_3_3_PATH)include\reodft;$(FFTW_3_3_PATH)include\kernel;$(FFTW_3_3_PATH)include\simd-support;$(FFTW_3_3_PATH)include\support;$(FFTW_3_3_PATH)include\threads;$(FFTW_3_3_PATH)include\tools;release;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -83,7 +83,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QT_NO_DEBUG;NDEBUG;QWT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;VERSION_MAJOR=0;VERSION_MINOR=17;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QT_NO_DEBUG;NDEBUG;QWT_DLL;_MATH_DEFINES_DEFINED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <ProgramDataBaseFileName>
       </ProgramDataBaseFileName>
@@ -92,10 +92,11 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>e384commlib.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cpp.lib;protocol-serializer.lib;shell32.lib;qwt.lib;qwtmathml.lib;libhdf5.lib;libhdf5_cpp.lib;libszaec.lib;libaec.lib;libzlib.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\release;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\release;$(PROTOCOL_SERIALIZER_PATH)lib\release;$(QWT_6_1_4_VS_PATH)lib;$(HDF5_PATH)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>e384commlib.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cpp.lib;protocol-serializer.lib;shell32.lib;qwt.lib;libfftw3-3.lib;libhdf5.lib;libhdf5_cpp.lib;libszaec.lib;libaec.lib;libzlib.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\release;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\release;$(PROTOCOL_SERIALIZER_PATH)lib\release;$(QWT_6_1_4_VS_PATH)lib;$(HDF5_PATH)lib;$(FFTW_3_3_PATH)lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -132,7 +133,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\centralwidgets;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;$(E384COMMLIB_PATH)include;$(E384COMMLIB_PATH)include\model;$(CY_API_PATH)include;$(FRONT_PANEL_PATH)include;$(FTD2XX_PATH)include;$(YAML_CPP_PATH)include;$(YAML_CPP_PATH)include\yaml-cpp;$(YAML_CPP_PATH)include\yaml-cpp\contrib;$(YAML_CPP_PATH)include\yaml-cpp\node;$(YAML_CPP_PATH)include\yaml-cpp\node\detail;$(PROTOCOL_SERIALIZER_PATH)include;$(QWT_6_1_4_VS_PATH)include;debug;%(AdditionalIncludeDirectories);$(HDF5_PATH)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src;src\controller;src\controller\device;src\controller\device\consumer;src\controller\protocol;src\controller\centralwidgets;src\model;src\model\filters;src\model\events;src\view;src\view\centralwidgets;src\view\statearray;src\view\protocol;src\view\questionmarkmenu;src\abf;$(E384COMMLIB_PATH)include;$(E384COMMLIB_PATH)include\model;$(CY_API_PATH)include;$(FRONT_PANEL_PATH)include;$(FTD2XX_PATH)include;$(YAML_CPP_PATH)include;$(YAML_CPP_PATH)include\yaml-cpp;$(YAML_CPP_PATH)include\yaml-cpp\contrib;$(YAML_CPP_PATH)include\yaml-cpp\node;$(YAML_CPP_PATH)include\yaml-cpp\node\detail;$(PROTOCOL_SERIALIZER_PATH)include;$(QWT_6_1_4_VS_PATH)include;$(HDF5_PATH)include;$(FFTW_3_3_PATH)include;$(FFTW_3_3_PATH)include\api;$(FFTW_3_3_PATH)include\dft;$(FFTW_3_3_PATH)include\dft/scalar;$(FFTW_3_3_PATH)include\dft/scalar/codelets;$(FFTW_3_3_PATH)include\dft/simd;$(FFTW_3_3_PATH)include\rdft;$(FFTW_3_3_PATH)include\rdft/scalar;$(FFTW_3_3_PATH)include\rdft\simd;$(FFTW_3_3_PATH)include\reodft;$(FFTW_3_3_PATH)include\kernel;$(FFTW_3_3_PATH)include\simd-support;$(FFTW_3_3_PATH)include\support;$(FFTW_3_3_PATH)include\threads;$(FFTW_3_3_PATH)include\tools;debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O0 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -142,17 +143,18 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>debug\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=13;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QWT_DLL;H5_BUILT_AS_DYNAMIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;GLB_SHOW_DEBUG_CTRLS;DEBUG;VERSION_MAJOR=0;VERSION_MINOR=17;VERSION_PATCH=0;E384COMMLIB_STATIC;YAML_CPP_STATIC_DEFINE;QWT_DLL;H5_BUILT_AS_DYNAMIC_LIB;_MATH_DEFINES_DEFINED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>e384commlibd.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cppd.lib;protocol-serializerd.lib;shell32.lib;qwtd.lib;qwtmathmld.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\debug;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\debug;$(PROTOCOL_SERIALIZER_PATH)lib\debug;$(QWT_6_1_4_VS_PATH)lib;$(HDF5_PATH)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>e384commlibd.lib;CyAPI.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib;okFrontPanel.lib;libMPSSE.lib;ftd2xx.lib;yaml-cppd.lib;protocol-serializerd.lib;shell32.lib;qwtd.lib;hdf5.lib;hdf5_cpp.lib;libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(E384COMMLIB_PATH)lib\debug;$(CY_API_PATH)lib\x64;$(FRONT_PANEL_PATH)lib\x64;$(FTD2XX_PATH)lib\win\x64;$(YAML_CPP_PATH)lib\debug;$(PROTOCOL_SERIALIZER_PATH)lib\debug;$(QWT_6_1_4_VS_PATH)lib;$(HDF5_PATH)lib;$(FFTW_3_3_PATH)lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -188,9 +190,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\controller\centralwidgets\eventdetectioncontroller.cpp" />
+    <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp" />
     <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp" />
     <ClCompile Include="src\model\binner.cpp" />
+    <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\baseplot.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
@@ -275,6 +279,7 @@
     <ClCompile Include="src\view\rect4.cpp" />
     <ClCompile Include="src\view\singlechannelcontroldockwidget.cpp" />
     <ClCompile Include="src\controller\singlechannelcontroller.cpp" />
+    <ClCompile Include="src\view\spectrumwidget.cpp" />
     <ClCompile Include="src\view\stampplot.cpp" />
     <ClCompile Include="src\model\state.cpp" />
     <ClCompile Include="src\model\statearray.cpp" />
@@ -285,12 +290,15 @@
     <ClCompile Include="src\view\upgradefwview.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\view\spectrumwidget.h" />
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h" />
     <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h" />
     <QtMoc Include="src\controller\centralwidgets\eventdetectioncontroller.h" />
     <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h" />
     <ClInclude Include="src\model\binner.h" />
     <ClInclude Include="src\model\events\baseline.h" />
+    <QtMoc Include="src\controller\centralwidgets\spectrumcontroller.h" />
+    <QtMoc Include="src\controller\device\consumer\spectrumconsumer.h" />
     <ClInclude Include="src\model\events\enventinfo.h" />
     <ClInclude Include="src\model\events\eventpacket.h" />
     <ClInclude Include="src\view\addtagdialog.h" />

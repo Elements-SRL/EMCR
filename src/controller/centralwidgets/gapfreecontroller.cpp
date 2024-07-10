@@ -7,7 +7,7 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
 
-    plot = new BigPlot("", "[s]", "", BigPlotStatus::GapFree, bigPlotWidget);
+    plot = new BigPlot("", "[s]", "", BigPlot::GapFree, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
     bigPlotWidget->setGapFreePlot(plot);
     //    creating curves for gapfree
@@ -137,15 +137,16 @@ void GapFreeController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
         Measurement_t duration = { model->getZoom(BigPlotModel::Zoom::Current)[axisIdx].width(), model->getCurrentRange(axisIdx).prefix, "s" };
         emit durationChanged(duration);
 
-    }
-    else if (newRange.unit == "V") {
+    } else if (newRange.unit == "V") {
         axisIdx = QwtPlot::yRight;
         model->setCurrentRange(axisIdx, newRange);
 
-    }
-    else if (newRange.unit == "A") {
+    } else if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRange(axisIdx, newRange);
+
+    } else {
+        return;
     }
     plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
     plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);

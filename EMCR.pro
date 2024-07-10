@@ -31,6 +31,7 @@ SOURCES += \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/device/consumer/eventdetectionconsumer.cpp \
+    src/controller/device/consumer/spectrumconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
@@ -58,6 +59,7 @@ SOURCES += \
     src/controller/centralwidgets/ivgraphcontroller.cpp \
     src/controller/centralwidgets/gapfreecontroller.cpp \
     src/controller/centralwidgets/eventdetectioncontroller.cpp \
+    src/controller/centralwidgets/spectrumcontroller.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -72,6 +74,7 @@ SOURCES += \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/bigplotwidget.cpp \
+    src/view/spectrumwidget.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
     src/view/compensationcontroldockwidget.cpp \
@@ -132,6 +135,7 @@ HEADERS += \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/device/consumer/eventdetectionconsumer.h \
+    src/controller/device/consumer/spectrumconsumer.h \
     src/controller/device/deviceconnector.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
@@ -159,6 +163,7 @@ HEADERS += \
     src/controller/centralwidgets/ivgraphcontroller.h \
     src/controller/centralwidgets/gapfreecontroller.h \
     src/controller/centralwidgets/eventdetectioncontroller.h \
+    src/controller/centralwidgets/spectrumcontroller.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
@@ -184,6 +189,7 @@ HEADERS += \
     src/model/events/eventpacket.h \
     src/model/events/eventsandbaseline.h \
     src/view/bigplotwidget.h \
+    src/view/spectrumwidget.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \
     src/view/compensationcontroldockwidget.h \
@@ -276,6 +282,7 @@ include($$(E384COMMLIB_PATH)includecommlib.pri)
 include($$(QWT_PATH)includeqwt.pri)
 include($$(PROTOCOL_SERIALIZER_PATH)includeprotocolserializer.pri)
 include($$(HDF5_PATH)includehdf5.pri)
+include($$(FFTW_3_3_PATH)includefftw3.3.pri)
 
 RESOURCES += \
     resources.qrc

@@ -93,7 +93,7 @@ void DeviceDataProducer::run() {
     ret = msgDisp->allocateRxDataBuffer(datain);
     /*! \todo what to do if the memory is not initialized? */
 
-    int chIdx;
+    unsigned int chIdx;
     unsigned int dataSampleBufferIdx;
 
     connectionLock.unlock();
@@ -205,8 +205,8 @@ bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, u
     }
 
     buffer.resize(dataPacketsToBuffer*totalChannelsNum);
-    int count = 0;
-    int chIdx;
+    unsigned int count = 0;
+    unsigned int chIdx;
     while (dataIdx != dataPacketsMax) {
         for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
             buffer[count++] = dataSamplesBuffer[dataIdx][chIdx];
@@ -233,39 +233,38 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
     unsigned int dataPacketsMax = dataPacketsIdx;
     dataLock.unlock();
 
-    int dataPacketsToBuffer;
+    unsigned int dataPacketsToBuffer;
     unsigned int downsamplingSize = downsamplingRatio << 1; /*! to reduce size by x we take data in chunks of 2*x and then take max and min in the interval */
     if (downsamplingRatio > 1) {
         if (dataIdx <= dataPacketsMax) {
-            dataPacketsToBuffer = (int)(((dataPacketsMax-dataIdx)/downsamplingSize) << 1);
+            dataPacketsToBuffer = ((dataPacketsMax-dataIdx)/downsamplingSize) << 1;
 
         } else {
-            dataPacketsToBuffer = (int)(((dataPacketsMax+bufferSize-dataIdx)/downsamplingSize) << 1);
+            dataPacketsToBuffer = ((dataPacketsMax+bufferSize-dataIdx)/downsamplingSize) << 1;
         }
 
     } else {
         if (dataIdx <= dataPacketsMax) {
-            dataPacketsToBuffer = (int)(dataPacketsMax-dataIdx);
+            dataPacketsToBuffer = dataPacketsMax-dataIdx;
 
         } else {
-            dataPacketsToBuffer = (int)(dataPacketsMax+bufferSize-dataIdx);
+            dataPacketsToBuffer = dataPacketsMax+bufferSize-dataIdx;
         }
     }
-    int totalChannelsNumInt = (int)totalChannelsNum;
-    int dataSamplesToBuffer = dataPacketsToBuffer* totalChannelsNumInt;
+    unsigned int dataSamplesToBuffer = dataPacketsToBuffer* totalChannelsNum;
     buffer.resize(dataSamplesToBuffer);
-    int count = 0;
+    unsigned int count = 0;
 
-    int chIdx;
+    unsigned int chIdx;
     double value;
-    int countPlusChIdx;
+    unsigned int countPlusChIdx;
     if (downsamplingRatio > 1) {
-        while (count < dataSamplesToBuffer-totalChannelsNumInt) {
+        while (count+totalChannelsNum < dataSamplesToBuffer) {
             for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
                 value = floatDataSamplesBuffer[dataIdx][chIdx];
                 countPlusChIdx = count+chIdx;
                 buffer[countPlusChIdx] = value; /*! Initialize max */
-                buffer[countPlusChIdx+totalChannelsNumInt] = value; /*! Initialize min */
+                buffer[countPlusChIdx+totalChannelsNum] = value; /*! Initialize min */
             }
             dataIdx = (dataIdx+1) & bufferMask;
 
@@ -276,13 +275,13 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
                     if (value > buffer[countPlusChIdx]) {
                         buffer[countPlusChIdx] = value;
 
-                    } else if (value < buffer[countPlusChIdx+totalChannelsNumInt]) {
-                        buffer[countPlusChIdx+totalChannelsNumInt] = value;
+                    } else if (value < buffer[countPlusChIdx+totalChannelsNum]) {
+                        buffer[countPlusChIdx+totalChannelsNum] = value;
                     }
                 }
                 dataIdx = (dataIdx+1) & bufferMask;
             }
-            count += (totalChannelsNumInt << 1);
+            count += totalChannelsNum << 1;
         }
 
     } else {

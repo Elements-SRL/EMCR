@@ -1,5 +1,7 @@
 #include "multiplechannelcontroller.h"
 
+#include "errormanager.h"
+
 MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp),
     mainWindow(mainWindow) {
@@ -13,6 +15,13 @@ MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp
         this->turnSelectedChannelsOnOff(false);
     });
 
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn, this, [=]() {
+        this->turnSelectedCalibrationResistorsOnOff(true);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOff, this, [=]() {
+        this->turnSelectedCalibrationResistorsOnOff(false);
+    });
+
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulsOn, this, [=]() {
         this->turnSelectedStimuliOnOff(true);
     });
@@ -20,14 +29,24 @@ MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp
         this->turnSelectedStimuliOnOff(false);
     });
 
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnDocOn, this, [=]() {
-        this->turnSelectedDocOnOff(true);
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn, this, [=]() {
+        this->turnSelectedOffsetRecalibrationOnOff(true);
     });
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnDocOff, this, [=]() {
-        this->turnSelectedDocOnOff(false);
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOff, this, [=]() {
+        this->turnSelectedOffsetRecalibrationOnOff(false);
     });
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigResetDoc, this, [=]() {
-        this->resetDoc();
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigResetOffsetRecalibration, this, [=]() {
+        this->resetOffsetRecalibration();
+    });
+
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnLjcOn, this, [=]() {
+        this->turnSelectedLjcOnOff(true);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnLjcOff, this, [=]() {
+        this->turnSelectedLjcOnOff(false);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigResetLj, this, [=]() {
+        this->resetLj();
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStartRecording,        this, [=] () {
@@ -85,6 +104,15 @@ void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     emit sigChannelsTurnedOnOff(flag);
 }
 
+void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag) {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <bool> values(selectedChannels.size(), flag);
+    msgDisp->turnCalSwOn(selectedChannels, values, true);
+
+    emit sigCalibrationResistorsTurnedOnOff(flag);
+}
+
 void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
@@ -94,21 +122,46 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     emit sigStimuliTurnedOnOff(flag);
 }
 
-void MultipleChannelController::turnSelectedDocOnOff(bool flag) {
+void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) {
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     std::vector <bool> values(selectedChannels.size(), flag);
-    msgDisp->digitalOffsetCompensation(selectedChannels, values, true);
+    ErrorCodes_t err = msgDisp->readoutOffsetRecalibration(selectedChannels, values, true);
+    if (err == Success) {
+        emit sigOffsetRecalibrationTurnedOnOff(flag);
 
-    emit sigDocTurnedOnOff(flag);
+    } else {
+        ErrorManager e(err);
+    }
 }
 
-void MultipleChannelController::resetDoc() {
+void MultipleChannelController::resetOffsetRecalibration() {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    msgDisp->resetOffsetRecalibration(selectedChannels, true);
+
+    emit sigOffsetRecalibrationResetted();
+}
+
+void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <bool> values(selectedChannels.size(), flag);
+    ErrorCodes_t err = msgDisp->liquidJunctionCompensation(selectedChannels, values, true);
+    if (err == Success) {
+        emit sigLjcTurnedOnOff(flag);
+
+    } else {
+        ErrorManager e(err);
+    }
+}
+
+void MultipleChannelController::resetLj() {
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
 
-    emit sigDocResetted();
+    emit sigLjResetted();
 }
 
 void MultipleChannelController::addRemoveFromBigPlot(bool flag) {

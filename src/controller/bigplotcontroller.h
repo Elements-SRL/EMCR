@@ -37,7 +37,7 @@ public slots:
     void handleSingleAxisShiftRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int);
 
 private:
-    BigPlotStatus bps;
+    BigPlot::BigPlotStatus bps;
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
