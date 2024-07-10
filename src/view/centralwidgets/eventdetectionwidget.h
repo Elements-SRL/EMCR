@@ -34,7 +34,12 @@ public:
     void setCutoffFrequency(double maxCutoffFrequency);
     void setCurrentRange(RangedMeasurement cr);
 
+    std::string getFileName();
+    std::string getFilePath();
+
 private:
+    QLineEdit* recordPathLineEdit;
+    QLineEdit* fileNameLineEdit;
     // Widgets for different parts of the layout
     QwtPlotBarChart* upperLeftHistogram;
     QwtPlotBarChart* bottomRightHistogram;

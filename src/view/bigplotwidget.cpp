@@ -21,11 +21,11 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     auto eventDetectionLayout = new QVBoxLayout();
     eventDetectionTab = new QWidget();
     eventDetectionTab->setLayout(eventDetectionLayout);
-#ifdef DEBUG
+//#ifdef DEBUG
     addTab(eventDetectionTab, "Event Detection");
-#else
-    eventDetectionTab->setVisible(false);
-#endif
+//#else
+//    eventDetectionTab->setVisible(false);
+//#endif
 
     // Create the fourth tab
     auto spectrumLayout = new QVBoxLayout();

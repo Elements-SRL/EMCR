@@ -2,6 +2,15 @@
 #include <QVBoxLayout>
 #include <qwt_scale_engine.h>
 #include <QLabel>
+#include <QBoxLayout>
+#include <QGroupBox>
+#include <QSettings>
+#include <QDir>
+#include <QFileDialog>
+#include <QDesktopServices>
+#include <QMessageBox>
+#include <QLineEdit>
+#include "globaldefines.h"
 
 EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, QWidget* parent)
     : QWidget(parent)
@@ -115,6 +124,73 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     upperRightLayout->addWidget(inputsWidget);
     gridLayout->addWidget(upperRightWidget, 0, 1);
 
+    //Maybe manage the change of path and name sanding signals and creating new events files
+    auto recordingGb = new QGroupBox(QString::fromStdString("Events Recording"));
+    auto recordingVBoxLayout = new QVBoxLayout();
+    auto qhBoxLayout = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(qhBoxLayout);
+
+    fileNameLineEdit = new QLineEdit();
+    recordPathLineEdit = new QLineEdit();
+    QSettings settings;
+    recordPathLineEdit->setText(settings.value(GLB_EVENT_DETECTION_RECORD_PATH_TAG, EVENT_DETECTION_DEFAULT_RECORD_PATH).toString());
+    fileNameLineEdit->setText(settings.value(GLB_EVENT_DETECTION_RECORD_NAME_TAG, EVENT_DETECTION_DEFAULT_RECORD_NAME).toString());
+
+    recordingGb->setLayout(recordingVBoxLayout);
+
+    auto hboxRecordingPath = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(hboxRecordingPath);
+
+    auto hboxBrowseFile = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(hboxBrowseFile);
+
+    auto hboxFileName = new QHBoxLayout();
+    recordingVBoxLayout->addLayout(hboxFileName);
+
+    hboxRecordingPath->addWidget(new QLabel("Recording path:"), 0, 0);
+    recordPathLineEdit->setReadOnly(true);
+    hboxRecordingPath->addWidget(recordPathLineEdit);
+
+    QDir directory(recordPathLineEdit->text());
+    if (!directory.exists()) {
+        // Create the directory
+        if (directory.mkpath(".")) {
+        }
+    }
+    auto browseBtn = new QPushButton("Change recordings directory");
+    connect(browseBtn, &QPushButton::clicked, [=]() {
+        // Open a directory selection dialog
+        QString directoryPath = QFileDialog::getExistingDirectory(this,
+        "Select Directory",
+        directory.absolutePath(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    // Check if the user selected a directory
+    if (!directoryPath.isEmpty()) {
+        auto recordingsDirectoryPath = directoryPath + "/";
+        recordPathLineEdit->setText(recordingsDirectoryPath);
+        //TODO MODIFY THIS BEHAVIOUR
+        //emitFilePath();
+    }
+        });
+    auto goToDirBtn = new QPushButton("Go to folder");
+    connect(goToDirBtn, &QPushButton::clicked, [=]() {
+        // Open a directory selection dialog
+        QUrl folderUrl = QUrl::fromLocalFile(recordPathLineEdit->text());
+        QDir folderDir(recordPathLineEdit->text());
+        if (folderDir.exists()) {
+            QDesktopServices::openUrl(folderUrl);
+        }
+        else {
+            QMessageBox::information(nullptr, "Warning", "This Path seems to be incorrect.");
+        }
+        });
+    hboxBrowseFile->addWidget(browseBtn);
+    hboxBrowseFile->addWidget(goToDirBtn);
+
+    hboxFileName->addWidget(new QLabel("File name:"), 0, 0);
+    hboxFileName->addWidget(fileNameLineEdit);
+
+    statsLayout->addWidget(recordingGb);
     // Bottom part
     gridLayout->addWidget(bottomLeftPlot, 1, 0);
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
@@ -211,4 +287,12 @@ void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
     maxAmplitude->setMaximum(cr.max);
     bottomLeftPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
     bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
+}
+
+std::string EventDetectionWidget::getFileName() {
+    return fileNameLineEdit->text().toStdString();
+}
+
+std::string EventDetectionWidget::getFilePath() {
+    return QDir::toNativeSeparators(recordPathLineEdit->text()).toStdString();
 }

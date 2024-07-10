@@ -2,7 +2,7 @@
 #include "eventdetectionwidget.h"
 #include <QVector>
 #include <iomanip>
-
+#define STR "ciccia.h5"
 using namespace H5;
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
@@ -137,7 +137,7 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
     }
 }
 
-std::tuple<H5::DataSet, H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus) {
+std::tuple<H5::DataSet, H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus, std::string filename) {
     auto now = std::chrono::system_clock::now();
     // Convert to time_t which represents the time in seconds since epoch
     std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
@@ -148,9 +148,9 @@ std::tuple<H5::DataSet, H5::DataSet, H5::Group> createFile(ApplicationStatus* ap
     oss << std::put_time(localTime, "_%H_%M_%S");
     // Get the string from the string stream
     std::string timeStr = oss.str();
-    std::string filename = "Events" + timeStr + ".h5";
+    filename += timeStr + ".h5";
     try {
-        //Exception::dontPrint();
+        Exception::dontPrint();
         //Create the data space with unlimited dimensions.
         hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
@@ -164,6 +164,7 @@ std::tuple<H5::DataSet, H5::DataSet, H5::Group> createFile(ApplicationStatus* ap
         H5::Group chGroup = file.createGroup("/ch_0");
         H5::Group baselineGroup = chGroup.createGroup("Baseline");
         H5::Group eventsGroup = chGroup.createGroup("Events");
+        //TODO this could be a user parameter
         Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
         const auto iBaselineDataset = createBaseline(baselineGroup, "I", appStatus->getCurrentRange(), baselineSr);
         const auto vBaselineDataset = createBaseline(baselineGroup, "V", appStatus->getVoltageRange(), baselineSr);
@@ -362,6 +363,7 @@ void EventDetectionController::onReplot() {
 }
 
 //todo Check clamping modality too
+//todo reset stats and reinit file
 void EventDetectionController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     //QwtPlot::Axis axisIdx;
     //if (newRange.unit == "s") {
@@ -484,7 +486,10 @@ PlotConsumer* EventDetectionController::getConsumer() {
 }
 
 void EventDetectionController::initHDF5() {
-    const auto baselineAndEvents = createFile(appStatus);
+    const auto filepath = widget->getFilePath();
+    std::string filepathEndingInBackslash = (filepath.back() == '\\') ? filepath : filepath + '\\';
+    std::string filename = filepathEndingInBackslash + widget->getFileName();
+    const auto baselineAndEvents = createFile(appStatus, filename);
     iBaselineDataset= std::get<0>(baselineAndEvents);
     vBaselineDataset= std::get<1>(baselineAndEvents);
     eventsGroup = std::get<2>(baselineAndEvents);

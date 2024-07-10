@@ -22,8 +22,8 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     bps = BigPlot::GapFree;
     controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
-#ifdef DEBUG
     controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
+#ifdef DEBUG
     controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, this, mainWindow));
 #endif
     controllers[bps]->start();

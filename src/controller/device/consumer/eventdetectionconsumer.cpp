@@ -1,7 +1,6 @@
 #include "eventdetectionconsumer.h"
 #include <QTime>
 #include <iostream>
-#include <QDebug>
 
 EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_, double highCutoffFrequency_, double defaultStdMultiplier_):
     PlotConsumer(appStatus, producer), minEventSamples(minEventSamples_), maxEventSamples(maxEventSamples_), highCutoffFrequency(highCutoffFrequency_) , stdMultiplier(defaultStdMultiplier_){
