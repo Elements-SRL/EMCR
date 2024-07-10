@@ -229,6 +229,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         uint32_t durationInSamples = sr.getNoPrefixValue() * value;
         delete durationBinner;
         durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        amplitudeBinner->clear();
         totalEvents = 0;
         durationAccumulator = 0;
         amplitudeAccumulator = 0;
@@ -247,6 +248,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         uint32_t durationInSamples = sr.getNoPrefixValue() * value;
         delete durationBinner;
         durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        amplitudeBinner->clear();
         totalEvents = 0;
         durationAccumulator = 0;
         amplitudeAccumulator = 0;
