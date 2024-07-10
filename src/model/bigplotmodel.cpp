@@ -1,4 +1,5 @@
 #include "bigplotmodel.h"
+#include <cmath> 
 
 BigPlotModel::BigPlotModel(){
     for (int i = 0; i<QwtPlot::Axis::axisCnt; i++){
@@ -68,10 +69,13 @@ void BigPlotModel::setCurrentRange(QwtPlot::Axis axisIdx, RangedMeasurement newR
 }
 
 void BigPlotModel::setCurrentRangeLog(QwtPlot::Axis axisIdx, RangedMeasurement newRange){
+    auto newMax = newRange.max;
+    auto newMin = newMax / 1.0e15;
     if (!isRangeInitialized(axisIdx)) {
-        currentRange[axisIdx] = newRange;
+        RangedMeasurement rm = RangedMeasurement{ newMin, newMax, newRange.step, newRange.prefix, newRange.unit };
+        currentRange[axisIdx] = rm;
         rangeInitialized[axisIdx] = true;
-        setCurrentZoom(axisIdx, newRange.max/1.0e15, newRange.max);
+        setCurrentZoom(axisIdx, newMin, newMax);
         yScale = getCurrentZoomInterval(axisIdx).width();
         return;
     }
@@ -81,8 +85,8 @@ void BigPlotModel::setCurrentRangeLog(QwtPlot::Axis axisIdx, RangedMeasurement n
     currentRange[axisIdx].max = 1.0;
     currentRange[axisIdx].convertValues(newRange.prefix);
     double coeff = currentRange[axisIdx].max;
-    currentRange[axisIdx].max = newRange.max;
-    currentRange[axisIdx].min = 0.0;
+    currentRange[axisIdx].max = newMax;
+    currentRange[axisIdx].min = newMin;
     auto interval = getCurrentZoomInterval(axisIdx);
     setCurrentZoom(axisIdx, coeff*interval.minValue(), coeff*interval.maxValue());
     yScale = coeff*interval.width();
@@ -109,20 +113,26 @@ void BigPlotModel::updateCurrentZoom(Rect4 r){
     currentZoom = r;
 }
 
-Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, int zoomInFactor, QPointF mousePosition){
+Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, int zoomInFactor, QPointF mousePosition, BigPlot::BigPlotStatus bps){
     auto currentZoom = getZoom(Current);
     const auto interval = currentZoom[ax];
-    const auto min = interval.minValue();
-    const auto max = interval.maxValue();
+    //if we are using the spectrum we have a logaritmic scale
+    const auto min = (bps == BigPlot::BigPlotStatus::Spectrum) ? log10(interval.minValue()) : interval.minValue();
+    const auto max = (bps == BigPlot::BigPlotStatus::Spectrum) ? log10(interval.maxValue()) : interval.maxValue();
     const auto zoom = (double) zoomInFactor / 100;
     const auto divisor = (zoom > 0 ? zoom: -1 / zoom);
     auto newMin = min / divisor;
     auto newMax = max / divisor;
     if (ax == QwtPlot::Axis::yLeft || ax == QwtPlot::Axis::yRight){
 //        zoom only around the cursor
-        const auto y = mousePosition.y();
+        const auto y = (bps == BigPlot::BigPlotStatus::Spectrum) ? log10(mousePosition.y()) : mousePosition.y();
         newMin = y - ((y - min) / divisor);
         newMax = y + ((max - y) / divisor);
+    }
+    //come back to the linear domain
+    if (bps == BigPlot::BigPlotStatus::Spectrum) {
+        newMin = pow(10, newMin);
+        newMax = pow(10, newMax);
     }
     currentZoom[ax].setInterval(newMin, newMax);
     return currentZoom;

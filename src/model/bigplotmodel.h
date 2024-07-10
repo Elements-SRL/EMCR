@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QRectF>
+#include "bigplot.h"
 #include "messagedispatcher.h"
 #include "rect4.h"
 
@@ -43,7 +44,7 @@ public:
     Rect4 getZoom(Zoom);
     QwtInterval getCurrentZoomInterval(QwtPlot::Axis);
     void updateCurrentZoom(Rect4);
-    Rect4 zoomOnSingleAxis(QwtPlot::Axis, int, QPointF);
+    Rect4 zoomOnSingleAxis(QwtPlot::Axis, int, QPointF, BigPlot::BigPlotStatus);
     Rect4 shiftOnSingleAxis(QwtPlot::Axis, int);
     Rect4 initRect(double minX, double maxX, double miny, double maxY);
 };
