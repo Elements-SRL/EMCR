@@ -70,6 +70,7 @@ SOURCES += \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
     src/model/statearray.cpp \
+    src/model/binner.cpp \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/bigplotwidget.cpp \
@@ -88,6 +89,7 @@ SOURCES += \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
     src/view/channeloverviewwidget.cpp \
+    src/view/baseplot.cpp \
     src/view/bigplot.cpp \
     src/view/curve.cpp \
     src/view/measurementsoverviewdockwidget.cpp \
@@ -177,10 +179,15 @@ HEADERS += \
     src/model/statearray.h \
     src/model/statisticsresult.h \
     src/model/statisticsresultwrapper.h \
+    src/model/binner.h \
     src/model/filters/filter.h \
     src/model/filters/firstorderiirfilter.h \
     src/model/events/event.h \
     src/model/events/eventdetector.h \
+    src/model/events/baseline.h \
+    src/model/events/eventinfo.h \
+    src/model/events/eventpacket.h \
+    src/model/events/eventsandbaseline.h \
     src/view/bigplotwidget.h \
     src/view/spectrumwidget.h \
     src/view/chessboarddockwidget.h \
@@ -198,6 +205,7 @@ HEADERS += \
     src/view/elementslogowidget.h \
     src/view/channeloverviewwidget.h \
     src/view/bigplot.h \
+    src/view/baseplot.h \
     src/view/curve.h \
     src/view/measurementsoverviewdockwidget.h \
     src/view/multiplechannelcontroldockwidget.h \
@@ -273,6 +281,7 @@ ICON = imgs/Elements.ico.icns
 include($$(E384COMMLIB_PATH)includecommlib.pri)
 include($$(QWT_PATH)includeqwt.pri)
 include($$(PROTOCOL_SERIALIZER_PATH)includeprotocolserializer.pri)
+include($$(HDF5_PATH)includehdf5.pri)
 include($$(FFTW_3_3_PATH)includefftw3.3.pri)
 
 RESOURCES += \

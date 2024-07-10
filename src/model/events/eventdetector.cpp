@@ -1,26 +1,46 @@
 #include "eventdetector.h"
 #include <cmath>
 #include <iostream>
+#include <cstdint>
 
-EventDetector::EventDetector(int sizeHint) {
-    high = new FirstOrderIirFilter(40.0e6, 500.0e3);
-    low = new FirstOrderIirFilter(40.0e6, 100.0);
-    if (sizeHint != -1) {
-        events.reserve(sizeHint);
+EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_) {
+    const auto lowCutoffFrequency = 100.0;
+    this->minEventLen = minEventLen;
+    this->maxEventLen = maxEventLen;
+    this->highCutoffFrequency = highCutoffFrequency;
+    this->stdMultiplier = stdMultiplier_;
+    high = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), highCutoffFrequency);
+    low = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), lowCutoffFrequency);
+    baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
+    baselineSamplingRateCounter = 0;
+
+    const auto finalPadding = maxEventLen * EVENT_PADDING;
+    remainingIntBuffer.resize(finalPadding);
+    remainingDoubleBuffer.resize(finalPadding);
+    remainingVoltages.resize(finalPadding);
+}
+
+EventPacket EventDetector::consumeEventsAndBaseline() {
+    uint32_t numberOfEvents = eventsInfo.size();
+    const auto eventPeakBeginFactor = ((double)EVENT_PADDING / (double)((EVENT_PADDING * 2) + 1));
+    for (auto& ei : eventsInfo) {
+        const auto realEventIdx = (uint64_t)((double) ei.event.eventIdx + (double) ei.event.rawData.size() * eventPeakBeginFactor);
+        estimatedInterEventTime = estimatedInterEventTime * 0.9 + 0.1 * ( realEventIdx - prevEventStartIdx);
+        prevEventStartIdx = ei.event.eventIdx;
     }
-}
-
-void EventDetector::pushEvent(Event event) {
-    events.push_back(event);
-}
-
-std::vector<Event> EventDetector::getEvents() {
-    return events;
+    const auto bi = Baseline(currentRange.step, baseline, currentRange.unit);
+    const auto bv = Baseline(voltageRange.step, baselineStimulus, voltageRange.unit);
+    double eventPerSecond = 1.0 / estimatedInterEventTime * samplingRate.getNoPrefixValue();
+    eventPerSecond = std::isnan(eventPerSecond) ? 0.0 : eventPerSecond;
+    const EventPacket ep = EventPacket(eventsInfo, bi, bv, eventPerSecond);
+    eventsInfo.clear();
+    baseline.clear();
+    return ep;
 }
 
 double EventDetector::calculateThreshold(const std::vector<double>& data) {
     const auto stdDev = calcStdDev(data);
-    return stdDev != -1 ? EVENT_TH * stdDev : stdDev;
+    return stdDev != -1 ? stdMultiplier * stdDev : stdDev;
 }
 
 double EventDetector::calcStdDev(const std::vector<double>& data) {
@@ -53,20 +73,19 @@ double EventDetector::calcStdDev(const std::vector<double>& data) {
     return std::sqrt(variance);
 }
 
-std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, uint32_t idx, uint32_t clipValue) {
-    //TODO, For now just reinit everything
-    if (idx == 0) {
-        threshold = calculateThreshold(bandPassFilterData);
-        //now that we have an updated value throw away the old ones
-        bandPassFilterData.clear();
-        eventAlreadyBegun = false;
-        eventLen = 0;
-        eventBeginIdx = 0;
-    }
+std::optional<PartialEvent> EventDetector::analyze(double currentValue, double voltage, uint32_t idx, uint32_t clipValue) {
     //begin event analysis
-    const auto baseline = low->sfilt(currentValue);
-    const auto s_no_baseline = currentValue - baseline;
+    const auto lowParams = low->getParams();
+    const auto singleBaseline = low->sfilt(currentValue);
+    const auto s_no_baseline = currentValue - singleBaseline;
     const auto re_filtered = high->sfilt(s_no_baseline);
+    const auto currentBaseline = singleBaseline / currentRange.step;
+
+    if (++baselineSamplingRateCounter >= baselineSamplingRate) {
+        baseline.push_back(currentBaseline);
+        baselineStimulus.push_back(voltage);
+        baselineSamplingRateCounter = 0;
+    }
 
     // threshold is not initialized yet
     if (threshold == -1) {
@@ -83,6 +102,7 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
     }
     if (isEvent && eventAlreadyBegun) {
         eventLen++;
+        low->init(lowParams.second);
         return std::nullopt;
     }
     bandPassFilterData.push_back(re_filtered);
@@ -90,23 +110,137 @@ std::optional<std::pair<int, int>> EventDetector::analyze(double currentValue, u
         return std::nullopt;
     }
     //event already begun
-    if (eventLen >= MAX_LEN) {
+    if (eventLen >= maxEventLen) {
         low->init(currentValue);
         eventAlreadyBegun = false;
         return std::nullopt;
     }
-    if (eventLen > MIN_LEN) {
+    if (eventLen > minEventLen) {
         const auto e0 = eventBeginIdx - (EVENT_PADDING * eventLen);
         const auto e1 = eventBeginIdx + eventLen + (EVENT_PADDING * eventLen);
         eventAlreadyBegun = false;
+        const PartialEvent res = { (e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1, eventLen, currentBaseline };
         eventLen = 0;
-        return std::make_pair((e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1);
+        return res;
     }
     eventAlreadyBegun = false;
     eventLen = 0;
 }
 
+void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate) {
+    //TODO, if sampling rate changes rebuild the filters
+    //managing remaining stuff from older chunk
+    chunkSize += remainingChunkSize;
+    intBuffer.insert(intBuffer.begin(), remainingIntBuffer.begin(), remainingIntBuffer.end());
+    doubleBuffer.insert(doubleBuffer.begin(), remainingDoubleBuffer.begin(), remainingDoubleBuffer.end());
+    voltages.insert(voltages.begin(), remainingVoltages.begin(), remainingVoltages.end());
+
+    this->chunkSize = chunkSize;
+    const auto oldTh = threshold;
+    threshold = calculateThreshold(bandPassFilterData);
+    this->currentRange = currentRange;
+    this->voltageRange = voltageRange;
+    this->samplingRate = samplingRate;
+    //now that we have an updated value throw away the old ones
+    bandPassFilterData.clear();
+    eventAlreadyBegun = false;
+    eventLen = 0;
+    eventBeginIdx = 0;
+    if (oldTh == -1 && doubleBuffer.size() > 0) {
+        low->init(doubleBuffer[0]);
+        high->init(doubleBuffer[0]);
+    }
+
+    const auto finalPadding = maxEventLen * EVENT_PADDING;
+    //received chunk smaller than evnet * padding
+    if (chunkSize < finalPadding) {
+        remainingChunkSize = chunkSize;
+        std::copy(intBuffer.begin(), intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
+        std::copy(doubleBuffer.begin(), doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
+        std::copy(voltages.begin(), voltages.begin() + chunkSize, remainingVoltages.begin());
+        return;
+    }
+    const auto earlyStop = chunkSize - finalPadding;
+    for (uint32_t idx = 0; idx < earlyStop; idx++) {
+        const auto currentValue = doubleBuffer[idx];
+        const auto voltage = voltages[idx];
+        const auto optEvent = analyze(currentValue, voltage, idx, chunkSize);
+        if (optEvent.has_value()) {
+            const auto& event = optEvent.value();
+            processEvent(event, intBuffer, voltages[idx], chunkSize);
+        }
+    }
+    //Try to stop early
+    if (eventAlreadyBegun) {
+        //if an event is being process continue unitl it has been processed
+        uint32_t idx = earlyStop;
+        while (idx < chunkSize) {
+            const auto currentValue = doubleBuffer[idx];
+            const auto voltage = voltages[idx];
+            const auto optEvent = analyze(currentValue, voltage, idx, chunkSize);
+            if (optEvent.has_value()) {
+                const auto& event = optEvent.value();
+                processEvent(event, intBuffer, voltages[idx], chunkSize);
+                break;
+            }
+            idx++;
+        }
+        timeCount += idx;
+        remainingChunkSize = chunkSize - idx;
+        std::copy(intBuffer.begin() + idx, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
+        std::copy(doubleBuffer.begin() + idx, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
+        std::copy(voltages.begin() + idx, voltages.begin() + chunkSize, remainingVoltages.begin());
+    } else {
+        timeCount += earlyStop;
+        remainingChunkSize = finalPadding;
+        std::copy(intBuffer.begin() + earlyStop, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
+        std::copy(doubleBuffer.begin() + earlyStop, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
+        std::copy(voltages.begin() + earlyStop, voltages.begin() + chunkSize, remainingVoltages.begin());
+    }
+}
+
+void EventDetector::processEvent(const PartialEvent partialEvent, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
+    const auto eventBegin = partialEvent.eventBegin;
+    const auto eventEnd = partialEvent.eventEnd;
+    const auto realLen = partialEvent.realLen;
+    const auto baseline = partialEvent.baseline;
+    const uint32_t eventLen = eventEnd - eventBegin;
+    if (eventEnd >= chunkSize || eventBegin > eventEnd) {
+        return;
+    }
+    int16_t min = INT16_MAX;
+    int16_t max = INT16_MIN;
+    std::vector<int16_t> eventBuffer(eventLen);
+    for (uint32_t i = 0; i < eventLen; i++) {
+        const auto v = intBuffer[i + eventBegin] - baseline;
+        eventBuffer[i] = v;
+        if (v < min) { min = v; };
+        if (v > max) { max = v; };
+    }
+    const Event e = Event(timeCount + eventBegin, eventBuffer, voltage, voltageRange.getFullUnit(), currentRange.step, currentRange.getFullUnit(), samplingRate.getNoPrefixValue(), samplingRate.unit, currentRange.multiplier(), voltageRange.multiplier());
+    const EventInfo ei = EventInfo(((double)std::abs(max - min)) * currentRange.step, ((double) realLen) / samplingRate.getNoPrefixValue(), e);
+    eventsInfo.push_back(ei);
+}
 
 void EventDetector::clear() {
-    events.clear();
+    eventsInfo.clear();
+}
+
+void EventDetector::setMinEventDurationInSamples(uint32_t minDuration) {
+    minEventLen = minDuration;
+}
+
+void EventDetector::setMaxEventDurationInSamples(uint32_t maxDuration) {
+    maxEventLen = maxDuration;
+}
+
+void EventDetector::setHighCutoffFrquency(double cf) {
+    highCutoffFrequency = cf;
+    delete high;
+    //TODO, think this better
+    high = new FirstOrderIirFilter(samplingRate.value, highCutoffFrequency);
+}
+
+void EventDetector::setStdMultiplier(double newValue) {
+    stdMultiplier = newValue;
 }

@@ -8,6 +8,13 @@
 #include "eventdetectionconsumer.h"
 #include "centralwidgetcontroller.h"
 #include "eventdetectionwidget.h"
+#include "H5Cpp.h"
+#include "eventpacket.h"
+#include "binner.h"
+
+constexpr int RANK = 1;
+constexpr int CHUNK_SIZE = 10000;
+constexpr double STD_MULTIPLIER = 3.0;
 
 class EventDetectionController : public CentralWidgetController {
     Q_OBJECT
@@ -22,12 +29,37 @@ public:
 
 private:
     EventDetectionConsumer* consumer = nullptr;
-    std::map<uint32_t, std::vector<Event>> events;
-    std::map<uint32_t, std::vector<QwtPlotCurve*>> eventCurves;
+    std::map<uint32_t, EventPacket> eventPackets;
+    std::map<uint32_t, Curve*> eventCurves;
     EventDetectionMessage message;
     EventDetectionWidget* widget = nullptr;
     void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
     void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
+    uint64_t eventCounter = 0;
+    H5::Group eventsGroup;
+
+    uint32_t totalEvents = 0;
+    uint32_t eventsPerSec = 0;
+    
+    double durationAccumulator = 0;
+    double amplitudeAccumulator = 0;
+
+    Binner * durationBinner;
+    Binner* amplitudeBinner;
+
+    double minDurationInSeconds;
+    double maxDurationInSeconds;
+    uint32_t durationBins = 200;
+
+    double minAmplitude = 0.0;
+    double maxAmplitude;
+    uint32_t amplitudeBins = 200;
+    /// <summary>
+    /// HDF5 staff to manage baseline dataset
+    /// </summary>
+    H5::DataSet iBaselineDataset;
+    H5::DataSet vBaselineDataset;
+    void initHDF5();
 
 signals:
     void durationChanged(Measurement_t duration);

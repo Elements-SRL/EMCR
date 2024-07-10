@@ -16,34 +16,44 @@ class EventDetectionConsumer : public PlotConsumer
 {
     Q_OBJECT
 public:
-    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer);
+    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_, double highCutoffFrequency, double defaultStdMultiplier);
     ~EventDetectionConsumer();
     void forceAxisUpdate() override;
+
+    void setMinEventDurationInSamples(uint32_t);
+    void setMaxEventDurationInSamples(uint32_t);
+    void setHighCutoffFrequency(double newValue);
+    void setStdMultiplier(double newValue);
 
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
     void onSamplingRateChanged(Measurement_t samplingRate) override;
 
 private:
-
+    double highCutoffFrequency;
     double threshold = -1;
-    int nBins;
     int subSamplingRatio = 1;
     double binSize;
-    std::vector<double> buffer;
-    std::vector<std::vector<double>> currentValues;
-    std::vector<double*> voltageData;
+    double stdMultiplier;
+    std::vector<double> doubleBuffer;
+
+    //this is used to pass data to the event saver
+    std::vector<int16_t> intBuffer;
+    std::vector<int16_t> baseline;
+    std::vector<std::vector<int16_t>> currentValuesInt;
+    std::vector<std::vector<double>> currentValuesDouble;
+    std::vector<std::vector<double>> voltageValues;
+
     std::vector<int> dataSize;
     QMutex voltageAxisMtx;
     QMutex currentAxisMtx;
-    int scaleToBins(double value);
-    std::vector<double> voltageBins;
-    std::vector<int> officialDataSize;
-    void calculateBinSize();
-    
+    uint32_t minEventSamples;
+    uint32_t maxEventSamples;
+
     //Event stuff
     std::vector<EventDetector *> eventDetectionChannels;
-    void processEvent(std::pair<int, int> evtBegingEnd, uint32_t chIdx, std::vector<double>& eventBuffer);
+    uint64_t timeCounter = 0;
+
 protected:
     void clearData() override;
     void run() override;

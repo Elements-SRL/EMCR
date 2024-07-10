@@ -40,3 +40,7 @@ void FirstOrderIirFilter::update(double x_prev_val, double y_prev_val) {
 void FirstOrderIirFilter::init(double initial_status) {
     update(initial_status, initial_status);
 }
+
+std::pair<double, double> FirstOrderIirFilter::getParams() {
+    return std::make_pair(x_prev, y_prev);
+}

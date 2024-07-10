@@ -22,5 +22,7 @@ public:
     double sfilt(const double& x);
 
     void init(double initial_status) override;
+
+    std::pair<double, double> getParams();
 };
 #endif // FIRSTORDERIIRFILTER_H

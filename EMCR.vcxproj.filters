@@ -319,7 +319,13 @@
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\binner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\baseplot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp">
@@ -651,6 +657,9 @@
     <QtMoc Include="src\controller\device\consumer\spectrumconsumer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\view\baseplot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -892,5 +901,19 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\EMCR_resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\model\events\baseline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\events\enventinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\events\eventpacket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\binner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

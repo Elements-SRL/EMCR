@@ -6,9 +6,11 @@
 #include <tuple>
 #include <map>
 
+#include "eventpacket.h"
+#include "baseline.h"
+
 #include <QVector>
 
-#include "event.h"
 
 struct IvMessage{
     std::vector <double *> voltageValues;
@@ -24,7 +26,7 @@ struct GapFreeMessage{
 };
 
 struct EventDetectionMessage {
-    std::map <uint32_t, std::vector <Event>> events;
+    std::map <uint32_t, EventPacket> eventPackets;
 };
 
 struct SpectrumMessage {
