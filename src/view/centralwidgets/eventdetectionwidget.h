@@ -22,7 +22,7 @@ class EventDetectionWidget : public QWidget
     Q_OBJECT
 
 public:
-    EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, QWidget* parent = nullptr);
+    EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent = nullptr);
     ~EventDetectionWidget();
 
     BasePlot* getPlot();
@@ -68,6 +68,8 @@ private:
     std::string amplitudeUom;
     QDir* directory;
     QComboBox* comboBox;
+
+    EventsDirection eventsDirection;
 
     void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);

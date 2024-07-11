@@ -11,9 +11,10 @@
 #include <QLineEdit>
 #include "globaldefines.h"
 
-EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, QWidget* parent)
+EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent)
     : QWidget(parent)
 {
+    eventsDirection = ed;
     // Initialize QLabel widgets for displaying information
     numberOfEventsLabel = new QLabel("Number of Events: ");
     avgLenLabel = new QLabel("Average Duration: ");
@@ -30,7 +31,19 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     // Bottom Right Histogram
     bottomRightHistogram = new QwtPlotBarChart("Amplitudes Histogram");
     bottomRightPlot = new BasePlot("Amplitue Histogram", "count", "A", this);
-    bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
+    switch (eventsDirection)
+    {
+    case DOWN:
+        bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
+        break;
+    case UP:
+        break;
+    case BOTH:
+        //NOT IMPLEMENTED YET
+        break;
+    default:
+        break;
+    }
 
     // Customize the Y-axis scale draw to invert labels
 
@@ -324,5 +337,19 @@ void EventDetectionWidget::emitFileName() {
 
 void EventDetectionWidget::onComboBoxIndexChanged(int index){
     EventsDirection direction = static_cast<EventsDirection>(index);
+    switch (eventsDirection)
+    {
+    case DOWN:
+        bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
+        break;
+    case UP:
+        bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, false);
+        break;
+    case BOTH:
+        //NOT IMPLEMENTED YET
+        break;
+    default:
+        break;
+    }
     emit sigEventDirectionChanged(direction);
 }
