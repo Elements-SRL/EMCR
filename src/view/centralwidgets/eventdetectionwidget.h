@@ -9,6 +9,8 @@
 #include "e384commlib_global_addendum.h"
 #include "baseplot.h"
 #include <QDir>
+#include <QComboBox>
+#include "eventsdirection.h"
 
 using namespace e384CommLib;
 
@@ -65,6 +67,7 @@ private:
     QDoubleSpinBox* stdMultiplierSpinbox;
     std::string amplitudeUom;
     QDir* directory;
+    QComboBox* comboBox;
 
     void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
@@ -83,6 +86,10 @@ signals:
     void stdMultiplierChanged(double);
     void sigFileNameChanged();
     void sigRecordPathChanged();
+    void sigEventDirectionChanged(EventsDirection);
+
+private slots:
+    void onComboBoxIndexChanged(int index);
 };
 
 #endif // EVENTDETECTIONWIDGET_H

@@ -8,6 +8,7 @@
 #include "plotmessage.h"
 #include "firstorderiirfilter.h"
 #include "eventdetector.h"
+#include "eventsdirection.h"
 
 #define EDC_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 constexpr double MINIMUM_DATA_FOR_ANALYSIS = 0.1; //0.1s
@@ -16,7 +17,7 @@ class EventDetectionConsumer : public PlotConsumer
 {
     Q_OBJECT
 public:
-    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_, double highCutoffFrequency, double maxAmplitude, double defaultStdMultiplier);
+    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_, double highCutoffFrequency, double maxAmplitude, double defaultStdMultiplier, EventsDirection eventsDirection);
     ~EventDetectionConsumer();
     void forceAxisUpdate() override;
 
@@ -25,6 +26,7 @@ public:
     void setHighCutoffFrequency(double newValue);
     void setStdMultiplier(double newValue);
     void setMaxAmplitude(double maxAmplitude);
+    void setEventsDirection(EventsDirection ed);
 
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
@@ -38,6 +40,7 @@ private:
     double stdMultiplier;
     std::vector<double> doubleBuffer;
     double maxAmplitude;
+    EventsDirection eventsDirection;
 
     //this is used to pass data to the event saver
     std::vector<int16_t> intBuffer;

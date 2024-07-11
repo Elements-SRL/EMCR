@@ -11,6 +11,7 @@
 #include "H5Cpp.h"
 #include "eventpacket.h"
 #include "binner.h"
+#include "eventsdirection.h"
 
 constexpr int RANK = 1;
 constexpr int CHUNK_SIZE = 10000;
@@ -36,6 +37,7 @@ private:
     void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
     void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
     uint64_t eventCounter = 0;
+    EventsDirection eventsDirection;
 
     uint32_t totalEvents = 0;
     uint32_t eventsPerSec = 0;

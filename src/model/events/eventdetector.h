@@ -9,6 +9,7 @@
 #include "plotmessage.h"
 #include "messagedispatcher.h"
 #include <tuple>
+#include "eventsdirection.h"
 
 constexpr uint32_t EVENT_PADDING = 3;
 
@@ -21,7 +22,7 @@ struct PartialEvent {
 
 class EventDetector {
 public:
-    EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_, double maxAmplitude);
+    EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_, double maxAmplitude, EventsDirection eventsDirection);
 
     EventPacket consumeEventsAndBaseline();
 
@@ -33,6 +34,7 @@ public:
     void setHighCutoffFrquency(double);
     void setStdMultiplier(double newValue);
     void setMaxAmplitude(double);
+    void setEventsDirection(EventsDirection ed);
     double getMaxAmplitude();
 
 private:
@@ -47,6 +49,8 @@ private:
 
     double highCutoffFrequency;
     double stdMultiplier;
+    EventsDirection eventsDirection;
+
     RangedMeasurement currentRange;
     RangedMeasurement voltageRange;
     Measurement samplingRate;

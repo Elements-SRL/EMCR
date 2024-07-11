@@ -3,13 +3,14 @@
 #include <iostream>
 #include <cstdint>
 
-EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_, double maxAmplitude) {
+EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_, double maxAmplitude, EventsDirection eventsDirection) {
     const auto lowCutoffFrequency = 100.0;
     this->minEventLen = minEventLen;
     this->maxEventLen = maxEventLen;
     this->highCutoffFrequency = highCutoffFrequency;
     this->stdMultiplier = stdMultiplier_;
     this->maxAmplitude = maxAmplitude;
+    this->eventsDirection = eventsDirection;
     high = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), highCutoffFrequency);
     low = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), lowCutoffFrequency);
     baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
@@ -257,4 +258,8 @@ double EventDetector::getMaxAmplitude() {
 
 void EventDetector::setMaxAmplitude(double maxAmplitude) {
     this->maxAmplitude = maxAmplitude;
+}
+
+void EventDetector::setEventsDirection(EventsDirection ed) {
+    this->eventsDirection = ed;
 }

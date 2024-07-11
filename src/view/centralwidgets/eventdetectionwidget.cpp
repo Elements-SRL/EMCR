@@ -116,6 +116,15 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     statsLayout->addWidget(totalNumberOfEventsLabel);
     statsLayout->addWidget(avgLenLabel);
     statsLayout->addWidget(avgAmplitudeLabel);
+
+    //Events direction combobox
+    comboBox = new QComboBox(this);
+    // Add items to the combo box
+    comboBox->addItem("Events go down");
+    comboBox->addItem("Events go up");
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxIndexChanged(int)));
+    statsLayout->addWidget(comboBox);
+
     statsLayout->addWidget(startButton);
     statsLayout->addWidget(stopButton);
 
@@ -311,4 +320,9 @@ void EventDetectionWidget::emitFileName() {
     auto filename = fileNameLineEdit->text();
     settings.setValue(GLB_EVENT_DETECTION_RECORD_NAME_TAG, filename);
     emit sigFileNameChanged();
+}
+
+void EventDetectionWidget::onComboBoxIndexChanged(int index){
+    EventsDirection direction = static_cast<EventsDirection>(index);
+    emit sigEventDirectionChanged(direction);
 }

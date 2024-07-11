@@ -200,7 +200,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
     amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
     const auto highCutoffFrequency = sr.getNoPrefixValue() / 4.0;
-    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER);
+    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER, eventsDirection);
     widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER);
     bpw->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
@@ -334,6 +334,18 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
+    connect(widget, &EventDetectionWidget::sigEventDirectionChanged, this, [=](EventsDirection ed) {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        eventsDirection = ed;
+        consumer->setEventsDirection(eventsDirection);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
+        });
+    
 }
 
 EventDetectionController::~EventDetectionController() {

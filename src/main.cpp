@@ -6,6 +6,7 @@
 #include "application_status.h"
 #include "plotmessage.h"
 #include "statisticsresultwrapper.h"
+#include "eventsdirection.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -20,6 +21,7 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType <ProtocolWidget *> ("ProtocolWidget *");
     qRegisterMetaType <PlotMessage>("PlotMessage");
     qRegisterMetaType <StatisticsResultWrapper>("StatisticsResultWrapper");
+    qRegisterMetaType <EventsDirection>("EventsDirection");
 
     QCoreApplication::setOrganizationName("Elements S.R.L.");
     QCoreApplication::setOrganizationDomain("elements-ic.com");

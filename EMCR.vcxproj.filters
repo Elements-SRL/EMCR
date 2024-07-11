@@ -915,5 +915,8 @@
     <ClInclude Include="src\model\binner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\model\events\eventsdirection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
