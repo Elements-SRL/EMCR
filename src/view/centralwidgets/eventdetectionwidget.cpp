@@ -5,7 +5,6 @@
 #include <QBoxLayout>
 #include <QGroupBox>
 #include <QSettings>
-#include <QDir>
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QMessageBox>
@@ -151,10 +150,10 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     recordPathLineEdit->setReadOnly(true);
     hboxRecordingPath->addWidget(recordPathLineEdit);
 
-    QDir directory(recordPathLineEdit->text());
-    if (!directory.exists()) {
+    directory = new QDir(recordPathLineEdit->text());
+    if (!directory->exists()) {
         // Create the directory
-        if (directory.mkpath(".")) {
+        if (directory->mkpath(".")) {
         }
     }
     auto browseBtn = new QPushButton("Change recordings directory");
@@ -162,14 +161,14 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
         // Open a directory selection dialog
         QString directoryPath = QFileDialog::getExistingDirectory(this,
         "Select Directory",
-        directory.absolutePath(),
+        directory->absolutePath(),
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     // Check if the user selected a directory
     if (!directoryPath.isEmpty()) {
         auto recordingsDirectoryPath = directoryPath + "/";
         recordPathLineEdit->setText(recordingsDirectoryPath);
-        //TODO MODIFY THIS BEHAVIOUR
-        //emitFilePath();
+        directory = new QDir(recordingsDirectoryPath);
+        emitFilePath();
     }
         });
     auto goToDirBtn = new QPushButton("Go to folder");
@@ -227,6 +226,9 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     connect(stdMultiplierSpinbox, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = stdMultiplierSpinbox->value();
         emit stdMultiplierChanged(value);
+        });
+    connect(fileNameLineEdit, &QLineEdit::editingFinished, this, [=]() {
+        emitFileName();
         });
 }
 
@@ -295,4 +297,18 @@ std::string EventDetectionWidget::getFileName() {
 
 std::string EventDetectionWidget::getFilePath() {
     return QDir::toNativeSeparators(recordPathLineEdit->text()).toStdString();
+}
+
+void EventDetectionWidget::emitFilePath() {
+    QSettings settings;
+    auto filePath = recordPathLineEdit->text();
+    settings.setValue(GLB_EVENT_DETECTION_RECORD_PATH_TAG, filePath);
+    emit sigRecordPathChanged();
+}
+
+void EventDetectionWidget::emitFileName() {
+    QSettings settings;
+    auto filename = fileNameLineEdit->text();
+    settings.setValue(GLB_EVENT_DETECTION_RECORD_NAME_TAG, filename);
+    emit sigFileNameChanged();
 }

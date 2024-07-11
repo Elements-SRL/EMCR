@@ -294,6 +294,46 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
+    connect(widget, &EventDetectionWidget::sigRecordPathChanged, this, [=]() {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        //file reinitialization
+        if (iBaselineDataset.has_value()) {
+            iBaselineDataset.value().close();
+        }
+        if (vBaselineDataset.has_value()) {
+            vBaselineDataset.value().close();
+        }
+        if (eventsGroup.has_value()) {
+            eventsGroup.value().close();
+        }
+        initHDF5();
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
+        });
+    connect(widget, &EventDetectionWidget::sigFileNameChanged, this, [=]() {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        //file reinitialization
+        if (iBaselineDataset.has_value()) {
+            iBaselineDataset.value().close();
+        }
+        if (vBaselineDataset.has_value()) {
+            vBaselineDataset.value().close();
+        }
+        if (eventsGroup.has_value()) {
+            eventsGroup.value().close();
+        }
+        initHDF5();
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
+        });
 }
 
 EventDetectionController::~EventDetectionController() {

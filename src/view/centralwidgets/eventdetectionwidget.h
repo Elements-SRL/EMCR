@@ -8,6 +8,7 @@
 #include <qpushbutton.h>
 #include "e384commlib_global_addendum.h"
 #include "baseplot.h"
+#include <QDir>
 
 using namespace e384CommLib;
 
@@ -63,8 +64,12 @@ private:
     QDoubleSpinBox* cutoffFrequencySpinbox;
     QDoubleSpinBox* stdMultiplierSpinbox;
     std::string amplitudeUom;
+    QDir* directory;
+
     void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
+    void emitFilePath();
+    void emitFileName();
 
 signals:
     void startPressed();
@@ -76,6 +81,8 @@ signals:
     void durationBinsChanged(int);
     void cutoffFrequencyChanged(double);
     void stdMultiplierChanged(double);
+    void sigFileNameChanged();
+    void sigRecordPathChanged();
 };
 
 #endif // EVENTDETECTIONWIDGET_H
