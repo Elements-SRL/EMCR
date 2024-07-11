@@ -345,7 +345,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    
 }
 
 EventDetectionController::~EventDetectionController() {

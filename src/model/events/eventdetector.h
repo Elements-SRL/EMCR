@@ -41,6 +41,7 @@ private:
     double threshold = -1;
     double calculateThreshold(const std::vector<double>& data);
     bool eventAlreadyBegun = false;
+    double thresholdMultiplier;
     uint32_t eventLen = 0;
     uint32_t eventBeginIdx = 0;
 

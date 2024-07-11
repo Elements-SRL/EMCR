@@ -95,8 +95,21 @@ std::optional<PartialEvent> EventDetector::analyze(double currentValue, double v
         return std::nullopt;
     }
 
-    // WARNING THERE IS A - BEFORE THRESHOLD, ONLY WORKS WITH EVENTS GOING DOWN
-    const auto isEvent = re_filtered < -threshold;
+    bool isEvent;
+    switch (eventsDirection)
+    {
+    case DOWN:
+        isEvent = re_filtered < -threshold;
+        break;
+    case UP:
+        isEvent = re_filtered > threshold;
+        break;
+    case BOTH:
+        //NOT IMPLEMENTED YET
+        break;
+    default:
+        break;
+    }
     if (isEvent && !eventAlreadyBegun) {
         eventAlreadyBegun = true;
         eventBeginIdx = idx;
