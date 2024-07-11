@@ -139,6 +139,10 @@ Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, int zoomInFactor, QPointF
 }
 
 Rect4 BigPlotModel::initRect(double minX, double maxX, double minY, double maxY){
+    //if the x and y values did not change there's no need to reset the zoom stack
+    if (minX == currentZoom[QwtPlot::Axis::xBottom].minValue() && maxX == currentZoom[QwtPlot::Axis::xBottom].maxValue() && minY == currentZoom[QwtPlot::Axis::yLeft].minValue() && maxY == currentZoom[QwtPlot::Axis::yLeft].maxValue()) {
+        return currentZoom;
+    }
     clearZoomStack();
     currentZoom[QwtPlot::Axis::xBottom] = QwtInterval(minX, maxX);
     currentZoom[QwtPlot::Axis::yLeft] = QwtInterval(minY, maxY);
