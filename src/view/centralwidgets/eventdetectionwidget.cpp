@@ -54,7 +54,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     amplitudeBins = new QSpinBox();
     QLabel* durationBinsLabel = new QLabel("Number of duration bins");
     durationBins = new QSpinBox();
-    QLabel* maxBinAmplitudeLabel = new QLabel("Max bins amplitude");
+    QLabel* maxBinAmplitudeLabel = new QLabel("Max amplitude");
     maxAmplitude = new QDoubleSpinBox();
     startButton = new QPushButton("Start");
     stopButton = new QPushButton("Stop");

@@ -2,8 +2,8 @@
 #include <QTime>
 #include <iostream>
 
-EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_, double highCutoffFrequency_, double defaultStdMultiplier_):
-    PlotConsumer(appStatus, producer), minEventSamples(minEventSamples_), maxEventSamples(maxEventSamples_), highCutoffFrequency(highCutoffFrequency_) , stdMultiplier(defaultStdMultiplier_){
+EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_, double highCutoffFrequency_, double _maxAmplitude, double defaultStdMultiplier_):
+    PlotConsumer(appStatus, producer), minEventSamples(minEventSamples_), maxEventSamples(maxEventSamples_), highCutoffFrequency(highCutoffFrequency_), maxAmplitude(_maxAmplitude), stdMultiplier(defaultStdMultiplier_) {
     minDataBatchSize = currentChannelsNum * appStatus->getSamplingRate().getNoPrefixValue() * MINIMUM_DATA_FOR_ANALYSIS;
     intBuffer.reserve(producer->getDataPacketsBufferLen() * totalChannelsNum);
     allocateData();
@@ -116,7 +116,7 @@ void EventDetectionConsumer::allocateData() {
         currentValuesInt.push_back(std::vector<int16_t>(maxSamples));
         currentValuesDouble.push_back(std::vector<double>(maxSamples));
         auto sr = appStatus->getSamplingRate();
-        eventDetectionChannels.push_back(new EventDetector(sr, highCutoffFrequency, minEventSamples, maxEventSamples, stdMultiplier));
+        eventDetectionChannels.push_back(new EventDetector(sr, highCutoffFrequency, minEventSamples, maxEventSamples, stdMultiplier, maxAmplitude));
     }
     for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
         voltageValues.push_back(std::vector<double>(maxSamples));
@@ -179,5 +179,12 @@ void EventDetectionConsumer::setStdMultiplier(double newValue) {
     stdMultiplier = newValue;
     for (const auto& ed : eventDetectionChannels) {
         ed->setStdMultiplier(stdMultiplier);
+    }
+}
+
+void EventDetectionConsumer::setMaxAmplitude(double maxAmplitude) {
+    this->maxAmplitude = maxAmplitude;
+    for (const auto& ed : eventDetectionChannels) {
+        ed->setMaxAmplitude(maxAmplitude);
     }
 }

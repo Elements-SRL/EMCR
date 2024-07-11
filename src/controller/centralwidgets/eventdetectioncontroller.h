@@ -36,7 +36,6 @@ private:
     void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
     void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
     uint64_t eventCounter = 0;
-    H5::Group eventsGroup;
 
     uint32_t totalEvents = 0;
     uint32_t eventsPerSec = 0;
@@ -57,8 +56,9 @@ private:
     /// <summary>
     /// HDF5 staff to manage baseline dataset
     /// </summary>
-    H5::DataSet iBaselineDataset;
-    H5::DataSet vBaselineDataset;
+    std::optional<H5::DataSet> iBaselineDataset;
+    std::optional<H5::DataSet> vBaselineDataset;
+    std::optional <H5::Group> eventsGroup;
     void initHDF5();
 
 signals:

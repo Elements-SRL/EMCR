@@ -21,7 +21,7 @@ struct PartialEvent {
 
 class EventDetector {
 public:
-    EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_);
+    EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_, double maxAmplitude);
 
     EventPacket consumeEventsAndBaseline();
 
@@ -32,6 +32,8 @@ public:
     void setMaxEventDurationInSamples(uint32_t);
     void setHighCutoffFrquency(double);
     void setStdMultiplier(double newValue);
+    void setMaxAmplitude(double);
+    double getMaxAmplitude();
 
 private:
     double threshold = -1;
@@ -59,6 +61,7 @@ private:
     std::vector<EventInfo> eventsInfo;
     std::vector<int16_t> baseline;
     std::vector<int16_t> baselineStimulus;
+    double maxAmplitude;
 
     uint32_t chunkSize = 0;
     double estimatedInterEventTime = 0.0;

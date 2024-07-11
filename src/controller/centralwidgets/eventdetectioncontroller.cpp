@@ -200,7 +200,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
     amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
     const auto highCutoffFrequency = sr.getNoPrefixValue() / 4.0;
-    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal, highCutoffFrequency, STD_MULTIPLIER);
+    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER);
     widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER);
     bpw->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
@@ -271,6 +271,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(widget, &EventDetectionWidget::maxAmplitudeChanged, this, [=](double value) {
         delete amplitudeBinner;
         maxAmplitude = value;
+        consumer->setMaxAmplitude(value);
         amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
         });
     connect(widget, &EventDetectionWidget::cutoffFrequencyChanged, this, [=](double value) {
@@ -417,8 +418,12 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         const auto& eventsInfo = eventPacket.eventsinfo;
         const auto& ib = eventPacket.iBaseline;
         const auto& iv = eventPacket.vBaseline;
-        append_data(iBaselineDataset, ib.baseline);
-        append_data(vBaselineDataset, iv.baseline);
+        if (iBaselineDataset.has_value()) {
+            append_data(iBaselineDataset.value(), ib.baseline);
+        }
+        if (vBaselineDataset.has_value()) {
+            append_data(vBaselineDataset.value(), iv.baseline);
+        }
         len = eventsInfo.size();
         totalEvents += len;
         for (int eventIdx = 0; eventIdx < eventsInfo.size(); eventIdx++) {
@@ -432,7 +437,9 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             eventDurationAcc += data.size();
             const auto resolution = event.resolution;
             acc += data.size();
-            writeEvent(eventsGroup, event, "e_"+std::to_string(eventCounter++));
+            if (eventsGroup.has_value()) {
+                writeEvent(eventsGroup.value(), event, "e_" + std::to_string(eventCounter++));
+            }
             if (eventIdx == 0) {
                 const auto & curve = eventCurves[chIdx];
                 QVector<double> yData(data.size());

@@ -16,7 +16,7 @@ class EventDetectionConsumer : public PlotConsumer
 {
     Q_OBJECT
 public:
-    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_, double highCutoffFrequency, double defaultStdMultiplier);
+    EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_, double highCutoffFrequency, double maxAmplitude, double defaultStdMultiplier);
     ~EventDetectionConsumer();
     void forceAxisUpdate() override;
 
@@ -24,6 +24,7 @@ public:
     void setMaxEventDurationInSamples(uint32_t);
     void setHighCutoffFrequency(double newValue);
     void setStdMultiplier(double newValue);
+    void setMaxAmplitude(double maxAmplitude);
 
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
@@ -36,6 +37,7 @@ private:
     double binSize;
     double stdMultiplier;
     std::vector<double> doubleBuffer;
+    double maxAmplitude;
 
     //this is used to pass data to the event saver
     std::vector<int16_t> intBuffer;

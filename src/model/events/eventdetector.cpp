@@ -3,12 +3,13 @@
 #include <iostream>
 #include <cstdint>
 
-EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_) {
+EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_, double maxAmplitude) {
     const auto lowCutoffFrequency = 100.0;
     this->minEventLen = minEventLen;
     this->maxEventLen = maxEventLen;
     this->highCutoffFrequency = highCutoffFrequency;
     this->stdMultiplier = stdMultiplier_;
+    this->maxAmplitude = maxAmplitude;
     high = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), highCutoffFrequency);
     low = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), lowCutoffFrequency);
     baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
@@ -113,6 +114,11 @@ std::optional<PartialEvent> EventDetector::analyze(double currentValue, double v
     if (eventLen >= maxEventLen) {
         low->init(currentValue);
         eventAlreadyBegun = false;
+        return std::nullopt;
+    }
+    if (abs(re_filtered) > abs(maxAmplitude)) {
+        eventAlreadyBegun = false;
+        eventLen = 0;
         return std::nullopt;
     }
     if (eventLen > minEventLen) {
@@ -243,4 +249,12 @@ void EventDetector::setHighCutoffFrquency(double cf) {
 
 void EventDetector::setStdMultiplier(double newValue) {
     stdMultiplier = newValue;
+}
+
+double EventDetector::getMaxAmplitude() {
+    return maxAmplitude;
+}
+
+void EventDetector::setMaxAmplitude(double maxAmplitude) {
+    this->maxAmplitude = maxAmplitude;
 }
