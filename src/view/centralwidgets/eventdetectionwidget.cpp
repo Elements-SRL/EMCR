@@ -79,10 +79,13 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     cutoffFrequencySpinbox->setValue(defaultSamplingRate);
 
     QLabel* stdMultiplierLabel = new QLabel("Std multiplier");
+    auto stdMultiplierTooltip = "The noise level is calculated using the standard deviation of the input signal.\nThis multiplier (N) helps differentiate between noise and events.\nTypically, a value of 3 is sufficient to filter out noise.\nSetting N too high may result in missing true events,\nwhile setting it too low may lead to noise being misclassified as events.";
+    stdMultiplierLabel->setToolTip(stdMultiplierTooltip);
     stdMultiplierSpinbox = new QDoubleSpinBox();
     stdMultiplierSpinbox->setMinimum(1.0);
     stdMultiplierSpinbox->setMaximum(maxCutoffFrequency);
     stdMultiplierSpinbox->setValue(defaultStdMultiplier);
+    stdMultiplierSpinbox->setToolTip(stdMultiplierTooltip);
 
 
     // Upper part
