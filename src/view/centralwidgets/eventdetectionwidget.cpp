@@ -31,8 +31,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     // Bottom Right Histogram
     bottomRightHistogram = new QwtPlotBarChart("Amplitudes Histogram");
     bottomRightPlot = new BasePlot("Amplitue Histogram", "count", "A", this);
-    switch (eventsDirection)
-    {
+    switch (eventsDirection) {
     case DOWN:
         bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
         break;
@@ -53,15 +52,15 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     bottomRightHistogram->attach(bottomRightPlot);
 
     // Bottom Left Plot
-    bottomLeftPlot = new BasePlot("Events", "s", "A", this);
+    bottomLeftPlot = new BasePlot("Events", "us", "A", this);
 
     // Input fields for upper right corner
     QLabel* minDurationLabel = new QLabel("Minimum event duration");
     QLabel* maxDurationLabel = new QLabel("Maximum event duration");
-    minDurationInMs = new QDoubleSpinBox();
-    minDurationInMs->setSuffix("us");
-    maxDurationInMs = new QDoubleSpinBox();
-    maxDurationInMs->setSuffix("us");
+    minDurationInus = new QDoubleSpinBox();
+    minDurationInus->setSuffix("us");
+    maxDurationInus = new QDoubleSpinBox();
+    maxDurationInus->setSuffix("us");
     QLabel* amplitudeBinsLabel = new QLabel("Number of amplitude bins");
     amplitudeBins = new QSpinBox();
     QLabel* durationBinsLabel = new QLabel("Number of duration bins");
@@ -97,15 +96,15 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     QWidget* inputsWidget = new QWidget(this);
     QVBoxLayout* inputLayout = new QVBoxLayout(inputsWidget);
     inputLayout->addWidget(minDurationLabel);
-    inputLayout->addWidget(minDurationInMs);
-    minDurationInMs->setMinimum(ZERO);
-    minDurationInMs->setMaximum(100000.0);
-    minDurationInMs->setValue(defaultMinDurationInSeconds * 1.0e6);
+    inputLayout->addWidget(minDurationInus);
+    minDurationInus->setMinimum(ZERO);
+    minDurationInus->setMaximum(100000.0);
+    minDurationInus->setValue(defaultMinDurationInSeconds * 1.0e6);
     inputLayout->addWidget(maxDurationLabel);
-    inputLayout->addWidget(maxDurationInMs);
-    maxDurationInMs->setMinimum(ZERO);
-    maxDurationInMs->setMaximum(100000.0);
-    maxDurationInMs->setValue(defaultMaxDurationInSeconds * 1.0e6);
+    inputLayout->addWidget(maxDurationInus);
+    maxDurationInus->setMinimum(ZERO);
+    maxDurationInus->setMaximum(100000.0);
+    maxDurationInus->setValue(defaultMaxDurationInSeconds * 1.0e6);
     inputLayout->addWidget(amplitudeBinsLabel);
     inputLayout->addWidget(amplitudeBins);
     amplitudeBins->setMinimum(2);
@@ -222,12 +221,12 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     setCurrentRange(currentRange);
 
     //layout->addLayout(bottomLayout);
-    connect(minDurationInMs, &QDoubleSpinBox::editingFinished, this, [=]() {
-        const auto value = minDurationInMs->value();
+    connect(minDurationInus, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = minDurationInus->value();
         emit minDurationChanged(value * 1.0e-6); 
         });
-    connect(maxDurationInMs, &QDoubleSpinBox::editingFinished, this, [=]() {
-        const auto value = maxDurationInMs->value();
+    connect(maxDurationInus, &QDoubleSpinBox::editingFinished, this, [=]() {
+        const auto value = maxDurationInus->value();
         emit maxDurationChanged(value * 1.0e-6);
         });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
@@ -261,8 +260,8 @@ EventDetectionWidget::~EventDetectionWidget(){
     // Cleanup
     delete upperLeftHistogram;
     delete bottomRightHistogram;
-    delete minDurationInMs;
-    delete maxDurationInMs;
+    delete minDurationInus;
+    delete maxDurationInus;
     delete bottomLeftPlot;
 }
 

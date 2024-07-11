@@ -52,8 +52,8 @@ private:
     BasePlot* bottomRightPlot;
     
     //QwtPlotHistogram* bottomRightHistogram;
-    QDoubleSpinBox* minDurationInMs;
-    QDoubleSpinBox* maxDurationInMs;
+    QDoubleSpinBox* minDurationInus;
+    QDoubleSpinBox* maxDurationInus;
     QSpinBox* amplitudeBins;
     QSpinBox* durationBins;
     QDoubleSpinBox* maxAmplitude;
