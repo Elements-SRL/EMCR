@@ -61,7 +61,9 @@ private:
     std::optional<H5::DataSet> iBaselineDataset;
     std::optional<H5::DataSet> vBaselineDataset;
     std::optional <H5::Group> eventsGroup;
+    std::optional<H5::H5File> file;
     void initHDF5();
+    void closeHDF5();
 
 signals:
     void durationChanged(Measurement_t duration);

@@ -2,7 +2,6 @@
 #include "eventdetectionwidget.h"
 #include <QVector>
 #include <iomanip>
-#define STR "ciccia.h5"
 using namespace H5;
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
@@ -47,7 +46,7 @@ void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     }
 }
 
-H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName, RangedMeasurement rm, Measurement sr) {
+H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName, Measurement sr) {
     try {
         //H5std_string groupName = eventName;
         //H5::Group group = parentGroup.createGroup(eventName);
@@ -60,12 +59,10 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
         DataSet dataset = parentGroup.createDataSet(datasetName, PredType::STD_I16LE, mspace, cparms);
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
-        const double multiplier = rm.multiplier();
         const double srValue = sr.getNoPrefixValue();
-        dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, rm.getFullUnit());
-        dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &rm.step);
-        dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &multiplier);
-        dataset.createAttribute("Sampling rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
+        const double spValue = 1.0 / srValue;
+        dataset.createAttribute("Sampling rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
+        dataset.createAttribute("Sampling period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &spValue);
         return dataset;
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -104,15 +101,8 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
-        dataset.createAttribute("Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.resolution);
-        dataset.createAttribute("Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.multiplier);
-        dataset.createAttribute("Uom", strdatatype, attSpace).write(strdatatype, event.uom);
         dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
-        dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulus);
-        dataset.createAttribute("Stimulus uom", strdatatype, attSpace).write(strdatatype, event.stimulusUom);
-        dataset.createAttribute("Stimulus multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulusMultiplier);
-        dataset.createAttribute("Sampling rate", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.samplingRate);
-        dataset.createAttribute("Sampling rate uom", strdatatype, attSpace).write(strdatatype, event.samplingRateUom);
+        dataset.createAttribute("Stimulus", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.resolution);
         append_data(dataset, event.rawData);
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -137,42 +127,72 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
     }
 }
 
-std::tuple<H5::DataSet, H5::DataSet, H5::Group> createFile(ApplicationStatus* appStatus, std::string filename) {
+std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional<H5::Group>, std::optional<H5File>> createFile(ApplicationStatus* appStatus, std::string filename) {
     auto now = std::chrono::system_clock::now();
     // Convert to time_t which represents the time in seconds since epoch
     std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
     // Convert to tm struct for local time
     std::tm* localTime = std::localtime(&currentTime);
     // Create a string stream to format the time
-    std::ostringstream oss;
+    std::ostringstream oss, oss_date_time;
     oss << std::put_time(localTime, "_%H_%M_%S");
     // Get the string from the string stream
     std::string timeStr = oss.str();
     filename += timeStr + ".h5";
+    oss_date_time << std::put_time(localTime, "%Y-%m-%d:%H-%M-%S");
+    std::string dateTimeStr = oss_date_time.str();
+    DataSpace attSpace(H5S_SCALAR);
+    StrType strdatatype(0, H5T_VARIABLE);
     try {
-        Exception::dontPrint();
+        //Exception::dontPrint();
         //Create the data space with unlimited dimensions.
         hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
         H5::DataSpace mspace(RANK, dims, maxdims);
         // Create a new file. If file exists its contents will be overwritten.
         H5::H5File file(filename, H5F_ACC_TRUNC);
+        file.createAttribute("Date time: Y-M-D-h-m-s", strdatatype, attSpace).write(strdatatype, dateTimeStr);
         //Modify dataset creation properties, i.e. enable chunking.
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
         cparms.setChunk(RANK, chunk_dims);
-        H5::Group chGroup = file.createGroup("/ch_0");
-        H5::Group baselineGroup = chGroup.createGroup("Baseline");
-        H5::Group eventsGroup = chGroup.createGroup("Events");
+        H5::Group electrophysiologyGroup = file.createGroup("/electrophysiology");
+        H5::Group chGroup = electrophysiologyGroup.createGroup("/electrophysiology/ch_0");
+        H5::Group baselineGroup = chGroup.createGroup("/electrophysiology/ch_0/Baseline");
+        auto sr = appStatus->getSamplingRate();
+        const auto srNoPref = sr.getNoPrefixValue();
+        const auto period = 1.0 / srNoPref;
+        auto cr = appStatus->getCurrentRange();
+        auto crMultiplier = cr.multiplier();
+        auto vr = appStatus->getVoltageRange();
+        auto vrMultiplier = vr.multiplier();
+        auto crUnit = cr.getFullUnit();
+        baselineGroup.createAttribute("Current Unit of measurement", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
+        baselineGroup.createAttribute("Current Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        baselineGroup.createAttribute("Current Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
+        baselineGroup.createAttribute("Voltage Unit of measurement", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
+        baselineGroup.createAttribute("Voltage Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        baselineGroup.createAttribute("Voltage Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
+        H5::Group eventsGroup = chGroup.createGroup("/electrophysiology/ch_0/Events");
+        eventsGroup.createAttribute("Current Unit of measurement", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
+        eventsGroup.createAttribute("Current Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        eventsGroup.createAttribute("Current Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
+        eventsGroup.createAttribute("Voltage Unit of measurement", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
+        eventsGroup.createAttribute("Voltage Resoultion", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        eventsGroup.createAttribute("Voltage Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
+        eventsGroup.createAttribute("Sampling Rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srNoPref);
+        eventsGroup.createAttribute("Sampling Period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &period);
+
         //TODO this could be a user parameter
         Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
-        const auto iBaselineDataset = createBaseline(baselineGroup, "I", appStatus->getCurrentRange(), baselineSr);
-        const auto vBaselineDataset = createBaseline(baselineGroup, "V", appStatus->getVoltageRange(), baselineSr);
-        return std::make_tuple(iBaselineDataset, vBaselineDataset, eventsGroup);
+        const auto iBaselineDataset = createBaseline(baselineGroup, "I", baselineSr);
+        const auto vBaselineDataset = createBaseline(baselineGroup, "V", baselineSr);
+        return std::make_tuple(iBaselineDataset, vBaselineDataset, eventsGroup, file);
     }  // end of try block
     // catch failure caused by the H5File operations
     catch (H5::FileIException error) {
-        error.printErrorStack();
+        return std::make_tuple(std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+        //error.printErrorStack();
     }
     // catch failure caused by the DataSet operations
     catch (H5::DataSetIException error) {
@@ -220,7 +240,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         initHDF5();
         consumer->onStartConsuming();
         });
-    connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {consumer->onStopConsuming(); });
+    //ADD FILE CLOSING OPERATION
+    connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {
+        consumer->onStopConsuming();
+        closeHDF5();
+        });
     connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](double value) {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
@@ -385,6 +409,7 @@ void EventDetectionController::start() {
 
 void EventDetectionController::stop() {
     consumer->onStopConsuming();
+    closeHDF5();
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
@@ -453,6 +478,9 @@ void EventDetectionController::onExpandTrace(bool flag) {
 }
 
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
+    if (!file.has_value()) {
+        return;
+    }
     message = std::get<2>(plotmessage);
     auto plot = widget->getPlot();
     auto sr = appStatus->getSamplingRate();
@@ -545,11 +573,27 @@ PlotConsumer* EventDetectionController::getConsumer() {
 }
 
 void EventDetectionController::initHDF5() {
+    auto wasConsumerRunning = consumer->isRunning();
+    consumer->onStopConsuming();
     const auto filepath = widget->getFilePath();
     std::string filepathEndingInBackslash = (filepath.back() == '\\') ? filepath : filepath + '\\';
     std::string filename = filepathEndingInBackslash + widget->getFileName();
     const auto baselineAndEvents = createFile(appStatus, filename);
-    iBaselineDataset= std::get<0>(baselineAndEvents);
-    vBaselineDataset= std::get<1>(baselineAndEvents);
+    closeHDF5();
+    iBaselineDataset = std::get<0>(baselineAndEvents);
+    vBaselineDataset = std::get<1>(baselineAndEvents);
     eventsGroup = std::get<2>(baselineAndEvents);
+    file = std::get<3>(baselineAndEvents);
+    if (wasConsumerRunning) {
+        consumer->onStartConsuming();
+    }
+}
+
+void EventDetectionController::closeHDF5() {
+    if (file.has_value()) {
+        iBaselineDataset.value().close();
+        vBaselineDataset.value().close();
+        eventsGroup.value().close();
+        file.value().close();
+    }
 }
