@@ -29,23 +29,26 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     mainVl->setSpacing(1);
 
     dataTable = new CopyableTable(scrollWidget);
-    dataTable->setColumnCount(11);
+    dataTable->setColumnCount(13);
     dataTable->setRowCount(currentChannels + 1);
     dataTable->horizontalHeader()->hide();
     dataTable->verticalHeader()->hide();
     mainVl->addWidget(dataTable);
     this->installEventFilter(dataTable);
-    dataTable->setItem(0, 0, new QTableWidgetItem("Channel index"));
-    dataTable->setItem(0, 1, new QTableWidgetItem("Mean Voltage"));
-    dataTable->setItem(0, 2, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, 3, new QTableWidgetItem("Mean Current"));
-    dataTable->setItem(0, 4, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, 5, new QTableWidgetItem("Current RMS"));
-    dataTable->setItem(0, 6, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, 7, new QTableWidgetItem("Conductivity"));
-    dataTable->setItem(0, 8, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, 9, new QTableWidgetItem("Liquid junction"));
-    dataTable->setItem(0, 10, new QTableWidgetItem("Unit"));
+    int col = 0;
+    dataTable->setItem(0, col++, new QTableWidgetItem("Channel index"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Mean Voltage"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Voltage RMS"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Mean Current"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Current RMS"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Conductivity"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Liquid junction"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
     mainVl->addWidget(dataTable);
 
     QPushButton * extractBtn = new QPushButton("extract");
@@ -94,13 +97,16 @@ void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector<Statisti
 }
 
 void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, StatisticsResult r) {
-    dataTable->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(std::to_string(r.chIdx + 1))));
-    dataTable->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanVoltage.value))));
-    dataTable->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(r.meanVoltage.getFullUnit())));
-    dataTable->setItem(row, 3, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanCurrent.value))));
-    dataTable->setItem(row, 4, new QTableWidgetItem(QString::fromStdString(r.meanCurrent.getFullUnit())));
-    dataTable->setItem(row, 5, new QTableWidgetItem(QString::fromStdString(std::to_string(r.stdCurrent.value))));
-    dataTable->setItem(row, 6, new QTableWidgetItem(QString::fromStdString(r.stdCurrent.getFullUnit())));
-    dataTable->setItem(row, 7, new QTableWidgetItem(QString::fromStdString(std::to_string(r.conductivity.value))));
-    dataTable->setItem(row, 8, new QTableWidgetItem(QString::fromStdString(r.conductivity.getFullUnit())));
+    int col = 0;
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.chIdx + 1))));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanVoltage.value))));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.meanVoltage.getFullUnit())));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.stdVoltage.value))));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.stdVoltage.getFullUnit())));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanCurrent.value))));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.meanCurrent.getFullUnit())));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.stdCurrent.value))));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.stdCurrent.getFullUnit())));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.conductivity.value))));
+    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.conductivity.getFullUnit())));
 }

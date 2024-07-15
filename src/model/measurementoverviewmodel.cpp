@@ -27,11 +27,11 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
     QFile file(QString::fromStdString(filepath));
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        stream << "Channel idx,Mean Voltage, unit, Mean Current, unit,Std Current, unit,Conductivity, unit, Liquid Junction, unit\n";
+        stream << "Channel idx,Mean Voltage,unit,Std Voltage,unit,Mean Current, unit,Std Current,unit,Conductivity,unit,Liquid Junction,unit\n";
         for (int i = 0; i < statisticsResults.size(); i++) {
             auto r = statisticsResults[i];
             auto lj = liquidJunctionResults[i];
-            std::vector<std::pair<QString, QString>> measurementsStrings = { getValueAndUnit(r.meanVoltage), getValueAndUnit(r.meanCurrent), getValueAndUnit(r.stdCurrent), getValueAndUnit(r.conductivity), getValueAndUnit(lj)};
+            std::vector<std::pair<QString, QString>> measurementsStrings = { getValueAndUnit(r.meanVoltage), getValueAndUnit(r.stdVoltage), getValueAndUnit(r.meanCurrent), getValueAndUnit(r.stdCurrent), getValueAndUnit(r.conductivity), getValueAndUnit(lj)};
             stream << r.chIdx ;
             for (auto p : measurementsStrings) {
                 stream << "," << p.first << "," << p.second;

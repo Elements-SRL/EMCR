@@ -118,7 +118,7 @@ void LiveStatisticsConsumer::performAnalysis() {
     double bufferedValue;
     if (totalAnalysisSamples == 0) {
         std::fill(voltageSum.begin(), voltageSum.end(), 0.0);
-        //std::fill(voltageSum2.begin(), voltageSum2.end(), 1.0);
+        std::fill(voltageSum2.begin(), voltageSum2.end(), 0.0);
         std::fill(currentSum.begin(), currentSum.end(), 0.0);
         std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
     }
@@ -126,15 +126,16 @@ void LiveStatisticsConsumer::performAnalysis() {
     for (analysisIdx = 0; analysisIdx < bufferLen; analysisIdx += totalChannelsNum) {
         for (voltageIdx = 0; voltageIdx < voltageChannelsNum; voltageIdx++) {
             channelIdx = analysisIdx+voltageIdx;
+            bufferedValue = buffer[channelIdx];
             voltageSum[voltageIdx] += buffer[channelIdx];
-            // voltageSum2[voltageIdx] += analysisBuffer[channelIdx]*analysisBuffer[channelIdx];
+            voltageSum2[voltageIdx] += bufferedValue * bufferedValue;
         }
 
         for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
             channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
             bufferedValue = buffer[channelIdx];
             currentSum[currentIdx] += bufferedValue;
-            currentSum2[currentIdx] += bufferedValue* bufferedValue;
+            currentSum2[currentIdx] += bufferedValue * bufferedValue;
         }
         totalAnalysisSamples++;
     }
@@ -142,18 +143,20 @@ void LiveStatisticsConsumer::performAnalysis() {
     if (totalAnalysisSamples >= minSamples) {
         for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
             const auto meanVoltage = (voltageSum[chIdx] / ((double)totalAnalysisSamples));
+            const auto stdVoltage = qSqrt((voltageSum2[chIdx] - voltageSum[chIdx] * meanVoltage) / ((double)totalAnalysisSamples));
 
-            // res->stdVoltage[voltageIdx] = qSqrt((voltageSum2[voltageIdx]-voltageSum[voltageIdx]*res->meanVoltage[voltageIdx])/((double)totalAnalysisSamples))*voltageMultiplier;
             const auto meanCurrent = currentSum[chIdx] / ((double)totalAnalysisSamples);
             const auto stdCurrent = qSqrt((currentSum2[chIdx] - currentSum[chIdx] * meanCurrent) / ((double)totalAnalysisSamples));
+
             const auto conductivity = meanVoltage * meanCurrent <= 0.0 ? -1.0 : meanCurrent / meanVoltage;
             const auto conductivityPfx = currentRange.prefix / voltageRange.prefix;
 
             const Measurement meanVoltageMeasurement = { meanVoltage , voltageRange.prefix, voltageRange.unit };
+            const Measurement stdVoltageMeasurement = { stdVoltage, voltageRange.prefix, voltageRange.unit };
             const Measurement meanCurrentMeasurement = { meanCurrent, currentRange.prefix, currentRange.unit };
             const Measurement stdCurrentMeasurement = { stdCurrent, currentRange.prefix, currentRange.unit };
             const Measurement conductivityMeasurement = { conductivity, conductivityPfx, "S"};
-            const StatisticsResult sr = { chIdx, meanVoltageMeasurement, meanCurrentMeasurement, stdCurrentMeasurement, conductivityMeasurement };
+            const StatisticsResult sr = { chIdx, meanVoltageMeasurement, stdVoltageMeasurement, meanCurrentMeasurement, stdCurrentMeasurement, conductivityMeasurement };
             results[chIdx] = sr;
         }
         totalAnalysisSamples = 0;
