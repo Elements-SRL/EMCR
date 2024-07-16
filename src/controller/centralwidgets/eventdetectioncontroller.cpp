@@ -1,6 +1,5 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
-#include <QVector>
 #include <iomanip>
 using namespace H5;
 
@@ -157,7 +156,7 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
         auto cms = appStatus->getClampingModalityString();
         auto sn = appStatus->getSerialNumber();
         auto software_name = GLB_SOFTWARE_NAME.toStdString();
-        file.createAttribute("Date time: Year-Month-Day Hour:Minute:Second", strdatatype, attSpace).write(strdatatype, dateTimeStr);
+        file.createAttribute("Date time (Year-Month-Day Hour:Minute:Second)", strdatatype, attSpace).write(strdatatype, dateTimeStr);
         file.createAttribute("Version", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::NATIVE_UINT16, &version);
         file.createAttribute("Acquisition Modality", strdatatype, attSpace).write(strdatatype, acq_mod);
         file.createAttribute("Clamping Modality", strdatatype, attSpace).write(strdatatype, cms);
@@ -307,9 +306,14 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         });
     connect(widget, &EventDetectionWidget::maxAmplitudeChanged, this, [=](double value) {
         delete amplitudeBinner;
+        const auto wasThisRunning = consumer->isRunning();
+        consumer->onStopConsuming();
         maxAmplitude = value;
         consumer->setMaxAmplitude(value);
         amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
         });
     connect(widget, &EventDetectionWidget::cutoffFrequencyChanged, this, [=](double value) {
         const auto wasThisRunning = consumer->isRunning();
