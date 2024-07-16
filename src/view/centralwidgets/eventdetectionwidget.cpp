@@ -215,6 +215,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     statsLayout->addWidget(recordingGb);
     // Bottom part
     gridLayout->addWidget(bottomLeftPlot, 1, 0);
+    updateCurrentRange(defaultMaxAmplitude);
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
 
     setCurrentRange(currentRange);
@@ -241,6 +242,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
         });
     connect(maxAmplitude, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = maxAmplitude->value();
+        updateCurrentRange(value);
         emit maxAmplitudeChanged(value);
         });
     connect(cutoffFrequencySpinbox, &QDoubleSpinBox::editingFinished, this, [=]() {
@@ -339,6 +341,7 @@ void EventDetectionWidget::emitFileName() {
 
 void EventDetectionWidget::onComboBoxIndexChanged(int index){
     EventsDirection direction = static_cast<EventsDirection>(index);
+    eventsDirection = direction;
     switch (eventsDirection)
     {
     case DOWN:
@@ -354,4 +357,14 @@ void EventDetectionWidget::onComboBoxIndexChanged(int index){
         break;
     }
     emit sigEventDirectionChanged(direction);
+}
+
+void EventDetectionWidget::updateCurrentRange(double value) {
+    const auto padding = value * 0.05;
+    if (this->eventsDirection == EventsDirection::DOWN) {
+        bottomLeftPlot->setAxisScale(QwtPlot::Axis::yLeft, -value - padding, +padding);
+    }
+    else if (this->eventsDirection == EventsDirection::UP) {
+        bottomLeftPlot->setAxisScale(QwtPlot::Axis::yLeft, -padding, value + padding);
+    }
 }

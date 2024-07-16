@@ -101,7 +101,7 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
         dataset.createAttribute("Sample Offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
-        dataset.createAttribute("Stimulus", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.resolution);
+        dataset.createAttribute("Stimulus", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulus);
         append_data(dataset, event.rawData);
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -531,7 +531,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             amplitudeAccumulator += ei.amplitude;
             const std::vector<int16_t>& data = event.rawData;
             eventDurationAcc += data.size();
-            const auto resolution = event.resolution;
+            const auto resolution = appStatus->getCurrentRange().step;
             acc += data.size();
             if (eventsGroup.has_value()) {
                 writeEvent(eventsGroup.value(), event, "e_" + std::to_string(eventCounter++));
@@ -540,7 +540,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 const auto & curve = eventCurves[chIdx];
                 QVector<double> yData(data.size());
                 QVector<double> xData;
-                const auto noPrefSr = 1.0 / sr.getNoPrefixValue();
+                const auto noPrefSr = (1.0 / sr.getNoPrefixValue()) * 1e6;
                 for (int i = 0; i < yData.size(); i++) {
                     yData[i] = ((double) data[i]) * resolution;
                     xData << i * noPrefSr;

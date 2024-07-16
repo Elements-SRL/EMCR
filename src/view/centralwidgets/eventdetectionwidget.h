@@ -75,6 +75,7 @@ private:
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
     void emitFilePath();
     void emitFileName();
+    void updateCurrentRange(double value);
 
 signals:
     void startPressed();
