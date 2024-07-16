@@ -212,28 +212,39 @@ void BigPlot::recomputeXAxisFactor(double duration) {
 }
 
 void BigPlot::onZoomInPickerAppended(const QPointF &p) {
-    pickerFirstCornerPos = p;
-    auto dy = this->axisInterval(yLeft).width();
+    auto dyMin = this->axisInterval(yLeft).minValue();
+    auto dyMax = this->axisInterval(yLeft).maxValue();
     auto cdx = (double)this->canvas()->width();
-    auto dx = this->axisInterval(xBottom).width();
+    auto dxMin = this->axisInterval(xBottom).minValue();
+    auto dxMax = this->axisInterval(xBottom).maxValue();
     auto cdy = (double)this->canvas()->height();
     if (status == BigPlotStatus::Spectrum) {
-        dy = log10(dy);
-        dx = log10(dx);
+        dyMin = log10(dyMin);
+        dyMax = log10(dyMax); 
+        dxMin = log10(dxMin);
+        dxMax = log10(dxMax);
+        pickerFirstCornerPos = QPointF(log10(p.x()), log10(p.y()));
     }
+    else {
+        pickerFirstCornerPos = p;
+    }
+    auto dy = dyMax - dyMin;
+    auto dx = dxMax - dxMin;
     pickerZoomDiscriminantNorm = (dy*cdx) /(dx * cdy);
     zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
     pickerZoomType = PickerZoomRect;
 }
 
 void BigPlot::onZoomInPickerMoved(const QPointF &p) {
-    QPointF deltaP = pickerFirstCornerPos-p;
+    QPointF deltaP; 
+    if (status == BigPlotStatus::Spectrum) {
+        deltaP = pickerFirstCornerPos - QPointF(log10(p.x()), log10(p.y()));
+    }
+    else {
+        deltaP = pickerFirstCornerPos - p;
+    }
     auto dx = deltaP.x();
     auto dy = deltaP.y();
-    if (status == BigPlotStatus::Spectrum) {
-        dy = log10(dy);
-        dx = log10(dx);
-    }
     double zoomDiscriminantRatio = abs(dx / dy)*pickerZoomDiscriminantNorm;
     if (zoomDiscriminantRatio < 0.1) {
         zoomInPicker->setRubberBand(QwtPlotPicker::VLineRubberBand);

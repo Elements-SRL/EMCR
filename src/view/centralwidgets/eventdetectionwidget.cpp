@@ -25,7 +25,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
 
     // Upper Left Histogram
     upperLeftHistogram = new QwtPlotBarChart("Upper Left Histogram");
-    upperLetPlot = new BasePlot("Duration Histogram", "s", "count", this);
+    upperLetPlot = new BasePlot("Duration Histogram", "us", "count", this);
     upperLeftHistogram->attach(upperLetPlot);
 
     // Bottom Right Histogram
@@ -85,7 +85,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     stdMultiplierSpinbox->setMaximum(maxCutoffFrequency);
     stdMultiplierSpinbox->setValue(defaultStdMultiplier);
     stdMultiplierSpinbox->setToolTip(stdMultiplierTooltip);
-
 
     // Upper part
     gridLayout->addWidget(upperLeftHistogram->plot(), 0, 0);
@@ -227,6 +226,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
         });
     connect(maxDurationInus, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = maxDurationInus->value();
+        bottomLeftPlot->setAxisScale(QwtPlot::Axis::xBottom, 0.0, value);
         emit maxDurationChanged(value * 1.0e-6);
         });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);

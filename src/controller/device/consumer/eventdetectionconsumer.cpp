@@ -50,7 +50,6 @@ void EventDetectionConsumer::run() {
 
     //vector used only to accomodate events
     std::vector<int16_t> eventBuffer(minDataBatchSize);
-    bool atLeastOneFound = false;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
@@ -91,11 +90,10 @@ void EventDetectionConsumer::run() {
                 }
             }
             currentTimeMs = updateDataTimer.elapsed();
-            if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS && atLeastOneFound) {
+            if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
                 emitPlotData();
                 emit plotDataUpdated();
                 lastUpdateTimeMs = currentTimeMs;
-                atLeastOneFound = false;
             }
         }
     }
