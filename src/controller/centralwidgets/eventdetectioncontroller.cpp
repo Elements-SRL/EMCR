@@ -60,8 +60,8 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
         StrType strdatatype(0, H5T_VARIABLE);
         const double srValue = sr.getNoPrefixValue();
         const double spValue = 1.0 / srValue;
-        dataset.createAttribute("Sampling Rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
-        dataset.createAttribute("Sampling Period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &spValue);
+        dataset.createAttribute("Sampling rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
+        dataset.createAttribute("Sampling period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &spValue);
         return dataset;
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -100,7 +100,7 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
-        dataset.createAttribute("Sample Offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
+        dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
         dataset.createAttribute("Stimulus", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulus);
         append_data(dataset, event.rawData);
     }  // end of try block
@@ -156,13 +156,16 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
         auto cms = appStatus->getClampingModalityString();
         auto sn = appStatus->getSerialNumber();
         auto software_name = GLB_SOFTWARE_NAME.toStdString();
+        auto device_name = appStatus->getMessageDispatcher()->getDeviceName();
         file.createAttribute("Date time (Year-Month-Day Hour:Minute:Second)", strdatatype, attSpace).write(strdatatype, dateTimeStr);
         file.createAttribute("Version", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::NATIVE_UINT16, &version);
-        file.createAttribute("Acquisition Modality", strdatatype, attSpace).write(strdatatype, acq_mod);
-        file.createAttribute("Clamping Modality", strdatatype, attSpace).write(strdatatype, cms);
+        file.createAttribute("Acquisition modality", strdatatype, attSpace).write(strdatatype, acq_mod);
+        file.createAttribute("Clamping modality", strdatatype, attSpace).write(strdatatype, cms);
         file.createAttribute("Device info", strdatatype, attSpace).write(strdatatype, device_info);
         file.createAttribute("Serial number", strdatatype, attSpace).write(strdatatype, sn);
         file.createAttribute("Acquisition software", strdatatype, attSpace).write(strdatatype, software_name);
+        file.createAttribute("Device name", strdatatype, attSpace).write(strdatatype, device_name);
+        
         //Modify dataset creation properties, i.e. enable chunking.
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
@@ -179,20 +182,20 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
         auto vrMultiplier = vr.multiplier();
         auto crUnit = cr.getFullUnit();
         baselineGroup.createAttribute("Current uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
-        baselineGroup.createAttribute("Current Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
-        baselineGroup.createAttribute("Current Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
+        baselineGroup.createAttribute("Current resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        baselineGroup.createAttribute("Current multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
         baselineGroup.createAttribute("Voltage uom", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
-        baselineGroup.createAttribute("Voltage Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
-        baselineGroup.createAttribute("Voltage Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
+        baselineGroup.createAttribute("Voltage resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        baselineGroup.createAttribute("Voltage multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
         H5::Group eventsGroup = chGroup.createGroup("/electrophysiology/ch_0/Events");
         eventsGroup.createAttribute("Current uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
-        eventsGroup.createAttribute("Current Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
-        eventsGroup.createAttribute("Current Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
+        eventsGroup.createAttribute("Current resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        eventsGroup.createAttribute("Current multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
         eventsGroup.createAttribute("Voltage uom", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
-        eventsGroup.createAttribute("Voltage Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
-        eventsGroup.createAttribute("Voltage Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
-        eventsGroup.createAttribute("Sampling Rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srNoPref);
-        eventsGroup.createAttribute("Sampling Period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &period);
+        eventsGroup.createAttribute("Voltage resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        eventsGroup.createAttribute("Voltage multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
+        eventsGroup.createAttribute("Sampling rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srNoPref);
+        eventsGroup.createAttribute("Sampling period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &period);
 
         //TODO this could be a user parameter
         Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
