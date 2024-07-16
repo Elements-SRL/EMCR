@@ -163,3 +163,42 @@ RangedMeasurement ApplicationStatus::getCurrentRange() {
     auto err = msgDisp->getCurrentRange(cr);
     return cr;
 }
+
+std::string ApplicationStatus::getSerialNumber() {
+    std::string serialNumber;
+    auto err = msgDisp->getSerialNumber(serialNumber);
+    return serialNumber;
+}
+
+std::string ApplicationStatus::getDeviceInfoString() {
+    unsigned int version, subversion, fw;
+    auto serial = getSerialNumber();
+    auto err = msgDisp->getDeviceInfo(serial, version, subversion, fw);
+    return "version: " + std::to_string(version) + ", subversion: " + std::to_string(subversion) + ", firmware: " + std::to_string(fw);
+}
+
+ClampingModality_t ApplicationStatus::getClampingModality() {
+    ClampingModality_t c;
+    auto err = msgDisp->getClampingModality(c);
+    return c;
+}
+
+std::string ApplicationStatus::getClampingModalityString() {
+    auto cm = getClampingModality();
+    std::string cms;
+    switch (cm) {
+    case ClampingModality_t::VOLTAGE_CLAMP:
+        cms = "Voltage calmp";
+        break;
+    case ClampingModality_t::CURRENT_CLAMP:
+        cms = "Current calmp";
+        break;
+    case ClampingModality_t::DYNAMIC_CLAMP:
+        cms = "Dynamic calmp";
+        break;
+    case ClampingModality_t::ZERO_CURRENT_CLAMP:
+        cms = "Zero current calmp";
+        break;
+    }
+    return cms;
+}

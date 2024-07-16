@@ -139,7 +139,7 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
     // Get the string from the string stream
     std::string timeStr = oss.str();
     filename += timeStr + ".h5";
-    oss_date_time << std::put_time(localTime, "%Y-%m-%d:%H-%M-%S");
+    oss_date_time << std::put_time(localTime, "%Y-%m-%d %H:%M:%S");
     std::string dateTimeStr = oss_date_time.str();
     DataSpace attSpace(H5S_SCALAR);
     StrType strdatatype(0, H5T_VARIABLE);
@@ -151,7 +151,19 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
         H5::DataSpace mspace(RANK, dims, maxdims);
         // Create a new file. If file exists its contents will be overwritten.
         H5::H5File file(filename, H5F_ACC_TRUNC);
-        file.createAttribute("Date time: Y-M-D-h-m-s", strdatatype, attSpace).write(strdatatype, dateTimeStr);
+        uint16_t version = 1;
+        std::string acq_mod = "Events";
+        std::string device_info = appStatus->getDeviceInfoString();
+        auto cms = appStatus->getClampingModalityString();
+        auto sn = appStatus->getSerialNumber();
+        auto software_name = GLB_SOFTWARE_NAME.toStdString();
+        file.createAttribute("Date time: Year-Month-Day Hour:Minute:Second", strdatatype, attSpace).write(strdatatype, dateTimeStr);
+        file.createAttribute("Version", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::NATIVE_UINT16, &version);
+        file.createAttribute("Acquisition Modality", strdatatype, attSpace).write(strdatatype, acq_mod);
+        file.createAttribute("Clamping Modality", strdatatype, attSpace).write(strdatatype, cms);
+        file.createAttribute("Device info", strdatatype, attSpace).write(strdatatype, device_info);
+        file.createAttribute("Serial number", strdatatype, attSpace).write(strdatatype, sn);
+        file.createAttribute("Acquisition software", strdatatype, attSpace).write(strdatatype, software_name);
         //Modify dataset creation properties, i.e. enable chunking.
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };

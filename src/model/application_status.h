@@ -38,6 +38,10 @@ public:
     Measurement getSamplingRate();
     RangedMeasurement getVoltageRange();
     RangedMeasurement getCurrentRange();
+    std::string getSerialNumber();
+    std::string getDeviceInfoString();
+    ClampingModality_t getClampingModality();
+    std::string getClampingModalityString();
 };
 
 
