@@ -22,7 +22,7 @@ class EventDetectionWidget : public QWidget
     Q_OBJECT
 
 public:
-    EventDetectionWidget(double maxCutoffFrequency, double defaultMinDuration, double defaultMaxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent = nullptr);
+    EventDetectionWidget(double maxCutoffFrequency, Measurement minDuration, Measurement maxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent = nullptr);
     ~EventDetectionWidget();
 
     BasePlot* getPlot();
@@ -75,13 +75,14 @@ private:
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
     void emitFilePath();
     void emitFileName();
-    void updateCurrentRange(double value);
+    void setCurrentRange(double value);
+    void setDuration(Measurement d);
 
 signals:
     void startPressed();
     void stopPressed();
-    void minDurationChanged(double);
-    void maxDurationChanged(double);
+    void minDurationChanged(Measurement);
+    void maxDurationChanged(Measurement);
     void maxAmplitudeChanged(double);
     void amplitudeBinsChanged(int);
     void durationBinsChanged(int);

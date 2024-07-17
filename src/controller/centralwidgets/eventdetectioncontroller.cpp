@@ -226,17 +226,19 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
     //TODO THOSE NEEDS TO BE 
     auto sr = appStatus->getSamplingRate();
-    auto noPrefVal = sr.getNoPrefixValue();
-    minDurationInSeconds = 80.0 / noPrefVal;
-    maxDurationInSeconds = 8000.0 / noPrefVal;
+    minDuration = { 80.0, UnitPfx::UnitPfxMicro, "s" };
+    maxDuration = { 8000.0, UnitPfx::UnitPfxMicro, "s"};
     minAmplitude = 0.0;
     maxAmplitude = appStatus->getCurrentRange().getMax().value / 10;
-    durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+    durationBinner = new Binner(minDuration.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
     amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
     const auto highCutoffFrequency = sr.getNoPrefixValue() / 4.0;
     eventsDirection = EventsDirection::DOWN;
-    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER, eventsDirection);
-    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER, eventsDirection);
+    const auto minSamples = minDuration.getNoPrefixValue() * sr.getNoPrefixValue();
+    const auto maxSamples = maxDuration.getNoPrefixValue() * sr.getNoPrefixValue();
+
+    consumer = new EventDetectionConsumer(appStatus, producer, minSamples, maxSamples, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER, eventsDirection);
+    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDuration, maxDuration, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER, eventsDirection);
     bpw->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
@@ -259,16 +261,17 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         consumer->onStopConsuming();
         closeHDF5();
         });
-    connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](double value) {
+    connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](Measurement m) {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
         auto sr = appStatus->getSamplingRate();
-        minDurationInSeconds = value;
-        uint32_t durationInSamples = sr.getNoPrefixValue() * value;
+        minDuration = m;
+        const auto mNoPref = m.getNoPrefixValue();
+        uint32_t durationInSamples = sr.getNoPrefixValue() * mNoPref;
         delete durationBinner;
-        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        durationBinner = new Binner(m.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
         amplitudeBinner->clear();
         totalEvents = 0;
         durationAccumulator = 0;
@@ -278,16 +281,17 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    connect(widget, &EventDetectionWidget::maxDurationChanged, this, [=](double value) {
+    connect(widget, &EventDetectionWidget::maxDurationChanged, this, [=](Measurement duration) {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
         auto sr = appStatus->getSamplingRate();
-        maxDurationInSeconds = value;
-        uint32_t durationInSamples = sr.getNoPrefixValue() * value;
+        maxDuration = duration;
+        const auto mNoPref = duration.getNoPrefixValue();
+        uint32_t durationInSamples = sr.getNoPrefixValue() * mNoPref;
         delete durationBinner;
-        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        durationBinner = new Binner(minDuration.getNoPrefixValue(), duration.getNoPrefixValue(), durationBins);
         amplitudeBinner->clear();
         totalEvents = 0;
         durationAccumulator = 0;
@@ -300,7 +304,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(widget, &EventDetectionWidget::durationBinsChanged, this, [=](int value) {
         delete durationBinner;
         durationBins = value;
-        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        durationBinner = new Binner(minDuration.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
         });
     connect(widget, &EventDetectionWidget::amplitudeBinsChanged, this, [=](int value) {
         delete amplitudeBinner;
@@ -559,9 +563,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         {
             const auto& keys = durationBinner->getKeys();
             const auto& accs = durationBinner->getValues();
+            const auto scaleFactor = 1.0 / maxDuration.multiplier();
             for (int i = 0; i < durationBinner->getNBins(); i++) {
                 const auto k = keys[i];
-                durationSamples.append(QPointF(keys[i], accs[i]));
+                durationSamples.append(QPointF(keys[i] * scaleFactor, accs[i]));
             }
         }
 
