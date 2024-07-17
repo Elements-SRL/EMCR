@@ -3,7 +3,7 @@
 GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
 
-    model = new BigPlotModel();
+    model = new BigPlotModel(BigPlot::GapFree);
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
 
