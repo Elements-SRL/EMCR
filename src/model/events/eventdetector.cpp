@@ -153,12 +153,18 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     //TODO, if sampling rate changes rebuild the filters
     //managing remaining stuff from older chunk
     chunkSize += remainingChunkSize;
-    intBuffer.insert(intBuffer.begin(), remainingIntBuffer.begin(), remainingIntBuffer.end());
-    doubleBuffer.insert(doubleBuffer.begin(), remainingDoubleBuffer.begin(), remainingDoubleBuffer.end());
-    voltages.insert(voltages.begin(), remainingVoltages.begin(), remainingVoltages.end());
+    const auto oldTh = threshold;
+    if (oldTh == -1 && doubleBuffer.size() > 0) {
+        low->init(doubleBuffer[0]);
+        high->init(doubleBuffer[0]);
+    }
+    else {
+        intBuffer.insert(intBuffer.begin(), remainingIntBuffer.begin(), remainingIntBuffer.end());
+        doubleBuffer.insert(doubleBuffer.begin(), remainingDoubleBuffer.begin(), remainingDoubleBuffer.end());
+        voltages.insert(voltages.begin(), remainingVoltages.begin(), remainingVoltages.end());
+    }
 
     this->chunkSize = chunkSize;
-    const auto oldTh = threshold;
     threshold = calculateThreshold(bandPassFilterData);
     this->currentRange = currentRange;
     this->voltageRange = voltageRange;
@@ -168,10 +174,6 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     eventAlreadyBegun = false;
     eventLen = 0;
     eventBeginIdx = 0;
-    if (oldTh == -1 && doubleBuffer.size() > 0) {
-        low->init(doubleBuffer[0]);
-        high->init(doubleBuffer[0]);
-    }
 
     const auto finalPadding = maxEventLen * EVENT_PADDING;
     //received chunk smaller than evnet * padding
