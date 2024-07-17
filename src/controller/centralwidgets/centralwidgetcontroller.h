@@ -37,6 +37,7 @@ public slots:
     virtual void onReplot() = 0;
     virtual void onExpandTrace(bool flag) = 0;
     virtual void onSetPlotData(PlotMessage plotMessage) = 0;
+    //virtual void onSamplingRangeChanged(Measurement sr) = 0;
 
 protected:
     BigPlotWidget* bigPlotWidget;
