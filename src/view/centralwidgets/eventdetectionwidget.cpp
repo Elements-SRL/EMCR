@@ -218,7 +218,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     statsLayout->addWidget(recordingGb);
     // Bottom part
     gridLayout->addWidget(bottomLeftPlot, 1, 0);
-    setCurrentRange(defaultMaxAmplitude);
+    setMaxAmplitude(defaultMaxAmplitude);
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
 
     setCurrentRange(currentRange);
@@ -249,7 +249,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
         });
     connect(maxAmplitude, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = maxAmplitude->value();
-        setCurrentRange(value);
+        setMaxAmplitude(value);
         emit maxAmplitudeChanged(value);
         });
     connect(cutoffFrequencySpinbox, &QDoubleSpinBox::editingFinished, this, [=]() {
@@ -316,14 +316,6 @@ void EventDetectionWidget::setCutoffFrequency(double maxCutoffFrequency) {
     cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
 }
 
-void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
-    amplitudeUom = cr.getFullUnit();
-    maxAmplitude->setSuffix(QString::fromStdString(amplitudeUom));
-    maxAmplitude->setMaximum(cr.max);
-    bottomLeftPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
-    bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
-}
-
 std::string EventDetectionWidget::getFileName() {
     return fileNameLineEdit->text().toStdString();
 }
@@ -366,7 +358,7 @@ void EventDetectionWidget::onComboBoxIndexChanged(int index){
     emit sigEventDirectionChanged(direction);
 }
 
-void EventDetectionWidget::setCurrentRange(double value) {
+void EventDetectionWidget::setMaxAmplitude(double value) {
     const auto padding = value * 0.05;
     if (this->eventsDirection == EventsDirection::DOWN) {
         bottomLeftPlot->setAxisScale(QwtPlot::Axis::yLeft, -value - padding, +padding);
@@ -374,6 +366,14 @@ void EventDetectionWidget::setCurrentRange(double value) {
     else if (this->eventsDirection == EventsDirection::UP) {
         bottomLeftPlot->setAxisScale(QwtPlot::Axis::yLeft, -padding, value + padding);
     }
+}
+
+void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
+    amplitudeUom = cr.getFullUnit();
+    maxAmplitude->setSuffix(QString::fromStdString(amplitudeUom));
+    maxAmplitude->setMaximum(cr.max);
+    bottomLeftPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
+    bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
 }
 
 void EventDetectionWidget::setDuration(Measurement d) {

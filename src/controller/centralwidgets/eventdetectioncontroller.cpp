@@ -466,26 +466,10 @@ void EventDetectionController::onReplot() {
 //todo Check clamping modality too
 //todo reset stats and reinit file
 void EventDetectionController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
-    //QwtPlot::Axis axisIdx;
-    //if (newRange.unit == "s") {
-    //    axisIdx = QwtPlot::xBottom;
-    //    model->setCurrentRange(axisIdx, newRange);
-    //    Measurement_t duration = { model->getZoom(BigPlotModel::Zoom::Current)[axisIdx].width(), model->getCurrentRange(axisIdx).prefix, "s" };
-    //    emit durationChanged(duration);
-
-    //}
-    //else if (newRange.unit == "V") {
-    //    axisIdx = QwtPlot::yRight;
-    //    model->setCurrentRange(axisIdx, newRange);
-
-    //}
-    //else if (newRange.unit == "A") {
-    //    axisIdx = QwtPlot::yLeft;
-    //    model->setCurrentRange(axisIdx, newRange);
-    //}
-    //plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
-    //plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
-    //plot->replot();
+    QwtPlot::Axis axisIdx;
+    if (newRange.unit == "A") {
+        widget->setCurrentRange(newRange);
+    }
 }
 
 void EventDetectionController::onExpandTrace(bool flag) {

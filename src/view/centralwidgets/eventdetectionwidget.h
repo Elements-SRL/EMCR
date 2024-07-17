@@ -75,7 +75,7 @@ private:
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
     void emitFilePath();
     void emitFileName();
-    void setCurrentRange(double value);
+    void setMaxAmplitude(double value);
     void setDuration(Measurement d);
 
 signals:
