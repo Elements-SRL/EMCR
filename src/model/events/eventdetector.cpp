@@ -96,7 +96,7 @@ std::optional<PartialEvent> EventDetector::analyze(double currentValue, double v
         return std::nullopt;
     }
 
-    bool isEvent;
+    bool isEvent = false;
     switch (eventsDirection)
     {
     case DOWN:
