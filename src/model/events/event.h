@@ -6,15 +6,8 @@
 
 struct Event {
     uint64_t eventIdx;
-    double stimulus;
-    std::string stimulusUom;
-    double resolution;
-    std::string uom;
+    int16_t stimulus;
     std::vector<int16_t> rawData;
-    double samplingRate;
-    std::string samplingRateUom;
-    double multiplier;
-    double stimulusMultiplier;
 
     Event(uint64_t eventIdx_, 
         std::vector<int16_t> rawData_,
@@ -29,14 +22,7 @@ struct Event {
 ): 
         eventIdx(eventIdx_), 
         rawData(rawData_),
-        stimulus(stimulus_), 
-        stimulusUom(stimulusUom_),
-        resolution(resolution_), 
-        uom(uom_), 
-        samplingRate(samplingRate_), 
-        samplingRateUom(samplingRateUom_), 
-        multiplier(multiplier_), 
-        stimulusMultiplier(stimulusMultiplier_){}
+        stimulus(stimulus_){}
 };
 
 #endif // EVENT_H

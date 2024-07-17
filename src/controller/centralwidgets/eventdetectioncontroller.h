@@ -48,8 +48,8 @@ private:
     Binner * durationBinner;
     Binner* amplitudeBinner;
 
-    double minDurationInSeconds;
-    double maxDurationInSeconds;
+    Measurement minDuration;
+    Measurement maxDuration;
     uint32_t durationBins = 200;
 
     double minAmplitude = 0.0;

@@ -37,6 +37,7 @@ EventPacket EventDetector::consumeEventsAndBaseline() {
     const EventPacket ep = EventPacket(eventsInfo, bi, bv, eventPerSecond);
     eventsInfo.clear();
     baseline.clear();
+    baselineStimulus.clear();
     return ep;
 }
 

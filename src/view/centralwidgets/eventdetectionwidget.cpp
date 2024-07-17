@@ -10,8 +10,9 @@
 #include <QMessageBox>
 #include <QLineEdit>
 #include "globaldefines.h"
+#include "eventdetector.h"
 
-EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double defaultMinDurationInSeconds, double defaultMaxDurationInSeconds, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent)
+EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measurement minDuration, Measurement maxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent)
     : QWidget(parent)
 {
     eventsDirection = ed;
@@ -27,7 +28,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     upperLeftHistogram = new QwtPlotBarChart("Upper Left Histogram");
     upperLetPlot = new BasePlot("Duration Histogram", "us", "count", this);
     upperLeftHistogram->attach(upperLetPlot);
-
+     
     // Bottom Right Histogram
     bottomRightHistogram = new QwtPlotBarChart("Amplitudes Histogram");
     bottomRightPlot = new BasePlot("Amplitue Histogram", "count", "A", this);
@@ -98,12 +99,14 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     inputLayout->addWidget(minDurationInus);
     minDurationInus->setMinimum(ZERO);
     minDurationInus->setMaximum(100000.0);
-    minDurationInus->setValue(defaultMinDurationInSeconds * 1.0e6);
+    minDuration.convertValue(UnitPfxMicro);
+    minDurationInus->setValue(minDuration.value);
     inputLayout->addWidget(maxDurationLabel);
     inputLayout->addWidget(maxDurationInus);
     maxDurationInus->setMinimum(ZERO);
     maxDurationInus->setMaximum(100000.0);
-    maxDurationInus->setValue(defaultMaxDurationInSeconds * 1.0e6);
+    maxDuration.convertValue(UnitPfxMicro);
+    maxDurationInus->setValue(maxDuration.value);
     inputLayout->addWidget(amplitudeBinsLabel);
     inputLayout->addWidget(amplitudeBins);
     amplitudeBins->setMinimum(2);
@@ -215,19 +218,24 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
     statsLayout->addWidget(recordingGb);
     // Bottom part
     gridLayout->addWidget(bottomLeftPlot, 1, 0);
+    setCurrentRange(defaultMaxAmplitude);
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
 
     setCurrentRange(currentRange);
+    setDuration(maxDuration);
 
     //layout->addLayout(bottomLayout);
     connect(minDurationInus, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = minDurationInus->value();
-        emit minDurationChanged(value * 1.0e-6); 
+        Measurement durationMeasurement = { value, UnitPfx::UnitPfxMicro, "s" };
+        emit minDurationChanged(durationMeasurement);
         });
     connect(maxDurationInus, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = maxDurationInus->value();
         bottomLeftPlot->setAxisScale(QwtPlot::Axis::xBottom, 0.0, value);
-        emit maxDurationChanged(value * 1.0e-6);
+        Measurement durationMeasurement = { value, UnitPfx::UnitPfxMicro, "s" };
+        setDuration(durationMeasurement);
+        emit maxDurationChanged(durationMeasurement);
         });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
     connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
@@ -241,6 +249,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, double def
         });
     connect(maxAmplitude, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = maxAmplitude->value();
+        setCurrentRange(value);
         emit maxAmplitudeChanged(value);
         });
     connect(cutoffFrequencySpinbox, &QDoubleSpinBox::editingFinished, this, [=]() {
@@ -339,6 +348,7 @@ void EventDetectionWidget::emitFileName() {
 
 void EventDetectionWidget::onComboBoxIndexChanged(int index){
     EventsDirection direction = static_cast<EventsDirection>(index);
+    eventsDirection = direction;
     switch (eventsDirection)
     {
     case DOWN:
@@ -354,4 +364,24 @@ void EventDetectionWidget::onComboBoxIndexChanged(int index){
         break;
     }
     emit sigEventDirectionChanged(direction);
+}
+
+void EventDetectionWidget::setCurrentRange(double value) {
+    const auto padding = value * 0.05;
+    if (this->eventsDirection == EventsDirection::DOWN) {
+        bottomLeftPlot->setAxisScale(QwtPlot::Axis::yLeft, -value - padding, +padding);
+    }
+    else if (this->eventsDirection == EventsDirection::UP) {
+        bottomLeftPlot->setAxisScale(QwtPlot::Axis::yLeft, -padding, value + padding);
+    }
+}
+
+void EventDetectionWidget::setDuration(Measurement d) {
+    //Durations are assumed in us
+    const auto maxDuration = d.value * (2 * EVENT_PADDING);
+    d.convertValue(UnitPfxMicro);
+    bottomLeftPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, maxDuration);
+    bottomLeftPlot->setLabel(d.getFullUnit(), QwtPlot::Axis::xBottom);
+    upperLetPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, d.value);
+    upperLetPlot->setLabel(d.getFullUnit(), QwtPlot::Axis::xBottom);
 }

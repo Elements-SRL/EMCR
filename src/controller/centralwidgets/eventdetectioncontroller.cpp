@@ -60,8 +60,8 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
         StrType strdatatype(0, H5T_VARIABLE);
         const double srValue = sr.getNoPrefixValue();
         const double spValue = 1.0 / srValue;
-        dataset.createAttribute("Sampling Rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
-        dataset.createAttribute("Sampling Period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &spValue);
+        dataset.createAttribute("Sampling rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
+        dataset.createAttribute("Sampling period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &spValue);
         return dataset;
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -100,8 +100,8 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
-        dataset.createAttribute("Sample Offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
-        dataset.createAttribute("Stimulus", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.resolution);
+        dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
+        dataset.createAttribute("Stimulus", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulus);
         append_data(dataset, event.rawData);
     }  // end of try block
     catch (H5::GroupIException& error) {
@@ -156,13 +156,16 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
         auto cms = appStatus->getClampingModalityString();
         auto sn = appStatus->getSerialNumber();
         auto software_name = GLB_SOFTWARE_NAME.toStdString();
+        auto device_name = appStatus->getMessageDispatcher()->getDeviceName();
         file.createAttribute("Date time (Year-Month-Day Hour:Minute:Second)", strdatatype, attSpace).write(strdatatype, dateTimeStr);
         file.createAttribute("Version", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::NATIVE_UINT16, &version);
-        file.createAttribute("Acquisition Modality", strdatatype, attSpace).write(strdatatype, acq_mod);
-        file.createAttribute("Clamping Modality", strdatatype, attSpace).write(strdatatype, cms);
+        file.createAttribute("Acquisition modality", strdatatype, attSpace).write(strdatatype, acq_mod);
+        file.createAttribute("Clamping modality", strdatatype, attSpace).write(strdatatype, cms);
         file.createAttribute("Device info", strdatatype, attSpace).write(strdatatype, device_info);
         file.createAttribute("Serial number", strdatatype, attSpace).write(strdatatype, sn);
         file.createAttribute("Acquisition software", strdatatype, attSpace).write(strdatatype, software_name);
+        file.createAttribute("Device name", strdatatype, attSpace).write(strdatatype, device_name);
+        
         //Modify dataset creation properties, i.e. enable chunking.
         H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
@@ -179,20 +182,20 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
         auto vrMultiplier = vr.multiplier();
         auto crUnit = cr.getFullUnit();
         baselineGroup.createAttribute("Current uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
-        baselineGroup.createAttribute("Current Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
-        baselineGroup.createAttribute("Current Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
+        baselineGroup.createAttribute("Current resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        baselineGroup.createAttribute("Current multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
         baselineGroup.createAttribute("Voltage uom", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
-        baselineGroup.createAttribute("Voltage Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
-        baselineGroup.createAttribute("Voltage Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
+        baselineGroup.createAttribute("Voltage resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        baselineGroup.createAttribute("Voltage multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
         H5::Group eventsGroup = chGroup.createGroup("/electrophysiology/ch_0/Events");
         eventsGroup.createAttribute("Current uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
-        eventsGroup.createAttribute("Current Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
-        eventsGroup.createAttribute("Current Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
+        eventsGroup.createAttribute("Current resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
+        eventsGroup.createAttribute("Current multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
         eventsGroup.createAttribute("Voltage uom", strdatatype, attSpace).write(strdatatype, vr.getFullUnit());
-        eventsGroup.createAttribute("Voltage Resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
-        eventsGroup.createAttribute("Voltage Multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
-        eventsGroup.createAttribute("Sampling Rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srNoPref);
-        eventsGroup.createAttribute("Sampling Period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &period);
+        eventsGroup.createAttribute("Voltage resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vr.step);
+        eventsGroup.createAttribute("Voltage multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &vrMultiplier);
+        eventsGroup.createAttribute("Sampling rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srNoPref);
+        eventsGroup.createAttribute("Sampling period (s)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &period);
 
         //TODO this could be a user parameter
         Measurement baselineSr = { 500.0, UnitPfx::UnitPfxNone, "Hz" };
@@ -223,17 +226,19 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
     //TODO THOSE NEEDS TO BE 
     auto sr = appStatus->getSamplingRate();
-    auto noPrefVal = sr.getNoPrefixValue();
-    minDurationInSeconds = 80.0 / noPrefVal;
-    maxDurationInSeconds = 8000.0 / noPrefVal;
+    minDuration = { 80.0, UnitPfx::UnitPfxMicro, "s" };
+    maxDuration = { 8000.0, UnitPfx::UnitPfxMicro, "s"};
     minAmplitude = 0.0;
     maxAmplitude = appStatus->getCurrentRange().getMax().value / 10;
-    durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+    durationBinner = new Binner(minDuration.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
     amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
     const auto highCutoffFrequency = sr.getNoPrefixValue() / 4.0;
     eventsDirection = EventsDirection::DOWN;
-    consumer = new EventDetectionConsumer(appStatus, producer, minDurationInSeconds * noPrefVal, maxDurationInSeconds * noPrefVal, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER, eventsDirection);
-    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDurationInSeconds, maxDurationInSeconds, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER, eventsDirection);
+    const auto minSamples = minDuration.getNoPrefixValue() * sr.getNoPrefixValue();
+    const auto maxSamples = maxDuration.getNoPrefixValue() * sr.getNoPrefixValue();
+
+    consumer = new EventDetectionConsumer(appStatus, producer, minSamples, maxSamples, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER, eventsDirection);
+    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDuration, maxDuration, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER, eventsDirection);
     bpw->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
@@ -256,16 +261,17 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         consumer->onStopConsuming();
         closeHDF5();
         });
-    connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](double value) {
+    connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](Measurement m) {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
         auto sr = appStatus->getSamplingRate();
-        minDurationInSeconds = value;
-        uint32_t durationInSamples = sr.getNoPrefixValue() * value;
+        minDuration = m;
+        const auto mNoPref = m.getNoPrefixValue();
+        uint32_t durationInSamples = sr.getNoPrefixValue() * mNoPref;
         delete durationBinner;
-        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        durationBinner = new Binner(m.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
         amplitudeBinner->clear();
         totalEvents = 0;
         durationAccumulator = 0;
@@ -275,16 +281,17 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    connect(widget, &EventDetectionWidget::maxDurationChanged, this, [=](double value) {
+    connect(widget, &EventDetectionWidget::maxDurationChanged, this, [=](Measurement duration) {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
         auto sr = appStatus->getSamplingRate();
-        maxDurationInSeconds = value;
-        uint32_t durationInSamples = sr.getNoPrefixValue() * value;
+        maxDuration = duration;
+        const auto mNoPref = duration.getNoPrefixValue();
+        uint32_t durationInSamples = sr.getNoPrefixValue() * mNoPref;
         delete durationBinner;
-        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        durationBinner = new Binner(minDuration.getNoPrefixValue(), duration.getNoPrefixValue(), durationBins);
         amplitudeBinner->clear();
         totalEvents = 0;
         durationAccumulator = 0;
@@ -297,7 +304,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(widget, &EventDetectionWidget::durationBinsChanged, this, [=](int value) {
         delete durationBinner;
         durationBins = value;
-        durationBinner = new Binner(minDurationInSeconds, maxDurationInSeconds, durationBins);
+        durationBinner = new Binner(minDuration.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
         });
     connect(widget, &EventDetectionWidget::amplitudeBinsChanged, this, [=](int value) {
         delete amplitudeBinner;
@@ -531,7 +538,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             amplitudeAccumulator += ei.amplitude;
             const std::vector<int16_t>& data = event.rawData;
             eventDurationAcc += data.size();
-            const auto resolution = event.resolution;
+            const auto resolution = appStatus->getCurrentRange().step;
             acc += data.size();
             if (eventsGroup.has_value()) {
                 writeEvent(eventsGroup.value(), event, "e_" + std::to_string(eventCounter++));
@@ -540,7 +547,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 const auto & curve = eventCurves[chIdx];
                 QVector<double> yData(data.size());
                 QVector<double> xData;
-                const auto noPrefSr = 1.0 / sr.getNoPrefixValue();
+                const auto noPrefSr = (1.0 / sr.getNoPrefixValue()) * 1e6;
                 for (int i = 0; i < yData.size(); i++) {
                     yData[i] = ((double) data[i]) * resolution;
                     xData << i * noPrefSr;
@@ -556,9 +563,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         {
             const auto& keys = durationBinner->getKeys();
             const auto& accs = durationBinner->getValues();
+            const auto scaleFactor = 1.0 / maxDuration.multiplier();
             for (int i = 0; i < durationBinner->getNBins(); i++) {
                 const auto k = keys[i];
-                durationSamples.append(QPointF(keys[i], accs[i]));
+                durationSamples.append(QPointF(keys[i] * scaleFactor, accs[i]));
             }
         }
 
