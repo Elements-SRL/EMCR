@@ -379,7 +379,7 @@ void EventDetectionWidget::setCurrentRange(double value) {
 void EventDetectionWidget::setDuration(Measurement d) {
     //Durations are assumed in us
     const auto maxDuration = d.value * (2 * EVENT_PADDING);
-    d.nice();
+    d.convertValue(UnitPfxMicro);
     bottomLeftPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, maxDuration);
     bottomLeftPlot->setLabel(d.getFullUnit(), QwtPlot::Axis::xBottom);
     upperLetPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, d.value);
