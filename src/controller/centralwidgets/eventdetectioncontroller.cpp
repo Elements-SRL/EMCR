@@ -271,11 +271,8 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         const auto mNoPref = m.getNoPrefixValue();
         uint32_t durationInSamples = sr.getNoPrefixValue() * mNoPref;
         delete durationBinner;
-        durationBinner = new Binner(m.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
-        amplitudeBinner->clear();
-        totalEvents = 0;
-        durationAccumulator = 0;
-        amplitudeAccumulator = 0;
+        durationBinner = new Binner(mNoPref, maxDuration.getNoPrefixValue(), durationBins);
+        resetStats();
         consumer->setMinEventDurationInSamples(durationInSamples);
         if (wasThisRunning) {
             consumer->onStartConsuming();
@@ -291,32 +288,46 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         const auto mNoPref = duration.getNoPrefixValue();
         uint32_t durationInSamples = sr.getNoPrefixValue() * mNoPref;
         delete durationBinner;
-        durationBinner = new Binner(minDuration.getNoPrefixValue(), duration.getNoPrefixValue(), durationBins);
-        amplitudeBinner->clear();
-        totalEvents = 0;
-        durationAccumulator = 0;
-        amplitudeAccumulator = 0;
+        durationBinner = new Binner(minDuration.getNoPrefixValue(), mNoPref, durationBins);
+        resetStats();
         consumer->setMaxEventDurationInSamples(durationInSamples);
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
         });
     connect(widget, &EventDetectionWidget::durationBinsChanged, this, [=](int value) {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
         delete durationBinner;
         durationBins = value;
         durationBinner = new Binner(minDuration.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
         });
     connect(widget, &EventDetectionWidget::amplitudeBinsChanged, this, [=](int value) {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
         delete amplitudeBinner;
         amplitudeBins = value;
         amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
         });
     connect(widget, &EventDetectionWidget::maxAmplitudeChanged, this, [=](double value) {
-        delete amplitudeBinner;
         const auto wasThisRunning = consumer->isRunning();
-        consumer->onStopConsuming();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        delete amplitudeBinner;
         maxAmplitude = value;
         consumer->setMaxAmplitude(value);
+        resetStats();
         amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
         if (wasThisRunning) {
             consumer->onStartConsuming();
@@ -328,6 +339,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStopConsuming();
         }
         consumer->setHighCutoffFrequency(value);
+        resetStats();
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
@@ -338,6 +350,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStopConsuming();
         }
         consumer->setStdMultiplier(value);
+        resetStats();
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
@@ -346,16 +359,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
-        }
-        //file reinitialization
-        if (iBaselineDataset.has_value()) {
-            iBaselineDataset.value().close();
-        }
-        if (vBaselineDataset.has_value()) {
-            vBaselineDataset.value().close();
-        }
-        if (eventsGroup.has_value()) {
-            eventsGroup.value().close();
         }
         initHDF5();
         if (wasThisRunning) {
@@ -366,16 +369,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
-        }
-        //file reinitialization
-        if (iBaselineDataset.has_value()) {
-            iBaselineDataset.value().close();
-        }
-        if (vBaselineDataset.has_value()) {
-            vBaselineDataset.value().close();
-        }
-        if (eventsGroup.has_value()) {
-            eventsGroup.value().close();
         }
         initHDF5();
         if (wasThisRunning) {
@@ -582,6 +575,16 @@ PlotConsumer* EventDetectionController::getConsumer() {
 
 void EventDetectionController::initHDF5() {
     auto wasConsumerRunning = consumer->isRunning();
+    //file reinitialization
+    if (iBaselineDataset.has_value()) {
+        iBaselineDataset.value().close();
+    }
+    if (vBaselineDataset.has_value()) {
+        vBaselineDataset.value().close();
+    }
+    if (eventsGroup.has_value()) {
+        eventsGroup.value().close();
+    }
     consumer->onStopConsuming();
     const auto filepath = widget->getFilePath();
     std::string filepathEndingInBackslash = (filepath.back() == '\\') ? filepath : filepath + '\\';
@@ -604,4 +607,12 @@ void EventDetectionController::closeHDF5() {
         eventsGroup.value().close();
         file.value().close();
     }
+}
+
+void EventDetectionController::resetStats() {
+    amplitudeBinner->clear();
+    durationBinner->clear();
+    totalEvents = 0;
+    durationAccumulator = 0;
+    amplitudeAccumulator = 0;
 }

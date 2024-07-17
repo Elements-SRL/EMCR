@@ -64,6 +64,7 @@ private:
     std::optional<H5::H5File> file;
     void initHDF5();
     void closeHDF5();
+    void resetStats();
 
 signals:
     void durationChanged(Measurement_t duration);
