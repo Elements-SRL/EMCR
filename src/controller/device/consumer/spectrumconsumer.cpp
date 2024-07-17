@@ -54,6 +54,9 @@ void SpectrumConsumer::computeFrequencyAxis() {
     integrationRounds = (nBins-1)/maxSamples+1;
     nBins /= integrationRounds;
     n2Bins = nBins/2; // floor rounding: if nBins is even the DC frequeny is removed, but SR/2 is included, if nBins is odd DC included, SR/2 does not exist
+    if (n2Bins == 0) {
+        return;
+    }
 
     integrationRoundIdx = 0;
     binIndex = 0;

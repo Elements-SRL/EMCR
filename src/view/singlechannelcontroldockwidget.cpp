@@ -24,7 +24,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     operationTitles.resize(OperationsNum);
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
-    operationTitles[OperationLiquidJunction] = "Offset compensation";
+    operationTitles[OperationLiquidJunction] = "Liquid junction compensation";
     operationTitles[OperationStimulusHalf] = "Stimulus half";
 
     operationCbx = new QComboBox;

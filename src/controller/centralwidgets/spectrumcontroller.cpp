@@ -6,15 +6,15 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     mainWindow(mainWindow){
 
-    model = new BigPlotModel();
+    model = new BigPlotModel(BigPlot::Spectrum);
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
     spectrumWidget = new SpectrumWidget(currentChannelsNum, bigPlotWidget);
     mainWindow->setSpectrumWidget(spectrumWidget);
 
     plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
-    plot->setAxisAutoScale(QwtPlot::xBottom, true);
-    plot->setAxisAutoScale(QwtPlot::yLeft, true);
+    plot->setAxisAutoScale(QwtPlot::xBottom, false);
+    plot->setAxisAutoScale(QwtPlot::yLeft, false);
     plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
     plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
 
@@ -32,14 +32,11 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     });
     connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomResetRequest(model, plot);
-        plot->setAxisAutoScale(QwtPlot::yLeft, true);
     });
     connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
-        plot->setAxisAutoScale(QwtPlot::yLeft, false);
         bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
     });
     connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
-        plot->setAxisAutoScale(QwtPlot::yLeft, false);
         bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
     });
 

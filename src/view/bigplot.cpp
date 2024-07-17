@@ -178,7 +178,7 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
     QPoint plotPos = mapFromGlobal(globalPos);
     // Get the corresponding position in the plot's coordinate system
     QwtPointSeriesData data;
-    QwtScaleMap xMap = canvasMap(QwtPlot::xBottom);
+    QwtScaleMap xMap = canvasMap(xBottom);
     QwtScaleMap yMap = canvasMap(vertAxis);
     QPointF plotCoordinates = QPointF(xMap.invTransform(plotPos.x()), yMap.invTransform(plotPos.y()));
 
@@ -188,7 +188,7 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
         break;
 
     case Qt::Modifier::SHIFT:
-        emit singleAxisZoomRequest(QwtPlot::Axis::xBottom, verticalRotation, plotCoordinates);
+        emit singleAxisZoomRequest(xBottom, verticalRotation, plotCoordinates);
         break;
 
     default:

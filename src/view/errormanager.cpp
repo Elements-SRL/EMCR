@@ -564,7 +564,7 @@ QString protocolListCode2error(ProtocolList::ProtocolListStatus_t errorCode) {
         break;
 
     case ProtocolList::ErrorLoadOffsetCompensationProtocolFail:
-        error = "Failed to load protocol for offset compensation";
+        error = "Failed to load protocol for liquid junction compensation";
         break;
 
     case ProtocolList::ErrorLoadRestingPotentialProtocolFail:
