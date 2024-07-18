@@ -459,7 +459,6 @@ void EventDetectionController::onReplot() {
 //todo Check clamping modality too
 //todo reset stats and reinit file
 void EventDetectionController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
-    QwtPlot::Axis axisIdx;
     if (newRange.unit == "A") {
         widget->setCurrentRange(newRange);
     }
@@ -488,7 +487,6 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
     }
-    //detachCurves(allChannels);
     uint32_t eventDurationAcc = 0;
     uint32_t len;
     for (const auto& pair : message.eventPackets) {
@@ -529,7 +527,6 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                     yData[i] = ((double) data[i]) * resolution;
                     xData << i * noPrefSr;
                 }
-                //NOT PLOTTING DATA ANYMORE
                 curve->setSamples(xData, yData);
                 plot->show();
                 plot->replot();
