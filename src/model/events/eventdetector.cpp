@@ -158,11 +158,9 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
         low->init(doubleBuffer[0]);
         high->init(doubleBuffer[0]);
     }
-    else {
-        intBuffer.insert(intBuffer.begin(), remainingIntBuffer.begin(), remainingIntBuffer.end());
-        doubleBuffer.insert(doubleBuffer.begin(), remainingDoubleBuffer.begin(), remainingDoubleBuffer.end());
-        voltages.insert(voltages.begin(), remainingVoltages.begin(), remainingVoltages.end());
-    }
+    intBuffer.insert(intBuffer.begin(), remainingIntBuffer.begin(), remainingIntBuffer.end());
+    doubleBuffer.insert(doubleBuffer.begin(), remainingDoubleBuffer.begin(), remainingDoubleBuffer.end());
+    voltages.insert(voltages.begin(), remainingVoltages.begin(), remainingVoltages.end());
 
     this->chunkSize = chunkSize;
     threshold = calculateThreshold(bandPassFilterData);
