@@ -134,3 +134,7 @@ std::vector<PlotConsumer*> BigPlotController::getConsumers() {
     }
     return consumers;
 }
+
+std::vector<CentralWidgetController*> BigPlotController::getControllers() {
+    return controllers;
+}

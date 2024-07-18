@@ -31,6 +31,7 @@ public:
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
     void onSamplingRateChanged(Measurement_t samplingRate) override;
+    void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
 
 private:
     double highCutoffFrequency;
@@ -64,6 +65,11 @@ protected:
     void run() override;
     void allocateData() override;
     void emitPlotData() override;
+
+signals:
+    void sigSamplingRangeChanged(Measurement_t duration);
+    void sigDownSamplingRangeChanged(unsigned int dsr);
+
 };
 
 #endif // EVENTDETECTIONCONSUMER_H

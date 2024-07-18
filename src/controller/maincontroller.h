@@ -75,6 +75,10 @@ private:
 
     QVector <DeviceDataConsumer*> consumers;
     QVector <DataWriterConsumer*> dataWriterConsumers;
+    //TODO the following will become a list of Controllers, a controller will abstract away
+    //all the slot and signals a common controller will have to be able to respond to 
+    //(onSamplingRateChanged, onDownSamplingRateChanged, ecc.)
+    std::vector<CentralWidgetController*> centralWidgetControllers;
 
     BigPlotController * bigPlotController = nullptr;
     ChessboardController * chessboardController = nullptr;

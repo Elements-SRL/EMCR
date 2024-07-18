@@ -37,7 +37,11 @@ public slots:
     virtual void onReplot() = 0;
     virtual void onExpandTrace(bool flag) = 0;
     virtual void onSetPlotData(PlotMessage plotMessage) = 0;
-    //virtual void onSamplingRangeChanged(Measurement sr) = 0;
+    virtual void onSamplingRateChanged(Measurement sr);
+    virtual void onDownsamplingRatioChanged(unsigned int dsr);
+    virtual void onCurrentRangeChanged(RangedMeasurement rm);
+    virtual void onVoltageRangeChanged(RangedMeasurement rm);
+    virtual void onStopConsuming();
 
 protected:
     BigPlotWidget* bigPlotWidget;

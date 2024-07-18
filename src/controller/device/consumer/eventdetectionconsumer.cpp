@@ -152,6 +152,10 @@ void EventDetectionConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     minDataBatchSize = samplingRate.value * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
 }
 
+void EventDetectionConsumer::onDownsamplingRatioChanged(unsigned int downsamplingRatio) {
+    minDataBatchSize = this->samplingRateHz/ (double) downsamplingRatio * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
+}
+
 void EventDetectionConsumer::setMinEventDurationInSamples(uint32_t newValue) {
     minEventSamples = newValue;
     for (const auto& ed : eventDetectionChannels) {

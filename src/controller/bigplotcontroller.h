@@ -22,6 +22,7 @@ public:
     ~BigPlotController();
 
     std::vector<PlotConsumer*> getConsumers();
+    std::vector<CentralWidgetController*> getControllers();
 
 public slots:
     void onCurrentColorsChanged(QVector <QColor> colors);

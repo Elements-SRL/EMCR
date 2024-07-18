@@ -205,8 +205,8 @@ void MainController::onMainWindowCreated() {
     \*************/
 
     consumers.append(chessboardController->getPlotConsumer());
-    for(auto c: bigPlotController->getConsumers()){
-        consumers.append(c);
+    for(auto c: bigPlotController->getControllers()){
+        centralWidgetControllers.push_back(c);
     }
     abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);
     consumers.append(abfDataWriterConsumer);
@@ -431,7 +431,9 @@ void MainController::onVcCurrentRangeSelected(int) {
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(range);
     }
-
+    for (auto controller : centralWidgetControllers) {
+        controller->onCurrentRangeChanged(range);
+    }
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
 }
@@ -451,6 +453,9 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
     }
+    for (auto controller : centralWidgetControllers) {
+        controller->onVoltageRangeChanged(range);
+    }
     //this should be useless?
     //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range);
@@ -467,7 +472,9 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(range);
     }
-
+    for (auto controller : centralWidgetControllers) {
+        controller->onCurrentRangeChanged(range);
+    }
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
@@ -482,6 +489,9 @@ void MainController::onCcVoltageRangeSelected(int) {
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
+    }
+    for (auto controller : centralWidgetControllers) {
+        controller->onVoltageRangeChanged(range);
     }
     //this should be useless?
     //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
@@ -508,6 +518,9 @@ void MainController::onSamplingRateSelected(int) {
     for (auto consumer : consumers) {
         consumer->onSamplingRateChanged(meas);
     }
+    for (auto controller : centralWidgetControllers) {
+        controller->onSamplingRateChanged(meas);
+    }
 }
 
 void MainController::onDownsamplingRatioSelected(int) {
@@ -520,6 +533,9 @@ void MainController::onDownsamplingRatioSelected(int) {
     for (auto consumer : consumers) {
         consumer->onDownsamplingRatioChanged(ratio);
     }
+    for (auto controller : centralWidgetControllers) {
+        controller->onDownsamplingRatioChanged(ratio);
+    }
 }
 
 void MainController::onClampingModalitySelected(ClampingModality_t mode) {
@@ -530,6 +546,7 @@ void MainController::onClampingModalitySelected(ClampingModality_t mode) {
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 
+//TODO this could be moved at the controller level and b managed by single controllers
 void MainController::onStartRecording() {
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
@@ -554,6 +571,10 @@ void MainController::stopAndDestroyProducerConsumers() {
         consumer->onStopConsuming();
     }
 
+    for (auto controller : centralWidgetControllers) {
+        controller->onStopConsuming();
+    }
+
     if (abfDataWriterConsumer!= nullptr) {
         abfDataWriterConsumer->onStopConsuming();
         delete abfDataWriterConsumer;
@@ -566,5 +587,6 @@ void MainController::stopAndDestroyProducerConsumers() {
         deviceDataProducer = nullptr;
     }
     consumers.clear();
+    centralWidgetControllers.clear();
     dataWriterConsumers.clear();
 }
