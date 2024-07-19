@@ -431,18 +431,42 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
     msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
     for(int i = 0; i < localNumOfCurrChans; i++){
         channelIndexes.push_back(i);
-        cfastEn.push_back(cfastCheckBoxes[i]->isChecked());
-        cslowRsEn.push_back(cslowRsCheckBoxes[i]->isChecked());
-        rsCpEn.push_back(rsCpCheckBoxes[i]->isChecked());
-        rsPgEn.push_back(rsPgCheckBoxes[i]->isChecked());
-        ccCfastEn.push_back(ccCfastCheckBoxes[i]->isChecked());
-        cfastValues.push_back(cfastSpinBoxes[i]->value());
-        cslowValues.push_back(cslowSpinBoxes[i]->value());
-        rsValues.push_back(rsSpinBoxes[i]->value());
-        rsCpValues.push_back(rsCpSpinBoxes[i]->value());
-        rsPgValues.push_back(rsPgSpinBoxes[i]->value());
-        rsBWValueIdxs.push_back(rsBwComboBoxes[i]->currentIndex());
-        ccCfastValues.push_back(ccCfastSpinBoxes[i]->value());
+        if (!cfastCheckBoxes.empty()) {
+            cfastEn.push_back(cfastCheckBoxes[i]->isChecked());
+        }
+        if (!cslowRsCheckBoxes.empty()) {
+            cslowRsEn.push_back(cslowRsCheckBoxes[i]->isChecked());
+        }
+        if (!rsCpCheckBoxes.empty()) {
+            rsCpEn.push_back(rsCpCheckBoxes[i]->isChecked());
+        }
+        if (!rsPgCheckBoxes.empty()) {
+            rsPgEn.push_back(rsPgCheckBoxes[i]->isChecked());
+        }
+        if (!ccCfastCheckBoxes.empty()) {
+            ccCfastEn.push_back(ccCfastCheckBoxes[i]->isChecked());
+        }
+        if (!cfastSpinBoxes.empty()) {
+            cfastValues.push_back(cfastSpinBoxes[i]->value());
+        }
+        if (!cslowSpinBoxes.empty()) {
+            cslowValues.push_back(cslowSpinBoxes[i]->value());
+        }
+        if (!rsSpinBoxes.empty()) {
+            rsValues.push_back(rsSpinBoxes[i]->value());
+        }
+        if (!rsCpSpinBoxes.empty()) {
+            rsCpValues.push_back(rsCpSpinBoxes[i]->value());
+        }
+        if (!rsPgSpinBoxes.empty()) {
+            rsPgValues.push_back(rsPgSpinBoxes[i]->value());
+        }
+        if (!rsBwComboBoxes.empty()) {
+            rsBWValueIdxs.push_back(rsBwComboBoxes[i]->currentIndex());
+        }
+        if (!ccCfastSpinBoxes.empty()) {
+            ccCfastValues.push_back(ccCfastSpinBoxes[i]->value());
+        }
     }
 
     emit sigCompensationsApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues, rsBWValueIdxs, ccCfastEn, ccCfastValues);
@@ -456,34 +480,50 @@ void CompensationControlDockWidget::onCompValuesDispatched(std::vector<std::vect
     msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
     msgDisp->getClampingModality(mode);
     for (int i = 0; i < localNumOfCurrChans; i++){
-        cfastSpinBoxes[i]->setRange(cfastFeatures[i].min, cfastFeatures[i].max);
-        cfastSpinBoxes[i]->setDecimals(cfastFeatures[i].decimals());
+        if (!cfastSpinBoxes.empty()) {
+            cfastSpinBoxes[i]->setRange(cfastFeatures[i].min, cfastFeatures[i].max);
+            cfastSpinBoxes[i]->setDecimals(cfastFeatures[i].decimals());
+        }
 
-        ccCfastSpinBoxes[i]->setRange(ccCfastFeatures[i].min, ccCfastFeatures[i].max);
-        ccCfastSpinBoxes[i]->setDecimals(ccCfastFeatures[i].decimals());
+        if (!ccCfastSpinBoxes.empty()) {
+            ccCfastSpinBoxes[i]->setRange(ccCfastFeatures[i].min, ccCfastFeatures[i].max);
+            ccCfastSpinBoxes[i]->setDecimals(ccCfastFeatures[i].decimals());
+        }
 
         if(mode == ClampingModality_t::VOLTAGE_CLAMP){
-            cfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpVc]);
+            if (!cfastSpinBoxes.empty()) {
+                cfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpVc]);
+            }
         } else if(mode == ClampingModality_t::ZERO_CURRENT_CLAMP || mode == ClampingModality_t::CURRENT_CLAMP) {
-            ccCfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpCc]);
+            if (!ccCfastSpinBoxes.empty()) {
+                ccCfastSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_CpCc]);
+            }
         } else {
             /*! \todo MPAC ancora da fare*/
         }
 
-        cslowSpinBoxes[i]->setRange(cslowFeatures[i].min, cslowFeatures[i].max);
-        cslowSpinBoxes[i]->setDecimals(cslowFeatures[i].decimals());
-        cslowSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_Cm]);
+        if (!cslowSpinBoxes.empty()) {
+            cslowSpinBoxes[i]->setRange(cslowFeatures[i].min, cslowFeatures[i].max);
+            cslowSpinBoxes[i]->setDecimals(cslowFeatures[i].decimals());
+            cslowSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_Cm]);
+        }
 
-        rsSpinBoxes[i]->setRange(rsFeatures[i].min, rsFeatures[i].max);
-        rsSpinBoxes[i]->setDecimals(rsFeatures[i].decimals());
-        rsSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_Rs]);
+        if (!rsSpinBoxes.empty()) {
+            rsSpinBoxes[i]->setRange(rsFeatures[i].min, rsFeatures[i].max);
+            rsSpinBoxes[i]->setDecimals(rsFeatures[i].decimals());
+            rsSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_Rs]);
+        }
 
-        rsCpSpinBoxes[i]->setRange(rsCpFeatures[i].min, rsCpFeatures[i].max);
-        rsCpSpinBoxes[i]->setDecimals(rsCpFeatures[i].decimals());
-        rsCpSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_RsCp]);
+        if (!rsCpSpinBoxes.empty()) {
+            rsCpSpinBoxes[i]->setRange(rsCpFeatures[i].min, rsCpFeatures[i].max);
+            rsCpSpinBoxes[i]->setDecimals(rsCpFeatures[i].decimals());
+            rsCpSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_RsCp]);
+        }
 
-        rsPgSpinBoxes[i]->setRange(rsPgFeatures[i].min, rsPgFeatures[i].max);
-        rsPgSpinBoxes[i]->setDecimals(rsPgFeatures[i].decimals());
-        rsPgSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_RsPg]);
+        if (!rsPgSpinBoxes.empty()) {
+            rsPgSpinBoxes[i]->setRange(rsPgFeatures[i].min, rsPgFeatures[i].max);
+            rsPgSpinBoxes[i]->setDecimals(rsPgFeatures[i].decimals());
+            rsPgSpinBoxes[i]->setValue(compValueMatrix[i][MessageDispatcher::U_RsPg]);
+        }
     }
 }

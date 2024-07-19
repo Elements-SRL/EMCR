@@ -66,13 +66,17 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
         x0.unit = "V";
         xStep.unit = "V";
         xFinal.unit = "V";
+        xFinalStep.unit = "V";
         xAmp.unit = "V";
+        xAmpStep.unit = "V";
 
     } else {
         x0.unit = "A";
         xStep.unit = "A";
         xFinal.unit = "A";
+        xFinalStep.unit = "A";
         xAmp.unit = "A";
+        xAmpStep.unit = "A";
     }
 
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {

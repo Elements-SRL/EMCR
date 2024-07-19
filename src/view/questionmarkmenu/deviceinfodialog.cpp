@@ -7,6 +7,7 @@
 #include <QClipboard>
 
 #include "globaldefines.h"
+#include "messagedispatcher.h"
 
 DeviceInfoDialog::DeviceInfoDialog(bool connected, QString deviceId, QWidget* parent) :
     MessageDialog("Device Info", true, parent) {
@@ -15,13 +16,13 @@ DeviceInfoDialog::DeviceInfoDialog(bool connected, QString deviceId, QWidget* pa
     deviceIdLbl->setAlignment(Qt::AlignCenter);
     mainVl->addWidget(deviceIdLbl);
 
-    //deviceVerLbl = new QLabel;
-    //deviceVerLbl->setAlignment(Qt::AlignCenter);
-    //mainVl->addWidget(deviceVerLbl);
+    deviceVerLbl = new QLabel;
+    deviceVerLbl->setAlignment(Qt::AlignCenter);
+    mainVl->addWidget(deviceVerLbl);
 
-    //deviceSubverLbl = new QLabel;
-    //deviceSubverLbl->setAlignment(Qt::AlignCenter);
-    //mainVl->addWidget(deviceSubverLbl);
+    deviceSubverLbl = new QLabel;
+    deviceSubverLbl->setAlignment(Qt::AlignCenter);
+    mainVl->addWidget(deviceSubverLbl);
 
     fwVerLbl = new QLabel;
     fwVerLbl->setAlignment(Qt::AlignCenter);
@@ -42,33 +43,47 @@ DeviceInfoDialog::DeviceInfoDialog(bool connected, QString deviceId, QWidget* pa
 
     mainVl->addLayout(btnHl);
 
-    if (connected) {
-        deviceIdLbl->setText("Device ID: " + deviceId + " (connected)");
-        //deviceVerLbl->setText("Device version: " + QString::number(deviceVer));
-        //deviceSubverLbl->setText("Device subversion: " + QString::number(deviceSubver));
-        //fwVerLbl->setText("Firmware version: " + QString::number(fwVer));
-        copyToClipboardBtn->setVisible(true);
-    } else {
-        deviceIdLbl->setText("No device connected");
-        //deviceVerLbl->setText("");
-        //deviceSubverLbl->setText("Please plug a device in to get its information");
-        //fwVerLbl->setText("Please plug a device in to get its information");
-        copyToClipboardBtn->setVisible(false);
-    }
+    uint32_t deviceVer;
+    uint32_t deviceSubver;
+    uint32_t fwVer;
+    ErrorCodes_t ret = MessageDispatcher::getDeviceInfo(deviceId.toStdString(), deviceVer, deviceSubver, fwVer);
 
+    deviceIdLbl->setText("Device ID: " + deviceId + (connected ? " (connected)" : " (not connected)"));
+    switch (ret) {
+    case Success:
+        deviceVerLbl->setText("Device version: " + QString::number(deviceVer));
+        deviceVerLbl->setVisible(true);
+        deviceSubverLbl->setText("Device subversion: " + QString::number(deviceSubver));
+        deviceVerLbl->setVisible(true);
+        fwVerLbl->setText("Firmware version: " + QString::number(fwVer));
+        deviceVerLbl->setVisible(true);
+        copyToClipboardBtn->setVisible(true);
+        break;
+
+    case ErrorFeatureNotImplemented:
+        deviceVerLbl->setVisible(false);
+        deviceVerLbl->setVisible(false);
+        deviceVerLbl->setVisible(false);
+        copyToClipboardBtn->setVisible(true);
+        break;
+
+    case ErrorDeviceTypeNotRecognized:
+        deviceVerLbl->setText("Device not recognized");
+        deviceVerLbl->setVisible(true);
+        deviceVerLbl->setVisible(false);
+        deviceVerLbl->setVisible(false);
+        copyToClipboardBtn->setVisible(true);
+        break;
+    }
     this->addDefaultButtonBox();
 
     this->centerOnParent(parent);
 }
 
-DeviceInfoDialog::~DeviceInfoDialog() {
-
-}
-
 void DeviceInfoDialog::onCopyToClipboard() {
     QClipboard* clipboard = QApplication::clipboard();
-    clipboard->setText(deviceIdLbl->text() + "\n"/* +
+    clipboard->setText(deviceIdLbl->text() + "\n" +
         deviceVerLbl->text() + "\n" +
         deviceSubverLbl->text() + "\n" +
-        fwVerLbl->text()*/);
+        fwVerLbl->text());
 }

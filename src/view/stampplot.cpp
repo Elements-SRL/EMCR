@@ -5,6 +5,7 @@
 #include <QApplication>
 #include "globaldefines.h"
 #include <qwt_symbol.h>
+#include <QFrame>
 
 StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
     QwtPlot(parent),
@@ -49,13 +50,13 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
 
     selected = false;
-    colorMarker = new QwtPlotMarker();
-    colorMarker->attach(this);
-    auto x = this->width();
-    auto y = this->height();
-    colorMarker->setValue(x*.0093, y*0.4); // Set the position where you want to draw the solid color
-    colorMarker->setLineStyle(QwtPlotMarker::NoLine);
     this->setStyleSheet("StampPlot { border: 1px solid black; }");
+    colorLabel = new QFrame(this);
+    colorLabel->setGeometry(this->canvas()->x()+this->canvas()->width()-SMP_LEGEND_SIZE, this->canvas()->y(), SMP_LEGEND_SIZE, SMP_LEGEND_SIZE);
+    colorLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    colorLabel->setFrameShape(Box);
+    colorLabel->setStyleSheet("background-color: rgb(255, 255, 255);");
+    colorLabel->raise();
 }
 
 QSize StampPlot::sizeHint() const {
@@ -167,20 +168,11 @@ void StampPlot::resizeEvent(QResizeEvent * e) {
         QwtPlot::resizeEvent(e);
     }
 
-    QSize siz = channelIdxLbl->minimumSizeHint();
-    channelIdxLbl->setGeometry(this->canvas()->x(), this->canvas()->y(), siz.width(), siz.height());
-
-    siz = stateLbl->minimumSizeHint();
-    stateLbl->setGeometry(this->canvas()->x(), this->canvas()->y()+this->canvas()->height()-siz.height(), siz.width(), siz.height());
+    this->handleLabelsPosition();
 }
 
 void StampPlot::setLegendColor(QColor color) {
-    auto symbol = new QwtSymbol();  // Create a QwtSymbol object
-    symbol->setStyle(QwtSymbol::Rect);  // Set the style to Rect
-    symbol->setBrush(QBrush(color));  // Set the fill color
-    symbol->setPen(QPen(color));      // Set the border color
-    symbol->setSize(QSize(10, 10));    // Set the size of the block
-    colorMarker->setSymbol(symbol);  // Use the setSymbol method to set the symbol
+    colorLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3);").arg(color.red()).arg(color.green()).arg(color.blue()));
 }
 
 void StampPlot::setName(std::string name){
@@ -194,4 +186,24 @@ void StampPlot::setName(std::string name){
     channelIdxLbl->setFont(font);
     channelIdxLbl->setMargin(0);
     channelIdxLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+}
+
+void StampPlot::drawCanvas(QPainter * p) {
+    QwtPlot::drawCanvas(p);
+    this->handleLabelsPosition();
+}
+
+void StampPlot::handleLabelsPosition() {
+    auto cx = this->canvas()->x();
+    auto cy = this->canvas()->y();
+    auto cw = this->canvas()->width();
+    auto ch = this->canvas()->height();
+
+    QSize siz = channelIdxLbl->minimumSizeHint();
+    channelIdxLbl->setGeometry(cx, cy, siz.width(), siz.height());
+
+    siz = stateLbl->minimumSizeHint();
+    stateLbl->setGeometry(cx, cy+ch-siz.height(), siz.width(), siz.height());
+
+    colorLabel->setGeometry(cx+cw-SMP_LEGEND_SIZE, cy, SMP_LEGEND_SIZE, SMP_LEGEND_SIZE);
 }

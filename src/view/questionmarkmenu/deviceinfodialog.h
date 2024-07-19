@@ -12,7 +12,6 @@ class DeviceInfoDialog : public MessageDialog {
 
 public:
     DeviceInfoDialog(bool connected, QString deviceId, QWidget* parent = nullptr);
-    ~DeviceInfoDialog();
 
 private slots:
     void onCopyToClipboard();

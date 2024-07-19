@@ -19,7 +19,17 @@ CompensationController::CompensationController(MessageDispatcher * msgDisp, Main
     connect(compensationControlDockWidget, &CompensationControlDockWidget::sigCompensationsApplied, this, [=](
             std::vector<uint16_t> channelIndexes,
             std::vector<bool> cfastEn,
-            std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){
+            std::vector<bool> cslowRsEn,
+            std::vector<bool> rsCpEn,
+            std::vector<bool> rsPgEn,
+            std::vector<double> cfastValues,
+            std::vector<double> cslowValues,
+            std::vector<double> rsValues,
+            std::vector<double> rsCpValues,
+            std::vector<double> rsPgValues,
+            std::vector<uint16_t> rsBWValueIdxs,
+            std::vector<bool> ccCfastEn,
+            std::vector<double> ccCfastValues){
         onCompensationApplied(channelIndexes, cfastEn, cslowRsEn, rsCpEn, rsPgEn, cfastValues, cslowValues, rsValues, rsCpValues, rsPgValues, rsBWValueIdxs, ccCfastEn, ccCfastValues);
     });
 }
@@ -49,26 +59,50 @@ void CompensationController::onCompensationApplied(std::vector<uint16_t> channel
     rsPgFeatures.resize(channelIndexes.size());
     ccCfastFeatures.resize(channelIndexes.size());
 
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCfast, cfastEn, false);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, cslowRsEn, false);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, rsCpEn, false);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, rsPgEn, false);
-    msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, ccCfastEn, false);
+    if (!cfastEn.empty()) {
+        msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCfast, cfastEn, false);
+    }
+    if (!cslowRsEn.empty()) {
+        msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, cslowRsEn, false);
+    }
+    if (!rsCpEn.empty()) {
+        msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, rsCpEn, false);
+    }
+    if (!rsPgEn.empty()) {
+        msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, rsPgEn, false);
+    }
+    if (!ccCfastEn.empty()) {
+        msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, ccCfastEn, false);
+    }
 
     if(mode == ClampingModality_t::VOLTAGE_CLAMP){
-        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, cfastValues, false);
+        if (!cfastValues.empty()) {
+            msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, cfastValues, false);
+        }
 
     } else if(mode == ClampingModality_t::ZERO_CURRENT_CLAMP || mode == ClampingModality_t::CURRENT_CLAMP) {
-        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, ccCfastValues, false);
+        if (!ccCfastValues.empty()) {
+            msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, ccCfastValues, false);
+        }
 
     } else {
         /*! \todo MPAC ancora da fare*/
     }
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Cm, cslowValues, false);
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Rs, rsValues, false);
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsCp, rsCpValues, false);
-    msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsPg, rsPgValues, false);
-    msgDisp->setCompOptions(channelIndexes, MessageDispatcher::CompRsCorr, rsBWValueIdxs, false);
+    if (!cslowValues.empty()) {
+        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Cm, cslowValues, false);
+    }
+    if (!rsValues.empty()) {
+        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_Rs, rsValues, false);
+    }
+    if (!rsCpValues.empty()) {
+        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsCp, rsCpValues, false);
+    }
+    if (!rsPgValues.empty()) {
+        msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_RsPg, rsPgValues, false);
+    }
+    if (!rsBWValueIdxs.empty()) {
+        msgDisp->setCompOptions(channelIndexes, MessageDispatcher::CompRsCorr, rsBWValueIdxs, false);
+    }
     msgDisp->sendCommands();
 
     msgDisp->getCompValueMatrix(compValueMatrix);

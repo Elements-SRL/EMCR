@@ -412,7 +412,7 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
             if (msgDisp->hasProtocolRampFeature() == Success) {
                 item = new ProtocolDropIRampItem(msgDisp, ctrlManager, holdEdit->value());
                 item->setStimulusRange(stimulusRange);
-                static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::VRamp_t> (yamlPhase));
+                static_cast <ProtocolDropXRampItem *> (item)->setPhaseFromYaml(std::get <YAML::IRamp_t> (yamlPhase));
             }
             break;
 
