@@ -36,6 +36,7 @@ public:
 
     void setCutoffFrequency(double maxCutoffFrequency);
     void setCurrentRange(RangedMeasurement cr);
+    void setMaxSamplingRate(double srHalf);
 
     std::string getFileName();
     std::string getFilePath();

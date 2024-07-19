@@ -21,7 +21,7 @@ bool CentralWidgetController::isAtLeastOneChannelExpanded() {
 
 void CentralWidgetController::onSamplingRateChanged(Measurement sr) {
 	getConsumer()->onSamplingRateChanged(sr);
-}
+} 
 
 void CentralWidgetController::onDownsamplingRatioChanged(unsigned int dsr) {
 	getConsumer()->onDownsamplingRatioChanged(dsr);

@@ -378,10 +378,14 @@ void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
 
 void EventDetectionWidget::setDuration(Measurement d) {
     //Durations are assumed in us
-    const auto maxDuration = d.value * (2 * EVENT_PADDING);
+    const auto maxDuration = d.value * 3;
     d.convertValue(UnitPfxMicro);
     bottomLeftPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, maxDuration);
     bottomLeftPlot->setLabel(d.getFullUnit(), QwtPlot::Axis::xBottom);
     upperLetPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, d.value);
     upperLetPlot->setLabel(d.getFullUnit(), QwtPlot::Axis::xBottom);
+}
+
+void EventDetectionWidget::setMaxSamplingRate(double srHalf) {
+    cutoffFrequencySpinbox->setMaximum(srHalf);
 }

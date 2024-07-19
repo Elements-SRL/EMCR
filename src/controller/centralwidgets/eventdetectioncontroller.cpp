@@ -226,8 +226,8 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
     //TODO THOSE NEEDS TO BE 
     auto sr = appStatus->getSamplingRate();
-    minDuration = { 80.0, UnitPfx::UnitPfxMicro, "s" };
-    maxDuration = { 8000.0, UnitPfx::UnitPfxMicro, "s"};
+    minDuration = { 10.0, UnitPfx::UnitPfxMicro, "s" };
+    maxDuration = { 500.0, UnitPfx::UnitPfxMicro, "s"};
     minAmplitude = 0.0;
     maxAmplitude = appStatus->getCurrentRange().getMax().value / 10;
     durationBinner = new Binner(minDuration.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
@@ -520,11 +520,18 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             }
             if (eventIdx == 0) {
                 const auto & curve = eventCurves[chIdx];
-                QVector<double> yData(data.size());
+                //let's display only the middle part of the event and less baseline
+                //The event is long n, n/5 is the actual length of the event while the other
+                // (4/5)N are baseline, we'll take only 3/5 of n, in the middle part of course
+                auto onlyEvent = (data.size() / 7);
+                auto eventToDisplayLen = onlyEvent * 3;
+                //There is 
+                QVector<double> yData(eventToDisplayLen);
                 QVector<double> xData;
+                //rescaling x axis
                 const auto noPrefSr = (1.0 / sr.getNoPrefixValue()) * 1e6;
                 for (int i = 0; i < yData.size(); i++) {
-                    yData[i] = ((double) data[i]) * resolution;
+                    yData[i] = ((double) data[(onlyEvent * 2) + i]) * resolution;
                     xData << i * noPrefSr;
                 }
                 curve->setSamples(xData, yData);
@@ -612,4 +619,25 @@ void EventDetectionController::resetStats() {
     totalEvents = 0;
     durationAccumulator = 0;
     amplitudeAccumulator = 0;
+}
+
+void EventDetectionController::onSamplingRateChanged(Measurement sr) {
+    samplingRateChangedroutine(sr);
+}
+
+void EventDetectionController::onDownsamplingRatioChanged(uint32_t newRatio) {
+    auto sr = appStatus->getSamplingRate();
+    samplingRateChangedroutine(sr / (double) newRatio);
+}
+
+void EventDetectionController::samplingRateChangedroutine(Measurement sr) {
+    const auto wasThisRunning = consumer->isRunning();
+    if (wasThisRunning) {
+        consumer->onStopConsuming();
+    }
+    resetStats();
+    widget->setMaxSamplingRate(sr.getNoPrefixValue() / 2.0);
+    if (wasThisRunning) {
+        consumer->onStartConsuming();
+    }
 }
