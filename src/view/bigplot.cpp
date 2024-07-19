@@ -158,7 +158,9 @@ void BigPlot::shiftVertAxis(Axis axis, double shiftValue) {
 }
 
 void BigPlot::resizeEvent(QResizeEvent * e) {
-    QwtPlot::resizeEvent(e);
+    if (e != nullptr) {
+        QwtPlot::resizeEvent(e);
+    }
 
     this->handleLabelsPosition();
 }
@@ -300,12 +302,17 @@ void BigPlot::onZoomResetPickerSelected(const QPointF &) {
 }
 
 void BigPlot::handleLabelsPosition() {
+    auto cx = this->canvas()->x();
+    auto cy = this->canvas()->y();
+    auto cw = this->canvas()->width();
+    auto ch = this->canvas()->height();
+
     QSize siz = plotTitle->minimumSizeHint();
-    plotTitle->setGeometry(this->canvas()->x()+this->canvas()->width()-siz.width(), this->canvas()->y(), siz.width(), siz.height());
+    plotTitle->setGeometry(cx+cw-siz.width(), cy, siz.width(), siz.height());
 
     siz = xUnit->minimumSizeHint();
-    xUnit->setGeometry(this->canvas()->x()+this->canvas()->width()-siz.width(), this->canvas()->y()+this->canvas()->height()-siz.height(), siz.width(), siz.height());
+    xUnit->setGeometry(cx+cw-siz.width(), cy+ch-siz.height(), siz.width(), siz.height());
 
     siz = yUnit->minimumSizeHint();
-    yUnit->setGeometry(this->canvas()->x(), this->canvas()->y(), siz.width(), siz.height());
+    yUnit->setGeometry(cx, cy, siz.width(), siz.height());
 }

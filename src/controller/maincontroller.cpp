@@ -115,6 +115,7 @@ void MainController::onConnect(bool flag) {
             msgDisp->disconnectDevice();
             deviceConnector->destroyMessageDispatcher();
             msgDisp = nullptr;
+            mainWindow->setMessageDispatcher(msgDisp);
         }
 
         emit startDetecting();

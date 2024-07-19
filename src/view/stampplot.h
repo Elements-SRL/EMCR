@@ -9,9 +9,10 @@
 #include "qwt_plot_picker.h"
 #include "qwt_picker_machine.h"
 #include "qwt_text_label.h"
-#include "qwt_plot_marker.h"
 
 #include "e384commlib_global.h"
+
+#define SMP_LEGEND_SIZE 10
 
 using namespace e384CommLib;
 
@@ -40,6 +41,7 @@ public:
     void removeState(States_t newState);
     void setLegendColor(QColor colot);
     void setName(std::string name);
+    void drawCanvas(QPainter * p) override;
 
 public slots:
     void onRangeUpdated(RangedMeasurement_t newRange);
@@ -50,6 +52,8 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 private:
+    void handleLabelsPosition();
+
     int channelIdx = 0;
     int idealPlotWidth;
     int idealPlotHeight;
@@ -69,7 +73,7 @@ private:
 
     int xAxisMaxMajor;
     int yAxisMaxMajor;
-    QwtPlotMarker * colorMarker = nullptr;
+    QFrame * colorLabel = nullptr;
 
 signals:
     void clicked(QMouseEvent *event);
