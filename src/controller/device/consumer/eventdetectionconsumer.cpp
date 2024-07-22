@@ -150,13 +150,11 @@ void EventDetectionConsumer::clearData() {
 void EventDetectionConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
     PlotConsumer::onSamplingRateChanged(samplingRate);
     minDataBatchSize = samplingRate.value * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
-    reinitFilters();
 }
 
 void EventDetectionConsumer::onDownsamplingRatioChanged(unsigned int downsamplingRatio) {
     PlotConsumer::onDownsamplingRatioChanged(downsamplingRatio);
     minDataBatchSize = this->samplingRateHz/ (double) downsamplingRatio * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
-    reinitFilters();
 }
 
 void EventDetectionConsumer::setMinEventDurationInSamples(uint32_t newValue) {
@@ -201,11 +199,10 @@ void EventDetectionConsumer::setEventsDirection(EventsDirection eventsDirection)
     }
 }
 
-void EventDetectionConsumer::reinitFilters() {
+void EventDetectionConsumer::reinitFilters(double highCutoffFreq) {
     eventDetectionChannels.clear();
-    Measurement samplingRate = {pushedSamplingRateHz, UnitPfxNano, "Hz"};
-    highCutoffFrequency = pushedSamplingRateHz * (3.0 / 4.0);
+    const Measurement sr = { pushedSamplingRateHz, UnitPfxNone, "Hz" };
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
-        eventDetectionChannels.push_back(new EventDetector(samplingRate, highCutoffFrequency, minEventSamples, maxEventSamples, stdMultiplier, maxAmplitude, eventsDirection));
+        eventDetectionChannels.push_back(new EventDetector(sr, highCutoffFreq, minEventSamples, maxEventSamples, stdMultiplier, maxAmplitude, eventsDirection));
     }
 }

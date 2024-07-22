@@ -638,7 +638,11 @@ void EventDetectionController::samplingRateChangedroutine(Measurement sr) {
         consumer->onStopConsuming();
     }
     resetStats();
-    widget->setMaxSamplingRate(sr.getNoPrefixValue() / 2.0);
+    const auto srHalf = sr.getNoPrefixValue() / 2.0;
+    const auto newHighCutoffFreq = sr.getNoPrefixValue() / 4.0;
+    widget->setMaxSamplingRate(srHalf);
+    consumer->reinitFilters(newHighCutoffFreq);
+    widget->setCutoffFrequency(newHighCutoffFreq);
     if (wasThisRunning) {
         consumer->onStartConsuming();
     }

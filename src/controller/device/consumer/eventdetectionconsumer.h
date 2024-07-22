@@ -27,6 +27,7 @@ public:
     void setStdMultiplier(double newValue);
     void setMaxAmplitude(double maxAmplitude);
     void setEventsDirection(EventsDirection ed);
+    void reinitFilters(double highCutoffFreq);
 
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;
@@ -59,7 +60,6 @@ private:
     //Event stuff
     std::vector<EventDetector *> eventDetectionChannels;
     uint64_t timeCounter = 0;
-    void reinitFilters();
 
 protected:
     void clearData() override;

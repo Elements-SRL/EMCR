@@ -330,10 +330,6 @@ void EventDetectionWidget::setAmplitudeData(const QVector<QPointF>& points) {
     bottomRightHistogram->plot()->replot();
 }
 
-void EventDetectionWidget::setCutoffFrequency(double maxCutoffFrequency) {
-    cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
-}
-
 std::string EventDetectionWidget::getFileName() {
     return fileNameLineEdit->text().toStdString();
 }
@@ -406,6 +402,10 @@ void EventDetectionWidget::setDuration(Measurement d) {
 
 void EventDetectionWidget::setMaxSamplingRate(double srHalf) {
     cutoffFrequencySpinbox->setMaximum(srHalf);
+}
+
+void EventDetectionWidget::setCutoffFrequency(double sr) {
+    cutoffFrequencySpinbox->setValue(sr);
 }
 
 void EventDetectionWidget::setRecording(bool flag) {

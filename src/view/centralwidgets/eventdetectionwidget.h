@@ -34,12 +34,12 @@ public:
     void setDurationData(const QVector<QPointF>& points);
     void setAmplitudeData(const QVector<QPointF>& points);
 
-    void setCutoffFrequency(double maxCutoffFrequency);
     void setCurrentRange(RangedMeasurement cr);
     void setMaxSamplingRate(double srHalf);
 
     std::string getFileName();
     std::string getFilePath();
+    void setCutoffFrequency(double sr);
 
 private:
     QLineEdit* recordPathLineEdit;
