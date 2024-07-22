@@ -60,6 +60,7 @@ private:
     QDoubleSpinBox* maxAmplitude;
     QPushButton* startButton;
     QPushButton* stopButton;
+    QPushButton* recordButton;
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
@@ -78,6 +79,7 @@ private:
     void emitFileName();
     void setMaxAmplitude(double value);
     void setDuration(Measurement d);
+    void setRecording(bool flag);
 
 signals:
     void startPressed();
