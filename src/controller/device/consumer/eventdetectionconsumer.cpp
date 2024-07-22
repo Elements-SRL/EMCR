@@ -154,9 +154,9 @@ void EventDetectionConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
 }
 
 void EventDetectionConsumer::onDownsamplingRatioChanged(unsigned int downsamplingRatio) {
+    PlotConsumer::onDownsamplingRatioChanged(downsamplingRatio);
     minDataBatchSize = this->samplingRateHz/ (double) downsamplingRatio * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
     reinitFilters();
-    PlotConsumer::onDownsamplingRatioChanged(downsamplingRatio);
 }
 
 void EventDetectionConsumer::setMinEventDurationInSamples(uint32_t newValue) {

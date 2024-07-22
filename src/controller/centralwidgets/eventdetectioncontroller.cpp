@@ -622,10 +622,12 @@ void EventDetectionController::resetStats() {
 }
 
 void EventDetectionController::onSamplingRateChanged(Measurement sr) {
+    consumer->onSamplingRateChanged(sr);
     samplingRateChangedroutine(sr);
 }
 
 void EventDetectionController::onDownsamplingRatioChanged(uint32_t newRatio) {
+    consumer->onDownsamplingRatioChanged(newRatio);
     auto sr = appStatus->getSamplingRate();
     samplingRateChangedroutine(sr / (double) newRatio);
 }
