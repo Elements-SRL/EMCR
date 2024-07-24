@@ -153,6 +153,7 @@ void EventDetectionConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
 }
 
 void EventDetectionConsumer::onDownsamplingRatioChanged(unsigned int downsamplingRatio) {
+    PlotConsumer::onDownsamplingRatioChanged(downsamplingRatio);
     minDataBatchSize = this->samplingRateHz/ (double) downsamplingRatio * currentChannelsNum * MINIMUM_DATA_FOR_ANALYSIS;
 }
 
@@ -195,5 +196,13 @@ void EventDetectionConsumer::setEventsDirection(EventsDirection eventsDirection)
     this->eventsDirection = eventsDirection;
     for (const auto& ed : eventDetectionChannels) {
         ed->setEventsDirection(eventsDirection);
+    }
+}
+
+void EventDetectionConsumer::reinitFilters(double highCutoffFreq) {
+    eventDetectionChannels.clear();
+    const Measurement sr = { pushedSamplingRateHz, UnitPfxNone, "Hz" };
+    for (int idx = 0; idx < this->currentChannelsNum; idx++) {
+        eventDetectionChannels.push_back(new EventDetector(sr, highCutoffFreq, minEventSamples, maxEventSamples, stdMultiplier, maxAmplitude, eventsDirection));
     }
 }

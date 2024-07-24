@@ -27,6 +27,7 @@ public:
     void setStdMultiplier(double newValue);
     void setMaxAmplitude(double maxAmplitude);
     void setEventsDirection(EventsDirection ed);
+    void reinitFilters(double highCutoffFreq);
 
 public slots:
     void onVoltageRangeChanged(RangedMeasurement_t range) override;

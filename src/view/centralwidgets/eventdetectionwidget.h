@@ -33,11 +33,12 @@ public:
     void setDurationData(const QVector<QPointF>& points);
     void setAmplitudeData(const QVector<QPointF>& points);
 
-    void setCutoffFrequency(double maxCutoffFrequency);
     void setCurrentRange(e384cl::RangedMeasurement cr);
+    void setMaxSamplingRate(double srHalf);
 
     std::string getFileName();
     std::string getFilePath();
+    void setCutoffFrequency(double sr);
 
 private:
     QLineEdit* recordPathLineEdit;
@@ -58,6 +59,7 @@ private:
     QDoubleSpinBox* maxAmplitude;
     QPushButton* startButton;
     QPushButton* stopButton;
+    QPushButton* recordButton;
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
@@ -76,6 +78,7 @@ private:
     void emitFileName();
     void setMaxAmplitude(double value);
     void setDuration(e384cl::Measurement d);
+    void setRecording(bool flag);
 
 signals:
     void startPressed();

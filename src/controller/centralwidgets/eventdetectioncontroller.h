@@ -65,6 +65,7 @@ private:
     void initHDF5();
     void closeHDF5();
     void resetStats();
+    void samplingRateChangedroutine(Measurement sr);
 
 signals:
     void durationChanged(Measurement_t duration);
@@ -77,6 +78,9 @@ public slots:
     void onReplot() override;
     void onExpandTrace(bool flag);
     void onSetPlotData(PlotMessage plotMessage) override;
+    void onSamplingRateChanged(Measurement sr) override;
+    void onDownsamplingRatioChanged(uint32_t newRatio) override;
+
 };
 
 #endif // EVENTDETECTIONCONTROLLER_H

@@ -68,8 +68,27 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     durationBins = new QSpinBox();
     QLabel* maxBinAmplitudeLabel = new QLabel("Max amplitude");
     maxAmplitude = new QDoubleSpinBox();
-    startButton = new QPushButton("Start");
-    stopButton = new QPushButton("Stop");
+
+    // GroupBox for starting and stopping analysis
+    auto analysisGroupBox = new QGroupBox(QString::fromStdString("Analysis controls"));
+    auto analysisHBoxLayout = new QHBoxLayout();
+    analysisGroupBox->setLayout(analysisHBoxLayout);
+
+    startButton = new QPushButton(this);
+    startButton->setIcon(QIcon(QPixmap(":/imgs/start protocol.png")));
+    startButton->setToolTip("Start the event detection");
+    analysisHBoxLayout->addWidget(startButton);
+
+    stopButton = new QPushButton(this);
+    stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
+    stopButton->setToolTip("Stop the event detection");
+    analysisHBoxLayout->addWidget(stopButton);
+
+    recordButton = new QPushButton(this);
+    recordButton->setIcon(QIcon(QPixmap(":/imgs/record protocol.png")));
+    recordButton->setToolTip("Start the recording");
+    analysisHBoxLayout->addWidget(recordButton);
+
     maxAmplitude->setValue(defaultMaxAmplitude);
     QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency");
     cutoffFrequencySpinbox = new QDoubleSpinBox();
@@ -142,8 +161,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxIndexChanged(int)));
     statsLayout->addWidget(comboBox);
 
-    statsLayout->addWidget(startButton);
-    statsLayout->addWidget(stopButton);
+    statsLayout->addWidget(analysisGroupBox);
 
     upperRightLayout->addWidget(statsWidget);
     upperRightLayout->addWidget(inputsWidget);
@@ -312,10 +330,6 @@ void EventDetectionWidget::setAmplitudeData(const QVector<QPointF>& points) {
     bottomRightHistogram->plot()->replot();
 }
 
-void EventDetectionWidget::setCutoffFrequency(double maxCutoffFrequency) {
-    cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
-}
-
 std::string EventDetectionWidget::getFileName() {
     return fileNameLineEdit->text().toStdString();
 }
@@ -378,10 +392,32 @@ void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
 
 void EventDetectionWidget::setDuration(Measurement d) {
     //Durations are assumed in us
-    const auto maxDuration = d.value * (2 * EVENT_PADDING);
+    const auto maxDuration = d.value * 3;
     d.convertValue(UnitPfxMicro);
     bottomLeftPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, maxDuration);
     bottomLeftPlot->setLabel(d.getFullUnit(), QwtPlot::Axis::xBottom);
     upperLetPlot->setAxisScale(QwtPlot::Axis::xBottom, 0, d.value);
     upperLetPlot->setLabel(d.getFullUnit(), QwtPlot::Axis::xBottom);
+}
+
+void EventDetectionWidget::setMaxSamplingRate(double srHalf) {
+    cutoffFrequencySpinbox->setMaximum(srHalf);
+}
+
+void EventDetectionWidget::setCutoffFrequency(double sr) {
+    cutoffFrequencySpinbox->setValue(sr);
+}
+
+void EventDetectionWidget::setRecording(bool flag) {
+    /*if (flag) {
+        QPixmap pixmapRecors("://imgs/recording protocol.png");
+        QIcon recordIcon(pixmapRecors);
+        recordingStartBtn->setIcon(recordIcon);
+
+    }
+    else {
+        QPixmap pixmapRecors("://imgs/record protocol.png");
+        QIcon recordIcon(pixmapRecors);
+        recordingStartBtn->setIcon(recordIcon);
+    }*/
 }
