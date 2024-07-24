@@ -60,35 +60,50 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     }
 
     if (msgDisp->hasOffsetCompensation() == Success) {
-        auto gb = new QGroupBox(QString::fromStdString("Offset recalibration"));
-        auto qhbl = new QHBoxLayout();
-        gb->setLayout(qhbl);
+        auto gb = new QGroupBox("Offset correction");
+        auto qvbl = new QVBoxLayout();
+        gb->setLayout(qvbl);
         mainLayout->addWidget(gb);
+        offsetCorrectionStartBtn = new QPushButton("Start");
+        connect(offsetCorrectionStartBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStartOffsetCorrection);
+        qvbl->addWidget(offsetCorrectionStartBtn);
+        offsetCorrectionExpertChb = new QCheckBox("Expert");
+        qvbl->addWidget(offsetCorrectionExpertChb);
+
+        auto gbr = new QGroupBox("Offset recalibration");
+        gbr->setVisible(false);
+        auto qhblr = new QHBoxLayout();
+        gbr->setLayout(qhblr);
+        qvbl->addWidget(gbr);
         offsetRecalibrationOnBtn = new QPushButton("ON (C)");
         connect(offsetRecalibrationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn);
-        qhbl->addWidget(offsetRecalibrationOnBtn);
+        qhblr->addWidget(offsetRecalibrationOnBtn);
         offsetRecalibrationOffBtn = new QPushButton("OFF");
         connect(offsetRecalibrationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOff);
-        qhbl->addWidget(offsetRecalibrationOffBtn);
+        qhblr->addWidget(offsetRecalibrationOffBtn);
         offsetRecalibrationResetBtn = new QPushButton("RESET");
         connect(offsetRecalibrationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetOffsetRecalibration);
-        qhbl->addWidget(offsetRecalibrationResetBtn);
-    }
+        qhblr->addWidget(offsetRecalibrationResetBtn);
 
-    if (msgDisp->hasOffsetCompensation() == Success) {
-        auto gb = new QGroupBox(QString::fromStdString("Liquid junction compensation"));
-        auto qhbl = new QHBoxLayout();
-        gb->setLayout(qhbl);
-        mainLayout->addWidget(gb);
+        auto gbl = new QGroupBox("Liquid junction compensation");
+        gbl->setVisible(false);
+        auto qhbll = new QHBoxLayout();
+        gbl->setLayout(qhbll);
+        qvbl->addWidget(gbl);
         liquidJunctionCompensationOnBtn = new QPushButton("ON (J)");
         connect(liquidJunctionCompensationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnLjcOn);
-        qhbl->addWidget(liquidJunctionCompensationOnBtn);
+        qhbll->addWidget(liquidJunctionCompensationOnBtn);
         liquidJunctionCompensationOffBtn = new QPushButton("OFF");
         connect(liquidJunctionCompensationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnLjcOff);
-        qhbl->addWidget(liquidJunctionCompensationOffBtn);
+        qhbll->addWidget(liquidJunctionCompensationOffBtn);
         liquidJunctionCompensationResetBtn = new QPushButton("RESET");
         connect(liquidJunctionCompensationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetLj);
-        qhbl->addWidget(liquidJunctionCompensationResetBtn);
+        qhbll->addWidget(liquidJunctionCompensationResetBtn);
+
+        connect(offsetCorrectionExpertChb, &QPushButton::clicked, this, [=](bool checked) {
+            gbr->setVisible(checked);
+            gbl->setVisible(checked);
+        });
     }
 
 //    mainGl->addWidget(new QLabel("Expand trace"), rowIdx, 0, Qt::AlignRight);

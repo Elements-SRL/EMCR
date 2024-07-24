@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QCheckBox>
 
 #include "messagedispatcher.h"
 #include "globaldefines.h"
@@ -26,6 +27,8 @@ private:
     QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
+    QPushButton * offsetCorrectionStartBtn = nullptr;
+    QCheckBox * offsetCorrectionExpertChb = nullptr;
     QPushButton * offsetRecalibrationOnBtn = nullptr;
     QPushButton * offsetRecalibrationOffBtn = nullptr;
     QPushButton * offsetRecalibrationResetBtn = nullptr;
@@ -46,6 +49,7 @@ signals:
     void sigTurnChannelOff();
     void sigTurnCalibrationResistorsOn();
     void sigTurnCalibrationResistorsOff();
+    void sigStartOffsetCorrection();
     void sigTurnOffsetRecalibrationOn();
     void sigTurnOffsetRecalibrationOff();
     void sigResetOffsetRecalibration();

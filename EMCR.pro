@@ -44,6 +44,7 @@ SOURCES += \
     src/controller/chessboardcontroller.cpp \
     src/controller/compensationcontroller.cpp \
     src/controller/devicecontroller.cpp \
+    src/controller/offsetcorrectioncontroller.cpp \
     src/controller/maincontroller.cpp \
     src/controller/protocol/cursorsmanager.cpp \
     src/controller/protocol/protocolitemctrlmanager.cpp \
@@ -148,6 +149,7 @@ HEADERS += \
     src/controller/chessboardcontroller.h \
     src/controller/compensationcontroller.h \
     src/controller/devicecontroller.h \
+    src/controller/offsetcorrectioncontroller.h \
     src/controller/maincontroller.h \
     src/controller/protocol/cursorsmanager.h \
     src/controller/protocol/protocolitemctrlmanager.h \

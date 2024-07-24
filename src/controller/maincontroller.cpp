@@ -186,7 +186,7 @@ void MainController::onMainWindowCreated() {
     multipleChannelController = new MultipleChannelController(msgDisp, mainWindow);
     singleChannelController = new SingleChannelController(appStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
-    deviceController = new DeviceController(msgDisp, mainWindow);
+    deviceController = new DeviceController(appStatus, mainWindow);
     measurementOverviewController = new MeasurementOverviewController(appStatus, deviceDataProducer, mainWindow);
     plotPreferencesController = new PlotPreferencesController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {

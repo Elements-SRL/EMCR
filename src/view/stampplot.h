@@ -14,7 +14,7 @@
 
 #define SMP_LEGEND_SIZE 10
 
-using namespace e384CommLib;
+namespace e384cl = e384CommLib;
 
 class StampPlot : public QwtPlot {
     Q_OBJECT
@@ -44,8 +44,8 @@ public:
     void drawCanvas(QPainter * p) override;
 
 public slots:
-    void onRangeUpdated(RangedMeasurement_t newRange);
-    void onDurationUpdated(Measurement_t duration);
+    void onRangeUpdated(e384cl::RangedMeasurement_t newRange);
+    void onDurationUpdated(e384cl::Measurement_t duration);
 
 protected:
     virtual void resizeEvent(QResizeEvent * e) override;
@@ -65,9 +65,9 @@ private:
 
     QPointF pickerFirstCornerPos;
 
-    RangedMeasurement_t currentRange[axisCnt];
-    Measurement_t sweepDuration = {1.0, UnitPfxNone, "s"};
-    UnitPfx_t xAxisPrefix = UnitPfxNone;
+    e384cl::RangedMeasurement_t currentRange[axisCnt];
+    e384cl::Measurement_t sweepDuration = {1.0, e384cl::UnitPfxNone, "s"};
+    e384cl::UnitPfx_t xAxisPrefix = e384cl::UnitPfxNone;
 
     bool selected = false;
 
