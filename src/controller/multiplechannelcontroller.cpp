@@ -2,11 +2,13 @@
 
 #include "errormanager.h"
 
-MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp),
+MultipleChannelController::MultipleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
+    appStatus(appStatus),
     mainWindow(mainWindow) {
 
+    msgDisp = appStatus->getMessageDispatcher();
     multipleChannelControlsDw = new MultipleChannelControlDockWidget(msgDisp);
+    offsetCorrectionController = new OffsetCorrectionController(appStatus, this);
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelOn, this, [=]() {
         this->turnSelectedChannelsOnOff(true);
@@ -29,6 +31,9 @@ MultipleChannelController::MultipleChannelController(MessageDispatcher * msgDisp
         this->turnSelectedStimuliOnOff(false);
     });
 
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStartOffsetCorrection, this, [=]() {
+        this->offsetCorrection(OffsetCorrectionController::CheckingOffsetRecalibration);
+    });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn, this, [=]() {
         this->turnSelectedOffsetRecalibrationOnOff(true);
     });
@@ -120,6 +125,17 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     msgDisp->enableStimulus(selectedChannels, values, true);
 
     emit sigStimuliTurnedOnOff(flag);
+}
+
+void MultipleChannelController::offsetCorrection(OffsetCorrectionController::OffsetCorrectionCheck_t step) {
+    switch (step) {
+    case OffsetCorrectionController::CheckingNone:
+        break;
+    case OffsetCorrectionController::CheckingOffsetRecalibration:
+        break;
+    case OffsetCorrectionController::CheckingLiquidJunctionCorrection:
+        break;
+    }
 }
 
 void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) {

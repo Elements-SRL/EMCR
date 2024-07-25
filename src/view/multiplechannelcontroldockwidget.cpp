@@ -106,8 +106,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         });
     }
 
-//    mainGl->addWidget(new QLabel("Expand trace"), rowIdx, 0, Qt::AlignRight);
-
     auto expandTraceGb = new QGroupBox(QString::fromStdString("Expand trace"));
     auto qhblExpandTrace = new QHBoxLayout();
 

@@ -183,7 +183,7 @@ void MainController::onMainWindowCreated() {
     chessboardController = new ChessboardController(appStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
-    multipleChannelController = new MultipleChannelController(msgDisp, mainWindow);
+    multipleChannelController = new MultipleChannelController(appStatus, mainWindow);
     singleChannelController = new SingleChannelController(appStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     deviceController = new DeviceController(appStatus, mainWindow);

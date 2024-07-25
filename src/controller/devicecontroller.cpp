@@ -21,8 +21,6 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
     this->mainWindow = mainWindow;
     mainWindow->setDeviceControlDw(deviceControlDockWidget);
 
-    offsetCorrectionController = new OffsetCorrectionController(appStatus, this);
-
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcCurrentRangeSelected,     this, [=](uint16_t selectedVcCurrentRangeIndex) {
         onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
     });
@@ -204,6 +202,6 @@ void DeviceController::onCustomDoubleChanged(uint32_t customDoubleIdx, double va
 }
 
 bool DeviceController::calcDefaultStatus(int size, bool recording) {
-//    if I'm not recording and there are more then 1 measurements enable the groupboxes
+//    if I'm not recording and there are more than 1 measurements enable the groupboxes
     return size > 1 && !recording;
 }

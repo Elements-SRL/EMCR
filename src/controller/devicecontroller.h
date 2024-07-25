@@ -6,7 +6,6 @@
 #include "devicecontroldockwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
-#include "offsetcorrectioncontroller.h"
 
 class DeviceController : public QObject {
     Q_OBJECT
@@ -43,7 +42,6 @@ private:
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
-    OffsetCorrectionController * offsetCorrectionController = nullptr;
     bool recording = false;
     bool protocolRunning = false;
     bool getStatusFromRecordingAndProtocol();

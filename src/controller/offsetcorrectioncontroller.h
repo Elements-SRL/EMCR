@@ -24,8 +24,14 @@ protected:
     void run() override;
 
 private:
+    void checkOffsetRecalibration();
+    void checkLiquidJunctioncorrection();
     ApplicationStatus * appStatus = nullptr;
+    MessageDispatcher * msgDisp = nullptr;
     OffsetCorrectionCheck_t offsetCheck = CheckingNone;
+
+signals:
+    void sigTaskPerformed();
 };
 
 #endif // OFFSETCORRECTIONCONTROLLER_H
