@@ -61,14 +61,22 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     if (msgDisp->hasOffsetCompensation() == Success) {
         auto gb = new QGroupBox("Offset correction");
+        mainLayout->addWidget(gb);
         auto qvbl = new QVBoxLayout();
         gb->setLayout(qvbl);
-        mainLayout->addWidget(gb);
-        offsetCorrectionStartBtn = new QPushButton("Start");
-        connect(offsetCorrectionStartBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStartOffsetCorrection);
-        qvbl->addWidget(offsetCorrectionStartBtn);
         offsetCorrectionExpertChb = new QCheckBox("Expert");
         qvbl->addWidget(offsetCorrectionExpertChb);
+
+        auto ww = new QWidget;
+        auto qhblw = new QHBoxLayout();
+        ww->setLayout(qhblw);
+        qvbl->addWidget(ww);
+        offsetCorrectionStartBtn = new QPushButton("Start");
+        connect(offsetCorrectionStartBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStartOffsetCorrection);
+        qhblw->addWidget(offsetCorrectionStartBtn);
+        offsetCorrectionStopBtn = new QPushButton("Stop");
+        connect(offsetCorrectionStopBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStopOffsetCorrection);
+        qhblw->addWidget(offsetCorrectionStopBtn);
 
         auto gbr = new QGroupBox("Offset recalibration");
         gbr->setVisible(false);
@@ -101,6 +109,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         qhbll->addWidget(liquidJunctionCompensationResetBtn);
 
         connect(offsetCorrectionExpertChb, &QPushButton::clicked, this, [=](bool checked) {
+            ww->setVisible(!checked);
             gbr->setVisible(checked);
             gbl->setVisible(checked);
         });

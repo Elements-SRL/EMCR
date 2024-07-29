@@ -37,7 +37,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         this->offsetCorrection(OffsetCorrectionController::CheckingOffsetRecalibration);
     });
     connect(offsetCorrectionController, &OffsetCorrectionController::sigTaskPerformed, this, [=] (OffsetCorrectionController::OffsetCorrectionCheck_t step) {
-        if (multipleChannelControlsDw->getExpertMode()) {
+        if (!multipleChannelControlsDw->getExpertMode()) {
             switch (step) {
             case OffsetCorrectionController::CheckingNone:
                 /*! shouldn't happen*/
@@ -69,6 +69,12 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
             }
             multipleChannelControlsDw->enableExpertMode(true);
         }
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStopOffsetCorrection, this, [=]() {
+        multipleChannelControlsDw->enableExpertMode(true);
+//        this->offsetCorrection(OffsetCorrectionController::CheckingOffsetRecalibration);
+        this->turnSelectedOffsetRecalibrationOnOff(false);
+        this->turnSelectedLjcOnOff(false);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn, this, [=]() {
         multipleChannelControlsDw->enableExpertMode(false);
@@ -114,7 +120,19 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
 MultipleChannelController::~MultipleChannelController(){
     delete multipleChannelControlsDw;
     multipleChannelControlsDw = nullptr;
+    offsetCorrectionController->wait();
+    delete offsetCorrectionController;
+    offsetCorrectionController = nullptr;
     mainWindow->setMultipleChannelControlsDw(multipleChannelControlsDw);
+}
+
+void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <bool> values(selectedChannels.size(), flag);
+    msgDisp->expandTraces(selectedChannels, values);
+
+    emit sigAddRemoveFromBigPlot(flag);
 }
 
 void MultipleChannelController::onRecordingRequest(bool flag) {
@@ -242,13 +260,4 @@ void MultipleChannelController::resetLj() {
     msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
 
     emit sigLjResetted();
-}
-
-void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
-    std::vector <bool> values(selectedChannels.size(), flag);
-    msgDisp->expandTraces(selectedChannels, values);
-
-    emit sigAddRemoveFromBigPlot(flag);
 }

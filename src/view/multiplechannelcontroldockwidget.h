@@ -30,6 +30,7 @@ private:
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
     QPushButton * offsetCorrectionStartBtn = nullptr;
+    QPushButton * offsetCorrectionStopBtn = nullptr;
     QCheckBox * offsetCorrectionExpertChb = nullptr;
     QPushButton * offsetRecalibrationOnBtn = nullptr;
     QPushButton * offsetRecalibrationOffBtn = nullptr;
@@ -52,6 +53,7 @@ signals:
     void sigTurnCalibrationResistorsOn();
     void sigTurnCalibrationResistorsOff();
     void sigStartOffsetCorrection();
+    void sigStopOffsetCorrection();
     void sigTurnOffsetRecalibrationOn();
     void sigTurnOffsetRecalibrationOff();
     void sigResetOffsetRecalibration();
