@@ -1,5 +1,6 @@
 #include "multiplechannelcontroller.h"
 
+#include <QMessageBox>
 #include "errormanager.h"
 
 MultipleChannelController::MultipleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
@@ -32,12 +33,49 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStartOffsetCorrection, this, [=]() {
+        multipleChannelControlsDw->enableExpertMode(false);
         this->offsetCorrection(OffsetCorrectionController::CheckingOffsetRecalibration);
     });
+    connect(offsetCorrectionController, &OffsetCorrectionController::sigTaskPerformed, this, [=] (OffsetCorrectionController::OffsetCorrectionCheck_t step) {
+        if (multipleChannelControlsDw->getExpertMode()) {
+            switch (step) {
+            case OffsetCorrectionController::CheckingNone:
+                /*! shouldn't happen*/
+                break;
+
+            case OffsetCorrectionController::CheckingOffsetRecalibration:
+                this->offsetCorrection(OffsetCorrectionController::CheckingLiquidJunctionCorrection);
+                break;
+
+            case OffsetCorrectionController::CheckingLiquidJunctionCorrection:
+                this->offsetCorrection(OffsetCorrectionController::CheckingNone);
+                multipleChannelControlsDw->enableExpertMode(true);
+                break;
+            }
+
+        } else {
+            switch (step) {
+            case OffsetCorrectionController::CheckingNone:
+                /*! shouldn't happen*/
+                break;
+
+            case OffsetCorrectionController::CheckingOffsetRecalibration:
+                this->turnSelectedOffsetRecalibrationOnOff(false);
+                break;
+
+            case OffsetCorrectionController::CheckingLiquidJunctionCorrection:
+                this->turnSelectedLjcOnOff(false);
+                break;
+            }
+            multipleChannelControlsDw->enableExpertMode(true);
+        }
+    });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn, this, [=]() {
+        multipleChannelControlsDw->enableExpertMode(false);
         this->turnSelectedOffsetRecalibrationOnOff(true);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOff, this, [=]() {
+        multipleChannelControlsDw->enableExpertMode(true);
         this->turnSelectedOffsetRecalibrationOnOff(false);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigResetOffsetRecalibration, this, [=]() {
@@ -45,9 +83,11 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnLjcOn, this, [=]() {
+        multipleChannelControlsDw->enableExpertMode(false);
         this->turnSelectedLjcOnOff(true);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnLjcOff, this, [=]() {
+        multipleChannelControlsDw->enableExpertMode(true);
         this->turnSelectedLjcOnOff(false);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigResetLj, this, [=]() {
@@ -130,15 +170,36 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
 void MultipleChannelController::offsetCorrection(OffsetCorrectionController::OffsetCorrectionCheck_t step) {
     switch (step) {
     case OffsetCorrectionController::CheckingNone:
+        this->turnSelectedLjcOnOff(false);
+        QMessageBox::information(multipleChannelControlsDw,
+                                 GLB_SOFTWARE_NAME,
+                                 "Offset correction procedure finished.\n"
+                                 "The results are available in the Measurement overview widget.");
         break;
+
     case OffsetCorrectionController::CheckingOffsetRecalibration:
+        QMessageBox::information(multipleChannelControlsDw,
+                                 GLB_SOFTWARE_NAME,
+                                 "Starting current offset recalibration.\n"
+                                 "Remove any load from the device's input and click OK.");
+        this->turnSelectedOffsetRecalibrationOnOff(true);
         break;
+
     case OffsetCorrectionController::CheckingLiquidJunctionCorrection:
+        this->turnSelectedOffsetRecalibrationOnOff(false);
+        QMessageBox::information(multipleChannelControlsDw,
+                                 GLB_SOFTWARE_NAME,
+                                 "Starting liquid junction compensation.\n"
+                                 "Insert the DUT into the device's input and click OK.");
+        this->turnSelectedLjcOnOff(true);
         break;
     }
 }
 
 void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) {
+    if (flag) {
+        offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingOffsetRecalibration);
+    }
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     std::vector <bool> values(selectedChannels.size(), flag);
@@ -160,6 +221,9 @@ void MultipleChannelController::resetOffsetRecalibration() {
 }
 
 void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
+    if (flag) {
+        offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingLiquidJunctionCorrection);
+    }
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
     std::vector <bool> values(selectedChannels.size(), flag);

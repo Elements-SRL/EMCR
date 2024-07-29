@@ -11,7 +11,7 @@ OffsetCorrectionController::OffsetCorrectionController(ApplicationStatus * appSt
     msgDisp = appStatus->getMessageDispatcher();
 }
 
-void OffsetCorrectionController::onStartChecking(OffsetCorrectionCheck_t check) {
+void OffsetCorrectionController::onStartChecking(OffsetCorrectionController::OffsetCorrectionCheck_t check) {
     if (offsetCheck != CheckingNone) {
         return;
     }
@@ -26,8 +26,8 @@ void OffsetCorrectionController::run() {
     } else if (offsetCheck == CheckingLiquidJunctionCorrection) {
         this->checkLiquidJunctioncorrection();
     }
+    emit sigTaskPerformed(offsetCheck);
     offsetCheck = CheckingNone;
-    emit sigTaskPerformed();
 }
 
 void OffsetCorrectionController::checkOffsetRecalibration() {

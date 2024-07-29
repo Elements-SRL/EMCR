@@ -18,7 +18,7 @@ public:
     } OffsetCorrectionCheck_t;
 
 public slots:
-    void onStartChecking(OffsetCorrectionCheck_t check);
+    void onStartChecking(OffsetCorrectionController::OffsetCorrectionCheck_t check);
 
 protected:
     void run() override;
@@ -31,7 +31,7 @@ private:
     OffsetCorrectionCheck_t offsetCheck = CheckingNone;
 
 signals:
-    void sigTaskPerformed();
+    void sigTaskPerformed(OffsetCorrectionController::OffsetCorrectionCheck_t check);
 };
 
 #endif // OFFSETCORRECTIONCONTROLLER_H

@@ -17,6 +17,8 @@ public:
     MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
     void setRecording(bool flag);
+    bool getExpertMode();
+    void enableExpertMode(bool flag);
 
 private:
     MessageDispatcher * msgDisp = nullptr;

@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType <RangedMeasurement_t> ("RangedMeasurement_t");
     qRegisterMetaType <RecordSettingsDialog::RecordSettings_t> ("RecordSettingsDialog::RecordSettings_t");
     qRegisterMetaType <e384CommLib::ClampingModality_t> ("e384CommLib::ClampingModality_t");
+    qRegisterMetaType <OffsetCorrectionController::OffsetCorrectionCheck_t> ("OffsetCorrectionController::OffsetCorrectionCheck_t");
     qRegisterMetaType <ProtocolWidget *> ("ProtocolWidget *");
     qRegisterMetaType <PlotMessage>("PlotMessage");
     qRegisterMetaType <StatisticsResultWrapper>("StatisticsResultWrapper");

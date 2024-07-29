@@ -220,6 +220,14 @@ void MultipleChannelControlDockWidget::setRecording(bool flag) {
     }
 }
 
+bool MultipleChannelControlDockWidget::getExpertMode() {
+    return offsetCorrectionExpertChb->isChecked();
+}
+
+void MultipleChannelControlDockWidget::enableExpertMode(bool flag) {
+    offsetCorrectionExpertChb->setEnabled(flag);
+}
+
 void MultipleChannelControlDockWidget::emitFilePath(){
     QSettings settings;
     auto filePath = recordPathLineEdit->text();
