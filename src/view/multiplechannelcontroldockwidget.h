@@ -29,6 +29,7 @@ private:
     QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
+    QPushButton * zapBtn = nullptr;
     QPushButton * offsetCorrectionStartBtn = nullptr;
     QPushButton * offsetCorrectionStopBtn = nullptr;
     QCheckBox * offsetCorrectionExpertChb = nullptr;
@@ -62,6 +63,7 @@ signals:
     void sigResetLj();
     void sigTurnStimulsOn();
     void sigTurnStimulsOff();
+    void sigZap(Measurement_t duration);
     void sigStartRecording();
     void sigStopRecording();
     void sigAddToBigPlot();

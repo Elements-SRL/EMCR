@@ -32,6 +32,10 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         this->turnSelectedStimuliOnOff(false);
     });
 
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigZap, this, [=](Measurement_t duration) {
+        this->zap(duration);
+    });
+
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStartOffsetCorrection, this, [=]() {
         multipleChannelControlsDw->enableExpertMode(false);
         this->offsetCorrection(OffsetCorrectionController::CheckingOffsetRecalibration);
@@ -183,6 +187,12 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     msgDisp->enableStimulus(selectedChannels, values, true);
 
     emit sigStimuliTurnedOnOff(flag);
+}
+
+void MultipleChannelController::zap(Measurement_t duration) {
+    std::vector <uint16_t> selectedChannels;
+    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    msgDisp->zap(selectedChannels, duration);
 }
 
 void MultipleChannelController::offsetCorrection(OffsetCorrectionController::OffsetCorrectionCheck_t step) {

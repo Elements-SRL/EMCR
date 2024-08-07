@@ -24,6 +24,7 @@ private:
     void turnSelectedChannelsOnOff(bool flag);
     void turnSelectedCalibrationResistorsOnOff(bool flag);
     void turnSelectedStimuliOnOff(bool flag);
+    void zap(Measurement_t duration);
     void offsetCorrection(OffsetCorrectionController::OffsetCorrectionCheck_t step);
     void turnSelectedOffsetRecalibrationOnOff(bool flag);
     void resetOffsetRecalibration();

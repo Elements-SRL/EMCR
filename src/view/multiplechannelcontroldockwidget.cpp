@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QDoubleSpinBox>
 
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
@@ -57,6 +58,26 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         turnStimulusOffBtn = new QPushButton("OFF (X)");
         connect(turnStimulusOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOff);
         qhbl->addWidget(turnStimulusOffBtn);
+    }
+
+    RangedMeasurement_t zapDurationRange;
+    if (msgDisp->getZapFeatures(zapDurationRange) == Success) {
+        auto gb = new QGroupBox(QString::fromStdString("Zap pulse"));
+        auto qhbl = new QHBoxLayout();
+        gb->setLayout(qhbl);
+        mainLayout->addWidget(gb);
+        zapBtn = new QPushButton("ZAP");
+        zapBtn->setCheckable(false);
+        qhbl->addWidget(zapBtn);
+        QDoubleSpinBox * zapSbx = new QDoubleSpinBox;
+        zapDurationRange.convertValues(UnitPfxMilli);
+        zapSbx->setRange(zapDurationRange.min, zapDurationRange.max);
+        zapSbx->setValue(100.0);
+        qhbl->addWidget(zapSbx);
+        qhbl->addWidget(new QLabel("ms"));
+        connect(zapBtn, &QPushButton::clicked, this, [=] () {
+            emit sigZap({zapSbx->value(), UnitPfxMilli, "s"});
+        });
     }
 
     if (msgDisp->hasOffsetCompensation() == Success) {
