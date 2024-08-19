@@ -1,14 +1,18 @@
 #include "ivgraphwidget.h"
+#include <QSplitter>
 
-IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget * parent) :
-    QDockWidget(parent) {
+IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent) :
+    QWidget(parent) {
 
     this->setObjectName("ivGraph");
     this->setWindowTitle("Iv Graph");
-
-    auto containerWidget = new QWidget(this); // Create a container widget
-    auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
-
+    auto outerLayout = new QVBoxLayout(this);
+    QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
+    outerLayout->addWidget(splitter);
+    auto subWidget = new QWidget(splitter);
+    auto mainVl = new QVBoxLayout(subWidget); // Set layout on the container widget
+    splitter->addWidget(plot);
+    splitter->addWidget(subWidget);
     auto buttonsHl = new QHBoxLayout();
 
     auto startButton = new QPushButton(this);
@@ -40,7 +44,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget * parent) :
     });
 
     mainVl->addLayout(buttonsHl);
-    dataTable = new CopyableTable(containerWidget);
+    dataTable = new CopyableTable(this);
     dataTable->setColumnCount(9);
     dataTable->setRowCount(channelsNum + 1);
     dataTable->horizontalHeader()->hide();
@@ -56,7 +60,6 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QWidget * parent) :
     dataTable->setItem(0, 6, new QTableWidgetItem("Unit"));
     dataTable->setItem(0, 7, new QTableWidgetItem("Current offset"));
     dataTable->setItem(0, 8, new QTableWidgetItem("Unit"));
-    setWidget(containerWidget);
 }
 
 void IvGraphWidget::setParams(std::map<uint32_t, std::vector<Measurement>> params) {

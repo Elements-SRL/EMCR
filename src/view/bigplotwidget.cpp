@@ -24,10 +24,7 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     // todo this will change in the future to support multichannel devices
     if (channelsNumber == 1) {
         addTab(eventDetectionTab, "Event Detection");
-    } else {
-        eventDetectionTab->setVisible(false);
     }
-    
     // Create the fourth tab
     auto spectrumLayout = new QVBoxLayout();
     spectrumTab = new QWidget();
@@ -37,13 +34,14 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
     this->setLayout(mainVl);
+    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 void BigPlotWidget::setGapFreePlot(BigPlot * wid) {
     gapFreeTab->layout()->addWidget(wid);
 }
 
-void BigPlotWidget::setIvGraph(BigPlot * wid){
+void BigPlotWidget::setIvGraph(QWidget* wid){
     ivTab->layout()->addWidget(wid);
 }
 
@@ -51,6 +49,6 @@ void BigPlotWidget::setEventDetectionTab(QWidget * wid) {
     eventDetectionTab->layout()->addWidget(wid);
 }
 
-void BigPlotWidget::setSpectrumPlot(BigPlot * wid) {
+void BigPlotWidget::setSpectrumPlot(QWidget* wid) {
     spectrumTab->layout()->addWidget(wid);
 }

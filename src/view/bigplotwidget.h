@@ -15,9 +15,9 @@ class BigPlotWidget : public QTabWidget {
 public:
     BigPlotWidget(uint16_t channelsNumber, QWidget * parent = nullptr);
     void setGapFreePlot(BigPlot * wid);
-    void setIvGraph(BigPlot * wid);
+    void setIvGraph(QWidget* wid);
     void setEventDetectionTab(QWidget * wid);
-    void setSpectrumPlot(BigPlot * wid);
+    void setSpectrumPlot(QWidget * wid);
 
 private:
     QVBoxLayout * mainVl;

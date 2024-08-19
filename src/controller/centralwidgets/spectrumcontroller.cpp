@@ -9,8 +9,6 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     model = new BigPlotModel(BigPlot::Spectrum);
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
-    spectrumWidget = new SpectrumWidget(currentChannelsNum, bigPlotWidget);
-    mainWindow->setSpectrumWidget(spectrumWidget);
 
     plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
     plot->setAxisAutoScale(QwtPlot::xBottom, false);
@@ -18,7 +16,9 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
     plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
 
-    bigPlotWidget->setSpectrumPlot(plot);
+    spectrumWidget = new SpectrumWidget(currentChannelsNum, plot, bigPlotWidget);
+
+    bigPlotWidget->setSpectrumPlot(spectrumWidget);
     //    creating curves for spectra
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));

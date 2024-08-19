@@ -5,12 +5,13 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     mainWindow(mainWindow) {
 
     model = new BigPlotModel(BigPlot::Iv);
-    ivGraphWidget = new IvGraphWidget(currentChannelsNum, bigPlotWidget);
     consumer = new IvGraphConsumer(appStatus, producer);
 
-    mainWindow->setIvGraphWidget(ivGraphWidget);
+    //mainWindow->setIvGraphWidget(ivGraphWidget);
     plot = new BigPlot("", "[V]", "", BigPlot::Iv, bigPlotWidget);
-    bigPlotWidget->setIvGraph(plot);
+    ivGraphWidget = new IvGraphWidget(currentChannelsNum, plot, bigPlotWidget);
+
+    bigPlotWidget->setIvGraph(ivGraphWidget);
     // creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
@@ -66,7 +67,6 @@ IvGraphController::~IvGraphController() {
     if (ivGraphWidget != nullptr) {
         delete ivGraphWidget;
         ivGraphWidget = nullptr;
-        mainWindow->setIvGraphWidget(ivGraphWidget);
     }
     currentCurves.clear();
 }

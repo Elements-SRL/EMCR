@@ -1,15 +1,16 @@
 #ifndef SPECTRUMWIDGET_H
 #define SPECTRUMWIDGET_H
 
-#include <QDockWidget>
+#include <QWidget>
 #include <QDoubleSpinBox>
 #include <QPushButton>
+#include "bigplot.h"
 
-class SpectrumWidget : public QDockWidget {
+class SpectrumWidget : public QWidget {
     Q_OBJECT
 
 public:
-    SpectrumWidget(uint32_t channelsNum, QWidget * parent = nullptr);
+    SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent = nullptr);
 
 private:
     QPushButton * startButton;

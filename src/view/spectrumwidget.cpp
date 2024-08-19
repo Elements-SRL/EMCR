@@ -2,17 +2,22 @@
 
 #include <QBoxLayout>
 #include <QLabel>
+#include <QSplitter>
 
-SpectrumWidget::SpectrumWidget(uint32_t channelsNum, QWidget * parent) :
-    QDockWidget(parent) {
+SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent) :
+    QWidget(parent) {
 
     this->setObjectName("spectrum");
     this->setWindowTitle("Spectrum");
+    auto outerLayout = new QVBoxLayout(this);
+
+    auto splitter = new QSplitter(Qt::Horizontal, this);
+    outerLayout->addWidget(splitter);
+    splitter->addWidget(plot);
 
     auto containerWidget = new QWidget(this); // Create a container widget
-    this->setWidget(containerWidget);
-
     auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
+    splitter->addWidget(containerWidget);
 
     auto buttonsHl = new QHBoxLayout();
 

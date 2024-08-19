@@ -53,8 +53,6 @@ public:
     void setConnectionLabel(QString text);
 
     void setBigPlotWidget(BigPlotWidget * widget);
-    void setIvGraphWidget(IvGraphWidget * widget);
-    void setSpectrumWidget(SpectrumWidget * widget);
     void setChessboardDw(ChessboardDockWidget * widget);
     void setCompensationControlsDw(CompensationControlDockWidget * widget);
     void setSingleChannelControlsDw(SingleChannelControlDockWidget * widget);
