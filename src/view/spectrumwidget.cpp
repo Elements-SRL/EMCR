@@ -19,6 +19,9 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
     splitter->addWidget(containerWidget);
 
+    splitter->setStretchFactor(0, 1);
+    splitter->setStretchFactor(1, 0);
+
     auto buttonsHl = new QHBoxLayout();
 
     auto startButton = new QPushButton(this);
@@ -47,4 +50,8 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
         const auto value = integrationWindowS->value();
         emit integrationWindowChanged(value);
     });
+
+    auto spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+    mainVl->addWidget(spacer);
 }
