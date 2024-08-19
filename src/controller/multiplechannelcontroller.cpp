@@ -1,6 +1,8 @@
 #include "multiplechannelcontroller.h"
 
 #include <QMessageBox>
+#include <QApplication>
+
 #include "errormanager.h"
 
 MultipleChannelController::MultipleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
@@ -226,7 +228,11 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
 
 void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) {
     if (flag) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
         offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingOffsetRecalibration);
+
+    } else {
+        QApplication::restoreOverrideCursor();
     }
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
@@ -250,7 +256,11 @@ void MultipleChannelController::resetOffsetRecalibration() {
 
 void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
     if (flag) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
         offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingLiquidJunctionCorrection);
+
+    } else {
+        QApplication::restoreOverrideCursor();
     }
     std::vector <uint16_t> selectedChannels;
     msgDisp->getSelectedChannelsIndexes(selectedChannels);
