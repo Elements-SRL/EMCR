@@ -84,11 +84,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     stopButton->setToolTip("Stop the event detection");
     analysisHBoxLayout->addWidget(stopButton);
 
-    recordButton = new QPushButton(this);
-    recordButton->setIcon(QIcon(QPixmap(":/imgs/record protocol.png")));
-    recordButton->setToolTip("Start the recording");
-    analysisHBoxLayout->addWidget(recordButton);
-
     maxAmplitude->setValue(defaultMaxAmplitude);
     QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency");
     cutoffFrequencySpinbox = new QDoubleSpinBox();
@@ -154,6 +149,8 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     statsLayout->addWidget(avgAmplitudeLabel);
 
     //Events direction combobox
+    eventsDirectionLabel = new QLabel("Events direction:");
+    statsLayout->addWidget(eventsDirectionLabel);
     comboBox = new QComboBox(this);
     // Add items to the combo box
     comboBox->addItem("Events go down");
@@ -172,6 +169,16 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     auto recordingVBoxLayout = new QVBoxLayout();
     auto qhBoxLayout = new QHBoxLayout();
     recordingVBoxLayout->addLayout(qhBoxLayout);
+
+    startRecordingButton = new QPushButton(this);
+    startRecordingButton->setIcon(QIcon(QPixmap(":/imgs/record protocol.png")));
+    startRecordingButton->setToolTip("Start the recording");
+    qhBoxLayout->addWidget(startRecordingButton);
+
+    stopRecordingButton = new QPushButton(this);
+    stopRecordingButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
+    stopRecordingButton->setToolTip("Stop the recording");
+    qhBoxLayout->addWidget(stopRecordingButton);
 
     fileNameLineEdit = new QLineEdit();
     recordPathLineEdit = new QLineEdit();
@@ -257,6 +264,8 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
         });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
     connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
+    connect(startRecordingButton, &QPushButton::clicked, this, &EventDetectionWidget::recordingStarted);
+    connect(stopRecordingButton, &QPushButton::clicked, this, &EventDetectionWidget::recordingStopped);
     connect(amplitudeBins, &QSpinBox::editingFinished, this, [=]() {
         const auto value = amplitudeBins->value();
         emit amplitudeBinsChanged(value);
@@ -408,16 +417,17 @@ void EventDetectionWidget::setCutoffFrequency(double sr) {
     cutoffFrequencySpinbox->setValue(sr);
 }
 
-void EventDetectionWidget::setRecording(bool flag) {
-    /*if (flag) {
+void EventDetectionWidget::setRecordingStatus(bool status) {
+    if (status) {
         QPixmap pixmapRecors("://imgs/recording protocol.png");
         QIcon recordIcon(pixmapRecors);
-        recordingStartBtn->setIcon(recordIcon);
-
+        startRecordingButton->setIcon(recordIcon);
+        startRecordingButton->setEnabled(false);
     }
     else {
         QPixmap pixmapRecors("://imgs/record protocol.png");
         QIcon recordIcon(pixmapRecors);
-        recordingStartBtn->setIcon(recordIcon);
-    }*/
+        startRecordingButton->setIcon(recordIcon);
+        startRecordingButton->setEnabled(true);
+    }
 }

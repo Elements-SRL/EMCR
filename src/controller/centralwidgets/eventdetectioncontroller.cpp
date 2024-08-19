@@ -375,13 +375,22 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    connect(widget, &EventDetectionWidget::sigEventDirectionChanged, this, [=](EventsDirection ed) {
+    connect(widget, &EventDetectionWidget::recordingStarted, this, [=]() {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
-        eventsDirection = ed;
-        consumer->setEventsDirection(eventsDirection);
+        widget->setRecordingStatus(true);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
+        });
+    connect(widget, &EventDetectionWidget::recordingStopped, this, [=]() {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        widget->setRecordingStatus(false);
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }

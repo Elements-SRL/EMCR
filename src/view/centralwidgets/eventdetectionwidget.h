@@ -40,6 +40,7 @@ public:
     std::string getFileName();
     std::string getFilePath();
     void setCutoffFrequency(double sr);
+    void setRecordingStatus(bool);
 
 private:
     QLineEdit* recordPathLineEdit;
@@ -60,7 +61,8 @@ private:
     QDoubleSpinBox* maxAmplitude;
     QPushButton* startButton;
     QPushButton* stopButton;
-    QPushButton* recordButton;
+    QPushButton* startRecordingButton;
+    QPushButton* stopRecordingButton;
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
@@ -69,6 +71,7 @@ private:
     QDoubleSpinBox* stdMultiplierSpinbox;
     std::string amplitudeUom;
     QDir* directory;
+    QLabel* eventsDirectionLabel;
     QComboBox* comboBox;
 
     EventsDirection eventsDirection;
@@ -79,7 +82,6 @@ private:
     void emitFileName();
     void setMaxAmplitude(double value);
     void setDuration(Measurement d);
-    void setRecording(bool flag);
 
 signals:
     void startPressed();
@@ -94,6 +96,8 @@ signals:
     void sigFileNameChanged();
     void sigRecordPathChanged();
     void sigEventDirectionChanged(EventsDirection);
+    void recordingStarted();
+    void recordingStopped();
 
 private slots:
     void onComboBoxIndexChanged(int index);
