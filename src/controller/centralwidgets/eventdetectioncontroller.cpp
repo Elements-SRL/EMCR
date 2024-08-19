@@ -253,13 +253,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     consumer->onStopConsuming();
 
     connect(widget, &EventDetectionWidget::startPressed, this, [=]() {
-        initHDF5();
         consumer->onStartConsuming();
         });
     //ADD FILE CLOSING OPERATION
     connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {
         consumer->onStopConsuming();
-        closeHDF5();
         });
     connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](Measurement m) {
         const auto wasThisRunning = consumer->isRunning();
@@ -355,32 +353,13 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
-    connect(widget, &EventDetectionWidget::sigRecordPathChanged, this, [=]() {
-        const auto wasThisRunning = consumer->isRunning();
-        if (wasThisRunning) {
-            consumer->onStopConsuming();
-        }
-        initHDF5();
-        if (wasThisRunning) {
-            consumer->onStartConsuming();
-        }
-        });
-    connect(widget, &EventDetectionWidget::sigFileNameChanged, this, [=]() {
-        const auto wasThisRunning = consumer->isRunning();
-        if (wasThisRunning) {
-            consumer->onStopConsuming();
-        }
-        initHDF5();
-        if (wasThisRunning) {
-            consumer->onStartConsuming();
-        }
-        });
     connect(widget, &EventDetectionWidget::recordingStarted, this, [=]() {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
         widget->setRecordingStatus(true);
+        initHDF5();
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
@@ -391,6 +370,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStopConsuming();
         }
         widget->setRecordingStatus(false);
+        closeHDF5();
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
@@ -424,7 +404,7 @@ void EventDetectionController::attachCurves(const std::vector <uint16_t>& channe
 }
 
 void EventDetectionController::start() {
-    initHDF5();
+    //initHDF5();
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }

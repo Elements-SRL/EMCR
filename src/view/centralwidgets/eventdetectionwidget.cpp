@@ -207,7 +207,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
         if (directory->mkpath(".")) {
         }
     }
-    auto browseBtn = new QPushButton("Change recordings directory");
+    browseBtn = new QPushButton("Change recordings directory");
     connect(browseBtn, &QPushButton::clicked, [=]() {
         // Open a directory selection dialog
         QString directoryPath = QFileDialog::getExistingDirectory(this,
@@ -219,7 +219,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
         auto recordingsDirectoryPath = directoryPath + "/";
         recordPathLineEdit->setText(recordingsDirectoryPath);
         directory = new QDir(recordingsDirectoryPath);
-        emitFilePath();
+        changeFilePath();
     }
         });
     auto goToDirBtn = new QPushButton("Go to folder");
@@ -288,7 +288,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
         emit stdMultiplierChanged(value);
         });
     connect(fileNameLineEdit, &QLineEdit::editingFinished, this, [=]() {
-        emitFileName();
+        changeFileName();
         });
 }
 
@@ -347,18 +347,16 @@ std::string EventDetectionWidget::getFilePath() {
     return QDir::toNativeSeparators(recordPathLineEdit->text()).toStdString();
 }
 
-void EventDetectionWidget::emitFilePath() {
+void EventDetectionWidget::changeFilePath() {
     QSettings settings;
     auto filePath = recordPathLineEdit->text();
     settings.setValue(GLB_EVENT_DETECTION_RECORD_PATH_TAG, filePath);
-    emit sigRecordPathChanged();
 }
 
-void EventDetectionWidget::emitFileName() {
+void EventDetectionWidget::changeFileName() {
     QSettings settings;
     auto filename = fileNameLineEdit->text();
     settings.setValue(GLB_EVENT_DETECTION_RECORD_NAME_TAG, filename);
-    emit sigFileNameChanged();
 }
 
 void EventDetectionWidget::onComboBoxIndexChanged(int index){
@@ -423,11 +421,15 @@ void EventDetectionWidget::setRecordingStatus(bool status) {
         QIcon recordIcon(pixmapRecors);
         startRecordingButton->setIcon(recordIcon);
         startRecordingButton->setEnabled(false);
+        fileNameLineEdit->setEnabled(false);
+        browseBtn->setEnabled(false);
     }
     else {
         QPixmap pixmapRecors("://imgs/record protocol.png");
         QIcon recordIcon(pixmapRecors);
         startRecordingButton->setIcon(recordIcon);
         startRecordingButton->setEnabled(true);
+        fileNameLineEdit->setEnabled(true);
+        browseBtn->setEnabled(true);
     }
 }

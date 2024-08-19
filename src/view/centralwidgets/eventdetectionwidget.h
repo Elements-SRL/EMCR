@@ -63,6 +63,7 @@ private:
     QPushButton* stopButton;
     QPushButton* startRecordingButton;
     QPushButton* stopRecordingButton;
+    QPushButton* browseBtn;
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
@@ -78,8 +79,8 @@ private:
 
     void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
-    void emitFilePath();
-    void emitFileName();
+    void changeFilePath();
+    void changeFileName();
     void setMaxAmplitude(double value);
     void setDuration(Measurement d);
 
@@ -93,8 +94,6 @@ signals:
     void durationBinsChanged(int);
     void cutoffFrequencyChanged(double);
     void stdMultiplierChanged(double);
-    void sigFileNameChanged();
-    void sigRecordPathChanged();
     void sigEventDirectionChanged(EventsDirection);
     void recordingStarted();
     void recordingStopped();
