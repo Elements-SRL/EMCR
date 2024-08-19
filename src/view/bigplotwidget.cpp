@@ -1,6 +1,6 @@
 #include "bigplotwidget.h"
 
-BigPlotWidget::BigPlotWidget(QWidget * parent) :
+BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QTabWidget(parent) {
 
     mainVl = new QVBoxLayout();
@@ -21,21 +21,18 @@ BigPlotWidget::BigPlotWidget(QWidget * parent) :
     auto eventDetectionLayout = new QVBoxLayout();
     eventDetectionTab = new QWidget();
     eventDetectionTab->setLayout(eventDetectionLayout);
-//#ifdef DEBUG
-    addTab(eventDetectionTab, "Event Detection");
-//#else
-//    eventDetectionTab->setVisible(false);
-//#endif
-
+    // todo this will change in the future to support multichannel devices
+    if (channelsNumber == 1) {
+        addTab(eventDetectionTab, "Event Detection");
+    } else {
+        eventDetectionTab->setVisible(false);
+    }
+    
     // Create the fourth tab
     auto spectrumLayout = new QVBoxLayout();
     spectrumTab = new QWidget();
     spectrumTab->setLayout(spectrumLayout);
-#ifdef DEBUG
     addTab(spectrumTab, "Spectrum");
-#else
-    spectrumTab->setVisible(false);
-#endif
 
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
