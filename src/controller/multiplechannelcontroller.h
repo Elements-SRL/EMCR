@@ -6,12 +6,13 @@
 #include "multiplechannelcontroldockwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
+#include "offsetcorrectioncontroller.h"
 
 class MultipleChannelController : public QObject {
     Q_OBJECT
 
 public:
-    MultipleChannelController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    MultipleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow);
     ~MultipleChannelController();
     void addRemoveFromBigPlot(bool flag);
 
@@ -23,14 +24,18 @@ private:
     void turnSelectedChannelsOnOff(bool flag);
     void turnSelectedCalibrationResistorsOnOff(bool flag);
     void turnSelectedStimuliOnOff(bool flag);
+    void zap(Measurement_t duration);
+    void offsetCorrection(OffsetCorrectionController::OffsetCorrectionCheck_t step);
     void turnSelectedOffsetRecalibrationOnOff(bool flag);
     void resetOffsetRecalibration();
     void turnSelectedLjcOnOff(bool flag);
     void resetLj();
 
+    ApplicationStatus * appStatus = nullptr;
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     MultipleChannelControlDockWidget * multipleChannelControlsDw = nullptr;
+    OffsetCorrectionController * offsetCorrectionController = nullptr;
 
 signals:
     void sigStartRecording();

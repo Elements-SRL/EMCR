@@ -193,6 +193,7 @@
     <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp" />
     <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp" />
+    <ClCompile Include="src\controller\offsetcorrectioncontroller.cpp" />
     <ClCompile Include="src\model\binner.cpp" />
     <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
@@ -295,6 +296,7 @@
     <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h" />
     <QtMoc Include="src\controller\centralwidgets\eventdetectioncontroller.h" />
     <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h" />
+    <QtMoc Include="src\controller\offsetcorrectioncontroller.h" />
     <ClInclude Include="src\model\binner.h" />
     <ClInclude Include="src\model\events\baseline.h" />
     <QtMoc Include="src\controller\centralwidgets\spectrumcontroller.h" />

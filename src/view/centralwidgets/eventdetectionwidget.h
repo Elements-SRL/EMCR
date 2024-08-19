@@ -12,17 +12,16 @@
 #include <QComboBox>
 #include "eventsdirection.h"
 
-using namespace e384CommLib;
+namespace e384cl = e384CommLib;
 
 constexpr double LOW_CUTOFF_FREQUENCY = 100.0;
 constexpr double ZERO = 0.0;
 
-class EventDetectionWidget : public QWidget
-{
+class EventDetectionWidget : public QWidget {
     Q_OBJECT
 
 public:
-    EventDetectionWidget(double maxCutoffFrequency, Measurement minDuration, Measurement maxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent = nullptr);
+    EventDetectionWidget(double maxCutoffFrequency, e384cl::Measurement minDuration, e384cl::Measurement maxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, e384cl::RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent = nullptr);
     ~EventDetectionWidget();
 
     BasePlot* getPlot();
@@ -34,7 +33,7 @@ public:
     void setDurationData(const QVector<QPointF>& points);
     void setAmplitudeData(const QVector<QPointF>& points);
 
-    void setCurrentRange(RangedMeasurement cr);
+    void setCurrentRange(e384cl::RangedMeasurement cr);
     void setMaxSamplingRate(double srHalf);
 
     std::string getFileName();
@@ -82,13 +81,13 @@ private:
     void changeFilePath();
     void changeFileName();
     void setMaxAmplitude(double value);
-    void setDuration(Measurement d);
+    void setDuration(e384cl::Measurement d);
 
 signals:
     void startPressed();
     void stopPressed();
-    void minDurationChanged(Measurement);
-    void maxDurationChanged(Measurement);
+    void minDurationChanged(e384cl::Measurement);
+    void maxDurationChanged(e384cl::Measurement);
     void maxAmplitudeChanged(double);
     void amplitudeBinsChanged(int);
     void durationBinsChanged(int);

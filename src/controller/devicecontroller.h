@@ -11,7 +11,7 @@ class DeviceController : public QObject {
     Q_OBJECT
 
 public:
-    DeviceController(MessageDispatcher * msgDisp, MainWindow * mainWindow);
+    DeviceController(ApplicationStatus * appStatus, MainWindow * mainWindow);
     ~DeviceController();
     void handleRecording(bool);
     void handleProtocolStatusChanged(bool);
@@ -39,7 +39,7 @@ private:
     std::vector <Measurement_t> ccCurrentFilters;
     std::vector <Measurement_t> samplingRates;
 
-    MessageDispatcher * msgDisp = nullptr;
+    ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
     bool recording = false;

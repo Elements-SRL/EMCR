@@ -7,6 +7,8 @@
 #include <qwt_symbol.h>
 #include <QFrame>
 
+using namespace e384CommLib;
+
 StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth, int idealPlotHeight, QWidget * parent) :
     QwtPlot(parent),
     channelIdx(channelIdx),

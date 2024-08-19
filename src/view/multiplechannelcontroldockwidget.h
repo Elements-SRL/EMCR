@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QCheckBox>
 
 #include "messagedispatcher.h"
 #include "globaldefines.h"
@@ -16,6 +17,8 @@ public:
     MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
     void setRecording(bool flag);
+    bool getExpertMode();
+    void enableExpertMode(bool flag);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
@@ -26,6 +29,10 @@ private:
     QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
+    QPushButton * zapBtn = nullptr;
+    QPushButton * offsetCorrectionStartBtn = nullptr;
+    QPushButton * offsetCorrectionStopBtn = nullptr;
+    QCheckBox * offsetCorrectionExpertChb = nullptr;
     QPushButton * offsetRecalibrationOnBtn = nullptr;
     QPushButton * offsetRecalibrationOffBtn = nullptr;
     QPushButton * offsetRecalibrationResetBtn = nullptr;
@@ -46,6 +53,8 @@ signals:
     void sigTurnChannelOff();
     void sigTurnCalibrationResistorsOn();
     void sigTurnCalibrationResistorsOff();
+    void sigStartOffsetCorrection();
+    void sigStopOffsetCorrection();
     void sigTurnOffsetRecalibrationOn();
     void sigTurnOffsetRecalibrationOff();
     void sigResetOffsetRecalibration();
@@ -54,6 +63,7 @@ signals:
     void sigResetLj();
     void sigTurnStimulsOn();
     void sigTurnStimulsOff();
+    void sigZap(Measurement_t duration);
     void sigStartRecording();
     void sigStopRecording();
     void sigAddToBigPlot();

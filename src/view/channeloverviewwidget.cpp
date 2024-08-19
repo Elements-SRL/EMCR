@@ -1,5 +1,7 @@
 #include "channeloverviewwidget.h"
 
+using namespace e384CommLib;
+
 ChannelOverviewWidget::ChannelOverviewWidget(QWidget * parent) :
     QFrame(parent) {
 

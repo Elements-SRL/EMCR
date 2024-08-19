@@ -1,8 +1,9 @@
 #include "devicecontroller.h"
 
-DeviceController::DeviceController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
-    msgDisp(msgDisp) {
+DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
+    appStatus(appStatus) {
 
+    MessageDispatcher * msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
     uint16_t defaultVcCurrRangeIdx;
     msgDisp->getVCCurrentRanges(vcCurrentRanges,defaultVcCurrRangeIdx);
@@ -110,28 +111,28 @@ bool DeviceController::getStatusFromRecordingAndProtocol() {
 // Slots (actionPerformed) for current and voltage ranges
 // ADC Current Range in VC
 void DeviceController::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex) {
-    msgDisp->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
+    appStatus->getMessageDispatcher()->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
 
     emit sigVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
 }
 
 // DAC Voltage Range in VC might be set by protocol
 void DeviceController::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeIndex) {
-    msgDisp->setVCVoltageRange(selectedVcVoltageRangeIndex, true);
+    appStatus->getMessageDispatcher()->setVCVoltageRange(selectedVcVoltageRangeIndex, true);
 
     emit sigVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
 }
 
 // DAC Current Range in CC might be set by protocol
 void DeviceController::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeIndex) {
-    msgDisp->setCCCurrentRange(selectedCcCurrentRangeIndex, true);
+    appStatus->getMessageDispatcher()->setCCCurrentRange(selectedCcCurrentRangeIndex, true);
 
     emit sigCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
 }
 
 // ADC Voltage Range in CC
 void DeviceController::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex) {
-    msgDisp->setCCVoltageRange(selectedCcVoltageRangeIndex, true);
+    appStatus->getMessageDispatcher()->setCCVoltageRange(selectedCcVoltageRangeIndex, true);
 
     emit sigCcVoltageRangeSelected(selectedCcVoltageRangeIndex);
 }
@@ -141,34 +142,35 @@ void DeviceController::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeI
 
 // DAC Voltage Filter in VC
 void DeviceController::onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex) {
-    msgDisp->setVoltageStimulusLpf(selectedVcVoltageFilterIndex, true);
+    appStatus->getMessageDispatcher()->setVoltageStimulusLpf(selectedVcVoltageFilterIndex, true);
 
     emit sigVcVoltageFilterSelected(selectedVcVoltageFilterIndex);
 }
 
 // DAC Current Filter in CC
 void DeviceController::onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex) {
-    msgDisp->setCurrentStimulusLpf(selectedCcCurrentFilterIndex, true);
+    appStatus->getMessageDispatcher()->setCurrentStimulusLpf(selectedCcCurrentFilterIndex, true);
 
     emit sigCcCurrentFilterSelected(selectedCcCurrentFilterIndex);
 }
 
 // Sampling rate
 void DeviceController::onSamplingRateSelected(uint16_t selectedSamplingRateIndex) {
-    msgDisp->setSamplingRate(selectedSamplingRateIndex, true);
+    appStatus->getMessageDispatcher()->setSamplingRate(selectedSamplingRateIndex, true);
 
     emit sigSamplingRateSelected(selectedSamplingRateIndex);
 }
 
 // Downsampling ratio
 void DeviceController::onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex) {
-    msgDisp->setDownsamplingRatio(selectedDownsamplingRatioIndex);
+    appStatus->getMessageDispatcher()->setDownsamplingRatio(selectedDownsamplingRatioIndex);
 
     emit sigDownsamplingRatioSelected(selectedDownsamplingRatioIndex);
 }
 // ADC Voltage Filter in CC set by Sampling rate
 
 void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
+    MessageDispatcher * msgDisp = appStatus->getMessageDispatcher();
     msgDisp->setClampingModality(mode, true, true);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
@@ -192,14 +194,14 @@ void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
 }
 
 void DeviceController::onCustomOptionSelected(uint32_t customOptionIdx, int idx) {
-    msgDisp->setCustomOption(customOptionIdx, idx, true);
+    appStatus->getMessageDispatcher()->setCustomOption(customOptionIdx, idx, true);
 }
 
 void DeviceController::onCustomDoubleChanged(uint32_t customDoubleIdx, double value) {
-    msgDisp->setCustomDouble(customDoubleIdx, value, true);
+    appStatus->getMessageDispatcher()->setCustomDouble(customDoubleIdx, value, true);
 }
 
 bool DeviceController::calcDefaultStatus(int size, bool recording) {
-//    if I'm not recording and there are more then 1 measurements enable the groupboxes
+//    if I'm not recording and there are more than 1 measurements enable the groupboxes
     return size > 1 && !recording;
 }

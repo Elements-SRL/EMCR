@@ -73,6 +73,26 @@ std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
     return expandedChannels;
 };
 
+std::vector <uint16_t> ApplicationStatus::getOffsetRecalibratingChannelsIndexes() {
+    std::vector <uint16_t> recalibratingChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isRecalibratingReadoutOffset()) {
+            recalibratingChannels.push_back(ch->getId());
+        }
+    }
+    return recalibratingChannels;
+};
+
+std::vector <uint16_t> ApplicationStatus::getLiquidJunctionCompensatingChannelsIndexes() {
+    std::vector <uint16_t> compensatingChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isCompensatingLiquidJunction()) {
+            compensatingChannels.push_back(ch->getId());
+        }
+    }
+    return compensatingChannels;
+};
+
 std::vector <YAML::ChannelMapping> ApplicationStatus::getMappings(){
     return mappings;
 };

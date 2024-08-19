@@ -6,8 +6,6 @@
 #include "protocol/protocollist.h"
 #include "e384commlib_errorcodes.h"
 
-using namespace e384CommLib;
-
 class ErrorManager : QMessageBox {
     Q_OBJECT
 

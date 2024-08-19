@@ -21,7 +21,7 @@ public:
     void setVisualizationOption(VisualizationOption_t type);
     void setChannelIndex(int index);
     void setStampPlot(StampPlot * plot);
-    void setNoiseValue(Measurement_t value);
+    void setNoiseValue(e384cl::Measurement_t value);
 
 private:
     QLabel * channelLbl;
