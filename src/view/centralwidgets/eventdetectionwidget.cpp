@@ -155,7 +155,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     // Add items to the combo box
     comboBox->addItem("Events go down");
     comboBox->addItem("Events go up");
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxIndexChanged(int)));
+    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &EventDetectionWidget::onComboBoxIndexChanged);
     statsLayout->addWidget(comboBox);
 
     statsLayout->addWidget(analysisGroupBox);

@@ -383,6 +383,16 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStartConsuming();
         }
         });
+    connect(widget, &EventDetectionWidget::sigEventDirectionChanged, this, [=](EventsDirection direction) {
+        const auto wasThisRunning = consumer->isRunning();
+        if (wasThisRunning) {
+            consumer->onStopConsuming();
+        }
+        consumer->setEventsDirection(direction);
+        if (wasThisRunning) {
+            consumer->onStartConsuming();
+        }
+        });
 }
 
 EventDetectionController::~EventDetectionController() {
