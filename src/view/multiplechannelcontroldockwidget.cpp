@@ -139,6 +139,11 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     expandTraceGb->setLayout(qhblExpandTrace);
     mainLayout->addWidget(expandTraceGb);
 
+    //widget that occupies as much space as possible for better visual effect
+    auto spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+    mainLayout->addWidget(spacer);
+    
     expandTraceBtn = new QPushButton("ON (E)");
     connect(expandTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddToBigPlot);
     qhblExpandTrace->addWidget(expandTraceBtn);
