@@ -18,9 +18,12 @@ public:
     ~MeasurementOverviewController();
     LiveStatisticsConsumer * getLiveStatisticsConsumer();
     void boardMappingsLoaded();
+
 public slots:
     void onChannelsUpdated();
+    void onOffsetRecalibrationResult(bool started);
     void onLiquidJunctionResult(bool started);
+
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
     ApplicationStatus * appStatus = nullptr;
@@ -35,7 +38,6 @@ private:
 
 private slots:
     void onLiveStatisticsResults(StatisticsResultWrapper);
-
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H

@@ -29,6 +29,7 @@ private:
 public:
     MeasurementsOverviewDockWidget(std::vector<uint16_t> activeChannels, int voltageChannels, int currentChannels, QWidget * parent = nullptr);
     void updateActiveChannels(std::vector<uint16_t> newActiveChannels);
+    void setOffsetRecalibrationResult(std::vector <Measurement_t> result);
     void setLiquidJunctionResult(std::vector <Measurement_t> result);
     void onLiveStatisticsResult(std::vector<StatisticsResult> result);
 

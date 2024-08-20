@@ -29,7 +29,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     mainVl->setSpacing(1);
 
     dataTable = new CopyableTable(scrollWidget);
-    dataTable->setColumnCount(13);
+    dataTable->setColumnCount(15);
     dataTable->setRowCount(currentChannels + 1);
     dataTable->horizontalHeader()->hide();
     dataTable->verticalHeader()->hide();
@@ -46,6 +46,8 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     dataTable->setItem(0, col++, new QTableWidgetItem("Current RMS"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Conductivity"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Offset recalibration"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Liquid junction"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
@@ -75,13 +77,24 @@ void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<uint16_t> 
     onUpdate();
 }
 
+void MeasurementsOverviewDockWidget::setOffsetRecalibrationResult(std::vector<Measurement_t> results) {
+    //the first row is the header
+    int row = 1;
+    for (auto ch : activeChannels) {
+        auto result = results[ch];
+        dataTable->setItem(row, 11, new QTableWidgetItem(QString::fromStdString(std::to_string(result.value))));
+        dataTable->setItem(row, 12, new QTableWidgetItem(QString::fromStdString(result.getFullUnit())));
+        row++;
+    }
+}
+
 void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector<Measurement_t> results) {
     //the first row is the header
     int row = 1;
     for (auto ch : activeChannels) {
         auto result = results[ch];
-        dataTable->setItem(row, 9, new QTableWidgetItem(QString::fromStdString(std::to_string(result.value))));
-        dataTable->setItem(row, 10, new QTableWidgetItem(QString::fromStdString(result.getFullUnit())));
+        dataTable->setItem(row, 13, new QTableWidgetItem(QString::fromStdString(std::to_string(result.value))));
+        dataTable->setItem(row, 14, new QTableWidgetItem(QString::fromStdString(result.getFullUnit())));
         row++;
     }
 }

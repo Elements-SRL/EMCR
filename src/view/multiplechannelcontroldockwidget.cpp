@@ -235,6 +235,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
        settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, filename);
        emit sigFileNameChanged(filename);
     });
+
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    mainLayout->addWidget(spacer);
 }
 
 void MultipleChannelControlDockWidget::setRecording(bool flag) {

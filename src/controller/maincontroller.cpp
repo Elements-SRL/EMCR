@@ -248,12 +248,12 @@ void MainController::onMainWindowCreated() {
     connect(multipleChannelController, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff,  chessboardController,           &ChessboardController::onCalibrationResistorsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,               chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   chessboardController,           &ChessboardController::onOffsetRecalibrationTurnedOnOff);
-//    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   measurementOverviewController,  &MeasurementOverviewController::onOffsetRecalibrationResult);
-//    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   singleChannelController,        &SingleChannelController::onOffsetRecalibrationResult);
-//    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationResetted,      this, [=] () {
-//        measurementOverviewController->onLiquidJunctionResult(false);
-//        singleChannelController->onLiquidJunctionResult();
-//    });
+    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   measurementOverviewController,  &MeasurementOverviewController::onOffsetRecalibrationResult);
+    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   singleChannelController,        &SingleChannelController::onOffsetRecalibrationResult);
+    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationResetted,      this, [=] () {
+        measurementOverviewController->onOffsetRecalibrationResult(false);
+        singleChannelController->onOffsetRecalibrationResult();
+    });
     connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   chessboardController,           &ChessboardController::onLjcTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   measurementOverviewController,  &MeasurementOverviewController::onLiquidJunctionResult);
     connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   singleChannelController,        &SingleChannelController::onLiquidJunctionResult);
@@ -422,7 +422,7 @@ void MainController::destroyControllers() {
 
 /*! Message forward from mainController to other consumers */
 
-void MainController::onVcCurrentRangeSelected(int) {
+void MainController::onVcCurrentRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -437,6 +437,7 @@ void MainController::onVcCurrentRangeSelected(int) {
     }
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
+    mainWindow->getSingleChannelControlsDockWidget()->onVcCurrentRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
 void MainController::onVcVoltageRangeSelected(int idx) {
@@ -481,7 +482,7 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
 }
 
-void MainController::onCcVoltageRangeSelected(int) {
+void MainController::onCcVoltageRangeSelected(int idx) {
     /*! update GUI */
     mainWindow->getDeviceControlsDockWidget()->updateParameters();
 
@@ -497,6 +498,7 @@ void MainController::onCcVoltageRangeSelected(int) {
     //this should be useless?
     //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range);
+    mainWindow->getSingleChannelControlsDockWidget()->onCcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
 void MainController::onVcVoltageFilterSelected(int) {

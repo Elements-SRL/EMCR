@@ -221,7 +221,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     vLayout->addWidget(spacer);
 }
 

@@ -38,6 +38,32 @@ MeasurementOverviewController::~MeasurementOverviewController(){
     }
 }
 
+void MeasurementOverviewController::onOffsetRecalibrationResult(bool started) {
+    if (!started) {
+        ClampingModality_t mode;
+        CalibrationParams_t params;
+        auto msgDisp = appStatus->getMessageDispatcher();
+        msgDisp->getClampingModality(mode);
+        msgDisp->getCalibParams(params);
+        uint32_t rangeIdx;
+
+        switch (mode) {
+        case ClampingModality_t::VOLTAGE_CLAMP:
+            msgDisp->getVCCurrentRangeIdx(rangeIdx);
+            modm->setOffsetRecalibrationResults(params.vcOffsetAdc[rangeIdx]);
+            modw->setOffsetRecalibrationResult(params.vcOffsetAdc[rangeIdx]);
+            break;
+
+        case ClampingModality_t::ZERO_CURRENT_CLAMP:
+        case ClampingModality_t::CURRENT_CLAMP:
+            msgDisp->getCCVoltageRangeIdx(rangeIdx);
+            modm->setOffsetRecalibrationResults(params.ccOffsetAdc[rangeIdx]);
+            modw->setOffsetRecalibrationResult(params.ccOffsetAdc[rangeIdx]);
+            break;
+        }
+    }
+}
+
 void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
     if (!started) {
         std::vector <uint16_t> channelIdxs(currentChannelsNum);
@@ -45,14 +71,10 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
             channelIdxs[idx] = idx;
         }
 
-        std::vector <Measurement_t> stdVoltages;
+        std::vector <Measurement_t> voltages;
         auto msgDisp = appStatus->getMessageDispatcher();
-        msgDisp->getLiquidJunctionVoltages(channelIdxs, stdVoltages);
-        std::vector <Measurement_t> voltages(currentChannelsNum);
+        msgDisp->getLiquidJunctionVoltages(channelIdxs, voltages);
 
-        for (int idx = 0; idx < currentChannelsNum; idx++) {
-            voltages[idx] = stdVoltages[idx];
-        }
         modm->setLiquidJunctionResults(voltages);
         modw->setLiquidJunctionResult(voltages);
     }

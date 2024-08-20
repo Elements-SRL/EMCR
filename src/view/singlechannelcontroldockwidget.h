@@ -18,13 +18,16 @@ class SingleChannelControlDockWidget : public QDockWidget {
 
 public:
     SingleChannelControlDockWidget(ApplicationStatus * appStatus, QWidget * parent = nullptr);
+    void setOffsetRecalibrationValues(std::vector <Measurement_t> values);
     void setLiquidJunctionVoltages(std::vector <Measurement_t> voltages);
     void onBoardMappingsLoaded();
 
 public slots:
     void onUpdate();
     void onVcVoltageRangeSelected(int idx);
+    void onVcCurrentRangeSelected(int idx);
     void onCcCurrentRangeSelected(int idx);
+    void onCcVoltageRangeSelected(int idx);
 
 protected:
     bool eventFilter(QObject * obj, QEvent * event);
@@ -32,6 +35,7 @@ protected:
 private:
     typedef enum Operations {
         OperationHoldingStimulus,
+        OperationOffsetRecalibration,
         OperationLiquidJunction,
         OperationStimulusHalf,
         OperationsNum
@@ -62,6 +66,7 @@ private:
 
     QVector <QWidget *> operationButtonWidgets;
     RangedMeasurement_t holdingTunerRange;
+    RangedMeasurement_t offsetRecalibrationRange;
     RangedMeasurement_t liquidJunctionRange;
     QVector <NoWheelSpinBox *> setAllChannelsSbxs;
     void buildOperation(QLayout * layout, int operationType, bool visibility = false);
@@ -75,6 +80,7 @@ private slots:
 
 signals:
     void sigAppliedHoldValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
+    void sigAppliedOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigAppliedStimHalfValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigLiquidJunctionValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
 };

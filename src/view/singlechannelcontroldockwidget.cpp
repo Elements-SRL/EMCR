@@ -24,6 +24,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     operationTitles.resize(OperationsNum);
     operationTitles[OperationHoldingStimulus] = "Holding stimulus";
+    operationTitles[OperationOffsetRecalibration] = "Offset recalibration";
     operationTitles[OperationLiquidJunction] = "Liquid junction compensation";
     operationTitles[OperationStimulusHalf] = "Stimulus half";
 
@@ -52,6 +53,9 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
         QStandardItem * item = model->item(OperationHoldingStimulus);
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
+
+    buildOperation(mainVl, OperationOffsetRecalibration);
+    anyOperationActive = true;
 
     if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
         buildOperation(mainVl, OperationLiquidJunction);
@@ -125,7 +129,21 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
     SpinBoxWithChannel * sbx;
     std::vector<Measurement_t> values;
     std::vector<uint16_t> indexes;
-    auto range = operationIdx == OperationLiquidJunction ? liquidJunctionRange : holdingTunerRange;
+    RangedMeasurement_t range;
+    switch (operationIdx) {
+    case OperationHoldingStimulus:
+    case OperationStimulusHalf:
+        range = holdingTunerRange;
+        break;
+
+    case OperationOffsetRecalibration:
+        range = offsetRecalibrationRange;
+        break;
+
+    case OperationLiquidJunction:
+        range = liquidJunctionRange;
+        break;
+    }
     for (int i = 0; i < selectedChannels.size(); i++) {
         sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
         if (selectedChannels.at(i)) {
@@ -137,6 +155,10 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
     switch (operationIdx) {
     case OperationHoldingStimulus:{
         emit sigAppliedHoldValues(indexes, values);
+        break;
+    }
+    case OperationOffsetRecalibration:{
+        emit sigAppliedOffsetRecalibration(indexes, values);
         break;
     }
     case OperationLiquidJunction:{
@@ -226,6 +248,26 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
     }
 }
 
+void SingleChannelControlDockWidget::onVcCurrentRangeSelected(int idx) {
+    std::vector <RangedMeasurement_t> ranges;
+    auto msgDisp = appStatus->getMessageDispatcher();
+    QString unit = "";
+    uint16_t _;
+    if (msgDisp->getVCCurrentRanges(ranges, _) == Success) {
+        offsetRecalibrationRange = ranges[idx];
+        unit = QString().fromStdString(offsetRecalibrationRange.getFullUnit());
+        setAllChannelsSbxs[OperationOffsetRecalibration]->setSuffix(QString(" ") + unit);
+        setAllChannelsSbxs[OperationOffsetRecalibration]->setRange(offsetRecalibrationRange.min, offsetRecalibrationRange.max);
+        setAllChannelsSbxs[OperationOffsetRecalibration]->setDecimals(offsetRecalibrationRange.decimals());
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationOffsetRecalibration][channelIdx])->getSpinBox();
+            sbx->setSuffix(QString(" ") + unit);
+            sbx->setRange(offsetRecalibrationRange.min, offsetRecalibrationRange.max);
+            sbx->setDecimals(offsetRecalibrationRange.decimals());
+        }
+    }
+}
+
 void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     auto msgDisp = appStatus->getMessageDispatcher();
@@ -257,6 +299,25 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected(int idx) {
     }
 }
 
+void SingleChannelControlDockWidget::onCcVoltageRangeSelected(int idx) {
+    std::vector <RangedMeasurement_t> ranges;
+    auto msgDisp = appStatus->getMessageDispatcher();
+    QString unit = "";
+    if (msgDisp->getCCVoltageRanges(ranges) == Success) {
+        offsetRecalibrationRange = ranges[idx];
+        unit = QString().fromStdString(offsetRecalibrationRange.getFullUnit());
+        setAllChannelsSbxs[OperationOffsetRecalibration]->setSuffix(QString(" ") + unit);
+        setAllChannelsSbxs[OperationOffsetRecalibration]->setRange(offsetRecalibrationRange.min, offsetRecalibrationRange.max);
+        setAllChannelsSbxs[OperationOffsetRecalibration]->setDecimals(offsetRecalibrationRange.decimals());
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationOffsetRecalibration][channelIdx])->getSpinBox();
+            sbx->setSuffix(QString(" ") + unit);
+            sbx->setRange(offsetRecalibrationRange.min, offsetRecalibrationRange.max);
+            sbx->setDecimals(offsetRecalibrationRange.decimals());
+        }
+    }
+}
+
 bool SingleChannelControlDockWidget::eventFilter(QObject * obj, QEvent * event) {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent * keyEvent = static_cast <QKeyEvent *> (event);
@@ -276,10 +337,17 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 
     operationEdits[idx].resize(currentChannelsNum);
     std::vector <RangedMeasurement_t> ranges;
+    uint16_t _;
 
     switch (idx) {
     case OperationHoldingStimulus:
         if (msgDisp->getVoltageHoldTunerFeatures(ranges) != Success) {
+            return nullptr;
+        }
+        break;
+
+    case OperationOffsetRecalibration:
+        if (msgDisp->getVCCurrentRanges(ranges, _) != Success) {
             return nullptr;
         }
         break;
@@ -322,11 +390,18 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx] = new QWidget;
     std::vector <RangedMeasurement_t> ranges;
+    uint16_t _;
     auto msgDisp = appStatus->getMessageDispatcher();
 
     switch (idx) {
     case OperationHoldingStimulus:
         if (msgDisp->getVoltageHoldTunerFeatures(ranges) != Success) {
+            return nullptr;
+        }
+        break;
+
+    case OperationOffsetRecalibration:
+        if (msgDisp->getVCCurrentRanges(ranges, _) != Success) {
             return nullptr;
         }
         break;
@@ -400,16 +475,22 @@ void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
     this->onUpdate();
 }
 
-void SingleChannelControlDockWidget::setLiquidJunctionVoltages(std::vector <Measurement_t> voltages){
+void SingleChannelControlDockWidget::setOffsetRecalibrationValues(std::vector <Measurement_t> values) {
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        NoWheelSpinBox * sbx2 = static_cast <SpinBoxWithChannel *> (operationEdits[OperationOffsetRecalibration][channelIdx])->getSpinBox();
+        sbx2->setValue(values[channelIdx].value);
+    }
+}
+void SingleChannelControlDockWidget::setLiquidJunctionVoltages(std::vector <Measurement_t> voltages) {
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         NoWheelSpinBox * sbx2 = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
         sbx2->setValue(voltages[channelIdx].value);
     }
 }
 
-void SingleChannelControlDockWidget::onBoardMappingsLoaded(){
+void SingleChannelControlDockWidget::onBoardMappingsLoaded() {
     auto names = appStatus->getNames();
-    for (int opIdx=0; opIdx<OperationsNum; opIdx++) {
+    for (int opIdx = 0; opIdx < OperationsNum; opIdx++) {
          if (operationEdits[opIdx].size() > 0) {
             for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                 auto sbwc = static_cast <SpinBoxWithChannel *> (operationEdits[opIdx][channelIdx]);
@@ -441,4 +522,3 @@ NoWheelSpinBox * SpinBoxWithChannel::getSpinBox() {
 void SpinBoxWithChannel::setName(std::string name){
     channelLbl->setText(QString::fromStdString(name));
 }
-
