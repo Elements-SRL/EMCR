@@ -19,6 +19,7 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
     splitter->addWidget(containerWidget);
 
+    splitter->setHandleWidth(20);
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 0);
 
