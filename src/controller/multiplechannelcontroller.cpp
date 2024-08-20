@@ -105,14 +105,6 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigResetLj, this, [=]() {
         this->resetLj();
     });
-
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStartRecording,        this, [=] () {
-        this->onRecordingRequest(true);
-    });
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigStopRecording,         this, [=] () {
-        this->onRecordingRequest(false);
-    });
-
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlot,          this, [=] () {
         this->addRemoveFromBigPlot(true);
     });
@@ -141,28 +133,7 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
     emit sigAddRemoveFromBigPlot(flag);
 }
 
-void MultipleChannelController::onRecordingRequest(bool flag) {
-    if (flag) {
-        std::vector <uint16_t> selectedChannels;
-        msgDisp->getSelectedChannelsIndexes(selectedChannels);
 
-        if (!(selectedChannels.empty())) {
-            emit sigStartRecording();
-
-        } else {
-            QString err = "Recording to file not possible";
-            QString info = "No channel checked for recording";
-            ErrorManager e(err, info);
-        }
-
-    } else {
-        emit sigStopRecording();
-    }
-}
-
-void MultipleChannelController::onRecordingExecution(bool flag) {
-    multipleChannelControlsDw->setRecording(flag);
-}
 
 void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     std::vector <uint16_t> selectedChannels;

@@ -13,6 +13,8 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     auto mainVl = new QVBoxLayout(subWidget); // Set layout on the container widget
     splitter->addWidget(plot);
     splitter->addWidget(subWidget);
+    splitter->setStretchFactor(0, 1);
+    splitter->setStretchFactor(1, 0);
     auto buttonsHl = new QHBoxLayout();
 
     auto startButton = new QPushButton(this);

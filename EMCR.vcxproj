@@ -198,6 +198,7 @@
     <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\baseplot.cpp" />
+    <ClCompile Include="src\view\gapfreewidget.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
     <ClCompile Include="src\view\addtagdialog.cpp" />
     <ClCompile Include="src\model\analysiscursor.cpp" />
@@ -362,6 +363,7 @@
     <ClInclude Include="src\model\measurementoverviewmodel.h" />
     <QtMoc Include="src\view\measurementsoverviewdockwidget.h" />
     <QtMoc Include="src\view\baseplot.h" />
+    <QtMoc Include="src\view\gapfreewidget.h" />
     <ClInclude Include="src\view\questionmarkmenu\messagedialog.h" />
     <QtMoc Include="src\view\multiplechannelcontroldockwidget.h" />
     <QtMoc Include="src\controller\multiplechannelcontroller.h" />

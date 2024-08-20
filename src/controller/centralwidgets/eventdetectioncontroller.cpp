@@ -222,7 +222,13 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
     }
 }
 
-EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bpw) :
+
+//////////////////////////////////////////////////////////////
+////////////// END OF FILE UTILITIES /////////////////////////
+//////////////////////////////////////////////////////////////
+
+
+EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
     //TODO THOSE NEEDS TO BE 
     auto sr = appStatus->getSamplingRate();
@@ -239,7 +245,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
 
     consumer = new EventDetectionConsumer(appStatus, producer, minSamples, maxSamples, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER, eventsDirection);
     widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDuration, maxDuration, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER, eventsDirection);
-    bpw->setEventDetectionTab(widget);
+    bigPlotWidget->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
@@ -359,6 +365,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStopConsuming();
         }
         widget->setRecordingStatus(true);
+        bigPlotWidget->setTabsStatus(false, BigPlot::BigPlotStatus::Event);
         initHDF5();
         if (wasThisRunning) {
             consumer->onStartConsuming();
@@ -370,6 +377,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStopConsuming();
         }
         widget->setRecordingStatus(false);
+        bigPlotWidget->setTabsStatus(true, BigPlot::BigPlotStatus::Event);
         closeHDF5();
         if (wasThisRunning) {
             consumer->onStartConsuming();
@@ -404,7 +412,6 @@ void EventDetectionController::attachCurves(const std::vector <uint16_t>& channe
 }
 
 void EventDetectionController::start() {
-    //initHDF5();
     if (!isAtLeastOneChannelExpanded()) {
         return;
     }
@@ -466,9 +473,6 @@ void EventDetectionController::onExpandTrace(bool flag) {
 }
 
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
-    if (!file.has_value()) {
-        return;
-    }
     message = std::get<2>(plotmessage);
     auto plot = widget->getPlot();
     auto sr = appStatus->getSamplingRate();

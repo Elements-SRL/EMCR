@@ -16,7 +16,6 @@ class MultipleChannelControlDockWidget : public QDockWidget {
 public:
     MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
-    void setRecording(bool flag);
     bool getExpertMode();
     void enableExpertMode(bool flag);
 
@@ -45,8 +44,6 @@ private:
     QPushButton * recordingStopBtn = nullptr;
     QLineEdit * fileNameLineEdit = nullptr;
     QLineEdit * recordPathLineEdit = nullptr;
-    void emitFileName();
-    void emitFilePath();
 
 signals:
     void sigTurnChannelOn();
@@ -64,12 +61,9 @@ signals:
     void sigTurnStimulsOn();
     void sigTurnStimulsOff();
     void sigZap(Measurement_t duration);
-    void sigStartRecording();
-    void sigStopRecording();
     void sigAddToBigPlot();
     void sigRemoveFromBigPlot();
-    void sigFileNameChanged(QString);
-    void sigRecordPathChanged(QString);
+
 };
 
 #endif // MULTIPLECHANNELCONTROLDOCKWIDGET_H

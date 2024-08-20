@@ -15,20 +15,26 @@
 #include "ivgraphwidget.h"
 #include "centralwidgetcontroller.h"
 #include "bigplotcontroller.h"
+#include "gapfreewidget.h"
+#include "abfdatawriterconsumer.h"
+#include "devicecontroller.h"
 
 class GapFreeController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController);
+    GapFreeController(ApplicationStatus* , DeviceDataProducer* , Measurement_t , BigPlotWidget* , BigPlotController*, MainWindow*, AbfDataWriterConsumer*, DeviceController*);
     ~GapFreeController();
     void stop() override;
     void start() override;
     PlotConsumer* getConsumer() override;
+
 private:
     BigPlotModel* model = nullptr;
     GapFreePlotConsumer * consumer = nullptr;
     BigPlot * plot = nullptr;
+    GapFreeWidget* gapFreeWidget = nullptr;
+    AbfDataWriterConsumer* abfDataWriterConsumer = nullptr;
     std::vector <Curve*> currentCurves;
     std::vector <Curve*> voltageCurves;
     void detachCurves(const std::vector <uint16_t> &channelIndexes) override;
@@ -42,9 +48,18 @@ public slots:
     void onReplot() override;
     void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
+    void onRecordingRequest(bool flag);
+    void onRecordingExecution(bool flag);
+
+
+private slots:
+    void onStartRecording();
+    void onStopRecording();
 
 signals:
     void durationChanged(Measurement_t duration);
+    void sigStartRecording();
+    void sigStopRecording();
 };
 
 #endif // GAPFREECONTROLLER_H

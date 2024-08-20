@@ -16,10 +16,6 @@ public:
     ~MultipleChannelController();
     void addRemoveFromBigPlot(bool flag);
 
-public slots:
-    void onRecordingRequest(bool flag);
-    void onRecordingExecution(bool flag);
-
 private:
     void turnSelectedChannelsOnOff(bool flag);
     void turnSelectedCalibrationResistorsOnOff(bool flag);
@@ -38,9 +34,6 @@ private:
     OffsetCorrectionController * offsetCorrectionController = nullptr;
 
 signals:
-    void sigStartRecording();
-    void sigStopRecording();
-
     void sigChannelsTurnedOnOff(bool flag);
     void sigCalibrationResistorsTurnedOnOff(bool flag);
     void sigStimuliTurnedOnOff(bool flag);
