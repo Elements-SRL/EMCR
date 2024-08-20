@@ -52,3 +52,11 @@ void BigPlotWidget::setEventDetectionTab(QWidget * wid) {
 void BigPlotWidget::setSpectrumPlot(QWidget* wid) {
     spectrumTab->layout()->addWidget(wid);
 }
+
+void BigPlotWidget::setTabsStatus(bool status, int idxOfDefaultEnabledTab) {
+    for (int i = 0; i < this->count(); i++) {
+        if (i != idxOfDefaultEnabledTab) {
+            setTabEnabled(i, status);
+        }
+    }
+}

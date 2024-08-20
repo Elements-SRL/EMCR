@@ -162,6 +162,11 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
 
     upperRightLayout->addWidget(statsWidget);
     upperRightLayout->addWidget(inputsWidget);
+
+    auto spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
+    upperRightLayout->addWidget(spacer);
+
     gridLayout->addWidget(upperRightWidget, 0, 1);
 
     //Maybe manage the change of path and name sanding signals and creating new events files
