@@ -75,6 +75,7 @@ private:
     QComboBox* comboBox;
 
     EventsDirection eventsDirection;
+    double maxEventAmplitude;
 
     void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);

@@ -381,11 +381,13 @@ void EventDetectionWidget::onComboBoxIndexChanged(int index){
     default:
         break;
     }
+    setMaxAmplitude(maxEventAmplitude);
     emit sigEventDirectionChanged(direction);
 }
 
 void EventDetectionWidget::setMaxAmplitude(double value) {
     const auto padding = value * 0.05;
+    maxEventAmplitude = value;
     if (this->eventsDirection == EventsDirection::DOWN) {
         bottomLeftPlot->setAxisScale(QwtPlot::Axis::yLeft, -value - padding, +padding);
     }
