@@ -1,15 +1,17 @@
 #include "gapfreecontroller.h"
 
-GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController):
+GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, AbfDataWriterConsumer* abfDataWriterConsumer, DeviceController* dc):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
 
     model = new BigPlotModel(BigPlot::GapFree);
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
-
+    this->abfDataWriterConsumer = abfDataWriterConsumer;
     plot = new BigPlot("", "[s]", "", BigPlot::GapFree, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
-    bigPlotWidget->setGapFreePlot(plot);
+
+    gapFreeWidget = new GapFreeWidget(plot, mw);
+    bigPlotWidget->setGapFreePlot(gapFreeWidget);
     //    creating curves for gapfree
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
@@ -18,7 +20,7 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
         voltageCurves.push_back(new Curve(CurveType_t::CurveTypePlotDashed));
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
-
+    auto recordingSettingsDialog = mw->getRecordSettingsDialog();
     connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
         bigPlotController->handleZoomInRequest(model, plot, r);
         });
@@ -34,7 +36,21 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
         bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
         });
-
+    connect(gapFreeWidget, &GapFreeWidget::sigStartRecording, this, [=]() {
+        this->onRecordingRequest(true);
+        });
+    connect(gapFreeWidget, &GapFreeWidget::sigStopRecording, this, [=]() {
+        this->onRecordingRequest(false);
+        });
+    connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=](bool flag) {
+        this->onRecordingExecution(flag);
+        dc->handleRecording(flag);
+        });
+    connect(this, &GapFreeController::sigStartRecording, this, &GapFreeController::onStartRecording);
+    connect(this, &GapFreeController::sigStopRecording, this, &GapFreeController::onStopRecording);
+    connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
+    connect(gapFreeWidget, &GapFreeWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
+    connect(gapFreeWidget, &GapFreeWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
     connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
     connect(consumer, &PlotConsumer::setPlotData, this, &GapFreeController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &GapFreeController::onReplot);
@@ -46,6 +62,7 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     }
     consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
+    recordingSettingsDialog->forceSettingsEmit();
 }
 
 GapFreeController::~GapFreeController() {
@@ -60,6 +77,11 @@ GapFreeController::~GapFreeController() {
     if (plot != nullptr) {
         delete plot;
         plot = nullptr;
+    }
+    if (abfDataWriterConsumer != nullptr) {
+        abfDataWriterConsumer->onStopConsuming();
+        delete abfDataWriterConsumer;
+        abfDataWriterConsumer = nullptr;
     }
     currentCurves.clear();
     voltageCurves.clear();
@@ -175,4 +197,42 @@ void GapFreeController::onSetPlotData(PlotMessage plotmessage) {
 
 PlotConsumer* GapFreeController::getConsumer() {
     return consumer;
+}
+
+void GapFreeController::onRecordingRequest(bool flag) {
+    if (flag) {
+        std::vector <uint16_t> selectedChannels;
+        auto msgDisp = appStatus->getMessageDispatcher();
+        msgDisp->getSelectedChannelsIndexes(selectedChannels);
+
+        if (!(selectedChannels.empty())) {
+            emit sigStartRecording();
+
+        }
+        else {
+            QString err = "Recording to file not possible";
+            QString info = "No channel checked for recording";
+            ErrorManager e(err, info);
+        }
+
+    }
+    else {
+        emit sigStopRecording();
+    }
+}
+
+void GapFreeController::onRecordingExecution(bool flag) {
+    gapFreeWidget->setRecording(flag);
+}
+
+
+//TODO this could be moved at the controller level and b managed by single controllers
+void GapFreeController::onStartRecording() {
+    const auto selectedChannels = appStatus->getSelectedChannelsIndexes();
+    std::vector <bool> values(selectedChannels.size(), true);
+    abfDataWriterConsumer->onRecordSelectedChannels(selectedChannels, values);
+}
+
+void GapFreeController::onStopRecording() {
+    abfDataWriterConsumer->onStopConsuming();
 }

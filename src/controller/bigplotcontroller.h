@@ -13,12 +13,14 @@
 #include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
 #include "centralwidgetcontroller.h"
+#include "devicecontroller.h"
+#include "abfdatawriterconsumer.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
 
 public:
-    BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow, AbfDataWriterConsumer* abfDataWriterConsumer, DeviceController* dc);
     ~BigPlotController();
 
     std::vector<PlotConsumer*> getConsumers();

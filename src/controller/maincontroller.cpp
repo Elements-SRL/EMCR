@@ -155,8 +155,6 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
 
 void MainController::onMainWindowCreated() {
     consumers.clear();
-    dataWriterConsumers.clear();
-
     /*********\
      * Model *
     \*********/
@@ -178,15 +176,16 @@ void MainController::onMainWindowCreated() {
 
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
-
-    bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow);
+    deviceController = new DeviceController(appStatus, mainWindow);
+    auto abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);
+    consumers.append(abfDataWriterConsumer);
+    bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow, abfDataWriterConsumer, deviceController);
     chessboardController = new ChessboardController(appStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
     multipleChannelController = new MultipleChannelController(appStatus, mainWindow);
     singleChannelController = new SingleChannelController(appStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
-    deviceController = new DeviceController(appStatus, mainWindow);
     measurementOverviewController = new MeasurementOverviewController(appStatus, deviceDataProducer, mainWindow);
     plotPreferencesController = new PlotPreferencesController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {
@@ -209,9 +208,7 @@ void MainController::onMainWindowCreated() {
     for(auto c: bigPlotController->getControllers()){
         centralWidgetControllers.push_back(c);
     }
-    abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);
-    consumers.append(abfDataWriterConsumer);
-    dataWriterConsumers.append(abfDataWriterConsumer);
+    
     consumers.append(measurementOverviewController->getLiveStatisticsConsumer());
 
     mainWindow->addViewActions();
@@ -239,9 +236,6 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigSamplingRateSelected,       this, &MainController::onSamplingRateSelected);
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
-
-    connect(multipleChannelController, &MultipleChannelController::sigStartRecording,                   this,                           &MainController::onStartRecording);
-    connect(multipleChannelController, &MultipleChannelController::sigStopRecording,                    this,                           &MainController::onStopRecording);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             bigPlotController,              &BigPlotController::onExpandTrace);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
@@ -303,10 +297,6 @@ void MainController::onMainWindowCreated() {
         connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
         connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
     }
-
-    connect(mainWindow->getRecordSettingsDialog(), &RecordSettingsDialog::sigSettingsSet,   abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
-    connect(mainWindow->getMultipleChannelControlsDockWidget(), &MultipleChannelControlDockWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
-    connect(mainWindow->getMultipleChannelControlsDockWidget(), &MultipleChannelControlDockWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
         msgDisp->setDebugBit(word, bit, flag);
     });
@@ -329,18 +319,12 @@ void MainController::onMainWindowCreated() {
         }
     });
 
-    connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=] (bool flag) {
-        multipleChannelController->onRecordingExecution(flag);
-        deviceController->handleRecording(flag);
-    });
-
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
     bigPlotController->onRangeUpdated(plotRange);
 
     /*! Forced initialization at start */
     mainWindow->getDeviceControlsDockWidget()->forceEmit();
-    mainWindow->getRecordSettingsDialog()->forceSettingsEmit();
 
     /*! \todo FCON questo potrebbe essere parametrizzato */
 
@@ -547,22 +531,6 @@ void MainController::onClampingModalitySelected(ClampingModality_t mode) {
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 
-//TODO this could be moved at the controller level and b managed by single controllers
-void MainController::onStartRecording() {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
-    std::vector <bool> values(selectedChannels.size(), true);
-    for (auto consumer : dataWriterConsumers) {
-        consumer->onRecordSelectedChannels(selectedChannels, values);
-    }
-}
-
-void MainController::onStopRecording() {
-    for (auto consumer : dataWriterConsumers) {
-        consumer->onStopConsuming();
-    }
-}
-
 void MainController::startProducerConsumers() {
     deviceDataProducer->start();
 }
@@ -571,17 +539,9 @@ void MainController::stopAndDestroyProducerConsumers() {
     for (auto consumer : consumers) {
         consumer->onStopConsuming();
     }
-
     for (auto controller : centralWidgetControllers) {
         controller->onStopConsuming();
     }
-
-    if (abfDataWriterConsumer!= nullptr) {
-        abfDataWriterConsumer->onStopConsuming();
-        delete abfDataWriterConsumer;
-        abfDataWriterConsumer = nullptr;
-    }
-
     if (deviceDataProducer!= nullptr) {
         deviceDataProducer->onStopProducing();
         delete deviceDataProducer;
@@ -589,5 +549,4 @@ void MainController::stopAndDestroyProducerConsumers() {
     }
     consumers.clear();
     centralWidgetControllers.clear();
-    dataWriterConsumers.clear();
 }

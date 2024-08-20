@@ -16,7 +16,6 @@
 #include "devicecontroller.h"
 #include "measurementoverviewcontroller.h"
 #include "devicedataproducer.h"
-#include "abfdatawriterconsumer.h"
 #include "plotconsumer.h"
 #include "livestatisticsconsumer.h"
 #include "protocolmanager.h"
@@ -50,8 +49,6 @@ public slots:
     void onSamplingRateSelected(int idx);
     void onDownsamplingRatioSelected(int idx);
     void onClampingModalitySelected(ClampingModality_t mode);
-    void onStartRecording();
-    void onStopRecording();
 
 private:
     void startProducerConsumers();
@@ -70,11 +67,9 @@ private:
     UpgradeFwController * upgradeFwController = nullptr;
 
     DeviceDataProducer * deviceDataProducer = nullptr;
-    AbfDataWriterConsumer * abfDataWriterConsumer = nullptr;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
 
     QVector <DeviceDataConsumer*> consumers;
-    QVector <DataWriterConsumer*> dataWriterConsumers;
     //TODO the following will become a list of Controllers, a controller will abstract away
     //all the slot and signals a common controller will have to be able to respond to 
     //(onSamplingRateChanged, onDownSamplingRateChanged, ecc.)

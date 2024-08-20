@@ -37,7 +37,7 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
-void BigPlotWidget::setGapFreePlot(BigPlot * wid) {
+void BigPlotWidget::setGapFreePlot(QWidget* wid) {
     gapFreeTab->layout()->addWidget(wid);
 }
 

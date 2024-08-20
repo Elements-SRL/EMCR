@@ -6,7 +6,7 @@
 #include "eventdetectioncontroller.h"
 #include "spectrumcontroller.h"
 
-BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow) :
+BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow, AbfDataWriterConsumer* abfDataWriterConsumer, DeviceController* dc) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
 
@@ -20,7 +20,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
     
     bps = BigPlot::GapFree;
-    controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this));
+    controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, abfDataWriterConsumer, dc));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
     //if (currentChannelsNum == 1) {
         controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
