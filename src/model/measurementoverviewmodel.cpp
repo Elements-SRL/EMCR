@@ -53,7 +53,7 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
                 getValueAndUnit(r.conductivity),
                 getValueAndUnit(orr),
                 getValueAndUnit(lj)};
-            stream << r.chIdx ;
+            stream << r.chIdx+1;
             for (auto p : measurementsStrings) {
                 stream << "," << p.first << "," << p.second;
             }
