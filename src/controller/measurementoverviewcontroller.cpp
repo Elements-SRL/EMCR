@@ -45,20 +45,22 @@ void MeasurementOverviewController::onOffsetRecalibrationResult(bool started) {
         auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->getClampingModality(mode);
         msgDisp->getCalibParams(params);
+        uint32_t samplingRateIdx;
+        msgDisp->getSamplingRateIdx(samplingRateIdx);
         uint32_t rangeIdx;
 
         switch (mode) {
         case ClampingModality_t::VOLTAGE_CLAMP:
             msgDisp->getVCCurrentRangeIdx(rangeIdx);
-            modm->setOffsetRecalibrationResults(params.vcOffsetAdc[rangeIdx]);
-            modw->setOffsetRecalibrationResult(params.vcOffsetAdc[rangeIdx]);
+            modm->setOffsetRecalibrationResults(params.vcOffsetAdc[samplingRateIdx][rangeIdx]);
+            modw->setOffsetRecalibrationResult(params.vcOffsetAdc[samplingRateIdx][rangeIdx]);
             break;
 
         case ClampingModality_t::ZERO_CURRENT_CLAMP:
         case ClampingModality_t::CURRENT_CLAMP:
             msgDisp->getCCVoltageRangeIdx(rangeIdx);
-            modm->setOffsetRecalibrationResults(params.ccOffsetAdc[rangeIdx]);
-            modw->setOffsetRecalibrationResult(params.ccOffsetAdc[rangeIdx]);
+            modm->setOffsetRecalibrationResults(params.ccOffsetAdc[samplingRateIdx][rangeIdx]);
+            modw->setOffsetRecalibrationResult(params.ccOffsetAdc[samplingRateIdx][rangeIdx]);
             break;
         }
     }

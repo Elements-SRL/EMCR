@@ -138,18 +138,20 @@ void SingleChannelController::onOffsetRecalibrationResult() {
     auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
     msgDisp->getCalibParams(params);
+    uint32_t samplingRateIdx;
+    msgDisp->getSamplingRateIdx(samplingRateIdx);
     uint32_t rangeIdx;
 
     switch (mode) {
     case ClampingModality_t::VOLTAGE_CLAMP:
         msgDisp->getVCCurrentRangeIdx(rangeIdx);
-        singleChannelControlsDw->setOffsetRecalibrationValues(params.vcOffsetAdc[rangeIdx]);
+        singleChannelControlsDw->setOffsetRecalibrationValues(params.vcOffsetAdc[samplingRateIdx][rangeIdx]);
         break;
 
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
     case ClampingModality_t::CURRENT_CLAMP:
         msgDisp->getCCVoltageRangeIdx(rangeIdx);
-        singleChannelControlsDw->setOffsetRecalibrationValues(params.ccOffsetAdc[rangeIdx]);
+        singleChannelControlsDw->setOffsetRecalibrationValues(params.ccOffsetAdc[samplingRateIdx][rangeIdx]);
         break;
     }
 }

@@ -1,4 +1,5 @@
 QT       += core gui
+TARGET = EMCR
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -11,11 +12,15 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
 }
-DEFINES += _MATH_DEFINES_DEFINED
+
+contains(DEFINES, GLB_SHOW_DEBUG_CTRLS) {
+TARGET = EMCR_debug
+}
 
 #DEFINES += GLB_ANALYSES_IN_PROTOCOL_EDITOR
 #DEFINES += GLB_CURSORS_IN_PROTOCOL_EDITOR
 
+DEFINES += _MATH_DEFINES_DEFINED
 CONFIG += c++17
 
 include(version.pri)
