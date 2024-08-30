@@ -11,8 +11,10 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
 
     plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
+    plot->enableAxis(QwtPlot::yRight);
     plot->setAxisAutoScale(QwtPlot::xBottom, false);
     plot->setAxisAutoScale(QwtPlot::yLeft, false);
+    plot->setAxisAutoScale(QwtPlot::yRight, false);
     plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
     plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
 
@@ -21,7 +23,9 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     bigPlotWidget->setSpectrumPlot(spectrumWidget);
     //    creating curves for spectra
     for (int i = 0; i < currentChannelsNum; i++) {
-        currentCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
+        psdCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
+        irmsCurves.push_back(new Curve(CurveType_t::CurveTypePlotDashed));
+        irmsCurves[i]->setYAxis(QwtPlot::yRight);
     }
 
     connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
@@ -71,19 +75,22 @@ SpectrumController::~SpectrumController() {
         delete plot;
         plot = nullptr;
     }
-    currentCurves.clear();
+    psdCurves.clear();
+    irmsCurves.clear();
 }
 
 void SpectrumController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
     for (auto ch : channelIndexes) {
-        currentCurves[ch]->detach();
+        psdCurves[ch]->detach();
+        irmsCurves[ch]->detach();
     }
     plot->replot();
 }
 
 void SpectrumController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
     for (auto ch : channelIndexes) {
-        currentCurves[ch]->attach(plot);
+        psdCurves[ch]->attach(plot);
+        irmsCurves[ch]->attach(plot);
     }
     plot->replot();
 }
@@ -107,13 +114,15 @@ void SpectrumController::stop() {
 
 void SpectrumController::onCurrentColorsChanged(QVector <QColor> colors) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[idx]->setColor(colors[idx]);
+        psdCurves[idx]->setColor(colors[idx]);
+        irmsCurves[idx]->setColor(colors[idx]);
     }
 }
 
 void SpectrumController::onCurrentColorChanged(int channelIdx, QColor color) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[channelIdx]->setColor(color);
+        psdCurves[channelIdx]->setColor(color);
+        irmsCurves[channelIdx]->setColor(color);
     }
 }
 
@@ -129,13 +138,17 @@ void SpectrumController::onReplot() {
     }
 }
 
-/*! todo Check clamping modality too */
+/*! todo FCON Check clamping modality too */
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     QwtPlot::Axis axisIdx;
     if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRangeLog(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
+
+        axisIdx = QwtPlot::yRight;
+        model->setCurrentRangeLog(axisIdx, newRange);
+        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "rms", axisIdx);
 
     } else if (newRange.unit == "Hz") {
         axisIdx = QwtPlot::xBottom;
@@ -164,7 +177,8 @@ void SpectrumController::onExpandTrace(bool flag) {
 void SpectrumController::onSetPlotData(PlotMessage plotmessage) {
     SpectrumMessage message = std::get <3> (plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[idx]->setRawSamples(message.frequencyValues, message.currentValues[idx], message.dataSize);
+        psdCurves[idx]->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
+        irmsCurves[idx]->setRawSamples(message.frequencyValues, message.irmsValues[idx], message.dataSize);
     }
 }
 

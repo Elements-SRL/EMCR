@@ -3,6 +3,7 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_canvas.h"
+#include "qwt_scale_engine.h"
 
 using namespace e384CommLib;
 
@@ -167,7 +168,7 @@ void BigPlot::resizeEvent(QResizeEvent * e) {
 
 void BigPlot::wheelEvent(QWheelEvent * we) {
     /*! If the right y-axis is enabled and the pointer is on the right side of the plot, scroll the y-axis */
-    Axis vertAxis = (this->axisEnabled(yRight) && we->x() > this->width()/2.0)?yRight:yLeft;
+    Axis vertAxis = (this->axisEnabled(yRight) && we->x() > this->width()/2.0) ? yRight : yLeft;
     auto key = we->modifiers();
     // Get the angle delta of the wheel event
     QPoint angleDelta = we->angleDelta();
@@ -264,17 +265,45 @@ void BigPlot::onZoomInPickerMoved(const QPointF &p) {
 
 void BigPlot::onZoomInPickerSelected(const QRectF &r) {
     Rect4 rect(r);
+    double rY = r.y();
+    double rH = r.height();
     double yL = this->axisInterval(yLeft).minValue();
     double hL = this->axisInterval(yLeft).width();
     double yR = this->axisInterval(yRight).minValue();
     double hR = this->axisInterval(yRight).width();
+
+    QwtScaleEngine* pippo = this->axisScaleEngine(yLeft);
+    pippo->transformation();
+
+    if (dynamic_cast <const QwtLogScaleEngine *>(this->axisScaleEngine(yLeft)) != nullptr) {
+        hL = log(yL + hL);
+        yL = log(yL);
+        hL -= yL;
+        rH = log(rY + rH);
+        rY = log(rY);
+        rH -= rY;
+    }
+
+    bool rightLogFlag = dynamic_cast <const QwtLogScaleEngine*>(this->axisScaleEngine(yRight)) != nullptr ? true : false;
+
+    if (rightLogFlag) {
+        hR = log(yR + hR);
+        yR = log(yR);
+        hR -= yR;
+    }
+
     double rightLeftRatio = hR/hL;
-    double rightOffset = yR+(r.y()-yL)*rightLeftRatio;
-    double rightHeight = r.height()*rightLeftRatio;
+    double rightOffset = yR+(rY-yL)*rightLeftRatio;
+    double rightHeight = rH*rightLeftRatio;
     switch (pickerZoomType) {
     case PickerZoomRect:
         if (this->axisEnabled(yRight)) {
-            rect[yRight].setInterval(rightOffset, rightOffset+rightHeight);
+            if (rightLogFlag) {
+                rect[yRight].setInterval(exp(rightOffset), exp(rightOffset + rightHeight));
+
+            } else {
+                rect[yRight].setInterval(rightOffset, rightOffset + rightHeight);
+            }
         }
         break;
 
@@ -286,7 +315,12 @@ void BigPlot::onZoomInPickerSelected(const QRectF &r) {
     case PickerZoomVert:
         rect[xBottom].setInterval(this->axisInterval(xBottom).minValue(), this->axisInterval(xBottom).maxValue());
         if (this->axisEnabled(yRight)) {
-            rect[yRight].setInterval(rightOffset, rightOffset+rightHeight);
+            if (rightLogFlag) {
+                rect[yRight].setInterval(exp(rightOffset), exp(rightOffset + rightHeight));
+
+            } else {
+                rect[yRight].setInterval(rightOffset, rightOffset + rightHeight);
+            }
         }
         break;
     }

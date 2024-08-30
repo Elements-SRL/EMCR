@@ -61,7 +61,7 @@ void SpectrumConsumer::computeFrequencyAxis() {
     integrationRoundIdx = 0;
     binIndex = 0;
 
-    double df = samplingRateHz/(double)nBins;
+    df = samplingRateHz/(double)nBins;
     for (int binIdx = 0; binIdx < n2Bins; binIdx++) {
         frequencyValues[binIdx] = df*(double)(binIdx+1);
     }
@@ -153,6 +153,15 @@ void SpectrumConsumer::run() {
                             if (plottedChannels[channelIdx]) {
                                 for (binIndex = 0; binIndex < n2Bins; binIndex++) {
                                     currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
+                                    if (binIndex == 0) {
+                                        irmsValues[channelIdx][binIndex] = currentSpectrumValues[channelIdx][binIndex]*df;
+
+                                    } else {
+                                        irmsValues[channelIdx][binIndex] = irmsValues[channelIdx][binIndex-1]+currentSpectrumValues[channelIdx][binIndex]*df;
+                                    }
+                                }
+                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                    irmsValues[channelIdx][binIndex] = sqrt(irmsValues[channelIdx][binIndex]);
                                 }
                             }
                         }
@@ -181,6 +190,7 @@ void SpectrumConsumer::allocateData() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[maxSamples]);
         currentSpectrumValues.push_back(new double[maxSamples]);
+        irmsValues.push_back(new double[maxSamples]);
         fftIn.push_back(new double[maxSamples]);
         fftOut.push_back(new std::complex <double> [maxSamples]);
     }
@@ -197,19 +207,27 @@ void SpectrumConsumer::clearData() {
         delete [] currentSpectrumValues[i];
     }
     currentSpectrumValues.clear();
+
+    for (int i = 0; i < irmsValues.size(); i++) {
+        delete [] irmsValues[i];
+    }
+    irmsValues.clear();
+
     for (int i = 0; i < fftIn.size(); i++) {
         delete [] fftIn[i];
     }
     fftIn.clear();
+
     for (int i = 0; i < fftOut.size(); i++) {
         delete [] fftOut[i];
     }
     fftOut.clear();
+
     delete [] frequencyValues;
     frequencyValues = nullptr;
 }
 
 void SpectrumConsumer::emitPlotData() {
-    SpectrumMessage message = {frequencyValues, currentSpectrumValues, n2Bins};
+    SpectrumMessage message = {frequencyValues, currentSpectrumValues, irmsValues, n2Bins};
     emit setPlotData(message);
 };

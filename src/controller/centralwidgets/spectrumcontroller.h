@@ -28,7 +28,8 @@ private:
     BigPlotModel * model = nullptr;
     SpectrumConsumer * consumer = nullptr;
     BigPlot * plot = nullptr;
-    std::vector <Curve *> currentCurves;
+    std::vector <Curve *> psdCurves;
+    std::vector <Curve *> irmsCurves;
     SpectrumWidget * spectrumWidget = nullptr;
     MainWindow * mainWindow = nullptr;
     void detachCurves(const std::vector <uint16_t> &channelIndexes) override;

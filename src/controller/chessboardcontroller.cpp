@@ -229,7 +229,7 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
     case 3:{
         SpectrumMessage message = std::get<3>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.currentValues[idx], message.dataSize);
+            currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
         }
         break;
     }

@@ -127,14 +127,14 @@ void BigPlotController::onExpandTrace(bool flag) {
     }
 }
 
-std::vector<PlotConsumer*> BigPlotController::getConsumers() {
-    std::vector<PlotConsumer*> consumers;
+std::vector <PlotConsumer*> BigPlotController::getConsumers() {
+    std::vector <PlotConsumer*> consumers;
     for (auto c : controllers) {
         consumers.push_back(c->getConsumer());
     }
     return consumers;
 }
 
-std::vector<CentralWidgetController*> BigPlotController::getControllers() {
+std::vector <CentralWidgetController*> BigPlotController::getControllers() {
     return controllers;
 }

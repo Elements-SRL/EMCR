@@ -31,7 +31,8 @@ struct EventDetectionMessage {
 
 struct SpectrumMessage {
     double * frequencyValues;
-    std::vector <double *> currentValues;
+    std::vector <double *> psdValues;
+    std::vector <double *> irmsValues;
     int dataSize;
 };
 

@@ -20,6 +20,7 @@ class SpectrumConsumer : public PlotConsumer {
 public:
     SpectrumConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~SpectrumConsumer();
+
     void forceAxisUpdate() override;
 
 public slots:
@@ -45,11 +46,13 @@ private:
 
     int nBins = 0;
     int n2Bins = 0;
+    double df = 1.0;
     double * frequencyValues = nullptr;
     std::vector <double *> fftIn;
     std::vector <std::complex <double> *> fftOut;
     std::vector <fftw_plan> fftwPlans;
     std::vector <double *> currentSpectrumValues;
+    std::vector <double *> irmsValues;
 
 signals:
     void sigRangeUpdate(RangedMeasurement_t newRange);
