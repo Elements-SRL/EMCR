@@ -21,18 +21,24 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     auto startButton = new QPushButton(this);
     startButton->setIcon(QIcon(QPixmap(":/imgs/start protocol.png")));
     startButton->setToolTip("Start the iv graph analysis if it was previously stopped");
+    startButton->setIconSize(QSize(30, 30));
+    startButton->setFixedSize(32, 32);
     buttonsHl->addWidget(startButton);
     connect(startButton, &QPushButton::clicked, this, &IvGraphWidget::startIvGraph);
 
     auto stopButton = new QPushButton(this);
     stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
     stopButton->setToolTip("Stop the iv graph analysis if it was previously strted");
+    stopButton->setIconSize(QSize(30, 30));
+    stopButton->setFixedSize(32, 32);
     buttonsHl->addWidget(stopButton);
     connect(stopButton, &QPushButton::clicked, this, &IvGraphWidget::stopIvGraph);
 
     auto exportButton = new QPushButton(this);
     exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
     exportButton->setToolTip("Export to csv");
+    exportButton->setIconSize(QSize(30, 30));
+    exportButton->setFixedSize(32, 32);
     buttonsHl->addWidget(exportButton);
     connect(exportButton, &QPushButton::clicked, this, [=](){
         emit exportIvGraph();
@@ -41,10 +47,16 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     auto calcLineButton = new QPushButton(this);
     calcLineButton->setIcon(QIcon(QPixmap(":/imgs/analysis linear fit.png")));
     calcLineButton->setToolTip("Calculate least square line");
+    calcLineButton->setIconSize(QSize(30, 30));
+    calcLineButton->setFixedSize(32, 32);
     buttonsHl->addWidget(calcLineButton);
     connect(calcLineButton, &QPushButton::clicked, this, [=](){
         emit calcMeanSquared();
     });
+
+    QWidget* spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    buttonsHl->addWidget(spacer);
 
     mainVl->addLayout(buttonsHl);
     dataTable = new CopyableTable(this);

@@ -32,8 +32,11 @@ private:
     std::vector <Curve *> irmsCurves;
     SpectrumWidget * spectrumWidget = nullptr;
     MainWindow * mainWindow = nullptr;
+    SpectrumMessage message;
+
     void detachCurves(const std::vector <uint16_t> &channelIndexes) override;
     void attachCurves(const std::vector <uint16_t> &channelIndexes) override;
+    void saveToCSV(const QString& filePath, const SpectrumMessage& data);
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
@@ -43,6 +46,7 @@ public slots:
     void onReplot() override;
     void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
+    void onExportSpectrum();
 };
 
 #endif // SPECTRUMCONTROLLER_H

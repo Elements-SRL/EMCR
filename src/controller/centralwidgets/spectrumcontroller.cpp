@@ -52,6 +52,7 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     });
     connect(spectrumWidget, &SpectrumWidget::startPressed, consumer, &SpectrumConsumer::onStartConsuming);
     connect(spectrumWidget, &SpectrumWidget::stopPressed, consumer, &SpectrumConsumer::onStopConsuming);
+    connect(spectrumWidget, &SpectrumWidget::exportSpectrum, this, &SpectrumController::onExportSpectrum);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(SPC_MAX_SAMPLES);
     std::vector <uint16_t> allChannels(currentChannelsNum);
@@ -175,7 +176,7 @@ void SpectrumController::onExpandTrace(bool flag) {
 }
 
 void SpectrumController::onSetPlotData(PlotMessage plotmessage) {
-    SpectrumMessage message = std::get <3> (plotmessage);
+    message = std::get <3> (plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         psdCurves[idx]->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
         irmsCurves[idx]->setRawSamples(message.frequencyValues, message.irmsValues[idx], message.dataSize);
@@ -184,4 +185,57 @@ void SpectrumController::onSetPlotData(PlotMessage plotmessage) {
 
 PlotConsumer * SpectrumController::getConsumer() {
     return consumer;
+}
+
+void SpectrumController::onExportSpectrum() {
+    QString filePath = QFileDialog::getSaveFileName(nullptr,
+        "Save File",
+        QDir::homePath(), // Initial directory
+        "CSV Files (*.csv)");
+
+    // Check if a file path was selected
+    if (!filePath.isEmpty()) {
+        // Save data to CSV file
+        saveToCSV(filePath, message);
+
+    }
+    else {
+        // No file path selected
+        qDebug() << "No file path selected.";
+    }
+}
+
+void SpectrumController::saveToCSV(const QString& originalFilePath, const SpectrumMessage& data) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int i = 0; i < currentChannelsNum; i++) {
+        //        save to file only selected channels
+        if (!selectedChannels[i]) {
+            continue;
+        }
+        auto filepath = originalFilePath.toStdString();
+        //        append the channel number
+        size_t pos = filepath.find_last_of('.');
+        if (pos != std::string::npos && filepath.substr(pos) == ".csv") {
+            filepath.insert(pos, "_" + std::to_string(i));
+        }
+
+        QFile file(QString::fromStdString(filepath));
+
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QMessageBox::warning(nullptr, "Warning", "File could not be saved.");
+            return;
+        }
+
+        QTextStream out(&file);
+        RangedMeasurement iRange;
+        appStatus->getMessageDispatcher()->getCurrentRange(iRange);
+        // Write header
+        out << "frequency [Hz], PSD [" << QString::fromStdString(iRange.getFullUnit()) << "^2/Hz], irms [" << QString::fromStdString(iRange.getFullUnit()) << "rms]\n";
+        // Write data
+        int numRows = data.dataSize;
+        for (int row = 0; row < numRows; row++) {
+            out << data.frequencyValues[row] << "," << data.psdValues[i][row] << "," << data.irmsValues[i][row] << "\n";
+        }
+        file.close();
+    }
 }

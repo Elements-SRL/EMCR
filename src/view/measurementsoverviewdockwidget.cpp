@@ -28,6 +28,24 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     mainVl->setContentsMargins(0, 0, 0, 0);
     mainVl->setSpacing(1);
 
+    auto exportButton = new QPushButton(this);
+    exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
+    exportButton->setToolTip("Export to csv");
+    exportButton->setIconSize(QSize(30, 30));
+    exportButton->setFixedSize(32, 32);
+    connect(exportButton, &QPushButton::clicked, this, [=]() {
+        QString filePath = QFileDialog::getSaveFileName(
+            nullptr,
+            "Save File",
+            QDir::homePath(), // Default directory
+            "Csv Files (*.csv);;All Files (*)"
+        );
+        if (!filePath.isEmpty()) {
+            emit extract(filePath);
+        }
+    });
+    mainVl->addWidget(exportButton);
+
     dataTable = new CopyableTable(scrollWidget);
     dataTable->setColumnCount(15);
     dataTable->setRowCount(currentChannels + 1);
@@ -52,20 +70,6 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     dataTable->setItem(0, col++, new QTableWidgetItem("Liquid junction"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
     mainVl->addWidget(dataTable);
-
-    QPushButton * extractBtn = new QPushButton("extract");
-    connect(extractBtn, &QPushButton::clicked, this, [=](){
-        QString filePath = QFileDialog::getSaveFileName(
-                nullptr,
-                "Save File",
-                QDir::homePath(), // Default directory
-                "Csv Files (*.csv);;All Files (*)"
-            );
-            if (!filePath.isEmpty()) {
-                emit extract(filePath);
-            }
-    });
-    mainVl->addWidget(extractBtn);
 }
 
 void MeasurementsOverviewDockWidget::onUpdate(){

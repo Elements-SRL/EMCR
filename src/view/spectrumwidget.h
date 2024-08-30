@@ -20,6 +20,7 @@ private:
 signals:
     void startPressed();
     void stopPressed();
+    void exportSpectrum();
     void integrationWindowChanged(double windowS);
 };
 

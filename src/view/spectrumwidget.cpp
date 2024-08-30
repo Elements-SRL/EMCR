@@ -28,14 +28,32 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     auto startButton = new QPushButton(this);
     startButton->setIcon(QIcon(QPixmap(":/imgs/start protocol.png")));
     startButton->setToolTip("Start the spectrum analysis if it was previously stopped");
+    startButton->setIconSize(QSize(30, 30));
+    startButton->setFixedSize(32, 32);
     buttonsHl->addWidget(startButton);
     connect(startButton, &QPushButton::clicked, this, &SpectrumWidget::startPressed);
 
     auto stopButton = new QPushButton(this);
     stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
     stopButton->setToolTip("Stop the spectrum analysis if it was previously strted");
+    stopButton->setIconSize(QSize(30, 30));
+    stopButton->setFixedSize(32, 32);
     buttonsHl->addWidget(stopButton);
     connect(stopButton, &QPushButton::clicked, this, &SpectrumWidget::stopPressed);
+
+    auto exportButton = new QPushButton(this);
+    exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
+    exportButton->setToolTip("Export to csv");
+    exportButton->setIconSize(QSize(30, 30));
+    exportButton->setFixedSize(32, 32);
+    buttonsHl->addWidget(exportButton);
+    connect(exportButton, &QPushButton::clicked, this, &SpectrumWidget::exportSpectrum);
+
+    {
+        auto spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        buttonsHl->addWidget(spacer);
+    }
 
     mainVl->addLayout(buttonsHl);
 
