@@ -17,16 +17,16 @@
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
 
-    /*! This line ensures that showMaximized() in main.cpp works */
-    this->setGeometry(0, 0, 800, 600);
     this->setObjectName("mainWindow");
 
-    this->showMaximized();
     this->setWindowTitle(QString(GLB_SOFTWARE_NAME) + " " + GLB_SOFTWARE_VERSION_NUMBER);
 
     this->setCentralWidget(new ElementsLogoWidget);
 
     this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+
+    dockWidgets.resize(DockWidgetsNum);
+    dockWidgets.fill(nullptr);
 
     /************\
      * menu bar *
@@ -37,6 +37,30 @@ MainWindow::MainWindow(QWidget * parent) :
     /*! View menu */
     menuView = new QMenu("View");
     menuBar->addMenu(menuView);
+
+    actionRearrangeView = new QAction("Rearrange floating widgets");
+    actionRearrangeView->setEnabled(false);
+    connect(actionRearrangeView, &QAction::triggered, this, /*&MainWindow::onDefaultView*/[=] () {
+        int c = 0;
+        for (auto dw : dockWidgets) {
+            if (dw != nullptr) {
+                if (dw->isVisible() && dw->isFloating()) {
+                    auto area = this->dockWidgetArea(dw);
+                    this->removeDockWidget(dw);
+                    this->addDockWidget(area, dw);
+                    dw->setFloating(true);
+                    dw->setVisible(true);
+                    auto s = dw->sizeHint();
+                    auto g = this->geometry();
+                    dw->setGeometry(g.x()+20*(c+1), g.y()+20*(c+2), s.width(), s.height());
+                    c++;
+                }
+            }
+        }
+    });
+    menuView->addAction(actionRearrangeView);
+
+    menuView->addSeparator();
 
     menuRecordings = new QMenu("Recordings");
     menuBar->addMenu(menuRecordings);
@@ -106,12 +130,12 @@ MainWindow::MainWindow(QWidget * parent) :
      * device detector dock *
     \************************/
 
-    deviceDetectorDw = new QDockWidget;
+    auto deviceDetectorDw = new QDockWidget;
     deviceDetectorDw->setWindowTitle("Connection");
     deviceDetectorDw->setObjectName("deviceDetectorDw");
     menuView->addAction(deviceDetectorDw->toggleViewAction());
     deviceDetectorDw->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    this->addDockWidget(Qt::TopDockWidgetArea, deviceDetectorDw);
+    this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::TopDockWidgetArea);
 
     QWidget * deviceDetectorWid = new QWidget;
     deviceDetectorWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -144,6 +168,8 @@ MainWindow::MainWindow(QWidget * parent) :
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     deviceDetectorHl->addWidget(spacer);
+
+    QTimer::singleShot(0, this, SLOT(showMaximized()));
 }
 
 MainWindow::~MainWindow() {
@@ -166,36 +192,12 @@ BigPlotWidget * MainWindow::getBigPlotWidget() {
     return bigPlotW;
 }
 
-ChessboardDockWidget * MainWindow::getChessboardDockWidget() {
-    return chessboardDw;
-}
-
-DeviceControlDockWidget * MainWindow::getDeviceControlsDockWidget() {
-    return deviceControlsDw;
-}
-
-SingleChannelControlDockWidget * MainWindow::getSingleChannelControlsDockWidget() {
-    return singleChannelControlsDw;
-}
-
-MultipleChannelControlDockWidget * MainWindow::getMultipleChannelControlsDockWidget() {
-    return multipleChannelControlsDw;
-}
-
-BoardControlDockWidget * MainWindow::getBoardControlsDockWidget() {
-    return boardControlsDw;
-}
-
-ProtocolDockWidget * MainWindow::getProtocolDockWidget() {
-    return protocolDw;
+QDockWidget * MainWindow::getDockWidget(DockWidgets_t type) {
+    return dockWidgets[type];
 }
 
 RecordSettingsDialog * MainWindow::getRecordSettingsDialog() {
     return recordSettingsDialog;
-}
-
-CompensationControlDockWidget * MainWindow::getCompensationControlsDockWidget() {
-    return compensationControlsDw;
 }
 
 void MainWindow::setDevicesList(std::vector <std::string> devicesList) {
@@ -215,14 +217,6 @@ void MainWindow::setDevicesList(std::vector <std::string> devicesList) {
         devicesComboBox->setEnabled(false);
         connectBtn->setEnabled(false);
     }
-}
-
-StateArrayDockWidget * MainWindow::getStateArrayDockWidget(){
-    return stateArrayDockWidget;
-}
-
-MeasurementsOverviewDockWidget * MainWindow::getMeasurementOverviewDockWidget() {
-    return measurementsOverviewDw;
 }
 
 PlotPreferencesDialog * MainWindow::getPlotPreferencesDialog() {
@@ -275,69 +269,11 @@ void MainWindow::setBigPlotWidget(BigPlotWidget * widget) {
     }
 }
 
-void MainWindow::setChessboardDw(ChessboardDockWidget * widget) {
-    chessboardDw = widget;
+void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool floatingFlag, Qt::DockWidgetArea area) {
+    dockWidgets[type] = widget;
     if (widget != nullptr) {
-        addDockWidget(Qt::BottomDockWidgetArea, chessboardDw);
-        chessboardDw->setFloating(true);
-        dockWidgets.append(chessboardDw);
-    }
-}
-
-void MainWindow::setCompensationControlsDw(CompensationControlDockWidget * widget){
-    compensationControlsDw = widget;
-    if (widget != nullptr) {
-        addDockWidget(Qt::RightDockWidgetArea, compensationControlsDw);
-        dockWidgets.append(compensationControlsDw);
-    }
-}
-
-void MainWindow::setSingleChannelControlsDw(SingleChannelControlDockWidget * widget){
-    singleChannelControlsDw = widget;
-    if (widget != nullptr) {
-        addDockWidget(Qt::RightDockWidgetArea, singleChannelControlsDw);
-        dockWidgets.append(singleChannelControlsDw);
-    }
-}
-
-void MainWindow::setMultipleChannelControlsDw(MultipleChannelControlDockWidget * widget){
-    multipleChannelControlsDw = widget;
-    if (widget != nullptr) {
-        addDockWidget(Qt::RightDockWidgetArea, multipleChannelControlsDw);
-        dockWidgets.append(multipleChannelControlsDw);
-    }
-}
-
-void MainWindow::setBoardControlsDw(BoardControlDockWidget * widget){
-    boardControlsDw = widget;
-    if (widget != nullptr) {
-        addDockWidget(Qt::RightDockWidgetArea, boardControlsDw);
-        dockWidgets.append(boardControlsDw);
-    }
-}
-
-void MainWindow::setDeviceControlDw(DeviceControlDockWidget * widget){
-    deviceControlsDw = widget;
-    if (widget != nullptr) {
-        addDockWidget(Qt::RightDockWidgetArea, deviceControlsDw);
-        dockWidgets.append(deviceControlsDw);
-    }
-}
-
-void MainWindow::setStateArrayDw(StateArrayDockWidget * widget){
-    stateArrayDockWidget = widget;
-    if (widget != nullptr) {
-        addDockWidget(Qt::RightDockWidgetArea, stateArrayDockWidget);
-        dockWidgets.append(stateArrayDockWidget);
-    }
-}
-
-void MainWindow::setMeasurementOverviewDw(MeasurementsOverviewDockWidget * widget) {
-    measurementsOverviewDw = widget;
-    if (widget != nullptr) {
-        addDockWidget(Qt::RightDockWidgetArea, measurementsOverviewDw);
-        measurementsOverviewDw->setFloating(true);
-        dockWidgets.append(measurementsOverviewDw);
+        addDockWidget(area, dockWidgets[type]);
+        dockWidgets[type]->setFloating(floatingFlag);
     }
 }
 
@@ -347,34 +283,21 @@ void MainWindow::setPlotPreferencesDialog(PlotPreferencesDialog * ppd) {
 }
 
 void MainWindow::addViewActions() {
-    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-        menuView->addAction(dockWidgets[dockIdx]->toggleViewAction());
+    actionRearrangeView->setEnabled(true);
+    for (auto dw : dockWidgets) {
+        if (dw != nullptr) {
+            menuView->addAction(dw->toggleViewAction());
+        }
     }
-
-//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
-//        analysisMenus[dockIdx]->addAction(analysisWidgets[dockIdx]->toggleViewAction());
-//        analysisMenus[dockIdx]->actions().at(analysisMenus[dockIdx]->actions().size()-1)->setText(analysisActionNames[dockIdx]);
-//    }
 }
 
 void MainWindow::removeViewActions() {
-    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-        menuView->removeAction(dockWidgets[dockIdx]->toggleViewAction());
+    actionRearrangeView->setEnabled(false);
+    for (auto dw : dockWidgets) {
+        if (dw != nullptr) {
+            menuView->removeAction(dw->toggleViewAction());
+        }
     }
-
-//    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
-//        menuAnalysis->removeAction(analysisWidgets[dockIdx]->toggleViewAction());
-//    }
-}
-
-/******************\
- * protocols dock *
-\******************/
-
-void MainWindow::setProtocolDw(ProtocolDockWidget * pdw){
-    protocolDw = pdw;
-    addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
-    dockWidgets.append(protocolDw);
 }
 
 void MainWindow::createGuiControls() {
@@ -384,8 +307,6 @@ void MainWindow::createGuiControls() {
 
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
-    dockWidgets.clear();
-
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     /******************\
@@ -393,10 +314,9 @@ void MainWindow::createGuiControls() {
     \******************/
 
     if (msgDisp->hasProtocols() == Success) {
-        protocolDw = new ProtocolDockWidget(msgDisp, e384CommLib::VOLTAGE_CLAMP, this);
+        auto protocolDw = new ProtocolDockWidget(msgDisp, e384CommLib::VOLTAGE_CLAMP, this);
         protocolDw->setObjectName("protocolDw");
-        this->addDockWidget(Qt::LeftDockWidgetArea, protocolDw);
-        dockWidgets.append(protocolDw);
+        this->setDockWidget(MainWindow::DWProtocol, protocolDw, false, Qt::LeftDockWidgetArea);
     }
 
 #ifndef GLB_HIDE_DEBUG_CTRLS
@@ -405,13 +325,10 @@ void MainWindow::createGuiControls() {
      * debug dock *
     \**************/
 
-    debugDw = new QDockWidget();
+    auto debugDw = new QDockWidget();
     debugDw->setObjectName("debugDw");
     debugDw->setWindowTitle("Debug");
-    this->addDockWidget(Qt::RightDockWidgetArea, debugDw);
-    dockWidgets.append(debugDw);
-
-    debugDw->setFloating(true);
+    this->setDockWidget(MainWindow::DWDebug, debugDw, true, Qt::RightDockWidgetArea);
 
     QWidget * debugWid = new QWidget;
     debugDw->setWidget(debugWid);
@@ -581,23 +498,15 @@ void MainWindow::destroyGuiControls() {
     actionBoardMapping->setEnabled(false);
     actionUpgradeFw->setEnabled(true);
 
-    if (protocolDw != nullptr){
-        delete protocolDw;
-        protocolDw = nullptr;
+    if (dockWidgets[DWProtocol] != nullptr) {
+        delete dockWidgets[DWProtocol];
+        dockWidgets[DWProtocol] = nullptr;
     }
 
-    if (debugDw != nullptr){
-        delete debugDw;
-        protocolDw = nullptr;
+    if (dockWidgets[DWDebug] != nullptr){
+        delete dockWidgets[DWDebug];
+        dockWidgets[DWDebug] = nullptr;
     }
-
-    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
-        if (analysisWidgets[dockIdx] != nullptr) {
-            delete analysisWidgets[dockIdx];
-            analysisWidgets[dockIdx] = nullptr;
-        }
-    }
-    analysisWidgets.clear();
 
     this->takeCentralWidget();
 
@@ -611,9 +520,9 @@ void MainWindow::destroyGuiControls() {
 //    shortcuts.clear();
 
     this->setCentralWidget(new ElementsLogoWidget);
-    this->removeDockWidget(deviceDetectorDw);
-    this->addDockWidget(Qt::TopDockWidgetArea, deviceDetectorDw);
-    deviceDetectorDw->setVisible(true);
+    this->removeDockWidget(dockWidgets[DWDeviceDetector]);
+    this->setDockWidget(DWDeviceDetector, dockWidgets[DWDeviceDetector], false, Qt::TopDockWidgetArea);
+    dockWidgets[DWDeviceDetector]->setVisible(true);
     interfaceCreated = false;
 }
 
@@ -627,17 +536,12 @@ void MainWindow::restoreUISettings() {
         QString settingsRoot = "Preferences/UI/";
         QString tag;
 
-        for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-            tag = settingsRoot + dockWidgets[dockIdx]->objectName() + "/geometry";
-            if (settings.contains(tag)) {
-                dockWidgets[dockIdx]->setGeometry(settings.value(tag).value <QRect> ());
-            }
-        }
-
-        for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
-            tag = settingsRoot + analysisWidgets[dockIdx]->objectName() + "/geometry";
-            if (settings.contains(tag)) {
-                analysisWidgets[dockIdx]->setGeometry(settings.value(tag).value <QRect> ());
+        for (auto dw : dockWidgets) {
+            if (dw != nullptr) {
+                tag = settingsRoot + dw->objectName() + "/geometry";
+                if (settings.contains(tag)) {
+                    dw->setGeometry(settings.value(tag).value <QRect>());
+                }
             }
         }
 
@@ -648,6 +552,9 @@ void MainWindow::restoreUISettings() {
 
         tag = settingsRoot + this->objectName() + "/state";
         this->restoreState(settings.value(tag).toByteArray());
+
+//        qDebug() << this->geometry();
+//        this->doc
     });
 
     timer->start();
@@ -661,14 +568,11 @@ void MainWindow::saveUISettings() {
     tag = settingsRoot + bigPlotW->objectName() + "/geometry";
     settings.setValue(tag, QVariant(bigPlotW->geometry()));
 
-    for (int dockIdx = 0; dockIdx < dockWidgets.size(); dockIdx++) {
-        tag = settingsRoot + dockWidgets[dockIdx]->objectName() + "/geometry";
-        settings.setValue(tag, QVariant(dockWidgets[dockIdx]->geometry()));
-    }
-
-    for (int dockIdx = 0; dockIdx < analysisWidgets.size(); dockIdx++) {
-        tag = settingsRoot + analysisWidgets[dockIdx]->objectName() + "/geometry";
-        settings.setValue(tag, QVariant(analysisWidgets[dockIdx]->geometry()));
+    for (auto dw : dockWidgets) {
+        if (dw != nullptr) {
+            tag = settingsRoot + dw->objectName() + "/geometry";
+            settings.setValue(tag, QVariant(dw->geometry()));
+        }
     }
 
     tag = settingsRoot + this->objectName() + "/state";

@@ -16,7 +16,7 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
     connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetConsumerStatus);
 
-    mainWindow->setMeasurementOverviewDw(modw);    
+    mainWindow->setDockWidget(MainWindow::DWMeasurementsOverview, modw, false, Qt::BottomDockWidgetArea);
 }
 
 void MeasurementOverviewController::onSetConsumerStatus(bool status) {
@@ -30,7 +30,7 @@ void MeasurementOverviewController::onSetConsumerStatus(bool status) {
 MeasurementOverviewController::~MeasurementOverviewController(){
     delete modw;
     modw = nullptr;
-    mainWindow->setMeasurementOverviewDw(modw);
+    mainWindow->setDockWidget(MainWindow::DWMeasurementsOverview, modw);
     if (liveStatisticsConsumer!= nullptr) {
         liveStatisticsConsumer->onStopConsuming();
         delete liveStatisticsConsumer;

@@ -17,7 +17,7 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
     }
     stateArray = {};
     stateArrayDockWidget = new StateArrayDockWidget();
-    mainWindow->setStateArrayDw(stateArrayDockWidget);
+    mainWindow->setDockWidget(MainWindow::DWStateArray, stateArrayDockWidget, true, Qt::LeftDockWidgetArea);
     updateUI();
     std::vector <RangedMeasurement_t> vcCurrentRangesFeatures;
     std::vector <RangedMeasurement_t> voltageRanges;
@@ -110,10 +110,10 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
 }
 
 StateArrayController::~StateArrayController(){
-    if (stateArrayDockWidget!=nullptr){
+    if (stateArrayDockWidget != nullptr){
         delete stateArrayDockWidget;
         stateArrayDockWidget = nullptr;
-        mainWindow->setStateArrayDw(stateArrayDockWidget);
+        mainWindow->setDockWidget(MainWindow::DWStateArray, stateArrayDockWidget);
     }
 }
 

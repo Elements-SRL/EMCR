@@ -29,23 +29,30 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget * parent = nullptr);
     ~MainWindow();
+
+    typedef enum DockWidgets {
+        DWDeviceDetector,
+        DWChessboard,
+        DWDeviceControl,
+        DWSingleChannelControl,
+        DWMultipleChannelControl,
+        DWBoardControl,
+        DWProtocol,
+        DWCompensationControl,
+        DWStateArray,
+        DWMeasurementsOverview,
+        DWDebug,
+        DockWidgetsNum
+    } DockWidgets_t;
 
     void setMessageDispatcher(MessageDispatcher * msgDisp);
     QPushButton * getConnectButton();
     QString getSelectedSerialNumber();
     BigPlotWidget * getBigPlotWidget();
-    ChessboardDockWidget * getChessboardDockWidget();
-    DeviceControlDockWidget * getDeviceControlsDockWidget();
-    SingleChannelControlDockWidget * getSingleChannelControlsDockWidget();
-    MultipleChannelControlDockWidget * getMultipleChannelControlsDockWidget();
-    BoardControlDockWidget * getBoardControlsDockWidget();
-    ProtocolDockWidget * getProtocolDockWidget();
+    QDockWidget * getDockWidget(DockWidgets_t type);
     RecordSettingsDialog * getRecordSettingsDialog();
-    CompensationControlDockWidget * getCompensationControlsDockWidget();
-    StateArrayDockWidget * getStateArrayDockWidget();
-    MeasurementsOverviewDockWidget * getMeasurementOverviewDockWidget();
     PlotPreferencesDialog * getPlotPreferencesDialog();
     void setDevicesList(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int idx);
@@ -53,15 +60,7 @@ public:
     void setConnectionLabel(QString text);
 
     void setBigPlotWidget(BigPlotWidget * widget);
-    void setChessboardDw(ChessboardDockWidget * widget);
-    void setCompensationControlsDw(CompensationControlDockWidget * widget);
-    void setSingleChannelControlsDw(SingleChannelControlDockWidget * widget);
-    void setMultipleChannelControlsDw(MultipleChannelControlDockWidget * widget);
-    void setBoardControlsDw(BoardControlDockWidget * widget);
-    void setDeviceControlDw(DeviceControlDockWidget * widget);
-    void setProtocolDw(ProtocolDockWidget * widget);
-    void setStateArrayDw(StateArrayDockWidget * widget);
-    void setMeasurementOverviewDw(MeasurementsOverviewDockWidget * widget);
+    void setDockWidget(DockWidgets_t type, QDockWidget * widget, bool floatingFlag = true, Qt::DockWidgetArea area = Qt::RightDockWidgetArea);
     void setPlotPreferencesDialog(PlotPreferencesDialog * widget);
     void addViewActions();
     void removeViewActions();
@@ -91,6 +90,7 @@ private:
 
     bool interfaceCreated = false;
 
+    QAction * actionRearrangeView = nullptr;
     QAction * actionRecordingSettings = nullptr;
 
     QAction * actionPlotPreferences = nullptr;
@@ -101,26 +101,14 @@ private:
     QAction * actionHwResetHelp = nullptr;
 
     QAction * actionAbout = nullptr;
-    QAction* actionDeviceInfo = nullptr;
-    QAction* actionSupport = nullptr;
+    QAction * actionDeviceInfo = nullptr;
+    QAction * actionSupport = nullptr;
 
-    QDockWidget * deviceDetectorDw = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
-    ChessboardDockWidget * chessboardDw = nullptr;
-    DeviceControlDockWidget * deviceControlsDw = nullptr;
-    SingleChannelControlDockWidget * singleChannelControlsDw = nullptr;
-    MultipleChannelControlDockWidget * multipleChannelControlsDw = nullptr;
-    BoardControlDockWidget * boardControlsDw = nullptr;
-    ProtocolDockWidget * protocolDw = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
-    CompensationControlDockWidget * compensationControlsDw = nullptr;
-    StateArrayDockWidget * stateArrayDockWidget = nullptr;
-    MeasurementsOverviewDockWidget * measurementsOverviewDw = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
     IvGraphWidget * ivGraphWidget = nullptr;
     SpectrumWidget * spectrumWidget = nullptr;
-//    BoardMappingDialog * boardMappingDialog= nullptr;
-    QDockWidget * debugDw = nullptr;
 
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
@@ -131,7 +119,6 @@ private:
     int totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
     QVector <QDockWidget *> dockWidgets;
-    QVector <QDockWidget *> analysisWidgets;
 
 private slots:
     void onResetHwHelp();

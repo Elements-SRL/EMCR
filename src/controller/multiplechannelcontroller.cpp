@@ -112,7 +112,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         this->addRemoveFromBigPlot(false);
     });
 
-    mainWindow->setMultipleChannelControlsDw(multipleChannelControlsDw);
+    mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
 
 MultipleChannelController::~MultipleChannelController(){
@@ -121,7 +121,7 @@ MultipleChannelController::~MultipleChannelController(){
     offsetCorrectionController->wait();
     delete offsetCorrectionController;
     offsetCorrectionController = nullptr;
-    mainWindow->setMultipleChannelControlsDw(multipleChannelControlsDw);
+    mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw);
 }
 
 void MultipleChannelController::addRemoveFromBigPlot(bool flag) {

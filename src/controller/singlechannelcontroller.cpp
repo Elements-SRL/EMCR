@@ -12,13 +12,13 @@ SingleChannelController::SingleChannelController(ApplicationStatus * appStatus, 
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedStimHalfValues, this, &SingleChannelController::onApplyStimHalfValues);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigLiquidJunctionValues, this, &SingleChannelController::onLiquidJunctionValues);
 
-    mainWindow->setSingleChannelControlsDw(singleChannelControlsDw);
+    mainWindow->setDockWidget(MainWindow::DWSingleChannelControl, singleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
 
 SingleChannelController::~SingleChannelController(){
     delete singleChannelControlsDw;
     singleChannelControlsDw = nullptr;
-    mainWindow->setSingleChannelControlsDw(singleChannelControlsDw);
+    mainWindow->setDockWidget(MainWindow::DWSingleChannelControl, singleChannelControlsDw);
 }
 
 void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){

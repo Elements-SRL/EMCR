@@ -10,7 +10,7 @@ BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainW
     }
 
     boardControlDockWidget = new BoardControlDockWidget(msgDisp);
-    mainWindow->setBoardControlsDw(boardControlDockWidget);
+    mainWindow->setDockWidget(MainWindow::DWBoardControl, boardControlDockWidget, false, Qt::RightDockWidgetArea);
     connect(boardControlDockWidget, &BoardControlDockWidget::sigGateSourceVoltagesApplied, this, [=](std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){
         onGateSourceVoltagesApplied(gateVoltageBoardIndexes, gateVoltages, sourceVoltageBoardIndexes, sourceVoltages);
     });
@@ -19,7 +19,7 @@ BoardController::BoardController(MessageDispatcher * msgDisp, MainWindow * mainW
 BoardController::~BoardController(){
     delete boardControlDockWidget;
     boardControlDockWidget = nullptr;
-    mainWindow->setBoardControlsDw(boardControlDockWidget);
+    mainWindow->setDockWidget(MainWindow::DWBoardControl, boardControlDockWidget);
 }
 
 void BoardController::onGateSourceVoltagesApplied(std::vector<uint16_t> gateVoltageBoardIndexes, std::vector<Measurement_t> gateVoltages, std::vector<uint16_t> sourceVoltageBoardIndexes, std::vector<Measurement_t> sourceVoltages){

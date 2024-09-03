@@ -265,37 +265,38 @@ void MainController::onMainWindowCreated() {
 //    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    chessboardController, &ChessboardController::onBackgroundColorChanged);
 
     if (msgDisp->hasProtocols() == Success) {
-        connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::protocolStarted);
-        connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
-        connect(voltageProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::currentApplied);
+        auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
+        connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          protocolDw->getVoltageProtocolList(), &ProtocolList::protocolStarted);
+        connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   protocolDw->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+        connect(voltageProtocolManager, &ProtocolManager::currentApplied,           protocolDw->getVoltageProtocolList(), &ProtocolList::currentApplied);
 
-        connect(currentProtocolManager, &ProtocolManager::protocolStarted,          mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::protocolStarted);
-        connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
-        connect(currentProtocolManager, &ProtocolManager::currentApplied,           mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::currentApplied);
+        connect(currentProtocolManager, &ProtocolManager::protocolStarted,          protocolDw->getCurrentProtocolList(), &ProtocolList::protocolStarted);
+        connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   protocolDw->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
+        connect(currentProtocolManager, &ProtocolManager::currentApplied,           protocolDw->getCurrentProtocolList(), &ProtocolList::currentApplied);
 
-        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
-            mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStartProtocol();
+        connect(protocolDw, &ProtocolDockWidget::startProtocol,    this, [=] () {
+            protocolDw->getVoltageProtocolList()->onStartProtocol();
             deviceController->handleProtocolStatusChanged(true);
         });
-        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::restartProtocol,    this, [=] () {
+        connect(protocolDw, &ProtocolDockWidget::restartProtocol,    this, [=] () {
             voltageProtocolManager->onRestartProtocolRequest();
         });
-        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,     this, [=] () {
-            mainWindow->getProtocolDockWidget()->getVoltageProtocolList()->onStopProtocol();
+        connect(protocolDw, &ProtocolDockWidget::stopProtocol,     this, [=] () {
+            protocolDw->getVoltageProtocolList()->onStopProtocol();
             deviceController->handleProtocolStatusChanged(false);
         });
-        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::startProtocol,    this, [=] () {
-            mainWindow->getProtocolDockWidget()->getCurrentProtocolList()->onStartProtocol();
+        connect(protocolDw, &ProtocolDockWidget::startProtocol,    this, [=] () {
+            protocolDw->getCurrentProtocolList()->onStartProtocol();
             deviceController->handleProtocolStatusChanged(true);
         });
-        connect(mainWindow->getProtocolDockWidget(), &ProtocolDockWidget::stopProtocol,    this, [=] () {
-            mainWindow->getProtocolDockWidget()->getCurrentProtocolList()->onStopProtocol();
+        connect(protocolDw, &ProtocolDockWidget::stopProtocol,    this, [=] () {
+            protocolDw->getCurrentProtocolList()->onStopProtocol();
             deviceController->handleProtocolStatusChanged(false);
         });
-        connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
-        connect(mainWindow->getProtocolDockWidget()->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
-        connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
-        connect(mainWindow->getProtocolDockWidget()->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+        connect(protocolDw->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
+        connect(protocolDw->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+        connect(protocolDw->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
+        connect(protocolDw->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
     }
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
         msgDisp->setDebugBit(word, bit, flag);
@@ -324,7 +325,8 @@ void MainController::onMainWindowCreated() {
     bigPlotController->onRangeUpdated(plotRange);
 
     /*! Forced initialization at start */
-    mainWindow->getDeviceControlsDockWidget()->forceEmit();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->forceEmit();
 
     /*! \todo FCON questo potrebbe essere parametrizzato */
 
@@ -408,7 +410,8 @@ void MainController::destroyControllers() {
 
 void MainController::onVcCurrentRangeSelected(int idx) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 
     RangedMeasurement_t range;
     msgDisp->getVCCurrentRange(range);
@@ -421,12 +424,14 @@ void MainController::onVcCurrentRangeSelected(int idx) {
     }
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
-    mainWindow->getSingleChannelControlsDockWidget()->onVcCurrentRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
+    auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
+    singleChannelControlDw->onVcCurrentRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
 void MainController::onVcVoltageRangeSelected(int idx) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 
     RangedMeasurement_t range;
     msgDisp->getVCVoltageRange(range);
@@ -445,12 +450,14 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     //this should be useless?
     //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range);
-    mainWindow->getSingleChannelControlsDockWidget()->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
+    auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
+    singleChannelControlDw->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
 void MainController::onCcCurrentRangeSelected(int idx) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 
     RangedMeasurement_t range;
     msgDisp->getCCCurrentRange(range);
@@ -463,12 +470,14 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     }
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
-    mainWindow->getSingleChannelControlsDockWidget()->onCcCurrentRangeSelected(idx);
+    auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
+    singleChannelControlDw->onCcCurrentRangeSelected(idx);
 }
 
 void MainController::onCcVoltageRangeSelected(int idx) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 
     RangedMeasurement_t range;
     msgDisp->getCCVoltageRange(range);
@@ -482,22 +491,26 @@ void MainController::onCcVoltageRangeSelected(int idx) {
     //this should be useless?
     //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range);
-    mainWindow->getSingleChannelControlsDockWidget()->onCcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
+    auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
+    singleChannelControlDw->onCcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
 void MainController::onVcVoltageFilterSelected(int) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 }
 
 void MainController::onCcCurrentFilterSelected(int) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 }
 
 void MainController::onSamplingRateSelected(int) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 
     Measurement_t meas;
     msgDisp->getSamplingRate(meas);
@@ -512,7 +525,8 @@ void MainController::onSamplingRateSelected(int) {
 
 void MainController::onDownsamplingRatioSelected(int) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 
     uint32_t ratio;
     msgDisp->getDownsamplingRatio(ratio);
@@ -527,9 +541,11 @@ void MainController::onDownsamplingRatioSelected(int) {
 
 void MainController::onClampingModalitySelected(ClampingModality_t mode) {
     /*! update GUI */
-    mainWindow->getDeviceControlsDockWidget()->updateParameters();
+    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
+    deviceControlDw->updateParameters();
 
-    mainWindow->getProtocolDockWidget()->onSetClampingModality(mode);
+    auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
+    protocolDw->onSetClampingModality(mode);
     /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
 }
 

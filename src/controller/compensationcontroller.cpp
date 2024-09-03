@@ -14,7 +14,7 @@ CompensationController::CompensationController(MessageDispatcher * msgDisp, Main
     }
 
     compensationControlDockWidget = new CompensationControlDockWidget(msgDisp);
-    mainWindow->setCompensationControlsDw(compensationControlDockWidget);
+    mainWindow->setDockWidget(MainWindow::DWCompensationControl, compensationControlDockWidget, true, Qt::LeftDockWidgetArea);
 
     connect(compensationControlDockWidget, &CompensationControlDockWidget::sigCompensationsApplied, this, [=](
             std::vector<uint16_t> channelIndexes,
@@ -37,7 +37,7 @@ CompensationController::CompensationController(MessageDispatcher * msgDisp, Main
 CompensationController::~CompensationController() {
     delete compensationControlDockWidget;
     compensationControlDockWidget = nullptr;
-    mainWindow->setCompensationControlsDw(compensationControlDockWidget);
+    mainWindow->setDockWidget(MainWindow::DWCompensationControl, compensationControlDockWidget);
 }
 
 void CompensationController::onCompensationApplied(std::vector<uint16_t> channelIndexes, std::vector<bool> cfastEn, std::vector<bool> cslowRsEn, std::vector<bool> rsCpEn, std::vector<bool> rsPgEn, std::vector<double> cfastValues, std::vector<double> cslowValues, std::vector<double> rsValues, std::vector<double> rsCpValues, std::vector<double> rsPgValues, std::vector<uint16_t> rsBWValueIdxs, std::vector<bool> ccCfastEn, std::vector<double> ccCfastValues){

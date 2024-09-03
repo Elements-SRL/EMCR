@@ -63,7 +63,7 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotCo
     connect(stampPlotConsumer, &PlotConsumer::setPlotData,              this,       &ChessboardController::onSetPlotData);
     connect(stampPlotConsumer, &PlotConsumer::plotDataUpdated,          this,       &ChessboardController::onReplot);
     connect(chessboard, &QDockWidget::visibilityChanged,                this,       &ChessboardController::onSetConsumerStatus);
-    mainWindow->setChessboardDw(chessboard);
+    mainWindow->setDockWidget(MainWindow::DWChessboard, chessboard, true, Qt::LeftDockWidgetArea);
     onSelectedPlotsUpdated();
 }
 
@@ -82,7 +82,7 @@ ChessboardController::~ChessboardController() {
     /*! Decommentare quando non verrà più distrutto dalla mainwindow */
     delete chessboard;
     chessboard = nullptr;
-    mainWindow->setChessboardDw(chessboard);
+    mainWindow->setDockWidget(MainWindow::DWChessboard, chessboard);
     if (stampPlotConsumer!= nullptr) {
         stampPlotConsumer->onStopConsuming();
         delete stampPlotConsumer;
