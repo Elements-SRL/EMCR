@@ -178,22 +178,46 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
                                  "The results are available in the Measurement overview widget.");
         break;
 
-    case OffsetCorrectionController::CheckingOffsetRecalibration:
-        QMessageBox::information(multipleChannelControlsDw,
-                                 GLB_SOFTWARE_NAME,
-                                 "Starting current offset recalibration.\n"
-                                 "Remove any load from the device's input and click OK.");
-        this->turnSelectedOffsetRecalibrationOnOff(true);
-        break;
+    case OffsetCorrectionController::CheckingOffsetRecalibration: {
+        QMessageBox msgBox(QMessageBox::Information,
+                           GLB_SOFTWARE_NAME,
+                           "Starting current offset recalibration.\n"
+                           "Remove any DUT (e.g. nanopore flowcell, model cell, adaptor PCB etc)\n"
+                           "from the device's input and click OK.\n"
+                           "If the DUT is not removed, the recalibration can add artefacts to the\n"
+                           "acquired current.",
+                           QMessageBox::Ok | QMessageBox::Cancel,
+                           multipleChannelControlsDw);
 
-    case OffsetCorrectionController::CheckingLiquidJunctionCorrection:
-        this->turnSelectedOffsetRecalibrationOnOff(false);
-        QMessageBox::information(multipleChannelControlsDw,
-                                 GLB_SOFTWARE_NAME,
-                                 "Starting liquid junction compensation.\n"
-                                 "Insert the DUT into the device's input and click OK.");
-        this->turnSelectedLjcOnOff(true);
+        msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
+        int ret = msgBox.exec();
+
+        if (ret == QMessageBox::Ok) {
+            this->turnSelectedOffsetRecalibrationOnOff(true);
+        }
         break;
+    }
+
+    case OffsetCorrectionController::CheckingLiquidJunctionCorrection: {
+        this->turnSelectedOffsetRecalibrationOnOff(false);
+        QMessageBox msgBox(QMessageBox::Information,
+                           GLB_SOFTWARE_NAME,
+                           "Starting liquid junction compensation.\n"
+                           "Insert the DUT (e.g. nanopore flowcell, model cell, adaptor PCB etc)\n"
+                           "into the device's input and click OK.\n"
+                           "If the DUT is plugged, the compensation can add artefacts to the\n"
+                           "applied voltage and thus to the acquired current.",
+                           QMessageBox::Ok | QMessageBox::Cancel,
+                           multipleChannelControlsDw);
+
+        msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
+        int ret = msgBox.exec();
+
+        if (ret == QMessageBox::Ok) {
+            this->turnSelectedLjcOnOff(true);
+        }
+        break;
+    }
     }
 }
 
