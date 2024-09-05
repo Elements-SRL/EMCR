@@ -272,9 +272,6 @@ void BigPlot::onZoomInPickerSelected(const QRectF &r) {
     double yR = this->axisInterval(yRight).minValue();
     double hR = this->axisInterval(yRight).width();
 
-    QwtScaleEngine* pippo = this->axisScaleEngine(yLeft);
-    pippo->transformation();
-
     if (dynamic_cast <const QwtLogScaleEngine *>(this->axisScaleEngine(yLeft)) != nullptr) {
         hL = log(yL + hL);
         yL = log(yL);

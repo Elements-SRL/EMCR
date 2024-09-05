@@ -182,7 +182,7 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
         QMessageBox msgBox(QMessageBox::Information,
                            GLB_SOFTWARE_NAME,
                            "Starting current offset recalibration.\n"
-                           "Remove any DUT (e.g. nanopore flowcell, model cell, adaptor PCB etc)\n"
+                           "Remove any DUT (e.g. nanopore flowcell, model cell, adaptor PCB, etc.)\n"
                            "from the device's input and click OK.\n"
                            "If the DUT is not removed, the recalibration can add artefacts to the\n"
                            "acquired current.",
@@ -203,9 +203,9 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
         QMessageBox msgBox(QMessageBox::Information,
                            GLB_SOFTWARE_NAME,
                            "Starting liquid junction compensation.\n"
-                           "Insert the DUT (e.g. nanopore flowcell, model cell, adaptor PCB etc)\n"
+                           "Insert the DUT (e.g. nanopore flowcell, model cell, adaptor PCB, etc.)\n"
                            "into the device's input and click OK.\n"
-                           "If the DUT is plugged, the compensation can add artefacts to the\n"
+                           "If the DUT is not plugged, the compensation can add artefacts to the\n"
                            "applied voltage and thus to the acquired current.",
                            QMessageBox::Ok | QMessageBox::Cancel,
                            multipleChannelControlsDw);
