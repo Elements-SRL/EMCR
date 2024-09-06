@@ -15,8 +15,8 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     outerLayout->addWidget(splitter);
     splitter->addWidget(plot);
 
-    auto containerWidget = new QWidget(this); // Create a container widget
-    auto mainVl = new QVBoxLayout(containerWidget); // Set layout on the container widget
+    auto containerWidget = new QWidget(this);
+    auto mainVl = new QVBoxLayout(containerWidget);
     splitter->addWidget(containerWidget);
 
     splitter->setHandleWidth(20);
@@ -31,7 +31,7 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     startButton->setIconSize(QSize(30, 30));
     startButton->setFixedSize(32, 32);
     buttonsHl->addWidget(startButton);
-    connect(startButton, &QPushButton::clicked, this, &SpectrumWidget::startPressed);
+    connect(startButton, &QPushButton::clicked, this, &SpectrumWidget::sigStartPressed);
 
     auto stopButton = new QPushButton(this);
     stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
@@ -39,7 +39,7 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     stopButton->setIconSize(QSize(30, 30));
     stopButton->setFixedSize(32, 32);
     buttonsHl->addWidget(stopButton);
-    connect(stopButton, &QPushButton::clicked, this, &SpectrumWidget::stopPressed);
+    connect(stopButton, &QPushButton::clicked, this, &SpectrumWidget::sigStopPressed);
 
     auto exportButton = new QPushButton(this);
     exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
@@ -47,7 +47,7 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     exportButton->setIconSize(QSize(30, 30));
     exportButton->setFixedSize(32, 32);
     buttonsHl->addWidget(exportButton);
-    connect(exportButton, &QPushButton::clicked, this, &SpectrumWidget::exportSpectrum);
+    connect(exportButton, &QPushButton::clicked, this, &SpectrumWidget::sigExportSpectrum);
 
     {
         auto spacer = new QWidget;
@@ -67,10 +67,29 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
 
     connect(integrationWindowS, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = integrationWindowS->value();
-        emit integrationWindowChanged(value);
+        emit sigIntegrationWindowChanged(value);
     });
+
+    auto zoomButtonsHl = new QHBoxLayout();
+
+    auto autoZoomButton = new QPushButton(this);
+    autoZoomButton->setIcon(QIcon(QPixmap(":/imgs/zoom full.png")));
+    autoZoomButton->setToolTip("Auto zoom");
+    autoZoomButton->setIconSize(QSize(30, 30));
+    autoZoomButton->setFixedSize(32, 32);
+    zoomButtonsHl->addWidget(autoZoomButton);
+    connect(autoZoomButton, &QPushButton::clicked, this, &SpectrumWidget::sigAutoZoom);
+
+    {
+        auto spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        zoomButtonsHl->addWidget(spacer);
+    }
+
+    mainVl->addLayout(zoomButtonsHl);
 
     auto spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
     mainVl->addWidget(spacer);
+
 }

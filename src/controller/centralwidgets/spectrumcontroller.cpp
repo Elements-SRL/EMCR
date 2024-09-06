@@ -47,12 +47,15 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     connect(consumer, &PlotConsumer::setPlotData, this, &SpectrumController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &SpectrumController::onReplot);
     connect(consumer, &SpectrumConsumer::sigRangeUpdate, this, &SpectrumController::onRangeUpdated);
-    connect(spectrumWidget, &SpectrumWidget::integrationWindowChanged, this, [=] (double windowS) {
+    connect(spectrumWidget, &SpectrumWidget::sigIntegrationWindowChanged, this, [=] (double windowS) {
         consumer->onIntegrationWindowChanged({windowS, UnitPfxNone, "s"});
     });
-    connect(spectrumWidget, &SpectrumWidget::startPressed, consumer, &SpectrumConsumer::onStartConsuming);
-    connect(spectrumWidget, &SpectrumWidget::stopPressed, consumer, &SpectrumConsumer::onStopConsuming);
-    connect(spectrumWidget, &SpectrumWidget::exportSpectrum, this, &SpectrumController::onExportSpectrum);
+    connect(spectrumWidget, &SpectrumWidget::sigStartPressed, consumer, &SpectrumConsumer::onStartConsuming);
+    connect(spectrumWidget, &SpectrumWidget::sigStopPressed, consumer, &SpectrumConsumer::onStopConsuming);
+    connect(spectrumWidget, &SpectrumWidget::sigExportSpectrum, this, &SpectrumController::onExportSpectrum);
+    connect(spectrumWidget, &SpectrumWidget::sigAutoZoom, this, [=] () {
+        plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
+    });
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(SPC_MAX_SAMPLES);
     std::vector <uint16_t> allChannels(currentChannelsNum);
@@ -135,7 +138,13 @@ void SpectrumController::onBackgroundColorChanged(QColor color) {
 
 void SpectrumController::onReplot() {
     if (plot != nullptr) {
-        plot->replot();
+        if (plotInitializedFlag) {
+            plot->replot();
+        }
+        else {
+            plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
+            plotInitializedFlag = true;
+        }
     }
 }
 

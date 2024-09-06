@@ -39,6 +39,9 @@ public:
     Rect4 getRect();
     void drawCanvas(QPainter * p) override;
 
+public slots:
+    void onAutoZoom(std::vector <QwtPlot::Axis> axes);
+
 protected:
     typedef enum {
         PickerZoomRect,

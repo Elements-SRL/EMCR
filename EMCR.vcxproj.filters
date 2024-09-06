@@ -337,6 +337,9 @@
     <ClCompile Include="src\controller\offsetcorrectioncontroller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\view\gapfreewidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -664,6 +667,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\controller\offsetcorrectioncontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\gapfreewidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

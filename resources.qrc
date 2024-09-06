@@ -14,7 +14,7 @@
         <file>imgs/analysis membrane test.png</file>
         <file>imgs/analysis noise report.png</file>
         <file>imgs/analysis resistance estimation.png</file>
-		<file>imgs/analysis linear fit.png</file>
+        <file>imgs/analysis linear fit.png</file>
         <file>imgs/analysis spectrum.png</file>
         <file>imgs/constant stimulus.png</file>
         <file>imgs/copy protocol.png</file>
@@ -48,5 +48,6 @@
         <file>imgs/help icon.png</file>
         <file>imgs/warning icon.png</file>
         <file>imgs/stimulus sin.png</file>
+        <file>imgs/zoom full.png</file>
     </qresource>
 </RCC>

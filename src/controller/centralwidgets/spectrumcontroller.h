@@ -33,6 +33,7 @@ private:
     SpectrumWidget * spectrumWidget = nullptr;
     MainWindow * mainWindow = nullptr;
     SpectrumMessage message;
+    bool plotInitializedFlag = false;
 
     void detachCurves(const std::vector <uint16_t> &channelIndexes) override;
     void attachCurves(const std::vector <uint16_t> &channelIndexes) override;

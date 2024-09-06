@@ -18,10 +18,11 @@ private:
     QDoubleSpinBox * integrationWindowS;
 
 signals:
-    void startPressed();
-    void stopPressed();
-    void exportSpectrum();
-    void integrationWindowChanged(double windowS);
+    void sigStartPressed();
+    void sigStopPressed();
+    void sigExportSpectrum();
+    void sigIntegrationWindowChanged(double windowS);
+    void sigAutoZoom();
 };
 
 #endif // SPECTRUMWIDGET_H

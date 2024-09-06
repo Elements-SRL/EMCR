@@ -99,6 +99,16 @@ void BigPlot::drawCanvas(QPainter * p) {
     this->handleLabelsPosition();
 }
 
+void BigPlot::onAutoZoom(std::vector <QwtPlot::Axis> axes) {
+    for (auto a : axes) {
+        this->setAxisAutoScale(a, true);
+    }
+    this->replot();
+    for (auto a : axes) {
+        this->setAxisAutoScale(a, false);
+    }
+}
+
 void BigPlot::setLabel(QString text, QwtPlot::Axis axis) {
     switch (axis) {
     case QwtPlot::Axis::xBottom:
