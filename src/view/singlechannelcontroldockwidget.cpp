@@ -99,7 +99,7 @@ void SingleChannelControlDockWidget::buildOperation(QLayout * layout, Operations
         return;
     }
     operationWidget->setVisible(visibility);
-    operationButtonWidget->setVisible(visibility && currentChannelsNum > 1);
+    operationButtonWidget->setVisible(visibility && appStatus->getSelectedChannelsIndexes().size() > 1);
     operationWidgets[operationType] = operationWidget;
     operationButtonWidgets[operationType] = operationButtonWidget;
     layout->addWidget(operationWidget);
@@ -112,6 +112,7 @@ void SingleChannelControlDockWidget::onUpdate() {
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(selectedChannels[channelIdx]);
         }
+        operationButtonWidgets[operationCbx->currentIndex()]->setVisible(appStatus->getSelectedChannelsIndexes().size() > 1);
     }
 }
 
@@ -123,8 +124,7 @@ void SingleChannelControlDockWidget::onApplyButtonClicked() {
 void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool applyAll) {
     std::vector <bool> selectedChannels(currentChannelsNum, true);
     if (!applyAll) {
-        auto msgDisp = appStatus->getMessageDispatcher();
-        msgDisp->getSelectedChannels(selectedChannels);
+        selectedChannels = appStatus->getSelectedChannels();
     }
     SpinBoxWithChannel * sbx;
     std::vector<Measurement_t> values;
@@ -471,7 +471,7 @@ void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
         }
     }
     operationWidgets[operationIdx]->setVisible(true);
-    operationButtonWidgets[operationIdx]->setVisible(currentChannelsNum > 1);
+    operationButtonWidgets[operationIdx]->setVisible(appStatus->getSelectedChannelsIndexes().size() > 1);
 
     this->onUpdate();
 }

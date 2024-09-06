@@ -31,7 +31,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
      
     // Bottom Right Histogram
     bottomRightHistogram = new QwtPlotBarChart("Amplitudes Histogram");
-    bottomRightPlot = new BasePlot("Amplitue Histogram", "count", "A", this);
+    bottomRightPlot = new BasePlot("Amplitude Histogram", "count", "A", this);
     switch (eventsDirection) {
     case DOWN:
         bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
