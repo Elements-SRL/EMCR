@@ -23,29 +23,32 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     auto recordingSettingsDialog = mw->getRecordSettingsDialog();
     connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
         bigPlotController->handleZoomInRequest(model, plot, r);
-        });
+    });
     connect(plot, &BigPlot::zoomOutRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomOutRequest(model, plot);
-        });
+    });
     connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
         bigPlotController->handleZoomResetRequest(model, plot);
-        });
+    });
     connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
         bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
-        });
+    });
     connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
         bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
-        });
+    });
     connect(gapFreeWidget, &GapFreeWidget::sigStartRecording, this, [=]() {
         this->onRecordingRequest(true);
-        });
+    });
     connect(gapFreeWidget, &GapFreeWidget::sigStopRecording, this, [=]() {
         this->onRecordingRequest(false);
-        });
+    });
+    connect(gapFreeWidget, &GapFreeWidget::sigAutoZoom, this, [=]() {
+        plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
+    });
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=](bool flag) {
         this->onRecordingExecution(flag);
         dc->handleRecording(flag);
-        });
+    });
     connect(this, &GapFreeController::sigStartRecording, this, &GapFreeController::onStartRecording);
     connect(this, &GapFreeController::sigStopRecording, this, &GapFreeController::onStopRecording);
     connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);

@@ -27,10 +27,11 @@ public:
     void setParams(std::map <uint32_t, std::vector <Measurement>> params);
 
 signals:
-    void exportIvGraph();
-    void calcMeanSquared();
-    void startIvGraph();
-    void stopIvGraph();
+    void sigExportIvGraph();
+    void sigCalcMeanSquared();
+    void sigStartIvGraph();
+    void sigStopIvGraph();
+    void sigAutoZoom();
 };
 
 #endif // IVGRAPHWIDGET_H

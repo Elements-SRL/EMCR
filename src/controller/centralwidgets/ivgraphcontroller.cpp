@@ -45,10 +45,13 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 
-    connect(ivGraphWidget, &IvGraphWidget::exportIvGraph, this, &IvGraphController::onExportIvGraph);
-    connect(ivGraphWidget, &IvGraphWidget::calcMeanSquared, this, &IvGraphController::onCalcMeanSquared);
-    connect(ivGraphWidget, &IvGraphWidget::startIvGraph, this, &IvGraphController::onStartIvGraph);
-    connect(ivGraphWidget, &IvGraphWidget::stopIvGraph, this, &IvGraphController::onStopIvGraph);
+    connect(ivGraphWidget, &IvGraphWidget::sigExportIvGraph, this, &IvGraphController::onExportIvGraph);
+    connect(ivGraphWidget, &IvGraphWidget::sigCalcMeanSquared, this, &IvGraphController::onCalcMeanSquared);
+    connect(ivGraphWidget, &IvGraphWidget::sigStartIvGraph, this, &IvGraphController::onStartIvGraph);
+    connect(ivGraphWidget, &IvGraphWidget::sigStopIvGraph, this, &IvGraphController::onStopIvGraph);
+    connect(ivGraphWidget, &IvGraphWidget::sigAutoZoom, this, [=] () {
+        plot->onAutoZoom({QwtPlot::xBottom, QwtPlot::yLeft});
+    });
 }
 
 IvGraphController::~IvGraphController() {

@@ -32,6 +32,7 @@ signals:
     void sigRecordPathChanged(QString);
     void sigStartRecording();
     void sigStopRecording();
+    void sigAutoZoom();
 };
 
 #endif // GAPFREEWIDGET_H

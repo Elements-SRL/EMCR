@@ -24,7 +24,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     startButton->setIconSize(QSize(30, 30));
     startButton->setFixedSize(32, 32);
     buttonsHl->addWidget(startButton);
-    connect(startButton, &QPushButton::clicked, this, &IvGraphWidget::startIvGraph);
+    connect(startButton, &QPushButton::clicked, this, &IvGraphWidget::sigStartIvGraph);
 
     auto stopButton = new QPushButton(this);
     stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
@@ -32,7 +32,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     stopButton->setIconSize(QSize(30, 30));
     stopButton->setFixedSize(32, 32);
     buttonsHl->addWidget(stopButton);
-    connect(stopButton, &QPushButton::clicked, this, &IvGraphWidget::stopIvGraph);
+    connect(stopButton, &QPushButton::clicked, this, &IvGraphWidget::sigStopIvGraph);
 
     auto exportButton = new QPushButton(this);
     exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
@@ -41,7 +41,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     exportButton->setFixedSize(32, 32);
     buttonsHl->addWidget(exportButton);
     connect(exportButton, &QPushButton::clicked, this, [=](){
-        emit exportIvGraph();
+        emit sigExportIvGraph();
     });
 
     auto calcLineButton = new QPushButton(this);
@@ -51,7 +51,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     calcLineButton->setFixedSize(32, 32);
     buttonsHl->addWidget(calcLineButton);
     connect(calcLineButton, &QPushButton::clicked, this, [=](){
-        emit calcMeanSquared();
+        emit sigCalcMeanSquared();
     });
 
     QWidget* spacer = new QWidget;
@@ -75,6 +75,23 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     dataTable->setItem(0, 6, new QTableWidgetItem("Unit"));
     dataTable->setItem(0, 7, new QTableWidgetItem("Current offset"));
     dataTable->setItem(0, 8, new QTableWidgetItem("Unit"));
+
+    auto zoomButtonsHl = new QHBoxLayout();
+
+    auto autoZoomButton = new QPushButton(this);
+    autoZoomButton->setIcon(QIcon(QPixmap(":/imgs/zoom full.png")));
+    autoZoomButton->setToolTip("Auto zoom");
+    autoZoomButton->setIconSize(QSize(30, 30));
+    autoZoomButton->setFixedSize(32, 32);
+    zoomButtonsHl->addWidget(autoZoomButton);
+    connect(autoZoomButton, &QPushButton::clicked, this, &IvGraphWidget::sigAutoZoom);
+
+    {
+        auto spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        zoomButtonsHl->addWidget(spacer);
+    }
+    mainVl->addLayout(zoomButtonsHl);
 }
 
 void IvGraphWidget::setParams(std::map<uint32_t, std::vector<Measurement>> params) {

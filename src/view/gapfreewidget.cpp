@@ -9,16 +9,16 @@
 #include <QDir>
 
 GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
-	QWidget(parent) {
-	this->setObjectName("gapFree");
-	this->setWindowTitle("GapFree");
+    QWidget(parent) {
+    this->setObjectName("gapFree");
+    this->setWindowTitle("GapFree");
 
 
-	auto outerLayout = new QVBoxLayout(this);
-	QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
-	outerLayout->addWidget(splitter);
+    auto outerLayout = new QVBoxLayout(this);
+    QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
+    outerLayout->addWidget(splitter);
     splitter->setHandleWidth(20);
-	splitter->addWidget(plot);
+    splitter->addWidget(plot);
 
     auto sideWidget = new QWidget(splitter);
     auto mainLayout = new QVBoxLayout(sideWidget);
@@ -37,6 +37,9 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     recordingGb->setLayout(recordingVBoxLayout);
     mainLayout->addWidget(recordingGb);
 
+    auto zoomButtonsHl = new QHBoxLayout();
+    mainLayout->addLayout(zoomButtonsHl);
+
     auto spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
     mainLayout->addWidget(spacer);
@@ -47,7 +50,7 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
         emitFilePath();
         emit sigStartRecording();
         //     &MultipleChannelControlDockWidget::sigStartRecording
-        });
+    });
     qhBoxLayout->addWidget(recordingStartBtn);
     recordingStopBtn = new QPushButton("STOP");
 
@@ -75,16 +78,16 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     connect(browseBtn, &QPushButton::clicked, [=]() {
         // Open a directory selection dialog
         QString directoryPath = QFileDialog::getExistingDirectory(this,
-        "Select Directory",
-        directory.absolutePath(),
-        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    // Check if the user selected a directory
-    if (!directoryPath.isEmpty()) {
-        auto recordingsDirectoryPath = directoryPath + "/";
-        recordPathLineEdit->setText(recordingsDirectoryPath);
-        emitFilePath();
-    }
-        });
+                                                                  "Select Directory",
+                                                                  directory.absolutePath(),
+                                                                  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+        // Check if the user selected a directory
+        if (!directoryPath.isEmpty()) {
+            auto recordingsDirectoryPath = directoryPath + "/";
+            recordPathLineEdit->setText(recordingsDirectoryPath);
+            emitFilePath();
+        }
+    });
     auto goToDirBtn = new QPushButton("Go to folder");
     connect(goToDirBtn, &QPushButton::clicked, [=]() {
         // Open a directory selection dialog
@@ -96,7 +99,7 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
         else {
             QMessageBox::information(nullptr, "Warning", "This Path seems to be incorrect.");
         }
-        });
+    });
     hboxBrowseFile->addWidget(browseBtn);
     hboxBrowseFile->addWidget(goToDirBtn);
 
@@ -114,9 +117,23 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
         auto filename = fileNameLineEdit->text();
         settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, filename);
         emit sigFileNameChanged(filename);
-        });
+    });
 
-	splitter->addWidget(sideWidget);
+    auto autoZoomButton = new QPushButton(this);
+    autoZoomButton->setIcon(QIcon(QPixmap(":/imgs/zoom full.png")));
+    autoZoomButton->setToolTip("Auto zoom");
+    autoZoomButton->setIconSize(QSize(30, 30));
+    autoZoomButton->setFixedSize(32, 32);
+    zoomButtonsHl->addWidget(autoZoomButton);
+    connect(autoZoomButton, &QPushButton::clicked, this, &GapFreeWidget::sigAutoZoom);
+
+    {
+        auto spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        zoomButtonsHl->addWidget(spacer);
+    }
+
+    splitter->addWidget(sideWidget);
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 0);
 }

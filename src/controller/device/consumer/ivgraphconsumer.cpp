@@ -108,9 +108,8 @@ void IvGraphConsumer::run() {
     exitedDataConsumingLoopCv.wakeAll();
 }
 
-// Function to scale a value into a number of bins
 int IvGraphConsumer::scaleToBins(double value) {
-    // Calculate the adjusted value to lie within [0, 2*v]
+    value = (value > pushedVoltageRange.max ? pushedVoltageRange.max : value < pushedVoltageRange.min ? pushedVoltageRange.min : value);
     return static_cast<int>((value - pushedVoltageRange.min) / binSize);
 }
 
