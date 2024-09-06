@@ -25,13 +25,13 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     QGridLayout* gridLayout = new QGridLayout(this);
 
     // Upper Left Histogram
-    upperLeftHistogram = new QwtPlotBarChart("Upper Left Histogram");
-    upperLetPlot = new BasePlot("Duration Histogram", "us", "count", this);
+    upperLeftHistogram = new QwtPlotBarChart("Events Duration Histogram");
+    upperLetPlot = new BasePlot("Events Duration Histogram", "us", "count", this);
     upperLeftHistogram->attach(upperLetPlot);
      
     // Bottom Right Histogram
-    bottomRightHistogram = new QwtPlotBarChart("Amplitudes Histogram");
-    bottomRightPlot = new BasePlot("Amplitude Histogram", "count", "A", this);
+    bottomRightHistogram = new QwtPlotBarChart("Events Amplitude Histogram");
+    bottomRightPlot = new BasePlot("Events Amplitude Histogram", "count", "A", this);
     switch (eventsDirection) {
     case DOWN:
         bottomRightPlot->axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
