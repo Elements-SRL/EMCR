@@ -89,7 +89,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     this->installEventFilter(this);
 }
 
-void SingleChannelControlDockWidget::buildOperation(QLayout * layout, int operationType, bool visibility){
+void SingleChannelControlDockWidget::buildOperation(QLayout * layout, Operations_t operationType, bool visibility){
     auto operationWidget = this->createOperationWidget(operationType);
     if (operationWidget == nullptr) {
         return;
@@ -99,7 +99,7 @@ void SingleChannelControlDockWidget::buildOperation(QLayout * layout, int operat
         return;
     }
     operationWidget->setVisible(visibility);
-    operationButtonWidget->setVisible(visibility);
+    operationButtonWidget->setVisible(visibility && currentChannelsNum > 1);
     operationWidgets[operationType] = operationWidget;
     operationButtonWidgets[operationType] = operationButtonWidget;
     layout->addWidget(operationWidget);
@@ -201,6 +201,7 @@ void SingleChannelControlDockWidget::onSetAllButtonClicked() {
             spinBox->getSpinBox()->setValue(setAllWidgets[operationCbx->currentIndex()]->getSpinBox()->value());
         }
     }
+    this->onApplyButtonClicked();
 }
 
 void SingleChannelControlDockWidget::onVcVoltageRangeSelected(int idx) {
@@ -470,7 +471,7 @@ void SingleChannelControlDockWidget::onOperationSelected(int operationIdx) {
         }
     }
     operationWidgets[operationIdx]->setVisible(true);
-    operationButtonWidgets[operationIdx]->setVisible(true);
+    operationButtonWidgets[operationIdx]->setVisible(currentChannelsNum > 1);
 
     this->onUpdate();
 }

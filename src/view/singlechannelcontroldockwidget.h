@@ -69,7 +69,7 @@ private:
     RangedMeasurement_t offsetRecalibrationRange;
     RangedMeasurement_t liquidJunctionRange;
     QVector <NoWheelSpinBox *> setAllChannelsSbxs;
-    void buildOperation(QLayout * layout, int operationType, bool visibility = false);
+    void buildOperation(QLayout * layout, Operations_t operationType, bool visibility = false);
 
 private slots:
     void onOperationSelected(int operationIdx);

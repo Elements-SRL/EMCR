@@ -23,8 +23,8 @@ public:
     enum BigPlotStatus {
         GapFree,
         Iv,
-        Event,
         Spectrum,
+        Event,
         NumberOfStatuses
     };
 

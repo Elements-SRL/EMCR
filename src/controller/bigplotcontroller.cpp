@@ -22,15 +22,13 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     bps = BigPlot::GapFree;
     controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, abfDataWriterConsumer, dc));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
-    //if (currentChannelsNum == 1) {
-        controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
-    //}
     controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, this, mainWindow));
+    controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
     controllers[bps]->start();
 }
 
 void BigPlotController::manageStatus(int idx) {
-    if (idx == bps) {
+    if (idx == bps || !(bpw->isTabEnabled(idx))) {
         return;
     }
     controllers[bps]->stop();
