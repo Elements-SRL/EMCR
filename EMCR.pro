@@ -67,6 +67,7 @@ SOURCES += \
     src/controller/centralwidgets/gapfreecontroller.cpp \
     src/controller/centralwidgets/eventdetectioncontroller.cpp \
     src/controller/centralwidgets/spectrumcontroller.cpp \
+    src/model/devicemodel.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -80,6 +81,7 @@ SOURCES += \
     src/model/binner.cpp \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
+    src/view/activationbutton.cpp \
     src/view/bigplotwidget.cpp \
     src/view/gapfreewidget.cpp \
     src/view/spectrumwidget.cpp \
@@ -173,6 +175,7 @@ HEADERS += \
     src/controller/centralwidgets/gapfreecontroller.h \
     src/controller/centralwidgets/eventdetectioncontroller.h \
     src/controller/centralwidgets/spectrumcontroller.h \
+    src/model/devicemodel.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
@@ -197,6 +200,7 @@ HEADERS += \
     src/model/events/baseline.h \
     src/model/events/eventpacket.h \
     src/model/events/eventsandbaseline.h \
+    src/view/activationbutton.h \
     src/view/bigplotwidget.h \
     src/view/gapfreewidget.h \
     src/view/spectrumwidget.h \

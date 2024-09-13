@@ -160,6 +160,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
 
 void MainController::onMainWindowCreated() {
     consumers.clear();
+
     /*********\
      * Model *
     \*********/

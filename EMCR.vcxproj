@@ -196,6 +196,7 @@
     <ClCompile Include="src\controller\offsetcorrectioncontroller.cpp" />
     <ClCompile Include="src\model\binner.cpp" />
     <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp" />
+    <ClCompile Include="src\view\activationbutton.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\baseplot.cpp" />
     <ClCompile Include="src\view\gapfreewidget.cpp" />
@@ -305,6 +306,7 @@
     <ClInclude Include="src\model\events\enventinfo.h" />
     <ClInclude Include="src\model\events\eventpacket.h" />
     <ClInclude Include="src\model\events\eventsdirection.h" />
+    <QtMoc Include="src\view\activationbutton.h" />
     <ClInclude Include="src\view\addtagdialog.h" />
     <ClInclude Include="src\model\analysiscursor.h" />
     <ClInclude Include="src\model\application_status.h" />

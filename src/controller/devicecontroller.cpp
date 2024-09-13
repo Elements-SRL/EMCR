@@ -1,7 +1,8 @@
 #include "devicecontroller.h"
 
 DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
-    appStatus(appStatus) {
+    appStatus(appStatus),
+    mainWindow(mainWindow) {
 
     MessageDispatcher * msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
@@ -14,12 +15,11 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
     msgDisp->getCCCurrentFilters(ccCurrentFilters);
     msgDisp->getSamplingRatesFeatures(samplingRates);
 
-    unsigned int maxDownsamplingRatio;
-    msgDisp->getMaxDownsamplingRatioFeature(maxDownsamplingRatio);
 
     deviceControlDockWidget = new DeviceControlDockWidget(msgDisp);
-    this->mainWindow = mainWindow;
     mainWindow->setDockWidget(MainWindow::DWDeviceControl, deviceControlDockWidget, false, Qt::LeftDockWidgetArea);
+
+    model = new DeviceModel(appStatus, deviceControlDockWidget);
 
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcCurrentRangeSelected,     this, [=](uint16_t selectedVcCurrentRangeIndex) {
         onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
@@ -42,7 +42,7 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigSamplingRateSelected,       this, [=](uint16_t selectedSamplingRateIndex) {
         onSamplingRateSelected(selectedSamplingRateIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigDownsamplingRatioSelected,  this, [=](uint16_t selectedDownSamplingRatioIndex) {
+    connect(model, &DeviceModel::sigDownsamplingRatioSelected,  this, [=](uint16_t selectedDownSamplingRatioIndex) {
         onDownsamplingRatioSelected(selectedDownSamplingRatioIndex);
     });
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](ClampingModality_t selectedClampingModality) {

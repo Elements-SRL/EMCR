@@ -5,6 +5,7 @@
 
 #include "devicecontroldockwidget.h"
 #include "mainwindow.h"
+#include "devicemodel.h"
 #include "messagedispatcher.h"
 
 class DeviceController : public QObject {
@@ -41,6 +42,7 @@ private:
 
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow;
+    DeviceModel * model = nullptr;
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
     bool recording = false;
     bool protocolRunning = false;

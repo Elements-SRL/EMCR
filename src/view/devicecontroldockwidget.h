@@ -6,8 +6,11 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QComboBox>
 #include <QLabel>
 
+#include "activationbutton.h"
 #include "messagedispatcher.h"
 
 #define DCW_CURRENT_RANGE_TITLE "Current Ranges"
@@ -20,6 +23,7 @@
 
 #define DCW_SAMPLING_RATE_TITLE "Sampling Rates"
 #define DCW_DOWNSAMPLING_RATIO_TITLE "Downsampling Ratio"
+#define DCW_DIGITAL_FILTER_TITLE "Digital Filter"
 #define DCW_CLMAPINGMODALITY_TITLE "Clamping Modality"
 
 class DeviceControlDockWidget : public QDockWidget{
@@ -36,6 +40,14 @@ public:
     void setCcCurrentRangesGroupBoxEnabled(bool status);
     void setSamplingRatesGroupBoxEnabled(bool status);
     void setDownsamplingRatioSbxEnabled(bool status);
+
+    QLabel * finalBandwidthLbl = nullptr;
+    QSpinBox * downsamplingRatioSbx = nullptr;
+    ActivationButton * digFiltBtn = nullptr;
+    QComboBox * digFiltTypeCbx = nullptr;
+    QDoubleSpinBox * digFiltCutoffFreqSbx = nullptr;
+    QComboBox * digFiltUnitCbx = nullptr;
+    QLabel * finalSamplingRateLbl = nullptr;
 
 private:
     MessageDispatcher * msgDisp = nullptr;
@@ -54,8 +66,7 @@ private:
     QGroupBox * samplingRatesGroupBox = nullptr;
     std::vector <QRadioButton *> samplingRatesRadioButtons;
     QGroupBox * downsamplingRatiosGroupBox = nullptr;
-    QSpinBox * downsamplingRatioSbx;
-    QLabel * finalSamplingRateLbl;
+    QGroupBox * digitalFilterGroupBox = nullptr;
     QGroupBox * clampingModalitiesGroupBox = nullptr;
     std::vector <QRadioButton *> clampingModalitiesRadioButtons;
     std::vector <QGroupBox *> customOptionsGroupBoxes;
@@ -82,7 +93,6 @@ signals:
     void sigSamplingRateSelected(int idx);
     void sigCustomOptionSelected(unsigned int customOptionIdx, int idx);
     void sigCustomDoubleChanged(unsigned int customDoubleIdx, double value);
-    void sigDownsamplingRatioSelected(int ratio);
     void sigClampingModalitySelected(ClampingModality_t mode);
 };
 

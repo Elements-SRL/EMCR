@@ -49,5 +49,7 @@
         <file>imgs/warning icon.png</file>
         <file>imgs/stimulus sin.png</file>
         <file>imgs/zoom full.png</file>
+        <file>imgs/activation button off.png</file>
+        <file>imgs/activation button on.png</file>
     </qresource>
 </RCC>
