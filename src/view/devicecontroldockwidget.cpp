@@ -193,13 +193,14 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     digitalFilterVl->addWidget(new QLabel("Cut-off frequency"));
     QHBoxLayout * digFiltCutoffFreqHl = new QHBoxLayout;
-    vLayout->addLayout(digFiltCutoffFreqHl);
+    digitalFilterVl->addLayout(digFiltCutoffFreqHl);
     digFiltCutoffFreqSbx = new QDoubleSpinBox;
     digFiltCutoffFreqHl->addWidget(digFiltCutoffFreqSbx);
     digFiltUnitCbx = new QComboBox;
+    digFiltCutoffFreqHl->addWidget(digFiltUnitCbx);
 
     QHBoxLayout * digFiltFinalBandiwdthHl = new QHBoxLayout;
-    vLayout->addLayout(digFiltFinalBandiwdthHl);
+    digitalFilterVl->addLayout(digFiltFinalBandiwdthHl);
     digFiltFinalBandiwdthHl->addWidget(new QLabel("Final Bandwidth"));
     finalBandwidthLbl = new QLabel("");
     digFiltFinalBandiwdthHl->addWidget(finalBandwidthLbl);
@@ -320,7 +321,7 @@ void DeviceControlDockWidget::forceEmit() {
         }
     }
 
-    emit sigDownsamplingRatioSelected(downsamplingRatioSbx->value());
+//    emit sigDownsamplingRatioSelected(downsamplingRatioSbx->value());
 
     for (int customOptionIdx = 0; customOptionIdx < customOptionsRadioButtons.size(); customOptionIdx++) {
         for (int idx = 0; idx < customOptionsRadioButtons[customOptionIdx].size(); idx++) {

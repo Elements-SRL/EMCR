@@ -29,6 +29,8 @@ private:
     bool downsamplingFlag = false;
     bool digFiltEnabledFlag = false;
     bool digFiltLowPassFlag = true;
+    bool digFiltEnabledUserFlag = false;
+    bool digFiltLowPassUserFlag = true;
     Measurement_t cutoffFrequency = {1.0, UnitPfxNone, "Hz"};
     Measurement_t maxCutoffFrequency = {1.0, UnitPfxNone, "Hz"};
     Measurement_t samplingRate = {1.0, UnitPfxNone, "Hz"};

@@ -196,6 +196,7 @@
     <ClCompile Include="src\controller\offsetcorrectioncontroller.cpp" />
     <ClCompile Include="src\model\binner.cpp" />
     <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp" />
+    <ClCompile Include="src\model\devicemodel.cpp" />
     <ClCompile Include="src\view\activationbutton.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\baseplot.cpp" />
@@ -300,6 +301,7 @@
     <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h" />
     <QtMoc Include="src\controller\offsetcorrectioncontroller.h" />
     <ClInclude Include="src\model\binner.h" />
+    <QtMoc Include="src\model\devicemodel.h" />
     <ClInclude Include="src\model\events\baseline.h" />
     <QtMoc Include="src\controller\centralwidgets\spectrumcontroller.h" />
     <QtMoc Include="src\controller\device\consumer\spectrumconsumer.h" />

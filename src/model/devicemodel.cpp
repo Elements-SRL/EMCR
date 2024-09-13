@@ -8,7 +8,7 @@ DeviceModel::DeviceModel(ApplicationStatus * appStatus, DeviceControlDockWidget 
     appStatus->getMessageDispatcher()->getSamplingRatesFeatures(samplingRates);
 
     finalSamplingRate = samplingRates[0];
-    maxCutoffFrequency = finalSamplingRate/2.0;
+    maxCutoffFrequency = finalSamplingRate/4.0;
 
     view->digFiltCutoffFreqSbx->setRange(1.0/finalSamplingRate.multiplier(), maxCutoffFrequency.value);
     view->digFiltCutoffFreqSbx->setValue(finalSamplingRate.value/4.0);
@@ -31,6 +31,7 @@ void DeviceModel::onSamplingrateSelected(int idx) {
         return;
     }
     samplingRate = samplingRates[idx];
+    this->updateDownsamplingAndFilteringSettings();
     finalSamplingRate = samplingRate/(double)downsamplingRatio;
 }
 
@@ -50,6 +51,7 @@ void DeviceModel::onDigFiltEnabled() {
         return;
     }
     digFiltEnabledFlag = view->digFiltBtn->isChecked();
+    digFiltEnabledUserFlag = digFiltEnabledFlag;
     this->updateDownsamplingAndFilteringSettings();
     emit sigDigitalFilterChanged(cutoffFrequency, digFiltLowPassFlag, digFiltEnabledFlag);
 }
@@ -62,6 +64,7 @@ void DeviceModel::onDigFiltSettingsChanged() {
     }
     cutoffFrequency = {view->digFiltCutoffFreqSbx->value(), (UnitPfx_t)(view->digFiltUnitCbx->currentIndex()+(int)UnitPfxNone), "Hz"};
     digFiltLowPassFlag = view->digFiltTypeCbx->currentIndex() == 0;
+    digFiltLowPassUserFlag = digFiltLowPassFlag;
     this->updateDownsamplingAndFilteringSettings();
     emit sigDigitalFilterChanged(cutoffFrequency, digFiltLowPassFlag, digFiltEnabledFlag);
 }
@@ -71,13 +74,41 @@ void DeviceModel::updateDownsamplingAndFilteringSettings() {
         if (!digFiltEnabledFlag) {
             digFiltEnabledFlag = true;
             view->digFiltBtn->setChecked(true);
+            view->digFiltBtn->setEnabled(false);
         }
         if (!digFiltLowPassFlag) {
             digFiltLowPassFlag = true;
             view->digFiltTypeCbx->setCurrentIndex(0);
+            view->digFiltTypeCbx->setEnabled(false);
         }
     }
     else {
-
+        view->digFiltBtn->setEnabled(true);
+        if (digFiltEnabledUserFlag != digFiltEnabledFlag) {
+            digFiltEnabledFlag = digFiltEnabledUserFlag;
+            view->digFiltBtn->setChecked(digFiltEnabledFlag);
+        }
+        view->digFiltTypeCbx->setEnabled(true);
+        if (digFiltLowPassUserFlag != digFiltLowPassFlag) {
+            digFiltLowPassFlag = digFiltLowPassUserFlag;
+            view->digFiltTypeCbx->setCurrentIndex(digFiltLowPassFlag ? 0 : 1);
+        }
     }
+
+    if (digFiltEnabledFlag) {
+        maxCutoffFrequency = samplingRate/4.0;
+        if (cutoffFrequency > maxCutoffFrequency) {
+            maxCutoffFrequency.convertValue(cutoffFrequency.prefix);
+            cutoffFrequency.value = maxCutoffFrequency.value;
+            view->digFiltCutoffFreqSbx->setValue(cutoffFrequency.value);
+        }
+
+        if (digFiltLowPassFlag) {
+            view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + cutoffFrequency.niceLabel()));
+        }
+        else {
+            view->finalBandwidthLbl->setText(QString::fromStdString(cutoffFrequency.niceLabel() + " - " + maxCutoffFrequency.niceLabel()));
+        }
+    }
+    view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + maxCutoffFrequency.niceLabel()));
 }

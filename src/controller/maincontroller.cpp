@@ -435,7 +435,7 @@ void MainController::onVcCurrentRangeSelected(int idx) {
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
-    singleChannelControlDw->onVcCurrentRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
+    singleChannelControlDw->onVcCurrentRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono essere sostituite con chiamate ai controller */
 }
 
 void MainController::onVcVoltageRangeSelected(int idx) {
