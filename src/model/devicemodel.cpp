@@ -7,23 +7,24 @@ DeviceModel::DeviceModel(ApplicationStatus * appStatus, DeviceControlDockWidget 
 
     appStatus->getMessageDispatcher()->getSamplingRatesFeatures(samplingRates);
 
-    finalSamplingRate = samplingRates[0];
+    samplingRate = samplingRates[0];
+    samplingRate.convertValue(DIG_FILT_CUTOFF_FREQ_UNIT_PFX);
+    finalSamplingRate = samplingRate;
     maxCutoffFrequency = finalSamplingRate/4.0;
+    cutoffFrequency = maxCutoffFrequency;
 
-    view->digFiltCutoffFreqSbx->setRange(1.0/finalSamplingRate.multiplier(), maxCutoffFrequency.value);
-    view->digFiltCutoffFreqSbx->setValue(finalSamplingRate.value/4.0);
+    view->digFiltCutoffFreqSbx->setDecimals(3);
+    view->digFiltCutoffFreqSbx->setSuffix(QString::fromStdString(" " + finalSamplingRate.getFullUnit()));
+    view->digFiltCutoffFreqSbx->setRange(1.0/finalSamplingRateMultiplier, maxCutoffFrequency.value);
+    view->digFiltCutoffFreqSbx->setValue(cutoffFrequency.value);
 
-    for (unsigned int pfx = UnitPfxNone; pfx <= finalSamplingRate.prefix; pfx++) {
-        Measurement_t sr = {1.0, (UnitPfx_t)pfx, "Hz"};
-        view->digFiltUnitCbx->addItem(QString::fromStdString(sr.getFullUnit()));
-    }
+    this->updateDownsamplingAndFilteringSettings();
 
     connect(view, &DeviceControlDockWidget::sigSamplingRateSelected, this, &DeviceModel::onSamplingrateSelected);
     connect(view->downsamplingRatioSbx, &QSpinBox::editingFinished, this, &DeviceModel::onDownsamplingRatioChanged);
     connect(view->digFiltBtn, &ActivationButton::clicked, this, &DeviceModel::onDigFiltEnabled);
     connect(view->digFiltTypeCbx, QOverload <int>::of(&QComboBox::currentIndexChanged), this, &DeviceModel::onDigFiltSettingsChanged);
     connect(view->digFiltCutoffFreqSbx, &QSpinBox::editingFinished, this, &DeviceModel::onDigFiltSettingsChanged);
-    connect(view->digFiltUnitCbx, QOverload <int>::of(&QComboBox::currentIndexChanged), this, &DeviceModel::onDigFiltSettingsChanged);
 }
 
 void DeviceModel::onSamplingrateSelected(int idx) {
@@ -31,8 +32,9 @@ void DeviceModel::onSamplingrateSelected(int idx) {
         return;
     }
     samplingRate = samplingRates[idx];
+    samplingRate.convertValue(DIG_FILT_CUTOFF_FREQ_UNIT_PFX);
+    finalSamplingRate = samplingRate / (double)downsamplingRatio;
     this->updateDownsamplingAndFilteringSettings();
-    finalSamplingRate = samplingRate/(double)downsamplingRatio;
 }
 
 void DeviceModel::onDownsamplingRatioChanged() {
@@ -58,11 +60,10 @@ void DeviceModel::onDigFiltEnabled() {
 
 void DeviceModel::onDigFiltSettingsChanged() {
     if (cutoffFrequency.value == view->digFiltCutoffFreqSbx->value()
-            && cutoffFrequency.prefix == (UnitPfx_t)(view->digFiltUnitCbx->currentIndex()+(int)UnitPfxNone)
             && (digFiltLowPassFlag == (view->digFiltTypeCbx->currentIndex() == 0))) {
         return;
     }
-    cutoffFrequency = {view->digFiltCutoffFreqSbx->value(), (UnitPfx_t)(view->digFiltUnitCbx->currentIndex()+(int)UnitPfxNone), "Hz"};
+    cutoffFrequency = {view->digFiltCutoffFreqSbx->value(), DIG_FILT_CUTOFF_FREQ_UNIT_PFX, "Hz"};
     digFiltLowPassFlag = view->digFiltTypeCbx->currentIndex() == 0;
     digFiltLowPassUserFlag = digFiltLowPassFlag;
     this->updateDownsamplingAndFilteringSettings();
@@ -74,13 +75,13 @@ void DeviceModel::updateDownsamplingAndFilteringSettings() {
         if (!digFiltEnabledFlag) {
             digFiltEnabledFlag = true;
             view->digFiltBtn->setChecked(true);
-            view->digFiltBtn->setEnabled(false);
         }
+        view->digFiltBtn->setEnabled(false);
         if (!digFiltLowPassFlag) {
             digFiltLowPassFlag = true;
             view->digFiltTypeCbx->setCurrentIndex(0);
-            view->digFiltTypeCbx->setEnabled(false);
         }
+        view->digFiltTypeCbx->setEnabled(false);
     }
     else {
         view->digFiltBtn->setEnabled(true);
@@ -95,13 +96,14 @@ void DeviceModel::updateDownsamplingAndFilteringSettings() {
         }
     }
 
+    maxCutoffFrequency = finalSamplingRate/4.0;
     if (digFiltEnabledFlag) {
-        maxCutoffFrequency = samplingRate/4.0;
         if (cutoffFrequency > maxCutoffFrequency) {
             maxCutoffFrequency.convertValue(cutoffFrequency.prefix);
             cutoffFrequency.value = maxCutoffFrequency.value;
             view->digFiltCutoffFreqSbx->setValue(cutoffFrequency.value);
         }
+        view->digFiltCutoffFreqSbx->setRange(1.0/finalSamplingRateMultiplier, maxCutoffFrequency.value);
 
         if (digFiltLowPassFlag) {
             view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + cutoffFrequency.niceLabel()));
@@ -110,5 +112,8 @@ void DeviceModel::updateDownsamplingAndFilteringSettings() {
             view->finalBandwidthLbl->setText(QString::fromStdString(cutoffFrequency.niceLabel() + " - " + maxCutoffFrequency.niceLabel()));
         }
     }
-    view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + maxCutoffFrequency.niceLabel()));
+    else {
+        view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + maxCutoffFrequency.niceLabel()));
+    }
+    view->finalSamplingRateLbl->setText("Final sampling rate: " + QString::fromStdString(finalSamplingRate.niceLabel()));
 }

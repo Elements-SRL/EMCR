@@ -42,9 +42,8 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigSamplingRateSelected,       this, [=](uint16_t selectedSamplingRateIndex) {
         onSamplingRateSelected(selectedSamplingRateIndex);
     });
-    connect(model, &DeviceModel::sigDownsamplingRatioSelected,  this, [=](uint16_t selectedDownSamplingRatioIndex) {
-        onDownsamplingRatioSelected(selectedDownSamplingRatioIndex);
-    });
+    connect(model, &DeviceModel::sigDownsamplingRatioSelected,  this, &DeviceController::onDownsamplingRatioSelected);
+    connect(model, &DeviceModel::sigDigitalFilterChanged,  this, &DeviceController::onDigitalFilterSettingsChanged);
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](ClampingModality_t selectedClampingModality) {
         onClampingModalitySelected(selectedClampingModality);
     });
@@ -165,8 +164,14 @@ void DeviceController::onSamplingRateSelected(uint16_t selectedSamplingRateIndex
 // Downsampling ratio
 void DeviceController::onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex) {
     appStatus->getMessageDispatcher()->setDownsamplingRatio(selectedDownsamplingRatioIndex);
+    deviceControlDockWidget->updateParameters();
 
     emit sigDownsamplingRatioSelected(selectedDownsamplingRatioIndex);
+}
+
+// Digital filter
+void DeviceController::onDigitalFilterSettingsChanged(Measurement_t cutoffrequency, bool lowPassFlag, bool activeFlag) {
+    appStatus->getMessageDispatcher()->setRawDataFilter(cutoffrequency, lowPassFlag, activeFlag);
 }
 // ADC Voltage Filter in CC set by Sampling rate
 

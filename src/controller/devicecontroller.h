@@ -26,6 +26,7 @@ public slots:
     void onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex);
     void onSamplingRateSelected(uint16_t selectedCcCurrentFilterIndex);
     void onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex);
+    void onDigitalFilterSettingsChanged(Measurement_t cutoffrequency, bool lowPassFlag, bool activeFlag);
     void onClampingModalitySelected(ClampingModality_t mode);
     void onCustomOptionSelected(uint32_t customOptionIdx, int idx);
     void onCustomDoubleChanged(uint32_t customDoubleIdx, double value);

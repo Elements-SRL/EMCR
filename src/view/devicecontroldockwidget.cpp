@@ -192,12 +192,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     digFiltSettingsHl->addWidget(digFiltTypeCbx);
 
     digitalFilterVl->addWidget(new QLabel("Cut-off frequency"));
-    QHBoxLayout * digFiltCutoffFreqHl = new QHBoxLayout;
-    digitalFilterVl->addLayout(digFiltCutoffFreqHl);
     digFiltCutoffFreqSbx = new QDoubleSpinBox;
-    digFiltCutoffFreqHl->addWidget(digFiltCutoffFreqSbx);
-    digFiltUnitCbx = new QComboBox;
-    digFiltCutoffFreqHl->addWidget(digFiltUnitCbx);
+    digitalFilterVl->addWidget(digFiltCutoffFreqSbx);
 
     QHBoxLayout * digFiltFinalBandiwdthHl = new QHBoxLayout;
     digitalFilterVl->addLayout(digFiltFinalBandiwdthHl);
@@ -402,11 +398,6 @@ void DeviceControlDockWidget::updateParameters() {
         uint32_t ratio;
         msgDisp->getDownsamplingRatio(ratio);
         downsamplingRatioSbx->setValue(ratio);
-
-        Measurement_t samplingRate;
-        msgDisp->getSamplingRate(samplingRate);
-        samplingRate = samplingRate/(double)ratio;
-        finalSamplingRateLbl->setText("Final sampling rate: " + QString::fromStdString(samplingRate.niceLabel()));
     }
 
     if (!clampingModalitiesRadioButtons.empty()) {

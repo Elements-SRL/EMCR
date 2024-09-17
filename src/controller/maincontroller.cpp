@@ -541,10 +541,6 @@ void MainController::onSamplingRateSelected(int) {
 }
 
 void MainController::onDownsamplingRatioSelected(int) {
-    /*! update GUI */
-    auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
-    deviceControlDw->updateParameters();
-
     uint32_t ratio;
     msgDisp->getDownsamplingRatio(ratio);
 
