@@ -100,10 +100,10 @@ void MainController::onConnect(bool flag) {
         deviceConnector->start();
 
     } else {
-        previousVcVoltageRange = nullptr;
-        previousVcCurrentRange = nullptr;
-        previousCcVoltageRange = nullptr;
-        previousCcCurrentRange = nullptr;
+        previousVcVoltageRange.reset();
+        previousVcCurrentRange.reset();
+        previousCcVoltageRange.reset();
+        previousCcCurrentRange.reset();
 
         mainWindow->setConnectionLabel("");
         this->stopAndDestroyProducerConsumers();
@@ -421,10 +421,10 @@ void MainController::onVcCurrentRangeSelected(int idx) {
 
     RangedMeasurement_t range;
     msgDisp->getVCCurrentRange(range);
-    if (previousVcCurrentRange != nullptr  && *previousVcCurrentRange == range) {
+    if (previousVcCurrentRange.has_value() && previousVcCurrentRange.value() == range) {
         return;
     }
-    previousVcCurrentRange = &range;
+    previousVcCurrentRange.emplace(range);
 
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(range);
@@ -445,10 +445,10 @@ void MainController::onVcVoltageRangeSelected(int idx) {
 
     RangedMeasurement_t range;
     msgDisp->getVCVoltageRange(range);
-    if (previousVcVoltageRange != nullptr  && *previousVcVoltageRange == range) {
+    if (previousVcVoltageRange.has_value() && previousVcVoltageRange.value() == range) {
         return;
     }
-    previousVcVoltageRange = &range;
+    previousVcVoltageRange.emplace(range);
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);
@@ -470,10 +470,10 @@ void MainController::onCcCurrentRangeSelected(int idx) {
 
     RangedMeasurement_t range;
     msgDisp->getCCCurrentRange(range);
-    if (previousCcCurrentRange != nullptr  && *previousCcCurrentRange == range) {
+    if (previousCcCurrentRange.has_value() && previousCcCurrentRange.value() == range) {
         return;
     }
-    previousCcCurrentRange = &range;
+    previousCcCurrentRange.emplace(range);
 
     for (auto consumer : consumers) {
         consumer->onCurrentRangeChanged(range);
@@ -494,10 +494,10 @@ void MainController::onCcVoltageRangeSelected(int idx) {
 
     RangedMeasurement_t range;
     msgDisp->getCCVoltageRange(range);
-    if (previousCcVoltageRange != nullptr  && *previousCcVoltageRange == range) {
+    if (previousCcVoltageRange.has_value() && previousCcVoltageRange.value() == range) {
         return;
     }
-    previousCcVoltageRange = &range;
+    previousCcVoltageRange.emplace(range);
 
     for (auto consumer : consumers) {
         consumer->onVoltageRangeChanged(range);

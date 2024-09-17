@@ -1,6 +1,8 @@
 #ifndef MAINCONTROLLER_H
 #define MAINCONTROLLER_H
 
+#include <optional>
+
 #include <QObject>
 #include <QThread>
 
@@ -93,10 +95,10 @@ private:
     int currentChannelsNumber;
     int boardsNumber;
 
-    RangedMeasurement * previousVcVoltageRange = nullptr;
-    RangedMeasurement * previousVcCurrentRange = nullptr;
-    RangedMeasurement * previousCcVoltageRange = nullptr;
-    RangedMeasurement * previousCcCurrentRange = nullptr;
+    std::optional <RangedMeasurement> previousVcVoltageRange = std::nullopt;
+    std::optional <RangedMeasurement> previousVcCurrentRange = std::nullopt;
+    std::optional <RangedMeasurement> previousCcVoltageRange = std::nullopt;
+    std::optional <RangedMeasurement> previousCcCurrentRange = std::nullopt;
 
 signals:
     void startDetecting();
