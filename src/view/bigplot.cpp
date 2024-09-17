@@ -275,6 +275,9 @@ void BigPlot::onZoomInPickerMoved(const QPointF &p) {
 
 void BigPlot::onZoomInPickerSelected(const QRectF &r) {
     Rect4 rect(r);
+    if ((rect.at(yLeft).width() == 0.0) && (rect.at(xBottom).width() == 0.0)) {
+        return;
+    }
     double rY = r.y();
     double rH = r.height();
     double yL = this->axisInterval(yLeft).minValue();
