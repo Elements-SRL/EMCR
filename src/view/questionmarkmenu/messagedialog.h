@@ -7,7 +7,6 @@
 class MessageDialog : public QDialog {
 public:
     MessageDialog(QString title, bool includeLogo, QWidget* parent = nullptr);
-    virtual ~MessageDialog();
 
     void addMainText(QString text);
     void addDefaultButtonBox();

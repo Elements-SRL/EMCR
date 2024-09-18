@@ -130,6 +130,7 @@ SOURCES += \
     src/view/boardcontroldockwidget.cpp \
     src/view/devicecontroldockwidget.cpp \
     src/view/statearray/statearraydockwidget.cpp \
+    src/view/advancedmenu/resethwhelpdialog.cpp \
     src/view/questionmarkmenu/aboutdialog.cpp \
     src/view/questionmarkmenu/supportdialog.cpp \
     src/view/questionmarkmenu/deviceinfodialog.cpp \
@@ -249,6 +250,7 @@ HEADERS += \
     src/view/boardcontroldockwidget.h \
     src/view/devicecontroldockwidget.h \
     src/view/statearray/statearraydockwidget.h \
+    src/view/advancedmenu/resethwhelpdialog.h \
     src/view/questionmarkmenu/aboutdialog.h \
     src/view/questionmarkmenu/supportdialog.h \
     src/view/questionmarkmenu/deviceinfodialog.h \
@@ -270,6 +272,7 @@ INCLUDEPATH += \
     ./src/view/centralwidgets \
     ./src/view/protocol \
     ./src/view/questionmarkmenu \
+    ./src/view/advancedmenu \
     ./src/abf
 
 DEPENDPATH += \
@@ -287,6 +290,7 @@ DEPENDPATH += \
     ./src/view/centralwidgets \
     ./src/view/protocol \
     ./src/view/questionmarkmenu \
+    ./src/view/advancedmenu \
     ./src/abf
 
 RC_ICONS = imgs/Elements.ico

@@ -2,6 +2,8 @@
 #include <QLabel>
 #include "globaldefines.h"
 
+#include <QDate>
+
 AboutDialog::AboutDialog(QWidget* parent) :
     MessageDialog(QString("About ") + GLB_SOFTWARE_NAME, true, parent) {
 
@@ -9,7 +11,7 @@ AboutDialog::AboutDialog(QWidget* parent) :
     versionLbl->setAlignment(Qt::AlignCenter);
     mainVl->addWidget(versionLbl);
 
-    QLabel* copyrightLbl = new QLabel("Copyright (c) 2015-2024 by Elements s.r.l.");
+    QLabel* copyrightLbl = new QLabel("Copyright (c) 2015-" + QString("%1").arg(QDate().currentDate().year()) + " by Elements s.r.l.");
     copyrightLbl->setAlignment(Qt::AlignCenter);
     mainVl->addWidget(copyrightLbl);
 
@@ -24,8 +26,4 @@ AboutDialog::AboutDialog(QWidget* parent) :
     this->addDefaultButtonBox();
 
     this->centerOnParent(parent);
-}
-
-AboutDialog::~AboutDialog() {
-
 }

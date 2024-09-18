@@ -8,7 +8,6 @@ class SupportDialog : public MessageDialog {
 
 public:
     SupportDialog(QWidget* parent = nullptr);
-    ~SupportDialog();
 };
 
 #endif // SUPPORTDIALOG_H

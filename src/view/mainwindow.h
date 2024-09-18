@@ -122,6 +122,7 @@ private:
 
 private slots:
     void onResetHwHelp();
+    void onRearrangeView();
 
 signals:
     void setDebugBit(int word, int bit, bool flag);

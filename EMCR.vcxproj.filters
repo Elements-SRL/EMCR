@@ -343,6 +343,12 @@
     <ClCompile Include="src\view\activationbutton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\devicemodel.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\advancedmenu\resethwhelpdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -676,6 +682,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\activationbutton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\model\devicemodel.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\advancedmenu\resethwhelpdialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

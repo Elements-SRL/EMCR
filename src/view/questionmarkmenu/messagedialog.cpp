@@ -30,10 +30,6 @@ MessageDialog::MessageDialog(QString title, bool includeLogo, QWidget* parent) :
     }
 }
 
-MessageDialog::~MessageDialog() {
-
-}
-
 void MessageDialog::addMainText(QString text) {
     QLabel* mainTextLbl = new QLabel(text);
     mainVl->addWidget(mainTextLbl);

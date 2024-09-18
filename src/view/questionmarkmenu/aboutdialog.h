@@ -8,7 +8,6 @@ class AboutDialog : public MessageDialog {
 
 public:
     AboutDialog(QWidget* parent = nullptr);
-    ~AboutDialog();
 };
 
 #endif // ABOUTDIALOG_H
