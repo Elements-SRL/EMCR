@@ -134,6 +134,7 @@ SOURCES += \
     src/view/questionmarkmenu/aboutdialog.cpp \
     src/view/questionmarkmenu/supportdialog.cpp \
     src/view/questionmarkmenu/deviceinfodialog.cpp \
+    src/view/questionmarkmenu/releasenotesdialog.cpp \
     src/view/questionmarkmenu/messagedialog.cpp \
     src/view/upgradefwview.cpp
 
@@ -254,6 +255,7 @@ HEADERS += \
     src/view/questionmarkmenu/aboutdialog.h \
     src/view/questionmarkmenu/supportdialog.h \
     src/view/questionmarkmenu/deviceinfodialog.h \
+    src/view/questionmarkmenu/releasenotesdialog.h \
     src/view/questionmarkmenu/messagedialog.h \
     src/view/upgradefwview.h
 

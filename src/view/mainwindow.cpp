@@ -14,6 +14,7 @@
 #include "aboutdialog.h"
 #include "supportdialog.h"
 #include "deviceinfodialog.h"
+#include "releasenotesdialog.h"
 
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
@@ -76,29 +77,42 @@ MainWindow::MainWindow(QWidget * parent) :
     menuAdvanced->addMenu(menuHwReset);
 
     actionHwReset = new QAction("Apply");
+    connect(actionHwReset, &QAction::triggered, this, &MainWindow::sigResetHw);
     menuHwReset->addAction(actionHwReset);
 
     actionHwResetHelp = new QAction("Help");
+    connect(actionHwResetHelp, &QAction::triggered, this, [=]() {
+        this->onOpenDialog(ResetHwHelpDlg);
+    });
     menuHwReset->addAction(actionHwResetHelp);
-
-    connect(actionHwReset, &QAction::triggered, this, &MainWindow::sigResetHw);
-    connect(actionHwResetHelp, &QAction::triggered, this, &MainWindow::onResetHwHelp);
 
     /*! ? menu */
     menuQuestionMark = new QMenu("?");
     menuBar->addMenu(menuQuestionMark);
 
     actionAbout = new QAction("About");
-    connect(actionAbout, &QAction::triggered, this, &MainWindow::onAbout);
+    connect(actionAbout, &QAction::triggered, this, [=]() {
+        this->onOpenDialog(AboutDlg);
+    });
     menuQuestionMark->addAction(actionAbout);
 
-    actionDeviceInfo = new QAction("Device info");
-    connect(actionDeviceInfo, &QAction::triggered, this, &MainWindow::onDeviceInfo);
+    actionDeviceInfo = new QAction("Device Info");
+    connect(actionDeviceInfo, &QAction::triggered, this, [=]() {
+        this->onOpenDialog(DeviceInfoDlg);
+    });
     menuQuestionMark->addAction(actionDeviceInfo);
 
     actionSupport = new QAction("Support");
-    connect(actionSupport, &QAction::triggered, this, &MainWindow::onSupport);
+    connect(actionSupport, &QAction::triggered, this, [=]() {
+        this->onOpenDialog(SupportDlg);
+    });
     menuQuestionMark->addAction(actionSupport);
+
+    actionReleaseNotes = new QAction("Release Notes");
+    connect(actionReleaseNotes, &QAction::triggered, this, [=]() {
+        this->onOpenDialog(ReleaseNotesDlg);
+    });
+    menuQuestionMark->addAction(actionReleaseNotes);
 
     connect(actionUpgradeFw, &QAction::triggered, this, &MainWindow::sigUpgradeFw);
 
@@ -582,24 +596,34 @@ void MainWindow::onBoardMappingPressed(){
 //    }
 }
 
-void MainWindow::onAbout() {
-    AboutDialog a(this);
-    a.exec();
-}
-
-void MainWindow::onDeviceInfo() {
-    DeviceInfoDialog a(msgDisp != nullptr, devicesComboBox->currentText(), this);
-    a.exec();
-}
-
-void MainWindow::onSupport() {
-    SupportDialog a(this);
-    a.exec();
-}
-
-void MainWindow::onResetHwHelp() {
-    ResetHwHelpDialog a(this);
-    a.exec();
+void MainWindow::onOpenDialog(Dialogs_t type) {
+    switch (type) {
+    case ResetHwHelpDlg: {
+        ResetHwHelpDialog a(this);
+        a.exec();
+        break;
+    }
+    case AboutDlg: {
+        AboutDialog a(this);
+        a.exec();
+        break;
+    }
+    case DeviceInfoDlg: {
+        DeviceInfoDialog a(msgDisp != nullptr, devicesComboBox->currentText(), this);
+        a.exec();
+        break;
+    }
+    case SupportDlg: {
+        SupportDialog a(this);
+        a.exec();
+        break;
+    }
+    case ReleaseNotesDlg: {
+        ReleaseNotesDialog a(this);
+        a.exec();
+        break;
+    }
+    }
 }
 
 void MainWindow::onRearrangeView() {

@@ -349,6 +349,9 @@
     <ClCompile Include="src\view\advancedmenu\resethwhelpdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\view\questionmarkmenu\releasenotesdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -688,6 +691,9 @@
       <Filter>Generated Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\advancedmenu\resethwhelpdialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\questionmarkmenu\releasenotesdialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

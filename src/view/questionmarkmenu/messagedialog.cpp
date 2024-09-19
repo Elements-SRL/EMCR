@@ -2,6 +2,7 @@
 
 #include <QLabel>
 #include <QDialogButtonBox>
+#include <QScrollArea>
 
 MessageDialog::MessageDialog(QString title, bool includeLogo, QWidget* parent) :
     QDialog(parent) {
@@ -32,7 +33,14 @@ MessageDialog::MessageDialog(QString title, bool includeLogo, QWidget* parent) :
 
 void MessageDialog::addMainText(QString text) {
     QLabel* mainTextLbl = new QLabel(text);
-    mainVl->addWidget(mainTextLbl);
+    QScrollArea * area = new QScrollArea;
+    area->setFrameShape(QFrame::NoFrame);
+    area->setWidgetResizable(true);
+    area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    area->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    mainVl->addWidget(area);
+    area->setWidget(mainTextLbl);
 }
 
 void MessageDialog::addDefaultButtonBox() {

@@ -70,11 +70,16 @@ public:
 public slots:
     void onNeedToChangeModelCellMsg(QString msg);
     void onBoardMappingPressed();
-    void onAbout();
-    void onDeviceInfo();
-    void onSupport();
 
 private:
+    typedef enum {
+        ResetHwHelpDlg,
+        AboutDlg,
+        DeviceInfoDlg,
+        SupportDlg,
+        ReleaseNotesDlg
+    } Dialogs_t;
+
     void createGuiControls();
     void destroyGuiControls();
     void restoreUISettings();
@@ -103,6 +108,7 @@ private:
     QAction * actionAbout = nullptr;
     QAction * actionDeviceInfo = nullptr;
     QAction * actionSupport = nullptr;
+    QAction * actionReleaseNotes = nullptr;
 
     BigPlotWidget * bigPlotW = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
@@ -121,7 +127,7 @@ private:
     QVector <QDockWidget *> dockWidgets;
 
 private slots:
-    void onResetHwHelp();
+    void onOpenDialog(Dialogs_t type);
     void onRearrangeView();
 
 signals:
