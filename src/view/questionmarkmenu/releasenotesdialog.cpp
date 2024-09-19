@@ -7,7 +7,7 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         Version_t version;
         version.major = 0;
         version.minor = 18;
-        version.patch = 1;
+        version.patch = 2;
         version.sections[NewFeatures] << "Digital filters";
         version.sections[NewFeatures] << "Integral rms graph in spectrum plot";
         version.sections[NewFeatures] << "Spectrum and Irms export button";
@@ -16,6 +16,7 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.sections[Gui] << "Removed some multichannel features for single channel devices";
         version.sections[Gui] << "Button to rearrange floating windows";
         version.sections[Gui] << "Improved instructions for the offset correction";
+        version.sections[BugFixes] << "Fixed bug in evenet dection analysis";
         version.sections[BugFixes] << "Fixed spectrum not starting for multichannel devices";
         version.sections[BugFixes] << "Fixed channel number in Measurement overview exported csv";
         this->appendVersion(version);

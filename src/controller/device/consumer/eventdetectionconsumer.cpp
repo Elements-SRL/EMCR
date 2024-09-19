@@ -3,7 +3,13 @@
 #include <iostream>
 
 EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_, double highCutoffFrequency_, double _maxAmplitude, double defaultStdMultiplier_, EventsDirection _eventsDirection):
-    PlotConsumer(appStatus, producer), minEventSamples(minEventSamples_), maxEventSamples(maxEventSamples_), highCutoffFrequency(highCutoffFrequency_), maxAmplitude(_maxAmplitude), stdMultiplier(defaultStdMultiplier_), eventsDirection(_eventsDirection) {
+    PlotConsumer(appStatus, producer),
+    highCutoffFrequency(highCutoffFrequency_),
+    stdMultiplier(defaultStdMultiplier_),
+    maxAmplitude(_maxAmplitude),
+    eventsDirection(_eventsDirection),
+    minEventSamples(minEventSamples_),
+    maxEventSamples(maxEventSamples_) {
     minDataBatchSize = currentChannelsNum * appStatus->getSamplingRate().getNoPrefixValue() * MINIMUM_DATA_FOR_ANALYSIS;
     intBuffer.reserve(producer->getDataPacketsBufferLen() * totalChannelsNum);
     allocateData();
@@ -42,7 +48,6 @@ void EventDetectionConsumer::run() {
     //event detection stuff
     std::vector<std::pair<int, int>> events;
     auto const size = buffer.size();
-    uint32_t idx = 0;
     std::vector<double> high_pass(size);
 
     QMutexLocker consumptionLock(&consumptionMtx);

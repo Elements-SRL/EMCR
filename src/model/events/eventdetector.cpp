@@ -17,9 +17,6 @@ EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequenc
     baselineSamplingRateCounter = 0;
 
     const auto finalPadding = maxEventLen * EVENT_PADDING;
-    remainingIntBuffer.resize(finalPadding);
-    remainingDoubleBuffer.resize(finalPadding);
-    remainingVoltages.resize(finalPadding);
 }
 
 EventPacket EventDetector::consumeEventsAndBaseline() {
@@ -82,7 +79,7 @@ std::optional<PartialEvent> EventDetector::analyze(double currentValue, double v
     const auto singleBaseline = low->sfilt(currentValue);
     const auto s_no_baseline = currentValue - singleBaseline;
     const auto re_filtered = high->sfilt(s_no_baseline);
-    const auto currentBaseline = singleBaseline / currentRange.step;
+    const int16_t currentBaseline = round(singleBaseline / currentRange.step);
 
     if (++baselineSamplingRateCounter >= baselineSamplingRate) {
         baseline.push_back(currentBaseline);
@@ -174,12 +171,12 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
     eventBeginIdx = 0;
 
     const auto finalPadding = maxEventLen * EVENT_PADDING;
-    //received chunk smaller than evnet * padding
+    //received chunk smaller than event * padding
     if (chunkSize < finalPadding) {
         remainingChunkSize = chunkSize;
-        std::copy(intBuffer.begin(), intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
-        std::copy(doubleBuffer.begin(), doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
-        std::copy(voltages.begin(), voltages.begin() + chunkSize, remainingVoltages.begin());
+        remainingIntBuffer = intBuffer;
+        remainingDoubleBuffer = doubleBuffer;
+        remainingVoltages = voltages;
         return;
     }
     const auto earlyStop = chunkSize - finalPadding;
@@ -209,12 +206,18 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
         }
         timeCount += idx;
         remainingChunkSize = chunkSize - idx;
+        remainingIntBuffer.resize(remainingChunkSize);
+        remainingDoubleBuffer.resize(remainingChunkSize);
+        remainingVoltages.resize(remainingChunkSize);
         std::copy(intBuffer.begin() + idx, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
         std::copy(doubleBuffer.begin() + idx, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
         std::copy(voltages.begin() + idx, voltages.begin() + chunkSize, remainingVoltages.begin());
     } else {
         timeCount += earlyStop;
         remainingChunkSize = finalPadding;
+        remainingIntBuffer.resize(remainingChunkSize);
+        remainingDoubleBuffer.resize(remainingChunkSize);
+        remainingVoltages.resize(remainingChunkSize);
         std::copy(intBuffer.begin() + earlyStop, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
         std::copy(doubleBuffer.begin() + earlyStop, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
         std::copy(voltages.begin() + earlyStop, voltages.begin() + chunkSize, remainingVoltages.begin());
