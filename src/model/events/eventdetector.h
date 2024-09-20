@@ -44,6 +44,7 @@ private:
     double thresholdMultiplier;
     uint32_t eventLen = 0;
     uint32_t eventBeginIdx = 0;
+    bool eventAmplitudeTooLarge = false;
 
     uint32_t minEventLen;
     uint32_t maxEventLen;

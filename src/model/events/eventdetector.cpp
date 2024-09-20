@@ -15,12 +15,9 @@ EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequenc
     low = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), lowCutoffFrequency);
     baselineSamplingRate = samplingRate.getNoPrefixValue() / (lowCutoffFrequency * 5.0);
     baselineSamplingRateCounter = 0;
-
-    const auto finalPadding = maxEventLen * EVENT_PADDING;
 }
 
 EventPacket EventDetector::consumeEventsAndBaseline() {
-    uint32_t numberOfEvents = eventsInfo.size();
     const auto eventPeakBeginFactor = ((double)EVENT_PADDING / (double)((EVENT_PADDING * 2) + 1));
     for (auto& ei : eventsInfo) {
         const auto realEventIdx = (uint64_t)((double) ei.event.eventIdx + (double) ei.event.rawData.size() * eventPeakBeginFactor);
@@ -88,61 +85,73 @@ std::optional<PartialEvent> EventDetector::analyze(double currentValue, double v
     }
 
     // threshold is not initialized yet
-    if (threshold == -1) {
+    if (threshold == -1.0) {
         bandPassFilterData.push_back(re_filtered);
         return std::nullopt;
     }
 
     bool isEvent = false;
-    switch (eventsDirection)
-    {
+    switch (eventsDirection) {
     case DOWN:
         isEvent = re_filtered < -threshold;
         break;
+
     case UP:
         isEvent = re_filtered > threshold;
         break;
+
     case BOTH:
         //NOT IMPLEMENTED YET
         break;
-    default:
-        break;
     }
     if (isEvent && !eventAlreadyBegun) {
+        /*! New event */
+        eventLen = 0;
         eventAlreadyBegun = true;
         eventBeginIdx = idx;
         return std::nullopt;
     }
-    if (isEvent && eventAlreadyBegun) {
+
+    if (isEvent) {
+        /*! Adding points to event already begun */
         eventLen++;
+
+        if (eventLen >= maxEventLen) {
+            /*! Discard too long events. */
+            eventAlreadyBegun = false;
+            /*! Since it's likely a baseline change update the baseline immediately */
+            low->init(currentValue);
+            return std::nullopt;
+        }
+        if (abs(re_filtered) > maxAmplitude) {
+            /*! Keep note of large events */
+            eventAmplitudeTooLarge = true;
+        }
+        /*! Otherwise stop the baseline from updating */
         low->init(lowParams.second);
         return std::nullopt;
     }
+
+    /*! bandPassFilterData is used to compute the standard deviation, do not add event data */
     bandPassFilterData.push_back(re_filtered);
     if (!eventAlreadyBegun) {
+        /*! Discard too large events */
         return std::nullopt;
     }
-    //event already begun
-    if (eventLen >= maxEventLen) {
-        low->init(currentValue);
-        eventAlreadyBegun = false;
+
+    /*! Event finished */
+    eventAlreadyBegun = false;
+    if (eventAmplitudeTooLarge) {
+        eventAmplitudeTooLarge = false;
         return std::nullopt;
     }
-    if (abs(re_filtered) > abs(maxAmplitude)) {
-        eventAlreadyBegun = false;
-        eventLen = 0;
-        return std::nullopt;
-    }
+
     if (eventLen > minEventLen) {
         const auto e0 = eventBeginIdx - (EVENT_PADDING * eventLen);
         const auto e1 = eventBeginIdx + eventLen + (EVENT_PADDING * eventLen);
-        eventAlreadyBegun = false;
         const PartialEvent res = { (e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1, eventLen, currentBaseline };
-        eventLen = 0;
         return res;
     }
-    eventAlreadyBegun = false;
-    eventLen = 0;
     return std::nullopt;
 }
 
@@ -275,7 +284,7 @@ double EventDetector::getMaxAmplitude() {
 }
 
 void EventDetector::setMaxAmplitude(double maxAmplitude) {
-    this->maxAmplitude = maxAmplitude;
+    this->maxAmplitude = abs(maxAmplitude);
 }
 
 void EventDetector::setEventsDirection(EventsDirection ed) {

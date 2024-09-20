@@ -13,8 +13,7 @@
 #define EDC_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 constexpr double MINIMUM_DATA_FOR_ANALYSIS = 0.1; //0.1s
 
-class EventDetectionConsumer : public PlotConsumer
-{
+class EventDetectionConsumer : public PlotConsumer {
     Q_OBJECT
 public:
     EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_, double highCutoffFrequency, double maxAmplitude, double defaultStdMultiplier, EventsDirection eventsDirection);
@@ -24,7 +23,9 @@ public:
     void setMinEventDurationInSamples(uint32_t);
     void setMaxEventDurationInSamples(uint32_t);
     void setHighCutoffFrequency(double newValue);
+    double getHighCutoffFrequency();
     void setStdMultiplier(double newValue);
+    double getStdMultiplier();
     void setMaxAmplitude(double maxAmplitude);
     void setEventsDirection(EventsDirection ed);
     void reinitFilters(double highCutoffFreq);

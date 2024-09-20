@@ -134,7 +134,7 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
     std::tm* localTime = std::localtime(&currentTime);
     // Create a string stream to format the time
     std::ostringstream oss, oss_date_time;
-    oss << std::put_time(localTime, "_%H_%M_%S");
+    oss << std::put_time(localTime, "_%Y_%m_%d_%H_%M_%S");
     // Get the string from the string stream
     std::string timeStr = oss.str();
     filename += timeStr + ".h5";
@@ -265,14 +265,17 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {
         consumer->onStopConsuming();
         });
-    connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](Measurement m) {
+    connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](Measurement duration) {
+        if (minDuration == duration) {
+            return;
+        }
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
         auto sr = appStatus->getSamplingRate();
-        minDuration = m;
-        const auto mNoPref = m.getNoPrefixValue();
+        minDuration = duration;
+        const auto mNoPref = duration.getNoPrefixValue();
         uint32_t durationInSamples = sr.getNoPrefixValue() * mNoPref;
         delete durationBinner;
         durationBinner = new Binner(mNoPref, maxDuration.getNoPrefixValue(), durationBins);
@@ -283,6 +286,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
         });
     connect(widget, &EventDetectionWidget::maxDurationChanged, this, [=](Measurement duration) {
+        if (maxDuration == duration) {
+            return;
+        }
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
@@ -300,6 +306,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
         });
     connect(widget, &EventDetectionWidget::durationBinsChanged, this, [=](int value) {
+        if (durationBins == value) {
+            return;
+        }
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
@@ -312,6 +321,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
         });
     connect(widget, &EventDetectionWidget::amplitudeBinsChanged, this, [=](int value) {
+        if (amplitudeBins == value) {
+            return;
+        }
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
@@ -324,6 +336,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
         });
     connect(widget, &EventDetectionWidget::maxAmplitudeChanged, this, [=](double value) {
+        if (maxAmplitude == value) {
+            return;
+        }
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
@@ -338,6 +353,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
         });
     connect(widget, &EventDetectionWidget::cutoffFrequencyChanged, this, [=](double value) {
+        if (consumer->getHighCutoffFrequency() == value) {
+            return;
+        }
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
@@ -349,6 +367,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
         });
     connect(widget, &EventDetectionWidget::stdMultiplierChanged, this, [=](double value) {
+        if (consumer->getStdMultiplier() == value) {
+            return;
+        }
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
@@ -524,8 +545,8 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             if (eventIdx == 0) {
                 const auto & curve = eventCurves[chIdx];
                 //let's display only the middle part of the event and less baseline
-                //The event is long n, n/5 is the actual length of the event while the other
-                // (4/5)N are baseline, we'll take only 3/5 of n, in the middle part of course
+                //The event is long n, n/7 is the actual length of the event while the other
+                // (6/7)N are baseline, we'll take only 3/7 of n, in the middle part of course
                 auto onlyEvent = (data.size() / 7);
                 auto eventToDisplayLen = onlyEvent * 3;
                 //There is 
@@ -542,14 +563,12 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
                 plot->replot();
             }
         }
-        const auto ciccia = ((double)len) * (appStatus->getSamplingRate().getNoPrefixValue()/((double)durationAccumulator));
         QVector<QPointF> durationSamples; 
         {
             const auto& keys = durationBinner->getKeys();
             const auto& accs = durationBinner->getValues();
             const auto scaleFactor = 1.0 / maxDuration.multiplier();
             for (int i = 0; i < durationBinner->getNBins(); i++) {
-                const auto k = keys[i];
                 durationSamples.append(QPointF(keys[i] * scaleFactor, accs[i]));
             }
         }
@@ -560,7 +579,6 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             const auto& accs = amplitudeBinner->getValues();
 
             for (int i = 0; i < amplitudeBinner->getNBins(); i++) {
-                const auto k = keys[i];
                 amplitudeSamples.append(QPointF(keys[i], accs[i]));
             }
         }

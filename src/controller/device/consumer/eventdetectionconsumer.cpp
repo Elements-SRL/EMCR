@@ -183,11 +183,19 @@ void EventDetectionConsumer::setHighCutoffFrequency(double newValue) {
     }
 }
 
+double EventDetectionConsumer::getHighCutoffFrequency() {
+    return highCutoffFrequency;
+}
+
 void EventDetectionConsumer::setStdMultiplier(double newValue) {
     stdMultiplier = newValue;
     for (const auto& ed : eventDetectionChannels) {
         ed->setStdMultiplier(stdMultiplier);
     }
+}
+
+double EventDetectionConsumer::getStdMultiplier() {
+    return stdMultiplier;
 }
 
 void EventDetectionConsumer::setMaxAmplitude(double maxAmplitude) {
