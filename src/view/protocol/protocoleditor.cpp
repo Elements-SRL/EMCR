@@ -476,8 +476,8 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     ErrorCodes_t ret = Success;
 
     std::vector <RangedMeasurement_t> availableCurrentRanges;
-    uint16_t defaultRange;
-    ret = msgDisp->getVCCurrentRanges(availableCurrentRanges, defaultRange);
+    uint16_t _;
+    ret = msgDisp->getVCCurrentRanges(availableCurrentRanges, _);
 
     if (ret == Success) {
         uint32_t currentRangesNum = availableCurrentRanges.size();
@@ -497,7 +497,7 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     } /*! \todo FCON gestire l'errore */
 
     std::vector <RangedMeasurement_t> availableVoltageRanges;
-    ret = msgDisp->getVCVoltageRanges(availableVoltageRanges);
+    ret = msgDisp->getVCVoltageRanges(availableVoltageRanges, _);
 
     if (ret == Success) {
         uint32_t voltageRangesNum = availableVoltageRanges.size();
@@ -724,7 +724,8 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     ErrorCodes_t ret = Success;
 
     std::vector <RangedMeasurement_t> availableCurrentRanges;
-    ret = msgDisp->getCCCurrentRanges(availableCurrentRanges);
+    uint16_t _;
+    ret = msgDisp->getCCCurrentRanges(availableCurrentRanges, _);
 
     if (ret == Success) {
         uint32_t currentRangesNum = availableCurrentRanges.size();
@@ -746,7 +747,7 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     } /*! \todo FCON gestire l'errore */
 
     std::vector <RangedMeasurement_t> availableVoltageRanges;
-    ret = msgDisp->getCCVoltageRanges(availableVoltageRanges);
+    ret = msgDisp->getCCVoltageRanges(availableVoltageRanges, _);
 
     if (ret == Success) {
         uint32_t voltageRangesNum = availableVoltageRanges.size();

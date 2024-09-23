@@ -6,11 +6,11 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
 
     MessageDispatcher * msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
-    uint16_t defaultVcCurrRangeIdx;
-    msgDisp->getVCCurrentRanges(vcCurrentRanges,defaultVcCurrRangeIdx);
-    msgDisp->getVCVoltageRanges(vcVoltageRanges);
-    msgDisp->getCCCurrentRanges(ccCurrentRanges);
-    msgDisp->getCCVoltageRanges(ccVoltageRanges);
+    uint16_t _;
+    msgDisp->getVCCurrentRanges(vcCurrentRanges, _);
+    msgDisp->getVCVoltageRanges(vcVoltageRanges, _);
+    msgDisp->getCCCurrentRanges(ccCurrentRanges, _);
+    msgDisp->getCCVoltageRanges(ccVoltageRanges, _);
     msgDisp->getVCVoltageFilters(vcVoltageFilters);
     msgDisp->getCCCurrentFilters(ccCurrentFilters);
     msgDisp->getSamplingRatesFeatures(samplingRates);

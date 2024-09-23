@@ -304,7 +304,8 @@ void SingleChannelControlDockWidget::onCcVoltageRangeSelected(int idx) {
     std::vector <RangedMeasurement_t> ranges;
     auto msgDisp = appStatus->getMessageDispatcher();
     QString unit = "";
-    if (msgDisp->getCCVoltageRanges(ranges) == Success) {
+    uint16_t _;
+    if (msgDisp->getCCVoltageRanges(ranges, _) == Success) {
         offsetRecalibrationRange = ranges[idx];
         unit = QString().fromStdString(offsetRecalibrationRange.getFullUnit());
         setAllChannelsSbxs[OperationOffsetRecalibration]->setSuffix(QString(" ") + unit);

@@ -15,17 +15,17 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
 
     std::vector <RangedMeasurement_t> vcCurrentRanges;
-    uint16_t defaultVcCurrRangeIdx;
-    msgDisp->getVCCurrentRanges(vcCurrentRanges, defaultVcCurrRangeIdx);
+    uint16_t _;
+    msgDisp->getVCCurrentRanges(vcCurrentRanges, _);
 
     std::vector <RangedMeasurement_t> vcVoltageRanges;
-    msgDisp->getVCVoltageRanges(vcVoltageRanges);
+    msgDisp->getVCVoltageRanges(vcVoltageRanges, _);
 
     std::vector <RangedMeasurement_t> ccCurrentRanges;
-    msgDisp->getCCCurrentRanges(ccCurrentRanges);
+    msgDisp->getCCCurrentRanges(ccCurrentRanges, _);
 
     std::vector <RangedMeasurement_t> ccVoltageRanges;
-    msgDisp->getCCVoltageRanges(ccVoltageRanges);
+    msgDisp->getCCVoltageRanges(ccVoltageRanges, _);
 
     std::vector <Measurement_t> vcVoltageFilters;
     msgDisp->getVCVoltageFilters(vcVoltageFilters);

@@ -19,14 +19,14 @@ StateArrayController::StateArrayController(MessageDispatcher * msgDisp, MainWind
     stateArrayDockWidget = new StateArrayDockWidget();
     mainWindow->setDockWidget(MainWindow::DWStateArray, stateArrayDockWidget, true, Qt::LeftDockWidgetArea);
     updateUI();
-    std::vector <RangedMeasurement_t> vcCurrentRangesFeatures;
+    std::vector <RangedMeasurement_t> currentRanges;
     std::vector <RangedMeasurement_t> voltageRanges;
     uint16_t _;
-    msgDisp->getVCCurrentRanges(vcCurrentRangesFeatures, _);
-    msgDisp->getVCVoltageRanges(voltageRanges);
+    msgDisp->getVCCurrentRanges(currentRanges, _);
+    msgDisp->getVCVoltageRanges(voltageRanges, _);
 
     RangedMeasurement_t voltageRange = voltageRanges[0];
-    RangedMeasurement_t currentRange = vcCurrentRangesFeatures[0];
+    RangedMeasurement_t currentRange = currentRanges[0];
     voltageRange.convertValues(UnitPfx::UnitPfxNone);
     currentRange.convertValues(UnitPfx::UnitPfxPico);
     stateArrayDockWidget->setRanges(voltageRange.min, voltageRange.max,currentRange.min, currentRange.max);
