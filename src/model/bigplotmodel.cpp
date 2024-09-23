@@ -49,7 +49,7 @@ Rect4 BigPlotModel::resetZoomStack(){
 }
 
 void BigPlotModel::setCurrentRange(QwtPlot::Axis axisIdx, RangedMeasurement newRange){
-    if (!isRangeInitialized(axisIdx)) {
+    if (!isRangeInitialized(axisIdx) || newRange.unit != getCurrentRange(axisIdx).unit) {
         currentRange[axisIdx] = newRange;
         rangeInitialized[axisIdx] = true;
         setCurrentZoom(axisIdx, newRange.min, newRange.max);
@@ -72,7 +72,7 @@ void BigPlotModel::setCurrentRange(QwtPlot::Axis axisIdx, RangedMeasurement newR
 void BigPlotModel::setCurrentRangeLog(QwtPlot::Axis axisIdx, RangedMeasurement newRange){
     auto newMax = newRange.max;
     auto newMin = newMax / 1.0e15;
-    if (!isRangeInitialized(axisIdx)) {
+    if (!isRangeInitialized(axisIdx) || newRange.unit != getCurrentRange(axisIdx).unit) {
         RangedMeasurement rm = RangedMeasurement{ newMin, newMax, newRange.step, newRange.prefix, newRange.unit };
         currentRange[axisIdx] = rm;
         rangeInitialized[axisIdx] = true;

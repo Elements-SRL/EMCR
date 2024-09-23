@@ -25,12 +25,13 @@ public:
     virtual void stop() = 0;
     virtual void start() = 0;
     virtual PlotConsumer* getConsumer() = 0;
+
 private:
     virtual void detachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
     virtual void attachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
     
 public slots:
-    virtual void onRangeUpdated(commlib::RangedMeasurement_t newRange) = 0;
+    virtual void onRangeUpdated(RangedMeasurement_t newRange) = 0;
     virtual void onCurrentColorsChanged(QVector <QColor> colors) = 0;
     virtual void onCurrentColorChanged(int channelIdx, QColor color) = 0;
     virtual void onBackgroundColorChanged(QColor color) = 0;
@@ -41,6 +42,7 @@ public slots:
     virtual void onDownsamplingRatioChanged(unsigned int dsr);
     virtual void onCurrentRangeChanged(RangedMeasurement rm);
     virtual void onVoltageRangeChanged(RangedMeasurement rm);
+    virtual void onClampingModalityChanged(ClampingModality_t c);
     virtual void onStopConsuming();
 
 protected:

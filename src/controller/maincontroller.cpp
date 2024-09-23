@@ -559,7 +559,13 @@ void MainController::onClampingModalitySelected(ClampingModality_t mode) {
 
     auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
     protocolDw->onSetClampingModality(mode);
-    /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
+
+    for (auto consumer : consumers) {
+        consumer->onClampingModalityChanged(mode);
+    }
+    for (auto controller : centralWidgetControllers) {
+        controller->onClampingModalityChanged(mode);
+    }
 }
 
 void MainController::startProducerConsumers() {

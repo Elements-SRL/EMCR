@@ -148,10 +148,19 @@ void SpectrumController::onReplot() {
     }
 }
 
-/*! todo FCON Check clamping modality too */
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     QwtPlot::Axis axisIdx;
-    if (newRange.unit == "A") {
+    auto mode = appStatus->getClampingModality();
+    if (newRange.unit == "A" && mode == VOLTAGE_CLAMP) {
+        axisIdx = QwtPlot::yLeft;
+        model->setCurrentRangeLog(axisIdx, newRange);
+        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
+
+        axisIdx = QwtPlot::yRight;
+        model->setCurrentRangeLog(axisIdx, newRange);
+        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "rms", axisIdx);
+
+    } else if (newRange.unit == "V" && (mode == CURRENT_CLAMP || mode == ZERO_CURRENT_CLAMP)) {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRangeLog(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);

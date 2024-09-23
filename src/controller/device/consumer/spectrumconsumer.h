@@ -54,6 +54,10 @@ private:
     std::vector <double *> currentSpectrumValues;
     std::vector <double *> irmsValues;
 
+    int bufferOffsetIdx = 0;
+    int processedChannelsNum = 0;
+    int bypassedChannelsNum = 0;
+
 signals:
     void sigRangeUpdate(RangedMeasurement_t newRange);
 };

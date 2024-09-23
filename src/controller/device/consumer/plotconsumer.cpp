@@ -89,6 +89,12 @@ void PlotConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
     pushedCurrentRangeFlag = true;
 }
 
+void PlotConsumer::onClampingModalityChanged(ClampingModality_t mode) {
+    QMutexLocker locker(&rangeAxisMtx);
+    pushedClampingModality = mode;
+    pushedClampingModalityFlag = true;
+}
+
 void PlotConsumer::onDurationChanged(Measurement_t duration) {
     QMutexLocker locker(&timeAxisMtx);
     duration.convertValue(UnitPfxNone);

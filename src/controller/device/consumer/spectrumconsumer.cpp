@@ -82,9 +82,31 @@ void SpectrumConsumer::computeFrequencyAxis() {
 
 void SpectrumConsumer::updateRangeAxis() {
     QMutexLocker locker(&rangeAxisMtx);
+    if (pushedVoltageRangeFlag) {
+        pushedVoltageRangeFlag = false;
+        voltageRange = pushedVoltageRange;
+    }
     if (pushedCurrentRangeFlag) {
         pushedCurrentRangeFlag = false;
         currentRange = pushedCurrentRange;
+    }
+    if (pushedClampingModalityFlag) {
+        pushedClampingModalityFlag = false;
+        clampingModality = pushedClampingModality;
+        switch (clampingModality) {
+        case VOLTAGE_CLAMP:
+            bufferOffsetIdx = voltageChannelsNum;
+            processedChannelsNum = currentChannelsNum;
+            bypassedChannelsNum = voltageChannelsNum;
+            break;
+
+        case ZERO_CURRENT_CLAMP:
+        case CURRENT_CLAMP:
+            bufferOffsetIdx = 0;
+            processedChannelsNum = voltageChannelsNum;
+            bypassedChannelsNum = currentChannelsNum;
+            break;
+        }
     }
 }
 
@@ -113,21 +135,21 @@ void SpectrumConsumer::run() {
             bufferLen = buffer.size();
 
             /*! Copy data in buffers for FFT evaluation */
-            while (bufferIdx + voltageChannelsNum < bufferLen) {
-                for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            while (bufferIdx + bufferOffsetIdx < bufferLen) {
+                for (channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
-                        auto currentValue = buffer[bufferIdx + voltageChannelsNum];
+                        auto currentValue = buffer[bufferIdx + bufferOffsetIdx];
                         fftIn[channelIdx][binIndex] = currentValue;
                     }
                     bufferIdx++;
                 }
-                bufferIdx += voltageChannelsNum;
+                bufferIdx += bypassedChannelsNum;
                 binIndex++;
 
                 /*! Enough data to compute FFT */
                 if (binIndex == nBins) {
                     if (integrationRoundIdx == 0) {
-                        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                        for (int channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
                             if (plottedChannels[channelIdx]) {
                                 fftw_execute(fftwPlans[channelIdx]);
                                 for (binIndex = 0; binIndex < n2Bins; binIndex++) {
@@ -137,7 +159,7 @@ void SpectrumConsumer::run() {
                         }
 
                     } else {
-                        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                        for (int channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
                             if (plottedChannels[channelIdx]) {
                                 fftw_execute(fftwPlans[channelIdx]);
                                 for (binIndex = 0; binIndex < n2Bins; binIndex++) {
@@ -149,7 +171,7 @@ void SpectrumConsumer::run() {
 
                     /*! Enough FFTs to estimate spectrum */
                     if (++integrationRoundIdx == integrationRounds) {
-                        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                        for (int channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
                             if (plottedChannels[channelIdx]) {
                                 for (binIndex = 0; binIndex < n2Bins; binIndex++) {
                                     currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;

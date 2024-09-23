@@ -35,6 +35,10 @@ void CentralWidgetController::onVoltageRangeChanged(RangedMeasurement rm) {
 	getConsumer()->onVoltageRangeChanged(rm);
 }
 
+void CentralWidgetController::onClampingModalityChanged(ClampingModality_t c) {
+    getConsumer()->onClampingModalityChanged(c);
+}
+
 void CentralWidgetController::onStopConsuming() {
 	getConsumer()->onStopConsuming();
 }

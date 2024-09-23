@@ -57,6 +57,12 @@ void LiveStatisticsConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
     pushedCurrentRangeFlag = true;
 }
 
+void LiveStatisticsConsumer::onClampingModalityChanged(ClampingModality_t mode) {
+    QMutexLocker locker(&rangesMtx);
+    pushedClampingModality = mode;
+    pushedClampingModalityFlag = true;
+}
+
 void LiveStatisticsConsumer::run() {
     this->initAnalysis();
 

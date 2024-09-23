@@ -212,9 +212,20 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
     //    GapFree message
     case 0:{
         GapFreeMessage message = std::get<0>(plotMessage);
-        for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
-        }
+//        switch (appStatus->getClampingModality()) {
+//        case VOLTAGE_CLAMP:
+            for (int idx = 0; idx < currentChannelsNum; idx++) {
+                currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
+            }
+            break;
+
+//        case ZERO_CURRENT_CLAMP:
+//        case CURRENT_CLAMP:
+//            for (int idx = 0; idx < currentChannelsNum; idx++) {
+//                currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
+//            }
+//            break;
+//        }
         break;
     }
         //    IvGraph message
@@ -225,7 +236,7 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
         }
         break;
     }
-        //    IvGraph message
+        //    Spectrum message
     case 3:{
         SpectrumMessage message = std::get<3>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {

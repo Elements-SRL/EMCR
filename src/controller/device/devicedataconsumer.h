@@ -23,6 +23,7 @@ public slots:
     virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) = 0;
     virtual void onVoltageRangeChanged(RangedMeasurement_t range) = 0;
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) = 0;
+    virtual void onClampingModalityChanged(ClampingModality_t mode) = 0;
 
 protected:
     ApplicationStatus * appStatus = nullptr;
@@ -39,6 +40,7 @@ protected:
     bool pushedDownsamplingRatioFlag = false;
     bool pushedVoltageRangeFlag = false;
     bool pushedCurrentRangeFlag = false;
+    bool pushedClampingModalityFlag = false;
 
     unsigned int minDataBatchSize = 0;
     double pushedSamplingRateHz = 1.0;
@@ -52,6 +54,9 @@ protected:
 
     RangedMeasurement_t pushedCurrentRange;
     RangedMeasurement_t currentRange = {0.0, 1.0, 1.0, UnitPfxNone, "A"};
+
+    ClampingModality_t pushedClampingModality;
+    ClampingModality_t clampingModality = UNDEFINED_CLAMP;
 
     QMutex itemsMtx;
 

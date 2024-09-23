@@ -128,6 +128,11 @@ void DataWriterConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
     pushedCurrentRangeFlag = true;
 }
 
+void DataWriterConsumer::onClampingModalityChanged(ClampingModality_t mode) {
+    pushedClampingModality = mode;
+    pushedClampingModalityFlag = true;
+}
+
 void DataWriterConsumer::manageConsumptionBegin() {
     recordStartTime = QDateTime::currentDateTime();
     savedValues = 0;
