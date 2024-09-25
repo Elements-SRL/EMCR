@@ -187,6 +187,14 @@ void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
         msgDisp->getVCVoltageRangeIdx(idx);
         emit sigVcVoltageRangeSelected(idx);
 
+    } else if (mode == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
+        uint32_t idx;
+        msgDisp->getVCCurrentRangeIdx(idx);
+        emit sigVcCurrentRangeSelected(idx);
+
+        msgDisp->getCCVoltageRangeIdx(idx);
+        emit sigCcVoltageRangeSelected(idx);
+
     } else {
         uint32_t idx;
         msgDisp->getCCCurrentRangeIdx(idx);

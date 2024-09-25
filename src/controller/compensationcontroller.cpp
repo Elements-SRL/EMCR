@@ -75,7 +75,7 @@ void CompensationController::onCompensationApplied(std::vector<uint16_t> channel
         msgDisp->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, ccCfastEn, false);
     }
 
-    if(mode == ClampingModality_t::VOLTAGE_CLAMP){
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP || mode == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
         if (!cfastValues.empty()) {
             msgDisp->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, cfastValues, false);
         }
@@ -108,7 +108,7 @@ void CompensationController::onCompensationApplied(std::vector<uint16_t> channel
     msgDisp->getCompValueMatrix(compValueMatrix);
 
     double defaultParamValue;
-    if(mode == ClampingModality_t::VOLTAGE_CLAMP){
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP || mode == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
         msgDisp->getCompFeatures(MessageDispatcher::U_CpVc, cfastFeatures, defaultParamValue);
 
     } else if(mode == ClampingModality_t::ZERO_CURRENT_CLAMP || mode == ClampingModality_t::CURRENT_CLAMP) {

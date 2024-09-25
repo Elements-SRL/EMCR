@@ -88,7 +88,7 @@ void SingleChannelController::onApplyHoldValues(std::vector<uint16_t> channelInd
     auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
 
-    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP || mode == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
         msgDisp->setVoltageHoldTuner(channelIndexes, holdValues, true);
 
     } else {
@@ -114,7 +114,7 @@ void SingleChannelController::onApplyStimHalfValues(std::vector<uint16_t> channe
     auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
 
-    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP || mode == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
         msgDisp->setVoltageHalf(channelIndexes, halfValues, true);
 
     } else {
@@ -127,7 +127,7 @@ void SingleChannelController::onLiquidJunctionValues(std::vector<uint16_t> chann
     auto msgDisp = appStatus->getMessageDispatcher();
     msgDisp->getClampingModality(mode);
 
-    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP || mode == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
         msgDisp->setLiquidJunctionVoltage(channelIndexes, values, true);
     }
 }
@@ -150,6 +150,7 @@ void SingleChannelController::onOffsetRecalibrationResult() {
 
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
     case ClampingModality_t::CURRENT_CLAMP:
+    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
         msgDisp->getCCVoltageRangeIdx(rangeIdx);
         singleChannelControlsDw->setOffsetRecalibrationValues(params.ccOffsetAdc[samplingRateIdx][rangeIdx]);
         break;

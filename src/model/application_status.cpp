@@ -208,16 +208,19 @@ std::string ApplicationStatus::getClampingModalityString() {
     std::string cms;
     switch (cm) {
     case ClampingModality_t::VOLTAGE_CLAMP:
-        cms = "Voltage calmp";
+        cms = "Voltage clamp";
         break;
     case ClampingModality_t::CURRENT_CLAMP:
-        cms = "Current calmp";
+        cms = "Current clamp";
         break;
     case ClampingModality_t::DYNAMIC_CLAMP:
-        cms = "Dynamic calmp";
+        cms = "Dynamic clamp";
         break;
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
-        cms = "Zero current calmp";
+        cms = "Zero current clamp";
+        break;
+    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
+        cms = "Voltage clamp/Voltage read";
         break;
     }
     return cms;

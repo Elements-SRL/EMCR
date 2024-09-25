@@ -47,7 +47,7 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
     }
 
     /*! Send the commands to mDev */
-    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP || clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
         msgDisp->setVoltageProtocolStructure(protocolId, (unsigned short)(protocolItems.size()), (unsigned short)sweepsNum, hold, true);
 
     } else {
@@ -62,7 +62,7 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
     xFinal.prefix = stimulusPrefix;
     xAmp.prefix = stimulusPrefix;
 
-    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+    if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP || clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
         x0.unit = "V";
         xStep.unit = "V";
         xFinal.unit = "V";
@@ -90,7 +90,7 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
             t0Step.value = castItem->tStep;
             stimHalfFlag = castItem->stimHalfFlag;
 
-            if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+            if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP || clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
                 msgDisp->setVoltageProtocolStep((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, t0, t0Step, stimHalfFlag);
 
             } else {
@@ -109,7 +109,7 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
             t0Step.value = 0.0;
             stimHalfFlag = castItem->stimHalfFlag;
 
-            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP || clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
                 msgDisp->setVoltageProtocolRamp((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xFinal, xFinalStep, t0, t0Step, stimHalfFlag);
 
             } else {
@@ -128,7 +128,7 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
             f0Step.value = 0.0;
             stimHalfFlag = castItem->stimHalfFlag;
 
-            if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP) {
+            if (clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP || clampingModality == e384CommLib::ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
                 msgDisp->setVoltageProtocolSin((uint16_t)itemIdx, (uint16_t)protocolItem->nextItem, (uint16_t)protocolItem->repsNum, protocolItem->applySteps, x0, xStep, xAmp, xAmpStep, f0, f0Step, stimHalfFlag);
 
             } else {
