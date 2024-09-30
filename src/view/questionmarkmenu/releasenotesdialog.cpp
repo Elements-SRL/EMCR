@@ -11,12 +11,12 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.sections[NewFeatures] << "Digital filters";
         version.sections[NewFeatures] << "Integral rms graph in spectrum plot";
         version.sections[NewFeatures] << "Spectrum and Irms export button";
-        version.sections[NewFeatures] << "Autozoom buttons";
+        version.sections[NewFeatures] << "Auto zoom buttons";
         version.sections[NewFeatures] << "Release notes";
         version.sections[Gui] << "Removed some multichannel features for single channel devices";
         version.sections[Gui] << "Button to rearrange floating windows";
         version.sections[Gui] << "Improved instructions for the offset correction";
-        version.sections[BugFixes] << "Fixed bug in evenet dection analysis";
+        version.sections[BugFixes] << "Fixed bug in event detection analysis";
         version.sections[BugFixes] << "Fixed spectrum not starting for multichannel devices";
         version.sections[BugFixes] << "Fixed channel number in Measurement overview exported csv";
         this->appendVersion(version);
