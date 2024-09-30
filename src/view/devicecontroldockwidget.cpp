@@ -212,8 +212,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         radioButtonsBoxLayout->setSpacing(2);
 
         vLayout->addWidget(this->clampingModalitiesGroupBox);
-        for (int idx = 0; idx < clampingModalities.size(); idx++){
-            QRadioButton * qrb;
+        for (int idx = 0; idx < clampingModalities.size(); idx++) {
+            QRadioButton * qrb = nullptr;
             ClampingModality_t mode = clampingModalities[idx];
             switch (mode) {
             case ClampingModality_t::VOLTAGE_CLAMP:
@@ -233,6 +233,9 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
                 break;
             }
 
+            if (qrb == nullptr) {
+                continue;
+            }
             radioButtonsBoxLayout->addWidget(qrb);
             this->clampingModalitiesRadioButtons.push_back(qrb);
             connect(qrb, &QRadioButton::clicked, this, [=] (bool flag) {

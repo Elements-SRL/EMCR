@@ -95,10 +95,8 @@ private:
     int currentChannelsNumber;
     int boardsNumber;
 
-    std::optional <RangedMeasurement> previousVcVoltageRange = std::nullopt;
-    std::optional <RangedMeasurement> previousVcCurrentRange = std::nullopt;
-    std::optional <RangedMeasurement> previousCcVoltageRange = std::nullopt;
-    std::optional <RangedMeasurement> previousCcCurrentRange = std::nullopt;
+    std::optional <RangedMeasurement> previousVoltageRange = std::nullopt;
+    std::optional <RangedMeasurement> previousCurrentRange = std::nullopt;
 
 signals:
     void startDetecting();
