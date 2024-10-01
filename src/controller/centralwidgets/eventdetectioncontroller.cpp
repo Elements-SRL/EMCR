@@ -100,8 +100,10 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         DataSpace attSpace(H5S_SCALAR);
         StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
-        dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &event.eventIdx);
-        dataset.createAttribute("Stimulus", H5::PredType::STD_I16LE, attSpace).write(H5::PredType::IEEE_F64LE, &event.stimulus);
+        const unsigned int offset = event.eventIdx;
+        dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &offset);
+        const double stim = event.stimulus;
+        dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &stim);
         append_data(dataset, event.rawData);
     }  // end of try block
     catch (H5::GroupIException& error) {

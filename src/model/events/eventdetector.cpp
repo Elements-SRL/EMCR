@@ -270,9 +270,11 @@ void EventDetector::setMaxEventDurationInSamples(uint32_t maxDuration) {
 
 void EventDetector::setHighCutoffFrquency(double cf) {
     highCutoffFrequency = cf;
+    const auto params = high->getParams();
     delete high;
     //TODO, think this better
-    high = new FirstOrderIirFilter(samplingRate.value, highCutoffFrequency);
+    high = new FirstOrderIirFilter(samplingRate.getNoPrefixValue(), highCutoffFrequency);
+    high->init(params.second);
 }
 
 void EventDetector::setStdMultiplier(double newValue) {
