@@ -85,9 +85,9 @@ void MeasurementsOverviewDockWidget::setOffsetRecalibrationResult(std::vector<Me
     //the first row is the header
     int row = 1;
     for (auto ch : activeChannels) {
-        auto result = results[ch];
-        dataTable->setItem(row, 11, new QTableWidgetItem(QString::fromStdString(std::to_string(result.value))));
-        dataTable->setItem(row, 12, new QTableWidgetItem(QString::fromStdString(result.getFullUnit())));
+        auto &result = results[ch];
+        this->setCellText(row, 11, QString("%1").arg(result.value));
+        this->setCellText(row, 12, QString::fromStdString(result.getFullUnit()));
         row++;
     }
 }
@@ -96,9 +96,9 @@ void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector<Measure
     //the first row is the header
     int row = 1;
     for (auto ch : activeChannels) {
-        auto result = results[ch];
-        dataTable->setItem(row, 13, new QTableWidgetItem(QString::fromStdString(std::to_string(result.value))));
-        dataTable->setItem(row, 14, new QTableWidgetItem(QString::fromStdString(result.getFullUnit())));
+        auto &result = results[ch];
+        this->setCellText(row, 13, QString("%1").arg(result.value));
+        this->setCellText(row, 14, QString::fromStdString(result.getFullUnit()));
         row++;
     }
 }
@@ -107,23 +107,33 @@ void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector<Statisti
     //the first row is the header
     int row = 1;
     for (auto ch : activeChannels) {
-        const auto statisticResult = results[ch];
+        auto &statisticResult = results[ch];
         setStatisticsResultsInRowaRow(row, statisticResult);
         row++;
     }
 }
 
-void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, StatisticsResult r) {
+void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, StatisticsResult &r) {
     int col = 0;
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.chIdx + 1))));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanVoltage.value))));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.meanVoltage.getFullUnit())));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.stdVoltage.value))));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.stdVoltage.getFullUnit())));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.meanCurrent.value))));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.meanCurrent.getFullUnit())));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.stdCurrent.value))));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.stdCurrent.getFullUnit())));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(std::to_string(r.conductivity.value))));
-    dataTable->setItem(row, col++, new QTableWidgetItem(QString::fromStdString(r.conductivity.getFullUnit())));
+    this->setCellText(row, col++, QString("%1").arg((r.chIdx + 1)));
+    this->setCellText(row, col++, QString("%1").arg((r.meanVoltage.value)));
+    this->setCellText(row, col++, QString::fromStdString(r.meanVoltage.getFullUnit()));
+    this->setCellText(row, col++, QString("%1").arg((r.stdVoltage.value)));
+    this->setCellText(row, col++, QString::fromStdString(r.stdVoltage.getFullUnit()));
+    this->setCellText(row, col++, QString("%1").arg((r.meanCurrent.value)));
+    this->setCellText(row, col++, QString::fromStdString(r.meanCurrent.getFullUnit()));
+    this->setCellText(row, col++, QString("%1").arg((r.stdCurrent.value)));
+    this->setCellText(row, col++, QString::fromStdString(r.stdCurrent.getFullUnit()));
+    this->setCellText(row, col++, QString("%1").arg((r.conductivity.value)));
+    this->setCellText(row, col++, QString::fromStdString(r.conductivity.getFullUnit()));
+}
+
+void MeasurementsOverviewDockWidget::setCellText(int row, int col, const QString text) {
+    auto item = dataTable->item(row, col);
+    if (item != nullptr) {
+        item->setText(text);
+    }
+    else {
+        dataTable->setItem(row, col, new QTableWidgetItem(text));
+    }
 }
