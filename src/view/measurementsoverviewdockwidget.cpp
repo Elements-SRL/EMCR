@@ -54,6 +54,8 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     mainVl->addWidget(dataTable);
     this->installEventFilter(dataTable);
     int col = 0;
+
+    dataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     dataTable->setItem(0, col++, new QTableWidgetItem("Channel index"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Mean Voltage"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
@@ -77,6 +79,7 @@ void MeasurementsOverviewDockWidget::onUpdate(){
 }
 
 void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<uint16_t> newActiveChannels){
+    dataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     activeChannels = newActiveChannels;
     onUpdate();
 }
