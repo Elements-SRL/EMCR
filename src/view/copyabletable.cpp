@@ -7,7 +7,7 @@
 #include <QHeaderView>
 
 CopyableTable::CopyableTable(QWidget *parent) : QTableWidget(parent) {
-    this->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
 }
 
 QSize CopyableTable::sizeHint() const {
