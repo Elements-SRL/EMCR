@@ -144,6 +144,7 @@ void SingleChannelController::onOffsetRecalibrationResult() {
 
     switch (mode) {
     case ClampingModality_t::VOLTAGE_CLAMP:
+    case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
         msgDisp->getVCCurrentRangeIdx(rangeIdx);
         singleChannelControlsDw->setOffsetRecalibrationValues(params.vcOffsetAdc[samplingRateIdx][rangeIdx]);
         break;

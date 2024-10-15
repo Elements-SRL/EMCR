@@ -231,6 +231,10 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
             case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
                 qrb = new QRadioButton("Voltage clamp/Voltage read");
                 break;
+
+            case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
+                qrb = new QRadioButton("Current clamp/Current read");
+                break;
             }
 
             if (qrb == nullptr) {
@@ -418,7 +422,33 @@ void DeviceControlDockWidget::updateParameters() {
             uint32_t idx;
             msgDisp->getCCCurrentFilterIdx(idx);
             ccCurrentFiltersRadioButtons[idx]->setChecked(true);
-        }     
+        }
+
+    } else if (mode == ClampingModality_t::CURRENT_CLAMP_CURRENT_READ) {
+        this->setWidgetVisible(ccVoltageRangesGroupBox, false);
+        this->setWidgetVisible(vcVoltageRangesGroupBox, false);
+        this->setWidgetVisible(vcVoltageFiltersGroupBox, false);
+        this->setWidgetVisible(vcCurrentRangesGroupBox, true);
+        this->setWidgetVisible(ccCurrentRangesGroupBox, true);
+        this->setWidgetVisible(ccCurrentFiltersGroupBox, true);
+
+        if (ccCurrentRangesRadioButtons.size()>0){
+            uint32_t idx;
+            msgDisp->getCCCurrentRangeIdx(idx);
+            ccCurrentRangesRadioButtons[idx]->setChecked(true);
+        }
+
+        if (vcCurrentRangesRadioButtons.size()>0){
+            uint32_t idx;
+            msgDisp->getVCCurrentRangeIdx(idx);
+            vcCurrentRangesRadioButtons[idx]->setChecked(true);
+        }
+
+        if (ccCurrentFiltersRadioButtons.size()>0){
+            uint32_t idx;
+            msgDisp->getCCCurrentFilterIdx(idx);
+            ccCurrentFiltersRadioButtons[idx]->setChecked(true);
+        }
     }
 
     if (!samplingRatesRadioButtons.empty()) {
