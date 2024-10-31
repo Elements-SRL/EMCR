@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QGroupBox>
 
 #include "messagedispatcher.h"
 #include "globaldefines.h"
@@ -18,6 +19,9 @@ public:
 
     bool getExpertMode();
     void enableExpertMode(bool flag);
+
+public slots:
+    void onSetClampingModality(ClampingModality_t clampingModality);
 
 private:
     MessageDispatcher * msgDisp = nullptr;
@@ -44,6 +48,7 @@ private:
     QPushButton * recordingStopBtn = nullptr;
     QLineEdit * fileNameLineEdit = nullptr;
     QLineEdit * recordPathLineEdit = nullptr;
+    QGroupBox * zapGb = nullptr;
 
 signals:
     void sigTurnChannelOn();
@@ -63,7 +68,6 @@ signals:
     void sigZap(Measurement_t duration);
     void sigAddToBigPlot();
     void sigRemoveFromBigPlot();
-
 };
 
 #endif // MULTIPLECHANNELCONTROLDOCKWIDGET_H

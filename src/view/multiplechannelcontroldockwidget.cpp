@@ -1,7 +1,6 @@
 #include "multiplechannelcontroldockwidget.h"
 
 #include <QBoxLayout>
-#include <QGroupBox>
 #include <QSettings>
 #include <QDesktopServices>
 #include <QDoubleSpinBox>
@@ -59,10 +58,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     RangedMeasurement_t zapDurationRange;
     if (msgDisp->getZapFeatures(zapDurationRange) == Success) {
-        auto gb = new QGroupBox(QString::fromStdString("Zap pulse"));
+        zapGb = new QGroupBox(QString::fromStdString("Zap pulse"));
         auto qhbl = new QHBoxLayout();
-        gb->setLayout(qhbl);
-        mainLayout->addWidget(gb);
+        zapGb->setLayout(qhbl);
+        mainLayout->addWidget(zapGb);
         zapBtn = new QPushButton("ZAP");
         zapBtn->setCheckable(false);
         qhbl->addWidget(zapBtn);
@@ -157,4 +156,23 @@ bool MultipleChannelControlDockWidget::getExpertMode() {
 
 void MultipleChannelControlDockWidget::enableExpertMode(bool flag) {
     offsetCorrectionExpertChb->setEnabled(flag);
+}
+
+void MultipleChannelControlDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
+    switch (clampingModality) {
+    case ClampingModality_t::VOLTAGE_CLAMP:
+    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
+        if (zapGb!= nullptr) {
+            zapGb->setEnabled(true);
+        }
+        break;
+
+    case ClampingModality_t::CURRENT_CLAMP:
+    case ClampingModality_t::ZERO_CURRENT_CLAMP:
+    case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
+        if (zapGb!= nullptr) {
+            zapGb->setEnabled(false);
+        }
+        break;
+    }
 }
