@@ -197,14 +197,14 @@ void ProtocolEditor::setProtocolFromYaml(const YAML::VoltageProtocol_t &yamlProt
     holdRefEdit->setChecked(yamlProtocol.vholdref);
     sweepsNumEdit->setValue(yamlProtocol.sweeps);
     /*! Accept also similar values by checking all characters except for the first one, so 200pA can be matched with 300pA */
-    int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegExp);
+    int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegularExpression);
     if (currentRangeIdx >= 0) {
         currentRangeEdit->setCurrentIndex(currentRangeIdx);
 
     } else {
         currentRangeIdx = 0;
     }
-    int voltageRangeIdx = voltageRangeEdit->findText("[1-9]" + voltageRangeStr.right(voltageRangeStr.size()-1), Qt::MatchRegExp);
+    int voltageRangeIdx = voltageRangeEdit->findText("[1-9]" + voltageRangeStr.right(voltageRangeStr.size()-1), Qt::MatchRegularExpression);
     if (voltageRangeIdx >= 0) {
         voltageRangeEdit->setCurrentIndex(voltageRangeIdx);
 
@@ -236,14 +236,14 @@ void ProtocolEditor::setProtocolFromYaml(const YAML::CurrentProtocol_t &yamlProt
     holdRefEdit->setChecked(yamlProtocol.iholdref);
     sweepsNumEdit->setValue(yamlProtocol.sweeps);
     /*! Accept also similar values by checking all characters except for the first one, so 200pA can be matched with 300pA */
-    int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegExp);
+    int currentRangeIdx = currentRangeEdit->findText("[1-9]" + currentRangeStr.right(currentRangeStr.size()-1), Qt::MatchRegularExpression);
     if (currentRangeIdx >= 0) {
         currentRangeEdit->setCurrentIndex(currentRangeIdx);
 
     } else {
         currentRangeIdx = 0;
     }
-    int voltageRangeIdx = voltageRangeEdit->findText("[1-9]" + voltageRangeStr.right(voltageRangeStr.size()-1), Qt::MatchRegExp);
+    int voltageRangeIdx = voltageRangeEdit->findText("[1-9]" + voltageRangeStr.right(voltageRangeStr.size()-1), Qt::MatchRegularExpression);
     if (voltageRangeIdx >= 0) {
         voltageRangeEdit->setCurrentIndex(voltageRangeIdx);
 

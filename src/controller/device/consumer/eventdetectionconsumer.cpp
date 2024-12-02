@@ -39,7 +39,7 @@ void EventDetectionConsumer::run() {
     uint32_t bufferIdx;
     int bufferLen = 0;
     int channelIdx;
-    QTime updateDataTimer = QTime::currentTime();
+    QElapsedTimer updateDataTimer;
     updateDataTimer.start();
 
     int lastUpdateTimeMs = updateDataTimer.elapsed();

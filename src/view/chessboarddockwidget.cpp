@@ -6,7 +6,6 @@
 #include "globaldefines.h"
 #include <QScreen>
 
-
 ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidget * parent) :
     QDockWidget(parent) {
 
@@ -24,7 +23,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     mainGl = new QGridLayout;
     mainWg->setLayout(mainGl);
 
-    mainGl->setMargin(0);
+    mainGl->setContentsMargins(0, 0, 0, 0);
     mainGl->setSpacing(1);
 
     auto idealPlotHeight = getIdealPlotHeight();

@@ -89,7 +89,7 @@ ProtocolPreview::ProtocolPreview(MessageDispatcher * msgDisp, RangedMeasurement_
     QLabel * addCursorReminderLbl = new QLabel(" Double-click to add cursors ");
     addCursorReminderLbl->setStyleSheet("color:red");
     QFontMetrics fm((QFont(addCursorReminderLbl->font())));
-    addCursorReminderLbl->setFixedWidth(fm.width(addCursorReminderLbl->text()));
+    addCursorReminderLbl->setFixedWidth(fm.horizontalAdvance(addCursorReminderLbl->text()));
     addCursorReminderLbl->setText("");
     cursorsHl->addWidget(addCursorReminderLbl);
 

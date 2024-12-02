@@ -13,7 +13,7 @@ ProtocolWidget::ProtocolWidget(MessageDispatcher * msgDisp, QString name, Protoc
     type(type),
     clampingModality(clampingModality) {
 
-    this->setBackgroundColor(PROT_WIDGET_VALID_COLOR);
+    this->setBackground(PROT_WIDGET_VALID_COLOR);
 
     model = new ProtocolModel;
 
@@ -799,14 +799,14 @@ void ProtocolWidget::updateText() {
 void ProtocolWidget::setValidityColor() {
     if (protocolValid && !protocolInhibited) {
         if (analysisValid && cursorsValid) {
-            this->setBackgroundColor(PROT_WIDGET_VALID_COLOR);
+            this->setBackground(PROT_WIDGET_VALID_COLOR);
 
         } else {
-            this->setBackgroundColor(PROT_WIDGET_ANALYSIS_INVALID_COLOR);
+            this->setBackground(PROT_WIDGET_ANALYSIS_INVALID_COLOR);
         }
 
     } else {
-        this->setBackgroundColor(PROT_WIDGET_INVALID_COLOR);
+        this->setBackground(PROT_WIDGET_INVALID_COLOR);
     }
 }
 

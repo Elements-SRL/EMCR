@@ -386,7 +386,6 @@ void AbfDataWriterConsumer::initIVSections() {
         time += QDateTime::currentDateTime().time().msec();
         abf->FileInfo.uFileStartTimeMS = (unsigned int)time;
 
-        qsrand((unsigned int)(QTime::currentTime().msec()));
         QUuid uuid = QUuid::createUuid();
         abf->FileInfo.FileGUID.Data1 = uuid.data1;
         abf->FileInfo.FileGUID.Data2 = uuid.data2;
@@ -558,7 +557,6 @@ void AbfDataWriterConsumer::initISections() {
         time += QDateTime::currentDateTime().time().msec();
         abf->FileInfo.uFileStartTimeMS = (unsigned int)time;
 
-        qsrand((unsigned int)(QTime::currentTime().msec()));
         QUuid uuid = QUuid::createUuid();
         abf->FileInfo.FileGUID.Data1 = uuid.data1;
         abf->FileInfo.FileGUID.Data2 = uuid.data2;
@@ -718,7 +716,6 @@ void AbfDataWriterConsumer::initVSections() {
         time += QDateTime::currentDateTime().time().msec();
         abf->FileInfo.uFileStartTimeMS = (unsigned int)time;
 
-        qsrand((unsigned int)(QTime::currentTime().msec()));
         QUuid uuid = QUuid::createUuid();
         abf->FileInfo.FileGUID.Data1 = uuid.data1;
         abf->FileInfo.FileGUID.Data2 = uuid.data2;

@@ -311,7 +311,7 @@ void DataWriterConsumer::findValidPathName() {
         pathIndex = 1;
 
         while (QDir().exists(newFullPathName)) {
-            suffix.sprintf("_%d", pathIndex++);
+            suffix = QString("_%1").arg(pathIndex++);
             newFullPathName = validFilePath + suffix;
         }
         validFilePath = newFullPathName + "/";

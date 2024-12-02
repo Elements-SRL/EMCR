@@ -148,7 +148,7 @@ MainWindow::MainWindow(QWidget * parent) :
     devicesComboBox->setEnabled(false);
     devicesComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     QFontMetrics fm((QFont()));
-    devicesComboBox->setFixedWidth(fm.width("device device device"));
+    devicesComboBox->setFixedWidth(fm.horizontalAdvance("device device device"));
     deviceDetectorHl->addWidget(devicesComboBox);
 
     connectBtn = new QPushButton("Connect");
