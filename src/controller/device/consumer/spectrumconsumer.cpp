@@ -103,6 +103,7 @@ void SpectrumConsumer::run() {
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
+            consumptionLock.unlock();
             break;
         }
         consumptionLock.unlock();

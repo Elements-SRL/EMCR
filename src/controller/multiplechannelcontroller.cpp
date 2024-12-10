@@ -4,6 +4,7 @@
 #include <QApplication>
 
 #include "errormanager.h"
+#include "globaldefines.h"
 
 MultipleChannelController::MultipleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
     appStatus(appStatus),
@@ -43,6 +44,10 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulsOff, this, [=]() {
         this->turnSelectedStimuliOnOff(false);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulusAuto, this, [=](bool flag) {
+        model->turnStimulusAuto(flag);
+        this->onChannelsSelected();
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigZap, this, [=](Measurement_t duration) {
@@ -122,6 +127,10 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot,     this, [=] () {
         this->addRemoveFromBigPlot(false);
     });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto,     this, [=] (bool flag) {
+        model->turnExpandAuto(flag);
+        this->onChannelsSelected();
+    });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
@@ -146,9 +155,26 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
     emit sigAddRemoveFromBigPlot(flag);
 }
 
+void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (auto &&v : selectedChannels) {
+        v = !(v^flag);
+    }
+    msgDisp->expandTraces(allChannels, selectedChannels);
+
+    emit sigAddRemoveFromBigPlotEx(flag);
+}
+
 void MultipleChannelController::onChannelsSelected() {
     if (model->getChannelsAuto()) {
         turnSelectedChannelsOnOffEx(true);
+    }
+    if (model->getStimulusAuto()) {
+        turnSelectedStimuliOnOffEx(true);
+    }
+    if (model->getExpandAuto()) {
+        addRemoveFromBigPlotEx(true);
     }
 }
 
@@ -188,6 +214,17 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     msgDisp->enableStimulus(selectedChannels, values, true);
 
     emit sigStimuliTurnedOnOff(flag);
+}
+
+void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (auto &&v : selectedChannels) {
+        v = !(v^flag);
+    }
+    msgDisp->enableStimulus(allChannels, selectedChannels, true);
+
+    emit sigStimuliTurnedOnOffEx(flag);
 }
 
 void MultipleChannelController::zap(Measurement_t duration) {

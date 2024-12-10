@@ -58,6 +58,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         turnStimulusOffBtn = new QPushButton("OFF (X)");
         connect(turnStimulusOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOff);
         qhbl->addWidget(turnStimulusOffBtn);
+        turnStimulusAutoBtn = new QPushButton("AUTO");
+        turnStimulusAutoBtn->setCheckable(true);
+        connect(turnStimulusAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulusAuto);
+        qhbl->addWidget(turnStimulusAutoBtn);
     }
 
     RangedMeasurement_t zapDurationRange;
@@ -148,6 +152,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     reduceTraceBtn = new QPushButton("OFF");
     connect(reduceTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot);
     qhblExpandTrace->addWidget(reduceTraceBtn);
+    expandTraceAutoBtn = new QPushButton("AUTO");
+    expandTraceAutoBtn->setCheckable(true);
+    connect(expandTraceAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto);
+    qhblExpandTrace->addWidget(expandTraceAutoBtn);
 
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -158,6 +166,16 @@ void MultipleChannelControlDockWidget::setChannelsAuto(bool flag) {
     if (switchChannelsAutoBtn != nullptr) {
         switchChannelsAutoBtn->setChecked(flag);
     }
+}
+
+void MultipleChannelControlDockWidget::setStimulusAuto(bool flag) {
+    if (turnStimulusAutoBtn != nullptr) {
+        turnStimulusAutoBtn->setChecked(flag);
+    }
+}
+
+void MultipleChannelControlDockWidget::setExpandAuto(bool flag) {
+    expandTraceAutoBtn->setChecked(flag);
 }
 
 bool MultipleChannelControlDockWidget::getExpertMode() {

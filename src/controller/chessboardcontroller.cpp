@@ -110,17 +110,6 @@ void ChessboardController::calibrationResistorsTurnedOnOff(bool flag) {
     }
 }
 
-void ChessboardController::stimuliTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
-        if (flag) {
-            plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
-
-        } else {
-            plots[channelIdx]->addState(StampPlot::StateStimuliDisabled);
-        }
-    }
-}
-
 void ChessboardController::offsetRecalibrationTurnedOnOff(bool flag) {
     for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
@@ -139,17 +128,6 @@ void ChessboardController::ljcTurnedOnOff(bool flag) {
 
         } else {
             plots[channelIdx]->removeState(StampPlot::StateLiquidJunctionCompensation);
-        }
-    }
-}
-
-void ChessboardController::tracesExpandedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
-        if (flag) {
-            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
-
-        } else {
-            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
         }
     }
 }
@@ -189,7 +167,26 @@ void ChessboardController::onCalibrationResistorsTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::onStimuliTurnedOnOff(bool flag) {
-    this->stimuliTurnedOnOff(flag);
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
+
+        } else {
+            plots[channelIdx]->addState(StampPlot::StateStimuliDisabled);
+        }
+    }
+}
+
+void ChessboardController::onStimuliTurnedOnOffEx(bool flag) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
+        if (flag == selectedChannels[channelIdx]) {
+            plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
+        }
+        else {
+            plots[channelIdx]->addState(StampPlot::StateStimuliDisabled);
+        }
+    }
 }
 
 void ChessboardController::onOffsetRecalibrationTurnedOnOff(bool flag) {
@@ -201,7 +198,26 @@ void ChessboardController::onLjcTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::onTracesExpandedOnOff(bool flag) {
-    this->tracesExpandedOnOff(flag);
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
+
+        } else {
+            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
+        }
+    }
+}
+
+void ChessboardController::onTracesExpandedOnOffEx(bool flag) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
+        if (flag == selectedChannels[channelIdx]) {
+            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
+        }
+        else {
+            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
+        }
+    }
 }
 
 void ChessboardController::onRangeUpdated(RangedMeasurement_t newRange) {

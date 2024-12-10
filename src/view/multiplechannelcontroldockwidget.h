@@ -9,7 +9,6 @@
 #include <QGroupBox>
 
 #include "messagedispatcher.h"
-#include "globaldefines.h"
 
 class MultipleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
@@ -18,6 +17,8 @@ public:
     MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
     void setChannelsAuto(bool flag);
+    void setStimulusAuto(bool flag);
+    void setExpandAuto(bool flag);
     bool getExpertMode();
     void enableExpertMode(bool flag);
 
@@ -34,6 +35,7 @@ private:
     QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
+    QPushButton * turnStimulusAutoBtn = nullptr;
     QPushButton * zapBtn = nullptr;
     QPushButton * offsetCorrectionStartBtn = nullptr;
     QPushButton * offsetCorrectionStopBtn = nullptr;
@@ -46,6 +48,7 @@ private:
     QPushButton * liquidJunctionCompensationResetBtn = nullptr;
     QPushButton * expandTraceBtn = nullptr;
     QPushButton * reduceTraceBtn = nullptr;
+    QPushButton * expandTraceAutoBtn = nullptr;
     QPushButton * recordingStartBtn = nullptr;
     QPushButton * recordingStopBtn = nullptr;
     QLineEdit * fileNameLineEdit = nullptr;
@@ -68,9 +71,11 @@ signals:
     void sigResetLj();
     void sigTurnStimulsOn();
     void sigTurnStimulsOff();
+    void sigTurnStimulusAuto(bool flag);
     void sigZap(Measurement_t duration);
     void sigAddToBigPlot();
     void sigRemoveFromBigPlot();
+    void sigAddToBigPlotAuto(bool flag);
 };
 
 #endif // MULTIPLECHANNELCONTROLDOCKWIDGET_H

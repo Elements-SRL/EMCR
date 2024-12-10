@@ -10,8 +10,12 @@ public:
     ~MultipleChannelModel();
 
     void turnChannelsAuto(bool flag);
+    void turnStimulusAuto(bool flag);
+    void turnExpandAuto(bool flag);
 
     bool getChannelsAuto();
+    bool getStimulusAuto();
+    bool getExpandAuto();
 
     void saveSettings();
     void loadSettings();
@@ -22,6 +26,12 @@ private:
 
     bool channelsAuto = false;
     bool channelsAutoSet = false;
+
+    bool stimulusAuto = false;
+    bool stimulusAutoSet = false;
+
+    bool expandAuto = false;
+    bool expandAutoSet = false;
 };
 
 #endif // MULTIPLECHANNELMODEL_H

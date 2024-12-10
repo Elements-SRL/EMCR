@@ -257,11 +257,14 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             bigPlotController,              &BigPlotController::onExpandTrace);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           bigPlotController,              &BigPlotController::onExpandTrace);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           chessboardController,           &ChessboardController::onTracesExpandedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOffEx,            chessboardController,           &ChessboardController::onChannelsTurnedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff,  chessboardController,           &ChessboardController::onCalibrationResistorsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,               chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOffEx,             chessboardController,           &ChessboardController::onStimuliTurnedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   chessboardController,           &ChessboardController::onOffsetRecalibrationTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   measurementOverviewController,  &MeasurementOverviewController::onOffsetRecalibrationResult);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   singleChannelController,        &SingleChannelController::onOffsetRecalibrationResult);
