@@ -32,6 +32,7 @@
 #define GLB_PREFERENCES_CURRENT_CHANNEL_X_COLOR_TAG "Preferences/Plot/currentChannel%1Color"
 #define GLB_PREFERENCES_VOLTAGE_CHANNEL_X_COLOR_TAG "Preferences/Plot/voltageChannel%1Color"
 #define GLB_PREFERENCES_DARK_MODE_TAG "Preferences/Plot/darkMode"
+#define GLB_CONTROLS_CHANNEL_AUTO_TAG "Controls/Settings/channelAuto"
 /*! Utility defines */
 
 /*! Global defines */

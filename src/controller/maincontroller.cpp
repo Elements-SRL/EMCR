@@ -221,10 +221,22 @@ void MainController::onMainWindowCreated() {
      * Connect *
     \***********/
 
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     singleChannelController, &SingleChannelController::onAllChannelsClicked);
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        singleChannelController, &SingleChannelController::onOneBoardClicked);
-    connect(chessboardController, &ChessboardController::sigOneRowClicked,          singleChannelController, &SingleChannelController::onOneRowClicked);
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   singleChannelController, &SingleChannelController::onSingleChannelClicked);
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
+        chessboardController->onAllChannelsClicked(newChannelState);
+        singleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
+        chessboardController->onOneBoardClicked(changedBoardIndex, newChannelState);
+        singleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
+        chessboardController->onOneRowClicked(changedRowIndex, newChannelState);
+        singleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
+        chessboardController->onSingleChannelClicked(changedChannelIndex, event);
+        singleChannelController->onChannelsSelected();
+    });
 
     connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
     connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);

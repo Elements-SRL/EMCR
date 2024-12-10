@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QStyleFactory>
 
 #include "maincontroller.h"
 #include "globaldefines.h"
@@ -30,6 +31,8 @@ int main(int argc, char *argv[]) {
 
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
     QDir().mkpath(YAML_DEFAULT_FOLDER);
+
+    a.setStyle(QStyleFactory::create("Windows"));
 
     MainController c;
     return a.exec();

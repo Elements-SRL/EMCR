@@ -74,6 +74,7 @@ SOURCES += \
     src/model/ivaccumulator.cpp \
     src/model/ivchannel.cpp \
     src/model/measurementoverviewmodel.cpp \
+    src/model/multiplechannelmodel.cpp \
     src/model/plotpreferencesmodel.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
@@ -140,6 +141,7 @@ SOURCES += \
 
 HEADERS += \
     src/globaldefines.h \
+    src/model/multiplechannelmodel.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \

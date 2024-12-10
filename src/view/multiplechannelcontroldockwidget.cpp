@@ -28,6 +28,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         switchChannelsOffBtn = new QPushButton("OFF (O)");
         connect(switchChannelsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOff);
         qhblChannels_input->addWidget(switchChannelsOffBtn);
+        switchChannelsAutoBtn = new QPushButton("AUTO");
+        switchChannelsAutoBtn->setCheckable(true);
+        connect(switchChannelsAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelAuto);
+        qhblChannels_input->addWidget(switchChannelsAutoBtn);
     }
 
     if (msgDisp->hasCalSw() == Success) {
@@ -148,6 +152,12 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     mainLayout->addWidget(spacer);
+}
+
+void MultipleChannelControlDockWidget::setChannelsAuto(bool flag) {
+    if (switchChannelsAutoBtn != nullptr) {
+        switchChannelsAutoBtn->setChecked(flag);
+    }
 }
 
 bool MultipleChannelControlDockWidget::getExpertMode() {

@@ -17,6 +17,7 @@ class MultipleChannelControlDockWidget : public QDockWidget {
 public:
     MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent = nullptr);
 
+    void setChannelsAuto(bool flag);
     bool getExpertMode();
     void enableExpertMode(bool flag);
 
@@ -28,6 +29,7 @@ private:
 
     QPushButton * switchChannelsOnBtn = nullptr;
     QPushButton * switchChannelsOffBtn = nullptr;
+    QPushButton * switchChannelsAutoBtn = nullptr;
     QPushButton * calibrationResistorsOnBtn = nullptr;
     QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
@@ -53,6 +55,7 @@ private:
 signals:
     void sigTurnChannelOn();
     void sigTurnChannelOff();
+    void sigTurnChannelAuto(bool flag);
     void sigTurnCalibrationResistorsOn();
     void sigTurnCalibrationResistorsOff();
     void sigStartOffsetCorrection();

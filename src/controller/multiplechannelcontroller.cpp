@@ -13,11 +13,16 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     multipleChannelControlsDw = new MultipleChannelControlDockWidget(msgDisp);
     offsetCorrectionController = new OffsetCorrectionController(appStatus, this);
 
+    model = new MultipleChannelModel(appStatus, multipleChannelControlsDw);
+
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelOn, this, [=]() {
         this->turnSelectedChannelsOnOff(true);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelOff, this, [=]() {
         this->turnSelectedChannelsOnOff(false);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelAuto, this, [=](bool flag) {
+        model->turnChannelsAuto(flag);
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn, this, [=]() {
@@ -116,6 +121,8 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
 }
 
 MultipleChannelController::~MultipleChannelController(){
+    delete model;
+    model = nullptr;
     delete multipleChannelControlsDw;
     multipleChannelControlsDw = nullptr;
     offsetCorrectionController->wait();
@@ -132,8 +139,6 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
 
     emit sigAddRemoveFromBigPlot(flag);
 }
-
-
 
 void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     std::vector <uint16_t> selectedChannels;

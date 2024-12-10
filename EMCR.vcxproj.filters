@@ -352,6 +352,9 @@
     <ClCompile Include="src\view\questionmarkmenu\releasenotesdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\multiplechannelmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -952,6 +955,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\model\events\eventsdirection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\multiplechannelmodel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

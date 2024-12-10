@@ -4,7 +4,6 @@
 #include <QObject>
 #include "chessboarddockwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
 #include <QMouseEvent>
 #include "plotconsumer.h"
 #include "application_status.h"
@@ -27,8 +26,14 @@ public:
     void tracesExpandedOnOff(bool flag);
     PlotConsumer * getPlotConsumer();
     void onBoardMappingLoaded();
+    void clickBehaviour(bool newState);
 
 public slots:
+    void onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event);
+    void onOneBoardClicked(uint16_t brdIdx, bool newState);
+    void onOneRowClicked(uint16_t rowIdx, bool newState);
+    void onAllChannelsClicked(bool newState);
+
     void onChannelsTurnedOnOff(bool flag);
     void onCalibrationResistorsTurnedOnOff(bool flag);
     void onStimuliTurnedOnOff(bool flag);
@@ -60,6 +65,7 @@ private:
     int currentChannelsNum;
     void onSetConsumerStatus(bool status);
     void updateChessboard();
+    void setSelectedStatus(std::vector<int>, bool);
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);

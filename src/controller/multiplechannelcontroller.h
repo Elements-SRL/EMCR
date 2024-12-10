@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "multiplechannelcontroldockwidget.h"
+#include "multiplechannelmodel.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
 #include "offsetcorrectioncontroller.h"
@@ -31,6 +32,7 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     MainWindow * mainWindow = nullptr;
     MultipleChannelControlDockWidget * multipleChannelControlsDw = nullptr;
+    MultipleChannelModel * model = nullptr;
     OffsetCorrectionController * offsetCorrectionController = nullptr;
 
 signals:

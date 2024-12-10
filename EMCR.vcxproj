@@ -197,6 +197,7 @@
     <ClCompile Include="src\model\binner.cpp" />
     <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp" />
     <ClCompile Include="src\model\devicemodel.cpp" />
+    <ClCompile Include="src\model\multiplechannelmodel.cpp" />
     <ClCompile Include="src\view\activationbutton.cpp" />
     <ClCompile Include="src\view\advancedmenu\resethwhelpdialog.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
@@ -311,6 +312,7 @@
     <ClInclude Include="src\model\events\eventpacket.h" />
     <ClInclude Include="src\model\events\eventsdirection.h" />
     <QtMoc Include="src\view\activationbutton.h" />
+    <ClInclude Include="src\model\multiplechannelmodel.h" />
     <ClInclude Include="src\view\addtagdialog.h" />
     <ClInclude Include="src\model\analysiscursor.h" />
     <ClInclude Include="src\model\application_status.h" />

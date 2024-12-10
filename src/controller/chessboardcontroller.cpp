@@ -1,5 +1,6 @@
 #include "chessboardcontroller.h"
-#include <iostream>
+
+#include <QApplication>
 
 ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
@@ -275,6 +276,53 @@ void ChessboardController::onBoardMappingLoaded() {
     appStatus->setAllChannelsSelected(false);
 }
 
+void ChessboardController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
+    bool newState = event->button() == Qt::LeftButton;
+    clickBehaviour(newState);
+    auto msgDisp = appStatus->getMessageDispatcher();
+    if (newState) {
+        // slightly inefficient
+        auto selectedIndexes = appStatus->getSelectedChannelsIndexes();
+        bool isChSelected = false;
+        for (auto idx: selectedIndexes){
+            if (idx == chIdx){
+                isChSelected = true;
+                break;
+            }
+        }
+        //        if the channel is selected but the user is pressing ctrl toggle it
+        msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
+    } else {
+        msgDisp->setChannelSelected(chIdx, newState);
+    }
+}
+
+void ChessboardController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
+    clickBehaviour(newState);
+    setSelectedStatus(appStatus->getVisibleChannelsOnBoard(brdIdx), newState);
+}
+
+void ChessboardController::onOneRowClicked(uint16_t rowIdx, bool newState) {
+    clickBehaviour(newState);
+    setSelectedStatus(appStatus->getVisibleChannelsOnRow(rowIdx), newState);
+}
+
+void ChessboardController::onAllChannelsClicked(bool newState) {
+    clickBehaviour(newState);
+    setSelectedStatus(appStatus->getVisibleChannels(), newState);
+}
+
+void ChessboardController::clickBehaviour(bool newState){
+    //    if the newState is false or the user is not pressing ctrl, don't make anything
+    if (!newState || (QApplication::keyboardModifiers() & Qt::ControlModifier)){
+        return;
+    }
+    // Ctrl key is pressed
+    //    TODO deleteme
+    auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->setAllChannelsSelected(false);
+}
+
 void ChessboardController::updateChessboard(){
     const auto mappings = appStatus->getMappings();
     for(int i = 0; i<appStatus->getCurrentChannelsNum(); i++){
@@ -288,4 +336,12 @@ void ChessboardController::updateChessboard(){
     }
     const auto visibleBoards = appStatus->getVisibleBoards();
     chessboard->updateBoardMappings(visibleBoards);
+}
+
+void ChessboardController::setSelectedStatus(std::vector<int> channelIndexes, bool newStatus) {
+    std::map <int, bool> channelsAndStatus;
+    for (auto chIdx: channelIndexes) {
+        channelsAndStatus[chIdx] = newStatus;
+    }
+    appStatus->setSelectedChannels(channelsAndStatus);
 }
