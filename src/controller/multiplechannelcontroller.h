@@ -17,8 +17,12 @@ public:
     ~MultipleChannelController();
     void addRemoveFromBigPlot(bool flag);
 
+public slots:
+    void onChannelsSelected();
+
 private:
     void turnSelectedChannelsOnOff(bool flag);
+    void turnSelectedChannelsOnOffEx(bool flag);
     void turnSelectedCalibrationResistorsOnOff(bool flag);
     void turnSelectedStimuliOnOff(bool flag);
     void zap(Measurement_t duration);
@@ -34,9 +38,11 @@ private:
     MultipleChannelControlDockWidget * multipleChannelControlsDw = nullptr;
     MultipleChannelModel * model = nullptr;
     OffsetCorrectionController * offsetCorrectionController = nullptr;
+    std::vector <uint16_t> allChannels;
 
 signals:
     void sigChannelsTurnedOnOff(bool flag);
+    void sigChannelsTurnedOnOffEx(bool flag);
     void sigCalibrationResistorsTurnedOnOff(bool flag);
     void sigStimuliTurnedOnOff(bool flag);
     void sigOffsetRecalibrationTurnedOnOff(bool flag);

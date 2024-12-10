@@ -99,17 +99,6 @@ void ChessboardController::clearCurves() {
     currentCurves.clear();
 }
 
-void ChessboardController::channelsTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
-        if (flag) {
-            plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
-
-        } else {
-            plots[channelIdx]->addState(StampPlot::StateSwitchedOff);
-        }
-    }
-}
-
 void ChessboardController::calibrationResistorsTurnedOnOff(bool flag) {
     for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
@@ -173,7 +162,26 @@ void ChessboardController::clearPlots() {
 }
 
 void ChessboardController::onChannelsTurnedOnOff(bool flag) {
-    this->channelsTurnedOnOff(flag);
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
+        }
+        else {
+            plots[channelIdx]->addState(StampPlot::StateSwitchedOff);
+        }
+    }
+}
+
+void ChessboardController::onChannelsTurnedOnOffEx(bool flag) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
+        if (flag == selectedChannels[channelIdx]) {
+            plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
+        }
+        else {
+            plots[channelIdx]->addState(StampPlot::StateSwitchedOff);
+        }
+    }
 }
 
 void ChessboardController::onCalibrationResistorsTurnedOnOff(bool flag) {
@@ -254,7 +262,6 @@ PlotConsumer * ChessboardController::getPlotConsumer(){
     return stampPlotConsumer;
 }
 
-
 void ChessboardController::onCurrentColorsChanged(QVector <QColor> colors) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         plots[idx]->setLegendColor(colors[idx]);
@@ -290,9 +297,10 @@ void ChessboardController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *e
                 break;
             }
         }
-        //        if the channel is selected but the user is pressing ctrl toggle it
+        // if the channel is selected but the user is pressing ctrl toggle it
         msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
-    } else {
+    }
+    else {
         msgDisp->setChannelSelected(chIdx, newState);
     }
 }
@@ -312,15 +320,13 @@ void ChessboardController::onAllChannelsClicked(bool newState) {
     setSelectedStatus(appStatus->getVisibleChannels(), newState);
 }
 
-void ChessboardController::clickBehaviour(bool newState){
+void ChessboardController::clickBehaviour(bool newState) {
     //    if the newState is false or the user is not pressing ctrl, don't make anything
-    if (!newState || (QApplication::keyboardModifiers() & Qt::ControlModifier)){
+    if (!newState || (QApplication::keyboardModifiers() & Qt::ControlModifier)) {
         return;
     }
     // Ctrl key is pressed
-    //    TODO deleteme
-    auto msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->setAllChannelsSelected(false);
+    appStatus->getMessageDispatcher()->setAllChannelsSelected(false);
 }
 
 void ChessboardController::updateChessboard(){

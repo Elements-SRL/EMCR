@@ -11,6 +11,8 @@ public:
 
     void turnChannelsAuto(bool flag);
 
+    bool getChannelsAuto();
+
     void saveSettings();
     void loadSettings();
 

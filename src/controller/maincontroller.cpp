@@ -224,18 +224,22 @@ void MainController::onMainWindowCreated() {
     connect(chessboardController, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
         chessboardController->onAllChannelsClicked(newChannelState);
         singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
     });
     connect(chessboardController, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
         chessboardController->onOneBoardClicked(changedBoardIndex, newChannelState);
         singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
     });
     connect(chessboardController, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
         chessboardController->onOneRowClicked(changedRowIndex, newChannelState);
         singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
     });
     connect(chessboardController, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
         chessboardController->onSingleChannelClicked(changedChannelIndex, event);
         singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
     });
 
     connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
@@ -255,6 +259,7 @@ void MainController::onMainWindowCreated() {
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             bigPlotController,              &BigPlotController::onExpandTrace);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOffEx,            chessboardController,           &ChessboardController::onChannelsTurnedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff,  chessboardController,           &ChessboardController::onCalibrationResistorsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,               chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   chessboardController,           &ChessboardController::onOffsetRecalibrationTurnedOnOff);
@@ -355,6 +360,8 @@ void MainController::onMainWindowCreated() {
 
     /*! Start threads */
     this->startProducerConsumers();
+
+    multipleChannelController->onChannelsSelected();
 
     //for devices with less then 16 channels the traces are expanded by default
     multipleChannelController->addRemoveFromBigPlot(true);

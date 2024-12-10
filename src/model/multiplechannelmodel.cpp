@@ -18,6 +18,10 @@ void MultipleChannelModel::turnChannelsAuto(bool flag) {
     channelsAuto = flag;
 }
 
+bool MultipleChannelModel::getChannelsAuto() {
+    return channelsAuto;
+}
+
 void MultipleChannelModel::saveSettings() {
     QSettings settings;
 

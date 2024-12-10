@@ -18,7 +18,6 @@ public:
 
     void clearCurves();
     void clearPlots();
-    void channelsTurnedOnOff(bool flag);
     void calibrationResistorsTurnedOnOff(bool flag);
     void stimuliTurnedOnOff(bool flag);
     void offsetRecalibrationTurnedOnOff(bool flag);
@@ -35,6 +34,7 @@ public slots:
     void onAllChannelsClicked(bool newState);
 
     void onChannelsTurnedOnOff(bool flag);
+    void onChannelsTurnedOnOffEx(bool flag);
     void onCalibrationResistorsTurnedOnOff(bool flag);
     void onStimuliTurnedOnOff(bool flag);
     void onOffsetRecalibrationTurnedOnOff(bool flag);
