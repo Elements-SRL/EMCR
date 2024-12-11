@@ -40,6 +40,9 @@ private:
     std::vector<QHBoxLayout*> hbsRsPg;
     std::vector<QHBoxLayout*> hbsCcCfast;
 
+    int voltageChannelsNum;
+    int currentChannelsNum;
+
     void onApplyButtonClicked();
 
 signals:
