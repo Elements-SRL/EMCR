@@ -116,14 +116,13 @@ void AbfDataWriterConsumer::run() {
     unsigned int minPacketsPerBatch = qMin(maxMinPacketsPerBatch, (unsigned int)qRound(samplingRateHz*DWC_MIN_BATCH_DURATION));
 
     QMutexLocker consumptionLock(&consumptionMtx);
-    consumptionStopped = false;
-    exitedDataConsumingLoop = false;
     consumptionLock.unlock();
 
     double activeChannelsRatio = (double)totalChannelsNum/(double)activeChannelsNum;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
+            consumptionLock.unlock();
             break;
         }
         consumptionLock.unlock();
@@ -343,6 +342,7 @@ void AbfDataWriterConsumer::run() {
     }
 
     this->manageConsumptionEnd();
+    consumptionLock.relock();
 
     exitedDataConsumingLoop = true;
     exitedDataConsumingLoopCv.wakeAll();

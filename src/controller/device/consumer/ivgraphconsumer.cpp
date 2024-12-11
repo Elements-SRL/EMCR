@@ -1,6 +1,5 @@
 #include "ivgraphconsumer.h"
 #include <QTime>
-#include <iostream>
 
 IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer):
     PlotConsumer(appStatus, producer) {

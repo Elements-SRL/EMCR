@@ -45,6 +45,10 @@ void PlotConsumer::setMaxSamplesPerPlot(int samples) {
 void PlotConsumer::onStartConsuming() {
     hook = producer->getDataHook();
     if (hook != nullptr) {
+        QMutexLocker consumptionLock(&consumptionMtx);
+        consumptionStopped = false;
+        exitedDataConsumingLoop = false;
+
         this->start();
     }
 }
@@ -205,9 +209,6 @@ GapFreePlotConsumer::~GapFreePlotConsumer() {
 }
 
 void GapFreePlotConsumer::run() {
-    consumptionStopped = false;
-    exitedDataConsumingLoop = false;
-
     int bufferIdx;
     int bufferLen = 0;
     int channelIdx;

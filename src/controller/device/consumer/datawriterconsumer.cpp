@@ -59,6 +59,10 @@ void DataWriterConsumer::onStartConsuming() {
 
             this->computeSamples();
 
+            QMutexLocker consumptionLock(&consumptionMtx);
+            consumptionStopped = false;
+            exitedDataConsumingLoop = false;
+
             this->start();
 
         } else {
@@ -76,7 +80,6 @@ void DataWriterConsumer::onStopConsuming() {
         while (!exitedDataConsumingLoop) {
             exitedDataConsumingLoopCv.wait(&consumptionMtx);
         }
-        consumptionLock.unlock();
     }
 }
 

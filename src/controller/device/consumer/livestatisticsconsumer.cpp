@@ -13,6 +13,10 @@ LiveStatisticsConsumer::LiveStatisticsConsumer(ApplicationStatus * appStatus, De
 void LiveStatisticsConsumer::onStartConsuming() {
     hook = producer->getDataHook();
     if (hook != nullptr) {
+        QMutexLocker consumptionLock(&consumptionMtx);
+        consumptionStopped = false;
+        exitedDataConsumingLoop = false;
+
         this->start();
     }
 }
@@ -61,8 +65,6 @@ void LiveStatisticsConsumer::run() {
     this->initAnalysis();
 
     QMutexLocker consumptionLock(&consumptionMtx);
-    consumptionStopped = false;
-    exitedDataConsumingLoop = false;
     consumptionLock.unlock();
 
     pushedVoltageRangeFlag = true;
