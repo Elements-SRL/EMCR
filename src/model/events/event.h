@@ -6,8 +6,8 @@
 
 struct Event {
     uint64_t eventIdx;
-    int16_t stimulus;
     std::vector<int16_t> rawData;
+    int16_t stimulus;
 
     Event(uint64_t eventIdx_, 
         std::vector<int16_t> rawData_,

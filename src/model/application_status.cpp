@@ -159,7 +159,7 @@ MessageDispatcher * ApplicationStatus::getMessageDispatcher(){
 
 std::vector<std::string> ApplicationStatus::getNames(){
     std::vector<std::string> names;
-    for(auto m: getMappings()){
+    for(auto &m: getMappings()){
         names.push_back(m.name);
     }
     return names;
@@ -207,16 +207,22 @@ std::string ApplicationStatus::getClampingModalityString() {
     std::string cms;
     switch (cm) {
     case ClampingModality_t::VOLTAGE_CLAMP:
-        cms = "Voltage calmp";
+        cms = "Voltage clamp";
+        break;
+    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
+        cms = "Voltage clamp voltage read";
         break;
     case ClampingModality_t::CURRENT_CLAMP:
-        cms = "Current calmp";
+        cms = "Current clamp";
         break;
-    case ClampingModality_t::DYNAMIC_CLAMP:
-        cms = "Dynamic calmp";
+    case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
+        cms = "Current clamp current read";
         break;
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
-        cms = "Zero current calmp";
+        cms = "Zero current clamp";
+        break;
+    case ClampingModality_t::DYNAMIC_CLAMP:
+        cms = "Dynamic clamp";
         break;
     }
     return cms;
