@@ -476,8 +476,6 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     for (auto controller : centralWidgetControllers) {
         controller->onVoltageRangeChanged(range);
     }
-    //this should be useless?
-    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
@@ -501,7 +499,6 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     for (auto controller : centralWidgetControllers) {
         controller->onCurrentRangeChanged(range);
     }
-    chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcCurrentRangeSelected(idx);
@@ -525,8 +522,7 @@ void MainController::onCcVoltageRangeSelected(int idx) {
     for (auto controller : centralWidgetControllers) {
         controller->onVoltageRangeChanged(range);
     }
-    //this should be useless?
-    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
+    chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */

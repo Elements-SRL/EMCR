@@ -71,7 +71,8 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotCo
 void ChessboardController::onSetConsumerStatus(bool status) {
     if (status) {
         stampPlotConsumer->onStartConsuming();
-    } else {
+    }
+    else {
         stampPlotConsumer->onStopConsuming();
     }
 }
@@ -170,8 +171,8 @@ void ChessboardController::onStimuliTurnedOnOff(bool flag) {
     for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
-
-        } else {
+        }
+        else {
             plots[channelIdx]->addState(StampPlot::StateStimuliDisabled);
         }
     }
@@ -201,8 +202,8 @@ void ChessboardController::onTracesExpandedOnOff(bool flag) {
     for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
             plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
-
-        } else {
+        }
+        else {
             plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
         }
     }
@@ -233,25 +234,39 @@ void ChessboardController::onDurationUpdated(Measurement_t duration) {
 }
 
 void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
+    ClampingModality_t mode;
+    appStatus->getMessageDispatcher()->getClampingModality(mode);
     switch (plotMessage.index()) {
-    //    GapFree message
-    case 0:{
+    case 0:{ // GapFree message
         GapFreeMessage message = std::get<0>(plotMessage);
-        for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
+        switch (mode) {
+        case e384CommLib::VOLTAGE_CLAMP:
+        case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
+            for (int idx = 0; idx < currentChannelsNum; idx++) {
+                currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
+            }
+            break;
+
+        case e384CommLib::CURRENT_CLAMP:
+        case e384CommLib::ZERO_CURRENT_CLAMP:
+        case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
+            for (int idx = 0; idx < voltageChannelsNum; idx++) {
+                currentCurves.at(idx)->setRawSamples(message.timeValues, message.voltageValues[idx], message.dataSize);
+            }
+            break;
         }
         break;
     }
-        //    IvGraph message
-    case 1:{
+
+    case 1:{ // IvGraph message
         IvMessage message = std::get<1>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.voltageValues[idx], message.currentValues[idx], message.dataSize[idx]);
         }
         break;
     }
-        //    IvGraph message
-    case 3:{
+
+    case 3:{ // Spectrum message
         SpectrumMessage message = std::get<3>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);

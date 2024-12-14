@@ -643,10 +643,16 @@ void ProtocolList::exportLastProtocols() {
     }
 
     if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        yamlProtocols.voltageprotocols = this->getYamlProtocols().voltageprotocols;
-
-    } else {
-        yamlProtocols.currentprotocols = this->getYamlProtocols().currentprotocols;
+        auto prots = this->getYamlProtocols().voltageprotocols;
+        if (!prots.empty()) {
+            yamlProtocols.voltageprotocols = prots;
+        }
+    }
+    else {
+        auto prots = this->getYamlProtocols().currentprotocols;
+        if (!prots.empty()) {
+            yamlProtocols.currentprotocols = prots;
+        }
     }
 
     node = yamlProtocols;

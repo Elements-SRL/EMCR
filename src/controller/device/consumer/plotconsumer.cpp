@@ -111,8 +111,8 @@ void PlotConsumer::onPlotChannels(std::vector <uint16_t> channels, bool flag) {
                 plottedChannels[channelIdx] = true;
             }
         }
-
-    } else {
+    }
+    else {
         for (auto channelIdx : channels) {
             if (plottedChannels[channelIdx]) {
                 plottedChannels[channelIdx] = false;
@@ -162,8 +162,10 @@ void PlotConsumer::computeTimeAxis() {
 }
 
 void PlotConsumer::updateRangeAxis() {
+    bool anyPushed = false;
     QMutexLocker locker(&rangeAxisMtx);
     if (pushedVoltageRangeFlag) {
+        anyPushed = true;
         pushedVoltageRangeFlag = false;
         voltageRange.max = 1.0;
         voltageRange.convertValues(pushedVoltageRange.prefix);
@@ -179,6 +181,7 @@ void PlotConsumer::updateRangeAxis() {
     }
 
     if (pushedCurrentRangeFlag) {
+        anyPushed = true;
         pushedCurrentRangeFlag = false;
         double coeff;
         currentRange.max = 1.0;
@@ -192,6 +195,10 @@ void PlotConsumer::updateRangeAxis() {
             }
         }
         currentRange = pushedCurrentRange;
+    }
+
+    if (anyPushed) {
+        this->emitPlotData();
     }
 }
 
