@@ -17,6 +17,7 @@ SpectrumConsumer::~SpectrumConsumer() {
 void SpectrumConsumer::forceAxisUpdate() {
     pushedIntegrationWindowFlag = true;
     pushedCurrentRangeFlag = true;
+    pushedVoltageRangeFlag = true;
     this->updateFrequencyAxis();
     this->updateRangeAxis();
 }
@@ -82,9 +83,32 @@ void SpectrumConsumer::computeFrequencyAxis() {
 
 void SpectrumConsumer::updateRangeAxis() {
     QMutexLocker locker(&rangeAxisMtx);
+    bool anythingChanged = false;
     if (pushedCurrentRangeFlag) {
+        anythingChanged = true;
         pushedCurrentRangeFlag = false;
         currentRange = pushedCurrentRange;
+    }
+    if (pushedVoltageRangeFlag) {
+        anythingChanged = true;
+        pushedVoltageRangeFlag = false;
+        voltageRange = pushedVoltageRange;
+    }
+    if (anythingChanged) {
+        ClampingModality_t mode;
+        appStatus->getMessageDispatcher()->getClampingModality(mode);
+        switch (mode) {
+        case e384CommLib::VOLTAGE_CLAMP:
+        case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
+            channelsOffset = voltageChannelsNum;
+            break;
+
+        case e384CommLib::CURRENT_CLAMP:
+        case e384CommLib::ZERO_CURRENT_CLAMP:
+        case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
+            channelsOffset = 0;
+            break;
+        }
     }
 }
 
@@ -114,10 +138,10 @@ void SpectrumConsumer::run() {
             bufferLen = buffer.size();
 
             /*! Copy data in buffers for FFT evaluation */
-            while (bufferIdx + voltageChannelsNum < bufferLen) {
+            while (bufferIdx + channelsOffset < bufferLen) {
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     if (plottedChannels[channelIdx]) {
-                        auto currentValue = buffer[bufferIdx + voltageChannelsNum];
+                        auto currentValue = buffer[bufferIdx + channelsOffset];
                         fftIn[channelIdx][binIndex] = currentValue;
                     }
                     bufferIdx++;

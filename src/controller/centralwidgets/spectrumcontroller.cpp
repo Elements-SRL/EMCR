@@ -148,10 +148,23 @@ void SpectrumController::onReplot() {
     }
 }
 
-/*! todo FCON Check clamping modality too */
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    ClampingModality_t mode;
+    appStatus->getMessageDispatcher()->getClampingModality(mode);
+    std::string unit = "";
+    switch (mode) {
+    case e384CommLib::VOLTAGE_CLAMP:
+    case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
+        unit = "A";
+        break;
+    case e384CommLib::CURRENT_CLAMP:
+    case e384CommLib::ZERO_CURRENT_CLAMP:
+    case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
+        unit = "V";
+        break;
+    }
     QwtPlot::Axis axisIdx;
-    if (newRange.unit == "A") {
+    if (newRange.unit == unit) {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRangeLog(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
@@ -159,13 +172,13 @@ void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
         axisIdx = QwtPlot::yRight;
         model->setCurrentRangeLog(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "rms", axisIdx);
-
-    } else if (newRange.unit == "Hz") {
+    }
+    else if (newRange.unit == "Hz") {
         axisIdx = QwtPlot::xBottom;
         model->setCurrentRange(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
-
-    } else {
+    }
+    else {
         return;
     }
     plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));

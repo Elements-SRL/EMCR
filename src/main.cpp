@@ -4,12 +4,12 @@
 #include "maincontroller.h"
 #include "globaldefines.h"
 #include "statisticsresult.h"
-#include "application_status.h"
 #include "plotmessage.h"
 #include "statisticsresultwrapper.h"
 #include "eventsdirection.h"
 
 int main(int argc, char *argv[]) {
+    QApplication::setDesktopSettingsAware(false);
     QApplication a(argc, argv);
 
     qRegisterMetaType <std::vector <std::string>> ("std::vector <std::string>");

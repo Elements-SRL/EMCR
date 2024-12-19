@@ -43,6 +43,7 @@ private:
     int integrationRoundIdx = 0;
     int binIndex = 0;
     double normalizationFactor = 1.0;
+    int channelsOffset = 0;
 
     int nBins = 0;
     int n2Bins = 0;
