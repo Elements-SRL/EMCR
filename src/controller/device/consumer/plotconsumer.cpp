@@ -45,6 +45,10 @@ void PlotConsumer::setMaxSamplesPerPlot(int samples) {
 void PlotConsumer::onStartConsuming() {
     hook = producer->getDataHook();
     if (hook != nullptr) {
+        QMutexLocker consumptionLock(&consumptionMtx);
+        consumptionStopped = false;
+        exitedDataConsumingLoop = false;
+
         this->start();
     }
 }
@@ -107,8 +111,8 @@ void PlotConsumer::onPlotChannels(std::vector <uint16_t> channels, bool flag) {
                 plottedChannels[channelIdx] = true;
             }
         }
-
-    } else {
+    }
+    else {
         for (auto channelIdx : channels) {
             if (plottedChannels[channelIdx]) {
                 plottedChannels[channelIdx] = false;
@@ -158,8 +162,10 @@ void PlotConsumer::computeTimeAxis() {
 }
 
 void PlotConsumer::updateRangeAxis() {
+    bool anyPushed = false;
     QMutexLocker locker(&rangeAxisMtx);
     if (pushedVoltageRangeFlag) {
+        anyPushed = true;
         pushedVoltageRangeFlag = false;
         voltageRange.max = 1.0;
         voltageRange.convertValues(pushedVoltageRange.prefix);
@@ -175,6 +181,7 @@ void PlotConsumer::updateRangeAxis() {
     }
 
     if (pushedCurrentRangeFlag) {
+        anyPushed = true;
         pushedCurrentRangeFlag = false;
         double coeff;
         currentRange.max = 1.0;
@@ -188,6 +195,10 @@ void PlotConsumer::updateRangeAxis() {
             }
         }
         currentRange = pushedCurrentRange;
+    }
+
+    if (anyPushed) {
+        this->emitPlotData();
     }
 }
 
@@ -205,13 +216,10 @@ GapFreePlotConsumer::~GapFreePlotConsumer() {
 }
 
 void GapFreePlotConsumer::run() {
-    consumptionStopped = false;
-    exitedDataConsumingLoop = false;
-
     int bufferIdx;
     int bufferLen = 0;
     int channelIdx;
-    QTime updateDataTimer = QTime::currentTime();
+    QElapsedTimer updateDataTimer;
     updateDataTimer.start();
 
     int lastUpdateTimeMs = updateDataTimer.elapsed();
@@ -223,6 +231,7 @@ void GapFreePlotConsumer::run() {
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
+            consumptionLock.unlock();
             break;
         }
         consumptionLock.unlock();

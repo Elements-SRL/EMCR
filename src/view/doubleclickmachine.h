@@ -1,6 +1,8 @@
 #ifndef DOUBLECLICKMACHINE_H
 #define DOUBLECLICKMACHINE_H
 
+#include <qnamespace.h>
+
 #include "qwt_picker_machine.h"
 
 class DoubleClickMachine: public QwtPickerMachine {

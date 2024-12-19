@@ -1,6 +1,4 @@
 #include "bigplotcontroller.h"
-#include <iostream>
-#include <cmath>
 #include "gapfreecontroller.h"
 #include "ivgraphcontroller.h"
 #include "eventdetectioncontroller.h"

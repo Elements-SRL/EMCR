@@ -1,9 +1,13 @@
 #include "bigplot.h"
 #include <cmath>
+
+#include <QPen>
+
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_scale_engine.h"
+#include "qwt_scale_map.h"
 
 using namespace e384CommLib;
 
@@ -178,7 +182,7 @@ void BigPlot::resizeEvent(QResizeEvent * e) {
 
 void BigPlot::wheelEvent(QWheelEvent * we) {
     /*! If the right y-axis is enabled and the pointer is on the right side of the plot, scroll the y-axis */
-    Axis vertAxis = (this->axisEnabled(yRight) && we->x() > this->width()/2.0) ? yRight : yLeft;
+    Axis vertAxis = (this->axisEnabled(yRight) && we->position().x() > this->width()/2.0) ? yRight : yLeft;
     auto key = we->modifiers();
     // Get the angle delta of the wheel event
     QPoint angleDelta = we->angleDelta();
@@ -186,9 +190,9 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
     int verticalRotation = angleDelta.y();
 
     // Get the mouse position in global coordinates
-    QPoint globalPos = we->globalPos();
+    QPointF globalPos = we->globalPosition();
     // Convert the global mouse position to the plot's local coordinates
-    QPoint plotPos = mapFromGlobal(globalPos);
+    QPoint plotPos = mapFromGlobal(QPoint(globalPos.x(), globalPos.y()));
     // Get the corresponding position in the plot's coordinate system
     QwtPointSeriesData data;
     QwtScaleMap xMap = canvasMap(xBottom);

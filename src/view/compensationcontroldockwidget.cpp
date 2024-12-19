@@ -13,9 +13,7 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
 
     this->setVisible(false);
 
-    int localNumOfVoltChans;
-    int localNumOfCurrChans;
-    msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     QWidget * bigMainWg = new QWidget();
     QVBoxLayout * vLayout = new QVBoxLayout(bigMainWg);
@@ -28,8 +26,6 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     QWidget * ccCompControlsWg = new QWidget();
     QGridLayout * mainVcGridLayout = this->getLayoutWithScrollBar(vcCompControlsWg);
     QGridLayout * mainCcGridLayout = this->getLayoutWithScrollBar(ccCompControlsWg);
-    QGridLayout* checkAllLayout = new QGridLayout();
-    QGridLayout* ccCheckAllLayout = new QGridLayout();
 
     bigMainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     this->setWindowTitle("Compensation controls");
@@ -44,27 +40,21 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     intermedHorLayout -> addWidget(ccMainWg);
 
     vcMainWg -> setLayout(vcVerLayout);
-    vcMainWg -> setWindowTitle("Voltage Clamp Compensations");
     ccMainWg -> setLayout(ccVerLayout);
-    ccMainWg -> setWindowTitle("Current Clamp Compensations");
-
-//    ccMainWg -> setVisible(false);
 
     vcVerLayout -> addWidget(vcCompControlsWg);
-    vcVerLayout -> addLayout(checkAllLayout);
 
     ccVerLayout -> addWidget(ccCompControlsWg);
-    ccVerLayout -> addLayout(ccCheckAllLayout);
 
     std::vector<RangedMeasurement_t> compensationFeatures;
     std::vector<RangedMeasurement_t> compensationFeaturesBis;
-    compensationFeatures.resize(localNumOfCurrChans);
-    compensationFeaturesBis.resize(localNumOfCurrChans);
+    compensationFeatures.resize(currentChannelsNum);
+    compensationFeaturesBis.resize(currentChannelsNum);
     double defaultParamValue;
     double defaultParamValueBis;
 
     /*! --------------------------------- VC compensation controls --------------------------------- */
-    for(int idx = 0; idx < localNumOfCurrChans; idx++){
+    for(int idx = 0; idx < currentChannelsNum+1; idx++){
         this->hbsCfast.push_back(new QHBoxLayout());
         this->hbsCslowRs.push_back(new QHBoxLayout());
         this->hbsRsCp.push_back(new QHBoxLayout());
@@ -82,240 +72,294 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
     /*! Cfast checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_CpVc, compensationFeatures, defaultParamValue) == Success) {
         QCheckBox* cfastEnableCb;
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        cfastEnableCb = new QCheckBox();
+        cfastEnableCb->setCheckable(true);
+        cfastEnableCb->setChecked(false);
+        hbsCfast[0]->addWidget(cfastEnableCb);
+
+        connect(cfastEnableCb, &QPushButton::clicked, this, [=] (bool flag) {
+            for (auto c : cfastCheckBoxes) {
+                c->setChecked(flag);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             cfastEnableCb = new QCheckBox();
             cfastEnableCb->setCheckable(true);
             cfastEnableCb->setChecked(false);
-            this->cfastCheckBoxes.push_back(cfastEnableCb);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCfast[idx]->addWidget(spacer);
-            hbsCfast[idx]->addWidget(cfastEnableCb);
+            cfastCheckBoxes.push_back(cfastEnableCb);
+            hbsCfast[idx+1]->addWidget(cfastEnableCb);
         }
 
         NoWheelSpinBox* cfastSpinBox;
         QString cfastUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        cfastSpinBox = new NoWheelSpinBox();
+        cfastSpinBox->setSuffix(QString(" ") + cfastUnit);
+        cfastSpinBox->setRange(compensationFeatures[0].min, compensationFeatures[0].max);
+        cfastSpinBox->setValue(defaultParamValue);
+        cfastSpinBox->setDecimals(compensationFeatures[0].decimals());
+        hbsCfast[0]->addWidget(cfastSpinBox);
+
+        connect(cfastSpinBox, &QDoubleSpinBox::editingFinished, this, [=] () {
+            auto value = cfastSpinBox->value();
+            for (auto c : cfastSpinBoxes) {
+                c->setValue(value);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             cfastSpinBox = new NoWheelSpinBox();
             cfastSpinBox->setSuffix(QString(" ") + cfastUnit);
             cfastSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             cfastSpinBox->setValue(defaultParamValue);
             cfastSpinBox->setDecimals(compensationFeatures[idx].decimals());
-            this->cfastSpinBoxes.push_back(cfastSpinBox);
-            hbsCfast[idx]->addWidget(cfastSpinBox);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCfast[idx]->addWidget(spacer);
+            cfastSpinBoxes.push_back(cfastSpinBox);
+            hbsCfast[idx+1]->addWidget(cfastSpinBox);
         }
     }
 
     /*! Cslow and Rs checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_Cm, compensationFeatures, defaultParamValue) == Success && msgDisp->getCompFeatures(MessageDispatcher::U_Rs, compensationFeaturesBis, defaultParamValueBis) == Success) {
         QCheckBox* cslowRsEnableCb;
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        cslowRsEnableCb = new QCheckBox();
+        cslowRsEnableCb->setCheckable(true);
+        cslowRsEnableCb->setChecked(false);
+        hbsCslowRs[0]->addWidget(cslowRsEnableCb);
+
+        connect(cslowRsEnableCb, &QPushButton::clicked, this, [=] (bool flag) {
+            for (auto c : cslowRsCheckBoxes) {
+                c->setChecked(flag);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             cslowRsEnableCb = new QCheckBox();
             cslowRsEnableCb->setCheckable(true);
             cslowRsEnableCb->setChecked(false);
-            this->cslowRsCheckBoxes.push_back(cslowRsEnableCb);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCslowRs[idx]->addWidget(spacer);
-            hbsCslowRs[idx]->addWidget(cslowRsEnableCb);
+            cslowRsCheckBoxes.push_back(cslowRsEnableCb);
+            hbsCslowRs[idx+1]->addWidget(cslowRsEnableCb);
         }
 
         NoWheelSpinBox* cslowSpinBox;
         QString cslowUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        cslowSpinBox = new NoWheelSpinBox();
+        cslowSpinBox->setSuffix(QString(" ") + cslowUnit);
+        cslowSpinBox->setRange(compensationFeatures[0].min, compensationFeatures[0].max);
+        cslowSpinBox->setValue(defaultParamValue);
+        cslowSpinBox->setDecimals(compensationFeatures[0].decimals());
+        hbsCslowRs[0]->addWidget(cslowSpinBox);
+
+        connect(cslowSpinBox, &QDoubleSpinBox::editingFinished, this, [=] () {
+            auto value = cslowSpinBox->value();
+            for (auto c : cslowSpinBoxes) {
+                c->setValue(value);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             cslowSpinBox = new NoWheelSpinBox();
             cslowSpinBox->setSuffix(QString(" ") + cslowUnit);
             cslowSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             cslowSpinBox->setValue(defaultParamValue);
             cslowSpinBox->setDecimals(compensationFeatures[idx].decimals());
-            this->cslowSpinBoxes.push_back(cslowSpinBox);
-            hbsCslowRs[idx]->addWidget(cslowSpinBox);
+            cslowSpinBoxes.push_back(cslowSpinBox);
+            hbsCslowRs[idx+1]->addWidget(cslowSpinBox);
         }
 
         NoWheelSpinBox* rsSpinBox;
         QString rsUnit = QString().fromStdString(compensationFeaturesBis[0].getFullUnit());
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        rsSpinBox = new NoWheelSpinBox();
+        rsSpinBox->setSuffix(QString(" ") + rsUnit);
+        rsSpinBox->setRange(compensationFeaturesBis[0].min, compensationFeaturesBis[0].max);
+        rsSpinBox->setValue(defaultParamValueBis);
+        rsSpinBox->setDecimals(compensationFeaturesBis[0].decimals());
+        hbsCslowRs[0]->addWidget(rsSpinBox);
+
+        connect(rsSpinBox, &QDoubleSpinBox::editingFinished, this, [=] () {
+            auto value = rsSpinBox->value();
+            for (auto c : rsSpinBoxes) {
+                c->setValue(value);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             rsSpinBox = new NoWheelSpinBox();
             rsSpinBox->setSuffix(QString(" ") + rsUnit);
             rsSpinBox->setRange(compensationFeaturesBis[idx].min, compensationFeaturesBis[idx].max);
             rsSpinBox->setValue(defaultParamValueBis);
             rsSpinBox->setDecimals(compensationFeaturesBis[idx].decimals());
-            this->rsSpinBoxes.push_back(rsSpinBox);
-            hbsCslowRs[idx]->addWidget(rsSpinBox);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCslowRs[idx]->addWidget(spacer);
+            rsSpinBoxes.push_back(rsSpinBox);
+            hbsCslowRs[idx+1]->addWidget(rsSpinBox);
         }
     }
 
     /*! RsCp checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_RsCp, compensationFeatures, defaultParamValue) == Success) {
         QCheckBox* rsCpEnableCb;
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        rsCpEnableCb = new QCheckBox();
+        rsCpEnableCb->setCheckable(true);
+        rsCpEnableCb->setChecked(false);
+        hbsRsCp[0]->addWidget(rsCpEnableCb);
+
+        connect(rsCpEnableCb, &QPushButton::clicked, this, [=] (bool flag) {
+            for (auto c : rsCpCheckBoxes) {
+                c->setChecked(flag);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             rsCpEnableCb = new QCheckBox();
             rsCpEnableCb->setCheckable(true);
             rsCpEnableCb->setChecked(false);
-            this->rsCpCheckBoxes.push_back(rsCpEnableCb);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsCp[idx]->addWidget(spacer);
-            hbsRsCp[idx]->addWidget(rsCpEnableCb);
+            rsCpCheckBoxes.push_back(rsCpEnableCb);
+            hbsRsCp[idx+1]->addWidget(rsCpEnableCb);
         }
 
         NoWheelSpinBox* rsCpSpinBox;
         QString rsCpUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        rsCpSpinBox = new NoWheelSpinBox();
+        rsCpSpinBox->setSuffix(QString(" ") + rsCpUnit);
+        rsCpSpinBox->setRange(compensationFeatures[0].min, compensationFeatures[0].max);
+        rsCpSpinBox->setValue(defaultParamValue);
+        rsCpSpinBox->setDecimals(compensationFeatures[0].decimals());
+        hbsRsCp[0]->addWidget(rsCpSpinBox);
+
+        connect(rsCpSpinBox, &QDoubleSpinBox::editingFinished, this, [=] () {
+            auto value = rsCpSpinBox->value();
+            for (auto c : rsCpSpinBoxes) {
+                c->setValue(value);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             rsCpSpinBox = new NoWheelSpinBox();
             rsCpSpinBox->setSuffix(QString(" ") + rsCpUnit);
             rsCpSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             rsCpSpinBox->setValue(defaultParamValue);
             rsCpSpinBox->setDecimals(compensationFeatures[idx].decimals());
-            this->rsCpSpinBoxes.push_back(rsCpSpinBox);
-            hbsRsCp[idx]->addWidget(rsCpSpinBox);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsCp[idx]->addWidget(spacer);
+            rsCpSpinBoxes.push_back(rsCpSpinBox);
+            hbsRsCp[idx+1]->addWidget(rsCpSpinBox);
         }
     }
 
     /*! RsPg checkboxes and spinboxes*/
     if (msgDisp->getCompFeatures(MessageDispatcher::U_RsPg, compensationFeatures, defaultParamValue) == Success) {
         QCheckBox* rsPgEnableCb;
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        rsPgEnableCb = new QCheckBox();
+        rsPgEnableCb->setCheckable(true);
+        rsPgEnableCb->setChecked(false);
+        hbsRsPg[0]->addWidget(rsPgEnableCb);
+
+        connect(rsPgEnableCb, &QPushButton::clicked, this, [=] (bool flag) {
+            for (auto c : rsPgCheckBoxes) {
+                c->setChecked(flag);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             rsPgEnableCb = new QCheckBox();
             rsPgEnableCb->setCheckable(true);
             rsPgEnableCb->setChecked(false);
-            this->rsPgCheckBoxes.push_back(rsPgEnableCb);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsPg[idx]->addWidget(spacer);
-            hbsRsPg[idx]->addWidget(rsPgEnableCb);
+            rsPgCheckBoxes.push_back(rsPgEnableCb);
+            hbsRsPg[idx+1]->addWidget(rsPgEnableCb);
         }
 
         NoWheelSpinBox* rsPgSpinBox;
         QString rsPgUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        rsPgSpinBox = new NoWheelSpinBox();
+        rsPgSpinBox->setSuffix(QString(" ") + rsPgUnit);
+        rsPgSpinBox->setRange(compensationFeatures[0].min, compensationFeatures[0].max);
+        rsPgSpinBox->setValue(defaultParamValue);
+        rsPgSpinBox->setDecimals(compensationFeatures[0].decimals());
+        hbsRsPg[0]->addWidget(rsPgSpinBox);
+
+        connect(rsPgSpinBox, &QDoubleSpinBox::editingFinished, this, [=] () {
+            auto value = rsPgSpinBox->value();
+            for (auto c : rsPgSpinBoxes) {
+                c->setValue(value);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             rsPgSpinBox = new NoWheelSpinBox();
             rsPgSpinBox->setSuffix(QString(" ") + rsPgUnit);
             rsPgSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             rsPgSpinBox->setValue(defaultParamValue);
             rsPgSpinBox->setDecimals(compensationFeatures[idx].decimals());
-            this->rsPgSpinBoxes.push_back(rsPgSpinBox);
-            hbsRsPg[idx]->addWidget(rsPgSpinBox);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsRsPg[idx]->addWidget(spacer);
+            rsPgSpinBoxes.push_back(rsPgSpinBox);
+            hbsRsPg[idx+1]->addWidget(rsPgSpinBox);
         }
     }
 
     // Column captions
-    mainVcGridLayout->addWidget(new QLabel("Ch"), 0, 0, Qt::AlignHCenter);
-    mainVcGridLayout->addWidget(new QLabel("Cfast"), 0, 1, Qt::AlignHCenter);
-    mainVcGridLayout->addWidget(new QLabel("Cslow - Rs"), 0, 2, Qt::AlignHCenter);
-    mainVcGridLayout->addWidget(new QLabel("RsCorr"), 0, 3, Qt::AlignHCenter);
-    mainVcGridLayout->addWidget(new QLabel("RsPred"), 0, 4, Qt::AlignHCenter);
-    mainVcGridLayout->addWidget(new QLabel("RsBW"), 0, 5, Qt::AlignHCenter);
+    mainVcGridLayout->addWidget(new QLabel("Voltage Clamp"), 0, 0, 1, 2, Qt::AlignLeft);
 
-    for(int idx = 0; idx < localNumOfCurrChans; idx++){
-        QString channelLabel= QString("    %1").arg(idx+1);
-        mainVcGridLayout->addWidget(new QLabel(channelLabel), idx+1, 0);
-        mainVcGridLayout->addLayout(hbsCfast[idx], idx+1, 1);
-        mainVcGridLayout->addLayout(hbsCslowRs[idx], idx+1, 2);
-        mainVcGridLayout->addLayout(hbsRsCp[idx], idx+1, 3);
-        mainVcGridLayout->addLayout(hbsRsPg[idx], idx+1, 4);
+    mainVcGridLayout->addWidget(new QLabel("Ch"), 1, 0, Qt::AlignHCenter);
+    mainVcGridLayout->addWidget(new QLabel("Cfast"), 1, 1, Qt::AlignHCenter);
+    mainVcGridLayout->addWidget(new QLabel("Cslow - Rs"), 1, 2, Qt::AlignHCenter);
+    mainVcGridLayout->addWidget(new QLabel("RsCorr"), 1, 3, Qt::AlignHCenter);
+    mainVcGridLayout->addWidget(new QLabel("RsPred"), 1, 4, Qt::AlignHCenter);
+    mainVcGridLayout->addWidget(new QLabel("RsBW"), 1, 5, Qt::AlignHCenter);
+
+    mainVcGridLayout->addWidget(new QLabel("All"), 2, 0);
+    mainVcGridLayout->addLayout(hbsCfast[0], 2, 1);
+    mainVcGridLayout->addLayout(hbsCslowRs[0], 2, 2);
+    mainVcGridLayout->addLayout(hbsRsCp[0], 2, 3);
+    mainVcGridLayout->addLayout(hbsRsPg[0], 2, 4);
+
+    for(int idx = 0; idx < currentChannelsNum; idx++){
+        QString channelLabel = QString("%1").arg(idx+1);
+        mainVcGridLayout->addWidget(new QLabel(channelLabel), idx+3, 0);
+        mainVcGridLayout->addLayout(hbsCfast[idx+1], idx+3, 1);
+        mainVcGridLayout->addLayout(hbsCslowRs[idx+1], idx+3, 2);
+        mainVcGridLayout->addLayout(hbsRsCp[idx+1], idx+3, 3);
+        mainVcGridLayout->addLayout(hbsRsPg[idx+1], idx+3, 4);
+    }
+    {
+        QWidget * spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        mainVcGridLayout->addWidget(spacer, currentChannelsNum+3, 0);
     }
 
     /*! RsBW comboboxes*/
     std::vector <std::string> rsBwStringArray;
     if (msgDisp->getCompOptionsFeatures(MessageDispatcher::CompRsCorr, rsBwStringArray) == Success) {
         QComboBox* rsBwCb;
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        rsBwCb = new QComboBox();
+        for(int j = 0; j < rsBwStringArray.size(); j++){
+            rsBwCb->addItem(QString::fromStdString(rsBwStringArray[j]));
+        }
+        mainVcGridLayout->addWidget(rsBwCb, 2, 5);
+
+        connect(rsBwCb, &QComboBox::currentIndexChanged, this, [=] (int idx) {
+            for (auto c : rsBwComboBoxes) {
+                c->setCurrentIndex(idx);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             rsBwCb = new QComboBox();
             for(int j = 0; j < rsBwStringArray.size(); j++){
                 rsBwCb->addItem(QString::fromStdString(rsBwStringArray[j]));
             }
-            this->rsBwComboBoxes.push_back(rsBwCb);
-            mainVcGridLayout->addWidget(rsBwCb, idx+1, 5);
+            rsBwComboBoxes.push_back(rsBwCb);
+            mainVcGridLayout->addWidget(rsBwCb, idx+3, 5);
         }
     }
 
-    // Column captions
-    checkAllLayout->addWidget(new QLabel("Cfast"), 0, 0, Qt::AlignHCenter);
-    checkAllLayout->addWidget(new QLabel("Cslow - Rs"), 0, 1, Qt::AlignHCenter);
-    checkAllLayout->addWidget(new QLabel("RsCorr"), 0, 2, Qt::AlignHCenter);
-    checkAllLayout->addWidget(new QLabel("RsPred"), 0, 3, Qt::AlignHCenter);
-
-    QPushButton* checkAllCfast = new QPushButton("Check All");
-    QPushButton* checkAllCslowRs = new QPushButton("Check All");
-    QPushButton* checkAllRsCorr = new QPushButton("Check All");
-    QPushButton* checkAllRsPred = new QPushButton("Check All");
-    QPushButton* uncheckAllCfast = new QPushButton("Uncheck All");
-    QPushButton* uncheckAllCslowRs = new QPushButton("Uncheck All");
-    QPushButton* uncheckAllRsCorr = new QPushButton("Uncheck All");
-    QPushButton* uncheckAllRsPred = new QPushButton("Uncheck All");
-
-    checkAllLayout->addWidget(checkAllCfast, 1, 0, Qt::AlignHCenter);
-    checkAllLayout->addWidget(uncheckAllCfast, 2, 0, Qt::AlignHCenter);
-
-    checkAllLayout->addWidget(checkAllCslowRs, 1, 1, Qt::AlignHCenter);
-    checkAllLayout->addWidget(uncheckAllCslowRs, 2, 1, Qt::AlignHCenter);
-
-    checkAllLayout->addWidget(checkAllRsCorr, 1, 2, Qt::AlignHCenter);
-    checkAllLayout->addWidget(uncheckAllRsCorr, 2, 2, Qt::AlignHCenter);
-
-    checkAllLayout->addWidget(checkAllRsPred, 1, 3, Qt::AlignHCenter);
-    checkAllLayout->addWidget(uncheckAllRsPred, 2, 3, Qt::AlignHCenter);
-
-    connect(checkAllCfast, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < cfastCheckBoxes.size(); i++){
-            cfastCheckBoxes[i]->setChecked(true);
-        }
-    });
-    connect(uncheckAllCfast, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < cfastCheckBoxes.size(); i++){
-            cfastCheckBoxes[i]->setChecked(false);
-        }
-    });
-
-    connect(checkAllCslowRs, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < cslowRsCheckBoxes.size(); i++){
-            cslowRsCheckBoxes[i]->setChecked(true);
-        }
-    });
-    connect(uncheckAllCslowRs, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < cslowRsCheckBoxes.size(); i++){
-            cslowRsCheckBoxes[i]->setChecked(false);
-        }
-    });
-
-    connect(checkAllRsCorr, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < rsCpCheckBoxes.size(); i++){
-            rsCpCheckBoxes[i]->setChecked(true);
-        }
-    });
-    connect(uncheckAllRsCorr, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < rsCpCheckBoxes.size(); i++){
-            rsCpCheckBoxes[i]->setChecked(false);
-        }
-    });
-
-    connect(checkAllRsPred, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < rsPgCheckBoxes.size(); i++){
-            rsPgCheckBoxes[i]->setChecked(true);
-        }
-    });
-    connect(uncheckAllRsPred, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < rsPgCheckBoxes.size(); i++){
-            rsPgCheckBoxes[i]->setChecked(false);
-        }
-    });
-
     /*! --------------------------------- CC compensation controls --------------------------------- */
     /*! Cfast checkboxes and spinboxes*/
-    for(int idx = 0; idx < localNumOfCurrChans; idx++){
+    for(int idx = 0; idx < currentChannelsNum+1; idx++){
         this->hbsCcCfast.push_back(new QHBoxLayout());
         hbsCcCfast[idx]->setContentsMargins(0,0,0,0);
         hbsCcCfast[idx]->setSpacing(1);
@@ -323,65 +367,81 @@ CompensationControlDockWidget::CompensationControlDockWidget(MessageDispatcher *
 
     if (msgDisp->getCompFeatures(MessageDispatcher::U_CpCc, compensationFeatures, defaultParamValue) == Success) {
         QCheckBox* ccCfastEnableCb;
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        ccCfastEnableCb = new QCheckBox();
+        ccCfastEnableCb->setCheckable(true);
+        ccCfastEnableCb->setChecked(false);
+        hbsCcCfast[0]->addWidget(ccCfastEnableCb);
+
+        connect(ccCfastEnableCb, &QPushButton::clicked, this, [=] (bool flag) {
+            for (auto c : ccCfastCheckBoxes) {
+                c->setChecked(flag);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             ccCfastEnableCb = new QCheckBox();
             ccCfastEnableCb->setCheckable(true);
             ccCfastEnableCb->setChecked(false);
-            this->ccCfastCheckBoxes.push_back(ccCfastEnableCb);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCcCfast[idx]->addWidget(spacer);
-            hbsCcCfast[idx]->addWidget(ccCfastEnableCb);
+            ccCfastCheckBoxes.push_back(ccCfastEnableCb);
+            hbsCcCfast[idx+1]->addWidget(ccCfastEnableCb);
         }
 
         NoWheelSpinBox* ccCfastSpinBox;
         QString ccCfastUnit = QString().fromStdString(compensationFeatures[0].getFullUnit());
-        for(int idx = 0; idx < localNumOfCurrChans; idx++){
+
+        ccCfastSpinBox = new NoWheelSpinBox();
+        ccCfastSpinBox->setSuffix(QString(" ") + ccCfastUnit);
+        ccCfastSpinBox->setRange(compensationFeatures[0].min, compensationFeatures[0].max);
+        ccCfastSpinBox->setValue(defaultParamValue);
+        ccCfastSpinBox->setDecimals(compensationFeatures[0].decimals());
+        hbsCcCfast[0]->addWidget(ccCfastSpinBox);
+
+        connect(ccCfastSpinBox, &QDoubleSpinBox::editingFinished, this, [=] () {
+            auto value = ccCfastSpinBox->value();
+            for (auto c : ccCfastSpinBoxes) {
+                c->setValue(value);
+            }
+        });
+
+        for(int idx = 0; idx < currentChannelsNum; idx++){
             ccCfastSpinBox = new NoWheelSpinBox();
             ccCfastSpinBox->setSuffix(QString(" ") + ccCfastUnit);
             ccCfastSpinBox->setRange(compensationFeatures[idx].min, compensationFeatures[idx].max);
             ccCfastSpinBox->setValue(defaultParamValue);
             ccCfastSpinBox->setDecimals(compensationFeatures[idx].decimals());
-            this->ccCfastSpinBoxes.push_back(ccCfastSpinBox);
-            hbsCcCfast[idx]->addWidget(ccCfastSpinBox);
-            QWidget* spacer = new QWidget();
-            spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-            hbsCcCfast[idx]->addWidget(spacer);
+            ccCfastSpinBoxes.push_back(ccCfastSpinBox);
+            hbsCcCfast[idx+1]->addWidget(ccCfastSpinBox);
         }
     }
 
     // Column captions
-    mainCcGridLayout->addWidget(new QLabel("Ch"), 0, 0, Qt::AlignHCenter);
-    mainCcGridLayout->addWidget(new QLabel("Cfast"), 0, 1, Qt::AlignHCenter);
+    mainCcGridLayout->addWidget(new QLabel("Current Clamp"), 0, 0, 1, 2, Qt::AlignLeft);
 
-    for(int idx = 0; idx < localNumOfCurrChans; idx++){
-        QString channelLabel= QString("    %1").arg(idx+1);
-        mainCcGridLayout->addWidget(new QLabel(channelLabel), idx+1, 0);
-        mainCcGridLayout->addLayout(hbsCcCfast[idx], idx+1, 1);
+    mainCcGridLayout->addWidget(new QLabel("Ch"), 1, 0, Qt::AlignHCenter);
+    mainCcGridLayout->addWidget(new QLabel("Cfast"), 1, 1, Qt::AlignHCenter);
+
+    mainCcGridLayout->addWidget(new QLabel("All"), 2, 0);
+    mainCcGridLayout->addLayout(hbsCcCfast[0], 2, 1);
+
+    for(int idx = 0; idx < currentChannelsNum; idx++){
+        QString channelLabel= QString("%1").arg(idx+1);
+        mainCcGridLayout->addWidget(new QLabel(channelLabel), idx+3, 0);
+        mainCcGridLayout->addLayout(hbsCcCfast[idx+1], idx+3, 1);
+    }
+    {
+        QWidget * spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        mainCcGridLayout->addWidget(spacer, currentChannelsNum+3, 0);
     }
 
+    {
+        QWidget * spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        mainCcGridLayout->addWidget(spacer, 0, 2);
+    }
 
-    // Column captions
-    ccCheckAllLayout->addWidget(new QLabel("Cfast"), 0, 0, Qt::AlignHCenter);
-
-    QPushButton* checkAllCcCfast = new QPushButton("Check All");
-    QPushButton* uncheckAllCcCfast = new QPushButton("Uncheck All");
-
-    ccCheckAllLayout->addWidget(checkAllCcCfast, 1, 0, Qt::AlignHCenter);
-    ccCheckAllLayout->addWidget(uncheckAllCcCfast, 2, 0, Qt::AlignHCenter);
-
-    connect(checkAllCcCfast, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < ccCfastCheckBoxes.size(); i++){
-            ccCfastCheckBoxes[i]->setChecked(true);
-        }
-    });
-    connect(uncheckAllCcCfast, &QPushButton::clicked, this, [=] () {
-        for(int i = 0; i < ccCfastCheckBoxes.size(); i++){
-            ccCfastCheckBoxes[i]->setChecked(false);
-        }
-    });
-
-    /*! here we restart with the main verical VLayout*/
+    /*! here we restart with the main vertical VLayout*/
     QPushButton* applyButton = new QPushButton("Apply");
     vLayout->addWidget(applyButton);
     connect(applyButton, &QPushButton::clicked, this, &CompensationControlDockWidget::onApplyButtonClicked);
@@ -426,10 +486,7 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
     std::vector<uint16_t> rsBWValueIdxs;
     std::vector<double> ccCfastValues;
 
-    int localNumOfVoltChans;
-    int localNumOfCurrChans;
-    msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
-    for(int i = 0; i < localNumOfCurrChans; i++){
+    for(int i = 0; i < currentChannelsNum; i++){
         channelIndexes.push_back(i);
         if (!cfastCheckBoxes.empty()) {
             cfastEn.push_back(cfastCheckBoxes[i]->isChecked());
@@ -474,12 +531,9 @@ void CompensationControlDockWidget::onApplyButtonClicked(){
 
 /*! It updates in GUI both the param values and ranges based on potenial clipings and conversions done at the asic domain by the messageDispatcher*/
 void CompensationControlDockWidget::onCompValuesDispatched(std::vector<std::vector<double>> compValueMatrix, std::vector<RangedMeasurement> cfastFeatures, std::vector<RangedMeasurement> cslowFeatures, std::vector<RangedMeasurement> rsFeatures, std::vector<RangedMeasurement> rsCpFeatures, std::vector<RangedMeasurement> rsPgFeatures, std::vector<RangedMeasurement> ccCfastFeatures){
-    int localNumOfVoltChans;
-    int localNumOfCurrChans;
     ClampingModality_t mode;
-    msgDisp->getChannelNumberFeatures(localNumOfVoltChans, localNumOfCurrChans);
     msgDisp->getClampingModality(mode);
-    for (int i = 0; i < localNumOfCurrChans; i++){
+    for (int i = 0; i < currentChannelsNum; i++){
         if (!cfastSpinBoxes.empty()) {
             cfastSpinBoxes[i]->setRange(cfastFeatures[i].min, cfastFeatures[i].max);
             cfastSpinBoxes[i]->setDecimals(cfastFeatures[i].decimals());

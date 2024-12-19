@@ -4,7 +4,6 @@
 #include <QObject>
 #include "chessboarddockwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
 #include <QMouseEvent>
 #include "plotconsumer.h"
 #include "application_status.h"
@@ -19,22 +18,28 @@ public:
 
     void clearCurves();
     void clearPlots();
-    void channelsTurnedOnOff(bool flag);
     void calibrationResistorsTurnedOnOff(bool flag);
-    void stimuliTurnedOnOff(bool flag);
     void offsetRecalibrationTurnedOnOff(bool flag);
     void ljcTurnedOnOff(bool flag);
-    void tracesExpandedOnOff(bool flag);
     PlotConsumer * getPlotConsumer();
     void onBoardMappingLoaded();
+    void clickBehaviour(bool newState);
 
 public slots:
+    void onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event);
+    void onOneBoardClicked(uint16_t brdIdx, bool newState);
+    void onOneRowClicked(uint16_t rowIdx, bool newState);
+    void onAllChannelsClicked(bool newState);
+
     void onChannelsTurnedOnOff(bool flag);
+    void onChannelsTurnedOnOffEx(bool flag);
     void onCalibrationResistorsTurnedOnOff(bool flag);
     void onStimuliTurnedOnOff(bool flag);
+    void onStimuliTurnedOnOffEx(bool flag);
     void onOffsetRecalibrationTurnedOnOff(bool flag);
     void onLjcTurnedOnOff(bool flag);
     void onTracesExpandedOnOff(bool flag);
+    void onTracesExpandedOnOffEx(bool flag);
     void onRangeUpdated(RangedMeasurement_t newRange);
     void onDurationUpdated(Measurement_t duration);
     void onSetPlotData(PlotMessage plotMessage);
@@ -60,6 +65,7 @@ private:
     int currentChannelsNum;
     void onSetConsumerStatus(bool status);
     void updateChessboard();
+    void setSelectedStatus(std::vector<int>, bool);
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);

@@ -16,12 +16,14 @@ class MeasurementsOverviewDockWidget : public QDockWidget {
     Q_OBJECT
 
 private:
-    QVBoxLayout * mainVl;
-    QWidget * mainWg;
-    QTableWidget* dataTable;
+    QVBoxLayout * mainVl = nullptr;
+    QWidget * mainWg = nullptr;
+    CopyableTable* dataTable = nullptr;
     std::vector<QPushButton*> buttons;
 
-    void setStatisticsResultsInRowaRow(int row, StatisticsResult r);
+    void setStatisticsResultsInRowaRow(int row, StatisticsResult &r);
+    void setCellText(int row, int col, const QString text);
+
     std::vector<uint16_t> activeChannels;
     int voltageChannels;
     int currentChannels;

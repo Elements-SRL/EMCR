@@ -1,5 +1,6 @@
 #include "chessboardcontroller.h"
-#include <iostream>
+
+#include <QApplication>
 
 ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
@@ -70,7 +71,8 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotCo
 void ChessboardController::onSetConsumerStatus(bool status) {
     if (status) {
         stampPlotConsumer->onStartConsuming();
-    } else {
+    }
+    else {
         stampPlotConsumer->onStopConsuming();
     }
 }
@@ -98,17 +100,6 @@ void ChessboardController::clearCurves() {
     currentCurves.clear();
 }
 
-void ChessboardController::channelsTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
-        if (flag) {
-            plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
-
-        } else {
-            plots[channelIdx]->addState(StampPlot::StateSwitchedOff);
-        }
-    }
-}
-
 void ChessboardController::calibrationResistorsTurnedOnOff(bool flag) {
     for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
         if (flag) {
@@ -116,17 +107,6 @@ void ChessboardController::calibrationResistorsTurnedOnOff(bool flag) {
 
         } else {
             plots[channelIdx]->removeState(StampPlot::StateCalibrationResistorsOn);
-        }
-    }
-}
-
-void ChessboardController::stimuliTurnedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
-        if (flag) {
-            plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
-
-        } else {
-            plots[channelIdx]->addState(StampPlot::StateStimuliDisabled);
         }
     }
 }
@@ -153,17 +133,6 @@ void ChessboardController::ljcTurnedOnOff(bool flag) {
     }
 }
 
-void ChessboardController::tracesExpandedOnOff(bool flag) {
-    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
-        if (flag) {
-            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
-
-        } else {
-            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
-        }
-    }
-}
-
 void ChessboardController::clearPlots() {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         delete plots[idx];
@@ -172,7 +141,26 @@ void ChessboardController::clearPlots() {
 }
 
 void ChessboardController::onChannelsTurnedOnOff(bool flag) {
-    this->channelsTurnedOnOff(flag);
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
+        }
+        else {
+            plots[channelIdx]->addState(StampPlot::StateSwitchedOff);
+        }
+    }
+}
+
+void ChessboardController::onChannelsTurnedOnOffEx(bool flag) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
+        if (flag == selectedChannels[channelIdx]) {
+            plots[channelIdx]->removeState(StampPlot::StateSwitchedOff);
+        }
+        else {
+            plots[channelIdx]->addState(StampPlot::StateSwitchedOff);
+        }
+    }
 }
 
 void ChessboardController::onCalibrationResistorsTurnedOnOff(bool flag) {
@@ -180,7 +168,26 @@ void ChessboardController::onCalibrationResistorsTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::onStimuliTurnedOnOff(bool flag) {
-    this->stimuliTurnedOnOff(flag);
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
+        }
+        else {
+            plots[channelIdx]->addState(StampPlot::StateStimuliDisabled);
+        }
+    }
+}
+
+void ChessboardController::onStimuliTurnedOnOffEx(bool flag) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
+        if (flag == selectedChannels[channelIdx]) {
+            plots[channelIdx]->removeState(StampPlot::StateStimuliDisabled);
+        }
+        else {
+            plots[channelIdx]->addState(StampPlot::StateStimuliDisabled);
+        }
+    }
 }
 
 void ChessboardController::onOffsetRecalibrationTurnedOnOff(bool flag) {
@@ -192,7 +199,26 @@ void ChessboardController::onLjcTurnedOnOff(bool flag) {
 }
 
 void ChessboardController::onTracesExpandedOnOff(bool flag) {
-    this->tracesExpandedOnOff(flag);
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
+        }
+        else {
+            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
+        }
+    }
+}
+
+void ChessboardController::onTracesExpandedOnOffEx(bool flag) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
+        if (flag == selectedChannels[channelIdx]) {
+            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
+        }
+        else {
+            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
+        }
+    }
 }
 
 void ChessboardController::onRangeUpdated(RangedMeasurement_t newRange) {
@@ -208,25 +234,39 @@ void ChessboardController::onDurationUpdated(Measurement_t duration) {
 }
 
 void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
+    ClampingModality_t mode;
+    appStatus->getMessageDispatcher()->getClampingModality(mode);
     switch (plotMessage.index()) {
-    //    GapFree message
-    case 0:{
+    case 0:{ // GapFree message
         GapFreeMessage message = std::get<0>(plotMessage);
-        for (int idx = 0; idx < currentChannelsNum; idx++) {
-            currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
+        switch (mode) {
+        case e384CommLib::VOLTAGE_CLAMP:
+        case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
+            for (int idx = 0; idx < currentChannelsNum; idx++) {
+                currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
+            }
+            break;
+
+        case e384CommLib::CURRENT_CLAMP:
+        case e384CommLib::ZERO_CURRENT_CLAMP:
+        case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
+            for (int idx = 0; idx < voltageChannelsNum; idx++) {
+                currentCurves.at(idx)->setRawSamples(message.timeValues, message.voltageValues[idx], message.dataSize);
+            }
+            break;
         }
         break;
     }
-        //    IvGraph message
-    case 1:{
+
+    case 1:{ // IvGraph message
         IvMessage message = std::get<1>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.voltageValues[idx], message.currentValues[idx], message.dataSize[idx]);
         }
         break;
     }
-        //    IvGraph message
-    case 3:{
+
+    case 3:{ // Spectrum message
         SpectrumMessage message = std::get<3>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
@@ -253,7 +293,6 @@ PlotConsumer * ChessboardController::getPlotConsumer(){
     return stampPlotConsumer;
 }
 
-
 void ChessboardController::onCurrentColorsChanged(QVector <QColor> colors) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         plots[idx]->setLegendColor(colors[idx]);
@@ -275,6 +314,52 @@ void ChessboardController::onBoardMappingLoaded() {
     appStatus->setAllChannelsSelected(false);
 }
 
+void ChessboardController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
+    bool newState = event->button() == Qt::LeftButton;
+    clickBehaviour(newState);
+    auto msgDisp = appStatus->getMessageDispatcher();
+    if (newState) {
+        // slightly inefficient
+        auto selectedIndexes = appStatus->getSelectedChannelsIndexes();
+        bool isChSelected = false;
+        for (auto idx: selectedIndexes){
+            if (idx == chIdx){
+                isChSelected = true;
+                break;
+            }
+        }
+        // if the channel is selected but the user is pressing ctrl toggle it
+        msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
+    }
+    else {
+        msgDisp->setChannelSelected(chIdx, newState);
+    }
+}
+
+void ChessboardController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
+    clickBehaviour(newState);
+    setSelectedStatus(appStatus->getVisibleChannelsOnBoard(brdIdx), newState);
+}
+
+void ChessboardController::onOneRowClicked(uint16_t rowIdx, bool newState) {
+    clickBehaviour(newState);
+    setSelectedStatus(appStatus->getVisibleChannelsOnRow(rowIdx), newState);
+}
+
+void ChessboardController::onAllChannelsClicked(bool newState) {
+    clickBehaviour(newState);
+    setSelectedStatus(appStatus->getVisibleChannels(), newState);
+}
+
+void ChessboardController::clickBehaviour(bool newState) {
+    //    if the newState is false or the user is not pressing ctrl, don't make anything
+    if (!newState || (QApplication::keyboardModifiers() & Qt::ControlModifier)) {
+        return;
+    }
+    // Ctrl key is pressed
+    appStatus->getMessageDispatcher()->setAllChannelsSelected(false);
+}
+
 void ChessboardController::updateChessboard(){
     const auto mappings = appStatus->getMappings();
     for(int i = 0; i<appStatus->getCurrentChannelsNum(); i++){
@@ -288,4 +373,12 @@ void ChessboardController::updateChessboard(){
     }
     const auto visibleBoards = appStatus->getVisibleBoards();
     chessboard->updateBoardMappings(visibleBoards);
+}
+
+void ChessboardController::setSelectedStatus(std::vector<int> channelIndexes, bool newStatus) {
+    std::map <int, bool> channelsAndStatus;
+    for (auto chIdx: channelIndexes) {
+        channelsAndStatus[chIdx] = newStatus;
+    }
+    appStatus->setSelectedChannels(channelsAndStatus);
 }

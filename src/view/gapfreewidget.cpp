@@ -63,8 +63,7 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     auto hboxFileName = new QHBoxLayout();
     recordingVBoxLayout->addLayout(hboxFileName);
 
-
-    hboxRecordingPath->addWidget(new QLabel("Recording path:"), 0, 0);
+    hboxRecordingPath->addWidget(new QLabel("Recording path:"));
     recordPathLineEdit->setReadOnly(true);
     hboxRecordingPath->addWidget(recordPathLineEdit);
 
@@ -103,7 +102,7 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     hboxBrowseFile->addWidget(browseBtn);
     hboxBrowseFile->addWidget(goToDirBtn);
 
-    hboxFileName->addWidget(new QLabel("File name:"), 0, 0);
+    hboxFileName->addWidget(new QLabel("File name:"));
     hboxFileName->addWidget(fileNameLineEdit);
 
     QPixmap pixmapStop("://imgs/stop protocol.png");

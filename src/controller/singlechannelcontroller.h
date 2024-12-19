@@ -18,21 +18,14 @@ public:
     SingleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow);
     ~SingleChannelController();
     void onBoardMappingLoaded();
+
 private:
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     SingleChannelControlDockWidget * singleChannelControlsDw = nullptr;
-    void clickBehaviour(bool newState);
-    void setSelectedStatus(std::vector<int>, bool);
 
 public slots:
-    // To do on actions done on the chessboard
-    void onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event);
-    void onOneBoardClicked(uint16_t brdIdx, bool newState);
-    void onOneRowClicked(uint16_t rowIdx, bool newState);
-    void onAllChannelsClicked(bool newState);
-
-    // To do on apply pushed on the Channel Control Dock Widget
+    void onChannelsSelected();
     void onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onApplyTurnDocOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
     void onApplyHoldValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> vHoldValues);

@@ -116,14 +116,13 @@ void AbfDataWriterConsumer::run() {
     unsigned int minPacketsPerBatch = qMin(maxMinPacketsPerBatch, (unsigned int)qRound(samplingRateHz*DWC_MIN_BATCH_DURATION));
 
     QMutexLocker consumptionLock(&consumptionMtx);
-    consumptionStopped = false;
-    exitedDataConsumingLoop = false;
     consumptionLock.unlock();
 
     double activeChannelsRatio = (double)totalChannelsNum/(double)activeChannelsNum;
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
+            consumptionLock.unlock();
             break;
         }
         consumptionLock.unlock();
@@ -343,6 +342,7 @@ void AbfDataWriterConsumer::run() {
     }
 
     this->manageConsumptionEnd();
+    consumptionLock.relock();
 
     exitedDataConsumingLoop = true;
     exitedDataConsumingLoopCv.wakeAll();
@@ -386,7 +386,6 @@ void AbfDataWriterConsumer::initIVSections() {
         time += QDateTime::currentDateTime().time().msec();
         abf->FileInfo.uFileStartTimeMS = (unsigned int)time;
 
-        qsrand((unsigned int)(QTime::currentTime().msec()));
         QUuid uuid = QUuid::createUuid();
         abf->FileInfo.FileGUID.Data1 = uuid.data1;
         abf->FileInfo.FileGUID.Data2 = uuid.data2;
@@ -558,7 +557,6 @@ void AbfDataWriterConsumer::initISections() {
         time += QDateTime::currentDateTime().time().msec();
         abf->FileInfo.uFileStartTimeMS = (unsigned int)time;
 
-        qsrand((unsigned int)(QTime::currentTime().msec()));
         QUuid uuid = QUuid::createUuid();
         abf->FileInfo.FileGUID.Data1 = uuid.data1;
         abf->FileInfo.FileGUID.Data2 = uuid.data2;
@@ -718,7 +716,6 @@ void AbfDataWriterConsumer::initVSections() {
         time += QDateTime::currentDateTime().time().msec();
         abf->FileInfo.uFileStartTimeMS = (unsigned int)time;
 
-        qsrand((unsigned int)(QTime::currentTime().msec()));
         QUuid uuid = QUuid::createUuid();
         abf->FileInfo.FileGUID.Data1 = uuid.data1;
         abf->FileInfo.FileGUID.Data2 = uuid.data2;

@@ -1,7 +1,6 @@
 #include "multiplechannelcontroldockwidget.h"
 
 #include <QBoxLayout>
-#include <QGroupBox>
 #include <QSettings>
 #include <QDesktopServices>
 #include <QDoubleSpinBox>
@@ -29,6 +28,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         switchChannelsOffBtn = new QPushButton("OFF (O)");
         connect(switchChannelsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOff);
         qhblChannels_input->addWidget(switchChannelsOffBtn);
+        switchChannelsAutoBtn = new QPushButton("AUTO");
+        switchChannelsAutoBtn->setCheckable(true);
+        connect(switchChannelsAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelAuto);
+        qhblChannels_input->addWidget(switchChannelsAutoBtn);
     }
 
     if (msgDisp->hasCalSw() == Success) {
@@ -55,14 +58,18 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         turnStimulusOffBtn = new QPushButton("OFF (X)");
         connect(turnStimulusOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOff);
         qhbl->addWidget(turnStimulusOffBtn);
+        turnStimulusAutoBtn = new QPushButton("AUTO");
+        turnStimulusAutoBtn->setCheckable(true);
+        connect(turnStimulusAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulusAuto);
+        qhbl->addWidget(turnStimulusAutoBtn);
     }
 
     RangedMeasurement_t zapDurationRange;
     if (msgDisp->getZapFeatures(zapDurationRange) == Success) {
-        auto gb = new QGroupBox(QString::fromStdString("Zap pulse"));
+        zapGb = new QGroupBox(QString::fromStdString("Zap pulse"));
         auto qhbl = new QHBoxLayout();
-        gb->setLayout(qhbl);
-        mainLayout->addWidget(gb);
+        zapGb->setLayout(qhbl);
+        mainLayout->addWidget(zapGb);
         zapBtn = new QPushButton("ZAP");
         zapBtn->setCheckable(false);
         qhbl->addWidget(zapBtn);
@@ -145,10 +152,30 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     reduceTraceBtn = new QPushButton("OFF");
     connect(reduceTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot);
     qhblExpandTrace->addWidget(reduceTraceBtn);
+    expandTraceAutoBtn = new QPushButton("AUTO");
+    expandTraceAutoBtn->setCheckable(true);
+    connect(expandTraceAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto);
+    qhblExpandTrace->addWidget(expandTraceAutoBtn);
 
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     mainLayout->addWidget(spacer);
+}
+
+void MultipleChannelControlDockWidget::setChannelsAuto(bool flag) {
+    if (switchChannelsAutoBtn != nullptr) {
+        switchChannelsAutoBtn->setChecked(flag);
+    }
+}
+
+void MultipleChannelControlDockWidget::setStimulusAuto(bool flag) {
+    if (turnStimulusAutoBtn != nullptr) {
+        turnStimulusAutoBtn->setChecked(flag);
+    }
+}
+
+void MultipleChannelControlDockWidget::setExpandAuto(bool flag) {
+    expandTraceAutoBtn->setChecked(flag);
 }
 
 bool MultipleChannelControlDockWidget::getExpertMode() {
@@ -157,4 +184,23 @@ bool MultipleChannelControlDockWidget::getExpertMode() {
 
 void MultipleChannelControlDockWidget::enableExpertMode(bool flag) {
     offsetCorrectionExpertChb->setEnabled(flag);
+}
+
+void MultipleChannelControlDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
+    switch (clampingModality) {
+    case ClampingModality_t::VOLTAGE_CLAMP:
+    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
+        if (zapGb!= nullptr) {
+            zapGb->setEnabled(true);
+        }
+        break;
+
+    case ClampingModality_t::CURRENT_CLAMP:
+    case ClampingModality_t::ZERO_CURRENT_CLAMP:
+    case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
+        if (zapGb!= nullptr) {
+            zapGb->setEnabled(false);
+        }
+        break;
+    }
 }

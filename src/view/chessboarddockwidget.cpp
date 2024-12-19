@@ -6,7 +6,6 @@
 #include "globaldefines.h"
 #include <QScreen>
 
-
 ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidget * parent) :
     QDockWidget(parent) {
 
@@ -24,7 +23,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     mainGl = new QGridLayout;
     mainWg->setLayout(mainGl);
 
-    mainGl->setMargin(0);
+    mainGl->setContentsMargins(0, 0, 0, 0);
     mainGl->setSpacing(1);
 
     auto idealPlotHeight = getIdealPlotHeight();
@@ -79,20 +78,20 @@ void ChessboardDockWidget::addPlot(StampPlot * plot, int channelIdx) {
     int boardIdx = channelIdx / channelsPerBoard;
     if (boardsNum > 1 && channelsPerBoard > 1) {
         mainGl->addWidget(plot, rowIdx+2, boardIdx+1);
-
-    } else if (boardsNum > 1) {
+    }
+    else if (boardsNum > 1) {
         mainGl->addWidget(plot, rowIdx+1, boardIdx+1);
-
-    } else if (channelsPerBoard > 1) {
+    }
+    else if (channelsPerBoard > 1) {
         mainGl->addWidget(plot, rowIdx+2, boardIdx);
-
-    } else {
+    }
+    else {
         mainGl->addWidget(plot, rowIdx+1, boardIdx);
     }
 
     plot->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    connect(plot, &StampPlot::clicked, [=] (QMouseEvent *event) {
+    connect(plot, &StampPlot::clicked, this, [=] (QMouseEvent *event) {
         emit sigSingleChannelClicked(channelIdx, event);
     });
 }

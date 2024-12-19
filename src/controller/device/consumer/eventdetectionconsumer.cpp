@@ -1,6 +1,5 @@
 #include "eventdetectionconsumer.h"
 #include <QTime>
-#include <iostream>
 
 EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventSamples_, uint32_t maxEventSamples_, double highCutoffFrequency_, double _maxAmplitude, double defaultStdMultiplier_, EventsDirection _eventsDirection):
     PlotConsumer(appStatus, producer),
@@ -39,7 +38,7 @@ void EventDetectionConsumer::run() {
     uint32_t bufferIdx;
     int bufferLen = 0;
     int channelIdx;
-    QTime updateDataTimer = QTime::currentTime();
+    QElapsedTimer updateDataTimer;
     updateDataTimer.start();
 
     int lastUpdateTimeMs = updateDataTimer.elapsed();
@@ -58,6 +57,7 @@ void EventDetectionConsumer::run() {
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
+            consumptionLock.unlock();
             break;
         }
         consumptionLock.unlock();

@@ -221,10 +221,26 @@ void MainController::onMainWindowCreated() {
      * Connect *
     \***********/
 
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     singleChannelController, &SingleChannelController::onAllChannelsClicked);
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        singleChannelController, &SingleChannelController::onOneBoardClicked);
-    connect(chessboardController, &ChessboardController::sigOneRowClicked,          singleChannelController, &SingleChannelController::onOneRowClicked);
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   singleChannelController, &SingleChannelController::onSingleChannelClicked);
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
+        chessboardController->onAllChannelsClicked(newChannelState);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
+        chessboardController->onOneBoardClicked(changedBoardIndex, newChannelState);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
+        chessboardController->onOneRowClicked(changedRowIndex, newChannelState);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
+        chessboardController->onSingleChannelClicked(changedChannelIndex, event);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
 
     connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
     connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
@@ -241,10 +257,14 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             bigPlotController,              &BigPlotController::onExpandTrace);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           bigPlotController,              &BigPlotController::onExpandTrace);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           chessboardController,           &ChessboardController::onTracesExpandedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOffEx,            chessboardController,           &ChessboardController::onChannelsTurnedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff,  chessboardController,           &ChessboardController::onCalibrationResistorsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,               chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOffEx,             chessboardController,           &ChessboardController::onStimuliTurnedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   chessboardController,           &ChessboardController::onOffsetRecalibrationTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   measurementOverviewController,  &MeasurementOverviewController::onOffsetRecalibrationResult);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   singleChannelController,        &SingleChannelController::onOffsetRecalibrationResult);
@@ -343,6 +363,8 @@ void MainController::onMainWindowCreated() {
 
     /*! Start threads */
     this->startProducerConsumers();
+
+    multipleChannelController->onChannelsSelected();
 
     //for devices with less then 16 channels the traces are expanded by default
     multipleChannelController->addRemoveFromBigPlot(true);
@@ -454,8 +476,6 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     for (auto controller : centralWidgetControllers) {
         controller->onVoltageRangeChanged(range);
     }
-    //this should be useless?
-    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
@@ -479,7 +499,6 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     for (auto controller : centralWidgetControllers) {
         controller->onCurrentRangeChanged(range);
     }
-    chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcCurrentRangeSelected(idx);
@@ -503,8 +522,7 @@ void MainController::onCcVoltageRangeSelected(int idx) {
     for (auto controller : centralWidgetControllers) {
         controller->onVoltageRangeChanged(range);
     }
-    //this should be useless?
-    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
+    chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
@@ -557,7 +575,9 @@ void MainController::onClampingModalitySelected(ClampingModality_t mode) {
 
     auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
     protocolDw->onSetClampingModality(mode);
-    /*! \todo FCON qualcuno da notificare che la clamping modality è cambiata? */
+
+    auto multipleChannelDw = static_cast <MultipleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWMultipleChannelControl));
+    multipleChannelDw->onSetClampingModality(mode);
 }
 
 void MainController::startProducerConsumers() {

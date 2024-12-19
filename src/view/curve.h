@@ -1,6 +1,8 @@
 #ifndef CURVE_H
 #define CURVE_H
 
+#include <QColor>
+
 #include "qwt_plot_curve.h"
 
 typedef enum {

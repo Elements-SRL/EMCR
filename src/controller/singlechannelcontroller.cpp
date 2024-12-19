@@ -21,57 +21,9 @@ SingleChannelController::~SingleChannelController(){
     mainWindow->setDockWidget(MainWindow::DWSingleChannelControl, singleChannelControlsDw);
 }
 
-void SingleChannelController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event){
-    bool newState = event->button() == Qt::LeftButton;
-    clickBehaviour(newState);
-    auto msgDisp = appStatus->getMessageDispatcher();
-    if (newState) {
-        // slightly inefficient
-        auto selectedIndexes = appStatus->getSelectedChannelsIndexes();
-        bool isChSelected = false;
-        for (auto idx: selectedIndexes){
-            if (idx == chIdx){
-                isChSelected = true;
-                break;
-            }
-        }
-//        if the channel is selected but the user is pressing ctrl toggle it
-        msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
-    } else {
-        msgDisp->setChannelSelected(chIdx, newState);
-    }
+void SingleChannelController::onChannelsSelected() {
     singleChannelControlsDw->onUpdate();
 }
-
-void SingleChannelController::onOneBoardClicked(uint16_t brdIdx, bool newState) {
-    clickBehaviour(newState);
-    setSelectedStatus(appStatus->getVisibleChannelsOnBoard(brdIdx), newState);
-    singleChannelControlsDw->onUpdate();
-}
-
-void SingleChannelController::onOneRowClicked(uint16_t rowIdx, bool newState) {
-    clickBehaviour(newState);
-    setSelectedStatus(appStatus->getVisibleChannelsOnRow(rowIdx), newState);
-    singleChannelControlsDw->onUpdate();
-}
-
-void SingleChannelController::onAllChannelsClicked(bool newState) {
-    clickBehaviour(newState);    
-    setSelectedStatus(appStatus->getVisibleChannels(), newState);
-    singleChannelControlsDw->onUpdate();
-}
-
-void SingleChannelController::clickBehaviour(bool newState){
-//    if the newState is false or the user is not pressing ctrl, don't make anything
-    if (!newState || (QApplication::keyboardModifiers() & Qt::ControlModifier)){
-        return;
-    }
-    // Ctrl key is pressed
-    //    TODO deleteme
-    auto msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->setAllChannelsSelected(false);
-}
-
 
 void SingleChannelController::onApplyTurnStimulusOnOff(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
     auto msgDisp = appStatus->getMessageDispatcher();
@@ -168,14 +120,6 @@ void SingleChannelController::onLiquidJunctionResult() {
     msgDisp->getLiquidJunctionVoltages(channelIdxs, voltages);
 
     singleChannelControlsDw->setLiquidJunctionVoltages(voltages);
-}
-
-void SingleChannelController::setSelectedStatus(std::vector<int> channelIndexes, bool newStatus) {
-    std::map <int, bool> channelsAndStatus;
-    for (auto chIdx: channelIndexes) {
-        channelsAndStatus[chIdx] = newStatus;
-    }
-    appStatus->setSelectedChannels(channelsAndStatus);
 }
 
 void SingleChannelController::onBoardMappingLoaded() {

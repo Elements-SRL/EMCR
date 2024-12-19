@@ -7,7 +7,7 @@
 #include <QHeaderView>
 
 CopyableTable::CopyableTable(QWidget *parent) : QTableWidget(parent) {
-    this->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
 }
 
 QSize CopyableTable::sizeHint() const {
@@ -61,7 +61,7 @@ void CopyableTable::addCell(QTableWidgetItem * item, QTextStream &stream, QStrin
         /*! Cells may contain both numeric values and strings, so we need to discriminate the 2 in order to use local format for numbers */
         QString cellString;
         QStringList cellStrings;
-        cellStrings = item->text().split(" ", QString::SkipEmptyParts);
+        cellStrings = item->text().split(" ", Qt::SkipEmptyParts);
         if (cellStrings.size() > 0) {
             int stringIdx;
             for (stringIdx = 0; stringIdx < cellStrings.size()-1; stringIdx++) {
