@@ -34,7 +34,7 @@ void SpectrumConsumer::updateFrequencyAxis() {
         pushedIntegrationWindowFlag = false;
         integrationWindowS = pushedIntegrationWindowS;
 
-        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeTimeAxisMethod is performed later
+        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeFrequencyAxis method is performed later
             locker.unlock();
             this->computeFrequencyAxis();
         }

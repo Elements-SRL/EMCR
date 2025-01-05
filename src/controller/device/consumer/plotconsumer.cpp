@@ -19,14 +19,6 @@ PlotConsumer::~PlotConsumer() {
 
 }
 
-void PlotConsumer::forceAxisUpdate() {
-    pushedDurationFlag = true;
-    pushedVoltageRangeFlag = true;
-    pushedCurrentRangeFlag = true;
-    this->updateTimeAxis();
-    this->updateRangeAxis();
-}
-
 void PlotConsumer::setMaxSamplesPerPlot(int samples) {
     bool wasThisRunning = this->isRunning();
     if(wasThisRunning){
@@ -122,45 +114,6 @@ void PlotConsumer::onPlotChannels(std::vector <uint16_t> channels, bool flag) {
     forceAxisUpdate();
 }
 
-void PlotConsumer::updateTimeAxis() {
-    QMutexLocker locker(&timeAxisMtx);
-    if (pushedDurationFlag) {
-        pushedDurationFlag = false;
-        xAxisDuration = pushedDuration;
-
-        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeTimeAxisMethod is performed later
-            locker.unlock();
-            this->computeTimeAxis();
-        }
-    }
-
-    if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
-        pushedSamplingRateFlag = false;
-        pushedDownsamplingRatioFlag = false;
-        samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
-
-        locker.unlock();
-        this->computeTimeAxis();
-    }
-}
-
-void PlotConsumer::computeTimeAxis() {
-    dataSize = qRound(samplingRateHz*xAxisDuration);
-    minDataBatchSize = qMin(qRound(samplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
-
-    subSamplingRatio = (dataSize-1)/maxSamples+1;
-    dataSize /= subSamplingRatio;
-
-    subSamplingIdx = 0;
-
-    double dt = ((double)subSamplingRatio)/samplingRateHz;
-    for (int idx = 0; idx < dataSize; idx++) {
-        timeValues[idx] = dt*(double)idx;
-    }
-
-    this->emitPlotData();
-}
-
 void PlotConsumer::updateRangeAxis() {
     bool anyPushed = false;
     QMutexLocker locker(&rangeAxisMtx);
@@ -213,6 +166,14 @@ GapFreePlotConsumer::~GapFreePlotConsumer() {
     this->onStopConsuming();
 
     this->clearData();
+}
+
+void GapFreePlotConsumer::forceAxisUpdate() {
+    pushedDurationFlag = true;
+    pushedVoltageRangeFlag = true;
+    pushedCurrentRangeFlag = true;
+    this->updateTimeAxis();
+    this->updateRangeAxis();
 }
 
 void GapFreePlotConsumer::run() {
@@ -315,4 +276,43 @@ void GapFreePlotConsumer::clearData() {
 void GapFreePlotConsumer::emitPlotData() {
     GapFreeMessage message = {timeValues, voltageValues, currentValues, dataSize};
     emit setPlotData(message);
+}
+
+void GapFreePlotConsumer::updateTimeAxis() {
+    QMutexLocker locker(&timeAxisMtx);
+    if (pushedDurationFlag) {
+        pushedDurationFlag = false;
+        xAxisDuration = pushedDuration;
+
+        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeTimeAxisMethod is performed later
+            locker.unlock();
+            this->computeTimeAxis();
+        }
+    }
+
+    if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
+        pushedSamplingRateFlag = false;
+        pushedDownsamplingRatioFlag = false;
+        samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
+
+        locker.unlock();
+        this->computeTimeAxis();
+    }
+}
+
+void GapFreePlotConsumer::computeTimeAxis() {
+    dataSize = qRound(samplingRateHz*xAxisDuration);
+    minDataBatchSize = qMin(qRound(samplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
+
+    subSamplingRatio = (dataSize-1)/maxSamples+1;
+    dataSize /= subSamplingRatio;
+
+    subSamplingIdx = 0;
+
+    double dt = ((double)subSamplingRatio)/samplingRateHz;
+    for (int idx = 0; idx < dataSize; idx++) {
+        timeValues[idx] = dt*(double)idx;
+    }
+
+    this->emitPlotData();
 }

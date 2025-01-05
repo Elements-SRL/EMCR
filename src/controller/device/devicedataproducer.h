@@ -67,19 +67,18 @@ public:
     DataHook(unsigned int totalChannelsNum);
     virtual ~DataHook();
 
-    void setInitialOffset(unsigned int offset);
     void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
     bool getDataChunk(std::vector <unsigned short> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
     bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
     bool getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0);
     void flush();
 
-protected:
+private:
+    bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
+
     int voltageChannelsNum;
     int currentChannelsNum;
     unsigned int totalChannelsNum;
-
-    bool initialized = false;
 
     unsigned int dataIdx;
     unsigned int bufferSize;

@@ -50,8 +50,6 @@ void IvGraphConsumer::run() {
         }
         consumptionLock.unlock();
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
-//            this->updateTimeAxis();
-//            this->updateRangeAxis();
             bufferIdx = 0;
             bufferLen = buffer.size();
 

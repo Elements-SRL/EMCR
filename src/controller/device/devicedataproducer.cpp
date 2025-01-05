@@ -61,9 +61,6 @@ DataHook * DeviceDataProducer::getDataHook() {
     DataHook * hook;
 
     hook = new DataHook(totalChannelsNum);
-    dataLock.lockForRead();
-    hook->setInitialOffset(dataPacketsIdx);
-    dataLock.unlock();
     hook->setBufferSize(dataPacketsBufferLen, dataPacketsBufferMask);
 
     return hook;
@@ -160,17 +157,11 @@ void DeviceDataProducer::onComputeBitRate() {
 DataHook::DataHook(unsigned int totalChannelsNum) :
     totalChannelsNum(totalChannelsNum) {
 
+    this->flush();
 }
 
 DataHook::~DataHook() {
 
-}
-
-void DataHook::setInitialOffset(unsigned int offset) {
-    if (!initialized) {
-        dataIdx = offset;
-        initialized = true;
-    }
 }
 
 void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
@@ -179,22 +170,11 @@ void DataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
     halfBufferSize = bufferSize/2;
 }
 
-bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
-    int waitCount = 0;
-    dataLock.lockForRead();
-    while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
-           (!exitedDataProducingLoop) &&
-           waitCount++ < DDP_MAX_WAIT_COUNT) {
-        dataCv.wait(&dataLock, 100);
-    }
-
-    if (waitCount >= DDP_MAX_WAIT_COUNT) {
-        dataLock.unlock();
+bool DataHook::getDataChunk(std::vector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
+    unsigned int dataPacketsMax;
+    if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
     }
-
-    unsigned int dataPacketsMax = dataPacketsIdx;
-    dataLock.unlock();
 
     unsigned int dataPacketsToBuffer;
     if (dataIdx <= dataPacketsMax) {
@@ -217,21 +197,10 @@ bool DataHook::getDataChunk(std::vector<unsigned short> &buffer, unsigned int, u
 }
 
 bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
-    int waitCount = 0;
-    dataLock.lockForRead();
-    while ((((dataIdx+minDataBatchSize-dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
-           (!exitedDataProducingLoop) &&
-           waitCount++ < DDP_MAX_WAIT_COUNT) {
-        dataCv.wait(&dataLock, 100);
-    }
-
-    if (waitCount >= DDP_MAX_WAIT_COUNT) {
-        dataLock.unlock();
+    unsigned int dataPacketsMax;
+    if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
     }
-
-    unsigned int dataPacketsMax = dataPacketsIdx;
-    dataLock.unlock();
 
     unsigned int dataPacketsToBuffer;
     unsigned int downsamplingSize = downsamplingRatio << 1; /*! to reduce size by x we take data in chunks of 2*x and then take max and min in the interval */
@@ -296,21 +265,10 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
 }
 
 bool DataHook::getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
-    int waitCount = 0;
-    dataLock.lockForRead();
-    while ((((dataIdx + minDataBatchSize - dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
-        (!exitedDataProducingLoop) &&
-        waitCount++ < DDP_MAX_WAIT_COUNT) {
-        dataCv.wait(&dataLock, 100);
-    }
-
-    if (waitCount >= DDP_MAX_WAIT_COUNT) {
-        dataLock.unlock();
+    unsigned int dataPacketsMax;
+    if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
     }
-
-    unsigned int dataPacketsMax = dataPacketsIdx;
-    dataLock.unlock();
 
     unsigned int dataPacketsToBuffer;
     if (dataIdx <= dataPacketsMax) {
@@ -339,4 +297,25 @@ void DataHook::flush() {
     dataLock.lockForRead();
     dataIdx = dataPacketsIdx;
     dataLock.unlock();
+}
+
+
+bool DataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
+    int waitCount = 0;
+    dataLock.lockForRead();
+    while ((((dataIdx + minDataBatchSize - dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
+           (!exitedDataProducingLoop) &&
+           waitCount++ < DDP_MAX_WAIT_COUNT) {
+        dataCv.wait(&dataLock, 100);
+    }
+
+    if (waitCount >= DDP_MAX_WAIT_COUNT) {
+        dataLock.unlock();
+        return false;
+    }
+
+    dataPacketsMax = dataPacketsIdx;
+    dataLock.unlock();
+
+    return true;
 }

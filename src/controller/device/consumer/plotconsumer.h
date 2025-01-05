@@ -18,7 +18,7 @@ public:
     PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~PlotConsumer();
 
-    virtual void forceAxisUpdate();
+    virtual void forceAxisUpdate() = 0;
     void setMaxSamplesPerPlot(int samples);
 
 public slots:
@@ -48,8 +48,6 @@ protected:
     virtual void allocateData() = 0;
     virtual void clearData() = 0;
     virtual void emitPlotData() = 0;
-    void updateTimeAxis();
-    void computeTimeAxis();
     virtual void updateRangeAxis();
 
     std::vector<double *> voltageValues;
@@ -100,11 +98,17 @@ public:
     GapFreePlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~GapFreePlotConsumer();
 
+    virtual void forceAxisUpdate() override;
+
 protected:
     void run() override;
     void allocateData() override;
     void clearData() override;
     void emitPlotData() override;
+
+private:
+    void updateTimeAxis();
+    void computeTimeAxis();
 };
 
 #endif // PLOTCONSUMER_H
