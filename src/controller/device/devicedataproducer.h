@@ -13,6 +13,7 @@
 #define DDP_MAX_WAIT_COUNT (10)
 
 class DataHook;
+class EpisodicDataHook;
 
 class DeviceDataProducer : public QThread {
     Q_OBJECT
@@ -23,6 +24,7 @@ public:
 
     unsigned int getDataPacketsBufferLen();
     DataHook * getDataHook();
+    EpisodicDataHook * getEpisodicDataHook(unsigned int protocolId);
 
 public slots:
     void onStopProducing();
@@ -36,6 +38,9 @@ private:
     int voltageChannelsNum;
     int currentChannelsNum;
     int totalChannelsNum;
+
+    unsigned int currentProtIdx = 0;
+    unsigned int nextItemIdx = 0;
 
     bool deviceConnected = false;
 
@@ -76,9 +81,33 @@ public:
 private:
     bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
 
-    int voltageChannelsNum;
-    int currentChannelsNum;
     unsigned int totalChannelsNum;
+
+    unsigned int dataIdx;
+    unsigned int bufferSize;
+    unsigned int halfBufferSize;
+    unsigned int bufferMask;
+};
+
+class EpisodicDataHook {
+public:
+    EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId);
+    virtual ~EpisodicDataHook();
+
+    void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
+    bool getDataChunk(std::vector <unsigned short> &buffer, bool &newSweep, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunk(std::vector <double> &buffer, bool &newSweep, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunks(std::vector <double>& doubleBuffer, bool &newSweep, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0);
+    void flush();
+
+private:
+    bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
+
+    unsigned int totalChannelsNum;
+    unsigned int protocolId;
+    unsigned int nextItemIdx = 0;
+    unsigned int currentSweepIdx = 0;
+    bool newSweepFlag = false;
 
     unsigned int dataIdx;
     unsigned int bufferSize;

@@ -3,6 +3,20 @@
 #include <qmath.h>
 #include <QReadWriteLock>
 
+#define PROTS_BUFFER_SIZE 0x10
+#define PROTS_BUFFER_MASK (PROTS_BUFFER_SIZE-1)
+#define ITEMS_BUFFER_SIZE 0x10000
+#define ITEMS_BUFFER_MASK (ITEMS_BUFFER_SIZE-1)
+
+typedef struct ItemCoords {
+    unsigned int protId = 0;
+    unsigned int sweepIdx = 0;
+    unsigned int itemIdx = 0;
+    unsigned int repsIdx = 0;
+    unsigned int dataPacketsIdx = 0;
+    bool available = false;
+} ItemCoords_t;
+
 static bool exitedDataProducingLoop = true;
 static QReadWriteLock dataLock;
 static QWaitCondition dataCv;
@@ -10,6 +24,7 @@ static int16_t ** dataSamplesBuffer;
 static double ** floatDataSamplesBuffer;
 static double * floatLiquidJunctionBuffer;
 static unsigned int dataPacketsIdx = 0;
+static ItemCoords_t items[PROTS_BUFFER_SIZE][ITEMS_BUFFER_SIZE];
 
 DeviceDataProducer::DeviceDataProducer(ApplicationStatus * appStatus, QObject * parent) :
     QThread(parent),
@@ -66,6 +81,15 @@ DataHook * DeviceDataProducer::getDataHook() {
     return hook;
 }
 
+EpisodicDataHook * DeviceDataProducer::getEpisodicDataHook(unsigned int protocolId) {
+    EpisodicDataHook * hook;
+
+    hook = new EpisodicDataHook(totalChannelsNum, protocolId);
+    hook->setBufferSize(dataPacketsBufferLen, dataPacketsBufferMask);
+
+    return hook;
+}
+
 void DeviceDataProducer::onStopProducing() {
     if (!exitedDataProducingLoop) {
         QMutexLocker connectionLock(&connectionMtx);
@@ -108,7 +132,18 @@ void DeviceDataProducer::run() {
         ret = msgDisp->getNextMessage(dataHeader, datain);
 
         if (ret == Success) {
-            if (dataHeader.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
+            switch (dataHeader.msgTypeId) {
+            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader:
+                currentProtIdx = dataHeader.protocolId & PROTS_BUFFER_MASK;
+                dataLock.lockForWrite();
+                 /*! da capire se il dataPacketsIdx è corretto o ci va messo un -1 o qualcosa del genere */
+                items[currentProtIdx][nextItemIdx] = {dataHeader.protocolId, dataHeader.protocolSweepIdx, dataHeader.protocolItemIdx, dataHeader.protocolRepsIdx, dataPacketsIdx, true};
+                nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
+                items[currentProtIdx][nextItemIdx].available = false;
+                dataLock.unlock();
+                break;
+
+            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData:
                 dataSampleBufferIdx = dataPacketsIdx;
                 for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
                     for (chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
@@ -132,9 +167,10 @@ void DeviceDataProducer::run() {
                 bitRateLock.relock();
                 samplesReceived += dataHeader.dataLen;
                 bitRateLock.unlock();
+                break;
             }
-
-        } else {
+        }
+        else {
             QThread::msleep(1);
         }
     }
@@ -220,7 +256,7 @@ bool DataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsampl
             dataPacketsToBuffer = dataPacketsMax+bufferSize-dataIdx;
         }
     }
-    unsigned int dataSamplesToBuffer = dataPacketsToBuffer* totalChannelsNum;
+    unsigned int dataSamplesToBuffer = dataPacketsToBuffer*totalChannelsNum;
     buffer.resize(dataSamplesToBuffer);
     unsigned int count = 0;
 
@@ -299,7 +335,6 @@ void DataHook::flush() {
     dataLock.unlock();
 }
 
-
 bool DataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
     int waitCount = 0;
     dataLock.lockForRead();
@@ -315,6 +350,199 @@ bool DataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &da
     }
 
     dataPacketsMax = dataPacketsIdx;
+    dataLock.unlock();
+
+    return true;
+}
+
+EpisodicDataHook::EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId) :
+    totalChannelsNum(totalChannelsNum),
+    protocolId(protocolId) {
+
+    this->flush();
+}
+
+EpisodicDataHook::~EpisodicDataHook() {
+
+}
+
+void EpisodicDataHook::setBufferSize(unsigned int bufferSize, unsigned int bufferMask) {
+    this->bufferSize = bufferSize;
+    this->bufferMask = bufferMask;
+    halfBufferSize = bufferSize/2;
+}
+
+bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, bool &newSweep, unsigned int, unsigned int minDataBatchSize) {
+    unsigned int dataPacketsMax;
+    if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
+        return false;
+    }
+
+    unsigned int dataPacketsToBuffer;
+    if (dataIdx <= dataPacketsMax) {
+        dataPacketsToBuffer = dataPacketsMax-dataIdx;
+
+    } else {
+        dataPacketsToBuffer = dataPacketsMax+bufferSize-dataIdx;
+    }
+
+    buffer.resize(dataPacketsToBuffer*totalChannelsNum);
+    unsigned int count = 0;
+    unsigned int chIdx;
+    while (dataIdx != dataPacketsMax) {
+        for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
+            buffer[count++] = dataSamplesBuffer[dataIdx][chIdx];
+        }
+        dataIdx = (dataIdx+1) & bufferMask;
+    }
+    newSweep = newSweepFlag;
+    if (newSweepFlag) {
+        newSweepFlag = false;
+    }
+    return true;
+}
+
+bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, bool &newSweep, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+    unsigned int dataPacketsMax;
+    if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
+        return false;
+    }
+
+    unsigned int dataPacketsToBuffer;
+    unsigned int downsamplingSize = downsamplingRatio << 1; /*! to reduce size by x we take data in chunks of 2*x and then take max and min in the interval */
+    if (downsamplingRatio > 1) {
+        if (dataIdx <= dataPacketsMax) {
+            dataPacketsToBuffer = ((dataPacketsMax-dataIdx)/downsamplingSize) << 1;
+
+        } else {
+            dataPacketsToBuffer = ((dataPacketsMax+bufferSize-dataIdx)/downsamplingSize) << 1;
+        }
+
+    } else {
+        if (dataIdx <= dataPacketsMax) {
+            dataPacketsToBuffer = dataPacketsMax-dataIdx;
+
+        } else {
+            dataPacketsToBuffer = dataPacketsMax+bufferSize-dataIdx;
+        }
+    }
+    unsigned int dataSamplesToBuffer = dataPacketsToBuffer*totalChannelsNum;
+    buffer.resize(dataSamplesToBuffer);
+    unsigned int count = 0;
+
+    unsigned int chIdx;
+    double value;
+    unsigned int countPlusChIdx;
+    if (downsamplingRatio > 1) {
+        while (count+totalChannelsNum < dataSamplesToBuffer) {
+            for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
+                value = floatDataSamplesBuffer[dataIdx][chIdx];
+                countPlusChIdx = count+chIdx;
+                buffer[countPlusChIdx] = value; /*! Initialize max */
+                buffer[countPlusChIdx+totalChannelsNum] = value; /*! Initialize min */
+            }
+            dataIdx = (dataIdx+1) & bufferMask;
+
+            for (unsigned int downsamplingIdx = 1; downsamplingIdx < downsamplingSize; downsamplingIdx++) {
+                for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
+                    value = floatDataSamplesBuffer[dataIdx][chIdx];
+                    countPlusChIdx = count+chIdx;
+                    if (value > buffer[countPlusChIdx]) {
+                        buffer[countPlusChIdx] = value;
+
+                    } else if (value < buffer[countPlusChIdx+totalChannelsNum]) {
+                        buffer[countPlusChIdx+totalChannelsNum] = value;
+                    }
+                }
+                dataIdx = (dataIdx+1) & bufferMask;
+            }
+            count += totalChannelsNum << 1;
+        }
+
+    } else {
+        while (count < dataSamplesToBuffer) {
+            for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
+                buffer[count++] = floatDataSamplesBuffer[dataIdx][chIdx];
+            }
+            dataIdx = (dataIdx+1) & bufferMask;
+        }
+    }
+    newSweep = newSweepFlag;
+    if (newSweepFlag) {
+        newSweepFlag = false;
+    }
+    return true;
+}
+
+bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, bool &newSweep, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
+    unsigned int dataPacketsMax;
+    if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
+        return false;
+    }
+
+    unsigned int dataPacketsToBuffer;
+    if (dataIdx <= dataPacketsMax) {
+        dataPacketsToBuffer = dataPacketsMax - dataIdx;
+
+    }
+    else {
+        dataPacketsToBuffer = dataPacketsMax + bufferSize - dataIdx;
+    }
+
+    doubleBuffer.resize(dataPacketsToBuffer * totalChannelsNum);
+    intBuffer.resize(dataPacketsToBuffer * totalChannelsNum);
+    int count = 0;
+    int chIdx;
+    while (dataIdx != dataPacketsMax) {
+        for (chIdx = 0; chIdx < totalChannelsNum; chIdx++) {
+            doubleBuffer[count] = floatDataSamplesBuffer[dataIdx][chIdx];
+            intBuffer[count++] = dataSamplesBuffer[dataIdx][chIdx];
+        }
+        dataIdx = (dataIdx + 1) & bufferMask;
+    }
+    newSweep = newSweepFlag;
+    if (newSweepFlag) {
+        newSweepFlag = false;
+    }
+    return true;
+}
+
+void EpisodicDataHook::flush() {
+    dataLock.lockForRead();
+    dataIdx = dataPacketsIdx;
+    dataLock.unlock();
+}
+
+bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
+    int waitCount = 0;
+    dataLock.lockForRead();
+    while ((((dataIdx + minDataBatchSize - dataPacketsIdx) & bufferMask) <= halfBufferSize) &&
+           (!exitedDataProducingLoop) &&
+           waitCount++ < DDP_MAX_WAIT_COUNT) {
+        dataCv.wait(&dataLock, 100);
+    }
+
+    if (waitCount >= DDP_MAX_WAIT_COUNT) {
+        dataLock.unlock();
+        return false;
+    }
+
+    auto item = items[protocolId][nextItemIdx];
+
+    if (item.available) {
+        if (currentSweepIdx != item.sweepIdx) {
+            newSweepFlag = true;
+            currentSweepIdx = item.sweepIdx;
+            dataPacketsMax = item.dataPacketsIdx;
+        }
+        else {
+            dataPacketsMax = dataPacketsIdx;
+        }
+        nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
+    }
+    else {
+        dataPacketsMax = dataPacketsIdx;
+    }
     dataLock.unlock();
 
     return true;
