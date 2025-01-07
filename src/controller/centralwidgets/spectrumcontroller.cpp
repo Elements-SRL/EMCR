@@ -57,7 +57,6 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
         plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
     });
     consumer->forceAxisUpdate();
-    consumer->setMaxSamplesPerPlot(SPC_MAX_SAMPLES);
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;

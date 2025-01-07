@@ -37,7 +37,6 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     connect(consumer, &PlotConsumer::setPlotData, this, &IvGraphController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &IvGraphController::onReplot);
     consumer->forceAxisUpdate();
-    consumer->setMaxSamplesPerPlot(4096);
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;

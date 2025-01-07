@@ -9,6 +9,8 @@ EventDetectionConsumer::EventDetectionConsumer(ApplicationStatus* appStatus, Dev
     eventsDirection(_eventsDirection),
     minEventSamples(minEventSamples_),
     maxEventSamples(maxEventSamples_) {
+
+    maxSamples = EDC_MAX_SAMPLES;
     minDataBatchSize = currentChannelsNum * appStatus->getSamplingRate().getNoPrefixValue() * MINIMUM_DATA_FOR_ANALYSIS;
     intBuffer.reserve(producer->getDataPacketsBufferLen() * totalChannelsNum);
     allocateData();

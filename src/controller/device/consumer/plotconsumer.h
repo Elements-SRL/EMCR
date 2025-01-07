@@ -4,7 +4,6 @@
 #include <QFile>
 #include <QTextStream>
 
-#include "messagedispatcher.h"
 #include "devicedataconsumer.h"
 #include "plotmessage.h"
 
@@ -19,7 +18,6 @@ public:
     virtual ~PlotConsumer();
 
     virtual void forceAxisUpdate() = 0;
-    void setMaxSamplesPerPlot(int samples);
 
 public slots:
     virtual void onStartConsuming() override;
@@ -45,8 +43,6 @@ protected:
         Triggered
     } TriggerStatus_t;
 
-    virtual void allocateData() = 0;
-    virtual void clearData() = 0;
     virtual void emitPlotData() = 0;
     virtual void updateRangeAxis();
 
@@ -99,11 +95,12 @@ public:
     ~GapFreePlotConsumer();
 
     virtual void forceAxisUpdate() override;
+    void setMaxSamplesPerPlot(int samples);
 
 protected:
     void run() override;
-    void allocateData() override;
-    void clearData() override;
+    void allocateData();
+    void clearData();
     void emitPlotData() override;
 
 private:

@@ -30,9 +30,9 @@ protected:
     void updateFrequencyAxis();
     void computeFrequencyAxis();
     virtual void updateRangeAxis() override;
-    void clearData() override;
+    void clearData();
     void run() override;
-    void allocateData() override;
+    void allocateData();
     void emitPlotData() override;
 
 private:

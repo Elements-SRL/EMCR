@@ -19,21 +19,6 @@ PlotConsumer::~PlotConsumer() {
 
 }
 
-void PlotConsumer::setMaxSamplesPerPlot(int samples) {
-    bool wasThisRunning = this->isRunning();
-    if(wasThisRunning){
-        this->onStopConsuming();
-    }
-
-    this->clearData();
-    maxSamples = samples;
-    this->allocateData();
-
-    if(wasThisRunning){
-        this->onStartConsuming();
-    }
-}
-
 void PlotConsumer::onStartConsuming() {
     hook = producer->getDataHook();
     if (hook != nullptr) {
@@ -174,6 +159,21 @@ void GapFreePlotConsumer::forceAxisUpdate() {
     pushedCurrentRangeFlag = true;
     this->updateTimeAxis();
     this->updateRangeAxis();
+}
+
+void GapFreePlotConsumer::setMaxSamplesPerPlot(int samples) {
+    bool wasThisRunning = this->isRunning();
+    if (wasThisRunning) {
+        this->onStopConsuming();
+    }
+
+    this->clearData();
+    maxSamples = samples;
+    this->allocateData();
+
+    if (wasThisRunning) {
+        this->onStartConsuming();
+    }
 }
 
 void GapFreePlotConsumer::run() {
