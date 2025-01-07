@@ -108,4 +108,43 @@ private:
     void computeTimeAxis();
 };
 
+class EpisodicPlotConsumer : public PlotConsumer {
+    Q_OBJECT
+
+public:
+    EpisodicPlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
+    ~EpisodicPlotConsumer();
+
+    void lockCurves();
+    void unlockCurves();
+
+protected:
+    void run() override;
+    void allocateData();
+    void clearData();
+    // void updateRangeAxis() override;
+
+    // int timeIdx = 0;
+    // int dataSize = 0;
+
+    // int subSamplingRatio = 1;
+    // int subSamplingIdx = 0;
+
+    QVector <CurveData *> activeCurrentCurveData;
+    QVector <CurveData *> activeVoltageCurveData;
+
+private:
+    void updateTimeAxis();
+    void computeTimeAxis();
+    void lockCurveData();
+    void unlockCurveData();
+
+    Measurement_t pushedSweepDuration;
+    QRecursiveMutex curvesMtx;
+
+signals:
+    void plotDataUpdated(bool, bool, bool);
+    void repaintPlot();
+};
+
 #endif // PLOTCONSUMER_H
