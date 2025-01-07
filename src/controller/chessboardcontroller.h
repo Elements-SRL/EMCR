@@ -13,7 +13,7 @@ class ChessboardController : public QObject {
     Q_OBJECT
 
 public:
-    ChessboardController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
+    ChessboardController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow);
     ~ChessboardController();
 
     void clearCurves();
@@ -54,7 +54,7 @@ private:
     ApplicationStatus * appStatus;
     MainWindow * mainWindow = nullptr;
     ChessboardDockWidget * chessboard = nullptr;
-    PlotConsumer * stampPlotConsumer = nullptr;
+    GapFreePlotConsumer * stampPlotConsumer = nullptr;
 
     QVector <StampPlot *> plots;
     QVector <Curve *> currentCurves;

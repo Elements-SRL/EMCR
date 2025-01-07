@@ -2,7 +2,7 @@
 
 #include <QApplication>
 
-ChessboardController::ChessboardController(ApplicationStatus * appStatus, PlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
+ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
 
