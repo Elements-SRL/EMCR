@@ -5,6 +5,10 @@ AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, M
 	widget = new AutoDecloggerWidget(appStatus->getCurrentRange(), appStatus->getVoltageRange());
 	widget->show();
 	consumer = new AutodecloggerConsumer(appStatus, ddt);
+	connect(consumer, &AutodecloggerConsumer::sigDecloggingStarted, this, &AutoDecloggerController::onDecloggingStarted);
+	connect(consumer, &AutodecloggerConsumer::sigDecloggingCompleted, this, &AutoDecloggerController::onDecloggingCompleted);
+	connect(widget, &AutoDecloggerWidget::sigActivate, this, &AutoDecloggerController::onStart);
+	connect(widget, &AutoDecloggerWidget::sigStop, this, &AutoDecloggerController::onStop);
 }
 
 AutoDecloggerController::~AutoDecloggerController() {
@@ -25,13 +29,23 @@ void AutoDecloggerController::onStart() {
 		msts.push_back(mst);
 	}
 	model = new AutoDecloggerModel(ths, vs, msts);
-
+	if (consumer->isRunning()) {
+		consumer->onStopConsuming();
+		consumer->setModel(model);
+	} else {
+		consumer->setModel(model);
+	}
+	consumer->onStartConsuming();
 }
 
 void AutoDecloggerController::onStop() {
 }
 
-void AutoDecloggerController::onDecloggingStarted() {}
-void AutoDecloggerController::onDecloggingCompleted() {}
+void AutoDecloggerController::onDecloggingStarted(std::vector<int> channels) {
+	widget->onPoreClogged();
+}
+void AutoDecloggerController::onDecloggingCompleted(std::vector<int> channels) {
+	widget->onPoreFree();
+}
 void AutoDecloggerController::onCurrentRangeChanged(RangedMeasurement cr) {}
 void AutoDecloggerController::onVoltageRangeChanged(RangedMeasurement vr) {}

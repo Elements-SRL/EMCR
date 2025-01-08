@@ -20,8 +20,13 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     configureDoubleSpinbox(thField, cr);
     timeField = new QDoubleSpinBox(this);
     timeField->setSuffix("ms");
+    timeField->setMaximum(10000);
+    timeField->setValue(500.0);
+    thField->setValue(80.0);
     voltageField = new QDoubleSpinBox(this);
     configureDoubleSpinbox(voltageField, vr);
+    freePore = new QLabel("The pore is free");
+    cloggedPore = new QLabel("The pore is clogged");
     outerLayout->addWidget(new QLabel("Activate", this));
     outerLayout->addWidget(active);
     outerLayout->addWidget(new QLabel("Current threshold", this));
@@ -30,9 +35,19 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     outerLayout->addWidget(timeField);
     outerLayout->addWidget(new QLabel("Declogging stimulus", this));
     outerLayout->addWidget(voltageField);
+    outerLayout->addWidget(freePore);
+    outerLayout->addWidget(cloggedPore);
+    freePore->hide();
+    cloggedPore->hide();
     setLayout(outerLayout);
     setWidget(centralWidget);
-    //connect(autoZoomButton, &QPushButton::clicked, this, &IvGraphWidget::sigAutoZoom);
+    connect(active, &QCheckBox::clicked, this, [=](bool checked) {
+        if (checked) {
+            emit sigActivate();
+        } else {
+            emit sigStop();
+        }
+    });
 }
 
 double AutoDecloggerWidget::getThreshold() {
@@ -53,4 +68,14 @@ void AutoDecloggerWidget::currentRangeChanged(RangedMeasurement cr) {
 
 void AutoDecloggerWidget::voltageRangeChanged(RangedMeasurement vr) {
     configureDoubleSpinbox(voltageField, vr);
+}
+
+void AutoDecloggerWidget::onPoreClogged() {
+    freePore->hide();
+    cloggedPore->show();
+}
+
+void AutoDecloggerWidget::onPoreFree() {
+    freePore->show();
+    cloggedPore->hide();
 }

@@ -16,6 +16,8 @@ private:
     QDoubleSpinBox* thField;
     QDoubleSpinBox* voltageField;
     QDoubleSpinBox* timeField;
+    QLabel* freePore;
+    QLabel* cloggedPore;
     //add a red led
 
 public:
@@ -24,8 +26,14 @@ public:
     double getVoltage();
     double getTime();
 
+signals:
+    void sigActivate();
+    void sigStop();
+
 public slots:
     //intercept change of current and voltage range
+    void onPoreClogged();
+    void onPoreFree();
     void currentRangeChanged(RangedMeasurement cr);
     void voltageRangeChanged(RangedMeasurement vr);
 };

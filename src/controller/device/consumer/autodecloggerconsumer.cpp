@@ -126,28 +126,30 @@ void AutodecloggerConsumer::run() {
                         const auto avg = sum / (double)nElements;
                         const auto absAvg = abs(avg);
                         if (absAvg < model->thresholds[i]) {
-
-                            
+                            started.push_back(i);
                         }
                     }
-                }
-                if (completed.size() > 0) {
-                    //come back to original stimulus
-                    //signal that this channel is not declogging anymore
-                    emit sigDecloggingCompleted(completed);
-                }
-                if (started.size() > 0) {
-                    // get voltage
-                    // add voltage to old voltages
-                    //set voltage
-                    //init timer
-                    emit sigDecloggingStarted(started);
                 }
                 lastUpdateTimeMs = currentTimeMs;
                 //this data has already been analyzed, so I can get rid of it
                 for (auto c : currentValues) {
                     c.clear();
                 }
+            }
+            if (rand() % 2 == 0) {
+                emit sigDecloggingCompleted(completed);
+            }
+            if (completed.size() > 0) {
+                //come back to original stimulus
+                //signal that this channel is not declogging anymore
+                emit sigDecloggingCompleted(completed);
+            }
+            if (started.size() > 0) {
+                // get voltage
+                // add voltage to old voltages
+                //set voltage
+                //init timer
+                emit sigDecloggingStarted(started);
             }
         }
     }
