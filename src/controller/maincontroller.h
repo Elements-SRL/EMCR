@@ -24,6 +24,7 @@
 #include "statearraycontroller.h"
 #include "compensationcontroller.h"
 #include "plotpreferencescontroller.h"
+#include "autodeclogger/autodecloggercontroller.h"
 
 
 class MainController : public QObject {
@@ -87,6 +88,7 @@ private:
     CompensationController * compensationController = nullptr;
     MeasurementOverviewController * measurementOverviewController = nullptr;
     PlotPreferencesController * plotPreferencesController = nullptr;
+    AutoDecloggerController* autoDecloggerController = nullptr;
 
     ProtocolManager * voltageProtocolManager = nullptr;
     ProtocolManager * currentProtocolManager = nullptr;

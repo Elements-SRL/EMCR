@@ -2,8 +2,6 @@
 #define AUTODECLOGGERMODEL_H
 
 #include <vector>
-#include <string>
-#include "e384commlib_global_addendum.h"
 
 struct AutoDecloggerModel {
     std::vector<double> thresholds;
@@ -14,4 +12,4 @@ struct AutoDecloggerModel {
         : thresholds(thresholds_), stimuli(stimuli_), msTimes(msTimes_) {}
 };
 
-#endif // BASELINE_H
+#endif // AUTODECLOGGERMODEL_H

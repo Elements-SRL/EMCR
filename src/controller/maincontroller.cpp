@@ -196,6 +196,8 @@ void MainController::onMainWindowCreated() {
         voltageProtocolManager = new ProtocolManager(msgDisp);
         currentProtocolManager = new ProtocolManager(msgDisp);
     }
+
+    autoDecloggerController = new AutoDecloggerController(appStatus, mainWindow, deviceDataProducer);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
 
