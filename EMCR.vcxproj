@@ -200,6 +200,7 @@
     <ClCompile Include="src\model\multiplechannelmodel.cpp" />
     <ClCompile Include="src\view\activationbutton.cpp" />
     <ClCompile Include="src\view\advancedmenu\resethwhelpdialog.cpp" />
+    <ClCompile Include="src\view\autodeclogger\autodecloggerwidget.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\baseplot.cpp" />
     <ClCompile Include="src\view\gapfreewidget.cpp" />
@@ -336,6 +337,7 @@
     <QtMoc Include="src\controller\compensationcontroller.h" />
     <QtMoc Include="src\view\centralwidgets\eventdetectionwidget.h" />
     <QtMoc Include="src\view\advancedmenu\resethwhelpdialog.h" />
+    <QtMoc Include="src\view\autodeclogger\autodecloggerwidget.h" />
     <ClInclude Include="src\view\conversionscaledraw.h" />
     <QtMoc Include="src\view\copyabletable.h" />
     <QtMoc Include="src\controller\protocol\cursorsmanager.h" />
