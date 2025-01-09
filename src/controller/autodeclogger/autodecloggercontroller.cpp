@@ -3,7 +3,7 @@
 AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, MainWindow* mainWindow, DeviceDataProducer* ddt) {
 	this->appStatus = appStatus;
 	widget = new AutoDecloggerWidget(appStatus->getCurrentRange(), appStatus->getVoltageRange());
-	widget->show();
+	mainWindow->setDockWidget(MainWindow::DWAutoDeclogger, widget);
 	consumer = new AutodecloggerConsumer(appStatus, ddt);
 	connect(consumer, &AutodecloggerConsumer::sigDecloggingStarted, this, &AutoDecloggerController::onDecloggingStarted);
 	connect(consumer, &AutodecloggerConsumer::sigDecloggingCompleted, this, &AutoDecloggerController::onDecloggingCompleted);
