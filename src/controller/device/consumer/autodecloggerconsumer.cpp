@@ -56,15 +56,12 @@ AutodecloggerConsumer::AutodecloggerConsumer(ApplicationStatus* appStatus, Devic
     DeviceDataConsumer(appStatus, producer) {
     for (int i = 0; i < currentChannelsNum; i++) {
         currentValues.push_back({});
-        timers.push_back(std::nullopt);
-        originalStimului.push_back(0.0);
     }
 }
 AutodecloggerConsumer::~AutodecloggerConsumer() {
     currentValues.clear();
     timers.clear();
     buffer.clear();
-    originalStimului.clear();
     model = nullptr;
     delete model;
 }
@@ -97,6 +94,11 @@ void AutodecloggerConsumer::run() {
 
             while (bufferIdx + voltageChannelsNum < bufferLen) {
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                    // if there is no previous voltage, read it
+                    // could this have problems if I read old voltages?
+                    if (!originalVoltages[channelIdx].has_value()) {
+                        originalVoltages[channelIdx] = buffer[bufferIdx];
+                    }
                     const auto currentValue = buffer[bufferIdx + voltageChannelsNum];
                     currentValues[channelIdx].push_back(currentValue);
                     bufferIdx++;
@@ -104,14 +106,15 @@ void AutodecloggerConsumer::run() {
                 bufferIdx += currentChannelsNum;
             }
             currentTimeMs = updateDataTimer.elapsed();
-            std::vector<int> completed = {};
-            std::vector<int> started = {};
+            std::vector<unsigned short> toStart, toComplete = {};
             if (currentTimeMs - lastUpdateTimeMs > MIN_UPDATE_PLOT_TIME_MS) {
                 for (int i = 0; i < currentChannelsNum; i++) {
-                    if (timers[i].has_value()) {
+                    if (timers.count(i) == 1 && timers[i].has_value()) {
                         if (timers[i].value()->elapsed() > model->msTimes[i]) {
                             auto msgDisp = appStatus->getMessageDispatcher();
-                            completed.push_back(i);
+                            toComplete.push_back(i);
+                            timers[i] = std::nullopt;
+                            originalVoltages[i] = std::nullopt;
                         }
                     }
                     else {
@@ -126,7 +129,7 @@ void AutodecloggerConsumer::run() {
                         const auto avg = sum / (double)nElements;
                         const auto absAvg = abs(avg);
                         if (absAvg < model->thresholds[i]) {
-                            started.push_back(i);
+                            toStart.push_back(i);
                         }
                     }
                 }
@@ -136,20 +139,48 @@ void AutodecloggerConsumer::run() {
                     c.clear();
                 }
             }
-            if (rand() % 3 == 0) {
-                emit sigDecloggingCompleted(completed);
-            }
-            if (completed.size() > 0) {
+            if (toComplete.size() > 0) {
                 //come back to original stimulus
+                std::vector<Measurement> resetValues;
+                for (auto& ch : toComplete) {
+                    const auto v = tunerResetValues[ch];
+                    if (v.has_value()) {
+                        resetValues.push_back(v.value());
+                    }
+                }
+                appStatus->getMessageDispatcher()->setVoltageHoldTuner(toComplete, resetValues, true);
                 //signal that this channel is not declogging anymore
-                emit sigDecloggingCompleted(completed);
+                emit sigDecloggingCompleted(toComplete);
             }
-            if (started.size() > 0) {
-                // get voltage
-                // add voltage to old voltages
-                //set voltage
-                //init timer
-                emit sigDecloggingStarted(started);
+            if (toStart.size() > 0) {
+                const auto vr = appStatus->getVoltageRange();
+                std::vector<Measurement> voltages, tuners, voltagesToApply;
+                std::vector<int> chIndexes;
+                appStatus->getMessageDispatcher()->getVoltageHoldTuner(tuners);
+                for (const auto& ch : toStart) {
+                    tunerResetValues[ch] = tuners[ch];
+                    if (originalVoltages[ch].has_value()) {
+                        const Measurement v = { originalVoltages[ch].value(), vr.prefix, "V" };
+                        voltages.push_back(v);
+                        chIndexes.push_back(ch);
+                    }
+                }
+
+                for (int vCh = 0; vCh < appStatus->getVoltageChannelsNum(); vCh++) {
+                    const auto vNoTuner = voltages[vCh] - tuners[vCh];
+                    const Measurement vToApply = { vNoTuner.value - model->stimuli[vCh], vNoTuner.prefix, vNoTuner.unit };
+                    voltagesToApply.push_back(vToApply);
+                    timers[vCh] = new QElapsedTimer;
+                }
+                //set voltages to declog the pore
+                appStatus->getMessageDispatcher()->setVoltageHoldTuner(toStart, voltagesToApply, true);
+                // init timer
+                for (const auto& [key, value] : timers) {
+                    if (value.has_value()) {
+                        value.value()->start();
+                    }
+                }
+                emit sigDecloggingStarted(toStart);
             }
         }
     }
@@ -179,7 +210,7 @@ void AutodecloggerConsumer::safeUpdate(Lambda lambda) {
 
 void AutodecloggerConsumer::setThresholds(std::map<int, double> thresholds) {
     safeUpdate([=]() { 
-        for (const auto& [key, value] : thresholds) {
+         for (const auto& [key, value] : thresholds) {
             model->thresholds[key] = value;
         }
      });

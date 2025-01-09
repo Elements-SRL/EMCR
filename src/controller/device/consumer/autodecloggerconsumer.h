@@ -28,15 +28,18 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
 signals:
-    void sigDecloggingStarted(std::vector<int>);
-    void sigDecloggingCompleted(std::vector<int>);
+    //void sigDecloggingStarted(std::vector<unsigned short>);
+    //void sigDecloggingCompleted(std::vector<unsigned short>);
+    void sigDecloggingStarted(std::vector<unsigned short>);
+    void sigDecloggingCompleted(std::vector<unsigned short>);
 
 private:
     AutoDecloggerModel* model = nullptr;
     std::vector<double> buffer{};
-    std::vector<std::vector<double>> currentValues{};
-    std::vector<std::optional<QElapsedTimer*>> timers;
-    std::vector<double> originalStimului;
+    std::vector<std::vector<double>> currentValues;
+    std::map<int, std::optional<double>> originalVoltages;
+    std::map<int, std::optional<Measurement>> tunerResetValues;
+    std::map<int, std::optional<QElapsedTimer*>> timers;
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
     template <typename Lambda>

@@ -34,8 +34,8 @@ public slots:
     void onTimeFieldChanged(double);
     void onCurrentRangeChanged(RangedMeasurement cr);
     void onVoltageRangeChanged(RangedMeasurement vr);
-    void onDecloggingStarted(std::vector<int>);
-    void onDecloggingCompleted(std::vector<int>);
+    void onDecloggingStarted(std::vector<unsigned short>);
+    void onDecloggingCompleted(std::vector<unsigned short>);
 
 signals:
     // signals sent to Compensation Control Widget

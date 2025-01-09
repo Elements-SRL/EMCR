@@ -44,10 +44,10 @@ void AutoDecloggerController::onActive(bool active) {
 	consumer->onStartConsuming();
 }
 
-void AutoDecloggerController::onDecloggingStarted(std::vector<int> channels) {
+void AutoDecloggerController::onDecloggingStarted(std::vector<unsigned short> channels) {
 	widget->onPoreClogged();
 }
-void AutoDecloggerController::onDecloggingCompleted(std::vector<int> channels) {
+void AutoDecloggerController::onDecloggingCompleted(std::vector<unsigned short> channels) {
 	widget->onPoreFree();
 }
 void AutoDecloggerController::onCurrentRangeChanged(RangedMeasurement cr) {}
