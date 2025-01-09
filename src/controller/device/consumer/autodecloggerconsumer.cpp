@@ -55,13 +55,16 @@ void AutodecloggerConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
 AutodecloggerConsumer::AutodecloggerConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer):
     DeviceDataConsumer(appStatus, producer) {
     for (int i = 0; i < currentChannelsNum; i++) {
-        currentValues.push_back({});
+        currentValues[i] = {};
     }
 }
+
 AutodecloggerConsumer::~AutodecloggerConsumer() {
     currentValues.clear();
     timers.clear();
     buffer.clear();
+    originalVoltages.clear();
+    tunerResetValues.clear();
     model = nullptr;
     delete model;
 }
@@ -135,8 +138,8 @@ void AutodecloggerConsumer::run() {
                 }
                 lastUpdateTimeMs = currentTimeMs;
                 //this data has already been analyzed, so I can get rid of it
-                for (auto c : currentValues) {
-                    c.clear();
+                for (auto &[k, v] : currentValues) {
+                    v.clear();
                 }
             }
             if (toComplete.size() > 0) {

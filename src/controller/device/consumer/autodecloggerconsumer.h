@@ -35,8 +35,8 @@ signals:
 
 private:
     AutoDecloggerModel* model = nullptr;
-    std::vector<double> buffer{};
-    std::vector<std::vector<double>> currentValues;
+    std::vector<double> buffer;
+    std::map<int, std::vector<double>> currentValues;
     std::map<int, std::optional<double>> originalVoltages;
     std::map<int, std::optional<Measurement>> tunerResetValues;
     std::map<int, std::optional<QElapsedTimer*>> timers;
