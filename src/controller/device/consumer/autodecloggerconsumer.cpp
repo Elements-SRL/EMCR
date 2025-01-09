@@ -136,7 +136,7 @@ void AutodecloggerConsumer::run() {
                     c.clear();
                 }
             }
-            if (rand() % 2 == 0) {
+            if (rand() % 3 == 0) {
                 emit sigDecloggingCompleted(completed);
             }
             if (completed.size() > 0) {
@@ -160,4 +160,43 @@ void AutodecloggerConsumer::run() {
 
 void AutodecloggerConsumer::setModel(AutoDecloggerModel* model) {
     this->model = model;
+}
+
+template <typename Lambda>
+void AutodecloggerConsumer::safeUpdate(Lambda lambda) {
+    if (model == nullptr) {
+        return;
+    }
+    const auto wasRunning = isRunning();
+    if (wasRunning) {
+        onStopConsuming();
+    }
+    lambda();
+    if (wasRunning) {
+        onStartConsuming();
+    }
+}
+
+void AutodecloggerConsumer::setThresholds(std::map<int, double> thresholds) {
+    safeUpdate([=]() { 
+        for (const auto& [key, value] : thresholds) {
+            model->thresholds[key] = value;
+        }
+     });
+}
+
+void AutodecloggerConsumer::setTimes(std::map<int, double> times) {
+    safeUpdate([=]() {
+        for (const auto& [key, value] : times) {
+            model->thresholds[key] = value;
+        }
+        });
+}
+
+void AutodecloggerConsumer::setVoltages(std::map<int, double> voltages) {
+    safeUpdate([=]() {
+        for (const auto& [key, value] : voltages) {
+            model->thresholds[key] = value;
+        }
+        });
 }

@@ -41,13 +41,10 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     cloggedPore->hide();
     setLayout(outerLayout);
     setWidget(centralWidget);
-    connect(active, &QCheckBox::clicked, this, [=](bool checked) {
-        if (checked) {
-            emit sigActivate();
-        } else {
-            emit sigStop();
-        }
-    });
+    connect(active, &QCheckBox::clicked, this, [=](bool checked) { emit sigActive(checked); });
+    connect(timeField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigTimeFieldChanged(timeField->value()); });
+    connect(thField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigThFieldChanged(thField->value()); });
+    connect(voltageField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigVotageFieldChanged(voltageField->value()); });
 }
 
 double AutoDecloggerWidget::getThreshold() {

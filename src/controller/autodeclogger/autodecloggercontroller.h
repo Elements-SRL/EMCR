@@ -28,8 +28,10 @@ private:
     AutodecloggerConsumer* consumer = nullptr;
 
 public slots:
-    void onStart();
-    void onStop();
+    void onActive(bool);
+    void onThFieldChanged(double);
+    void onVoltageFieldChanged(double);
+    void onTimeFieldChanged(double);
     void onCurrentRangeChanged(RangedMeasurement cr);
     void onVoltageRangeChanged(RangedMeasurement vr);
     void onDecloggingStarted(std::vector<int>);

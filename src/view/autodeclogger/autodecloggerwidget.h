@@ -27,8 +27,10 @@ public:
     double getTime();
 
 signals:
-    void sigActivate();
-    void sigStop();
+    void sigActive(bool);
+    void sigThFieldChanged(double);
+    void sigVotageFieldChanged(double);
+    void sigTimeFieldChanged(double);
 
 public slots:
     //intercept change of current and voltage range

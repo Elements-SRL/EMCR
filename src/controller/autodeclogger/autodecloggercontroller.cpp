@@ -7,15 +7,21 @@ AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, M
 	consumer = new AutodecloggerConsumer(appStatus, ddt);
 	connect(consumer, &AutodecloggerConsumer::sigDecloggingStarted, this, &AutoDecloggerController::onDecloggingStarted);
 	connect(consumer, &AutodecloggerConsumer::sigDecloggingCompleted, this, &AutoDecloggerController::onDecloggingCompleted);
-	connect(widget, &AutoDecloggerWidget::sigActivate, this, &AutoDecloggerController::onStart);
-	connect(widget, &AutoDecloggerWidget::sigStop, this, &AutoDecloggerController::onStop);
+	connect(widget, &AutoDecloggerWidget::sigActive, this, &AutoDecloggerController::onActive);
+	connect(widget, &AutoDecloggerWidget::sigThFieldChanged, this, &AutoDecloggerController::onThFieldChanged);
+	connect(widget, &AutoDecloggerWidget::sigVotageFieldChanged, this, &AutoDecloggerController::onVoltageFieldChanged);
+	connect(widget, &AutoDecloggerWidget::sigTimeFieldChanged, this, &AutoDecloggerController::onTimeFieldChanged);
 }
 
 AutoDecloggerController::~AutoDecloggerController() {
 
 }
 
-void AutoDecloggerController::onStart() {
+void AutoDecloggerController::onActive(bool active) {
+	if (!active) {
+		consumer->onStopConsuming();
+		return;
+	}
 	const auto th = widget->getThreshold();
 	const auto v = widget->getVoltage();
 	const auto mst = widget->getTime();
@@ -38,9 +44,6 @@ void AutoDecloggerController::onStart() {
 	consumer->onStartConsuming();
 }
 
-void AutoDecloggerController::onStop() {
-}
-
 void AutoDecloggerController::onDecloggingStarted(std::vector<int> channels) {
 	widget->onPoreClogged();
 }
@@ -49,3 +52,27 @@ void AutoDecloggerController::onDecloggingCompleted(std::vector<int> channels) {
 }
 void AutoDecloggerController::onCurrentRangeChanged(RangedMeasurement cr) {}
 void AutoDecloggerController::onVoltageRangeChanged(RangedMeasurement vr) {}
+
+void AutoDecloggerController::onThFieldChanged(double th) {
+	std::map<int, double> m;
+	for (int ch = 0; ch < appStatus->getCurrentChannelsNum(); ch++) {
+		m.insert(std::pair<char, int>(ch, th));
+	}
+	consumer->setThresholds(m);
+}
+
+void AutoDecloggerController::onVoltageFieldChanged(double v) {
+	std::map<int, double> m;
+	for (int ch = 0; ch < appStatus->getCurrentChannelsNum(); ch++) {
+		m.insert(std::pair<char, int>(ch, v));
+	}
+	consumer->setVoltages(m);
+}
+
+void AutoDecloggerController::onTimeFieldChanged(double t) {
+	std::map<int, double> m;
+	for (int ch = 0; ch < appStatus->getCurrentChannelsNum(); ch++) {
+		m.insert(std::pair<char, int>(ch, t));
+	}
+	consumer->setTimes(m);
+}

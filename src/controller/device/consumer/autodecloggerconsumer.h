@@ -15,6 +15,9 @@ public:
     AutodecloggerConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer);
     ~AutodecloggerConsumer();
     void setModel(AutoDecloggerModel* model);
+    void setThresholds(std::map<int, double> thresholds);
+    void setTimes(std::map<int, double> thresholds);
+    void setVoltages(std::map<int, double> thresholds);
 
 public slots:
     virtual void onStartConsuming() override;
@@ -36,6 +39,8 @@ private:
     std::vector<double> originalStimului;
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
+    template <typename Lambda>
+    void safeUpdate(Lambda lambda);
 
 protected:
     void run() override;
