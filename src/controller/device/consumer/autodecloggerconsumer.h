@@ -8,6 +8,17 @@
 
 #define MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 
+struct ClogInfo {
+    Measurement originalVoltageHoldTuner;
+    Measurement vToApply;
+    QElapsedTimer* timer;
+    bool decloggingComplete;
+
+    static ClogInfo create(Measurement originalVoltageHoldTuner, Measurement vToApply, QElapsedTimer* timer) {
+        return { originalVoltageHoldTuner, vToApply, timer, false };
+    }
+};
+
 class AutodecloggerConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
@@ -36,14 +47,14 @@ signals:
 private:
     AutoDecloggerModel* model = nullptr;
     std::vector<double> buffer;
-    std::map<int, std::vector<double>> currentValues;
-    std::map<int, std::optional<double>> originalVoltages;
-    std::map<int, std::optional<Measurement>> tunerResetValues;
-    std::map<int, std::optional<QElapsedTimer*>> timers;
+    std::map<int, std::optional<Measurement>> originalVoltages;
+    std::map<int, std::optional<ClogInfo>> clogInfo;
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
+
     template <typename Lambda>
     void safeUpdate(Lambda lambda);
+    void complete();
 
 protected:
     void run() override;

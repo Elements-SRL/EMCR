@@ -1,7 +1,8 @@
 #include "autodeclogger/autodecloggercontroller.h"
 
-AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, MainWindow* mainWindow, DeviceDataProducer* ddt) {
-	this->appStatus = appStatus;
+AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, MainWindow* mainWindow, DeviceDataProducer* ddt) :
+	appStatus(appStatus), 
+	mainWindow(mainWindow) {
 	widget = new AutoDecloggerWidget(appStatus->getCurrentRange(), appStatus->getVoltageRange());
 	mainWindow->setDockWidget(MainWindow::DWAutoDeclogger, widget);
 	consumer = new AutodecloggerConsumer(appStatus, ddt);
@@ -14,7 +15,13 @@ AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, M
 }
 
 AutoDecloggerController::~AutoDecloggerController() {
-
+	//investiga come mai viene aggiunto alla disconnect
+	delete widget;
+	widget = nullptr;
+	mainWindow->setDockWidget(MainWindow::DWAutoDeclogger, widget);
+	consumer->onStopConsuming();
+	delete consumer;
+	consumer = nullptr;
 }
 
 void AutoDecloggerController::onActive(bool active) {

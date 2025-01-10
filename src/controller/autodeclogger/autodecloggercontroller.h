@@ -26,6 +26,7 @@ private:
     ApplicationStatus* appStatus = nullptr;
     AutoDecloggerWidget* widget = nullptr;
     AutodecloggerConsumer* consumer = nullptr;
+    MainWindow* mainWindow = nullptr;
 
 public slots:
     void onActive(bool);

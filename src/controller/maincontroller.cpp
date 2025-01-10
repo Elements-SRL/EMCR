@@ -104,10 +104,9 @@ void MainController::onConnect(bool flag) {
         previousCurrentRange.reset();
 
         mainWindow->setConnectionLabel("");
-        this->stopAndDestroyProducerConsumers();
-
         mainWindow->connectDevice(false, Success);
         this->destroyControllers();
+        this->stopAndDestroyProducerConsumers();
 
         if (appStatus != nullptr) {
             delete appStatus;
@@ -431,6 +430,11 @@ void MainController::destroyControllers() {
     if (bigPlotController != nullptr) {
         delete bigPlotController;
         bigPlotController = nullptr;
+    }
+
+    if (autoDecloggerController != nullptr) {
+        delete autoDecloggerController;
+        autoDecloggerController = nullptr;
     }
 }
 

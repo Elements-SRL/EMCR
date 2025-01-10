@@ -22,9 +22,11 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     timeField->setSuffix("ms");
     timeField->setMaximum(10000);
     timeField->setValue(500.0);
-    thField->setValue(80.0);
+    thField->setValue(30.0);
     voltageField = new QDoubleSpinBox(this);
     configureDoubleSpinbox(voltageField, vr);
+    voltageField->setMinimum(vr.min);
+    voltageField->setValue(-100.0);
     freePore = new QLabel("The pore is free");
     cloggedPore = new QLabel("The pore is clogged");
     outerLayout->addWidget(new QLabel("Activate", this));
