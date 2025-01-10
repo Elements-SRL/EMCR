@@ -128,7 +128,7 @@ void AutodecloggerConsumer::run() {
             // once the timer has elapsed, we can safely delete the declog structure and 
             // restart monitoring current
             for (auto& [k, v] : clogInfo) {
-                if (v.has_value() && v.value().timer->elapsed() > 500) {
+                if (v.has_value() && v.value().decloggingComplete && v.value().timer->elapsed() > 500) {
                     v = std::nullopt;
                 }
             }
@@ -225,7 +225,7 @@ void AutodecloggerConsumer::complete() {
     std::vector<unsigned short> chIndexes;
     for (auto& [k, v] : clogInfo) {
         if (v.has_value()) {
-            auto ci = v.value();
+            auto &ci = v.value();
             if (ci.timer->elapsed() > model->msTimes[k]) {
                 resetValues.push_back(ci.originalVoltageHoldTuner);
                 chIndexes.push_back((unsigned int)k);
