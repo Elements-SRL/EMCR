@@ -196,7 +196,7 @@ void AutodecloggerConsumer::setThresholds(std::map<int, double> thresholds) {
 void AutodecloggerConsumer::setTimes(std::map<int, double> times) {
     safeUpdate([=]() {
         for (const auto& [key, value] : times) {
-            model->thresholds[key] = value;
+            model->msTimes[key] = value;
         }
         });
 }
@@ -204,7 +204,7 @@ void AutodecloggerConsumer::setTimes(std::map<int, double> times) {
 void AutodecloggerConsumer::setVoltages(std::map<int, double> voltages) {
     safeUpdate([=]() {
         for (const auto& [key, value] : voltages) {
-            model->thresholds[key] = value;
+            model->stimuli[key] = value;
         }
         });
 }
