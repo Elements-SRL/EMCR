@@ -20,7 +20,7 @@ void AutodecloggerConsumer::onStopConsuming() {
             exitedDataConsumingLoopCv.wait(&consumptionMtx, 100);
         }
     }
-
+    resetStim();
     if (hook != nullptr) {
         delete hook;
         hook = nullptr;
@@ -232,6 +232,33 @@ void AutodecloggerConsumer::complete() {
                 ci.decloggingComplete = true;
                 ci.timer->restart();
             }
+        }
+    }
+    appStatus->getMessageDispatcher()->setVoltageHoldTuner(chIndexes, resetValues, true);
+    //signal that this channel is not declogging anymore
+    emit sigDecloggingCompleted(chIndexes);
+}
+
+void AutodecloggerConsumer::resetStim() {
+    bool declogging = false;
+    for (auto& [k, v] : clogInfo) {
+        if (v.has_value()) {
+            declogging = true;
+            continue;
+        }
+    }
+    if (!declogging) {
+        return;
+    }
+    //come back to original stimulus without further checks
+    std::vector<Measurement> resetValues;
+    std::vector<unsigned short> chIndexes;
+    for (auto& [k, v] : clogInfo) {
+        if (v.has_value()) {
+            auto& ci = v.value();
+            resetValues.push_back(ci.originalVoltageHoldTuner);
+            chIndexes.push_back((unsigned int)k);
+            v = std::nullopt;
         }
     }
     appStatus->getMessageDispatcher()->setVoltageHoldTuner(chIndexes, resetValues, true);

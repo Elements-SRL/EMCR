@@ -55,6 +55,7 @@ private:
     template <typename Lambda>
     void safeUpdate(Lambda lambda);
     void complete();
+    void resetStim();
 
 protected:
     void run() override;
