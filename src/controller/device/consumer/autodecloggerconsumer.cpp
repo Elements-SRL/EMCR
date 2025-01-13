@@ -143,7 +143,7 @@ void AutodecloggerConsumer::run() {
                         const auto vNoTuner = voltage - tuner;
                         const auto userVoltage = model->stimuli[ch];
                         const auto timer = new QElapsedTimer();
-                        const Measurement vToApply = { vNoTuner.value + userVoltage, vNoTuner.prefix, vNoTuner.unit };
+                        const Measurement vToApply = { userVoltage - vNoTuner.value, vNoTuner.prefix, vNoTuner.unit };
                         const auto ci = ClogInfo::create(tuner, vToApply, timer);
                         clogInfo[ch] = std::make_optional(ci);
                     }
@@ -233,6 +233,9 @@ void AutodecloggerConsumer::complete() {
                 ci.timer->restart();
             }
         }
+    }
+    for (auto& [k, v] : originalVoltages) {
+        v = std::nullopt;
     }
     appStatus->getMessageDispatcher()->setVoltageHoldTuner(chIndexes, resetValues, true);
     //signal that this channel is not declogging anymore
