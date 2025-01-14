@@ -12,6 +12,7 @@ AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, M
 	connect(widget, &AutoDecloggerWidget::sigThFieldChanged, this, &AutoDecloggerController::onThFieldChanged);
 	connect(widget, &AutoDecloggerWidget::sigVotageFieldChanged, this, &AutoDecloggerController::onVoltageFieldChanged);
 	connect(widget, &AutoDecloggerWidget::sigTimeFieldChanged, this, &AutoDecloggerController::onTimeFieldChanged);
+	connect(widget, &AutoDecloggerWidget::sigCooldownTimeFieldChanged, this, &AutoDecloggerController::onCooldownTimeFieldChanged);
 }
 
 AutoDecloggerController::~AutoDecloggerController() {
@@ -32,16 +33,19 @@ void AutoDecloggerController::onActive(bool active) {
 	const auto th = widget->getThreshold();
 	const auto v = widget->getVoltage();
 	const auto mst = widget->getTime();
+	const auto cdt = widget->getCooldownTime();
 	const auto chNum = appStatus->getCurrentChannelsNum();
 	std::vector<double> ths;
 	std::vector<double> vs;
 	std::vector<double> msts;
+	std::vector<double> cdts;
 	for (int i = 0; i < chNum; i++) {
 		ths.push_back(th);
 		vs.push_back(v);
 		msts.push_back(mst);
+		cdts.push_back(cdt);
 	}
-	model = new AutoDecloggerModel(ths, vs, msts);
+	model = new AutoDecloggerModel(ths, vs, msts, cdts);
 	if (consumer->isRunning()) {
 		consumer->onStopConsuming();
 		consumer->setModel(model);
@@ -82,4 +86,12 @@ void AutoDecloggerController::onTimeFieldChanged(double t) {
 		m.insert(std::pair<char, int>(ch, t));
 	}
 	consumer->setTimes(m);
+}
+
+void AutoDecloggerController::onCooldownTimeFieldChanged(double t) {
+	std::map<int, double> m;
+	for (int ch = 0; ch < appStatus->getCurrentChannelsNum(); ch++) {
+		m.insert(std::pair<char, int>(ch, t));
+	}
+	consumer->setCooldownTimes(m);
 }

@@ -20,9 +20,14 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     configureDoubleSpinbox(thField, cr);
     timeField = new QDoubleSpinBox(this);
     timeField->setSuffix("ms");
-    timeField->setMaximum(10000);
+    timeField->setMaximum(20000);
     timeField->setValue(500.0);
-    thField->setValue(30.0);
+    timeField->setDecimals(0);
+    cooldownTimeField = new QDoubleSpinBox(this);
+    cooldownTimeField->setSuffix("ms");
+    cooldownTimeField->setMaximum(20000);
+    cooldownTimeField->setValue(500.0);
+    cooldownTimeField->setDecimals(0);
     voltageField = new QDoubleSpinBox(this);
     configureDoubleSpinbox(voltageField, vr);
     voltageField->setMinimum(vr.min);
@@ -33,10 +38,12 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     outerLayout->addWidget(active);
     outerLayout->addWidget(new QLabel("Current threshold", this));
     outerLayout->addWidget(thField);
-    outerLayout->addWidget(new QLabel("Declogging time", this));
-    outerLayout->addWidget(timeField);
     outerLayout->addWidget(new QLabel("Declogging stimulus", this));
     outerLayout->addWidget(voltageField);
+    outerLayout->addWidget(new QLabel("Declogging time", this));
+    outerLayout->addWidget(timeField);
+    outerLayout->addWidget(new QLabel("Cooldown time", this));
+    outerLayout->addWidget(cooldownTimeField);
     outerLayout->addWidget(freePore);
     outerLayout->addWidget(cloggedPore);
     freePore->hide();
@@ -45,6 +52,7 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     setWidget(centralWidget);
     connect(active, &QCheckBox::clicked, this, [=](bool checked) { emit sigActive(checked); });
     connect(timeField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigTimeFieldChanged(timeField->value()); });
+    connect(cooldownTimeField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigCooldownTimeFieldChanged(cooldownTimeField->value()); });
     connect(thField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigThFieldChanged(thField->value()); });
     connect(voltageField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigVotageFieldChanged(voltageField->value()); });
 }
@@ -55,6 +63,10 @@ double AutoDecloggerWidget::getThreshold() {
 
 double AutoDecloggerWidget::getTime() {
     return this->timeField->value();
+}
+
+double AutoDecloggerWidget::getCooldownTime() {
+    return this->cooldownTimeField->value();
 }
 
 double AutoDecloggerWidget::getVoltage() {

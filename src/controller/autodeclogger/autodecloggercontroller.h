@@ -33,6 +33,7 @@ public slots:
     void onThFieldChanged(double);
     void onVoltageFieldChanged(double);
     void onTimeFieldChanged(double);
+    void onCooldownTimeFieldChanged(double);
     void onCurrentRangeChanged(RangedMeasurement cr);
     void onVoltageRangeChanged(RangedMeasurement vr);
     void onDecloggingStarted(std::vector<unsigned short>);

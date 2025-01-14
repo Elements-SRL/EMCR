@@ -26,9 +26,10 @@ public:
     AutodecloggerConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer);
     ~AutodecloggerConsumer();
     void setModel(AutoDecloggerModel* model);
-    void setThresholds(std::map<int, double> thresholds);
-    void setTimes(std::map<int, double> thresholds);
-    void setVoltages(std::map<int, double> thresholds);
+    void setThresholds(std::map<int, double> );
+    void setTimes(std::map<int, double> );
+    void setCooldownTimes(std::map<int, double> );
+    void setVoltages(std::map<int, double> );
 
 public slots:
     virtual void onStartConsuming() override;
