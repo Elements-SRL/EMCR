@@ -58,6 +58,7 @@ AutodecloggerConsumer::AutodecloggerConsumer(ApplicationStatus* appStatus, Devic
     //assuming there are an equal amount of current and voltage channels
     for (int i = 0; i < currentChannelsNum; i++) {
         clogInfo[i] = std::nullopt;
+        belowThresholdTimer[i] = std::nullopt;
     }
 }
 
@@ -65,6 +66,7 @@ AutodecloggerConsumer::~AutodecloggerConsumer() {
     buffer.clear();
     originalVoltages.clear();
     clogInfo.clear();
+    belowThresholdTimer.clear();
     model = nullptr;
     delete model;
 }
@@ -110,55 +112,43 @@ void AutodecloggerConsumer::run() {
             }
             //vector of channels that need to start declogging or need to complete it
             std::vector<unsigned short> toStart = {};
-            for (auto& [k, v] : clogInfo) {
-                if (!v.has_value()) {
-                    const auto nElements = currentValues[k].size();
-                    if (nElements == 0) {
-                        break;
+            for (auto& [k, v] : belowThresholdTimer) {
+                //if clogInfo has an entry, the declogging is being performed, no measurement must be done
+                if (clogInfo[k].has_value()) {
+                    break;
+                }
+                const auto nElements = currentValues[k].size();
+                if (nElements == 0) {
+                    break;
+                }
+                const auto sum = accumulate(currentValues[k].begin(), currentValues[k].end(), 0.0);
+                const auto avg = sum / (double)nElements;
+                const auto absAvg = abs(avg);
+                if (absAvg < model->thresholds[k]) {
+                    //initialize the timer
+                    if (!v.has_value()) {
+                        const auto timer = new QElapsedTimer();
+                        timer->start();
+                        v = std::make_optional(timer);
                     }
-                    const auto sum = accumulate(currentValues[k].begin(), currentValues[k].end(), 0.0);
-                    const auto avg = sum / (double)nElements;
-                    const auto absAvg = abs(avg);
-                    if (absAvg < model->thresholds[k]) {
+                    else if (v.value()->elapsed() > model->belowThresholdsTimes[k]) {
                         toStart.push_back(k);
-                    }
+                        v = std::nullopt;
+                    } 
+                } else {
+                    v = std::nullopt;
                 }
             }
-            // check the cooldown timer
+            // check that at least 300ms have passed before reading the current again
             // once the timer has elapsed, we can safely delete the declog structure and 
             // restart monitoring current
             for (auto& [k, v] : clogInfo) {
-                if (v.has_value() && v.value().decloggingComplete && v.value().timer->elapsed() > model->cooldownTimes[k]) {
+                if (v.has_value() && v.value().decloggingComplete && v.value().timer->elapsed() > 300.0) {
                     v = std::nullopt;
                 }
             }
             complete();
-            if (toStart.size() > 0) {
-                std::vector<Measurement> tuners, voltagesToApply;
-                appStatus->getMessageDispatcher()->getVoltageHoldTuner(tuners);
-                for (const auto& ch : toStart) {
-                    if (!clogInfo[ch].has_value() && originalVoltages[ch].has_value()) {
-                        const auto tuner = tuners[ch];
-                        const auto voltage = originalVoltages[ch].value();
-                        const auto vNoTuner = voltage - tuner;
-                        const auto userVoltage = model->stimuli[ch];
-                        const auto timer = new QElapsedTimer();
-                        const Measurement vToApply = { userVoltage - vNoTuner.value, vNoTuner.prefix, vNoTuner.unit };
-                        const auto ci = ClogInfo::create(tuner, vToApply, timer);
-                        clogInfo[ch] = std::make_optional(ci);
-                    }
-                }
-                for (auto& [k, v] : clogInfo) {
-                    if (v.has_value()) {
-                        ClogInfo ci = v.value();
-                        voltagesToApply.push_back(ci.vToApply);
-                        ci.timer->start();
-                    }
-                }
-                //set voltages to declog the pore
-                appStatus->getMessageDispatcher()->setVoltageHoldTuner(toStart, voltagesToApply, true);
-                emit sigDecloggingStarted(toStart);
-            }
+            startDeclogging(toStart);
         }
     }
     consumptionLock.relock();
@@ -201,10 +191,10 @@ void AutodecloggerConsumer::setTimes(std::map<int, double> times) {
         });
 }
 
-void AutodecloggerConsumer::setCooldownTimes(std::map<int, double> times) {
+void AutodecloggerConsumer::setTimeBelowThreshold(std::map<int, double> times) {
     safeUpdate([=]() {
         for (const auto& [key, value] : times) {
-            model->cooldownTimes[key] = value;
+            model->belowThresholdsTimes[key] = value;
         }
         });
 }
@@ -275,4 +265,34 @@ void AutodecloggerConsumer::resetStim() {
     appStatus->getMessageDispatcher()->setVoltageHoldTuner(chIndexes, resetValues, true);
     //signal that this channel is not declogging anymore
     emit sigDecloggingCompleted(chIndexes);
+}
+
+void AutodecloggerConsumer::startDeclogging(std::vector<unsigned short> toStart) {
+    if (toStart.size() == 0) {
+        return;
+    }
+    std::vector<Measurement> tuners, voltagesToApply;
+    appStatus->getMessageDispatcher()->getVoltageHoldTuner(tuners);
+    for (const auto& ch : toStart) {
+        if (!clogInfo[ch].has_value() && originalVoltages[ch].has_value()) {
+            const auto tuner = tuners[ch];
+            const auto voltage = originalVoltages[ch].value();
+            const auto vNoTuner = voltage - tuner;
+            const auto userVoltage = model->stimuli[ch];
+            const auto timer = new QElapsedTimer();
+            const Measurement vToApply = { userVoltage - vNoTuner.value, vNoTuner.prefix, vNoTuner.unit };
+            const auto ci = ClogInfo::create(tuner, vToApply, timer);
+            clogInfo[ch] = std::make_optional(ci);
+        }
+    }
+    for (auto& [k, v] : clogInfo) {
+        if (v.has_value()) {
+            ClogInfo ci = v.value();
+            voltagesToApply.push_back(ci.vToApply);
+            ci.timer->start();
+        }
+    }
+    //set voltages to declog the pore
+    appStatus->getMessageDispatcher()->setVoltageHoldTuner(toStart, voltagesToApply, true);
+    emit sigDecloggingStarted(toStart);
 }

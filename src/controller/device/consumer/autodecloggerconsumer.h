@@ -28,7 +28,7 @@ public:
     void setModel(AutoDecloggerModel* model);
     void setThresholds(std::map<int, double> );
     void setTimes(std::map<int, double> );
-    void setCooldownTimes(std::map<int, double> );
+    void setTimeBelowThreshold(std::map<int, double> );
     void setVoltages(std::map<int, double> );
 
 public slots:
@@ -50,6 +50,7 @@ private:
     std::vector<double> buffer;
     std::map<int, std::optional<Measurement>> originalVoltages;
     std::map<int, std::optional<ClogInfo>> clogInfo;
+    std::map<int, std::optional<QElapsedTimer*>> belowThresholdTimer;
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
 
@@ -57,6 +58,7 @@ private:
     void safeUpdate(Lambda lambda);
     void complete();
     void resetStim();
+    void startDeclogging(std::vector<unsigned short>);
 
 protected:
     void run() override;

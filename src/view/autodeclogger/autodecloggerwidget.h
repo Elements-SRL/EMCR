@@ -16,7 +16,7 @@ private:
     QDoubleSpinBox* thField;
     QDoubleSpinBox* voltageField;
     QDoubleSpinBox* timeField;
-    QDoubleSpinBox* cooldownTimeField;
+    QDoubleSpinBox* timeBelowThreshold;
     QLabel* freePore;
     QLabel* cloggedPore;
     //add a red led
@@ -26,14 +26,14 @@ public:
     double getThreshold();
     double getVoltage();
     double getTime();
-    double getCooldownTime();
+    double getTimeBelowThreshold();
 
 signals:
     void sigActive(bool);
     void sigThFieldChanged(double);
     void sigVotageFieldChanged(double);
     void sigTimeFieldChanged(double);
-    void sigCooldownTimeFieldChanged(double);
+    void sigTimeBelowThresholdChanged(double);
 
 public slots:
     //intercept change of current and voltage range
