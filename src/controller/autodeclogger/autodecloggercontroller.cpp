@@ -95,3 +95,9 @@ void AutoDecloggerController::onTimeBelowThresholdChanged(double t) {
 	}
 	consumer->setTimeBelowThreshold(m);
 }
+
+void AutoDecloggerController::stop() {
+	if (consumer != nullptr) {
+		consumer->onStopConsuming();
+	}
+}

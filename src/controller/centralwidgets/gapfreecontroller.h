@@ -23,7 +23,7 @@ class GapFreeController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    GapFreeController(ApplicationStatus* , DeviceDataProducer* , Measurement_t , BigPlotWidget* , BigPlotController*, MainWindow*, AbfDataWriterConsumer*, DeviceController*);
+    GapFreeController(ApplicationStatus* , DeviceDataProducer* , Measurement_t , BigPlotWidget* , BigPlotController*, MainWindow*, DeviceController*);
     ~GapFreeController();
     void stop() override;
     void start() override;

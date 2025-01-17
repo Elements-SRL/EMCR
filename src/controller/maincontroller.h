@@ -54,7 +54,7 @@ public slots:
     void onClampingModalitySelected(ClampingModality_t mode);
 
 private:
-    void startProducerConsumers();
+    void startProducer();
     void stopAndDestroyProducerConsumers();
     void destroyControllers();
 
@@ -72,7 +72,6 @@ private:
     DeviceDataProducer * deviceDataProducer = nullptr;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
 
-    QVector <DeviceDataConsumer*> consumers;
     //TODO the following will become a list of Controllers, a controller will abstract away
     //all the slot and signals a common controller will have to be able to respond to 
     //(onSamplingRateChanged, onDownSamplingRateChanged, ecc.)

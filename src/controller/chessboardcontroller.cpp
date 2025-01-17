@@ -2,11 +2,11 @@
 
 #include <QApplication>
 
-ChessboardController::ChessboardController(ApplicationStatus * appStatus, GapFreePlotConsumer * plotConsumer, Measurement_t defaultDuration, MainWindow * mainWindow) :
+ChessboardController::ChessboardController(ApplicationStatus * appStatus, DeviceDataProducer* dataProducer, Measurement_t defaultDuration, MainWindow * mainWindow) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
 
-    stampPlotConsumer = plotConsumer;
+    stampPlotConsumer = new GapFreePlotConsumer(appStatus, dataProducer);
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     channels = appStatus->getChannels();

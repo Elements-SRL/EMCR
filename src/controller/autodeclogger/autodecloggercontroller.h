@@ -20,7 +20,7 @@ class AutoDecloggerController : public QObject {
 public:
     AutoDecloggerController(ApplicationStatus* appStatus, MainWindow* mainWindow, DeviceDataProducer *ddt);
     ~AutoDecloggerController();
-
+    void stop();
 private:
     AutoDecloggerModel * model = nullptr;
     ApplicationStatus* appStatus = nullptr;
