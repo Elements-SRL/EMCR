@@ -48,7 +48,6 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     outerLayout->addWidget(cloggedPore);
     freePore->hide();
     cloggedPore->hide();
-    setLayout(outerLayout);
     setWidget(centralWidget);
     connect(active, &QCheckBox::clicked, this, [=](bool checked) { emit sigActive(checked); });
     connect(timeField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigTimeFieldChanged(timeField->value()); });
