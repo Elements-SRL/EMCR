@@ -24,6 +24,7 @@
 #include "statearraycontroller.h"
 #include "compensationcontroller.h"
 #include "plotpreferencescontroller.h"
+#include "autodeclogger/autodecloggercontroller.h"
 
 
 class MainController : public QObject {
@@ -53,7 +54,7 @@ public slots:
     void onClampingModalitySelected(ClampingModality_t mode);
 
 private:
-    void startProducerConsumers();
+    void startProducer();
     void stopAndDestroyProducerConsumers();
     void destroyControllers();
 
@@ -71,7 +72,6 @@ private:
     DeviceDataProducer * deviceDataProducer = nullptr;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
 
-    QVector <DeviceDataConsumer*> consumers;
     //TODO the following will become a list of Controllers, a controller will abstract away
     //all the slot and signals a common controller will have to be able to respond to 
     //(onSamplingRateChanged, onDownSamplingRateChanged, ecc.)
@@ -87,6 +87,7 @@ private:
     CompensationController * compensationController = nullptr;
     MeasurementOverviewController * measurementOverviewController = nullptr;
     PlotPreferencesController * plotPreferencesController = nullptr;
+    AutoDecloggerController* autoDecloggerController = nullptr;
 
     ProtocolManager * voltageProtocolManager = nullptr;
     ProtocolManager * currentProtocolManager = nullptr;

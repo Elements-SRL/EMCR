@@ -1,12 +1,12 @@
 #include "gapfreecontroller.h"
 
-GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, AbfDataWriterConsumer* abfDataWriterConsumer, DeviceController* dc):
+GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, DeviceController* dc):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
-
+    
     model = new BigPlotModel(BigPlot::GapFree);
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
-    this->abfDataWriterConsumer = abfDataWriterConsumer;
+    this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);
     plot = new BigPlot("", "[s]", "", BigPlot::GapFree, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
 
