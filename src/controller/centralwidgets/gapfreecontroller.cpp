@@ -135,10 +135,8 @@ void GapFreeController::onCurrentColorsChanged(QVector <QColor> colors) {
 }
 
 void GapFreeController::onCurrentColorChanged(int channelIdx, QColor color) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[channelIdx]->setColor(color);
-        voltageCurves[channelIdx]->setColor(color);
-    }
+    currentCurves[channelIdx]->setColor(color);
+    voltageCurves[channelIdx]->setColor(color);
 }
 
 void GapFreeController::onBackgroundColorChanged(QColor color) {
@@ -191,7 +189,7 @@ void GapFreeController::onExpandTrace(bool flag) {
 }
 
 void GapFreeController::onSetPlotData(PlotMessage plotmessage) {
-    GapFreeMessage gapFreeMessage = std::get<0>(plotmessage);
+    GapFreeMessage gapFreeMessage = std::get<PMS_GAPFREE>(plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
         voltageCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues[idx], gapFreeMessage.dataSize);

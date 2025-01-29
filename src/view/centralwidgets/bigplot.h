@@ -22,6 +22,7 @@ class BigPlot : public QwtPlot {
 public:
     enum BigPlotStatus {
         GapFree,
+        Episodic,
         Iv,
         Spectrum,
         Event,

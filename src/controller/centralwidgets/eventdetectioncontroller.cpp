@@ -504,7 +504,7 @@ void EventDetectionController::onExpandTrace(bool flag) {
 }
 
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
-    message = std::get<2>(plotmessage);
+    message = std::get<PMS_EVENT_DETECTION>(plotmessage);
     auto plot = widget->getPlot();
     auto sr = appStatus->getSamplingRate();
     std::vector <uint16_t> allChannels(currentChannelsNum);

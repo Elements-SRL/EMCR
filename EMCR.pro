@@ -66,6 +66,7 @@ SOURCES += \
     src/controller/centralwidgets/centralwidgetcontroller.cpp \
     src/controller/centralwidgets/ivgraphcontroller.cpp \
     src/controller/centralwidgets/gapfreecontroller.cpp \
+    src/controller/centralwidgets/episodiccontroller.cpp \
     src/controller/centralwidgets/eventdetectioncontroller.cpp \
     src/controller/centralwidgets/spectrumcontroller.cpp \
     src/controller/autodeclogger/autodecloggercontroller.cpp \
@@ -85,9 +86,6 @@ SOURCES += \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/activationbutton.cpp \
-    src/view/bigplotwidget.cpp \
-    src/view/gapfreewidget.cpp \
-    src/view/spectrumwidget.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
     src/view/compensationcontroldockwidget.cpp \
@@ -95,7 +93,6 @@ SOURCES += \
     src/view/conversionscaledraw.cpp \
     src/view/copyabletable.cpp \
     src/view/doubleclickmachine.cpp \
-    src/view/ivgraphwidget.cpp \
     src/view/lcddisplay.cpp \
     src/view/leftrightmousepushbutton.cpp \
     src/view/mainwindow.cpp \
@@ -103,12 +100,17 @@ SOURCES += \
     src/view/elementslogowidget.cpp \
     src/view/channeloverviewwidget.cpp \
     src/view/baseplot.cpp \
-    src/view/bigplot.cpp \
     src/view/curve.cpp \
     src/view/measurementsoverviewdockwidget.cpp \
     src/view/multiplechannelcontroldockwidget.cpp \
     src/view/nowheelspinbox.cpp \
     src/view/plotpreferencesdialog.cpp \
+    src/view/centralwidgets/bigplot.cpp \
+    src/view/centralwidgets/bigplotwidget.cpp \
+    src/view/centralwidgets/gapfreewidget.cpp \
+    src/view/centralwidgets/episodicwidget.cpp \
+    src/view/centralwidgets/spectrumwidget.cpp \
+    src/view/centralwidgets/ivgraphwidget.cpp \
     src/view/centralwidgets/eventdetectionwidget.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
     src/view/protocol/protocolcursor.cpp \
@@ -181,6 +183,7 @@ HEADERS += \
     src/controller/centralwidgets/centralwidgetcontroller.h \
     src/controller/centralwidgets/ivgraphcontroller.h \
     src/controller/centralwidgets/gapfreecontroller.h \
+    src/controller/centralwidgets/episodiccontroller.h \
     src/controller/centralwidgets/eventdetectioncontroller.h \
     src/controller/centralwidgets/spectrumcontroller.h \
     src/controller/autodeclogger/autodecloggercontroller.h \
@@ -211,9 +214,6 @@ HEADERS += \
     src/model/events/eventsandbaseline.h \
     src/model/autodeclogger/autodecloggermodel.h \
     src/view/activationbutton.h \
-    src/view/bigplotwidget.h \
-    src/view/gapfreewidget.h \
-    src/view/spectrumwidget.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \
     src/view/compensationcontroldockwidget.h \
@@ -221,21 +221,25 @@ HEADERS += \
     src/view/conversionscaledraw.h \
     src/view/copyabletable.h \
     src/view/doubleclickmachine.h \
-    src/view/ivgraphwidget.h \
     src/view/lcddisplay.h \
     src/view/leftrightmousepushbutton.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
     src/view/channeloverviewwidget.h \
-    src/view/bigplot.h \
     src/view/baseplot.h \
     src/view/curve.h \
     src/view/measurementsoverviewdockwidget.h \
     src/view/multiplechannelcontroldockwidget.h \
     src/view/nowheelspinbox.h \
     src/view/plotpreferencesdialog.h \
+    src/view/centralwidgets/bigplot.h \
+    src/view/centralwidgets/bigplotwidget.h \
+    src/view/centralwidgets/gapfreewidget.h \
+    src/view/centralwidgets/episodicwidget.h \
+    src/view/centralwidgets/ivgraphwidget.h \
     src/view/centralwidgets/eventdetectionwidget.h \
+    src/view/centralwidgets/spectrumwidget.h \
     src/view/protocol/impexpprotocoldialog.h \
     src/view/protocol/protocolcursor.h \
     src/view/protocol/protocoldockwidget.h \

@@ -123,10 +123,8 @@ void SpectrumController::onCurrentColorsChanged(QVector <QColor> colors) {
 }
 
 void SpectrumController::onCurrentColorChanged(int channelIdx, QColor color) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        psdCurves[channelIdx]->setColor(color);
-        irmsCurves[channelIdx]->setColor(color);
-    }
+    psdCurves[channelIdx]->setColor(color);
+    irmsCurves[channelIdx]->setColor(color);
 }
 
 void SpectrumController::onBackgroundColorChanged(QColor color) {

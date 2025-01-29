@@ -5,25 +5,26 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
 
     mainVl = new QVBoxLayout();
 
-    // Create the first tab
     auto gapFreeLayout = new QVBoxLayout();
     gapFreeTab = new QWidget();
     gapFreeTab->setLayout(gapFreeLayout);
     addTab(gapFreeTab, "GapFree");
 
-    // Create the second tab
+    auto episodicLayout = new QVBoxLayout();
+    episodicTab = new QWidget();
+    episodicTab->setLayout(episodicLayout);
+    addTab(episodicTab, "Episodic");
+
     auto ivLayout = new QVBoxLayout();
     ivTab = new QWidget();
     ivTab->setLayout(ivLayout);
     addTab(ivTab, "IV Graph");
 
-    // Create the third tab
     auto spectrumLayout = new QVBoxLayout();
     spectrumTab = new QWidget();
     spectrumTab->setLayout(spectrumLayout);
     addTab(spectrumTab, "Spectrum");
 
-    // Create the fourth tab
     auto eventDetectionLayout = new QVBoxLayout();
     eventDetectionTab = new QWidget();
     eventDetectionTab->setLayout(eventDetectionLayout);
@@ -40,6 +41,10 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
 
 void BigPlotWidget::setGapFreePlot(QWidget* wid) {
     gapFreeTab->layout()->addWidget(wid);
+}
+
+void BigPlotWidget::setEpisodicPlot(QWidget* wid) {
+    episodicTab->layout()->addWidget(wid);
 }
 
 void BigPlotWidget::setIvGraph(QWidget* wid){

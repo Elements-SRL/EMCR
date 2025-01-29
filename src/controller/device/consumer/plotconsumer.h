@@ -4,6 +4,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <qwt_series_data.h>
+
 #include "devicedataconsumer.h"
 #include "plotmessage.h"
 
@@ -130,8 +132,8 @@ protected:
     // int subSamplingRatio = 1;
     // int subSamplingIdx = 0;
 
-    QVector <CurveData *> activeCurrentCurveData;
-    QVector <CurveData *> activeVoltageCurveData;
+    // QVector <CurveData *> activeCurrentCurveData;
+    // QVector <CurveData *> activeVoltageCurveData;
 
 private:
     void updateTimeAxis();

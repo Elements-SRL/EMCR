@@ -11,6 +11,11 @@
 
 #include <QVector>
 
+#define PMS_GAPFREE 0
+#define PMS_EPISODIC 1
+#define PMS_IV 2
+#define PMS_EVENT_DETECTION 3
+#define PMS_SPECTRUM 4
 
 struct IvMessage{
     std::vector <double *> voltageValues;
@@ -23,6 +28,14 @@ struct GapFreeMessage{
     std::vector <double *> voltageValues;
     std::vector <double *> currentValues;
     int dataSize;
+};
+
+struct EpisodicMessage{
+    std::vector <double> timeValues;
+    std::vector <std::vector <double>> voltageValues;
+    std::vector <std::vector <double>> currentValues;
+    bool newProtocolFlag;
+    bool newSweepFlag;
 };
 
 struct EventDetectionMessage {
@@ -39,6 +52,7 @@ struct SpectrumMessage {
 // Forward declaration of the variant type
 typedef std::variant<
     GapFreeMessage,
+    EpisodicMessage,
     IvMessage,
     EventDetectionMessage,
     SpectrumMessage

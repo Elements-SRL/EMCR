@@ -235,9 +235,7 @@ void IvGraphController::onCurrentColorsChanged(QVector <QColor> colors) {
 }
 
 void IvGraphController::onCurrentColorChanged(int channelIdx, QColor color) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[channelIdx]->setColor(color);
-    }
+    currentCurves[channelIdx]->setColor(color);
 }
 
 void IvGraphController::onBackgroundColorChanged(QColor color) {
@@ -289,7 +287,7 @@ void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
     appStatus->getMessageDispatcher()->getVCVoltageRange(v);
     appStatus->getMessageDispatcher()->getVCCurrentRange(i);
     plot->setRect(model->initRect(v.min, v.max, i.min, i.max));
-    message = std::get<1>(plotmessage);
+    message = std::get<PMS_IV>(plotmessage);
     if (message.currentValues.size() == 0 || message.voltageValues.size() == 0 || message.dataSize.size() == 0) {
         return;
     }
