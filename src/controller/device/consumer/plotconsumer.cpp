@@ -11,8 +11,7 @@ PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * p
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
     buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
 
-    plottedChannels.resize(currentChannelsNum);
-    plottedChannels.fill(true);
+    this->plotAllChannels(true);
 }
 
 PlotConsumer::~PlotConsumer() {
@@ -77,42 +76,35 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
     pushedDurationFlag = true;
 }
 
-void PlotConsumer::onPlotSelectedChannels(bool flag) {
-    this->onPlotChannels(appStatus->getSelectedChannelsIndexes(), flag);
-}
-
-void PlotConsumer::onPlotChannels(std::vector <uint16_t> channels, bool flag) {
+void PlotConsumer::plotAllChannels(bool flag) {
     if (flag) {
-        for (auto channelIdx : channels) {
-            if (!plottedChannels[channelIdx]) {
-                plottedChannels[channelIdx] = true;
-            }
+        for (int idx = 0; idx < appStatus->getCurrentChannelsNum(); idx++) {
+            expandedChannels.push_back(idx);
         }
     }
     else {
-        for (auto channelIdx : channels) {
-            if (plottedChannels[channelIdx]) {
-                plottedChannels[channelIdx] = false;
-            }
-        }
+        expandedChannels.clear();
     }
+}
+
+void PlotConsumer::onPlotSelectedChannels(bool flag) {
+    expandedChannels = appStatus->getExpandedChannelsIndexes();
     forceAxisUpdate();
 }
 
 void PlotConsumer::updateRangeAxis() {
     bool anyPushed = false;
     QMutexLocker locker(&rangeAxisMtx);
+
     if (pushedVoltageRangeFlag) {
         anyPushed = true;
         pushedVoltageRangeFlag = false;
         voltageRange.max = 1.0;
         voltageRange.convertValues(pushedVoltageRange.prefix);
         double coeff = voltageRange.max;
-        for (int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-            if (plottedChannels[channelIdx]) {
-                for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-                    voltageValues[channelIdx][sampleIdx] *= coeff;
-                }
+        for (auto channelIdx : expandedChannels) {
+            for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
+                voltageValues[channelIdx][sampleIdx] *= coeff;
             }
         }
         voltageRange = pushedVoltageRange;
@@ -125,11 +117,9 @@ void PlotConsumer::updateRangeAxis() {
         currentRange.max = 1.0;
         currentRange.convertValues(pushedCurrentRange.prefix);
         coeff = currentRange.max;
-        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            if (plottedChannels[channelIdx]) {
-                for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
-                    currentValues[channelIdx][sampleIdx] *= coeff;
-                }
+        for (auto channelIdx : expandedChannels) {
+            for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
+                currentValues[channelIdx][sampleIdx] *= coeff;
             }
         }
         currentRange = pushedCurrentRange;
@@ -179,7 +169,6 @@ void GapFreePlotConsumer::setMaxSamplesPerPlot(int samples) {
 void GapFreePlotConsumer::run() {
     int bufferIdx;
     int bufferLen = 0;
-    int channelIdx;
     QElapsedTimer updateDataTimer;
     updateDataTimer.start();
 
@@ -209,19 +198,11 @@ void GapFreePlotConsumer::run() {
 
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
-                for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-                    if (plottedChannels[channelIdx]) {
-                        voltageValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx];
-                    }
-                    bufferIdx++;
+                for (auto channelIdx : expandedChannels) {
+                    voltageValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx];
+                    currentValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx+voltageChannelsNum];
                 }
-
-                for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                    if (plottedChannels[channelIdx]) {
-                        currentValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx];
-                    }
-                    bufferIdx++;
-                }
+                bufferIdx += totalChannelsNum;
 
                 gapFreeTimeIdx++;
                 if (gapFreeTimeIdx >= dataSize) {
@@ -315,4 +296,24 @@ void GapFreePlotConsumer::computeTimeAxis() {
     }
 
     this->emitPlotData();
+}
+
+EpisodicPlotConsumer::EpisodicPlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+    PlotConsumer(appStatus, producer) {
+
+    this->allocateData();
+    this->updateTimeAxis();
+}
+
+void EpisodicPlotConsumer::allocateData() {
+    for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
+        voltageValues.push_back(new double[maxSamples]);
+    }
+    for (int idx = 0; idx < this->currentChannelsNum; idx++) {
+        currentValues.push_back(new double[maxSamples]);
+    }
+    currentValues.reserve(maxSamples);
+
+    timeValues = new double[maxSamples];
+    forceAxisUpdate();
 }

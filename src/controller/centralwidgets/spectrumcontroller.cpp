@@ -57,11 +57,6 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
         plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
     });
     consumer->forceAxisUpdate();
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-    }
-    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 }
 

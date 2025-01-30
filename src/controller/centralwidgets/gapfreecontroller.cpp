@@ -59,11 +59,6 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &GapFreeController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-    }
-    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
     recordingSettingsDialog->forceSettingsEmit();
 }
@@ -225,7 +220,6 @@ void GapFreeController::onRecordingRequest(bool flag) {
 void GapFreeController::onRecordingExecution(bool flag) {
     gapFreeWidget->setRecording(flag);
 }
-
 
 //TODO this could be moved at the controller level and b managed by single controllers
 void GapFreeController::onStartRecording() {

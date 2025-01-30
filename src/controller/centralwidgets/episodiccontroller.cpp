@@ -61,11 +61,6 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     connect(consumer, &PlotConsumer::setPlotData, this, &EpisodicController::onSetPlotData);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(ECT_MAX_SAMPLES_PER_PLOT);
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-    }
-    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
     recordingSettingsDialog->forceSettingsEmit();
 }
@@ -109,6 +104,7 @@ void EpisodicController::clearCurves() {
     }
     currentCurves.clear();
     voltageCurves.clear();
+    sweepIdx = -1;
 }
 
 void EpisodicController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
@@ -219,11 +215,9 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
     EpisodicMessage episodicMessage = std::get<PMS_EPISODIC>(plotmessage);
     if (episodicMessage.newProtocolFlag) {
         this->clearCurves();
-        sweepIdx = -1;
     }
 
     if (episodicMessage.newSweepFlag) {
-        mi sa che bisogna anche fare l'attach delle curve per i canali selezionati
         Curve * curve;
         sweepIdx++;
 
@@ -239,6 +233,11 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
             activeVoltageCurveData[idx] = new CurveData(ECT_MAX_SAMPLES_PER_PLOT);
             curve->setData(activeVoltageCurveData[idx]);
             voltageCurves[idx][sweepIdx] = curve;
+        }
+
+        for (auto idx : appStatus->getExpandedChannelsIndexes()) {
+            currentCurves[idx][sweepIdx]->attach(plot);
+            voltageCurves[idx][sweepIdx]->attach(plot);
         }
     }
 
@@ -311,21 +310,18 @@ size_t CurveData::size() const {
 }
 
 QRectF CurveData::boundingRect() const {
-    if (m_boundingRect.isEmpty())
-    {
+    if (m_boundingRect.isEmpty()) {
         // Calculate the bounding rect only when needed
         double minX = std::numeric_limits<double>::max();
         double maxX = std::numeric_limits<double>::lowest();
         double minY = minX;
         double maxY = maxX;
 
-        for (const auto& point : x)
-        {
+        for (const auto& point : x) {
             minX = std::min(minX, point);
             maxX = std::max(maxX, point);
         }
-        for (const auto& point : y)
-        {
+        for (const auto& point : y) {
             minY = std::min(minY, point);
             maxY = std::max(maxY, point);
         }

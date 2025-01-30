@@ -250,12 +250,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-        eventCurves[idx] = new Curve();
-    }
-    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
 
     connect(widget, &EventDetectionWidget::startPressed, this, [=]() {

@@ -31,8 +31,8 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
 
     void onDurationChanged(Measurement_t duration);
+    void plotAllChannels(bool flag);
     void onPlotSelectedChannels(bool flag);
-    void onPlotChannels(std::vector <uint16_t> channels, bool flag);
 
 signals:
     void setPlotData(PlotMessage plotMessage);
@@ -69,7 +69,7 @@ protected:
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
 
-    QVector <bool> plottedChannels;
+    std::vector <uint16_t> expandedChannels;
 
     int maxSamples = 256;
     int dataSize = 0;
@@ -141,12 +141,16 @@ private:
     void lockCurveData();
     void unlockCurveData();
 
-    Measurement_t pushedSweepDuration;
-    QRecursiveMutex curvesMtx;
+    std::vector <double> episodicTimeValues;
+    std::vector <std::vector <double>> episodicCurrentValues;
+    std::vector <std::vector <double>> episodicVoltageValues;
 
-signals:
-    void plotDataUpdated(bool, bool, bool);
-    void repaintPlot();
+    Measurement_t pushedSweepDuration;
+//     QRecursiveMutex curvesMtx;
+
+// signals:
+//     void plotDataUpdated(bool, bool, bool);
+//     void repaintPlot();
 };
 
 #endif // PLOTCONSUMER_H

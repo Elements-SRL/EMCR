@@ -45,11 +45,6 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, Device
     stampPlotConsumer->onDurationChanged(defaultDuration);
     stampPlotConsumer->forceAxisUpdate();
     stampPlotConsumer->setMaxSamplesPerPlot(256);
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-    }
-    stampPlotConsumer->onPlotChannels(allChannels, true);
 
     connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::sigAllChannelsClicked);
     connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::sigOneBoardClicked);
