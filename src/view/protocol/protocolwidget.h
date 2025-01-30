@@ -81,7 +81,7 @@ public:
     void setAppliedRange(RangedMeasurement_t &newAppliedRange);
     RangedMeasurement_t getAppliedRange();
 
-    virtual double getTotalDuration() = 0;
+    virtual Measurement_t getTotalDuration() = 0;
     void getSweepTrigger(double &value, bool &rising);
     bool hasInfiniteRepetition();
     virtual ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) = 0;
@@ -200,7 +200,7 @@ public:
     GapfreeProtocolWidget();
 
     void setAnalysisCursors() override;
-    double getTotalDuration() override;
+    Measurement_t getTotalDuration() override;
     ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) override;
     ProtocolSection * getItemAtTime(double time, int itemIdx, int repsIdx, int sweepIdx, double &offset) override;
 };
@@ -210,7 +210,7 @@ public:
     EpisodicProtocolWidget();
 
     void setAnalysisCursors() override;
-    double getTotalDuration() override;
+    Measurement_t getTotalDuration() override;
     ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) override;
     ProtocolSection * getItemAtTime(double time, int itemIdx, int repsIdx, int sweepIdx, double &offset) override;
 };

@@ -198,7 +198,7 @@ void MainController::onMainWindowCreated() {
      * Controllers *
     \*************/
 
-    for(auto &c: bigPlotController->getControllers()){
+    for (auto &c: bigPlotController->getControllers()) {
         centralWidgetControllers.push_back(c);
     }
     
@@ -277,13 +277,17 @@ void MainController::onMainWindowCreated() {
 
     if (msgDisp->hasProtocols() == Success) {
         auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
-        connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          protocolDw->getVoltageProtocolList(), &ProtocolList::protocolStarted);
+        // connect(voltageProtocolManager, &ProtocolManager::protocolStarted,          protocolDw->getVoltageProtocolList(), &ProtocolList::protocolStarted);
         connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   protocolDw->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);
         connect(voltageProtocolManager, &ProtocolManager::currentApplied,           protocolDw->getVoltageProtocolList(), &ProtocolList::currentApplied);
 
-        connect(currentProtocolManager, &ProtocolManager::protocolStarted,          protocolDw->getCurrentProtocolList(), &ProtocolList::protocolStarted);
+        // connect(currentProtocolManager, &ProtocolManager::protocolStarted,          protocolDw->getCurrentProtocolList(), &ProtocolList::protocolStarted);
         connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   protocolDw->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
         connect(currentProtocolManager, &ProtocolManager::currentApplied,           protocolDw->getCurrentProtocolList(), &ProtocolList::currentApplied);
+
+        for (auto controller : centralWidgetControllers) {
+            connect(voltageProtocolManager, &ProtocolManager::protocolStarted, controller, &CentralWidgetController::onProtocolStarted);
+        }
 
         connect(protocolDw, &ProtocolDockWidget::startProtocol,    this, [=] () {
             protocolDw->getVoltageProtocolList()->onStartProtocol();

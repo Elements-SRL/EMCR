@@ -15,10 +15,10 @@ public:
     ProtocolItem(ProtocolItemType_t type, int nextItem, bool visible);
     virtual ~ProtocolItem();
 
-    virtual double duration(bool withHidden = false) = 0;
-    virtual double duration(int repsIdx, bool withHidden = false);
-    virtual double maxDuration(int stepsNum, bool withHidden = false);
-    virtual double totalDuration(int stepsNum, bool withHidden = false);
+    virtual Measurement_t duration(bool withHidden = false) = 0;
+    virtual Measurement_t duration(int repsIdx, bool withHidden = false);
+    virtual Measurement_t maxDuration(int stepsNum, bool withHidden = false);
+    virtual Measurement_t totalDuration(int stepsNum, bool withHidden = false);
     virtual void applyPNScaling(double sign, double scale, double hold, double holdLeak) = 0;
 
     void print();
@@ -40,10 +40,10 @@ public:
                            ProtocolItemType_t type, int nextItem, bool visible);
     virtual ~ProtocolXStepTStepItem();
 
-    virtual double duration(bool withHidden = false) override;
-    virtual double duration(int repsIdx, bool withHidden = false) override;
-    virtual double maxDuration(int stepsNum, bool withHidden = false) override;
-    virtual double totalDuration(int stepsNum, bool withHidden = false) override;
+    virtual Measurement_t duration(bool withHidden = false) override;
+    virtual Measurement_t duration(int repsIdx, bool withHidden = false) override;
+    virtual Measurement_t maxDuration(int stepsNum, bool withHidden = false) override;
+    virtual Measurement_t totalDuration(int stepsNum, bool withHidden = false) override;
     virtual void applyPNScaling(double sign, double scale, double hold, double holdLeak) override;
 
     double x0 = 0.0;
@@ -72,7 +72,7 @@ public:
     ProtocolXRampItem(ProtocolItem * item);
     virtual ~ProtocolXRampItem();
 
-    virtual double duration(bool withHidden = false) override;
+    virtual Measurement_t duration(bool withHidden = false) override;
     virtual void applyPNScaling(double sign, double scale, double hold, double holdLeak) override;
 
     double x0 = 0.0;
@@ -87,7 +87,7 @@ public:
     ProtocolXSinItem(ProtocolItem * item);
     virtual ~ProtocolXSinItem();
 
-    virtual double duration(bool withHidden = false) override;
+    virtual Measurement_t duration(bool withHidden = false) override;
     virtual void applyPNScaling(double sign, double scale, double hold, double holdLeak) override;
 
     double x0 = 0.0;

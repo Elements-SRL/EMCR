@@ -124,7 +124,7 @@ protected slots:
 
 signals:
     void startProtocolRequest(ProtocolWidget * protocol);
-    void protocolStarted(unsigned int, ProtocolWidget *);
+    // void protocolStarted(unsigned int, ProtocolWidget *);
     void currentApplied();
     void increaseProtocolId();
     void requestCurrentRange(int);

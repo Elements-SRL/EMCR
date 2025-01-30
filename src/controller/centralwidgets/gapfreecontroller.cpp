@@ -221,6 +221,16 @@ void GapFreeController::onRecordingExecution(bool flag) {
     gapFreeWidget->setRecording(flag);
 }
 
+void GapFreeController::onProtocolStarted(ProtocolWidget * protocol) {
+    if (protocol->getType() != ProtocolTypeGapfree) {
+        consumer->onStopConsuming();
+        return;
+    }
+    if (!(consumer->isRunning())) {
+        consumer->onStartConsuming();
+    }
+}
+
 //TODO this could be moved at the controller level and b managed by single controllers
 void GapFreeController::onStartRecording() {
     const auto selectedChannels = appStatus->getSelectedChannelsIndexes();

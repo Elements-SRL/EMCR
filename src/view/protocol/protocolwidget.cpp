@@ -911,11 +911,11 @@ void GapfreeProtocolWidget::setAnalysisCursors() {
     }
 }
 
-double GapfreeProtocolWidget::getTotalDuration() {
-    double totalDuration = 0.0;
+Measurement_t GapfreeProtocolWidget::getTotalDuration() {
+    Measurement_t totalDuration = {0.0, UnitPfxNone, "s"};
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
         if (protocolItems[itemIdx]->nextItem > itemIdx) {
-            totalDuration += protocolItems[itemIdx]->duration();
+            totalDuration += (protocolItems[itemIdx]->duration());
 
         } else {
             /*! Last item of a loop is not added before, so it is added here */
@@ -1047,8 +1047,8 @@ void EpisodicProtocolWidget::setAnalysisCursors() {
     }
 }
 
-double EpisodicProtocolWidget::getTotalDuration() {
-    double totalDuration = 0.0;
+Measurement_t EpisodicProtocolWidget::getTotalDuration() {
+    Measurement_t totalDuration = {0.0, UnitPfxNone, "s"};
     int sweepsNum = sweepsNumEditOrig->value();
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
         if (protocolItems[itemIdx]->nextItem > itemIdx) {

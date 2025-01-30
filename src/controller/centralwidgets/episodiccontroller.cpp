@@ -277,6 +277,16 @@ void EpisodicController::onRecordingExecution(bool flag) {
     episodicWidget->setRecording(flag);
 }
 
+void EpisodicController::onProtocolStarted(ProtocolWidget * protocol) {
+    if (protocol->getType() != ProtocolTypeEpisodic) {
+        consumer->onStopConsuming();
+        return;
+    }
+    consumer->onStopConsuming();
+    consumer->onDurationChanged(protocol->getTotalDuration());
+    consumer->onStartConsuming();
+}
+
 //TODO this could be moved at the controller level and b managed by single controllers
 void EpisodicController::onStartRecording() {
     const auto selectedChannels = appStatus->getSelectedChannelsIndexes();

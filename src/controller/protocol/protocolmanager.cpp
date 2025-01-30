@@ -139,14 +139,14 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
         }
     }
 
-    msgDisp->startProtocol();
-
     protocol->resetConsumerRequests();
     if (recordFlag) {
         protocol->setConsumerRequest(ProtocolConsumerDataWriter);
     }
 
     emit protocolStarted(protocolId, protocol);
+
+    msgDisp->startProtocol();
 
     if (!recordFlag) {
         lastRunProtocolId = protocolId;

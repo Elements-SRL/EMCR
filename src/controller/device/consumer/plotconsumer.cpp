@@ -231,7 +231,6 @@ void GapFreePlotConsumer::allocateData() {
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
         currentValues.push_back(new double[maxSamples]);
     }
-    currentValues.reserve(maxSamples);
 
     timeValues = new double[maxSamples];
     forceAxisUpdate();
@@ -305,15 +304,105 @@ EpisodicPlotConsumer::EpisodicPlotConsumer(ApplicationStatus * appStatus, Device
     this->updateTimeAxis();
 }
 
-void EpisodicPlotConsumer::allocateData() {
-    for (int idx = 0; idx < this->voltageChannelsNum; idx++) {
-        voltageValues.push_back(new double[maxSamples]);
-    }
-    for (int idx = 0; idx < this->currentChannelsNum; idx++) {
-        currentValues.push_back(new double[maxSamples]);
-    }
-    currentValues.reserve(maxSamples);
+void EpisodicPlotConsumer::run() {
+    int bufferIdx;
+    int bufferLen = 0;
+    QElapsedTimer updateDataTimer;
+    updateDataTimer.start();
 
+    int lastUpdateTimeMs = updateDataTimer.elapsed();
+    int currentTimeMs;
+
+    QMutexLocker consumptionLock(&consumptionMtx);
+    consumptionLock.unlock();
+
+    while (true) {
+        consumptionLock.relock();
+        if (consumptionStopped) {
+            consumptionLock.unlock();
+            break;
+        }
+        consumptionLock.unlock();
+        if (hook == nullptr) {
+            msleep(20);
+            continue;
+        }
+        if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
+            this->updateTimeAxis();
+            this->updateRangeAxis();
+
+            bufferIdx = 0;
+            bufferLen = buffer.size();
+
+            /*! Copy data in curves */
+            while (bufferIdx < bufferLen) {
+                for (auto channelIdx : expandedChannels) {
+                    voltageValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx];
+                    currentValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx+voltageChannelsNum];
+                }
+                bufferIdx += totalChannelsNum;
+
+                gapFreeTimeIdx++;
+                if (gapFreeTimeIdx >= dataSize) {
+                    gapFreeTimeIdx = 0;
+                }
+            }
+
+            currentTimeMs = updateDataTimer.elapsed();
+            if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
+                emit plotDataUpdated();
+                lastUpdateTimeMs = currentTimeMs;
+            }
+        }
+    }
+    emit plotDataUpdated();
+    consumptionLock.relock();
+
+    exitedDataConsumingLoop = true;
+    exitedDataConsumingLoopCv.wakeAll();
+}
+
+void EpisodicPlotConsumer::allocateData() {
+    /*! Voltage and current are stored in vectors that grow as data arrives, cannot preallocate */
     timeValues = new double[maxSamples];
     forceAxisUpdate();
+}
+
+void EpisodicPlotConsumer::updateTimeAxis() {
+    QMutexLocker locker(&timeAxisMtx);
+    if (pushedDurationFlag) {
+        pushedDurationFlag = false;
+        xAxisDuration = pushedDuration;
+
+        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeTimeAxisMethod is performed later
+            locker.unlock();
+            this->computeTimeAxis();
+        }
+    }
+
+    if (pushedSamplingRateFlag || pushedDownsamplingRatioFlag) {
+        pushedSamplingRateFlag = false;
+        pushedDownsamplingRatioFlag = false;
+        samplingRateHz = pushedSamplingRateHz/(double)pushedDownsamplingRatio;
+
+        locker.unlock();
+        this->computeTimeAxis();
+    }
+}
+
+void EpisodicPlotConsumer::computeTimeAxis() {
+    dataSize = qRound(samplingRateHz*xAxisDuration);
+    minDataBatchSize = qMin(qRound(samplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
+
+    subSamplingRatio = (dataSize-1)/maxSamples+1;
+    dataSize /= subSamplingRatio;
+
+    subSamplingIdx = 0;
+
+    double dt = ((double)subSamplingRatio)/samplingRateHz;
+    for (int idx = 0; idx < dataSize; idx++) {
+        timeValues[idx] = dt*(double)idx;
+    }
+
+    this->emitPlotData();
 }
