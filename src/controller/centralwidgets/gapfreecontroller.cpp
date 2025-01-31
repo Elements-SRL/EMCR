@@ -221,7 +221,7 @@ void GapFreeController::onRecordingExecution(bool flag) {
     gapFreeWidget->setRecording(flag);
 }
 
-void GapFreeController::onProtocolStarted(ProtocolWidget * protocol) {
+void GapFreeController::onProtocolStarted(unsigned int, ProtocolWidget * protocol) {
     if (protocol->getType() != ProtocolTypeGapfree) {
         consumer->onStopConsuming();
         return;

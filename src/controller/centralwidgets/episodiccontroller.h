@@ -40,6 +40,7 @@ private:
     std::vector <std::vector <Curve *>> voltageCurves;
     std::vector <CurveData *> activeCurrentCurveData;
     std::vector <CurveData *> activeVoltageCurveData;
+    BigPlotController * bigPlotController = nullptr;
     int sweepIdx = -1;
 
     void clearCurves();
@@ -55,7 +56,7 @@ public slots:
     void onSetPlotData(PlotMessage plotMessage) override;
     void onRecordingRequest(bool flag);
     void onRecordingExecution(bool flag);
-    void onProtocolStarted(ProtocolWidget * protocol) override;
+    void onProtocolStarted(unsigned int protocolId, ProtocolWidget * protocol) override;
 
 private slots:
     void onStartRecording();

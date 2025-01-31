@@ -44,6 +44,7 @@ public:
     Rect4 getZoom(Zoom);
     QwtInterval getCurrentZoomInterval(QwtPlot::Axis);
     void updateCurrentZoom(Rect4);
+    void updateCurrentZoom(QwtInterval i, QwtPlot::Axis ax);
     Rect4 zoomOnSingleAxis(QwtPlot::Axis, int, QPointF);
     Rect4 shiftOnSingleAxis(QwtPlot::Axis, int);
     Rect4 initRect(double minX, double maxX, double miny, double maxY);

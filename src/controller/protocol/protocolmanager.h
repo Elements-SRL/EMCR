@@ -99,7 +99,7 @@ private:
     bool stimHalfFlag = false;
 
 signals:
-    void protocolStarted(unsigned int, ProtocolWidget *);
+    void protocolStarted(unsigned int protocolId, ProtocolWidget * protocol);
     void currentApplied();
     void protocolRequestOutcome(ProtocolApplicationStatus_t status);
 };

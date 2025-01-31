@@ -18,6 +18,10 @@ PlotConsumer::~PlotConsumer() {
 
 }
 
+void PlotConsumer::setProtocolId(unsigned int protocolId) {
+    this->protocolId = protocolId;
+}
+
 void PlotConsumer::onStartConsuming() {
     hook = producer->getDataHook();
     if (hook != nullptr) {
@@ -304,9 +308,36 @@ EpisodicPlotConsumer::EpisodicPlotConsumer(ApplicationStatus * appStatus, Device
     this->updateTimeAxis();
 }
 
+void EpisodicPlotConsumer::onStartConsuming() {
+    episodicHook = producer->getEpisodicDataHook(protocolId);
+    if (hook != nullptr) {
+        QMutexLocker consumptionLock(&consumptionMtx);
+        consumptionStopped = false;
+        exitedDataConsumingLoop = false;
+
+        this->start();
+    }
+}
+
+void EpisodicPlotConsumer::onStopConsuming() {
+    if (this->isRunning()) {
+        QMutexLocker consumptionLock(&consumptionMtx);
+        consumptionStopped = true;
+        while (!exitedDataConsumingLoop) {
+            exitedDataConsumingLoopCv.wait(&consumptionMtx, 100);
+        }
+    }
+
+    if (episodicHook != nullptr) {
+        delete episodicHook;
+        episodicHook = nullptr;
+    }
+}
+
 void EpisodicPlotConsumer::run() {
     int bufferIdx;
     int bufferLen = 0;
+    bool newSweep = false;
     QElapsedTimer updateDataTimer;
     updateDataTimer.start();
 
@@ -316,6 +347,8 @@ void EpisodicPlotConsumer::run() {
     QMutexLocker consumptionLock(&consumptionMtx);
     consumptionLock.unlock();
 
+    this->updateTimeAxis();
+
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
@@ -323,12 +356,11 @@ void EpisodicPlotConsumer::run() {
             break;
         }
         consumptionLock.unlock();
-        if (hook == nullptr) {
+        if (episodicHook == nullptr) {
             msleep(20);
             continue;
         }
-        if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
-            this->updateTimeAxis();
+        if (episodicHook->getDataChunk(buffer, newSweep, subSamplingRatio, minDataBatchSize)) {
             this->updateRangeAxis();
 
             bufferIdx = 0;
@@ -387,6 +419,7 @@ void EpisodicPlotConsumer::updateTimeAxis() {
 
         locker.unlock();
         this->computeTimeAxis();
+        /*! \todo FCON può dare che serva fare un repaint del plot, vedere ez patch */
     }
 }
 

@@ -20,6 +20,7 @@ public:
     virtual ~PlotConsumer();
 
     virtual void forceAxisUpdate() = 0;
+    void setProtocolId(unsigned int protocolId);
 
 public slots:
     virtual void onStartConsuming() override;
@@ -52,6 +53,8 @@ protected:
     std::vector<double *> currentValues;
 
     double * timeValues = nullptr;
+
+    unsigned int protocolId = -1;
 
     std::vector <double> buffer;
 
@@ -120,6 +123,10 @@ public:
     void lockCurves();
     void unlockCurves();
 
+public slots:
+    virtual void onStartConsuming() override;
+    virtual void onStopConsuming() override;
+
 protected:
     void run() override;
     void allocateData();
@@ -140,6 +147,8 @@ private:
     void computeTimeAxis();
     void lockCurveData();
     void unlockCurveData();
+
+    EpisodicDataHook * episodicHook = nullptr;
 
     std::vector <double> episodicTimeValues;
     std::vector <std::vector <double>> episodicCurrentValues;

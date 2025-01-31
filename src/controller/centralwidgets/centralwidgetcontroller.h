@@ -43,7 +43,7 @@ public slots:
     virtual void onCurrentRangeChanged(RangedMeasurement rm);
     virtual void onVoltageRangeChanged(RangedMeasurement rm);
     virtual void onStopConsuming();
-    virtual void onProtocolStarted(ProtocolWidget * protocol) {};
+    virtual void onProtocolStarted(unsigned int protocolId, ProtocolWidget * protocol) {};
 
 protected:
     BigPlotWidget* bigPlotWidget;

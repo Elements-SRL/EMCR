@@ -1,7 +1,8 @@
 #include "episodiccontroller.h"
 
 EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, DeviceController* dc):
-    CentralWidgetController(appStatus, producer, bigPlotWidget) {
+    CentralWidgetController(appStatus, producer, bigPlotWidget),
+    bigPlotController(bigPlotController) {
     
     model = new BigPlotModel(BigPlot::Episodic);
     consumer = new EpisodicPlotConsumer(appStatus, producer);
@@ -57,7 +58,10 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
     connect(episodicWidget, &EpisodicWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
     connect(episodicWidget, &EpisodicWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
-    connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
+    connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged); /*! \todo FCON occhio che nei plot episodici la gestione della durata con
+                                                                                                                           lo zoom è gestita diversamente: esiste una durata preferenziale
+                                                                                                                           che è quella del protocollo e l'asse temporale non può cambiare
+                                                                                                                           rispetto alla configurazione iniziale */
     connect(consumer, &PlotConsumer::setPlotData, this, &EpisodicController::onSetPlotData);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(ECT_MAX_SAMPLES_PER_PLOT);
@@ -277,13 +281,21 @@ void EpisodicController::onRecordingExecution(bool flag) {
     episodicWidget->setRecording(flag);
 }
 
-void EpisodicController::onProtocolStarted(ProtocolWidget * protocol) {
+void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidget * protocol) {
     if (protocol->getType() != ProtocolTypeEpisodic) {
         consumer->onStopConsuming();
         return;
     }
     consumer->onStopConsuming();
-    consumer->onDurationChanged(protocol->getTotalDuration());
+    consumer->setProtocolId(protocolId);
+    auto duration = protocol->getTotalDuration();
+    auto durationS = duration.getNoPrefixValue();
+    if (durationS == 0.0) {
+        /*! Don't do anything on null protocols, such as stop protocols */
+        return;
+    }
+    bigPlotController->handleSingleAxisZoomRequest(model, plot, QwtPlot::xBottom, QwtInterval(0.0, durationS)); /*! \todo FCON non è detto che qui serva in s la misura, verificare */
+    consumer->onDurationChanged(duration);
     consumer->onStartConsuming();
 }
 

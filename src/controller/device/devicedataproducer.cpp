@@ -344,7 +344,9 @@ bool DataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &da
         dataCv.wait(&dataLock, 100);
     }
 
-    if (waitCount >= DDP_MAX_WAIT_COUNT) {
+    /*! No data if after several tries no data is obtained. However, if at least one sample is obtained process it, don't require
+     *  necessarily minDataBatchSize samples at this point */
+    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx) {
         dataLock.unlock();
         return false;
     }
@@ -522,7 +524,9 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         dataCv.wait(&dataLock, 100);
     }
 
-    if (waitCount >= DDP_MAX_WAIT_COUNT) {
+    /*! No data if after several tries no data is obtained. However, if at least one sample is obtained process it, don't require
+     *  necessarily minDataBatchSize samples at this point */
+    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx) {
         dataLock.unlock();
         return false;
     }

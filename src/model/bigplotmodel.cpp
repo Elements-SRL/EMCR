@@ -114,6 +114,11 @@ void BigPlotModel::updateCurrentZoom(Rect4 r){
     currentZoom = r;
 }
 
+void BigPlotModel::updateCurrentZoom(QwtInterval i, QwtPlot::Axis ax) {
+    pushZoomStack(currentZoom);
+    currentZoom[ax] = i;
+}
+
 Rect4 BigPlotModel::zoomOnSingleAxis(QwtPlot::Axis ax, int zoomInFactor, QPointF mousePosition) {
     auto currentZoom = getZoom(Current);
     const auto interval = currentZoom[ax];

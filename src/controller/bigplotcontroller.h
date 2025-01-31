@@ -37,6 +37,7 @@ public slots:
     void handleZoomOutRequest(BigPlotModel* model, BigPlot* plot);
     void handleZoomResetRequest(BigPlotModel* model, BigPlot* plot);
     void handleSingleAxisZoomRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int, QPointF);
+    void handleSingleAxisZoomRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis axis, QwtInterval i);
     void handleSingleAxisShiftRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int);
 
 private:

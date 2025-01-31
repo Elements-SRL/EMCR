@@ -66,6 +66,16 @@ void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlo
     }
 }
 
+void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, QwtInterval i) {
+    //    non idale, rischio di incoerenza con le altre chiamate nel model
+    model->updateCurrentZoom(i, axis);
+    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
+    plot->setRect(zoom);
+    if (axis == QwtPlot::Axis::xBottom && bps == BigPlot::GapFree){
+        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    }
+}
+
 void BigPlotController::handleSingleAxisShiftRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, int shift){
 //    non idale, rischio di incoerenza con le altre chiamate nel model
     model->updateCurrentZoom(model->shiftOnSingleAxis(axis, shift));
