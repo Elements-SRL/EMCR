@@ -592,6 +592,10 @@ PlotConsumer* EventDetectionController::getConsumer() {
     return consumer;
 }
 
+std::vector <DeviceDataConsumer*> EventDetectionController::getConsumers() {
+    return {consumer};
+}
+
 void EventDetectionController::initHDF5() {
     auto wasConsumerRunning = consumer->isRunning();
     //file reinitialization

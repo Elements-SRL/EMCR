@@ -195,6 +195,10 @@ PlotConsumer* GapFreeController::getConsumer() {
     return consumer;
 }
 
+std::vector <DeviceDataConsumer*> GapFreeController::getConsumers() {
+    return {consumer, abfDataWriterConsumer};
+}
+
 void GapFreeController::onRecordingRequest(bool flag) {
     if (flag) {
         std::vector <uint16_t> selectedChannels;

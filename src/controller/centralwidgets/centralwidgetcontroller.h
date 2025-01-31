@@ -25,11 +25,12 @@ public:
     virtual void stop() = 0;
     virtual void start() = 0;
     virtual PlotConsumer* getConsumer() = 0;
+    virtual std::vector <DeviceDataConsumer*> getConsumers() = 0;
 
 private:
     virtual void detachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
     virtual void attachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
-    
+
 public slots:
     virtual void onRangeUpdated(commlib::RangedMeasurement_t newRange) = 0;
     virtual void onCurrentColorsChanged(QVector <QColor> colors) = 0;

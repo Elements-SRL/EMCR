@@ -201,6 +201,10 @@ PlotConsumer * SpectrumController::getConsumer() {
     return consumer;
 }
 
+std::vector <DeviceDataConsumer*> SpectrumController::getConsumers() {
+    return {consumer};
+}
+
 void SpectrumController::onExportSpectrum() {
     QString filePath = QFileDialog::getSaveFileName(nullptr,
         "Save File",

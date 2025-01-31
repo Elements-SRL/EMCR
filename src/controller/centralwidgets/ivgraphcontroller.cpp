@@ -294,3 +294,7 @@ void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
 PlotConsumer* IvGraphController::getConsumer() {
     return consumer;
 }
+
+std::vector <DeviceDataConsumer*> IvGraphController::getConsumers() {
+    return {consumer};
+}
