@@ -22,6 +22,7 @@ public:
     void stop() override;
     void start() override;
     PlotConsumer * getConsumer() override;
+    std::vector <DeviceDataConsumer*> getConsumers() override;
     SpectrumWidget * getSpectrumWidget();
 
 private:

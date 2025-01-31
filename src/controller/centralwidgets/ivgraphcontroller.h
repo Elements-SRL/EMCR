@@ -25,6 +25,7 @@ public:
     void stop() override;
     void start() override;
     PlotConsumer * getConsumer() override;
+    std::vector <DeviceDataConsumer*> getConsumers() override;
     IvGraphWidget * getIvGraphWidget();
 
 private:
@@ -60,4 +61,3 @@ private slots:
 };
 
 #endif // IVGRAPHCONTROLLER_H
-#pragma once

@@ -20,21 +20,31 @@ bool CentralWidgetController::isAtLeastOneChannelExpanded() {
 }
 
 void CentralWidgetController::onSamplingRateChanged(Measurement sr) {
-	getConsumer()->onSamplingRateChanged(sr);
+    for (auto &consumer : getConsumers()) {
+        consumer->onSamplingRateChanged(sr);
+    }
 } 
 
 void CentralWidgetController::onDownsamplingRatioChanged(unsigned int dsr) {
-	getConsumer()->onDownsamplingRatioChanged(dsr);
+    for (auto &consumer : getConsumers()) {
+        consumer->onDownsamplingRatioChanged(dsr);
+    }
 }
 
 void CentralWidgetController::onCurrentRangeChanged(RangedMeasurement rm) {
-	getConsumer()->onCurrentRangeChanged(rm);
+    for (auto &consumer : getConsumers()) {
+        consumer->onCurrentRangeChanged(rm);
+    }
 }
 
 void CentralWidgetController::onVoltageRangeChanged(RangedMeasurement rm) {
-	getConsumer()->onVoltageRangeChanged(rm);
+    for (auto &consumer : getConsumers()) {
+        consumer->onVoltageRangeChanged(rm);
+    }
 }
 
 void CentralWidgetController::onStopConsuming() {
-	getConsumer()->onStopConsuming();
+    for (auto &consumer : getConsumers()) {
+        consumer->onStopConsuming();
+    }
 }
