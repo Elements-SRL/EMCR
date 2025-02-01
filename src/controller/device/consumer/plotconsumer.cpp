@@ -337,12 +337,9 @@ void EpisodicPlotConsumer::onStopConsuming() {
 void EpisodicPlotConsumer::run() {
     int bufferIdx;
     int bufferLen = 0;
-    bool newSweep = false;
-    QElapsedTimer updateDataTimer;
-    updateDataTimer.start();
+    int timeIdx = 0;
 
-    int lastUpdateTimeMs = updateDataTimer.elapsed();
-    int currentTimeMs;
+    episodicMessage.newProtocolFlag = true;
 
     QMutexLocker consumptionLock(&consumptionMtx);
     consumptionLock.unlock();
@@ -361,34 +358,43 @@ void EpisodicPlotConsumer::run() {
             msleep(20);
             continue;
         }
-        if (episodicHook->getDataChunk(buffer, newSweep, subSamplingRatio, minDataBatchSize)) {
+        if (episodicHook->getDataChunk(buffer, episodicMessage.newSweepFlag, subSamplingRatio, minDataBatchSize)) {
             // this->updateRangeAxis(); /*! \todo FCON aggiornare il range in episodico ha senso? */
+
+            if (episodicMessage.newSweepFlag) {
+                timeIdx = 0;
+            }
 
             bufferIdx = 0;
             bufferLen = buffer.size();
 
-            /*! Copy data in curves */
+            episodicMessage.timeValues.clear();
+
+            for (auto & values : episodicMessage.voltageValues) {
+                values.clear();
+            }
+
+            for (auto & values : episodicMessage.currentValues) {
+                values.clear();
+            }
+
             while (bufferIdx < bufferLen) {
-                for (auto channelIdx : expandedChannels) {
-                    voltageValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx];
-                    currentValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx+voltageChannelsNum];
+                if (timeIdx >= dataSize) {
+                    bufferIdx = bufferLen;
+                    break;
+                }
+                episodicMessage.timeValues.push_back(timeValues[timeIdx++]);
+                for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                    episodicMessage.voltageValues[channelIdx].push_back(buffer[bufferIdx+channelIdx]);
+                    episodicMessage.currentValues[channelIdx].push_back(buffer[bufferIdx+channelIdx+voltageChannelsNum]);
                 }
                 bufferIdx += totalChannelsNum;
-
-                gapFreeTimeIdx++;
-                if (gapFreeTimeIdx >= dataSize) {
-                    gapFreeTimeIdx = 0;
-                }
             }
 
-            currentTimeMs = updateDataTimer.elapsed();
-            if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
-                emit setPlotData(episodicMessage);
-                lastUpdateTimeMs = currentTimeMs;
-            }
+            emit setPlotData(episodicMessage);
+            episodicMessage.newProtocolFlag = false;
         }
     }
-    emit plotDataUpdated();
     consumptionLock.relock();
 
     exitedDataConsumingLoop = true;

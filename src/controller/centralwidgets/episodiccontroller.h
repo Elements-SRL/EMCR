@@ -3,6 +3,8 @@
 
 #include <QPointF>
 
+#include <qwt_plot_directpainter.h>
+
 #include "bigplotwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
@@ -41,10 +43,20 @@ private:
     std::vector <CurveData *> activeVoltageCurveData;
     BigPlotController * bigPlotController = nullptr;
     int sweepIdx = -1;
+    int persistentSweepsNum = 1000000000;
+    int activeSweepPlottedPoints = 0;
+
+    QwtPlotDirectPainter * episodicPainter;
+
+    QElapsedTimer updateDataTimer;
+
+    int lastUpdateTimeMs;
+    int currentTimeMs;
 
     void clearCurves();
     void detachCurves(const std::vector <uint16_t> &channelIndexes) override;
     void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
+    void paintPlots(bool newSweepFlag);
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;

@@ -1,5 +1,7 @@
 #include "episodiccontroller.h"
 
+#include <qwt_scale_map.h>
+
 EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, DeviceController* dc):
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     bigPlotController(bigPlotController) {
@@ -10,6 +12,8 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);
     plot = new BigPlot("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
+
+    episodicPainter = new QwtPlotDirectPainter(plot);
 
     episodicWidget = new EpisodicWidget(plot, mw);
     bigPlotWidget->setEpisodicPlot(episodicWidget);
@@ -135,6 +139,86 @@ void EpisodicController::attachCurves(const std::vector <uint16_t>& channelIndex
     plot->replot();
 }
 
+void EpisodicController::paintPlots(bool newSweepFlag) {
+    if (newSweepFlag) {
+        for (int currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+            if (persistentSweepsNum > 0) {
+                if (sweepIdx > 0) {
+                    currentCurves[currentChannelIdx][sweepIdx-1]->setColor(CurveTypePlotFaint);
+                }
+                if (sweepIdx >= persistentSweepsNum) {
+                    currentCurves[currentChannelIdx][sweepIdx-persistentSweepsNum]->setVisible(false);
+                }
+            }
+        }
+
+        for (int voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+            if (persistentSweepsNum > 0) {
+                if (sweepIdx > 0) {
+                    voltageCurves[voltageChannelIdx][sweepIdx-1]->setColor(CurveTypePlotFaint);
+                }
+                if (sweepIdx >= persistentSweepsNum) {
+                    voltageCurves[voltageChannelIdx][sweepIdx-persistentSweepsNum]->setVisible(false);
+                }
+            }
+        }
+        plot->replot();
+        plot->repaint();
+        activeSweepPlottedPoints = 1;
+    }
+
+    Curve * curve;
+    CurveData * curveData;
+
+    /*! \todo FCON this assumes that all current and voltage curves are in the same plot */
+    const QwtScaleMap tMap = plot->canvasMap(QwtPlot::xBottom);
+    const QwtScaleMap iMap = plot->canvasMap(QwtPlot::yLeft);
+    const QwtScaleMap vMap = plot->canvasMap(QwtPlot::yRight);
+
+    int newActiveSweepPlottedPoints = activeSweepPlottedPoints;
+    for (int currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+        curve = currentCurves[currentChannelIdx][sweepIdx];
+        curveData = static_cast <CurveData *> (curve->data());
+
+        // curveData->lock();
+
+        QRectF br = qwtBoundingRect(* curveData, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
+        const QRect clipRect = QwtScaleMap::transform(tMap, iMap, br).toRect();
+
+        episodicPainter->setClipRegion(clipRect);
+
+        episodicPainter->drawSeries(curve, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
+        newActiveSweepPlottedPoints = (int)(curveData->size());
+        // curveData->unlock();
+    }
+
+    for (int voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+        curve = voltageCurves[voltageChannelIdx][sweepIdx];
+        curveData = static_cast <CurveData *> (curve->data());
+
+        // curveData->lock();
+
+        QRectF br = qwtBoundingRect(* curveData, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
+        const QRect clipRect = QwtScaleMap::transform(tMap, vMap, br).toRect();
+
+        episodicPainter->setClipRegion(clipRect);
+
+        episodicPainter->drawSeries(curve, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
+        newActiveSweepPlottedPoints = (int)(curveData->size());
+        // curveData->unlock();
+    }
+
+    // episodicConsumer->unlockCurves();
+
+    // if (protocolFinished) {
+    //     sweepPersistenceSbx->setEnabled(true);
+    //     sweepSelectionCbx->setEnabled(true);
+    //     freezeSweepsBtn->setEnabled(true);
+    // }
+
+    activeSweepPlottedPoints = newActiveSweepPlottedPoints;
+}
+
 void EpisodicController::start() {
     if (!isAtLeastOneChannelExpanded()) {
         return;
@@ -219,22 +303,30 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
     EpisodicMessage episodicMessage = std::get<PMS_EPISODIC>(plotmessage);
     if (episodicMessage.newProtocolFlag) {
         this->clearCurves();
+
+        updateDataTimer.start();
+
+        lastUpdateTimeMs = updateDataTimer.elapsed();
     }
 
     if (episodicMessage.newSweepFlag) {
+        if (!episodicMessage.newProtocolFlag) {
+            this->paintPlots(episodicMessage.newSweepFlag);
+        }
+
         Curve * curve;
         sweepIdx++;
 
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             curve = new Curve(CurveTypePlotSolid);
-            activeCurrentCurveData[idx] = new CurveData(ECT_MAX_SAMPLES_PER_PLOT);
+            activeCurrentCurveData[idx] = new CurveData(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
             curve->setData(activeCurrentCurveData[idx]);
             currentCurves[idx][sweepIdx] = curve;
         }
 
         for (int idx = 0; idx < voltageChannelsNum; idx++) {
             curve = new Curve(CurveTypePlotSolid);
-            activeVoltageCurveData[idx] = new CurveData(ECT_MAX_SAMPLES_PER_PLOT);
+            activeVoltageCurveData[idx] = new CurveData(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
             curve->setData(activeVoltageCurveData[idx]);
             voltageCurves[idx][sweepIdx] = curve;
         }
@@ -248,6 +340,12 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         activeCurrentCurveData[idx]->append(episodicMessage.timeValues, episodicMessage.currentValues[idx]);
         activeVoltageCurveData[idx]->append(episodicMessage.timeValues, episodicMessage.voltageValues[idx]);
+    }
+
+    currentTimeMs = updateDataTimer.elapsed();
+    if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
+        lastUpdateTimeMs = currentTimeMs;
+        this->paintPlots(episodicMessage.newSweepFlag);
     }
 }
 

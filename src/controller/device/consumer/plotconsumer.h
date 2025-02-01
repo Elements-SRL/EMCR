@@ -77,11 +77,6 @@ protected:
 
     int maxSamples = 256;
     int dataSize = 0;
-    /*! Having gapFreeTimeIdx as a property of the class ensures that when a new protocol starts the plot does not reset the x axis */
-    int gapFreeTimeIdx = 0;
-    /*! Having triggerBufferIdx and triggerLastIdx as properties of the class ensures that when a new protocol starts it can correctly trigger the plot */
-    int triggerBufferIdx = 0;
-    int triggerLastIdx;
 
     int subSamplingRatio = 1;
     int subSamplingIdx = 0;
@@ -112,6 +107,12 @@ protected:
 private:
     void updateTimeAxis();
     void computeTimeAxis();
+
+    /*! Having gapFreeTimeIdx as a property of the class ensures that when a new protocol starts the plot does not reset the x axis */
+    int gapFreeTimeIdx = 0;
+    /*! Having triggerBufferIdx and triggerLastIdx as properties of the class ensures that when a new protocol starts it can correctly trigger the plot */
+    int triggerBufferIdx = 0;
+    int triggerLastIdx;
 };
 
 class EpisodicPlotConsumer : public PlotConsumer {
