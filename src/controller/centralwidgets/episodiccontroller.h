@@ -16,8 +16,6 @@
 #include "abfdatawriterconsumer.h"
 #include "devicecontroller.h"
 
-#define ECT_MAX_SAMPLES_PER_PLOT 8192
-
 class CurveData;
 
 class EpisodicController : public CentralWidgetController {
@@ -29,6 +27,7 @@ public:
     void stop() override;
     void start() override;
     PlotConsumer* getConsumer() override;
+    std::vector <DeviceDataConsumer *> getConsumers() override;
 
 private:
     BigPlotModel* model = nullptr;

@@ -348,6 +348,7 @@ void EpisodicPlotConsumer::run() {
     consumptionLock.unlock();
 
     this->updateTimeAxis();
+    this->updateRangeAxis();
 
     while (true) {
         consumptionLock.relock();
@@ -361,7 +362,7 @@ void EpisodicPlotConsumer::run() {
             continue;
         }
         if (episodicHook->getDataChunk(buffer, newSweep, subSamplingRatio, minDataBatchSize)) {
-            this->updateRangeAxis();
+            // this->updateRangeAxis(); /*! \todo FCON aggiornare il range in episodico ha senso? */
 
             bufferIdx = 0;
             bufferLen = buffer.size();
@@ -382,7 +383,7 @@ void EpisodicPlotConsumer::run() {
 
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
-                emit plotDataUpdated();
+                emit setPlotData(episodicMessage);
                 lastUpdateTimeMs = currentTimeMs;
             }
         }
@@ -395,9 +396,26 @@ void EpisodicPlotConsumer::run() {
 }
 
 void EpisodicPlotConsumer::allocateData() {
-    /*! Voltage and current are stored in vectors that grow as data arrives, cannot preallocate */
+    episodicMessage.voltageValues.resize(voltageChannelsNum);
+    for (int idx = 0; idx < voltageChannelsNum; idx++) {
+        episodicMessage.voltageValues[idx].reserve(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
+    }
+    episodicMessage.currentValues.resize(currentChannelsNum);
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        episodicMessage.currentValues[idx].reserve(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
+    }
     timeValues = new double[maxSamples];
     forceAxisUpdate();
+}
+
+void EpisodicPlotConsumer::clearData() {
+    episodicMessage.voltageValues.clear();
+    episodicMessage.currentValues.clear();
+
+    if (timeValues != nullptr) {
+        delete [] timeValues;
+        timeValues = nullptr;
+    }
 }
 
 void EpisodicPlotConsumer::updateTimeAxis() {
@@ -437,5 +455,5 @@ void EpisodicPlotConsumer::computeTimeAxis() {
         timeValues[idx] = dt*(double)idx;
     }
 
-    this->emitPlotData();
+    // this->emitPlotData(); /*! \todo FCON in teoria serve solo il setPlotData con i vettori */
 }

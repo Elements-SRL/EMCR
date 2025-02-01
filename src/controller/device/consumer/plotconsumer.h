@@ -11,6 +11,7 @@
 
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
+#define PCS_MAX_SAMPLES_PER_EPISODIC_PLOT (8192)
 
 class PlotConsumer : public DeviceDataConsumer {
     Q_OBJECT
@@ -150,11 +151,9 @@ private:
 
     EpisodicDataHook * episodicHook = nullptr;
 
-    std::vector <double> episodicTimeValues;
-    std::vector <std::vector <double>> episodicCurrentValues;
-    std::vector <std::vector <double>> episodicVoltageValues;
+    EpisodicMessage episodicMessage;
 
-    Measurement_t pushedSweepDuration;
+    // Measurement_t pushedSweepDuration;
 //     QRecursiveMutex curvesMtx;
 
 // signals:

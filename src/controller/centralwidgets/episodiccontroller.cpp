@@ -64,7 +64,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
                                                                                                                            rispetto alla configurazione iniziale */
     connect(consumer, &PlotConsumer::setPlotData, this, &EpisodicController::onSetPlotData);
     consumer->forceAxisUpdate();
-    consumer->setMaxSamplesPerPlot(ECT_MAX_SAMPLES_PER_PLOT);
+    consumer->setMaxSamplesPerPlot(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
     consumer->onStopConsuming();
     recordingSettingsDialog->forceSettingsEmit();
 }
@@ -255,6 +255,10 @@ PlotConsumer* EpisodicController::getConsumer() {
     return consumer;
 }
 
+std::vector <DeviceDataConsumer *> EpisodicController::getConsumers() {
+    return {consumer, abfDataWriterConsumer};
+}
+
 void EpisodicController::onRecordingRequest(bool flag) {
     if (flag) {
         std::vector <uint16_t> selectedChannels;
@@ -299,7 +303,7 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
     consumer->onStartConsuming();
 }
 
-//TODO this could be moved at the controller level and b managed by single controllers
+//TODO this could be moved at the controller level and be managed by single controllers
 void EpisodicController::onStartRecording() {
     const auto selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), true);
