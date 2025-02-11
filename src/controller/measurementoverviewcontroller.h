@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "controllerwithconsumer.h"
 #include "mainwindow.h"
 #include "measurementsoverviewdockwidget.h"
 #include "application_status.h"
@@ -10,13 +11,14 @@
 #include "livestatisticsconsumer.h"
 #include "statisticsresultwrapper.h"
 
-class MeasurementOverviewController : public QObject {
+class MeasurementOverviewController : public ControllerWithConsumer {
     Q_OBJECT
 
 public:
     MeasurementOverviewController(ApplicationStatus * appStatus, DeviceDataProducer * producer, MainWindow * mainWindow);
     ~MeasurementOverviewController();
     LiveStatisticsConsumer * getLiveStatisticsConsumer();
+    virtual std::vector <DeviceDataConsumer*> getConsumers() override;
     void boardMappingsLoaded();
 
 public slots:

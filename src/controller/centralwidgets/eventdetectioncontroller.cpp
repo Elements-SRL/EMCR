@@ -1,5 +1,6 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
+#include "globaldefines.h"
 #include <iomanip>
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
@@ -647,12 +648,12 @@ void EventDetectionController::resetStats() {
 }
 
 void EventDetectionController::onSamplingRateChanged(Measurement sr) {
-    consumer->onSamplingRateChanged(sr);
+    ControllerWithConsumer::onSamplingRateChanged(sr);
     samplingRateChangedroutine(sr);
 }
 
 void EventDetectionController::onDownsamplingRatioChanged(uint32_t newRatio) {
-    consumer->onDownsamplingRatioChanged(newRatio);
+    ControllerWithConsumer::onDownsamplingRatioChanged(newRatio);
     auto sr = appStatus->getSamplingRate();
     samplingRateChangedroutine(sr / (double) newRatio);
 }

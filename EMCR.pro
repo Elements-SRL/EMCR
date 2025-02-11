@@ -32,6 +32,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/controllerwithconsumer.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -143,6 +144,7 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
+    src/controller/controllerwithconsumer.h \
     src/globaldefines.h \
     src/model/multiplechannelmodel.h \
     src/protocoldefs.h \
