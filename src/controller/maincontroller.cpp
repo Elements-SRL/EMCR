@@ -186,6 +186,7 @@ void MainController::onMainWindowCreated() {
     }
 
     autoDecloggerController = new AutoDecloggerController(appStatus, mainWindow, deviceDataProducer);
+    controllersWithConsumer.push_back(autoDecloggerController);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
 
@@ -439,8 +440,6 @@ void MainController::onVcCurrentRangeSelected(int idx) {
     for (auto controller : controllersWithConsumer) {
         controller->onCurrentRangeChanged(range);
     }
-    //add connect inside controllers? this would remove the need of a centralControllers array
-    autoDecloggerController->onCurrentRangeChanged(range);
 
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
@@ -463,7 +462,6 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     for (auto controller : controllersWithConsumer) {
         controller->onVoltageRangeChanged(range);
     }
-    autoDecloggerController->onVoltageRangeChanged(range);
 
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
@@ -485,7 +483,6 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     for (auto controller : controllersWithConsumer) {
         controller->onCurrentRangeChanged(range);
     }
-    autoDecloggerController->onCurrentRangeChanged(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcCurrentRangeSelected(idx);
@@ -506,7 +503,6 @@ void MainController::onCcVoltageRangeSelected(int idx) {
     for (auto controller : controllersWithConsumer) {
         controller->onVoltageRangeChanged(range);
     }
-    autoDecloggerController->onVoltageRangeChanged(range);
 
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
@@ -567,9 +563,6 @@ void MainController::startProducer() {
 void MainController::stopAndDestroyProducerConsumers() {
     for (auto& controller : controllersWithConsumer) {
         controller->onStopConsuming();
-    }
-    if (autoDecloggerController != nullptr) {
-        autoDecloggerController->stop();
     }
     this->destroyControllers();
     if (deviceDataProducer != nullptr) {
