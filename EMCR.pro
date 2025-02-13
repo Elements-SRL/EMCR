@@ -276,6 +276,7 @@ INCLUDEPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
+    ./src/controller/autodeclogger \
     ./src/controller/centralwidgets \
     ./src/model \
     ./src/model/filters \
@@ -294,6 +295,7 @@ DEPENDPATH += \
     ./src/controller/device \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
+    ./src/controller/autodeclogger \
     ./src/controller/centralwidgets \
     ./src/model \
     ./src/model/filters \
