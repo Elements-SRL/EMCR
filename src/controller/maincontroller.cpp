@@ -2,8 +2,6 @@
 #include "statearraycontroller.h"
 #include "mainwindow.h"
 #include "application_status.h"
-#include <thread>
-#include <chrono> // for std::chrono::seconds
 
 MainController::MainController() {
     /*! Set up device detector */
@@ -104,10 +102,8 @@ void MainController::onConnect(bool flag) {
         previousCurrentRange.reset();
 
         mainWindow->setConnectionLabel("");
-        this->stopAndDestroyProducerConsumers();
-
         mainWindow->connectDevice(false, Success);
-        this->destroyControllers();
+        this->stopAndDestroyProducerConsumers();
 
         if (appStatus != nullptr) {
             delete appStatus;
@@ -157,8 +153,6 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
 }
 
 void MainController::onMainWindowCreated() {
-    consumers.clear();
-
     /*********\
      * Model *
     \*********/
@@ -171,31 +165,28 @@ void MainController::onMainWindowCreated() {
     \************/
 
     deviceDataProducer = new DeviceDataProducer(appStatus);
-    auto stampPlotConsumer =  new GapFreePlotConsumer(appStatus, deviceDataProducer);
-    consumers.append(stampPlotConsumer);
-
-    /***************\
-     * Controllers *
-    \***************/
 
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
     deviceController = new DeviceController(appStatus, mainWindow);
-    auto abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, deviceDataProducer);
-    consumers.append(abfDataWriterConsumer);
-    bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow, abfDataWriterConsumer, deviceController);
-    chessboardController = new ChessboardController(appStatus, stampPlotConsumer, defaultPlotDuration, mainWindow);
+    bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow, deviceController);
+    chessboardController = new ChessboardController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow);
+    controllersWithConsumer.push_back(chessboardController);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
     multipleChannelController = new MultipleChannelController(appStatus, mainWindow);
     singleChannelController = new SingleChannelController(appStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     measurementOverviewController = new MeasurementOverviewController(appStatus, deviceDataProducer, mainWindow);
+    controllersWithConsumer.push_back(measurementOverviewController);
     plotPreferencesController = new PlotPreferencesController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {
         voltageProtocolManager = new ProtocolManager(msgDisp);
         currentProtocolManager = new ProtocolManager(msgDisp);
     }
+
+    autoDecloggerController = new AutoDecloggerController(appStatus, mainWindow, deviceDataProducer);
+    controllersWithConsumer.push_back(autoDecloggerController);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
 
@@ -205,26 +196,39 @@ void MainController::onMainWindowCreated() {
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
     /*************\
-     * Consumers *
+     * Controllers *
     \*************/
 
-    consumers.append(chessboardController->getPlotConsumer());
-    for(auto c: bigPlotController->getControllers()){
-        centralWidgetControllers.push_back(c);
+    for(auto &c: bigPlotController->getControllers()){
+        controllersWithConsumer.push_back(c);
     }
     
-    consumers.append(measurementOverviewController->getLiveStatisticsConsumer());
-
     mainWindow->addViewActions();
 
     /***********\
      * Connect *
     \***********/
 
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     singleChannelController, &SingleChannelController::onAllChannelsClicked);
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        singleChannelController, &SingleChannelController::onOneBoardClicked);
-    connect(chessboardController, &ChessboardController::sigOneRowClicked,          singleChannelController, &SingleChannelController::onOneRowClicked);
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   singleChannelController, &SingleChannelController::onSingleChannelClicked);
+    connect(chessboardController, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
+        chessboardController->onAllChannelsClicked(newChannelState);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
+        chessboardController->onOneBoardClicked(changedBoardIndex, newChannelState);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
+        chessboardController->onOneRowClicked(changedRowIndex, newChannelState);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
+    connect(chessboardController, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
+        chessboardController->onSingleChannelClicked(changedChannelIndex, event);
+        singleChannelController->onChannelsSelected();
+        multipleChannelController->onChannelsSelected();
+    });
 
     connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
     connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
@@ -241,10 +245,14 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             bigPlotController,              &BigPlotController::onExpandTrace);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           bigPlotController,              &BigPlotController::onExpandTrace);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           chessboardController,           &ChessboardController::onTracesExpandedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOffEx,            chessboardController,           &ChessboardController::onChannelsTurnedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff,  chessboardController,           &ChessboardController::onCalibrationResistorsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,               chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOffEx,             chessboardController,           &ChessboardController::onStimuliTurnedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   chessboardController,           &ChessboardController::onOffsetRecalibrationTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   measurementOverviewController,  &MeasurementOverviewController::onOffsetRecalibrationResult);
     connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   singleChannelController,        &SingleChannelController::onOffsetRecalibrationResult);
@@ -342,7 +350,9 @@ void MainController::onMainWindowCreated() {
     plotPreferencesController->initializePlotColors();
 
     /*! Start threads */
-    this->startProducerConsumers();
+    this->startProducer();
+
+    multipleChannelController->onChannelsSelected();
 
     //for devices with less then 16 channels the traces are expanded by default
     multipleChannelController->addRemoveFromBigPlot(true);
@@ -408,9 +418,12 @@ void MainController::destroyControllers() {
         delete bigPlotController;
         bigPlotController = nullptr;
     }
-}
 
-/*! Message forward from mainController to other consumers */
+    if (autoDecloggerController != nullptr) {
+        delete autoDecloggerController;
+        autoDecloggerController = nullptr;
+    }
+}
 
 void MainController::onVcCurrentRangeSelected(int idx) {
     /*! update GUI */
@@ -424,12 +437,10 @@ void MainController::onVcCurrentRangeSelected(int idx) {
     }
     previousCurrentRange.emplace(range);
 
-    for (auto consumer : consumers) {
-        consumer->onCurrentRangeChanged(range);
-    }
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onCurrentRangeChanged(range);
     }
+
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
@@ -448,14 +459,10 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     }
     previousVoltageRange.emplace(range);
 
-    for (auto consumer : consumers) {
-        consumer->onVoltageRangeChanged(range);
-    }
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onVoltageRangeChanged(range);
     }
-    //this should be useless?
-    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
+
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
@@ -473,13 +480,9 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     }
     previousCurrentRange.emplace(range);
 
-    for (auto consumer : consumers) {
-        consumer->onCurrentRangeChanged(range);
-    }
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onCurrentRangeChanged(range);
     }
-    chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcCurrentRangeSelected(idx);
@@ -497,14 +500,11 @@ void MainController::onCcVoltageRangeSelected(int idx) {
     }
     previousVoltageRange.emplace(range);
 
-    for (auto consumer : consumers) {
-        consumer->onVoltageRangeChanged(range);
-    }
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onVoltageRangeChanged(range);
     }
-    //this should be useless?
-    //chessboardController->onRangeUpdated(range, QwtPlot::yRight);
+
+    chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
@@ -530,10 +530,7 @@ void MainController::onSamplingRateSelected(int) {
     Measurement_t meas;
     msgDisp->getSamplingRate(meas);
 
-    for (auto consumer : consumers) {
-        consumer->onSamplingRateChanged(meas);
-    }
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onSamplingRateChanged(meas);
     }
 }
@@ -542,10 +539,7 @@ void MainController::onDownsamplingRatioSelected(int) {
     uint32_t ratio;
     msgDisp->getDownsamplingRatio(ratio);
 
-    for (auto consumer : consumers) {
-        consumer->onDownsamplingRatioChanged(ratio);
-    }
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onDownsamplingRatioChanged(ratio);
     }
 }
@@ -558,30 +552,26 @@ void MainController::onClampingModalitySelected(ClampingModality_t mode) {
     auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
     protocolDw->onSetClampingModality(mode);
 
-    for (auto consumer : consumers) {
-        consumer->onClampingModalityChanged(mode);
-    }
-    for (auto controller : centralWidgetControllers) {
+    auto multipleChannelDw = static_cast <MultipleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWMultipleChannelControl));
+    multipleChannelDw->onSetClampingModality(mode);
+    for (auto controller : controllersWithConsumer) {
         controller->onClampingModalityChanged(mode);
     }
 }
 
-void MainController::startProducerConsumers() {
+void MainController::startProducer() {
     deviceDataProducer->start();
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
-    for (auto consumer : consumers) {
-        consumer->onStopConsuming();
-    }
-    for (auto controller : centralWidgetControllers) {
+    for (auto& controller : controllersWithConsumer) {
         controller->onStopConsuming();
     }
-    if (deviceDataProducer!= nullptr) {
+    this->destroyControllers();
+    if (deviceDataProducer != nullptr) {
         deviceDataProducer->onStopProducing();
         delete deviceDataProducer;
         deviceDataProducer = nullptr;
     }
-    consumers.clear();
-    centralWidgetControllers.clear();
+    controllersWithConsumer.clear();
 }

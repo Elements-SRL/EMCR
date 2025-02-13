@@ -1,14 +1,15 @@
 #include <QApplication>
+#include <QStyleFactory>
 
 #include "maincontroller.h"
 #include "globaldefines.h"
 #include "statisticsresult.h"
-#include "application_status.h"
 #include "plotmessage.h"
 #include "statisticsresultwrapper.h"
 #include "eventsdirection.h"
 
 int main(int argc, char *argv[]) {
+    QApplication::setDesktopSettingsAware(false);
     QApplication a(argc, argv);
 
     qRegisterMetaType <std::vector <std::string>> ("std::vector <std::string>");
@@ -30,6 +31,8 @@ int main(int argc, char *argv[]) {
 
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
     QDir().mkpath(YAML_DEFAULT_FOLDER);
+
+    a.setStyle(QStyleFactory::create("Windows"));
 
     MainController c;
     return a.exec();

@@ -57,7 +57,6 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
         plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
     });
     consumer->forceAxisUpdate();
-    consumer->setMaxSamplesPerPlot(SPC_MAX_SAMPLES);
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
@@ -149,9 +148,21 @@ void SpectrumController::onReplot() {
 }
 
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    ClampingModality_t mode = appStatus->getClampingModality();
+    std::string unit = "";
+    switch (mode) {
+    case e384CommLib::VOLTAGE_CLAMP:
+    case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
+        unit = "A";
+        break;
+    case e384CommLib::CURRENT_CLAMP:
+    case e384CommLib::ZERO_CURRENT_CLAMP:
+    case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
+        unit = "V";
+        break;
+    }
     QwtPlot::Axis axisIdx;
-    auto mode = appStatus->getClampingModality();
-    if (newRange.unit == "A" && mode == VOLTAGE_CLAMP) {
+    if (newRange.unit == unit) {
         axisIdx = QwtPlot::yLeft;
         model->setCurrentRangeLog(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
@@ -159,22 +170,13 @@ void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
         axisIdx = QwtPlot::yRight;
         model->setCurrentRangeLog(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "rms", axisIdx);
-
-    } else if (newRange.unit == "V" && (mode == CURRENT_CLAMP || mode == ZERO_CURRENT_CLAMP)) {
-        axisIdx = QwtPlot::yLeft;
-        model->setCurrentRangeLog(axisIdx, newRange);
-        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
-
-        axisIdx = QwtPlot::yRight;
-        model->setCurrentRangeLog(axisIdx, newRange);
-        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "rms", axisIdx);
-
-    } else if (newRange.unit == "Hz") {
+    }
+    else if (newRange.unit == "Hz") {
         axisIdx = QwtPlot::xBottom;
         model->setCurrentRange(axisIdx, newRange);
         plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
-
-    } else {
+    }
+    else {
         return;
     }
     plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
@@ -203,6 +205,10 @@ void SpectrumController::onSetPlotData(PlotMessage plotmessage) {
 
 PlotConsumer * SpectrumController::getConsumer() {
     return consumer;
+}
+
+std::vector <DeviceDataConsumer*> SpectrumController::getConsumers() {
+    return {consumer};
 }
 
 void SpectrumController::onExportSpectrum() {

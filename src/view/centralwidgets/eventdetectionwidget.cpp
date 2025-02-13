@@ -202,7 +202,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     auto hboxFileName = new QHBoxLayout();
     recordingVBoxLayout->addLayout(hboxFileName);
 
-    hboxRecordingPath->addWidget(new QLabel("Recording path:"), 0, 0);
+    hboxRecordingPath->addWidget(new QLabel("Recording path:"));
     recordPathLineEdit->setReadOnly(true);
     hboxRecordingPath->addWidget(recordPathLineEdit);
 
@@ -242,7 +242,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     hboxBrowseFile->addWidget(browseBtn);
     hboxBrowseFile->addWidget(goToDirBtn);
 
-    hboxFileName->addWidget(new QLabel("File name:"), 0, 0);
+    hboxFileName->addWidget(new QLabel("File name:"));
     hboxFileName->addWidget(fileNameLineEdit);
 
     statsLayout->addWidget(recordingGb);

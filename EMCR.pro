@@ -32,6 +32,7 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/controllerwithconsumer.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -62,11 +63,13 @@ SOURCES += \
     src/controller/device/consumer/plotconsumer.cpp \
     src/controller/device/consumer/datawriterconsumer.cpp \
     src/controller/device/consumer/abfdatawriterconsumer.cpp \
+    src/controller/device/consumer/autodecloggerconsumer.cpp \
     src/controller/centralwidgets/centralwidgetcontroller.cpp \
     src/controller/centralwidgets/ivgraphcontroller.cpp \
     src/controller/centralwidgets/gapfreecontroller.cpp \
     src/controller/centralwidgets/eventdetectioncontroller.cpp \
     src/controller/centralwidgets/spectrumcontroller.cpp \
+    src/controller/autodeclogger/autodecloggercontroller.cpp \
     src/model/devicemodel.cpp \
     src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
@@ -74,6 +77,7 @@ SOURCES += \
     src/model/ivaccumulator.cpp \
     src/model/ivchannel.cpp \
     src/model/measurementoverviewmodel.cpp \
+    src/model/multiplechannelmodel.cpp \
     src/model/plotpreferencesmodel.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
@@ -123,6 +127,7 @@ SOURCES += \
     src/view/protocol/protocolpropertydialog.cpp \
     src/view/protocol/protocolsection.cpp \
     src/view/protocol/protocolwidget.cpp \
+    src/view/autodeclogger/autodecloggerwidget.cpp \
     src/view/recordsettingsdialog.cpp \
     src/view/rect4.cpp \
     src/view/singlechannelcontroldockwidget.cpp \
@@ -139,7 +144,9 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
+    src/controller/controllerwithconsumer.h \
     src/globaldefines.h \
+    src/model/multiplechannelmodel.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
@@ -172,11 +179,13 @@ HEADERS += \
     src/controller/device/consumer/plotconsumer.h \
     src/controller/device/consumer/datawriterconsumer.h \
     src/controller/device/consumer/abfdatawriterconsumer.h \
+    src/controller/device/consumer/autodecloggerconsumer.h \
     src/controller/centralwidgets/centralwidgetcontroller.h \
     src/controller/centralwidgets/ivgraphcontroller.h \
     src/controller/centralwidgets/gapfreecontroller.h \
     src/controller/centralwidgets/eventdetectioncontroller.h \
     src/controller/centralwidgets/spectrumcontroller.h \
+    src/controller/autodeclogger/autodecloggercontroller.h \
     src/model/devicemodel.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \
@@ -202,6 +211,7 @@ HEADERS += \
     src/model/events/baseline.h \
     src/model/events/eventpacket.h \
     src/model/events/eventsandbaseline.h \
+    src/model/autodeclogger/autodecloggermodel.h \
     src/view/activationbutton.h \
     src/view/bigplotwidget.h \
     src/view/gapfreewidget.h \
@@ -244,6 +254,7 @@ HEADERS += \
     src/view/protocol/protocolpropertydialog.h \
     src/view/protocol/protocolsection.h \
     src/view/protocol/protocolwidget.h \
+    src/view/autodeclogger/autodecloggerwidget.h \
     src/view/recordsettingsdialog.h \
     src/view/rect4.h \
     src/view/singlechannelcontroldockwidget.h \

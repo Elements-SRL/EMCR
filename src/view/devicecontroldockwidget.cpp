@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 
 #include "devicecontroldockwidget.h"
+#include <QScrollArea>
 
 #define TITLE "Device controls"
 
@@ -11,6 +12,14 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     msgDisp(msgDisp) {
 
     setObjectName("deviceControlsDw");
+
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    QWidget * window = new QWidget;
+    scrollArea->setWidget(window);
+
+    this->setWidget(scrollArea); // Set scroll area as the main widget
+
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
 
@@ -49,8 +58,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     std::vector <double> customDoublesDefault;
     msgDisp->getCustomDoubles(customDoubles, customDoublesRanges, customDoublesDefault);
 
-    QWidget * window = new QWidget;
-    this->setWidget(window);
     QVBoxLayout * vLayout = new QVBoxLayout(window);
     vLayout->setContentsMargins(0, 0, 0, 1);
     vLayout->setSpacing(1);

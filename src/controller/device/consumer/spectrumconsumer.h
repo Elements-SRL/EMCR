@@ -30,9 +30,9 @@ protected:
     void updateFrequencyAxis();
     void computeFrequencyAxis();
     virtual void updateRangeAxis() override;
-    void clearData() override;
+    void clearData();
     void run() override;
-    void allocateData() override;
+    void allocateData();
     void emitPlotData() override;
 
 private:
@@ -43,6 +43,7 @@ private:
     int integrationRoundIdx = 0;
     int binIndex = 0;
     double normalizationFactor = 1.0;
+    int channelsOffset = 0;
 
     int nBins = 0;
     int n2Bins = 0;

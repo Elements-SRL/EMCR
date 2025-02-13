@@ -4,6 +4,7 @@
 #include <QApplication>
 
 #include "errormanager.h"
+#include "globaldefines.h"
 
 MultipleChannelController::MultipleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
     appStatus(appStatus),
@@ -13,11 +14,22 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     multipleChannelControlsDw = new MultipleChannelControlDockWidget(msgDisp);
     offsetCorrectionController = new OffsetCorrectionController(appStatus, this);
 
+    model = new MultipleChannelModel(appStatus, multipleChannelControlsDw);
+
+    allChannels.resize(appStatus->getCurrentChannelsNum());
+    for (int i = 0; i < allChannels.size(); i++) {
+        allChannels[i] = i;
+    }
+
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelOn, this, [=]() {
         this->turnSelectedChannelsOnOff(true);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelOff, this, [=]() {
         this->turnSelectedChannelsOnOff(false);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelAuto, this, [=](bool flag) {
+        model->turnChannelsAuto(flag);
+        this->onChannelsSelected();
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn, this, [=]() {
@@ -32,6 +44,10 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulsOff, this, [=]() {
         this->turnSelectedStimuliOnOff(false);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulusAuto, this, [=](bool flag) {
+        model->turnStimulusAuto(flag);
+        this->onChannelsSelected();
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigZap, this, [=](Measurement_t duration) {
@@ -111,11 +127,17 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot,     this, [=] () {
         this->addRemoveFromBigPlot(false);
     });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto,     this, [=] (bool flag) {
+        model->turnExpandAuto(flag);
+        this->onChannelsSelected();
+    });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
 
 MultipleChannelController::~MultipleChannelController(){
+    delete model;
+    model = nullptr;
     delete multipleChannelControlsDw;
     multipleChannelControlsDw = nullptr;
     offsetCorrectionController->wait();
@@ -133,7 +155,28 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
     emit sigAddRemoveFromBigPlot(flag);
 }
 
+void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (auto &&v : selectedChannels) {
+        v = !(v^flag);
+    }
+    msgDisp->expandTraces(allChannels, selectedChannels);
 
+    emit sigAddRemoveFromBigPlotEx(flag);
+}
+
+void MultipleChannelController::onChannelsSelected() {
+    if (model->getChannelsAuto()) {
+        turnSelectedChannelsOnOffEx(true);
+    }
+    if (model->getStimulusAuto()) {
+        turnSelectedStimuliOnOffEx(true);
+    }
+    if (model->getExpandAuto()) {
+        addRemoveFromBigPlotEx(true);
+    }
+}
 
 void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     std::vector <uint16_t> selectedChannels;
@@ -142,6 +185,17 @@ void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     msgDisp->turnChannelsOn(selectedChannels, values, true);
 
     emit sigChannelsTurnedOnOff(flag);
+}
+
+void MultipleChannelController::turnSelectedChannelsOnOffEx(bool flag) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (auto &&v : selectedChannels) {
+        v = !(v^flag);
+    }
+    msgDisp->turnChannelsOn(allChannels, selectedChannels, true);
+
+    emit sigChannelsTurnedOnOffEx(flag);
 }
 
 void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag) {
@@ -160,6 +214,17 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     msgDisp->enableStimulus(selectedChannels, values, true);
 
     emit sigStimuliTurnedOnOff(flag);
+}
+
+void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
+    std::vector <bool> selectedChannels;
+    msgDisp->getSelectedChannels(selectedChannels);
+    for (auto &&v : selectedChannels) {
+        v = !(v^flag);
+    }
+    msgDisp->enableStimulus(allChannels, selectedChannels, true);
+
+    emit sigStimuliTurnedOnOffEx(flag);
 }
 
 void MultipleChannelController::zap(Measurement_t duration) {

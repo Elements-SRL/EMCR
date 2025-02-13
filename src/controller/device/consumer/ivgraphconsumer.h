@@ -38,9 +38,9 @@ private:
     std::vector<int> officialDataSize;
 
 protected:
-    void clearData() override;
+    void clearData();
     void run() override;
-    void allocateData() override;
+    void allocateData();
     void emitPlotData() override;
 };
 

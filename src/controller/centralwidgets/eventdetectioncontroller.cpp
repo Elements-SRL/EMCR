@@ -1,7 +1,7 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
+#include "globaldefines.h"
 #include <iomanip>
-using namespace H5;
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     try {
@@ -51,13 +51,13 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
         //H5::Group group = parentGroup.createGroup(eventName);
         hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
-        DataSpace mspace(RANK, dims, maxdims);
-        DSetCreatPropList cparms;
+        H5::DataSpace mspace(RANK, dims, maxdims);
+        H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
         cparms.setChunk(RANK, chunk_dims);
-        DataSet dataset = parentGroup.createDataSet(datasetName, PredType::STD_I16LE, mspace, cparms);
-        DataSpace attSpace(H5S_SCALAR);
-        StrType strdatatype(0, H5T_VARIABLE);
+        H5::DataSet dataset = parentGroup.createDataSet(datasetName, H5::PredType::STD_I16LE, mspace, cparms);
+        H5::DataSpace attSpace(H5S_SCALAR);
+        H5::StrType strdatatype(0, H5T_VARIABLE);
         const double srValue = sr.getNoPrefixValue();
         const double spValue = 1.0 / srValue;
         dataset.createAttribute("Sampling rate (Hz)", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &srValue);
@@ -92,13 +92,13 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         //H5::Group group = parentGroup.createGroup(eventName);
         hsize_t dims[RANK] = { 0 };  // dataset dimensions at creation
         hsize_t maxdims[RANK] = { H5S_UNLIMITED };
-        DataSpace mspace(RANK, dims, maxdims);
-        DSetCreatPropList cparms;
+        H5::DataSpace mspace(RANK, dims, maxdims);
+        H5::DSetCreatPropList cparms;
         hsize_t chunk_dims[RANK] = { CHUNK_SIZE };
         cparms.setChunk(RANK, chunk_dims);
-        DataSet dataset = parentGroup.createDataSet(eventName, PredType::STD_I16LE, mspace, cparms);
-        DataSpace attSpace(H5S_SCALAR);
-        StrType strdatatype(0, H5T_VARIABLE);
+        H5::DataSet dataset = parentGroup.createDataSet(eventName, H5::PredType::STD_I16LE, mspace, cparms);
+        H5::DataSpace attSpace(H5S_SCALAR);
+        H5::StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
         const unsigned int offset = event.eventIdx;
         dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &offset);
@@ -128,7 +128,7 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
     }
 }
 
-std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional<H5::Group>, std::optional<H5File>> createFile(ApplicationStatus* appStatus, std::string filename) {
+std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional<H5::Group>, std::optional<H5::H5File>> createFile(ApplicationStatus* appStatus, std::string filename) {
     auto now = std::chrono::system_clock::now();
     // Convert to time_t which represents the time in seconds since epoch
     std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
@@ -142,8 +142,8 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
     filename += timeStr + ".h5";
     oss_date_time << std::put_time(localTime, "%Y-%m-%d %H:%M:%S");
     std::string dateTimeStr = oss_date_time.str();
-    DataSpace attSpace(H5S_SCALAR);
-    StrType strdatatype(0, H5T_VARIABLE);
+    H5::DataSpace attSpace(H5S_SCALAR);
+    H5::StrType strdatatype(0, H5T_VARIABLE);
     try {
         //Exception::dontPrint();
         //Create the data space with unlimited dimensions.
@@ -251,7 +251,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
-    consumer->setMaxSamplesPerPlot(4096);
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
@@ -600,6 +599,10 @@ PlotConsumer* EventDetectionController::getConsumer() {
     return consumer;
 }
 
+std::vector <DeviceDataConsumer*> EventDetectionController::getConsumers() {
+    return {consumer};
+}
+
 void EventDetectionController::initHDF5() {
     auto wasConsumerRunning = consumer->isRunning();
     //file reinitialization
@@ -645,12 +648,12 @@ void EventDetectionController::resetStats() {
 }
 
 void EventDetectionController::onSamplingRateChanged(Measurement sr) {
-    consumer->onSamplingRateChanged(sr);
+    ControllerWithConsumer::onSamplingRateChanged(sr);
     samplingRateChangedroutine(sr);
 }
 
 void EventDetectionController::onDownsamplingRatioChanged(uint32_t newRatio) {
-    consumer->onDownsamplingRatioChanged(newRatio);
+    ControllerWithConsumer::onDownsamplingRatioChanged(newRatio);
     auto sr = appStatus->getSamplingRate();
     samplingRateChangedroutine(sr / (double) newRatio);
 }

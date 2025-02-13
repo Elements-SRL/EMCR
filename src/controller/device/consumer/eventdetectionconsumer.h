@@ -11,6 +11,7 @@
 #include "eventsdirection.h"
 
 #define EDC_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
+#define EDC_MAX_SAMPLES (2048)
 constexpr double MINIMUM_DATA_FOR_ANALYSIS = 0.1; //0.1s
 
 class EventDetectionConsumer : public PlotConsumer {
@@ -63,9 +64,9 @@ private:
     uint64_t timeCounter = 0;
 
 protected:
-    void clearData() override;
+    void clearData();
     void run() override;
-    void allocateData() override;
+    void allocateData();
     void emitPlotData() override;
 
 signals:

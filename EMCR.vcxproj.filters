@@ -352,6 +352,21 @@
     <ClCompile Include="src\view\questionmarkmenu\releasenotesdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\multiplechannelmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\autodeclogger\autodecloggercontroller.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\autodecloggerconsumer.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\autodeclogger\autodecloggerwidget.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\controllerwithconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -696,6 +711,18 @@
     <QtMoc Include="src\view\questionmarkmenu\releasenotesdialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\controller\autodeclogger\autodecloggercontroller.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\autodecloggerconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\autodeclogger\autodecloggerwidget.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\controllerwithconsumer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -953,6 +980,12 @@
     </ClInclude>
     <ClInclude Include="src\model\events\eventsdirection.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\multiplechannelmodel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\autodeclogger\autodecloggermodel.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

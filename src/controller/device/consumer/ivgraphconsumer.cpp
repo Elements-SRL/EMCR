@@ -1,6 +1,5 @@
 #include "ivgraphconsumer.h"
 #include <QTime>
-#include <iostream>
 
 IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer):
     PlotConsumer(appStatus, producer) {
@@ -34,7 +33,7 @@ void IvGraphConsumer::run() {
     int bufferIdx;
     int bufferLen = 0;
     int channelIdx;
-    QTime updateDataTimer = QTime::currentTime();
+    QElapsedTimer updateDataTimer;
     updateDataTimer.start();
 
     int lastUpdateTimeMs = updateDataTimer.elapsed();
@@ -46,12 +45,11 @@ void IvGraphConsumer::run() {
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
+            consumptionLock.unlock();
             break;
         }
         consumptionLock.unlock();
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
-//            this->updateTimeAxis();
-//            this->updateRangeAxis();
             bufferIdx = 0;
             bufferLen = buffer.size();
 

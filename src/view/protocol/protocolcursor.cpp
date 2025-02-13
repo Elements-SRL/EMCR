@@ -3,6 +3,9 @@
 #include <QBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QPen>
+
+#include "qwt_text.h"
 
 ProtocolCursor::ProtocolCursor(MessageDispatcher * msgDisp, QwtPlot * plot, double x, int cursorIdx) :
     QObject(),

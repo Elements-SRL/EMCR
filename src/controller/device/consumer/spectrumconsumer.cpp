@@ -17,6 +17,7 @@ SpectrumConsumer::~SpectrumConsumer() {
 void SpectrumConsumer::forceAxisUpdate() {
     pushedIntegrationWindowFlag = true;
     pushedCurrentRangeFlag = true;
+    pushedVoltageRangeFlag = true;
     this->updateFrequencyAxis();
     this->updateRangeAxis();
 }
@@ -33,7 +34,7 @@ void SpectrumConsumer::updateFrequencyAxis() {
         pushedIntegrationWindowFlag = false;
         integrationWindowS = pushedIntegrationWindowS;
 
-        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeTimeAxisMethod is performed later
+        if (!pushedSamplingRateFlag && !pushedDownsamplingRatioFlag) { // if any of these is true the locker is still needed and the computeFrequencyAxis method is performed later
             locker.unlock();
             this->computeFrequencyAxis();
         }
@@ -82,19 +83,26 @@ void SpectrumConsumer::computeFrequencyAxis() {
 
 void SpectrumConsumer::updateRangeAxis() {
     QMutexLocker locker(&rangeAxisMtx);
-    if (pushedVoltageRangeFlag) {
-        pushedVoltageRangeFlag = false;
-        voltageRange = pushedVoltageRange;
-    }
+    bool anythingChanged = false;
     if (pushedCurrentRangeFlag) {
+        anythingChanged = true;
         pushedCurrentRangeFlag = false;
         currentRange = pushedCurrentRange;
     }
+    if (pushedVoltageRangeFlag) {
+        anythingChanged = true;
+        pushedVoltageRangeFlag = false;
+        voltageRange = pushedVoltageRange;
+    }
     if (pushedClampingModalityFlag) {
+        anythingChanged = true;
         pushedClampingModalityFlag = false;
         clampingModality = pushedClampingModality;
+    }
+    if (anythingChanged) {
         switch (clampingModality) {
         case VOLTAGE_CLAMP:
+        case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
             bufferOffsetIdx = voltageChannelsNum;
             processedChannelsNum = currentChannelsNum;
             bypassedChannelsNum = voltageChannelsNum;
@@ -102,6 +110,7 @@ void SpectrumConsumer::updateRangeAxis() {
 
         case ZERO_CURRENT_CLAMP:
         case CURRENT_CLAMP:
+        case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
             bufferOffsetIdx = 0;
             processedChannelsNum = voltageChannelsNum;
             bypassedChannelsNum = currentChannelsNum;
@@ -125,6 +134,7 @@ void SpectrumConsumer::run() {
     while (true) {
         consumptionLock.relock();
         if (consumptionStopped) {
+            consumptionLock.unlock();
             break;
         }
         consumptionLock.unlock();

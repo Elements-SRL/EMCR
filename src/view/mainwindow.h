@@ -43,6 +43,7 @@ public:
         DWCompensationControl,
         DWStateArray,
         DWMeasurementsOverview,
+        DWAutoDeclogger,
         DWDebug,
         DockWidgetsNum
     } DockWidgets_t;

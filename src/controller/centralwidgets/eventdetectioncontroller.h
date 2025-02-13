@@ -27,6 +27,7 @@ public:
     void stop() override;
     void start() override;
     PlotConsumer* getConsumer() override;
+    std::vector <DeviceDataConsumer*> getConsumers() override;
 
 private:
     EventDetectionConsumer* consumer = nullptr;
@@ -76,12 +77,10 @@ public slots:
     void onCurrentColorChanged(int channelIdx, QColor color) override;
     void onBackgroundColorChanged(QColor color) override;
     void onReplot() override;
-    void onExpandTrace(bool flag);
+    void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
     void onSamplingRateChanged(Measurement sr) override;
     void onDownsamplingRatioChanged(uint32_t newRatio) override;
-
 };
 
 #endif // EVENTDETECTIONCONTROLLER_H
-#pragma once

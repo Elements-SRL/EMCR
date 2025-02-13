@@ -10,7 +10,6 @@
 #include <QString>
 #include <QFileDialog>
 #include "model/state.h"
-#include "iostream"
 
 StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     : QDockWidget(parent)

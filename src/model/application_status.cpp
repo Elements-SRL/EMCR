@@ -1,5 +1,4 @@
 #include "application_status.h"
-#include <iostream>
 #include <filesystem>
 
 ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath):
@@ -160,7 +159,7 @@ MessageDispatcher * ApplicationStatus::getMessageDispatcher(){
 
 std::vector<std::string> ApplicationStatus::getNames(){
     std::vector<std::string> names;
-    for(auto m: getMappings()){
+    for(auto &m: getMappings()){
         names.push_back(m.name);
     }
     return names;
@@ -174,32 +173,32 @@ Measurement ApplicationStatus::getSamplingRate() {
 
 RangedMeasurement ApplicationStatus::getVoltageRange() {
     RangedMeasurement vr;
-    auto err = msgDisp->getVoltageRange(vr);
+    msgDisp->getVoltageRange(vr);
     return vr;
 }
 
 RangedMeasurement ApplicationStatus::getCurrentRange() {
     RangedMeasurement cr;
-    auto err = msgDisp->getCurrentRange(cr);
+    msgDisp->getCurrentRange(cr);
     return cr;
 }
 
 std::string ApplicationStatus::getSerialNumber() {
     std::string serialNumber;
-    auto err = msgDisp->getSerialNumber(serialNumber);
+    msgDisp->getSerialNumber(serialNumber);
     return serialNumber;
 }
 
 std::string ApplicationStatus::getDeviceInfoString() {
     unsigned int version, subversion, fw;
     auto serial = getSerialNumber();
-    auto err = msgDisp->getDeviceInfo(serial, version, subversion, fw);
+    msgDisp->getDeviceInfo(serial, version, subversion, fw);
     return "version: " + std::to_string(version) + ", subversion: " + std::to_string(subversion) + ", firmware: " + std::to_string(fw);
 }
 
 ClampingModality_t ApplicationStatus::getClampingModality() {
     ClampingModality_t c;
-    auto err = msgDisp->getClampingModality(c);
+    msgDisp->getClampingModality(c);
     return c;
 }
 

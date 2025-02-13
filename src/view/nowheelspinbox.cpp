@@ -1,9 +1,8 @@
 #include "nowheelspinbox.h"
-NoWheelSpinBox::NoWheelSpinBox(QWidget *parent)
-{
+NoWheelSpinBox::NoWheelSpinBox(QWidget *) {
 
 }
-void NoWheelSpinBox::wheelEvent(QWheelEvent *event)
-{
+
+void NoWheelSpinBox::wheelEvent(QWheelEvent *) {
     return;
 }

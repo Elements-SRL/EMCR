@@ -548,12 +548,12 @@ void ProtocolPlot::resizeEvent(QResizeEvent * e) {
 
 void ProtocolPlot::wheelEvent(QWheelEvent * we) {
     Axis vertAxis = yLeft;
-    if (this->axisEnabled(yRight) && we->x() > this->width()/2.0) {
+    if (this->axisEnabled(yRight) && we->position().x() > this->width()/2.0) {
         /*! If the right y-axis is enabled and the pointer is on the right side of the plot, scroll the y-axis */
         vertAxis = yRight;
     }
     double p = this->axisInterval(vertAxis).width()*0.05;
-    this->shiftVertAxis(vertAxis, we->delta() < 0 ? p : -p);
+    this->shiftVertAxis(vertAxis, we->angleDelta().y() < 0 ? p : -p);
 }
 
 void ProtocolPlot::recomputeXAxisFactor(double duration) {

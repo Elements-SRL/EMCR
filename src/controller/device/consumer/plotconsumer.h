@@ -4,7 +4,6 @@
 #include <QFile>
 #include <QTextStream>
 
-#include "messagedispatcher.h"
 #include "devicedataconsumer.h"
 #include "plotmessage.h"
 
@@ -18,8 +17,7 @@ public:
     PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~PlotConsumer();
 
-    virtual void forceAxisUpdate();
-    void setMaxSamplesPerPlot(int samples);
+    virtual void forceAxisUpdate() = 0;
 
 public slots:
     virtual void onStartConsuming() override;
@@ -46,11 +44,7 @@ protected:
         Triggered
     } TriggerStatus_t;
 
-    virtual void allocateData() = 0;
-    virtual void clearData() = 0;
     virtual void emitPlotData() = 0;
-    void updateTimeAxis();
-    void computeTimeAxis();
     virtual void updateRangeAxis();
 
     std::vector<double *> voltageValues;
@@ -101,11 +95,18 @@ public:
     GapFreePlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~GapFreePlotConsumer();
 
+    virtual void forceAxisUpdate() override;
+    void setMaxSamplesPerPlot(int samples);
+
 protected:
     void run() override;
-    void allocateData() override;
-    void clearData() override;
+    void allocateData();
+    void clearData();
     void emitPlotData() override;
+
+private:
+    void updateTimeAxis();
+    void computeTimeAxis();
 };
 
 #endif // PLOTCONSUMER_H

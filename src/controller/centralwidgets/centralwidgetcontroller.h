@@ -1,21 +1,15 @@
 #ifndef CENTRALWIDGETCONTROLLER_H
 #define CENTRALWIDGETCONTROLLER_H
 
+#include "controllerwithconsumer.h"
 #include "bigplotwidget.h"
-#include "mainwindow.h"
-#include "messagedispatcher.h"
-#include "bigplotmodel.h"
 #include "plotconsumer.h"
-#include <QPointF>
 #include "application_status.h"
 #include "plotmessage.h"
-#include "ivgraphconsumer.h"
-#include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
-#include "ivgraphwidget.h"
 #include "application_status.h"
 
-class CentralWidgetController : public QObject {
+class CentralWidgetController : public ControllerWithConsumer {
     Q_OBJECT
 
 public:
@@ -29,7 +23,7 @@ public:
 private:
     virtual void detachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
     virtual void attachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
-    
+
 public slots:
     virtual void onRangeUpdated(RangedMeasurement_t newRange) = 0;
     virtual void onCurrentColorsChanged(QVector <QColor> colors) = 0;
@@ -38,12 +32,6 @@ public slots:
     virtual void onReplot() = 0;
     virtual void onExpandTrace(bool flag) = 0;
     virtual void onSetPlotData(PlotMessage plotMessage) = 0;
-    virtual void onSamplingRateChanged(Measurement sr);
-    virtual void onDownsamplingRatioChanged(unsigned int dsr);
-    virtual void onCurrentRangeChanged(RangedMeasurement rm);
-    virtual void onVoltageRangeChanged(RangedMeasurement rm);
-    virtual void onClampingModalityChanged(ClampingModality_t c);
-    virtual void onStopConsuming();
 
 protected:
     BigPlotWidget* bigPlotWidget;
