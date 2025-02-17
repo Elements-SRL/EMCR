@@ -68,7 +68,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
                                                                                                                            rispetto alla configurazione iniziale */
     connect(consumer, &PlotConsumer::setPlotData, this, &EpisodicController::onSetPlotData);
     consumer->forceAxisUpdate();
-    consumer->setMaxSamplesPerPlot(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
+    // consumer->setMaxSamplesPerPlot(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
     consumer->onStopConsuming();
     recordingSettingsDialog->forceSettingsEmit();
 }
@@ -97,7 +97,7 @@ EpisodicController::~EpisodicController() {
 void EpisodicController::clearCurves() {
     std::vector <uint16_t> channelIndexes;
     for (uint16_t ch = 0; ch < currentChannelsNum; ch++) {
-        channelIndexes[ch] = ch;
+        channelIndexes.push_back(ch);
     }
     this->detachCurves(channelIndexes);
 
@@ -259,6 +259,12 @@ void EpisodicController::onCurrentColorChanged(int channelIdx, QColor color) {
 void EpisodicController::onBackgroundColorChanged(QColor color) {
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
+    }
+}
+
+void EpisodicController::onReplot() {
+    if (plot != nullptr) {
+        plot->replot();
     }
 }
 

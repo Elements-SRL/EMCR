@@ -139,55 +139,46 @@ void SpectrumConsumer::run() {
 
             /*! Copy data in buffers for FFT evaluation */
             while (bufferIdx + channelsOffset < bufferLen) {
-                for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                    if (plottedChannels[channelIdx]) {
-                        auto currentValue = buffer[bufferIdx + channelsOffset];
-                        fftIn[channelIdx][binIndex] = currentValue;
-                    }
-                    bufferIdx++;
+                for (auto channelIdx : expandedChannels) {
+                    auto currentValue = buffer[bufferIdx + channelIdx + channelsOffset];
+                    fftIn[channelIdx][binIndex] = currentValue;
                 }
-                bufferIdx += voltageChannelsNum;
+                bufferIdx += totalChannelsNum;
                 binIndex++;
 
                 /*! Enough data to compute FFT */
                 if (binIndex == nBins) {
                     if (integrationRoundIdx == 0) {
-                        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                            if (plottedChannels[channelIdx]) {
-                                fftw_execute(fftwPlans[channelIdx]);
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    currentValues[channelIdx][binIndex] = std::norm(fftOut[channelIdx][binIndex+1]);
-                                }
+                        for (auto channelIdx : expandedChannels) {
+                            fftw_execute(fftwPlans[channelIdx]);
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                currentValues[channelIdx][binIndex] = std::norm(fftOut[channelIdx][binIndex+1]);
                             }
                         }
 
                     } else {
-                        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                            if (plottedChannels[channelIdx]) {
-                                fftw_execute(fftwPlans[channelIdx]);
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
-                                }
+                        for (auto channelIdx : expandedChannels) {
+                            fftw_execute(fftwPlans[channelIdx]);
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
                             }
                         }
                     }
 
                     /*! Enough FFTs to estimate spectrum */
                     if (++integrationRoundIdx == integrationRounds) {
-                        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                            if (plottedChannels[channelIdx]) {
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
-                                    if (binIndex == 0) {
-                                        irmsValues[channelIdx][binIndex] = currentSpectrumValues[channelIdx][binIndex]*df;
+                        for (auto channelIdx : expandedChannels) {
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
+                                if (binIndex == 0) {
+                                    irmsValues[channelIdx][binIndex] = currentSpectrumValues[channelIdx][binIndex]*df;
 
-                                    } else {
-                                        irmsValues[channelIdx][binIndex] = irmsValues[channelIdx][binIndex-1]+currentSpectrumValues[channelIdx][binIndex]*df;
-                                    }
+                                } else {
+                                    irmsValues[channelIdx][binIndex] = irmsValues[channelIdx][binIndex-1]+currentSpectrumValues[channelIdx][binIndex]*df;
                                 }
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    irmsValues[channelIdx][binIndex] = sqrt(irmsValues[channelIdx][binIndex]);
-                                }
+                            }
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                irmsValues[channelIdx][binIndex] = sqrt(irmsValues[channelIdx][binIndex]);
                             }
                         }
                         integrationRoundIdx = 0;

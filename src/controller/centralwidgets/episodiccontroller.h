@@ -63,6 +63,7 @@ public slots:
     void onCurrentColorsChanged(QVector <QColor> colors) override;
     void onCurrentColorChanged(int channelIdx, QColor color) override;
     void onBackgroundColorChanged(QColor color) override;
+    void onReplot() override;
     void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
     void onRecordingRequest(bool flag);

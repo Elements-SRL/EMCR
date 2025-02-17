@@ -12,6 +12,7 @@
 #include "conversionscaledraw.h"
 #include "doubleclickmachine.h"
 #include "rect4.h"
+#include "plotmessage.h"
 #include "e384commlib_global.h"
 
 namespace commlib = e384CommLib;
@@ -21,11 +22,11 @@ class BigPlot : public QwtPlot {
 
 public:
     enum BigPlotStatus {
-        GapFree,
-        Episodic,
-        Iv,
-        Spectrum,
-        Event,
+        GapFree = PMS_GAPFREE,
+        Episodic = PMS_EPISODIC,
+        Iv = PMS_IV,
+        Event = PMS_EVENT_DETECTION,
+        Spectrum = PMS_SPECTRUM,
         NumberOfStatuses
     };
 

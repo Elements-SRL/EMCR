@@ -1,5 +1,6 @@
 #include "bigplotcontroller.h"
 #include "gapfreecontroller.h"
+#include "episodiccontroller.h"
 #include "ivgraphcontroller.h"
 #include "eventdetectioncontroller.h"
 #include "spectrumcontroller.h"
@@ -19,6 +20,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     
     bps = BigPlot::GapFree;
     controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, dc));
+    controllers.push_back(new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, dc));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
     controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, this, mainWindow));
     controllers.push_back(new EventDetectionController(appStatus, producer, bpw));

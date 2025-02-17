@@ -251,6 +251,9 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
     consumer->forceAxisUpdate();
+    for (int idx = 0; idx < currentChannelsNum; idx++) {
+        eventCurves[idx] = new Curve();
+    }
     consumer->onStopConsuming();
 
     connect(widget, &EventDetectionWidget::startPressed, this, [=]() {

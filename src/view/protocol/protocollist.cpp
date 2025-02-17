@@ -221,11 +221,11 @@ void ProtocolList::onAddProtocol() {
     nameLo->addWidget(nameEdit);
 
     /*! Get new protocol type (gap-free or episodic) */
-//    QComboBox * protocolTypeEdit = new QComboBox();
-//    protocolTypeEdit->addItem("Gap-Free");
-//    protocolTypeEdit->addItem("Episodic");
+   QComboBox * protocolTypeEdit = new QComboBox();
+   protocolTypeEdit->addItem("Gap-Free");
+   protocolTypeEdit->addItem("Episodic");
 
-//    dialogLo->addWidget(protocolTypeEdit);
+   dialogLo->addWidget(protocolTypeEdit);
 
     /*! OK / Cancel buttons */
     QHBoxLayout * buttonsLo = new QHBoxLayout();
@@ -253,12 +253,12 @@ void ProtocolList::onAddProtocol() {
 
         } else {
             ProtocolWidget * protocol;
-//            if (protocolTypeEdit->currentIndex() == 0) {
+            if (protocolTypeEdit->currentIndex() == 0) {
                 protocol = newGapfreeProtocol(name);
 
-//            } else {
-//                protocol = newEpisodicProtocol(name);
-//            }
+            } else {
+                protocol = newEpisodicProtocol(name);
+            }
 
             this->addItem(protocol);
             protocols->push_back(protocol);

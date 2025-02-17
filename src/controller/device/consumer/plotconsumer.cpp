@@ -308,6 +308,18 @@ EpisodicPlotConsumer::EpisodicPlotConsumer(ApplicationStatus * appStatus, Device
     this->updateTimeAxis();
 }
 
+EpisodicPlotConsumer::~EpisodicPlotConsumer() {
+
+}
+
+void EpisodicPlotConsumer::forceAxisUpdate() {
+    pushedDurationFlag = true;
+    pushedVoltageRangeFlag = true;
+    pushedCurrentRangeFlag = true;
+    this->updateTimeAxis();
+    // this->updateRangeAxis();
+}
+
 void EpisodicPlotConsumer::onStartConsuming() {
     episodicHook = producer->getEpisodicDataHook(protocolId);
     if (hook != nullptr) {
@@ -345,7 +357,7 @@ void EpisodicPlotConsumer::run() {
     consumptionLock.unlock();
 
     this->updateTimeAxis();
-    this->updateRangeAxis();
+    // this->updateRangeAxis();
 
     while (true) {
         consumptionLock.relock();
@@ -422,6 +434,10 @@ void EpisodicPlotConsumer::clearData() {
         delete [] timeValues;
         timeValues = nullptr;
     }
+}
+
+void EpisodicPlotConsumer::emitPlotData() {
+    emit setPlotData(episodicMessage);
 }
 
 void EpisodicPlotConsumer::updateTimeAxis() {

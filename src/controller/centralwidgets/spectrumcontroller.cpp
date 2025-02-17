@@ -190,7 +190,7 @@ void SpectrumController::onExpandTrace(bool flag) {
 }
 
 void SpectrumController::onSetPlotData(PlotMessage plotmessage) {
-    message = std::get <3> (plotmessage);
+    message = std::get <PMS_SPECTRUM> (plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         psdCurves[idx]->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
         irmsCurves[idx]->setRawSamples(message.frequencyValues, message.irmsValues[idx], message.dataSize);

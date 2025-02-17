@@ -1,6 +1,6 @@
 #include "protocolitem.h"
 
-#define ONE_MS ((Measurement_t){1.0, UnitPfxMilli, "s"})
+#define ONE_MS {1.0, UnitPfxMilli, "s"}
 
 ProtocolItem::ProtocolItem(ProtocolItemType_t type, int nextItem, int repsNum, bool applySteps, bool visible, bool stimHalfFlag) :
     type(type),
@@ -88,11 +88,13 @@ ProtocolXStepTStepItem::~ProtocolXStepTStepItem() {
 }
 
 Measurement_t ProtocolXStepTStepItem::duration(bool withHidden) {
-    return ONE_MS*((visible | withHidden) ? t0 : 0.0);
+    Measurement_t one = ONE_MS;
+    return one*((visible | withHidden) ? t0 : 0.0);
 }
 
 Measurement_t ProtocolXStepTStepItem::duration(int repsIdx, bool withHidden) {
-    return ONE_MS*((visible | withHidden) ? t0+tStep*(((double)repsIdx)-1.0) : 0.0);
+    Measurement_t one = ONE_MS;
+    return one*((visible | withHidden) ? t0+tStep*(((double)repsIdx)-1.0) : 0.0);
 }
 
 Measurement_t ProtocolXStepTStepItem::maxDuration(int stepsNum, bool withHidden) {
@@ -109,7 +111,8 @@ Measurement_t ProtocolXStepTStepItem::totalDuration(int stepsNum, bool withHidde
     /*! This function is meant to be used in gap free protocols, where the sum of the items counts */
     double stepsNumF = (double)(stepsNum == 0 ? 1 : stepsNum);
     double steppingAddend = (applySteps ? tStep*(stepsNumF-1.0)/2.0 : 0.0);
-    return ONE_MS*((visible | withHidden) ? (t0+steppingAddend)*stepsNumF : 0.0);
+    Measurement_t one = ONE_MS;
+    return one*((visible | withHidden) ? (t0+steppingAddend)*stepsNumF : 0.0);
 }
 
 void ProtocolXStepTStepItem::applyPNScaling(double sign, double scale, double hold, double holdLeak) {
@@ -164,7 +167,8 @@ ProtocolXRampItem::~ProtocolXRampItem() {
 }
 
 Measurement_t ProtocolXRampItem::duration(bool withHidden) {
-    return ONE_MS*((visible | withHidden) ? t0 : 0.0);
+    Measurement_t one = ONE_MS;
+    return one*((visible | withHidden) ? t0 : 0.0);
 }
 
 void ProtocolXRampItem::applyPNScaling(double sign, double scale, double hold, double holdLeak) {
@@ -202,7 +206,8 @@ ProtocolXSinItem::~ProtocolXSinItem() {
 }
 
 Measurement_t ProtocolXSinItem::duration(bool withHidden) {
-    return ONE_MS*((visible | withHidden) ? 1.0/freq : 0.0);
+    Measurement_t one = ONE_MS;
+    return one*((visible | withHidden) ? 1.0/freq : 0.0);
 }
 
 void ProtocolXSinItem::applyPNScaling(double sign, double scale, double hold, double holdLeak) {

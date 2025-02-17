@@ -122,6 +122,7 @@ public:
     EpisodicPlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~EpisodicPlotConsumer();
 
+    virtual void forceAxisUpdate() override;
     void lockCurves();
     void unlockCurves();
 
@@ -133,6 +134,7 @@ protected:
     void run() override;
     void allocateData();
     void clearData();
+    void emitPlotData() override;
     // void updateRangeAxis() override;
 
     // int timeIdx = 0;
