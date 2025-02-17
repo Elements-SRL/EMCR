@@ -1,7 +1,7 @@
 #ifndef CHESSBOARDCONTROLLER_H
 #define CHESSBOARDCONTROLLER_H
 
-#include <QObject>
+#include "controllerwithconsumer.h"
 #include "chessboarddockwidget.h"
 #include "mainwindow.h"
 #include <QMouseEvent>
@@ -9,7 +9,7 @@
 #include "application_status.h"
 #include "plotmessage.h"
 
-class ChessboardController : public QObject {
+class ChessboardController : public ControllerWithConsumer {
     Q_OBJECT
 
 public:
@@ -22,6 +22,7 @@ public:
     void offsetRecalibrationTurnedOnOff(bool flag);
     void ljcTurnedOnOff(bool flag);
     PlotConsumer * getPlotConsumer();
+    virtual std::vector <DeviceDataConsumer *> getConsumers() override;
     void onBoardMappingLoaded();
     void clickBehaviour(bool newState);
 

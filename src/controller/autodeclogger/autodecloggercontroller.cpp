@@ -25,6 +25,10 @@ AutoDecloggerController::~AutoDecloggerController() {
 	consumer = nullptr;
 }
 
+std::vector <DeviceDataConsumer *> AutoDecloggerController::getConsumers() {
+    return {consumer};
+}
+
 void AutoDecloggerController::onActive(bool active) {
 	if (!active) {
 		consumer->onStopConsuming();
@@ -94,10 +98,4 @@ void AutoDecloggerController::onTimeBelowThresholdChanged(double t) {
 		m.insert(std::pair<char, int>(ch, t));
 	}
 	consumer->setTimeBelowThreshold(m);
-}
-
-void AutoDecloggerController::stop() {
-	if (consumer != nullptr) {
-		consumer->onStopConsuming();
-	}
 }

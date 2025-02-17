@@ -288,6 +288,10 @@ PlotConsumer * ChessboardController::getPlotConsumer(){
     return stampPlotConsumer;
 }
 
+std::vector <DeviceDataConsumer*> ChessboardController::getConsumers() {
+    return {stampPlotConsumer};
+}
+
 void ChessboardController::onCurrentColorsChanged(QVector <QColor> colors) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         plots[idx]->setLegendColor(colors[idx]);

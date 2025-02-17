@@ -108,6 +108,10 @@ LiveStatisticsConsumer * MeasurementOverviewController::getLiveStatisticsConsume
     return liveStatisticsConsumer;
 }
 
+std::vector <DeviceDataConsumer*> MeasurementOverviewController::getConsumers() {
+    return {liveStatisticsConsumer};
+}
+
 void MeasurementOverviewController::boardMappingsLoaded(){
     modw->updateActiveChannels(appStatus->getSelectedChannelsIndexes());
     onChannelsUpdated();

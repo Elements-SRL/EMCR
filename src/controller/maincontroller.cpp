@@ -2,8 +2,6 @@
 #include "statearraycontroller.h"
 #include "mainwindow.h"
 #include "application_status.h"
-#include <thread>
-#include <chrono> // for std::chrono::seconds
 
 MainController::MainController() {
     /*! Set up device detector */
@@ -173,12 +171,14 @@ void MainController::onMainWindowCreated() {
     deviceController = new DeviceController(appStatus, mainWindow);
     bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow, deviceController);
     chessboardController = new ChessboardController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow);
+    controllersWithConsumer.push_back(chessboardController);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL
     compensationController = new CompensationController(msgDisp, mainWindow);
     multipleChannelController = new MultipleChannelController(appStatus, mainWindow);
     singleChannelController = new SingleChannelController(appStatus, mainWindow);
     boardController = new BoardController(msgDisp, mainWindow);
     measurementOverviewController = new MeasurementOverviewController(appStatus, deviceDataProducer, mainWindow);
+    controllersWithConsumer.push_back(measurementOverviewController);
     plotPreferencesController = new PlotPreferencesController(msgDisp, mainWindow);
     if (msgDisp->hasProtocols() == Success) {
         voltageProtocolManager = new ProtocolManager(msgDisp);
@@ -186,6 +186,7 @@ void MainController::onMainWindowCreated() {
     }
 
     autoDecloggerController = new AutoDecloggerController(appStatus, mainWindow, deviceDataProducer);
+    controllersWithConsumer.push_back(autoDecloggerController);
 //    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
 //    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
 
@@ -199,7 +200,7 @@ void MainController::onMainWindowCreated() {
     \*************/
 
     for (auto &c: bigPlotController->getControllers()) {
-        centralWidgetControllers.push_back(c);
+        controllersWithConsumer.push_back(c);
     }
     
     mainWindow->addViewActions();
@@ -285,7 +286,7 @@ void MainController::onMainWindowCreated() {
         connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   protocolDw->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
         connect(currentProtocolManager, &ProtocolManager::currentApplied,           protocolDw->getCurrentProtocolList(), &ProtocolList::currentApplied);
 
-        for (auto controller : centralWidgetControllers) {
+        for (auto controller : bigPlotController->getControllers()) {
             connect(voltageProtocolManager, &ProtocolManager::protocolStarted, controller, &CentralWidgetController::onProtocolStarted);
         }
 
@@ -440,11 +441,9 @@ void MainController::onVcCurrentRangeSelected(int idx) {
     }
     previousCurrentRange.emplace(range);
 
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onCurrentRangeChanged(range);
     }
-    //add connect inside controllers? this would remove the need of a centralControllers array
-    autoDecloggerController->onCurrentRangeChanged(range);
 
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
@@ -464,10 +463,9 @@ void MainController::onVcVoltageRangeSelected(int idx) {
     }
     previousVoltageRange.emplace(range);
 
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onVoltageRangeChanged(range);
     }
-    autoDecloggerController->onVoltageRangeChanged(range);
 
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
@@ -486,10 +484,9 @@ void MainController::onCcCurrentRangeSelected(int idx) {
     }
     previousCurrentRange.emplace(range);
 
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onCurrentRangeChanged(range);
     }
-    autoDecloggerController->onCurrentRangeChanged(range);
     bigPlotController->onRangeUpdated(range);
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
     singleChannelControlDw->onCcCurrentRangeSelected(idx);
@@ -507,10 +504,9 @@ void MainController::onCcVoltageRangeSelected(int idx) {
     }
     previousVoltageRange.emplace(range);
 
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onVoltageRangeChanged(range);
     }
-    autoDecloggerController->onVoltageRangeChanged(range);
 
     chessboardController->onRangeUpdated(range);
     bigPlotController->onRangeUpdated(range);
@@ -538,7 +534,7 @@ void MainController::onSamplingRateSelected(int) {
     Measurement_t meas;
     msgDisp->getSamplingRate(meas);
 
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onSamplingRateChanged(meas);
     }
 }
@@ -547,7 +543,7 @@ void MainController::onDownsamplingRatioSelected(int) {
     uint32_t ratio;
     msgDisp->getDownsamplingRatio(ratio);
 
-    for (auto controller : centralWidgetControllers) {
+    for (auto controller : controllersWithConsumer) {
         controller->onDownsamplingRatioChanged(ratio);
     }
 }
@@ -569,11 +565,8 @@ void MainController::startProducer() {
 }
 
 void MainController::stopAndDestroyProducerConsumers() {
-    for (auto& controller : centralWidgetControllers) {
+    for (auto& controller : controllersWithConsumer) {
         controller->onStopConsuming();
-    }
-    if (autoDecloggerController != nullptr) {
-        autoDecloggerController->stop();
     }
     this->destroyControllers();
     if (deviceDataProducer != nullptr) {
@@ -581,5 +574,5 @@ void MainController::stopAndDestroyProducerConsumers() {
         delete deviceDataProducer;
         deviceDataProducer = nullptr;
     }
-    centralWidgetControllers.clear();
+    controllersWithConsumer.clear();
 }

@@ -13,14 +13,17 @@
 #include "autodeclogger/autodecloggerwidget.h"
 #include "autodeclogger/autodecloggermodel.h"
 #include "autodecloggerconsumer.h"
+#include "controllerwithconsumer.h"
 
-class AutoDecloggerController : public QObject {
+class AutoDecloggerController : public ControllerWithConsumer {
     Q_OBJECT
 
 public:
     AutoDecloggerController(ApplicationStatus* appStatus, MainWindow* mainWindow, DeviceDataProducer *ddt);
     ~AutoDecloggerController();
-    void stop();
+
+    std::vector <DeviceDataConsumer *> getConsumers() override;
+
 private:
     AutoDecloggerModel * model = nullptr;
     ApplicationStatus* appStatus = nullptr;

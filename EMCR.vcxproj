@@ -193,6 +193,7 @@
     <QtMoc Include="src\controller\autodeclogger\autodecloggercontroller.h" />
     <ClCompile Include="src\controller\centralwidgets\eventdetectioncontroller.cpp" />
     <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp" />
+    <ClCompile Include="src\controller\controllerwithconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\autodecloggerconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp" />
@@ -308,6 +309,7 @@
     <QtMoc Include="src\controller\device\consumer\eventdetectionconsumer.h" />
     <QtMoc Include="src\controller\offsetcorrectioncontroller.h" />
     <QtMoc Include="src\controller\device\consumer\autodecloggerconsumer.h" />
+    <QtMoc Include="src\controller\controllerwithconsumer.h" />
     <ClInclude Include="src\model\autodeclogger\autodecloggermodel.h" />
     <ClInclude Include="src\model\binner.h" />
     <QtMoc Include="src\model\devicemodel.h" />
