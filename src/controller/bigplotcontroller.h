@@ -32,6 +32,7 @@ public slots:
     void onBackgroundColorChanged(QColor color);
     void onExpandTrace(bool);
     void onRangeUpdated(RangedMeasurement_t newRange);
+    void onProtocolStarted(unsigned int protId, ProtocolWidget * protocol);
 
     void handleZoomInRequest(BigPlotModel* model, BigPlot* plot, Rect4 r);
     void handleZoomOutRequest(BigPlotModel* model, BigPlot* plot);

@@ -155,7 +155,7 @@ void EpisodicController::paintPlots(bool newSweepFlag) {
         for (int voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
             if (persistentSweepsNum > 0) {
                 if (sweepIdx > 0) {
-                    voltageCurves[voltageChannelIdx][sweepIdx-1]->setColor(CurveTypePlotFaint);
+                    voltageCurves[voltageChannelIdx][sweepIdx-1]->setColor(CurveTypePlotFaintDashed);
                 }
                 if (sweepIdx >= persistentSweepsNum) {
                     voltageCurves[voltageChannelIdx][sweepIdx-persistentSweepsNum]->setVisible(false);
@@ -332,7 +332,8 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
         }
 
         for (int idx = 0; idx < voltageChannelsNum; idx++) {
-            curve = new Curve(CurveTypePlotSolid);
+            curve = new Curve(CurveTypePlotDashed);
+            curve->setYAxis(QwtPlot::yRight);
             activeVoltageCurveData[idx] = new CurveData(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
             curve->setData(activeVoltageCurveData[idx]);
             voltageCurves[idx].push_back(curve);
@@ -350,7 +351,7 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
     }
 
     currentTimeMs = updateDataTimer.elapsed();
-    if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {
+    if (currentTimeMs-lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS || episodicMessage.newSweepFlag) {
         lastUpdateTimeMs = currentTimeMs;
         this->paintPlots(episodicMessage.newSweepFlag);
     }

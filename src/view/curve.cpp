@@ -29,6 +29,13 @@ Curve::Curve(CurveType_t curveType, double size) :
         symbol = new QwtSymbol(QwtSymbol::NoSymbol);
         break;
 
+    case CurveTypePlotFaintDashed:
+        color = QColor(Qt::darkGray);
+        this->setPen(color, size, Qt::DashLine);
+
+        symbol = new QwtSymbol(QwtSymbol::NoSymbol);
+        break;
+
     case CurveTypeStampPlotSolid:
         color = QColor(Qt::white);
         this->setPen(color, size);
@@ -106,6 +113,11 @@ void Curve::setColor(QColor color) {
         break;
 
     case CurveTypePlotDashed:
+        this->setPen(color, size, Qt::DashLine);
+        break;
+
+    case CurveTypePlotFaintDashed:
+        color = QColor(Qt::darkGray);
         this->setPen(color, size, Qt::DashLine);
         break;
 

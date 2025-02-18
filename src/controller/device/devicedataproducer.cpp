@@ -134,6 +134,9 @@ void DeviceDataProducer::run() {
         if (ret == Success) {
             switch (dataHeader.msgTypeId) {
             case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader:
+                if (currentProtIdx != (dataHeader.protocolId & PROTS_BUFFER_MASK)) {
+                    nextItemIdx = 0;
+                }
                 currentProtIdx = dataHeader.protocolId & PROTS_BUFFER_MASK;
                 dataLock.lockForWrite();
                  /*! da capire se il dataPacketsIdx è corretto o ci va messo un -1 o qualcosa del genere */

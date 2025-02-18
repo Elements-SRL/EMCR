@@ -283,6 +283,8 @@ void MainController::onMainWindowCreated() {
         connect(currentProtocolManager, &ProtocolManager::protocolRequestOutcome,   protocolDw->getCurrentProtocolList(), &ProtocolList::onProtocolRequestOutcome);
         connect(currentProtocolManager, &ProtocolManager::currentApplied,           protocolDw->getCurrentProtocolList(), &ProtocolList::currentApplied);
 
+        connect(voltageProtocolManager, &ProtocolManager::protocolStarted, bigPlotController, &BigPlotController::onProtocolStarted);
+
         for (auto controller : bigPlotController->getControllers()) {
             connect(voltageProtocolManager, &ProtocolManager::protocolStarted, controller, &CentralWidgetController::onProtocolStarted);
             connect(currentProtocolManager, &ProtocolManager::protocolStarted, controller, &CentralWidgetController::onProtocolStarted);

@@ -53,7 +53,7 @@ void BigPlotController::handleZoomInRequest(BigPlotModel * model, BigPlot* plot,
     model->updateCurrentZoom(r);
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
-    if (bps == BigPlot::GapFree) {
+    if (bps == BigPlot::GapFree || bps == BigPlot::Episodic) {
         emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
@@ -63,7 +63,7 @@ void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlo
     model->updateCurrentZoom(model->zoomOnSingleAxis(axis, zoomIn, mousePosition));
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom && bps == BigPlot::GapFree){
+    if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
         emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
     }
 }
@@ -73,7 +73,7 @@ void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlo
     model->updateCurrentZoom(i, axis);
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom && bps == BigPlot::GapFree){
+    if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
         emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
     }
 }
@@ -88,7 +88,7 @@ void BigPlotController::handleSingleAxisShiftRequest(BigPlotModel * model, BigPl
 void BigPlotController::handleZoomOutRequest(BigPlotModel * model, BigPlot * plot){
     auto zoom = model->getZoom(BigPlotModel::Zoom::Previous);
     plot->setRect(zoom);
-    if (bps == BigPlot::GapFree) {
+    if (bps == BigPlot::GapFree || bps == BigPlot::Episodic) {
         emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
@@ -96,7 +96,7 @@ void BigPlotController::handleZoomOutRequest(BigPlotModel * model, BigPlot * plo
 void BigPlotController::handleZoomResetRequest(BigPlotModel * model, BigPlot * plot){
     auto zoom = model->getZoom(BigPlotModel::Zoom::Default);
     plot->setRect(zoom);
-    if (bps == BigPlot::GapFree) {
+    if (bps == BigPlot::GapFree || bps == BigPlot::Episodic) {
         emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
@@ -105,6 +105,20 @@ void BigPlotController::handleZoomResetRequest(BigPlotModel * model, BigPlot * p
 void BigPlotController::onRangeUpdated(RangedMeasurement_t newRange) {
     for (auto c : controllers) {
         c->onRangeUpdated(newRange);
+    }
+}
+
+void BigPlotController::onProtocolStarted(unsigned int protId, ProtocolWidget * protocol) {
+    if (bps != BigPlot::GapFree && bps != BigPlot::Episodic) {
+        return;
+    }
+    if (bps == BigPlot::GapFree && protocol->getType() == ProtocolTypeEpisodic) {
+        bpw->setCurrentIndex(BigPlot::Episodic);
+        this->manageStatus(BigPlot::Episodic);
+    }
+    if (bps == BigPlot::Episodic && protocol->getType() == ProtocolTypeGapfree) {
+        bpw->setCurrentIndex(BigPlot::GapFree);
+        this->manageStatus(BigPlot::GapFree);
     }
 }
 

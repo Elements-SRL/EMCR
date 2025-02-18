@@ -4,9 +4,6 @@
 #include <QWidget>
 #include <QBoxLayout>
 
-#include "messagedispatcher.h"
-#include "bigplot.h"
-#include "curve.h"
 #include <QTabWidget>
 
 class BigPlotWidget : public QTabWidget {
