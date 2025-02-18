@@ -86,6 +86,7 @@ SOURCES += \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/activationbutton.cpp \
+    src/view/collapsiblesection.cpp \
     src/view/bigplotwidget.cpp \
     src/view/gapfreewidget.cpp \
     src/view/spectrumwidget.cpp \
@@ -213,6 +214,7 @@ HEADERS += \
     src/model/events/eventsandbaseline.h \
     src/model/autodeclogger/autodecloggermodel.h \
     src/view/activationbutton.h \
+    src/view/collapsiblesection.h \
     src/view/bigplotwidget.h \
     src/view/gapfreewidget.h \
     src/view/spectrumwidget.h \

@@ -13,9 +13,9 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     this->setObjectName("autoDeclogger");
     this->setWindowTitle("Auto declogger");
     auto centralWidget = new QWidget(this);
-    auto outerLayout = new QVBoxLayout(this);
+    auto outerLayout = new QVBoxLayout();
     centralWidget->setLayout(outerLayout);
-    active = new QCheckBox(this);
+    active = new ActivationButton(this);
     thField = new QDoubleSpinBox(this);
     configureDoubleSpinbox(thField, cr);
     timeField = new QDoubleSpinBox(this);
@@ -46,10 +46,13 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     outerLayout->addWidget(timeBelowThreshold);
     outerLayout->addWidget(freePore);
     outerLayout->addWidget(cloggedPore);
+    QWidget * spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    outerLayout->addWidget(spacer);
     freePore->hide();
     cloggedPore->hide();
     setWidget(centralWidget);
-    connect(active, &QCheckBox::clicked, this, [=](bool checked) { emit sigActive(checked); });
+    connect(active, &ActivationButton::clicked, this, [=](bool checked) { emit sigActive(checked); });
     connect(timeField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigTimeFieldChanged(timeField->value()); });
     connect(timeBelowThreshold, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigTimeBelowThresholdChanged(timeBelowThreshold->value()); });
     connect(thField, &QDoubleSpinBox::editingFinished, this, [=]() { emit sigThFieldChanged(thField->value()); });

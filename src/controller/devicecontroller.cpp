@@ -87,23 +87,23 @@ DeviceController::~DeviceController() {
 void DeviceController::handleRecording(bool recording) {
     this->recording = recording;
     auto status = getStatusFromRecordingAndProtocol();
-    deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
-    deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
+    deviceControlDockWidget->setVcVoltageRangesSectionEnabled(status);
+    deviceControlDockWidget->setCcCurrentRangesSectionEnabled(status);
 
-    deviceControlDockWidget->setVcCurrentRangesGroupBoxEnabled(calcDefaultStatus(vcCurrentRanges.size(), recording));
-    deviceControlDockWidget->setCcVoltageRangesGroupBoxEnabled(calcDefaultStatus(ccVoltageRanges.size(), recording));
-    deviceControlDockWidget->setSamplingRatesGroupBoxEnabled(calcDefaultStatus(samplingRates.size(), recording));
+    deviceControlDockWidget->setVcCurrentRangesSectionEnabled(calcDefaultStatus(vcCurrentRanges.size(), recording));
+    deviceControlDockWidget->setCcVoltageRangesSectionEnabled(calcDefaultStatus(ccVoltageRanges.size(), recording));
+    deviceControlDockWidget->setSamplingRatesSectionEnabled(calcDefaultStatus(samplingRates.size(), recording));
     deviceControlDockWidget->setDownsamplingRatioSbxEnabled(!recording);
 }
 
 void DeviceController::handleProtocolStatusChanged(bool protocolRunning) {
     this->protocolRunning = protocolRunning;
     auto status = getStatusFromRecordingAndProtocol();
-    deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
-    deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
+    deviceControlDockWidget->setVcVoltageRangesSectionEnabled(status);
+    deviceControlDockWidget->setCcCurrentRangesSectionEnabled(status);
 }
 
-//return the status to set the groupbox when a protocol is running or a registration is being made
+//return the status to set the Section when a protocol is running or a registration is being made
 bool DeviceController::getStatusFromRecordingAndProtocol() {
     return !(recording || protocolRunning);
 }
@@ -208,6 +208,6 @@ void DeviceController::onCustomDoubleChanged(uint32_t customDoubleIdx, double va
 }
 
 bool DeviceController::calcDefaultStatus(int size, bool recording) {
-//    if I'm not recording and there are more than 1 measurements enable the groupboxes
+//    if I'm not recording and there are more than 1 measurements enable the Sectiones
     return size > 1 && !recording;
 }
