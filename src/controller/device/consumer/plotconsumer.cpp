@@ -322,7 +322,7 @@ void EpisodicPlotConsumer::forceAxisUpdate() {
 
 void EpisodicPlotConsumer::onStartConsuming() {
     episodicHook = producer->getEpisodicDataHook(protocolId);
-    if (hook != nullptr) {
+    if (episodicHook != nullptr) {
         QMutexLocker consumptionLock(&consumptionMtx);
         consumptionStopped = false;
         exitedDataConsumingLoop = false;

@@ -82,6 +82,7 @@ EpisodicController::~EpisodicController() {
         delete consumer;
         consumer = nullptr;
     }
+    this->clearCurves();
     if (plot != nullptr) {
         delete plot;
         plot = nullptr;
@@ -91,7 +92,6 @@ EpisodicController::~EpisodicController() {
         delete abfDataWriterConsumer;
         abfDataWriterConsumer = nullptr;
     }
-    this->clearCurves();
 }
 
 void EpisodicController::clearCurves() {
@@ -109,9 +109,9 @@ void EpisodicController::clearCurves() {
         for (auto &&curve : voltageCurves[ch]) {
             delete curve;
         }
+        currentCurves[ch].clear();
+        voltageCurves[ch].clear();
     }
-    currentCurves.clear();
-    voltageCurves.clear();
     sweepIdx = -1;
 }
 
@@ -313,6 +313,7 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
         updateDataTimer.start();
 
         lastUpdateTimeMs = updateDataTimer.elapsed();
+        episodicMessage.newSweepFlag = true;
     }
 
     if (episodicMessage.newSweepFlag) {
@@ -327,14 +328,14 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
             curve = new Curve(CurveTypePlotSolid);
             activeCurrentCurveData[idx] = new CurveData(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
             curve->setData(activeCurrentCurveData[idx]);
-            currentCurves[idx][sweepIdx] = curve;
+            currentCurves[idx].push_back(curve);
         }
 
         for (int idx = 0; idx < voltageChannelsNum; idx++) {
             curve = new Curve(CurveTypePlotSolid);
             activeVoltageCurveData[idx] = new CurveData(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
             curve->setData(activeVoltageCurveData[idx]);
-            voltageCurves[idx][sweepIdx] = curve;
+            voltageCurves[idx].push_back(curve);
         }
 
         for (auto idx : appStatus->getExpandedChannelsIndexes()) {
@@ -390,11 +391,10 @@ void EpisodicController::onRecordingExecution(bool flag) {
 }
 
 void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidget * protocol) {
+    consumer->onStopConsuming();
     if (protocol->getType() != ProtocolTypeEpisodic) {
-        consumer->onStopConsuming();
         return;
     }
-    consumer->onStopConsuming();
     consumer->setProtocolId(protocolId);
     auto duration = protocol->getTotalDuration();
     auto durationS = duration.getNoPrefixValue();

@@ -138,7 +138,6 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
         msgDisp = deviceConnector->getMessageDispatcher();
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
         msgDisp->getBoardsNumberFeatures(boardsNumber);
-        msgDisp->enableRxMessageType(MsgTypeIdAcquisitionHeader, false);
         mainWindow->setMessageDispatcher(msgDisp);
     }
 
