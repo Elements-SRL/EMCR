@@ -14,8 +14,8 @@
 #define PMS_GAPFREE 0
 #define PMS_EPISODIC 1
 #define PMS_IV 2
-#define PMS_EVENT_DETECTION 3
-#define PMS_SPECTRUM 4
+#define PMS_SPECTRUM 3
+#define PMS_EVENT_DETECTION 4
 
 struct IvMessage{
     std::vector <double *> voltageValues;
@@ -38,10 +38,6 @@ struct EpisodicMessage{
     bool newSweepFlag;
 };
 
-struct EventDetectionMessage {
-    std::map <uint32_t, EventPacket> eventPackets;
-};
-
 struct SpectrumMessage {
     double * frequencyValues;
     std::vector <double *> psdValues;
@@ -49,13 +45,17 @@ struct SpectrumMessage {
     int dataSize;
 };
 
+struct EventDetectionMessage {
+    std::map <uint32_t, EventPacket> eventPackets;
+};
+
 // Forward declaration of the variant type
 typedef std::variant<
     GapFreeMessage,
     EpisodicMessage,
     IvMessage,
-    EventDetectionMessage,
-    SpectrumMessage
+    SpectrumMessage,
+    EventDetectionMessage
 > PlotMessage;
 
 #endif // PLOTMESSAGE_H

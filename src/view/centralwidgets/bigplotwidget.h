@@ -26,8 +26,8 @@ private:
     QWidget * gapFreeTab;
     QWidget * episodicTab;
     QWidget * ivTab;
-    QWidget * eventDetectionTab;
     QWidget * spectrumTab;
+    QWidget * eventDetectionTab;
 };
 
 #endif // BIGPLOTWIDGET_H

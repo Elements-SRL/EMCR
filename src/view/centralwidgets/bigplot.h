@@ -25,8 +25,8 @@ public:
         GapFree = PMS_GAPFREE,
         Episodic = PMS_EPISODIC,
         Iv = PMS_IV,
-        Event = PMS_EVENT_DETECTION,
         Spectrum = PMS_SPECTRUM,
+        Event = PMS_EVENT_DETECTION,
         NumberOfStatuses
     };
 
