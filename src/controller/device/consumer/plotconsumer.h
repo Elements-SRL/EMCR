@@ -123,8 +123,9 @@ public:
     ~EpisodicPlotConsumer();
 
     virtual void forceAxisUpdate() override;
-    void lockCurves();
-    void unlockCurves();
+    void setMaxSamplesPerPlot(int samples);
+    // void lockCurves();
+    // void unlockCurves();
 
 public slots:
     virtual void onStartConsuming() override;

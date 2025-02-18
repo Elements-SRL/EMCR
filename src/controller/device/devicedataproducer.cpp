@@ -43,6 +43,8 @@ DeviceDataProducer::DeviceDataProducer(ApplicationStatus * appStatus, QObject * 
     dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_SAMPLES_FOR_BUFFER/(double)totalChannelsNum));
     dataPacketsBufferMask = dataPacketsBufferLen-1U;
 
+    currentProtIdx = (-1 & PROTS_BUFFER_MASK);
+
     dataSamplesBuffer = new int16_t * [dataPacketsBufferLen];
     floatDataSamplesBuffer = new double * [dataPacketsBufferLen];
     dataSamplesBuffer[0] = new int16_t[dataPacketsBufferLen*totalChannelsNum];

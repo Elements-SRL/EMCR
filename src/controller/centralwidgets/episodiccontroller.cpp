@@ -68,7 +68,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
                                                                                                                            rispetto alla configurazione iniziale */
     connect(consumer, &PlotConsumer::setPlotData, this, &EpisodicController::onSetPlotData);
     consumer->forceAxisUpdate();
-    // consumer->setMaxSamplesPerPlot(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
+    consumer->setMaxSamplesPerPlot(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
     consumer->onStopConsuming();
     recordingSettingsDialog->forceSettingsEmit();
 }

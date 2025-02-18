@@ -320,6 +320,21 @@ void EpisodicPlotConsumer::forceAxisUpdate() {
     // this->updateRangeAxis();
 }
 
+void EpisodicPlotConsumer::setMaxSamplesPerPlot(int samples) {
+    bool wasThisRunning = this->isRunning();
+    if (wasThisRunning) {
+        this->onStopConsuming();
+    }
+
+    this->clearData();
+    maxSamples = samples;
+    this->allocateData();
+
+    if (wasThisRunning) {
+        this->onStartConsuming();
+    }
+}
+
 void EpisodicPlotConsumer::onStartConsuming() {
     episodicHook = producer->getEpisodicDataHook(protocolId);
     if (episodicHook != nullptr) {
