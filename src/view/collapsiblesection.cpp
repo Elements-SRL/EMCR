@@ -52,6 +52,7 @@ CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientatio
 }
 
 void CollapsibleSection::setSingleOption(QString name) {
+    this->addRadioButton(name, true);
     titleEdit->setText(title + ": " + name);
     hideShowBtn->setEnabled(false);
     singleOption = true;
