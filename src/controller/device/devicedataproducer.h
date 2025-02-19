@@ -109,6 +109,7 @@ private:
     unsigned int currentSweepIdx = 0;
     bool pushedNewSweepFlag = false;
     bool newSweepFlag = false;
+    bool protocolFound = false;
 
     unsigned int dataIdx;
     unsigned int bufferSize;

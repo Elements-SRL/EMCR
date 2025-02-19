@@ -542,6 +542,18 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
     auto item = items[protocolId][nextItemIdx];
 
     if (item.available) {
+        if (!protocolFound) {
+            if (item.protId == protocolId) {
+                protocolFound = true;
+            }
+            else {
+                dataPacketsMax = dataPacketsIdx;
+                dataIdx = dataPacketsIdx;
+                dataLock.unlock();
+
+                return false;
+            }
+        }
         if (currentSweepIdx != item.sweepIdx) {
             newSweepFlag = true;
             currentSweepIdx = item.sweepIdx;
@@ -553,6 +565,13 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
     }
     else {
+        if (!protocolFound) {
+            dataPacketsMax = dataPacketsIdx;
+            dataIdx = dataPacketsIdx;
+            dataLock.unlock();
+
+            return false;
+        }
         dataPacketsMax = dataPacketsIdx;
     }
     dataLock.unlock();
