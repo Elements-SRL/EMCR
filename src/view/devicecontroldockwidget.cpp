@@ -24,17 +24,20 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
 
     std::vector <RangedMeasurement_t> vcCurrentRanges;
-    uint16_t _;
-    msgDisp->getVCCurrentRanges(vcCurrentRanges, _);
+    uint16_t vcCurrentRangeDefaultIdx;
+    msgDisp->getVCCurrentRanges(vcCurrentRanges, vcCurrentRangeDefaultIdx);
 
     std::vector <RangedMeasurement_t> vcVoltageRanges;
-    msgDisp->getVCVoltageRanges(vcVoltageRanges, _);
+    uint16_t vcVoltageRangeDefaultIdx;
+    msgDisp->getVCVoltageRanges(vcVoltageRanges, vcVoltageRangeDefaultIdx);
 
     std::vector <RangedMeasurement_t> ccCurrentRanges;
-    msgDisp->getCCCurrentRanges(ccCurrentRanges, _);
+    uint16_t ccCurrentRangeDefaultIdx;
+    msgDisp->getCCCurrentRanges(ccCurrentRanges, ccCurrentRangeDefaultIdx);
 
     std::vector <RangedMeasurement_t> ccVoltageRanges;
-    msgDisp->getCCVoltageRanges(ccVoltageRanges, _);
+    uint16_t ccVoltageRangeDefaultIdx;
+    msgDisp->getCCVoltageRanges(ccVoltageRanges, ccVoltageRangeDefaultIdx);
 
     std::vector <Measurement_t> vcVoltageFilters;
     msgDisp->getVCVoltageFilters(vcVoltageFilters);
@@ -65,7 +68,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     this->setWindowTitle(TITLE);
 
     /*! VC Current range */
-    this->vcCurrentRangesSection = setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons);
+    this->vcCurrentRangesSection = setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdx);
     for (int i = 0; i < vcCurrentRangesRadioButtons.size(); i++) {
         connect(vcCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -75,7 +78,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! VC Voltage range */
-    this->vcVoltageRangesSection = setupSection(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, vLayout, vcVoltageRangesRadioButtons);
+    this->vcVoltageRangesSection = setupSection(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, vLayout, vcVoltageRangesRadioButtons, vcVoltageRangeDefaultIdx);
     for (int i = 0; i < vcVoltageRangesRadioButtons.size(); i++) {
         connect(vcVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -85,7 +88,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! CC Current range */
-    this->ccCurrentRangesSection = setupSection(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, vLayout, ccCurrentRangesRadioButtons);
+    this->ccCurrentRangesSection = setupSection(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, vLayout, ccCurrentRangesRadioButtons, ccCurrentRangeDefaultIdx);
     for (int i = 0; i < ccCurrentRangesRadioButtons.size(); i++) {
         connect(ccCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -95,7 +98,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! CC Voltage range */
-    this->ccVoltageRangesSection = setupSection(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, vLayout, ccVoltageRangesRadioButtons);
+    this->ccVoltageRangesSection = setupSection(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, vLayout, ccVoltageRangesRadioButtons, ccVoltageRangeDefaultIdx);
     for (int i = 0; i < ccVoltageRangesRadioButtons.size(); i++) {
         connect(ccVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -105,7 +108,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! VC Voltage filter */
-    this->vcVoltageFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, vcVoltageFilters, vLayout, vcVoltageFiltersRadioButtons);
+    this->vcVoltageFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, vcVoltageFilters, vLayout, vcVoltageFiltersRadioButtons, 0);
     for (int i = 0; i < vcVoltageFiltersRadioButtons.size(); i++) {
         connect(vcVoltageFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -115,7 +118,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! CC Current filter */
-    this->ccCurrentFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, ccCurrentFilters, vLayout, ccCurrentFiltersRadioButtons);
+    this->ccCurrentFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, ccCurrentFilters, vLayout, ccCurrentFiltersRadioButtons, 0);
     for (int i = 0; i < ccCurrentFiltersRadioButtons.size(); i++) {
         connect(ccCurrentFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -125,7 +128,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! Sampling rate */
-    this->samplingRatesSection = setupSection(DCW_SAMPLING_RATE_TITLE, samplingRates, vLayout, samplingRatesRadioButtons);
+    this->samplingRatesSection = setupSection(DCW_SAMPLING_RATE_TITLE, samplingRates, vLayout, samplingRatesRadioButtons, 0);
     for (int i = 0; i < samplingRatesRadioButtons.size(); i++) {
         connect(samplingRatesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -143,7 +146,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     /*! Custom options */
     for (unsigned int customOptionIdx = 0; customOptionIdx < customOptions.size(); customOptionIdx++) {
         std::vector <QRadioButton *> radioButtons;
-        this->customOptionsSections.push_back(setupSection(customOptions[customOptionIdx], customOptionDescriptions[customOptionIdx], vLayout, radioButtons));
+        this->customOptionsSections.push_back(setupSection(customOptions[customOptionIdx], customOptionDescriptions[customOptionIdx], vLayout, radioButtons, customOptionDefault[customOptionIdx]));
         customOptionsRadioButtons.push_back(radioButtons);
         for (int i = 0; i < radioButtons.size(); i++) {
             connect(radioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
@@ -228,7 +231,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
                 break;
             }
         }
-        this->clampingModalitiesSection = setupSection(DCW_CLMAPINGMODALITY_TITLE, modeStrs, vLayout, clampingModalitiesRadioButtons);
+        this->clampingModalitiesSection = setupSection(DCW_CLMAPINGMODALITY_TITLE, modeStrs, vLayout, clampingModalitiesRadioButtons, 0);
         for (int i = 0; i < clampingModalitiesRadioButtons.size(); i++) {
             connect(clampingModalitiesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
                 if (flag) {
@@ -437,7 +440,7 @@ void DeviceControlDockWidget::setWidgetVisible(QWidget * widget, bool status) {
     }
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (rangedMeasurements.empty()) {
         return nullptr;
     }
@@ -445,10 +448,10 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     for (auto rm : rangedMeasurements) {
         texts.push_back(QString::fromStdString(rm.getMax().niceLabel()));
     }
-    return setupSection(title, texts, parentLayout, radioButtons);
+    return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (measurements.empty()) {
         return nullptr;
     }
@@ -456,10 +459,10 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     for (auto m : measurements) {
         texts.push_back(QString::fromStdString(m.niceLabel()));
     }
-    return setupSection(title, texts, parentLayout, radioButtons);
+    return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (strings.empty()) {
         return nullptr;
     }
@@ -467,10 +470,10 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     for (auto s : strings) {
         texts.push_back(QString::fromStdString(s));
     }
-    return setupSection(title, texts, parentLayout, radioButtons);
+    return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (texts.empty()) {
         return nullptr;
     }
@@ -483,7 +486,7 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     else {
         sec->setParametricTitle(true);
         for (int idx = 0; idx < texts.size(); idx++){
-            sec->addRadioButton(texts[idx], idx == 0);
+            sec->addRadioButton(texts[idx], idx == defaultIdx);
         }
         sec->setExclusiveControls(true);
     }
