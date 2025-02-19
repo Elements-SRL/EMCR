@@ -141,7 +141,7 @@ void DeviceDataProducer::run() {
                 }
                 currentProtIdx = dataHeader.protocolId & PROTS_BUFFER_MASK;
                 dataLock.lockForWrite();
-                 /*! da capire se il dataPacketsIdx è corretto o ci va messo un -1 o qualcosa del genere */
+                 /*! \todo FCON da capire se il dataPacketsIdx è corretto o ci va messo un -1 o qualcosa del genere */
                 items[currentProtIdx][nextItemIdx] = {dataHeader.protocolId, dataHeader.protocolSweepIdx, dataHeader.protocolItemIdx, dataHeader.protocolRepsIdx, dataPacketsIdx, true};
                 nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
                 items[currentProtIdx][nextItemIdx].available = false;

@@ -359,10 +359,13 @@ void ProtocolWidget::populatePropertyDialog() {
             }
 
             case ProtocolItemCtrlNone:
-                GLB_HERE
                 break;
             }
         }
+
+        QWidget * spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        propertyCtrlLo->addWidget(spacer);
 
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             RangedMeasurement_t stimulusRange;
@@ -456,6 +459,14 @@ void ProtocolWidget::clearPropertyDialog() {
                     delete item->widget();
                 }
                 delete ctrlDispatchers->at(ctrlIdx+PPD_CTRL_DISPATCHER_IDX);
+            }
+
+            for (int colIdx = 0; colIdx < PPD_COLUMNS_NUM; colIdx++) {
+                item = propertyCtrlLo->itemAtPosition(rowIdx+ctrlItems->size(), colIdx);
+                if (item != nullptr) {
+                    propertyCtrlLo->removeItem(item);
+                    delete item->widget();
+                }
             }
             ctrlItems = nullptr;
         }

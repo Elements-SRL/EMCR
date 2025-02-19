@@ -191,6 +191,7 @@
   <ItemGroup>
     <ClCompile Include="src\controller\autodeclogger\autodecloggercontroller.cpp" />
     <QtMoc Include="src\controller\autodeclogger\autodecloggercontroller.h" />
+    <ClCompile Include="src\controller\centralwidgets\episodiccontroller.cpp" />
     <ClCompile Include="src\controller\centralwidgets\eventdetectioncontroller.cpp" />
     <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp" />
     <ClCompile Include="src\controller\controllerwithconsumer.cpp" />
@@ -205,18 +206,22 @@
     <ClCompile Include="src\view\activationbutton.cpp" />
     <ClCompile Include="src\view\advancedmenu\resethwhelpdialog.cpp" />
     <ClCompile Include="src\view\autodeclogger\autodecloggerwidget.cpp" />
+    <ClCompile Include="src\view\centralwidgets\bigplot.cpp" />
+    <ClCompile Include="src\view\centralwidgets\bigplotwidget.cpp" />
+    <ClCompile Include="src\view\centralwidgets\episodicwidget.cpp" />
     <ClCompile Include="src\view\centralwidgets\eventdetectionwidget.cpp" />
     <ClCompile Include="src\view\baseplot.cpp" />
-    <ClCompile Include="src\view\gapfreewidget.cpp" />
+    <ClCompile Include="src\view\centralwidgets\gapfreewidget.cpp" />
+    <ClCompile Include="src\view\centralwidgets\ivgraphwidget.cpp" />
+    <ClCompile Include="src\view\centralwidgets\spectrumwidget.cpp" />
+    <ClCompile Include="src\view\collapsiblesection.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
     <ClCompile Include="src\view\addtagdialog.cpp" />
     <ClCompile Include="src\model\analysiscursor.cpp" />
     <ClCompile Include="src\model\application_status.cpp" />
     <ClCompile Include="src\abf\axon.cpp" />
-    <ClCompile Include="src\view\bigplot.cpp" />
     <ClCompile Include="src\controller\bigplotcontroller.cpp" />
     <ClCompile Include="src\model\bigplotmodel.cpp" />
-    <ClCompile Include="src\view\bigplotwidget.cpp" />
     <ClCompile Include="src\view\boardcontroldockwidget.cpp" />
     <ClCompile Include="src\controller\boardcontroller.cpp" />
     <ClCompile Include="src\controller\centralwidgets\centralwidgetcontroller.cpp" />
@@ -249,7 +254,6 @@
     <ClCompile Include="src\model\ivchannel.cpp" />
     <ClCompile Include="src\controller\device\consumer\ivgraphconsumer.cpp" />
     <ClCompile Include="src\controller\centralwidgets\ivgraphcontroller.cpp" />
-    <ClCompile Include="src\view\ivgraphwidget.cpp" />
     <ClCompile Include="src\view\lcddisplay.cpp" />
     <ClCompile Include="src\view\leftrightmousepushbutton.cpp" />
     <ClCompile Include="src\controller\device\consumer\livestatisticsconsumer.cpp" />
@@ -291,7 +295,6 @@
     <ClCompile Include="src\view\rect4.cpp" />
     <ClCompile Include="src\view\singlechannelcontroldockwidget.cpp" />
     <ClCompile Include="src\controller\singlechannelcontroller.cpp" />
-    <ClCompile Include="src\view\spectrumwidget.cpp" />
     <ClCompile Include="src\view\stampplot.cpp" />
     <ClCompile Include="src\model\state.cpp" />
     <ClCompile Include="src\model\statearray.cpp" />
@@ -302,7 +305,6 @@
     <ClCompile Include="src\view\upgradefwview.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="src\view\spectrumwidget.h" />
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h" />
     <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h" />
     <QtMoc Include="src\controller\centralwidgets\eventdetectioncontroller.h" />
@@ -310,6 +312,7 @@
     <QtMoc Include="src\controller\offsetcorrectioncontroller.h" />
     <QtMoc Include="src\controller\device\consumer\autodecloggerconsumer.h" />
     <QtMoc Include="src\controller\controllerwithconsumer.h" />
+    <QtMoc Include="src\controller\centralwidgets\episodiccontroller.h" />
     <ClInclude Include="src\model\autodeclogger\autodecloggermodel.h" />
     <ClInclude Include="src\model\binner.h" />
     <QtMoc Include="src\model\devicemodel.h" />
@@ -327,10 +330,8 @@
     <ClInclude Include="src\abf\axon.h" />
     <ClInclude Include="src\abf\axon_defs.h" />
     <ClInclude Include="src\abf\axon_structs.h" />
-    <QtMoc Include="src\view\bigplot.h" />
     <QtMoc Include="src\controller\bigplotcontroller.h" />
     <QtMoc Include="src\model\bigplotmodel.h" />
-    <QtMoc Include="src\view\bigplotwidget.h" />
     <QtMoc Include="src\view\boardcontroldockwidget.h" />
     <QtMoc Include="src\controller\boardcontroller.h" />
     <QtMoc Include="src\controller\centralwidgets\centralwidgetcontroller.h" />
@@ -345,6 +346,13 @@
     <QtMoc Include="src\view\centralwidgets\eventdetectionwidget.h" />
     <QtMoc Include="src\view\advancedmenu\resethwhelpdialog.h" />
     <QtMoc Include="src\view\autodeclogger\autodecloggerwidget.h" />
+    <QtMoc Include="src\view\centralwidgets\bigplot.h" />
+    <QtMoc Include="src\view\centralwidgets\bigplotwidget.h" />
+    <QtMoc Include="src\view\centralwidgets\episodicwidget.h" />
+    <QtMoc Include="src\view\centralwidgets\gapfreewidget.h" />
+    <QtMoc Include="src\view\centralwidgets\ivgraphwidget.h" />
+    <QtMoc Include="src\view\centralwidgets\spectrumwidget.h" />
+    <QtMoc Include="src\view\collapsiblesection.h" />
     <ClInclude Include="src\view\conversionscaledraw.h" />
     <QtMoc Include="src\view\copyabletable.h" />
     <QtMoc Include="src\controller\protocol\cursorsmanager.h" />
@@ -371,7 +379,6 @@
     <ClInclude Include="src\model\ivchannel.h" />
     <QtMoc Include="src\controller\device\consumer\ivgraphconsumer.h" />
     <QtMoc Include="src\controller\centralwidgets\ivgraphcontroller.h" />
-    <QtMoc Include="src\view\ivgraphwidget.h" />
     <QtMoc Include="src\view\lcddisplay.h" />
     <QtMoc Include="src\view\leftrightmousepushbutton.h" />
     <QtMoc Include="src\controller\device\consumer\livestatisticsconsumer.h" />
@@ -381,7 +388,6 @@
     <ClInclude Include="src\model\measurementoverviewmodel.h" />
     <QtMoc Include="src\view\measurementsoverviewdockwidget.h" />
     <QtMoc Include="src\view\baseplot.h" />
-    <QtMoc Include="src\view\gapfreewidget.h" />
     <ClInclude Include="src\view\questionmarkmenu\messagedialog.h" />
     <QtMoc Include="src\view\multiplechannelcontroldockwidget.h" />
     <QtMoc Include="src\controller\multiplechannelcontroller.h" />
