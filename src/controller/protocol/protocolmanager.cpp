@@ -79,6 +79,8 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
         xAmpStep.unit = "A";
     }
 
+    emit protocolStarted(protocolId, protocol);
+
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
         ProtocolItem * protocolItem = protocolItems[itemIdx];
         switch (protocolItem->type) {
@@ -143,8 +145,6 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
     if (recordFlag) {
         protocol->setConsumerRequest(ProtocolConsumerDataWriter);
     }
-
-    emit protocolStarted(protocolId, protocol);
 
     msgDisp->startProtocol();
 

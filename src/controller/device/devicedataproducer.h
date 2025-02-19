@@ -107,6 +107,7 @@ private:
     unsigned int protocolId;
     unsigned int nextItemIdx = 0;
     unsigned int currentSweepIdx = 0;
+    bool pushedNewSweepFlag = false;
     bool newSweepFlag = false;
 
     unsigned int dataIdx;

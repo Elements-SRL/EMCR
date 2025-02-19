@@ -402,7 +402,8 @@ bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, bool &
         }
         dataIdx = (dataIdx+1) & bufferMask;
     }
-    newSweep = newSweepFlag;
+    newSweep = pushedNewSweepFlag;
+    pushedNewSweepFlag = newSweepFlag;
     if (newSweepFlag) {
         newSweepFlag = false;
     }
@@ -474,7 +475,8 @@ bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, bool &newSweep
             dataIdx = (dataIdx+1) & bufferMask;
         }
     }
-    newSweep = newSweepFlag;
+    newSweep = pushedNewSweepFlag;
+    pushedNewSweepFlag = newSweepFlag;
     if (newSweepFlag) {
         newSweepFlag = false;
     }
@@ -507,7 +509,8 @@ bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, bool &n
         }
         dataIdx = (dataIdx + 1) & bufferMask;
     }
-    newSweep = newSweepFlag;
+    newSweep = pushedNewSweepFlag;
+    pushedNewSweepFlag = newSweepFlag;
     if (newSweepFlag) {
         newSweepFlag = false;
     }

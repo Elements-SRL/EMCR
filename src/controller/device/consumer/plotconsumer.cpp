@@ -388,6 +388,10 @@ void EpisodicPlotConsumer::run() {
         if (episodicHook->getDataChunk(buffer, episodicMessage.newSweepFlag, subSamplingRatio, minDataBatchSize)) {
             // this->updateRangeAxis(); /*! \todo FCON aggiornare il range in episodico ha senso? */
 
+            if (episodicMessage.newSweepFlag) {
+                timeIdx = 0;
+            }
+
             bufferIdx = 0;
             bufferLen = buffer.size();
 
@@ -415,10 +419,6 @@ void EpisodicPlotConsumer::run() {
             }
 
             emit setPlotData(episodicMessage);
-
-            if (episodicMessage.newSweepFlag) {
-                timeIdx = 0;
-            }
 
             episodicMessage.newProtocolFlag = false;
         }
