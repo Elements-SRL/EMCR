@@ -407,6 +407,7 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
         /*! Don't do anything on null protocols, such as stop protocols */
         return;
     }
+    this->onRangeUpdated({0.0, duration.value, 1.0, duration.prefix, duration.unit}); /*! Set default duration every time a new protocol starts */
     consumer->onDurationChanged(duration);
     consumer->onStartConsuming();
 }
