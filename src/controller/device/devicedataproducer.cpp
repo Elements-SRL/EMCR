@@ -560,7 +560,7 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         return false;
     }
 
-    auto item = items[protocolId][nextItemIdx];
+    auto item = items[protocolId & PROTS_BUFFER_MASK][nextItemIdx];
 
     if (currentSweepIdx >= sweepsNum) {
         dataPacketsMax = dataPacketsIdx;
@@ -586,13 +586,6 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
             }
             else {
                 currentSweepIdx = item.sweepIdx;
-            }
-            if (currentSweepIdx >= sweepsNum) {
-                dataPacketsMax = dataPacketsIdx;
-                dataIdx = dataPacketsIdx;
-                dataLock.unlock();
-
-                return false;
             }
             newSweepFlag = true;
             dataPacketsMax = item.dataPacketsIdx;
