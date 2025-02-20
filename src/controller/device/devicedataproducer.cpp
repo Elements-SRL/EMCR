@@ -10,9 +10,9 @@
 
 typedef struct ItemCoords {
     unsigned int protId = 0;
-    unsigned int sweepIdx = 0;
-    unsigned int itemIdx = 0;
-    unsigned int repsIdx = 0;
+    int sweepIdx = 0;
+    int itemIdx = 0;
+    int repsIdx = 0;
     unsigned int dataPacketsIdx = 0;
     bool available = false;
 } ItemCoords_t;
@@ -542,6 +542,7 @@ void EpisodicDataHook::flush() {
 //         return std::make_tuple (true, dataPacketsIdx, dataIdx, true);
 //     }
 // }
+
 #include <QDebug>
 bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
     int waitCount = 0;
@@ -580,8 +581,12 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         protocolFound = true;
 
         if (currentSweepIdx != item.sweepIdx) {
-            currentSweepIdx = item.sweepIdx;
-            qDebug() << currentSweepIdx;
+            if (item.sweepIdx < currentSweepIdx) {
+                currentSweepIdx = sweepsNum;
+            }
+            else {
+                currentSweepIdx = item.sweepIdx;
+            }
             if (currentSweepIdx >= sweepsNum) {
                 dataPacketsMax = dataPacketsIdx;
                 dataIdx = dataPacketsIdx;
@@ -591,6 +596,7 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
             }
             newSweepFlag = true;
             dataPacketsMax = item.dataPacketsIdx;
+            qDebug() << currentSweepIdx << " " << item.dataPacketsIdx;
         }
         else {
             dataPacketsMax = dataPacketsIdx;

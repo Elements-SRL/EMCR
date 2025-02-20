@@ -105,9 +105,9 @@ private:
 
     unsigned int totalChannelsNum;
     unsigned int protocolId;
-    unsigned int sweepsNum;
+    int sweepsNum;
     unsigned int nextItemIdx = 0;
-    unsigned int currentSweepIdx = 0;
+    int currentSweepIdx = -1;
     bool pushedNewSweepFlag = false;
     bool newSweepFlag = false;
     bool protocolFound = false;
