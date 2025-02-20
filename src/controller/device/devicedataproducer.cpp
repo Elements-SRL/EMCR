@@ -543,7 +543,6 @@ void EpisodicDataHook::flush() {
 //     }
 // }
 
-#include <QDebug>
 bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
     int waitCount = 0;
     dataLock.lockForRead();
@@ -589,7 +588,6 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
             }
             newSweepFlag = true;
             dataPacketsMax = item.dataPacketsIdx;
-            qDebug() << currentSweepIdx << " " << item.dataPacketsIdx;
         }
         else {
             dataPacketsMax = dataPacketsIdx;

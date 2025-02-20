@@ -151,7 +151,7 @@ void BigPlot::setRect(Rect4 r) {
         break;
 
     case Episodic:
-        this->setAxisScale(xBottom, 0.0, r[xBottom].width());
+        this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
         break;
 
     case Iv:
