@@ -150,6 +150,10 @@ void BigPlot::setRect(Rect4 r) {
         this->setAxisScale(xBottom, 0.0, r[xBottom].width());
         break;
 
+    case Episodic:
+        this->setAxisScale(xBottom, 0.0, r[xBottom].width());
+        break;
+
     case Iv:
         this->setAxisScale(xBottom, r[xBottom].minValue(), r[xBottom].maxValue());
         break;
@@ -215,7 +219,7 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
 }
 
 void BigPlot::recomputeXAxisFactor(double duration) {
-    if (status != BigPlot::GapFree) {
+    if (status != BigPlot::GapFree && status != BigPlot::Episodic) {
         return;
     }
     Measurement_t durationMeas = {duration, commlib::UnitPfxNone, "s"};

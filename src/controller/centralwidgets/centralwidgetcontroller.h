@@ -21,7 +21,6 @@ public:
     virtual void start() = 0;
     virtual PlotConsumer* getConsumer() = 0;
 
-
 private:
     virtual void detachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
     virtual void attachCurves(const std::vector <uint16_t>& channelIndexes) = 0;

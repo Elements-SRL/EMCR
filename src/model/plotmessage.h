@@ -34,6 +34,7 @@ struct EpisodicMessage{
     std::vector <double> timeValues;
     std::vector <std::vector <double>> voltageValues;
     std::vector <std::vector <double>> currentValues;
+    double durationS;
     bool newProtocolFlag;
     bool newSweepFlag;
 };

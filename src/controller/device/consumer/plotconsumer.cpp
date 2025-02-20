@@ -367,6 +367,7 @@ void EpisodicPlotConsumer::run() {
     int timeIdx = 0;
 
     episodicMessage.newProtocolFlag = true;
+    episodicMessage.durationS = pushedDuration;
 
     QMutexLocker consumptionLock(&consumptionMtx);
     consumptionLock.unlock();

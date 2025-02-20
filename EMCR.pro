@@ -32,7 +32,6 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/controllerwithconsumer.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -40,6 +39,7 @@ SOURCES += \
     src/controller/device/consumer/eventdetectionconsumer.cpp \
     src/controller/device/consumer/spectrumconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
+    src/controller/controllerwithconsumer.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/plotpreferencescontroller.cpp \
@@ -147,9 +147,7 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
-    src/controller/controllerwithconsumer.h \
     src/globaldefines.h \
-    src/model/multiplechannelmodel.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
@@ -159,6 +157,7 @@ HEADERS += \
     src/controller/device/consumer/eventdetectionconsumer.h \
     src/controller/device/consumer/spectrumconsumer.h \
     src/controller/device/deviceconnector.h \
+    src/controller/controllerwithconsumer.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
     src/controller/plotpreferencescontroller.h \
@@ -190,6 +189,7 @@ HEADERS += \
     src/controller/centralwidgets/eventdetectioncontroller.h \
     src/controller/centralwidgets/spectrumcontroller.h \
     src/controller/autodeclogger/autodecloggercontroller.h \
+    src/model/multiplechannelmodel.h \
     src/model/devicemodel.h \
     src/model/analysiscursor.h \
     src/model/application_status.h \

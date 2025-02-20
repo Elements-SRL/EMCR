@@ -113,6 +113,7 @@ void EpisodicController::clearCurves() {
         voltageCurves[ch].clear();
     }
     sweepIdx = -1;
+    plot->replot();
 }
 
 void EpisodicController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
@@ -309,6 +310,8 @@ void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
     EpisodicMessage episodicMessage = std::get<PMS_EPISODIC>(plotmessage);
     if (episodicMessage.newProtocolFlag) {
         this->clearCurves();
+        bigPlotController->handleSingleAxisZoomRequest(model, plot, QwtPlot::xBottom, QwtInterval(0.0, episodicMessage.durationS)); /*! \todo FCON non è detto che qui serva in s la misura, verificare */
+        plot->replot();
 
         updateDataTimer.start();
 
@@ -403,7 +406,6 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
         /*! Don't do anything on null protocols, such as stop protocols */
         return;
     }
-    bigPlotController->handleSingleAxisZoomRequest(model, plot, QwtPlot::xBottom, QwtInterval(0.0, durationS)); /*! \todo FCON non è detto che qui serva in s la misura, verificare */
     consumer->onDurationChanged(duration);
     consumer->onStartConsuming();
 }
