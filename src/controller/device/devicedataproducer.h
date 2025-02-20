@@ -24,7 +24,7 @@ public:
 
     unsigned int getDataPacketsBufferLen();
     DataHook * getDataHook();
-    EpisodicDataHook * getEpisodicDataHook(unsigned int protocolId);
+    EpisodicDataHook * getEpisodicDataHook(unsigned int protocolId, unsigned int sweepsNum);
 
 public slots:
     void onStopProducing();
@@ -91,7 +91,7 @@ private:
 
 class EpisodicDataHook {
 public:
-    EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId);
+    EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId, unsigned int sweepsNum);
     virtual ~EpisodicDataHook();
 
     void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
@@ -105,6 +105,7 @@ private:
 
     unsigned int totalChannelsNum;
     unsigned int protocolId;
+    unsigned int sweepsNum;
     unsigned int nextItemIdx = 0;
     unsigned int currentSweepIdx = 0;
     bool pushedNewSweepFlag = false;

@@ -25,7 +25,7 @@ private:
 
     MessageDispatcher * msgDisp = nullptr;
 
-    unsigned short protocolId = 0;
+    unsigned short protocolId = 1;
     unsigned short lastRunProtocolId = 0;
 
     ProtocolWidget * protocol;

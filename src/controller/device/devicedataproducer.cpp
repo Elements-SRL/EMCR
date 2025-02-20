@@ -83,10 +83,10 @@ DataHook * DeviceDataProducer::getDataHook() {
     return hook;
 }
 
-EpisodicDataHook * DeviceDataProducer::getEpisodicDataHook(unsigned int protocolId) {
+EpisodicDataHook * DeviceDataProducer::getEpisodicDataHook(unsigned int protocolId, unsigned int sweepsNum) {
     EpisodicDataHook * hook;
 
-    hook = new EpisodicDataHook(totalChannelsNum, protocolId);
+    hook = new EpisodicDataHook(totalChannelsNum, protocolId, sweepsNum);
     hook->setBufferSize(dataPacketsBufferLen, dataPacketsBufferMask);
 
     return hook;
@@ -362,9 +362,10 @@ bool DataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &da
     return true;
 }
 
-EpisodicDataHook::EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId) :
+EpisodicDataHook::EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId, unsigned int sweepsNum) :
     totalChannelsNum(totalChannelsNum),
-    protocolId(protocolId) {
+    protocolId(protocolId),
+    sweepsNum(sweepsNum) {
 
     this->flush();
 }
@@ -523,6 +524,25 @@ void EpisodicDataHook::flush() {
     dataLock.unlock();
 }
 
+// std::tuple <bool, unsigned int, unsigned int, bool> isDataAvailable(bool isItemAvailable, bool protocolFound, bool isSameProtId, bool isSameSweep, unsigned int itemLastPacket, unsigned int dataIdx) {
+//     if (isItemAvailable) {
+//         if (!protocolFound && !isSameProtId) {
+//             return std::make_tuple (false, dataPacketsIdx, dataPacketsIdx, false);
+//         }
+
+//         if (!isSameSweep) {
+//             return std::make_tuple (true, itemLastPacket, dataIdx, true);
+//         }
+//         return std::make_tuple (true, dataPacketsIdx, dataIdx, true);
+//     }
+//     else {
+//         if (!protocolFound) {
+//             return std::make_tuple (false, dataPacketsIdx, dataPacketsIdx, false);
+//         }
+//         return std::make_tuple (true, dataPacketsIdx, dataIdx, true);
+//     }
+// }
+#include <QDebug>
 bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
     int waitCount = 0;
     dataLock.lockForRead();
@@ -541,22 +561,35 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
 
     auto item = items[protocolId][nextItemIdx];
 
+    if (currentSweepIdx >= sweepsNum) {
+        dataPacketsMax = dataPacketsIdx;
+        dataIdx = dataPacketsIdx;
+        dataLock.unlock();
+
+        return false;
+    }
+
     if (item.available) {
-        if (!protocolFound) {
-            if (item.protId == protocolId) {
-                protocolFound = true;
-            }
-            else {
+        if (!protocolFound && item.protId != protocolId) {
+            dataPacketsMax = dataPacketsIdx;
+            dataIdx = dataPacketsIdx;
+            dataLock.unlock();
+
+            return false;
+        }
+        protocolFound = true;
+
+        if (currentSweepIdx != item.sweepIdx) {
+            currentSweepIdx = item.sweepIdx;
+            qDebug() << currentSweepIdx;
+            if (currentSweepIdx >= sweepsNum) {
                 dataPacketsMax = dataPacketsIdx;
                 dataIdx = dataPacketsIdx;
                 dataLock.unlock();
 
                 return false;
             }
-        }
-        if (currentSweepIdx != item.sweepIdx) {
             newSweepFlag = true;
-            currentSweepIdx = item.sweepIdx;
             dataPacketsMax = item.dataPacketsIdx;
         }
         else {
@@ -565,16 +598,33 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
     }
     else {
+        dataPacketsMax = dataPacketsIdx;
         if (!protocolFound) {
-            dataPacketsMax = dataPacketsIdx;
             dataIdx = dataPacketsIdx;
             dataLock.unlock();
 
             return false;
         }
-        dataPacketsMax = dataPacketsIdx;
     }
-    dataLock.unlock();
 
+    dataLock.unlock();
     return true;
+
+    // auto t = isDataAvailable(item.available, protocolFound, item.protId == protocolId, currentSweepIdx == item.sweepIdx, item.dataPacketsIdx, dataIdx);
+
+    // dataPacketsMax = std::get<1>(t);
+    // dataIdx = std::get<2>(t);
+    // protocolFound = std::get<3>(t);
+
+    // if (item.available && protocolFound) {
+    //     if (currentSweepIdx != item.sweepIdx) {
+    //         newSweepFlag = true;
+    //         currentSweepIdx = item.sweepIdx;
+    //     }
+    //     nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
+    // }
+
+    // dataLock.unlock();
+
+    // return std::get<0>(t);
 }

@@ -400,6 +400,7 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
         return;
     }
     consumer->setProtocolId(protocolId);
+    consumer->setSweepsNum(protocol->getSweepsNum());
     auto duration = protocol->getTotalDuration();
     auto durationS = duration.getNoPrefixValue();
     if (durationS == 0.0) {

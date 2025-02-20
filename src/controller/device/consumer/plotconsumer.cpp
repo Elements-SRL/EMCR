@@ -22,6 +22,10 @@ void PlotConsumer::setProtocolId(unsigned int protocolId) {
     this->protocolId = protocolId;
 }
 
+void PlotConsumer::setSweepsNum(unsigned int sweepsNum) {
+    this->sweepsNum = sweepsNum;
+}
+
 void PlotConsumer::onStartConsuming() {
     hook = producer->getDataHook();
     if (hook != nullptr) {
@@ -336,7 +340,7 @@ void EpisodicPlotConsumer::setMaxSamplesPerPlot(int samples) {
 }
 
 void EpisodicPlotConsumer::onStartConsuming() {
-    episodicHook = producer->getEpisodicDataHook(protocolId);
+    episodicHook = producer->getEpisodicDataHook(protocolId, sweepsNum);
     if (episodicHook != nullptr) {
         QMutexLocker consumptionLock(&consumptionMtx);
         consumptionStopped = false;

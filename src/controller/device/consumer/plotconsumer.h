@@ -22,6 +22,7 @@ public:
 
     virtual void forceAxisUpdate() = 0;
     void setProtocolId(unsigned int protocolId);
+    void setSweepsNum(unsigned int sweepsNum);
 
 public slots:
     virtual void onStartConsuming() override;
@@ -56,6 +57,7 @@ protected:
     double * timeValues = nullptr;
 
     unsigned int protocolId = -1;
+    unsigned int sweepsNum = 0;
 
     std::vector <double> buffer;
 
