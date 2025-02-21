@@ -44,16 +44,20 @@ void TimerDisplay::onStartTimer(bool ascending, QTime startTime) {
 
     this->displayTime(currentTime);
 
-    timer->setSingleShot(false);
-    timer->start(TDP_INTERVAL_MS);
+    timer->setSingleShot(true);
+    elapsedEvents = 0;
+    remainingTime = TDP_INTERVAL_MS;
+    elapsedTimer.start();
+    timer->start(remainingTime);
 }
 
 void TimerDisplay::onRestartTimer() {
     if (!(timer->isActive())) {
         if (paused) {
             paused = false;
-            timer->setSingleShot(true);
-            timer->start(reaminingTime);
+            elapsedEvents = 0;
+            elapsedTimer.start();
+            timer->start(remainingTime);
 
         } else {
             this->onStartTimer();
@@ -64,7 +68,7 @@ void TimerDisplay::onRestartTimer() {
 void TimerDisplay::onStopTimer(bool pauseFlag) {
     if (timer->isActive()) {
         paused = pauseFlag;
-        reaminingTime = timer->remainingTime();
+        remainingTime = timer->remainingTime();
         timer->stop();
 
     } else {
@@ -87,8 +91,8 @@ void TimerDisplay::onUpdateTimer() {
     }
     this->displayTime(currentTime);
 
-    if (!(timer->isActive())) {
-        timer->setSingleShot(false);
-        timer->start(TDP_INTERVAL_MS);
-    }
+    elapsedEvents++;
+    qint64 nextInterval = (elapsedEvents * TDP_INTERVAL_MS) - elapsedTimer.elapsed() + remainingTime;
+
+    timer->start(nextInterval);
 }
