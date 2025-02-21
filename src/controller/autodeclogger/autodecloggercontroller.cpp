@@ -65,8 +65,6 @@ void AutoDecloggerController::onDecloggingStarted(std::vector<unsigned short> ch
 void AutoDecloggerController::onDecloggingCompleted(std::vector<unsigned short> channels) {
 	widget->onPoreFree();
 }
-void AutoDecloggerController::onCurrentRangeChanged(RangedMeasurement cr) {}
-void AutoDecloggerController::onVoltageRangeChanged(RangedMeasurement vr) {}
 
 void AutoDecloggerController::onThFieldChanged(double th) {
 	std::map<int, double> m;

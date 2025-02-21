@@ -101,7 +101,6 @@ void EpisodicController::clearCurves() {
     }
     this->detachCurves(channelIndexes);
 
-    // CurveData * curveData; forse questo serve per fare il lock delle curveData prima di cancellare le curve
     for (auto ch : channelIndexes) {
         for (auto &&curve : currentCurves[ch]) {
             delete curve;
@@ -181,8 +180,6 @@ void EpisodicController::paintPlots(bool newSweepFlag) {
         curve = currentCurves[currentChannelIdx][sweepIdx];
         curveData = static_cast <CurveData *> (curve->data());
 
-        // curveData->lock();
-
         QRectF br = qwtBoundingRect(* curveData, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
         const QRect clipRect = QwtScaleMap::transform(tMap, iMap, br).toRect();
 
@@ -190,14 +187,11 @@ void EpisodicController::paintPlots(bool newSweepFlag) {
 
         episodicPainter->drawSeries(curve, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
         newActiveSweepPlottedPoints = (int)(curveData->size());
-        // curveData->unlock();
     }
 
     for (int voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
         curve = voltageCurves[voltageChannelIdx][sweepIdx];
         curveData = static_cast <CurveData *> (curve->data());
-
-        // curveData->lock();
 
         QRectF br = qwtBoundingRect(* curveData, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
         const QRect clipRect = QwtScaleMap::transform(tMap, vMap, br).toRect();
@@ -206,10 +200,7 @@ void EpisodicController::paintPlots(bool newSweepFlag) {
 
         episodicPainter->drawSeries(curve, activeSweepPlottedPoints-1, (int)(curveData->size()-1));
         newActiveSweepPlottedPoints = (int)(curveData->size());
-        // curveData->unlock();
     }
-
-    // episodicConsumer->unlockCurves();
 
     // if (protocolFinished) {
     //     sweepPersistenceSbx->setEnabled(true);
@@ -431,9 +422,6 @@ CurveData::CurveData(int size) {
 CurveData::~CurveData() {
     x.clear();
     y.clear();
-    // values.squeeze();
-    // mutex.tryLock(); /*!< The mutex may have been locked before calling the destructor */
-    // mutex.unlock();
 }
 
 QPointF CurveData::sample(size_t idx) const {
@@ -466,14 +454,6 @@ QRectF CurveData::boundingRect() const {
 
     return m_boundingRect;
 }
-
-// void CurveData::lock() {
-//     mutex.lock();
-// }
-
-// void CurveData::unlock() {
-//     mutex.unlock();
-// }
 
 void CurveData::append(std::vector <double> newX, std::vector <double> newY) {
     x.insert(x.end(), newX.begin(), newX.end());
