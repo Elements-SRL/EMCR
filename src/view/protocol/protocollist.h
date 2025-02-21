@@ -25,6 +25,7 @@ public:
         ErrorLoadRestingPotentialProtocolFail,
         ErrorLoadLastExecutedProtocolFail,
         ErrorLoadLastExecutionProtocolsFail,
+        ErrorLoadAnalysisVoltageProtocolsFail,
         ErrorLoadDefaultProtocolsFail
     } ProtocolListStatus_t;
 
@@ -71,6 +72,7 @@ protected:
     void importIhold0Protocol();
     void importLastRunProtocol();
     void importLastProtocols();
+    void importAnalysisVoltageProtocols();
     bool importProtocols(QString fullFileName = YAML_DEFAULT_FULL_FILE);
     bool importProtocols(ImportProtocolDialog * ipd);
     void importProtocol(const YAML::VoltageProtocol &yamlProtocol);
@@ -142,6 +144,20 @@ public:
 
     ProtocolWidget * newGapfreeProtocol(QString name) override;
     ProtocolWidget * newEpisodicProtocol(QString name) override;
+};
+
+class AnalysisVoltageProtocolList : public ProtocolList {
+    Q_OBJECT
+
+public:
+    AnalysisVoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent = nullptr);
+    ~AnalysisVoltageProtocolList();
+
+    ProtocolWidget * newGapfreeProtocol(QString name) override;
+    ProtocolWidget * newEpisodicProtocol(QString name) override;
+
+protected:
+    void contextMenuEvent(QContextMenuEvent * event) override;
 };
 
 class CurrentProtocolList : public ProtocolList {

@@ -41,6 +41,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     protocolPropertyDialog = new ProtocolPropertyDialog(msgDisp, timeRange, stimulusRange);
 
     voltageProtocolList = new VoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
+    analysisVoltageProtocolList = new AnalysisVoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
     currentProtocolList = new CurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
 
     QHBoxLayout * sweepInfoHl = new QHBoxLayout;
@@ -56,6 +57,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     mainVl->addWidget(mainSpl);
 
     mainSpl->addWidget(voltageProtocolList);
+    mainSpl->addWidget(analysisVoltageProtocolList);
     mainSpl->addWidget(currentProtocolList);
     this->setProtocolListVisibility();
     mainSpl->addWidget(protocolPropertyDialog);
@@ -253,6 +255,21 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     });
 
     sweepInfoHl->insertWidget(btnCol++, stopProtocolBtn);
+
+    QPushButton * analysisProtocolBtn = new QPushButton; {
+        QPixmap btnPix(":/imgs/data monitor.png");
+        QIcon btnIcon(btnPix);
+        analysisProtocolBtn->setIcon(btnIcon);
+        analysisProtocolBtn->setIconSize(QSize(30, 30));
+        analysisProtocolBtn->setFixedSize(32, 32);
+        analysisProtocolBtn->setToolTip("Show/Hide protocols that perform analyses");
+    }
+    analysisProtocolBtn->setCheckable(true);
+    analysisProtocolBtn->setChecked(false);
+    connect(analysisProtocolBtn, &QPushButton::clicked, this, &ProtocolDockWidget::onSetAnalysisProtocols);
+
+    sweepInfoHl->insertWidget(btnCol++, analysisProtocolBtn);
+
     {
         QWidget * spacer = new QWidget;
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -260,12 +277,13 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
 
     QShortcut * sh;
-    int startKeyOffset = Qt::ControlModifier + Qt::Key_0;
+    QKeyCombination startKeyOffset = Qt::ControlModifier | Qt::Key_0;
 //    int recordKeyOffset = Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_0;
     for (int keyIdx = 0; keyIdx < 10; keyIdx++) {
-        sh = new QShortcut(QKeySequence(startKeyOffset+keyIdx), parent);
+        sh = new QShortcut(QKeySequence(startKeyOffset | keyIdx), parent);
         connect(sh, &QShortcut::activated, this, [=] () {
             voltageProtocolList->startProtocol(keyIdx);
+            analysisVoltageProtocolList->startProtocol(keyIdx);
             currentProtocolList->startProtocol(keyIdx);
         });
         shortcuts.append(sh);
@@ -367,22 +385,33 @@ void ProtocolDockWidget::onSetClampingModality(ClampingModality_t clampingModali
     this->setProtocolListVisibility();
 }
 
+void ProtocolDockWidget::onSetAnalysisProtocols(bool analysisProtocols) {
+    this->analysisProtocolsFlag = analysisProtocols;
+
+    this->setProtocolListVisibility();
+}
+
 void ProtocolDockWidget::setProtocolListVisibility() {
+    voltageProtocolList->setClampingModality(clampingModality);
+    voltageProtocolList->saveAndClosePropertyDialog();
+    analysisVoltageProtocolList->setClampingModality(clampingModality);
+    analysisVoltageProtocolList->saveAndClosePropertyDialog();
+    currentProtocolList->setClampingModality(clampingModality);
+    currentProtocolList->saveAndClosePropertyDialog();
     if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-        this->setWindowTitle("Voltage Protocols");
-        voltageProtocolList->setClampingModality(clampingModality);
-        voltageProtocolList->saveAndClosePropertyDialog();
-        currentProtocolList->setClampingModality(clampingModality);
-        currentProtocolList->saveAndClosePropertyDialog();
+        if (analysisProtocolsFlag) {
+            this->setWindowTitle("Analysis Voltage Protocols");
+            voltageProtocolList->setVisible(false);
+            analysisVoltageProtocolList->setVisible(true);
+        }
+        else {
+            voltageProtocolList->setVisible(true);
+            analysisVoltageProtocolList->setVisible(false);
+            this->setWindowTitle("Voltage Protocols");
+        }
 
-    } else if (clampingModality == e384CommLib::ZERO_CURRENT_CLAMP) {
-        /*! Nothing to do */
-
-    } else if (clampingModality == e384CommLib::CURRENT_CLAMP) {
+    } else if (clampingModality == e384CommLib::ZERO_CURRENT_CLAMP || clampingModality == e384CommLib::CURRENT_CLAMP) {
         this->setWindowTitle("Current Protocols");
-        voltageProtocolList->setClampingModality(clampingModality);
-        voltageProtocolList->saveAndClosePropertyDialog();
-        currentProtocolList->setClampingModality(clampingModality);
-        currentProtocolList->saveAndClosePropertyDialog();
+
     }
 }

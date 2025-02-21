@@ -25,6 +25,7 @@ public:
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
+    void onSetAnalysisProtocols(bool analysisProtocols);
 
 protected:
     bool eventFilter(QObject * obj, QEvent * event) override;
@@ -39,8 +40,10 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     ProtocolPropertyDialog * protocolPropertyDialog = nullptr;
     ProtocolList * voltageProtocolList = nullptr;
+    ProtocolList * analysisVoltageProtocolList = nullptr;
     ProtocolList * currentProtocolList = nullptr;
     ClampingModality_t clampingModality = e384CommLib::VOLTAGE_CLAMP;
+    bool analysisProtocolsFlag = false;
     TimerDisplay * protocolTimer = nullptr;
     QVector <QShortcut *> shortcuts;
 

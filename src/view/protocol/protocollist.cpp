@@ -115,7 +115,7 @@ void ProtocolList::inhibitProtocols(bool inhibitFlag) {
 }
 
 void ProtocolList::startProtocol(int shortCutIdx) {
-    if (clampingModality == clampingModalitySet) {
+    if (clampingModality == clampingModalitySet && this->isVisible()) {
         ProtocolWidget * protocol = shortCutsProtocols[shortCutIdx];
         if (protocol != nullptr) {
             this->setCurrentItem(protocol);
@@ -696,6 +696,13 @@ void ProtocolList::importLastProtocols() {
     }
 }
 
+void ProtocolList::importAnalysisVoltageProtocols() {
+    /*! Import the protocols used to perform analysis in voltage clamp */
+    if (!(this->importProtocols(YAML_ANALYSIS_VOLTAGE_FULL_FILE))) {
+        ErrorManager e(ErrorLoadAnalysisVoltageProtocolsFail);
+    }
+}
+
 bool ProtocolList::importProtocols(QString fullFileName) {
     QString yamlFileName = fullFileName;
     if (QFile::exists(yamlFileName)) {
@@ -1011,6 +1018,43 @@ ProtocolWidget * VoltageProtocolList::newGapfreeProtocol(QString name) {
 ProtocolWidget * VoltageProtocolList::newEpisodicProtocol(QString name) {
     ProtocolWidget * protocol = new EpisodicVoltageProtocolWidget(msgDisp, name, protocolPropertyDialog);
     return protocol;
+}
+
+AnalysisVoltageProtocolList::AnalysisVoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
+    ProtocolList(msgDisp, protocolPropertyDialog, parent) {
+
+    clampingModality = ClampingModality_t::VOLTAGE_CLAMP;
+    protocolsGroupName = "analysisvoltageprotocols";
+
+    std::vector <ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::VOLTAGE_CLAMP) != clampingModalities.end()) {
+        this->importAnalysisVoltageProtocols();
+        this->onStopProtocol();
+        QThread::msleep(100);
+    }
+}
+
+AnalysisVoltageProtocolList::~AnalysisVoltageProtocolList() {
+
+}
+
+ProtocolWidget * AnalysisVoltageProtocolList::newGapfreeProtocol(QString name) {
+    ProtocolWidget * protocol = new GapfreeVoltageProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+ProtocolWidget * AnalysisVoltageProtocolList::newEpisodicProtocol(QString name) {
+    ProtocolWidget * protocol = new EpisodicVoltageProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+void AnalysisVoltageProtocolList::contextMenuEvent(QContextMenuEvent * event) {
+    QMenu menu(this);
+    menu.addAction(startProtocolAct);
+    menu.addSeparator();
+    menu.addAction(openProtocolPropertiesAct);
+    menu.exec(event->globalPos());
 }
 
 CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
