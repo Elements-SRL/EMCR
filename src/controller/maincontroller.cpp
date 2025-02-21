@@ -186,11 +186,6 @@ void MainController::onMainWindowCreated() {
 
     autoDecloggerController = new AutoDecloggerController(appStatus, mainWindow, deviceDataProducer);
     controllersWithConsumer.push_back(autoDecloggerController);
-//    voltageProtocolManager = new ProtocolManager(mDev, e384CommLib::VOLTAGE_CLAMP);
-//    currentProtocolManager = new ProtocolManager(mDev, e384CommLib::CURRENT_CLAMP);
-
-//    mainWindow->setProtocolDw(voltageProtocolManager->getProtocolDockWidget());
-//    mainWindow->setProtocolDw(currentProtocolManager->getProtocolDockWidget());
 
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
@@ -304,6 +299,9 @@ void MainController::onMainWindowCreated() {
         connect(protocolDw, &ProtocolDockWidget::startProtocol,    this, [=] () {
             protocolDw->getCurrentProtocolList()->onStartProtocol();
             deviceController->handleProtocolStatusChanged(true);
+        });
+        connect(protocolDw, &ProtocolDockWidget::restartProtocol,    this, [=] () {
+            currentProtocolManager->onRestartProtocolRequest();
         });
         connect(protocolDw, &ProtocolDockWidget::stopProtocol,    this, [=] () {
             protocolDw->getCurrentProtocolList()->onStopProtocol();
