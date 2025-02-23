@@ -34,10 +34,6 @@ public:
     virtual ~ProtocolEditor();
 
     QVector <ProtocolDropControlItem *> * getCtrlItems();
-    bool analysisRequested(ProtocolConsumerType_t consumerType);
-    bool analysisValid(ProtocolConsumerType_t consumerType);
-    bool allAnalysisValid();
-    QVector <int> getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType);
 
     void setName(QString value);
     void setHold(double value);
@@ -87,7 +83,6 @@ protected:
     ProtocolItemDragList * libraryPidl = nullptr;
     ProtocolItemDropList * phasesPidl = nullptr;
     ProtocolItemDropList * ctrlPidl = nullptr;
-    ProtocolItemDropList * analysisPidl = nullptr;
     ProtocolItemCtrlManager * protocolItemCtrlManager = nullptr;
     ProtocolPreview * protocolPreview = nullptr;
 

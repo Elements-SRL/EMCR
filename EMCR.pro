@@ -72,7 +72,6 @@ SOURCES += \
     src/controller/centralwidgets/spectrumcontroller.cpp \
     src/controller/autodeclogger/autodecloggercontroller.cpp \
     src/model/devicemodel.cpp \
-    src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
     src/model/ivaccumulator.cpp \
@@ -191,7 +190,6 @@ HEADERS += \
     src/controller/autodeclogger/autodecloggercontroller.h \
     src/model/multiplechannelmodel.h \
     src/model/devicemodel.h \
-    src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
     src/model/channel_and_name.h \

@@ -60,8 +60,6 @@ ProtocolList::ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog *
 ProtocolList::~ProtocolList() {
     this->onStopProtocol();
 
-    this->exportLastProtocols();
-
     for (int itemIdx = 0; itemIdx < this->count(); itemIdx++) {
         ProtocolWidget * item = static_cast <ProtocolWidget *> (this->item(itemIdx));
         delete item;
@@ -114,7 +112,7 @@ void ProtocolList::inhibitProtocols(bool inhibitFlag) {
     }
 }
 
-void ProtocolList::startProtocol(int shortCutIdx) {
+void ProtocolList::startProtocolFromShortCutIndex(int shortCutIdx) {
     if (clampingModality == clampingModalitySet && this->isVisible()) {
         ProtocolWidget * protocol = shortCutsProtocols[shortCutIdx];
         if (protocol != nullptr) {
@@ -633,7 +631,35 @@ int ProtocolList::getShortCutByProtocol(ProtocolWidget * protocol) {
 
 void ProtocolList::exportLastProtocols() {
     QString fullFileName = YAML_LAST_FULL_FILE;
-    fullFileName.replace(YAML_FILE_EXTENSION, YAML_FILE_EXTENSION);
+    YAML::Protocols yamlProtocols;
+    YAML::Node node;
+
+    if (QFile::exists(fullFileName)) {
+        node = YAML::LoadFile(fullFileName.toStdString());
+        yamlProtocols = node.as <YAML::Protocols_t> ();
+    }
+
+    if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+        auto prots = this->getYamlProtocols().voltageprotocols;
+        if (!prots.empty()) {
+            yamlProtocols.voltageprotocols = prots;
+        }
+    }
+    else {
+        auto prots = this->getYamlProtocols().currentprotocols;
+        if (!prots.empty()) {
+            yamlProtocols.currentprotocols = prots;
+        }
+    }
+
+    node = yamlProtocols;
+    std::ofstream fout(fullFileName.toStdString());
+    fout << node;
+    fout.close();
+}
+
+void ProtocolList::exportAnalysisProtocols() {
+    QString fullFileName = YAML_ANALYSIS_VOLTAGE_FULL_FILE; /*! \todo FCON magari fare un unico file per le analisi senza distinguere tra voltage e current */
     YAML::Protocols yamlProtocols;
     YAML::Node node;
 
@@ -722,8 +748,8 @@ bool ProtocolList::importProtocols(QString fullFileName) {
             }
         }
         return true;
-
-    } else {
+    }
+    else {
         return false;
     }
 }
@@ -938,9 +964,7 @@ void ProtocolList::removeProtocol(ProtocolWidget * protocol, QString name) {
 }
 
 ProtocolWidget * ProtocolList::findProtocolByName(QString name) {
-    ProtocolWidget * protocol;
-    for (int protIdx = 0; protIdx < protocols->size(); protIdx++) {
-        protocol = protocols->at(protIdx);
+    for (auto protocol : protocols[0]) {
         if (protocol->getName() == name) {
             return protocol;
         }
@@ -955,6 +979,19 @@ QString ProtocolList::availableProtocolName(QString name) {
         ret = name + QString::number(idx++);
     }
     return ret;
+}
+
+int ProtocolList::getProtocolIndexFromAnalysis(YAML::AnalysisType_t type) {
+    for (int idx = 0; idx < protocols->size(); idx++) {
+        auto protocol = protocols->at(idx);
+        YAML::AnalysisType_t protType;
+        if (protocol->getAnalysisType(protType)) {
+            if (type == protType) {
+                return idx;
+            }
+        }
+    }
+    return -1;
 }
 
 YAML::Protocols_t ProtocolList::getYamlProtocols() {
@@ -1007,7 +1044,7 @@ VoltageProtocolList::VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 }
 
 VoltageProtocolList::~VoltageProtocolList() {
-
+    this->exportLastProtocols();
 }
 
 ProtocolWidget * VoltageProtocolList::newGapfreeProtocol(QString name) {
@@ -1036,7 +1073,7 @@ AnalysisVoltageProtocolList::AnalysisVoltageProtocolList(MessageDispatcher * msg
 }
 
 AnalysisVoltageProtocolList::~AnalysisVoltageProtocolList() {
-
+    this->exportAnalysisProtocols();
 }
 
 ProtocolWidget * AnalysisVoltageProtocolList::newGapfreeProtocol(QString name) {
@@ -1074,7 +1111,7 @@ CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 }
 
 CurrentProtocolList::~CurrentProtocolList() {
-
+    this->exportLastProtocols();
 }
 
 ProtocolWidget * CurrentProtocolList::newGapfreeProtocol(QString name) {

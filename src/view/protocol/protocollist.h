@@ -37,7 +37,7 @@ public:
     void startVhold0Protocol();
     void startIhold0Protocol();
     void inhibitProtocols(bool inhibitFlag);
-    void startProtocol(int shortCutIdx);
+    void startProtocolFromShortCutIndex(int shortCutIdx);
     void setClampingModality(ClampingModality_t clampingModalitySet);
     void saveAndClosePropertyDialog();
 
@@ -68,6 +68,7 @@ protected:
     virtual ProtocolWidget * newGapfreeProtocol(QString name) = 0;
     virtual ProtocolWidget * newEpisodicProtocol(QString name) = 0;
     void exportLastProtocols();
+    void exportAnalysisProtocols();
     void importVhold0Protocol();
     void importIhold0Protocol();
     void importLastRunProtocol();
@@ -87,6 +88,7 @@ protected:
     void removeProtocol(ProtocolWidget * protocol, QString name);
     ProtocolWidget * findProtocolByName(QString name);
     QString availableProtocolName(QString name);
+    int getProtocolIndexFromAnalysis(YAML::AnalysisType_t type);
 
     YAML::Protocols_t getYamlProtocols();
 

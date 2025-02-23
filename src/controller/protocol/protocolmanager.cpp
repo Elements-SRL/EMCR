@@ -33,7 +33,6 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
     /*! Preprocess protocol items */
     protocol->setProtocolItems();
     protocol->setProcessingStatus();
-    protocol->setAnalysisCursors();
     protocol->setTriggerCursors();
     QVector <ProtocolItem *> protocolItems = protocol->getProtocolItems();
     ProtocolApplicationStatus_t status = this->toProtocolApplicationStatus(protocol->getProcessingStatus());

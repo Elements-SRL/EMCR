@@ -16,23 +16,8 @@ void CursorsManager::setProtocol(ProtocolWidget * protocol) {
     this->protocol = protocol;
 }
 
-void CursorsManager::setAnalysisPidl(AnalysisProtocolItemDropList * analysisPidl) {
-    this->analysisPidl = analysisPidl;
-    connect(analysisPidl, &AnalysisProtocolItemDropList::requestCursors, this, &CursorsManager::onRequestCursors);
-}
-
-void CursorsManager::enableAnalysis(bool enabled) {
-    analysisPidl->enableAnalysis(enabled);
-}
-
-void CursorsManager::onRequestCursors(ProtocolDropAnalysisItem * item) {
-    cursors = plot->getProtocolCursors();
-    item->addCursors(cursors);
-}
-
 void CursorsManager::onAddCursors() {
     cursors = plot->getProtocolCursors();
-    analysisPidl->addCursors(cursors);
 
     this->onUpdateCursors();
 }
@@ -41,7 +26,6 @@ void CursorsManager::onRemoveCursors(QVector <int> cursorsMap) {
     if (cursorsMap.size() > 0) {
         if (cursorsMap.back() != cursorsMap.size()-1) {
             cursors = plot->getProtocolCursors();
-            analysisPidl->removeCursors(cursors, cursorsMap);
         }
     }
 
@@ -49,19 +33,14 @@ void CursorsManager::onRemoveCursors(QVector <int> cursorsMap) {
 }
 
 void CursorsManager::onUpdateCursors() {
-    analysisPidl->updateCursors();
-
     this->interpretCursors();
 
-    protocol->pushAnalysisCursors(analysisCursors);
     protocol->pushTriggerCursors(triggerCursors);
 }
 
 void CursorsManager::interpretCursors() {
-    analysisCursors.clear();
     triggerCursors.clear();
     ProtocolCursor * protocolCursor;
-    AnalysisCursor * analysisCursor;
     QVector <double> delays;
 
     int repType;
@@ -86,7 +65,6 @@ void CursorsManager::interpretCursors() {
 
         if (protocolCursor->getProtocolType() == ProtocolTypeGapfree) {
             if ((repType != ProtocolCursor::RepetitionAll) && (repsNum > 0)) {
-                analysisCursor = new AnalysisGapFreeCursor();
                 delays.resize(1);
                 delays[0] = protocolCursor->getOffset()/1000.0; /*! \todo FCON conversione da ms a s, brutto */
 
@@ -95,7 +73,6 @@ void CursorsManager::interpretCursors() {
                 }
 
             } else if ((repType == ProtocolCursor::RepetitionAll) && (repsNum > 0)) {
-                analysisCursor = new AnalysisGapFreeAllRepsCursor();
                 delays.resize(repsNum);
                 for (repsIdx = 0; repsIdx < repsNum; repsIdx++) {
                     delays[repsIdx] = protocolCursor->getOffset(repsIdx, 0)/1000.0; /*! \todo FCON conversione da ms a s, brutto */
@@ -106,7 +83,6 @@ void CursorsManager::interpretCursors() {
                 }
 
             } else if ((repType != ProtocolCursor::RepetitionAll) && (repsNum == 0)) {
-                analysisCursor = new AnalysisGapFreeInfRepsCursor();
                 delays.resize(1);
                 delays[0] = protocolCursor->getOffset()/1000.0; /*! \todo FCON conversione da ms a s, brutto */
 
@@ -115,7 +91,6 @@ void CursorsManager::interpretCursors() {
                 }
 
             } else {
-                analysisCursor = new AnalysisGapFreeInfAllRepsCursor();
                 delays.resize(1);
                 delays[0] = protocolCursor->getOffset()/1000.0; /*! \todo FCON conversione da ms a s, brutto */
 
@@ -133,7 +108,6 @@ void CursorsManager::interpretCursors() {
             sweepsNum = protocolCursor->getSweepsNum();
 
             if ((repType != ProtocolCursor::RepetitionAll) && (sweepType != ProtocolCursor::SweepAll)) {
-                analysisCursor = new AnalysisEpisodicCursor();
                 delays.resize(1);
                 delays[0] = protocolCursor->getOffset()/1000.0; /*! \todo FCON conversione da ms a s, brutto */
 
@@ -142,7 +116,6 @@ void CursorsManager::interpretCursors() {
                 }
 
             } else if ((repType == ProtocolCursor::RepetitionAll) && (sweepType != ProtocolCursor::SweepAll)) {
-                analysisCursor = new AnalysisEpisodicAllRepsCursor();
                 delays.resize(1);
                 delays[0] = protocolCursor->getOffset()/1000.0; /*! \todo FCON conversione da ms a s, brutto */
 
@@ -153,7 +126,6 @@ void CursorsManager::interpretCursors() {
                 }
 
             } else if ((repType != ProtocolCursor::RepetitionAll) && (sweepType == ProtocolCursor::SweepAll)) {
-                analysisCursor = new AnalysisEpisodicAllSweepsCursor();
                 delays.resize(sweepsNum);
                 for (sweepsIdx = 0; sweepsIdx < sweepsNum; sweepsIdx++) {
                     delays[sweepsIdx] = protocolCursor->getOffset(0, sweepsIdx)/1000.0; /*! \todo FCON conversione da ms a s, brutto */
@@ -164,7 +136,6 @@ void CursorsManager::interpretCursors() {
                 }
 
             } else {
-                analysisCursor = new AnalysisEpisodicAllRepsAllSweepsCursor();
                 delays.resize(sweepsNum);
                 for (sweepsIdx = 0; sweepsIdx < sweepsNum; sweepsIdx++) {
                     delays[sweepsIdx] = protocolCursor->getOffset(0, sweepsIdx)/1000.0; /*! \todo FCON conversione da ms a s, brutto */
@@ -177,13 +148,6 @@ void CursorsManager::interpretCursors() {
                 }
             }
         }
-
-        analysisCursor->itemIdx = protocolCursor->getItemIdx();
-        analysisCursor->repsIdx = protocolCursor->getRepetitionIdx();
-        analysisCursor->sweepIdx = protocolCursor->getSweepIdx();
-        analysisCursor->setDelays(delays);
-
-        analysisCursors.append(analysisCursor);
     }
     std::sort(triggerCursors.begin(), triggerCursors.end(), TriggerCursorsCompare());
     triggerCursors.append(new TriggerTerminator());

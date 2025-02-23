@@ -19,8 +19,8 @@ public:
     ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModality_t clampingModality, QWidget * parent = nullptr);
     ~ProtocolDockWidget();
 
-    ProtocolList * getProtocolList();
     ProtocolList * getVoltageProtocolList();
+    ProtocolList * getAnalysisVoltageProtocolList();
     ProtocolList * getCurrentProtocolList();
 
 public slots:
@@ -38,6 +38,13 @@ private:
     void setProtocolListVisibility();
 
     MessageDispatcher * msgDisp = nullptr;
+    QPushButton * addProtocolBtn = nullptr;
+    QPushButton * removeProtocolBtn = nullptr;
+    QPushButton * editProtocolBtn = nullptr;
+    QPushButton * copyProtocolBtn = nullptr;
+    QPushButton * setProtocolsShortCutsBtn = nullptr;
+    QPushButton * importProtocolBtn = nullptr;
+    QPushButton * exportProtocolBtn = nullptr;
     ProtocolPropertyDialog * protocolPropertyDialog = nullptr;
     ProtocolList * voltageProtocolList = nullptr;
     ProtocolList * analysisVoltageProtocolList = nullptr;

@@ -9,7 +9,6 @@
 #include "protocolpropertydialog.h"
 #include "protocolpreview.h"
 #include "protocolitem.h"
-#include "analysiscursor.h"
 #include "protocoldefs.h"
 #include "voltageprotocol.h"
 #include "currentprotocol.h"
@@ -36,7 +35,6 @@ public:
     bool consumerRequested(ProtocolConsumerType_t consumerType);
     void setConsumerRequest(ProtocolConsumerType_t consumerType);
     void resetConsumerRequests();
-    QVector <int> getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType);
     QString getName();
     void setShortCutIdx(int value);
     int getShortCutIdx();
@@ -58,10 +56,7 @@ public:
     ItemsProcStatus_t getProcessingStatus();
     void setInhibition(bool inhibitFlag);
     bool isInhibited();
-    void pushAnalysisCursors(QVector <AnalysisCursor *> cursors);
     void pushTriggerCursors(QVector <TriggerCursor *> cursors);
-    virtual void setAnalysisCursors() = 0;
-    QVector <AnalysisCursor *> getAnalysisCursors();
     void setTriggerCursors();
     QVector <TriggerCursor *> getTriggerCursors();
     void setProtocolSections(ProtocolSections * sections);
@@ -80,6 +75,7 @@ public:
     void setProtocolValid(bool valid);
     void setAppliedRange(RangedMeasurement_t &newAppliedRange);
     RangedMeasurement_t getAppliedRange();
+    bool getAnalysisType(YAML::AnalysisType_t &type);
 
     virtual Measurement_t getTotalDuration() = 0;
     void getSweepTrigger(double &value, bool &rising);
@@ -96,7 +92,6 @@ public:
 public slots:
     void onAcceptPropertyDialog();
     void onRejectPropertyDialog();
-    void onCheckAnalysisValid();
 
 protected:
     void updateText();
@@ -148,6 +143,7 @@ protected:
     QVector <ProtocolCtrlDispatcher *> * ctrlDispatchers = nullptr;
     ProtocolEditor * protocolEditor = nullptr;
     QStringList protocolsNames;
+    std::vector <YAML::Analysis_t> analysesNode;
 
     QVector <ProtocolItem *> pushedProtocolItems;
     QVector <ProtocolItem *> protocolItems;
@@ -155,16 +151,12 @@ protected:
     ItemsProcStatus_t pushedProcessingStatus = ItemsNotProcessed;
     ItemsProcStatus_t processingStatus = ItemsNotProcessed;
 
-    QVector <AnalysisCursor *> pushedAnalysisCursors;
-    QVector <AnalysisCursor *> analysisCursors;
-
     QVector <TriggerCursor *> pushedTriggerCursors;
     QVector <TriggerCursor *> triggerCursors;
-    unsigned int maxTriggerEvents = 0;
+    unsigned int maxTriggerEvents = 1;
 
     bool protocolValid = true;
     bool protocolInhibited = false;
-    bool analysisValid = true;
     bool cursorsValid = true;
 
 private slots:
@@ -199,7 +191,6 @@ class GapfreeProtocolWidget : virtual public ProtocolWidget {
 public:
     GapfreeProtocolWidget();
 
-    void setAnalysisCursors() override;
     Measurement_t getTotalDuration() override;
     ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) override;
     ProtocolSection * getItemAtTime(double time, int itemIdx, int repsIdx, int sweepIdx, double &offset) override;
@@ -209,7 +200,6 @@ class EpisodicProtocolWidget : virtual public ProtocolWidget {
 public:
     EpisodicProtocolWidget();
 
-    void setAnalysisCursors() override;
     Measurement_t getTotalDuration() override;
     ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) override;
     ProtocolSection * getItemAtTime(double time, int itemIdx, int repsIdx, int sweepIdx, double &offset) override;
