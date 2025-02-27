@@ -4,44 +4,20 @@
 #define LSC_MIN_INTERVAL_S 1.0
 #define LSC_MIN_BATCH_INTERVAL_S 0.001
 
-#include "application_status.h"
-#include "devicedataconsumer.h"
-#include "statisticsresult.h"
+#include "analysisconsumer.h"
 #include "statisticsresult.h"
 #include "statisticsresultwrapper.h"
 
-class MeasurementsOverviewDockWidget;
-
-class LiveStatisticsConsumer : public DeviceDataConsumer {
+class LiveStatisticsConsumer : public AnalysisConsumer {
     Q_OBJECT
 
 public:
     LiveStatisticsConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
 
-public slots:
-    virtual void onStartConsuming() override;
-    virtual void onStopConsuming() override;
-
-    virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
-    virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
-    virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
-    virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
-
 protected:
-    void run() override;
-    void initAnalysis();
-    void lockAndResetAnalysis(int currentChannelIdx);
-    void resetAnalysis(int currentChannelIdx);
-    void performAnalysis();
-    void updateSamplingRate();
-    void updateRanges();
-
-    QMutex samplingRateMtx;
-    QMutex rangesMtx;
-
-    std::vector <double> buffer;
-
-    QMutex mutex;
+    void initAnalysis() override;
+    void resetAnalysis() override;
+    void performAnalysis() override;
 
 private:
     int analysisSamples;
@@ -55,12 +31,10 @@ private:
     std::vector <double> voltageSum2;
     std::vector <double> currentSum;
     std::vector <double> currentSum2;
-    std::vector<StatisticsResult> results;
-
-    bool isInVec(std::vector<int> vec, int elem);
+    std::vector <StatisticsResult_t> results;
 
 signals:
-    void sigResult(StatisticsResultWrapper res);
+    void sigResult(StatisticsResultWrapper_t res);
 };
 
 #endif // LIVESTATISTICSCONSUMER_H

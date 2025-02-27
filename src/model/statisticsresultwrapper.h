@@ -4,8 +4,8 @@
 #include "statisticsresult.h"
 #include <vector>
 
-struct StatisticsResultWrapper {
-    std::vector <StatisticsResult> results;
-};
+typedef struct StatisticsResultWrapper {
+    std::vector <StatisticsResult_t> results;
+} StatisticsResultWrapper_t;
 
 #endif // STATISTICSRESULTWRAPPER_H

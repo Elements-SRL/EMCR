@@ -32,6 +32,8 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/device/consumer/analysisconsumer.cpp \
+    src/controller/device/consumer/resistanceestimationconsumer.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -146,7 +148,11 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
+    src/controller/device/consumer/analysisconsumer.h \
+    src/controller/device/consumer/resistanceestimationconsumer.h \
     src/globaldefines.h \
+    src/model/singlemeasresult.h \
+    src/model/singlemeasresultwrapper.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \

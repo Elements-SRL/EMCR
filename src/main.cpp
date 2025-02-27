@@ -5,6 +5,7 @@
 #include "globaldefines.h"
 #include "statisticsresult.h"
 #include "plotmessage.h"
+#include "singlemeasresultwrapper.h"
 #include "statisticsresultwrapper.h"
 #include "eventsdirection.h"
 
@@ -22,7 +23,8 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType <OffsetCorrectionController::OffsetCorrectionCheck_t> ("OffsetCorrectionController::OffsetCorrectionCheck_t");
     qRegisterMetaType <ProtocolWidget *> ("ProtocolWidget *");
     qRegisterMetaType <PlotMessage>("PlotMessage");
-    qRegisterMetaType <StatisticsResultWrapper>("StatisticsResultWrapper");
+    qRegisterMetaType <SingleMeasResultWrapper_t>("SingleMeasResultWrapper_t");
+    qRegisterMetaType <StatisticsResultWrapper_t>("StatisticsResultWrapper_t");
     qRegisterMetaType <EventsDirection>("EventsDirection");
 
     QCoreApplication::setOrganizationName("Elements S.R.L.");

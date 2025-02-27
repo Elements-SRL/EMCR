@@ -10,6 +10,8 @@
 #include "measurementoverviewmodel.h"
 #include "livestatisticsconsumer.h"
 #include "statisticsresultwrapper.h"
+#include "resistanceestimationconsumer.h"
+#include "singlemeasresultwrapper.h"
 
 class MeasurementOverviewController : public ControllerWithConsumer {
     Q_OBJECT
@@ -36,10 +38,11 @@ private:
     int currentChannelsNum;
     std::vector<uint16_t> activeChannelsIdxs;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
+    ResistanceEstimationConsumer * resistanceEstimationConsumer = nullptr;
     void onSetConsumerStatus(bool status);
 
 private slots:
-    void onLiveStatisticsResults(StatisticsResultWrapper);
+    void onLiveStatisticsResults(StatisticsResultWrapper_t);
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H
