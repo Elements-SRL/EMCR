@@ -279,6 +279,10 @@ void MainController::onMainWindowCreated() {
         connect(currentProtocolManager, &ProtocolManager::currentApplied,           protocolDw->getCurrentProtocolList(), &ProtocolList::currentApplied);
 
         connect(voltageProtocolManager, &ProtocolManager::protocolStarted, bigPlotController, &BigPlotController::onProtocolStarted);
+        connect(currentProtocolManager, &ProtocolManager::protocolStarted, bigPlotController, &BigPlotController::onProtocolStarted);
+
+        connect(voltageProtocolManager, &ProtocolManager::protocolStarted, measurementOverviewController, &MeasurementOverviewController::onProtocolStarted);
+        connect(currentProtocolManager, &ProtocolManager::protocolStarted, measurementOverviewController, &MeasurementOverviewController::onProtocolStarted);
 
         for (auto controller : bigPlotController->getControllers()) {
             connect(voltageProtocolManager, &ProtocolManager::protocolStarted, controller, &CentralWidgetController::onProtocolStarted);
@@ -287,28 +291,23 @@ void MainController::onMainWindowCreated() {
 
         connect(protocolDw, &ProtocolDockWidget::startProtocol,    this, [=] () {
             protocolDw->getVoltageProtocolList()->onStartProtocol();
-            deviceController->handleProtocolStatusChanged(true);
-        });
-        connect(protocolDw, &ProtocolDockWidget::restartProtocol,    this, [=] () {
-            voltageProtocolManager->onRestartProtocolRequest();
-        });
-        connect(protocolDw, &ProtocolDockWidget::stopProtocol,     this, [=] () {
-            protocolDw->getVoltageProtocolList()->onStopProtocol();
-            deviceController->handleProtocolStatusChanged(false);
-        });
-        connect(protocolDw, &ProtocolDockWidget::startProtocol,    this, [=] () {
+            protocolDw->getAnalysisVoltageProtocolList()->onStartProtocol();
             protocolDw->getCurrentProtocolList()->onStartProtocol();
             deviceController->handleProtocolStatusChanged(true);
         });
         connect(protocolDw, &ProtocolDockWidget::restartProtocol,    this, [=] () {
+            voltageProtocolManager->onRestartProtocolRequest();
             currentProtocolManager->onRestartProtocolRequest();
         });
-        connect(protocolDw, &ProtocolDockWidget::stopProtocol,    this, [=] () {
+        connect(protocolDw, &ProtocolDockWidget::stopProtocol,     this, [=] () {
+            protocolDw->getVoltageProtocolList()->onStopProtocol();
             protocolDw->getCurrentProtocolList()->onStopProtocol();
             deviceController->handleProtocolStatusChanged(false);
         });
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+        connect(protocolDw->getAnalysisVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
+        connect(protocolDw->getAnalysisVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
         connect(protocolDw->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
         connect(protocolDw->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
     }

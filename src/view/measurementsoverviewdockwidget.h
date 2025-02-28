@@ -10,7 +10,8 @@
 #include "copyabletable.h"
 
 #include "errormanager.h"
-#include "model/statisticsresult.h"
+#include "statisticsresult.h"
+#include "singlemeasresult.h"
 
 class MeasurementsOverviewDockWidget : public QDockWidget {
     Q_OBJECT
@@ -33,7 +34,8 @@ public:
     void updateActiveChannels(std::vector<uint16_t> newActiveChannels);
     void setOffsetRecalibrationResult(std::vector <Measurement_t> result);
     void setLiquidJunctionResult(std::vector <Measurement_t> result);
-    void onLiveStatisticsResult(std::vector<StatisticsResult> result);
+    void onLiveStatisticsResult(std::vector<StatisticsResult_t> result);
+    void onResistanceEstimationResult(std::vector <SingleMeasResult_t> result);
 
 public slots:
     void onUpdate();

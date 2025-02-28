@@ -81,8 +81,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(addProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onAddProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onAddProtocol();
         }
     });
@@ -100,8 +100,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(removeProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onRemoveProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onRemoveProtocol();
         }
     });
@@ -119,8 +119,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(editProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onEditProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onEditProtocol();
         }
     });
@@ -138,8 +138,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(copyProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onCopyProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onCopyProtocol();
         }
     });
@@ -162,8 +162,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             else {
                 voltageProtocolList->onSetProtocolsShortCuts();
             }
-
-        } else {
+        }
+        else {
             currentProtocolList->onSetProtocolsShortCuts();
         }
     });
@@ -181,8 +181,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(importProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onImportProtocols();
-
-        } else {
+        }
+        else {
             currentProtocolList->onImportProtocols();
         }
     });
@@ -200,8 +200,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(exportProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onExportProtocols();
-
-        } else {
+        }
+        else {
             currentProtocolList->onExportProtocols();
         }
     });
@@ -342,7 +342,8 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
         if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
             if ((keyEvent->modifiers() & Qt::ShiftModifier) > 0) {
 
-            } else {
+            }
+            else {
                 this->onStartProtocol(true);
             }
         }
@@ -355,8 +356,8 @@ void ProtocolDockWidget::onStartProtocol(bool flag) {
     if (flag) {
         protocolTimer->onStartTimer();
         emit startProtocol();
-
-    } else {
+    }
+    else {
         emit stopProtocol();
     }
 }
@@ -366,8 +367,8 @@ void ProtocolDockWidget::onRestartProtocol(bool flag) {
     if (flag) {
         protocolTimer->onStartTimer();
         emit restartProtocol();
-
-    } else {
+    }
+    else {
         emit stopProtocol();
     }
 }

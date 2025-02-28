@@ -60,15 +60,11 @@ void LiveStatisticsConsumer::performAnalysis() {
             const auto meanCurrent = currentSum[chIdx] / ((double)totalAnalysisSamples);
             const auto stdCurrent = qSqrt((currentSum2[chIdx] - currentSum[chIdx] * meanCurrent) / ((double)totalAnalysisSamples));
 
-            const auto conductivity = meanVoltage * meanCurrent <= 0.0 ? -1.0 : meanCurrent / meanVoltage;
-            const auto conductivityPfx = currentRange.prefix / voltageRange.prefix;
-
             const Measurement meanVoltageMeasurement = { meanVoltage , voltageRange.prefix, voltageRange.unit };
             const Measurement stdVoltageMeasurement = { stdVoltage, voltageRange.prefix, voltageRange.unit };
             const Measurement meanCurrentMeasurement = { meanCurrent, currentRange.prefix, currentRange.unit };
             const Measurement stdCurrentMeasurement = { stdCurrent, currentRange.prefix, currentRange.unit };
-            const Measurement conductivityMeasurement = { conductivity, conductivityPfx, "S"};
-            const StatisticsResult sr = { chIdx, meanVoltageMeasurement, stdVoltageMeasurement, meanCurrentMeasurement, stdCurrentMeasurement, conductivityMeasurement };
+            const StatisticsResult sr = { chIdx, meanVoltageMeasurement, stdVoltageMeasurement, meanCurrentMeasurement, stdCurrentMeasurement };
             results[chIdx] = sr;
         }
         totalAnalysisSamples = 0;

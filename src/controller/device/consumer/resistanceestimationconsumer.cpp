@@ -24,9 +24,9 @@ void ResistanceEstimationConsumer::resetAnalysis() {
     initialDelaySamplesPassed = 0;
     periodSamples = 0;
     waitingSamples = 0;
-    toBeCollectedSamples = 0;
+    collectingSamples = 0;
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        results[channelIdx].meas.unit = 0.0;
+        results[channelIdx].meas.value = 0.0;
         results[channelIdx].meas.prefix = voltageRange.prefix / currentRange.prefix;
     }
 }
@@ -72,7 +72,7 @@ void ResistanceEstimationConsumer::performAnalysis() {
             std::fill(currentSum.begin(), currentSum.end(), 0.0);
             std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
             prevVoltage = buffer[analysisIdx+voltageIdx];
-            status = WaitingForFirstEdge;
+            status = WaitingForTransient;
             break;
 
         case WaitingForTransient:
@@ -141,7 +141,7 @@ void ResistanceEstimationConsumer::performAnalysis() {
                     emit sigResult(w);
                     collectedPeriods = 0;
                     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                        results[channelIdx].meas.unit = 0.0;
+                        results[channelIdx].meas.value = 0.0;
                     }
                 }
                 collectingSamples = 0;

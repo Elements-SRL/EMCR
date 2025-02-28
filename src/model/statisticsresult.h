@@ -11,7 +11,6 @@ typedef struct StatisticsResult {
     e384cl::Measurement_t stdVoltage;
     e384cl::Measurement_t meanCurrent;
     e384cl::Measurement_t stdCurrent;
-    e384cl::Measurement_t conductivity;
 } StatisticsResult_t;
 
 #endif // STATISTICSRESULT_H

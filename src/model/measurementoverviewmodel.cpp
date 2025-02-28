@@ -8,12 +8,17 @@ MeasurementOverviewModel::MeasurementOverviewModel(std::vector <uint16_t> active
     this->voltageChannelsNum = voltageChannelsNum;
     this->currentChannelsNum = currentChannelsNum;
     statisticsResults.resize(currentChannelsNum);
+    resistanceEstimationResults.resize(currentChannelsNum);
     offsetRecalibrationResults.resize(currentChannelsNum);
     liquidJunctionResults.resize(currentChannelsNum);
 }
 
-std::vector <StatisticsResult> MeasurementOverviewModel::getStatisticsResult() {
+std::vector <StatisticsResult_t> MeasurementOverviewModel::getStatisticsResults() {
     return statisticsResults;
+}
+
+std::vector <SingleMeasResult_t> MeasurementOverviewModel::getResistanceEstimationResults() {
+    return resistanceEstimationResults;
 }
 
 std::vector <Measurement_t> MeasurementOverviewModel::getOffsetRecalibrationResults() {
@@ -28,6 +33,10 @@ void MeasurementOverviewModel::setStatisticsResult(std::vector <StatisticsResult
     statisticsResults = results;
 }
 
+void MeasurementOverviewModel::setResistanceEstimationResult(std::vector <SingleMeasResult_t> results) {
+    resistanceEstimationResults = results;
+}
+
 void MeasurementOverviewModel::setOffsetRecalibrationResults(std::vector <Measurement_t> orr) {
     offsetRecalibrationResults = orr;
 }
@@ -40,9 +49,10 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
     QFile file(QString::fromStdString(filepath));
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        stream << "Channel idx,Mean Voltage,unit,Std Voltage,unit,Mean Current, unit,Std Current,unit,Conductivity,unit,Offset Recalibration,unit,Liquid Junction,unit\n";
+        stream << "Channel idx,Mean Voltage,unit,Std Voltage,unit,Mean Current,unit,Std Current,unit,Resistance,unit,Offset Recalibration,unit,Liquid Junction,unit\n";
         for (int i = 0; i < statisticsResults.size(); i++) {
             auto r = statisticsResults[i];
+            auto res = resistanceEstimationResults[i];
             auto orr = offsetRecalibrationResults[i];
             auto lj = liquidJunctionResults[i];
             std::vector <std::pair <QString, QString>> measurementsStrings = {
@@ -50,7 +60,7 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
                 getValueAndUnit(r.stdVoltage),
                 getValueAndUnit(r.meanCurrent),
                 getValueAndUnit(r.stdCurrent),
-                getValueAndUnit(r.conductivity),
+                getValueAndUnit(res.meas),
                 getValueAndUnit(orr),
                 getValueAndUnit(lj)};
             stream << r.chIdx+1;

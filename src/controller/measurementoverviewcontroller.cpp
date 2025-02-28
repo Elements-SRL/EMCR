@@ -13,16 +13,19 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
         modm->exportToCsv(filepath.toStdString());
     });
     liveStatisticsConsumer = new LiveStatisticsConsumer(appStatus, producer);
+    resistanceEstimationConsumer = new ResistanceEstimationConsumer(appStatus, producer);
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
-    connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetConsumerStatus);
+    connect(resistanceEstimationConsumer, &ResistanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onResistanceEstimationResults);
+    connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetLiveStatisticsConsumerStatus);
 
     mainWindow->setDockWidget(MainWindow::DWMeasurementsOverview, modw, false, Qt::BottomDockWidgetArea);
 }
 
-void MeasurementOverviewController::onSetConsumerStatus(bool status) {
+void MeasurementOverviewController::onSetLiveStatisticsConsumerStatus(bool status) {
     if (status) {
         liveStatisticsConsumer->onStartConsuming();
-    } else {
+    }
+    else {
         liveStatisticsConsumer->onStopConsuming();
     }
 }
@@ -35,6 +38,11 @@ MeasurementOverviewController::~MeasurementOverviewController(){
         liveStatisticsConsumer->onStopConsuming();
         delete liveStatisticsConsumer;
         liveStatisticsConsumer = nullptr;
+    }
+    if (resistanceEstimationConsumer!= nullptr) {
+        resistanceEstimationConsumer->onStopConsuming();
+        delete resistanceEstimationConsumer;
+        resistanceEstimationConsumer = nullptr;
     }
 }
 
@@ -82,6 +90,17 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
     }
 }
 
+void MeasurementOverviewController::onProtocolStarted(unsigned int protId, ProtocolWidget * protocol) {
+    resistanceEstimationConsumer->onStopConsuming();
+    YAML::AnalysisType_t type;
+    protocol->getAnalysisType(type);
+    switch (type) {
+    case YAML::ResistanceEstimation:
+        resistanceEstimationConsumer->onStartConsuming();
+        return;
+    }
+}
+
 void MeasurementOverviewController::onChannelsUpdated(){
     activeChannelsIdxs = appStatus->getSelectedChannelsIndexes();
     modm->setActiveChannelsIdxs(activeChannelsIdxs);
@@ -104,12 +123,14 @@ void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResultWrap
     modw->onLiveStatisticsResult(r);
 }
 
-LiveStatisticsConsumer * MeasurementOverviewController::getLiveStatisticsConsumer(){
-    return liveStatisticsConsumer;
+void MeasurementOverviewController::onResistanceEstimationResults(SingleMeasResultWrapper_t result){
+    const auto r = result.results;
+    modm->setResistanceEstimationResult(r);
+    modw->onResistanceEstimationResult(r);
 }
 
 std::vector <DeviceDataConsumer*> MeasurementOverviewController::getConsumers() {
-    return {liveStatisticsConsumer};
+    return {liveStatisticsConsumer, resistanceEstimationConsumer};
 }
 
 void MeasurementOverviewController::boardMappingsLoaded(){

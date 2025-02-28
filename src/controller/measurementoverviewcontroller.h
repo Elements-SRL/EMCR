@@ -19,7 +19,6 @@ class MeasurementOverviewController : public ControllerWithConsumer {
 public:
     MeasurementOverviewController(ApplicationStatus * appStatus, DeviceDataProducer * producer, MainWindow * mainWindow);
     ~MeasurementOverviewController();
-    LiveStatisticsConsumer * getLiveStatisticsConsumer();
     virtual std::vector <DeviceDataConsumer*> getConsumers() override;
     void boardMappingsLoaded();
 
@@ -27,6 +26,7 @@ public slots:
     void onChannelsUpdated();
     void onOffsetRecalibrationResult(bool started);
     void onLiquidJunctionResult(bool started);
+    void onProtocolStarted(unsigned int protId, ProtocolWidget * protocol);
 
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
@@ -39,10 +39,11 @@ private:
     std::vector<uint16_t> activeChannelsIdxs;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
     ResistanceEstimationConsumer * resistanceEstimationConsumer = nullptr;
-    void onSetConsumerStatus(bool status);
+    void onSetLiveStatisticsConsumerStatus(bool status);
 
 private slots:
     void onLiveStatisticsResults(StatisticsResultWrapper_t);
+    void onResistanceEstimationResults(SingleMeasResultWrapper_t);
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H

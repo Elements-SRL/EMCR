@@ -164,6 +164,10 @@ void ProtocolList::onStartProtocol(bool) {
         return;
     }
 
+    if (!(this->isVisible())) {
+        return;
+    }
+
     ProtocolWidget * protocol = static_cast <ProtocolWidget *> (this->currentItem());
     if (protocol == nullptr) {
         ErrorManager e(ErrorNoProtocolSelected);

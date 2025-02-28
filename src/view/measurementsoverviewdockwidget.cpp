@@ -65,7 +65,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Current RMS"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, col++, new QTableWidgetItem("Conductivity"));
+    dataTable->setItem(0, col++, new QTableWidgetItem("Resistance"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Offset recalibration"));
     dataTable->setItem(0, col++, new QTableWidgetItem("Unit"));
@@ -95,7 +95,7 @@ void MeasurementsOverviewDockWidget::setOffsetRecalibrationResult(std::vector<Me
     }
 }
 
-void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector<Measurement_t> results) {
+void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector <Measurement_t> results) {
     //the first row is the header
     int row = 1;
     for (auto ch : activeChannels) {
@@ -106,12 +106,22 @@ void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector<Measure
     }
 }
 
-void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector<StatisticsResult> results) {
+void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector <StatisticsResult_t> results) {
     //the first row is the header
     int row = 1;
     for (auto ch : activeChannels) {
         auto &statisticResult = results[ch];
         setStatisticsResultsInRowaRow(row, statisticResult);
+        row++;
+    }
+}
+
+void MeasurementsOverviewDockWidget::onResistanceEstimationResult(std::vector <SingleMeasResult_t> results) {
+    int row = 1;
+    for (auto ch : activeChannels) {
+        auto &result = results[ch];
+        this->setCellText(row, 9, QString("%1").arg(result.meas.value));
+        this->setCellText(row, 10, QString::fromStdString(result.meas.getFullUnit()));
         row++;
     }
 }
@@ -127,8 +137,6 @@ void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, Stat
     this->setCellText(row, col++, QString::fromStdString(r.meanCurrent.getFullUnit()));
     this->setCellText(row, col++, QString("%1").arg((r.stdCurrent.value)));
     this->setCellText(row, col++, QString::fromStdString(r.stdCurrent.getFullUnit()));
-    this->setCellText(row, col++, QString("%1").arg((r.conductivity.value)));
-    this->setCellText(row, col++, QString::fromStdString(r.conductivity.getFullUnit()));
 }
 
 void MeasurementsOverviewDockWidget::setCellText(int row, int col, const QString text) {
