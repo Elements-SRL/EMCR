@@ -49,12 +49,22 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
     QFile file(QString::fromStdString(filepath));
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        stream << "Channel idx,Mean Voltage,unit,Std Voltage,unit,Mean Current,unit,Std Current,unit,Resistance,unit,Offset Recalibration,unit,Liquid Junction,unit\n";
+        auto r = statisticsResults[0];
+        auto res = resistanceEstimationResults[0];
+        auto orr = offsetRecalibrationResults[0];
+        auto lj = liquidJunctionResults[0];
+        stream << "Channel idx,Mean Voltage [" << getValueAndUnit(r.meanVoltage).second << "],";
+        stream << "Std Voltage [" << getValueAndUnit(r.stdVoltage).second << "],";
+        stream << "Mean Current [" << getValueAndUnit(r.meanCurrent).second << "],";
+        stream << "Std Current [" << getValueAndUnit(r.stdCurrent).second << "],";
+        stream << "Resistance [" << getValueAndUnit(res.meas).second << "],";
+        stream << "Offset Recalibration [" << getValueAndUnit(orr).second << "],";
+        stream << "Liquid Junction [" << getValueAndUnit(lj).second << "]\n";
         for (int i = 0; i < statisticsResults.size(); i++) {
-            auto r = statisticsResults[i];
-            auto res = resistanceEstimationResults[i];
-            auto orr = offsetRecalibrationResults[i];
-            auto lj = liquidJunctionResults[i];
+            r = statisticsResults[i];
+            res = resistanceEstimationResults[i];
+            orr = offsetRecalibrationResults[i];
+            lj = liquidJunctionResults[i];
             std::vector <std::pair <QString, QString>> measurementsStrings = {
                 getValueAndUnit(r.meanVoltage),
                 getValueAndUnit(r.stdVoltage),
@@ -65,7 +75,7 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
                 getValueAndUnit(lj)};
             stream << r.chIdx+1;
             for (auto p : measurementsStrings) {
-                stream << "," << p.first << "," << p.second;
+                stream << "," << p.first;
             }
             stream << "\n";
         }

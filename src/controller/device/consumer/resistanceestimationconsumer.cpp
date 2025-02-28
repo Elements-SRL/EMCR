@@ -59,8 +59,9 @@ void ResistanceEstimationConsumer::performAnalysis() {
             bufferedValue = buffer[analysisIdx+voltageIdx];
             if (bufferedValue != prevVoltage) {
                 prevVoltage = bufferedValue;
-                waitingSamples = qRound(REC_TRANSIENT_PERC*(double)periodSamples);
+                transientSamples = qRound(REC_TRANSIENT_PERC*(double)periodSamples);
                 toBeCollectedSamples = qRound((1.0-REC_TRANSIENT_PERC-REC_TRAIL_PERC)*(double)periodSamples);
+                periodSamples = 0;
                 status = JustStarted;
             }
             else {
@@ -71,7 +72,6 @@ void ResistanceEstimationConsumer::performAnalysis() {
         case JustStarted:
             std::fill(currentSum.begin(), currentSum.end(), 0.0);
             std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
-            prevVoltage = buffer[analysisIdx+voltageIdx];
             status = WaitingForTransient;
             break;
 
