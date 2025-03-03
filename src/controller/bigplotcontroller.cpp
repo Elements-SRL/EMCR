@@ -19,7 +19,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
     
     bps = BigPlot::GapFree;
-    controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, dc));
+    controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc));
     controllers.push_back(new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, dc));
     controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
     controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, this, mainWindow));
@@ -63,9 +63,9 @@ void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlo
     model->updateCurrentZoom(model->zoomOnSingleAxis(axis, zoomIn, mousePosition));
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
-        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
-    }
+    // if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
+    //     emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    // }
 }
 
 void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, QwtInterval i) {
@@ -73,9 +73,9 @@ void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlo
     model->updateCurrentZoom(i, axis);
     auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
     plot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
-        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
-    }
+    // if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
+    //     emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    // }
 }
 
 void BigPlotController::handleSingleAxisShiftRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, int shift){
