@@ -43,6 +43,7 @@ void ResistanceEstimationConsumer::performAnalysis() {
         switch (status) {
         case WaitingForInitialDelay:
             if (++initialDelaySamplesPassed > initialDelaySamples) {
+                prevVoltage = buffer[analysisIdx+voltageIdx];
                 status = WaitingForFirstEdge;
             }
             break;
