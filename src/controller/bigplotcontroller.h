@@ -8,13 +8,9 @@
 #include "plotconsumer.h"
 #include <QPointF>
 #include "application_status.h"
-#include "plotmessage.h"
-#include "ivgraphconsumer.h"
-#include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
 #include "centralwidgetcontroller.h"
 #include "devicecontroller.h"
-#include "abfdatawriterconsumer.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
