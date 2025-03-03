@@ -6,7 +6,7 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     mainWindow(mainWindow){
 
-    model = new BigPlotModel(BigPlot::Spectrum);
+    model = new LogBigPlotModel();
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
 

@@ -3,7 +3,7 @@
 GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, DeviceController* dc):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
     
-    model = new BigPlotModel(BigPlot::GapFree);
+    model = new BigPlotModel();
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);

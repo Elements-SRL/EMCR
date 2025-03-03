@@ -6,7 +6,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     bigPlotController(bigPlotController) {
     
-    model = new BigPlotModel(BigPlot::Episodic);
+    model = new BigPlotModel();
     consumer = new EpisodicPlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);

@@ -4,7 +4,7 @@
 #include "bigplotwidget.h"
 #include "mainwindow.h"
 #include "messagedispatcher.h"
-#include "bigplotmodel.h"
+#include "logbigplotmodel.h"
 #include "spectrumconsumer.h"
 #include "application_status.h"
 #include "plotmessage.h"

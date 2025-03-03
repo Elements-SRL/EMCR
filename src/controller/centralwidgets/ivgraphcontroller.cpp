@@ -4,7 +4,7 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     mainWindow(mainWindow) {
 
-    model = new BigPlotModel(BigPlot::Iv);
+    model = new BigPlotModel();
     consumer = new IvGraphConsumer(appStatus, producer);
 
     //mainWindow->setIvGraphWidget(ivGraphWidget);

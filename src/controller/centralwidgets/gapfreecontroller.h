@@ -5,7 +5,6 @@
 
 #include "bigplotwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
 #include "bigplotmodel.h"
 #include "plotconsumer.h"
 #include "application_status.h"
