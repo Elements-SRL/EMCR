@@ -4,16 +4,15 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
     
     auto model = std::make_unique<BigPlotModel>();
-    auto plot = std::make_unique<BigPlot>("", "[s]", "", BigPlot::GapFree, bigPlotWidget);
-    auto plot_pointer = plot.get();
+    auto plot = new BigPlot("", "[s]", "", BigPlot::GapFree, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
-    dbbovc = std::make_unique<DurationBasedBigPlotViewController>(std::move(model), std::move(plot));
+    dbbovc = std::make_unique<DurationBasedBigPlotViewController>(std::move(model), plot);
     dbbovc->setup();
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);
 
-    gapFreeWidget = new GapFreeWidget(plot_pointer, mw);
+    gapFreeWidget = new GapFreeWidget(plot, mw);
     bigPlotWidget->setGapFreePlot(gapFreeWidget);
     //    creating curves for gapfree
     for (int i = 0; i < currentChannelsNum; i++) {

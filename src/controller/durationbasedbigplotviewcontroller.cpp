@@ -1,24 +1,24 @@
 #include "durationbasedbigplotviewcontroller.h"
 
-DurationBasedBigPlotViewController::DurationBasedBigPlotViewController(std::unique_ptr<BigPlotModel> model, std::unique_ptr<BigPlot> plot, QObject *parent)
-    : BigPlotViewController{std::move(model), std::move(plot), parent}
+DurationBasedBigPlotViewController::DurationBasedBigPlotViewController(std::unique_ptr<BigPlotModel> model, BigPlot* plot, QObject *parent)
+    : BigPlotViewController{std::move(model), plot, parent}
 {
 }
 
 void DurationBasedBigPlotViewController::setup() {
-    connect(this->plot.get(), &BigPlot::zoomInRequest, this, [this](Rect4 r) {
+    connect(this->plot, &BigPlot::zoomInRequest, this, [this](Rect4 r) {
         handleZoomInRequest(r);
     });
-    connect(this->plot.get(), &BigPlot::zoomOutRequest, this, [this]() {
+    connect(this->plot, &BigPlot::zoomOutRequest, this, [this]() {
         handleZoomOutRequest();
     });
-    connect(this->plot.get(), &BigPlot::zoomResetRequest, this, [this]() {
+    connect(this->plot, &BigPlot::zoomResetRequest, this, [this]() {
         handleZoomResetRequest();
     });
-    connect(this->plot.get(), &BigPlot::singleAxisZoomRequest, this, [this](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
+    connect(this->plot, &BigPlot::singleAxisZoomRequest, this, [this](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
         handleSingleAxisZoomRequest(axis, zoomIn, mousePosition);
     });
-    connect(this->plot.get(), &BigPlot::singleAxisShiftRequest, this, [this](QwtPlot::Axis axis, int shift) {
+    connect(this->plot, &BigPlot::singleAxisShiftRequest, this, [this](QwtPlot::Axis axis, int shift) {
         handleSingleAxisShiftRequest(axis, shift);
     });
 }

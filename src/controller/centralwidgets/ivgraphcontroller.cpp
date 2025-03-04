@@ -6,10 +6,9 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
 
     consumer = new IvGraphConsumer(appStatus, producer);
 
-    //mainWindow->setIvGraphWidget(ivGraphWidget);
     auto m = std::make_unique<BigPlotModel>();
-    auto plot = std::make_unique<BigPlot>("", "[V]", "", BigPlot::Iv, bigPlotWidget);
-    ivGraphWidget = new IvGraphWidget(currentChannelsNum, plot.get(), bigPlotWidget);
+    auto plot = new BigPlot("", "[V]", "", BigPlot::Iv, bigPlotWidget);
+    ivGraphWidget = new IvGraphWidget(currentChannelsNum, plot, mainWindow);
 
     bpvc = std::make_unique<BigPlotViewController>(std::move(m), std::move(plot));
     bpvc->setup();

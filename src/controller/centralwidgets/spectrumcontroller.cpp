@@ -16,7 +16,7 @@ SpectrumController::SpectrumController(
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
 
-    auto plot = std::make_unique<BigPlot>("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
+    auto plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
     plot->setAxisAutoScale(QwtPlot::xBottom, false);
     plot->setAxisAutoScale(QwtPlot::yLeft, false);
@@ -24,9 +24,9 @@ SpectrumController::SpectrumController(
     plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
     plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
 
-    spectrumWidget = new SpectrumWidget(currentChannelsNum, plot.get(), bigPlotWidget);
+    spectrumWidget = new SpectrumWidget(currentChannelsNum, plot, bigPlotWidget);
 
-    bpvc = std::make_unique<BigPlotViewController>(std::move(model), std::move(plot));
+    bpvc = std::make_unique<BigPlotViewController>(std::move(model), plot);
     bpvc->setup();
 
     bigPlotWidget->setSpectrumPlot(spectrumWidget);

@@ -9,15 +9,15 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     consumer = new EpisodicPlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);
-    auto plot = std::make_unique<BigPlot>("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
+    auto plot = new BigPlot("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
 
     plot->enableAxis(QwtPlot::yRight);
 
-    episodicPainter = new QwtPlotDirectPainter(plot.get());
+    episodicPainter = new QwtPlotDirectPainter(plot);
 
-    episodicWidget = new EpisodicWidget(plot.get(), mw);
+    episodicWidget = new EpisodicWidget(plot, mw);
 
-    bpvc = std::make_unique<BigPlotViewController>(std::move(model), std::move(plot));
+    bpvc = std::make_unique<BigPlotViewController>(std::move(model), plot);
     bpvc->setup();
 
     bigPlotWidget->setEpisodicPlot(episodicWidget);

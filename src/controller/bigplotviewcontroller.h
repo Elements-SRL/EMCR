@@ -13,10 +13,10 @@ class BigPlotViewController : public QObject
 
 protected:
     std::unique_ptr<BigPlotModel> model;
-    std::unique_ptr<BigPlot> plot;
+    BigPlot* plot;
 
 public:
-    explicit BigPlotViewController(std::unique_ptr<BigPlotModel> model, std::unique_ptr<BigPlot> plot, QObject *parent = nullptr);
+    explicit BigPlotViewController(std::unique_ptr<BigPlotModel> model, BigPlot* plot, QObject *parent = nullptr);
     void setup();
     BigPlot* getPlot();
     BigPlotModel* getModel();

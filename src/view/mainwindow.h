@@ -114,7 +114,6 @@ private:
     BigPlotWidget * bigPlotW = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
-    IvGraphWidget * ivGraphWidget = nullptr;
     SpectrumWidget * spectrumWidget = nullptr;
 
     QComboBox * devicesComboBox = nullptr;

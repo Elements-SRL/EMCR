@@ -8,7 +8,7 @@ class DurationBasedBigPlotViewController : public BigPlotViewController
     Q_OBJECT
 
 public:
-    explicit DurationBasedBigPlotViewController(std::unique_ptr<BigPlotModel> model, std::unique_ptr<BigPlot> plot, QObject *parent = nullptr);
+    explicit DurationBasedBigPlotViewController(std::unique_ptr<BigPlotModel> model, BigPlot* plot, QObject *parent = nullptr);
     void setup();
 
 public slots:
