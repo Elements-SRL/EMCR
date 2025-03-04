@@ -2,20 +2,24 @@
 
 #include <qwt_scale_map.h>
 
-EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, DeviceController* dc):
-    CentralWidgetController(appStatus, producer, bigPlotWidget),
-    bigPlotController(bigPlotController) {
+EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, MainWindow* mw, DeviceController* dc):
+    CentralWidgetController(appStatus, producer, bigPlotWidget) {
     
-    model = new BigPlotModel();
+    auto model = std::make_unique<BigPlotModel>();
     consumer = new EpisodicPlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);
-    plot = new BigPlot("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
+    auto plot = std::make_unique<BigPlot>("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
+
     plot->enableAxis(QwtPlot::yRight);
 
-    episodicPainter = new QwtPlotDirectPainter(plot);
+    episodicPainter = new QwtPlotDirectPainter(plot.get());
 
-    episodicWidget = new EpisodicWidget(plot, mw);
+    episodicWidget = new EpisodicWidget(plot.get(), mw);
+
+    bpvc = std::make_unique<BigPlotViewController>(std::move(model), std::move(plot));
+    bpvc->setup();
+
     bigPlotWidget->setEpisodicPlot(episodicWidget);
     //    creating curves for episodic
     currentCurves.resize(currentChannelsNum);
@@ -29,21 +33,6 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     activeCurrentCurveData.resize(currentChannelsNum);
     activeVoltageCurveData.resize(voltageChannelsNum);
     auto recordingSettingsDialog = mw->getRecordSettingsDialog();
-    connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
-        bigPlotController->handleZoomInRequest(model, plot, r);
-    });
-    connect(plot, &BigPlot::zoomOutRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomOutRequest(model, plot);
-    });
-    connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomResetRequest(model, plot);
-    });
-    connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
-        bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
-    });
-    connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
-        bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
-    });
     connect(episodicWidget, &EpisodicWidget::sigStartRecording, this, [=]() {
         this->onRecordingRequest(true);
     });
@@ -51,7 +40,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
         this->onRecordingRequest(false);
     });
     connect(episodicWidget, &EpisodicWidget::sigAutoZoom, this, [=]() {
-        plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
+        bpvc->getPlot()->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
     });
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=](bool flag) {
         this->onRecordingExecution(flag);
@@ -62,7 +51,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
     connect(episodicWidget, &EpisodicWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
     connect(episodicWidget, &EpisodicWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
-    connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged); /*! \todo FCON occhio che nei plot episodici la gestione della durata con
+    /*connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged); ! \todo FCON occhio che nei plot episodici la gestione della durata con
                                                                                                                            lo zoom è gestita diversamente: esiste una durata preferenziale
                                                                                                                            che è quella del protocollo e l'asse temporale non può cambiare
                                                                                                                            rispetto alla configurazione iniziale */
@@ -74,19 +63,11 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
 }
 
 EpisodicController::~EpisodicController() {
-    if (model != nullptr) {
-        delete model;
-        model = nullptr;
-    }
     if (consumer != nullptr) {
         delete consumer;
         consumer = nullptr;
     }
     this->clearCurves();
-    if (plot != nullptr) {
-        delete plot;
-        plot = nullptr;
-    }
     if (abfDataWriterConsumer != nullptr) {
         abfDataWriterConsumer->onStopConsuming();
         delete abfDataWriterConsumer;
@@ -112,7 +93,7 @@ void EpisodicController::clearCurves() {
         voltageCurves[ch].clear();
     }
     sweepIdx = -1;
-    plot->replot();
+    bpvc->getPlot()->replot();
 }
 
 void EpisodicController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
@@ -124,10 +105,11 @@ void EpisodicController::detachCurves(const std::vector <uint16_t>& channelIndex
             curve->detach();
         }
     }
-    plot->replot();
+    bpvc->getPlot()->replot();
 }
 
 void EpisodicController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
+    auto plot = bpvc->getPlot();
     for (auto ch : channelIndexes) {
         for (auto curve : currentCurves[ch]) {
             curve->attach(plot);
@@ -140,6 +122,7 @@ void EpisodicController::attachCurves(const std::vector <uint16_t>& channelIndex
 }
 
 void EpisodicController::paintPlots(bool newSweepFlag) {
+    auto plot = bpvc->getPlot();
     if (newSweepFlag) {
         for (int currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
             if (persistentSweepsNum > 0) {
@@ -249,12 +232,14 @@ void EpisodicController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void EpisodicController::onBackgroundColorChanged(QColor color) {
+    auto plot = bpvc->getPlot();
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
     }
 }
 
 void EpisodicController::onReplot() {
+    auto plot = bpvc->getPlot();
     if (plot != nullptr) {
         plot->replot();
     }
@@ -262,6 +247,8 @@ void EpisodicController::onReplot() {
 
 //todo Check clamping modality too
 void EpisodicController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    auto plot = bpvc->getPlot();
+    auto model = bpvc->getModel();
     QwtPlot::Axis axisIdx;
     if (newRange.unit == "s") {
         axisIdx = QwtPlot::xBottom;
@@ -298,10 +285,12 @@ void EpisodicController::onExpandTrace(bool flag) {
 }
 
 void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
+    auto plot = bpvc->getPlot();
+    auto model = bpvc->getModel();
     EpisodicMessage episodicMessage = std::get<PMS_EPISODIC>(plotmessage);
     if (episodicMessage.newProtocolFlag) {
         this->clearCurves();
-        bigPlotController->handleSingleAxisZoomRequest(model, plot, QwtPlot::xBottom, QwtInterval(0.0, episodicMessage.durationS)); /*! \todo FCON non è detto che qui serva in s la misura, verificare */
+        // bpvc->handleSingleAxisZoomRequest(model, plot, QwtPlot::xBottom, QwtInterval(0.0, episodicMessage.durationS)); /*! \todo FCON non è detto che qui serva in s la misura, verificare */
         plot->replot();
 
         updateDataTimer.start();
