@@ -2,25 +2,24 @@
 #define GAPFREECONTROLLER_H
 
 #include <QPointF>
-
 #include "bigplotwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
 #include "bigplotmodel.h"
 #include "plotconsumer.h"
 #include "application_status.h"
 #include "plotmessage.h"
 #include "centralwidgetcontroller.h"
-#include "bigplotcontroller.h"
 #include "gapfreewidget.h"
 #include "abfdatawriterconsumer.h"
 #include "devicecontroller.h"
+#include "durationbasedbigplotviewcontroller.h"
+#include <memory>
 
 class GapFreeController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    GapFreeController(ApplicationStatus* , DeviceDataProducer* , Measurement_t , BigPlotWidget* , BigPlotController*, MainWindow*, DeviceController*);
+    GapFreeController(ApplicationStatus*, DeviceDataProducer*, Measurement_t, BigPlotWidget*, MainWindow*, DeviceController*);
     ~GapFreeController();
     void stop() override;
     void start() override;
@@ -28,9 +27,8 @@ public:
     std::vector <DeviceDataConsumer*> getConsumers() override;
 
 private:
-    BigPlotModel* model = nullptr;
+    std::unique_ptr<DurationBasedBigPlotViewController> dbbovc;
     GapFreePlotConsumer * consumer = nullptr;
-    BigPlot * plot = nullptr;
     GapFreeWidget* gapFreeWidget = nullptr;
     AbfDataWriterConsumer* abfDataWriterConsumer = nullptr;
     std::vector <Curve*> currentCurves;

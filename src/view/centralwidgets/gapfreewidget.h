@@ -5,11 +5,7 @@
 #include <QBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
-
-#include "messagedispatcher.h"
-#include "e384commlib_global_addendum.h"
 #include "bigplot.h"
-#include "globaldefines.h"
 
 
 class GapFreeWidget : public QWidget {

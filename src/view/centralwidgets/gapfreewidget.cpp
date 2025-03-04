@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDir>
+#include "globaldefines.h"
 
 GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     QWidget(parent) {

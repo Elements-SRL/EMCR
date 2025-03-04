@@ -32,8 +32,11 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
+    src/controller/bigplotviewcontroller.cpp \
     src/controller/device/consumer/analysisconsumer.cpp \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
+    src/controller/durationbasedbigplotviewcontroller.cpp \
+    src/logbigplotmodel.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -148,9 +151,12 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
+    src/controller/bigplotviewcontroller.h \
     src/controller/device/consumer/analysisconsumer.h \
     src/controller/device/consumer/resistanceestimationconsumer.h \
+    src/controller/durationbasedbigplotviewcontroller.h \
     src/globaldefines.h \
+    src/logbigplotmodel.h \
     src/model/singlemeasresult.h \
     src/model/singlemeasresultwrapper.h \
     src/protocoldefs.h \

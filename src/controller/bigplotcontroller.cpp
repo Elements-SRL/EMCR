@@ -19,10 +19,10 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
     
     bps = BigPlot::GapFree;
-    controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, dc));
-    controllers.push_back(new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, this, mainWindow, dc));
-    controllers.push_back(new IvGraphController(appStatus, producer, bpw, this, mainWindow));
-    controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, this, mainWindow));
+    controllers.push_back(new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc));
+    controllers.push_back(new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc));
+    controllers.push_back(new IvGraphController(appStatus, producer, bpw, mainWindow));
+    controllers.push_back(new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, mainWindow));
     controllers.push_back(new EventDetectionController(appStatus, producer, bpw));
     controllers[bps]->start();
 }
@@ -45,59 +45,6 @@ BigPlotController::~BigPlotController() {
         delete bpw;
         bpw = nullptr;
         mainWindow->setBigPlotWidget(bpw);
-    }
-}
-
-void BigPlotController::handleZoomInRequest(BigPlotModel * model, BigPlot* plot, Rect4 r) {
-//    non idale, rischio di incoerenza con le altre chiamate nel model
-    model->updateCurrentZoom(r);
-    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
-    plot->setRect(zoom);
-    if (bps == BigPlot::GapFree || bps == BigPlot::Episodic) {
-        emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
-    }
-}
-
-void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, int zoomIn, QPointF mousePosition){
-//    non idale, rischio di incoerenza con le altre chiamate nel model
-    model->updateCurrentZoom(model->zoomOnSingleAxis(axis, zoomIn, mousePosition));
-    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
-    plot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
-        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
-    }
-}
-
-void BigPlotController::handleSingleAxisZoomRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, QwtInterval i) {
-    //    non idale, rischio di incoerenza con le altre chiamate nel model
-    model->updateCurrentZoom(i, axis);
-    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
-    plot->setRect(zoom);
-    if (axis == QwtPlot::Axis::xBottom && (bps == BigPlot::GapFree || bps == BigPlot::Episodic)){
-        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
-    }
-}
-
-void BigPlotController::handleSingleAxisShiftRequest(BigPlotModel * model, BigPlot * plot, QwtPlot::Axis axis, int shift){
-//    non idale, rischio di incoerenza con le altre chiamate nel model
-    model->updateCurrentZoom(model->shiftOnSingleAxis(axis, shift));
-    auto zoom = model->getZoom(BigPlotModel::Zoom::Current);
-    plot->setRect(zoom);
-}
-
-void BigPlotController::handleZoomOutRequest(BigPlotModel * model, BigPlot * plot){
-    auto zoom = model->getZoom(BigPlotModel::Zoom::Previous);
-    plot->setRect(zoom);
-    if (bps == BigPlot::GapFree || bps == BigPlot::Episodic) {
-        emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
-    }
-}
-
-void BigPlotController::handleZoomResetRequest(BigPlotModel * model, BigPlot * plot){
-    auto zoom = model->getZoom(BigPlotModel::Zoom::Default);
-    plot->setRect(zoom);
-    if (bps == BigPlot::GapFree || bps == BigPlot::Episodic) {
-        emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
     }
 }
 

@@ -1,39 +1,25 @@
 #include "ivgraphcontroller.h"
 
-IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer * producer, BigPlotWidget * bigPlotWidget, BigPlotController * bigPlotController, MainWindow * mainWindow) :
+IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer * producer, BigPlotWidget * bigPlotWidget, MainWindow * mainWindow) :
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     mainWindow(mainWindow) {
 
-    model = new BigPlotModel(BigPlot::Iv);
     consumer = new IvGraphConsumer(appStatus, producer);
 
-    //mainWindow->setIvGraphWidget(ivGraphWidget);
-    plot = new BigPlot("", "[V]", "", BigPlot::Iv, bigPlotWidget);
-    ivGraphWidget = new IvGraphWidget(currentChannelsNum, plot, bigPlotWidget);
+    auto m = std::make_unique<BigPlotModel>();
+    auto plot = new BigPlot("", "[V]", "", BigPlot::Iv, bigPlotWidget);
+    ivGraphWidget = new IvGraphWidget(currentChannelsNum, plot, mainWindow);
 
+    bpvc = std::make_unique<BigPlotViewController>(std::move(m), std::move(plot));
+    bpvc->setup();
     bigPlotWidget->setIvGraph(ivGraphWidget);
     // creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
     }
 
-    connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
-        bigPlotController->handleZoomInRequest(model, plot, r);
-    });
-    connect(plot, &BigPlot::zoomOutRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomOutRequest(model, plot);
-    });
-    connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomResetRequest(model, plot);
-    });
-    connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
-        bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
-    });
-    connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
-        bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
-    });
-
-    connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
+    // is this really necessary?
+    // connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
     connect(consumer, &PlotConsumer::setPlotData, this, &IvGraphController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &IvGraphController::onReplot);
     consumer->forceAxisUpdate();
@@ -43,23 +29,15 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     connect(ivGraphWidget, &IvGraphWidget::sigCalcMeanSquared, this, &IvGraphController::onCalcMeanSquared);
     connect(ivGraphWidget, &IvGraphWidget::sigStartIvGraph, this, &IvGraphController::onStartIvGraph);
     connect(ivGraphWidget, &IvGraphWidget::sigStopIvGraph, this, &IvGraphController::onStopIvGraph);
-    connect(ivGraphWidget, &IvGraphWidget::sigAutoZoom, this, [=] () {
-        plot->onAutoZoom({QwtPlot::xBottom, QwtPlot::yLeft});
+    connect(ivGraphWidget, &IvGraphWidget::sigAutoZoom, this, [this] () {
+        bpvc->getPlot()->onAutoZoom({QwtPlot::xBottom, QwtPlot::yLeft});
     });
 }
 
 IvGraphController::~IvGraphController() {
-    if (model != nullptr) {
-        delete model;
-        model = nullptr;
-    }
     if (consumer != nullptr) {
         delete consumer;
         consumer = nullptr;
-    }
-    if (plot != nullptr) {
-//        delete plot;
-        plot = nullptr;
     }
     if (ivGraphWidget != nullptr) {
         delete ivGraphWidget;
@@ -206,6 +184,7 @@ void IvGraphController::stop() {
 }
 
 void IvGraphController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
+    auto plot = bpvc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->detach();
     }
@@ -213,6 +192,7 @@ void IvGraphController::detachCurves(const std::vector <uint16_t>& channelIndexe
 }
 
 void IvGraphController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
+    auto plot = bpvc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->attach(plot);
     }
@@ -234,12 +214,14 @@ void IvGraphController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void IvGraphController::onBackgroundColorChanged(QColor color) {
+    auto plot = bpvc->getPlot();
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
     }
 }
 
 void IvGraphController::onReplot() {
+    auto plot = bpvc->getPlot();
     if (plot != nullptr) {
         plot->replot();
     }
@@ -247,6 +229,8 @@ void IvGraphController::onReplot() {
 
 //todo Check clampingmodality as well
 void IvGraphController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    auto plot = bpvc->getPlot();
+    auto model = bpvc->getModel();
     QwtPlot::Axis axisIdx;
     if (newRange.unit == "s") {
         return;
@@ -276,6 +260,8 @@ void IvGraphController::onExpandTrace(bool flag) {
 }
 
 void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
+    auto plot = bpvc->getPlot();
+    auto model = bpvc->getModel();
     RangedMeasurement v;
     RangedMeasurement i;
     // IvGraph message

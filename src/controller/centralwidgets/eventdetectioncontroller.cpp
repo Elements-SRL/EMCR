@@ -421,9 +421,6 @@ EventDetectionController::~EventDetectionController() {
         delete consumer;
         consumer = nullptr;
     }
-    //for (auto eventsInChannel : events) {
-    //    eventsInChannel.clear();
-    //}
     eventPackets.clear();
 }
 

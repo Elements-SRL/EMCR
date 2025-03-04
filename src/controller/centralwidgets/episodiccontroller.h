@@ -17,6 +17,8 @@
 #include "episodicwidget.h"
 #include "abfdatawriterconsumer.h"
 #include "devicecontroller.h"
+#include <memory>
+#include "bigplotviewcontroller.h"
 
 class CurveData;
 
@@ -24,7 +26,7 @@ class EpisodicController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    EpisodicController(ApplicationStatus* , DeviceDataProducer* , Measurement_t , BigPlotWidget* , BigPlotController*, MainWindow*, DeviceController*);
+    EpisodicController(ApplicationStatus* , DeviceDataProducer* , Measurement_t , BigPlotWidget* , MainWindow*, DeviceController*);
     ~EpisodicController();
     void stop() override;
     void start() override;
@@ -32,16 +34,14 @@ public:
     std::vector <DeviceDataConsumer *> getConsumers() override;
 
 private:
-    BigPlotModel* model = nullptr;
+    std::unique_ptr<BigPlotViewController> bpvc;
     EpisodicPlotConsumer * consumer = nullptr;
-    BigPlot * plot = nullptr;
     EpisodicWidget* episodicWidget = nullptr;
     AbfDataWriterConsumer* abfDataWriterConsumer = nullptr;
     std::vector <std::vector <Curve *>> currentCurves;
     std::vector <std::vector <Curve *>> voltageCurves;
     std::vector <CurveData *> activeCurrentCurveData;
     std::vector <CurveData *> activeVoltageCurveData;
-    BigPlotController * bigPlotController = nullptr;
     int sweepIdx = -1;
     int persistentSweepsNum = 1000000000;
     int activeSweepPlottedPoints = 0;

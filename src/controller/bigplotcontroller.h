@@ -8,13 +8,9 @@
 #include "plotconsumer.h"
 #include <QPointF>
 #include "application_status.h"
-#include "plotmessage.h"
-#include "ivgraphconsumer.h"
-#include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
 #include "centralwidgetcontroller.h"
 #include "devicecontroller.h"
-#include "abfdatawriterconsumer.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT
@@ -33,13 +29,6 @@ public slots:
     void onExpandTrace(bool);
     void onRangeUpdated(RangedMeasurement_t newRange);
     void onProtocolStarted(unsigned int protId, ProtocolWidget * protocol);
-
-    void handleZoomInRequest(BigPlotModel* model, BigPlot* plot, Rect4 r);
-    void handleZoomOutRequest(BigPlotModel* model, BigPlot* plot);
-    void handleZoomResetRequest(BigPlotModel* model, BigPlot* plot);
-    void handleSingleAxisZoomRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int, QPointF);
-    void handleSingleAxisZoomRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis axis, QwtInterval i);
-    void handleSingleAxisShiftRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int);
 
 private:
     BigPlot::BigPlotStatus bps;

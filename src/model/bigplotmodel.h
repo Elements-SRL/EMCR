@@ -11,7 +11,6 @@ class BigPlotModel: public QObject {
     Q_OBJECT
 
 private:
-    BigPlot::BigPlotStatus bigPlotStatus;
     QVector <Rect4> zoomStack;
     bool rangeInitialized[QwtPlot::axisCnt];
     QString title;
@@ -34,7 +33,7 @@ public:
         Previous,
         Default,
     };
-    BigPlotModel(BigPlot::BigPlotStatus bigPlotStatus);
+    BigPlotModel();
 //    RangedMeasurement getCurrentRange(QwtPlot::Axis);
     void setCurrentRange(QwtPlot::Axis axis, RangedMeasurement currentRange);
     void setCurrentRangeLog(QwtPlot::Axis axis, RangedMeasurement currentRange);
@@ -45,8 +44,8 @@ public:
     QwtInterval getCurrentZoomInterval(QwtPlot::Axis);
     void updateCurrentZoom(Rect4);
     void updateCurrentZoom(QwtInterval i, QwtPlot::Axis ax);
-    Rect4 zoomOnSingleAxis(QwtPlot::Axis, int, QPointF);
-    Rect4 shiftOnSingleAxis(QwtPlot::Axis, int);
+    virtual Rect4 zoomOnSingleAxis(QwtPlot::Axis, int, QPointF);
+    virtual Rect4 shiftOnSingleAxis(QwtPlot::Axis, int);
     Rect4 initRect(double minX, double maxX, double miny, double maxY);
 };
 #endif // BIGPLOTMODEL_H
