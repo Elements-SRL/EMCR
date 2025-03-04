@@ -2,15 +2,21 @@
 
 #include <qwt_date_scale_engine.h>
 
-SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotBandwidth, BigPlotWidget * bigPlotWidget, BigPlotController * bigPlotController, MainWindow * mainWindow):
+SpectrumController::SpectrumController(
+    ApplicationStatus * appStatus,
+    DeviceDataProducer * producer,
+    Measurement_t defaultPlotBandwidth,
+    BigPlotWidget * bigPlotWidget,
+    MainWindow * mainWindow
+    ):
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     mainWindow(mainWindow){
 
-    model = new LogBigPlotModel();
+    auto model = std::make_unique<LogBigPlotModel>();
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
 
-    plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
+    auto plot = std::make_unique<BigPlot>("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
     plot->setAxisAutoScale(QwtPlot::xBottom, false);
     plot->setAxisAutoScale(QwtPlot::yLeft, false);
@@ -18,7 +24,10 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
     plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
 
-    spectrumWidget = new SpectrumWidget(currentChannelsNum, plot, bigPlotWidget);
+    spectrumWidget = new SpectrumWidget(currentChannelsNum, plot.get(), bigPlotWidget);
+
+    bpvc = std::make_unique<BigPlotViewController>(std::move(model), std::move(plot));
+    bpvc->setup();
 
     bigPlotWidget->setSpectrumPlot(spectrumWidget);
     //    creating curves for spectra
@@ -27,22 +36,6 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
         irmsCurves.push_back(new Curve(CurveType_t::CurveTypePlotDashed));
         irmsCurves[i]->setYAxis(QwtPlot::yRight);
     }
-
-    connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
-        bigPlotController->handleZoomInRequest(model, plot, r);
-    });
-    connect(plot, &BigPlot::zoomOutRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomOutRequest(model, plot);
-    });
-    connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomResetRequest(model, plot);
-    });
-    connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
-        bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
-    });
-    connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
-        bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
-    });
 
     connect(consumer, &PlotConsumer::setPlotData, this, &SpectrumController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &SpectrumController::onReplot);
@@ -53,25 +46,17 @@ SpectrumController::SpectrumController(ApplicationStatus * appStatus, DeviceData
     connect(spectrumWidget, &SpectrumWidget::sigStartPressed, consumer, &SpectrumConsumer::onStartConsuming);
     connect(spectrumWidget, &SpectrumWidget::sigStopPressed, consumer, &SpectrumConsumer::onStopConsuming);
     connect(spectrumWidget, &SpectrumWidget::sigExportSpectrum, this, &SpectrumController::onExportSpectrum);
-    connect(spectrumWidget, &SpectrumWidget::sigAutoZoom, this, [=] () {
-        plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
+    connect(spectrumWidget, &SpectrumWidget::sigAutoZoom, this, [this] () {
+        bpvc->getPlot()->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
     });
     consumer->forceAxisUpdate();
     consumer->onStopConsuming();
 }
 
 SpectrumController::~SpectrumController() {
-    if (model != nullptr) {
-        delete model;
-        model = nullptr;
-    }
     if (consumer != nullptr) {
         delete consumer;
         consumer = nullptr;
-    }
-    if (plot != nullptr) {
-        delete plot;
-        plot = nullptr;
     }
     psdCurves.clear();
     irmsCurves.clear();
@@ -82,10 +67,11 @@ void SpectrumController::detachCurves(const std::vector <uint16_t>& channelIndex
         psdCurves[ch]->detach();
         irmsCurves[ch]->detach();
     }
-    plot->replot();
+    bpvc->getPlot()->replot();
 }
 
 void SpectrumController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
+    auto plot = bpvc->getPlot();
     for (auto ch : channelIndexes) {
         psdCurves[ch]->attach(plot);
         irmsCurves[ch]->attach(plot);
@@ -123,12 +109,14 @@ void SpectrumController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void SpectrumController::onBackgroundColorChanged(QColor color) {
+    auto plot = bpvc->getPlot();
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
     }
 }
 
 void SpectrumController::onReplot() {
+    auto plot = bpvc->getPlot();
     if (plot != nullptr) {
         if (plotInitializedFlag) {
             plot->replot();
@@ -141,6 +129,8 @@ void SpectrumController::onReplot() {
 }
 
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    auto plot = bpvc->getPlot();
+    auto model = bpvc->getModel();
     ClampingModality_t mode;
     appStatus->getMessageDispatcher()->getClampingModality(mode);
     std::string unit = "";

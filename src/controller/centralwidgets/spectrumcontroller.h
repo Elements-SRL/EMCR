@@ -11,12 +11,14 @@
 #include "centralwidgetcontroller.h"
 #include "bigplotcontroller.h"
 #include "spectrumwidget.h"
+#include <memory>
+#include "bigplotviewcontroller.h"
 
 class SpectrumController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotBandwidth, BigPlotWidget * bigPlotWidget, BigPlotController * bigPlotController, MainWindow * mainWindow);
+    SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotBandwidth, BigPlotWidget * bigPlotWidget, MainWindow * mainWindow);
     ~SpectrumController();
 
     void stop() override;
@@ -26,9 +28,8 @@ public:
     SpectrumWidget * getSpectrumWidget();
 
 private:
-    BigPlotModel * model = nullptr;
+    std::unique_ptr<BigPlotViewController> bpvc;
     SpectrumConsumer * consumer = nullptr;
-    BigPlot * plot = nullptr;
     std::vector <Curve *> psdCurves;
     std::vector <Curve *> irmsCurves;
     SpectrumWidget * spectrumWidget = nullptr;
