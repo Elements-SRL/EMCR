@@ -3,6 +3,9 @@
 BigPlotViewController::BigPlotViewController(std::unique_ptr<BigPlotModel> model, std::unique_ptr<BigPlot> plot, QObject *parent)
     : QObject{parent}, model(std::move(model)), plot(std::move(plot))
 {
+}
+
+void BigPlotViewController::setup() {
     connect(this->plot.get(), &BigPlot::zoomInRequest, this, [this](Rect4 r) {
         handleZoomInRequest(r);
     });

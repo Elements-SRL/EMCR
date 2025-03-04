@@ -3,6 +3,9 @@
 DurationBasedBigPlotViewController::DurationBasedBigPlotViewController(std::unique_ptr<BigPlotModel> model, std::unique_ptr<BigPlot> plot, QObject *parent)
     : BigPlotViewController{std::move(model), std::move(plot), parent}
 {
+}
+
+void DurationBasedBigPlotViewController::setup() {
     connect(this->plot.get(), &BigPlot::zoomInRequest, this, [this](Rect4 r) {
         handleZoomInRequest(r);
     });

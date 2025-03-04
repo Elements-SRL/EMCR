@@ -8,6 +8,7 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     auto plot_pointer = plot.get();
     plot->enableAxis(QwtPlot::yRight);
     dbbovc = std::make_unique<DurationBasedBigPlotViewController>(std::move(model), std::move(plot));
+    dbbovc->setup();
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);

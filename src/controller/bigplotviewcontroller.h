@@ -17,6 +17,7 @@ protected:
 
 public:
     explicit BigPlotViewController(std::unique_ptr<BigPlotModel> model, std::unique_ptr<BigPlot> plot, QObject *parent = nullptr);
+    void setup();
     BigPlot* getPlot();
     BigPlotModel* getModel();
 
@@ -27,6 +28,7 @@ public slots:
     Rect4 handleSingleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
     Rect4 handleSingleAxisZoomRequest(QwtPlot::Axis axis, QwtInterval i);
     Rect4 handleSingleAxisShiftRequest(QwtPlot::Axis, int);
+
 signals:
 };
 
