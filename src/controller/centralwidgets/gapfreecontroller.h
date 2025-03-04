@@ -2,7 +2,6 @@
 #define GAPFREECONTROLLER_H
 
 #include <QPointF>
-
 #include "bigplotwidget.h"
 #include "mainwindow.h"
 #include "bigplotmodel.h"
