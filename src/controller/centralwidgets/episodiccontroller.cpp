@@ -287,7 +287,7 @@ void EpisodicController::onExpandTrace(bool flag) {
 void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
     auto plot = bpvc->getPlot();
     auto model = bpvc->getModel();
-    EpisodicMessage episodicMessage = std::get<PMS_EPISODIC>(plotmessage);
+    EpisodicMessage episodicMessage = std::get<BigPlot::BigPlotStatus::Episodic>(plotmessage);
     if (episodicMessage.newProtocolFlag) {
         this->clearCurves();
         // bpvc->handleSingleAxisZoomRequest(model, plot, QwtPlot::xBottom, QwtInterval(0.0, episodicMessage.durationS)); /*! \todo FCON non è detto che qui serva in s la misura, verificare */

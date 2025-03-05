@@ -3,14 +3,11 @@
 
 #include "bigplotwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
-#include "bigplotmodel.h"
 #include "plotconsumer.h"
 #include <QPointF>
 #include "application_status.h"
 #include "plotmessage.h"
 #include "ivgraphconsumer.h"
-#include "eventdetectionconsumer.h"
 #include "ivgraphwidget.h"
 #include "centralwidgetcontroller.h"
 #include "bigplotviewcontroller.h"

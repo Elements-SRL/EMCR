@@ -170,7 +170,7 @@ void GapFreeController::onExpandTrace(bool flag) {
 }
 
 void GapFreeController::onSetPlotData(PlotMessage plotmessage) {
-    GapFreeMessage gapFreeMessage = std::get<PMS_GAPFREE>(plotmessage);
+    GapFreeMessage gapFreeMessage = std::get<BigPlot::BigPlotStatus::GapFree>(plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
         voltageCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues[idx], gapFreeMessage.dataSize);

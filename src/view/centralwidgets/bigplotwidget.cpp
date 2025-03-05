@@ -1,6 +1,7 @@
 #include "bigplotwidget.h"
 
 #include "plotmessage.h"
+#include "bigplot.h"
 
 BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QTabWidget(parent) {
@@ -33,7 +34,7 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     // todo this will change in the future to support multichannel devices
     addTab(eventDetectionTab, "Event Detection");
     if (channelsNumber > 1) {
-        this->setTabEnabled(PMS_EVENT_DETECTION, false);
+        this->setTabEnabled(BigPlot::BigPlotStatus::Event, false);
     }
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);

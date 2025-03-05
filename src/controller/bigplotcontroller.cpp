@@ -11,6 +11,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
 
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
+    auto isEpisodic = appStatus->isEpisodic();
 
 //    we only have one widget with multiple tabs
 //    todo maybe we could create a widget for each tab

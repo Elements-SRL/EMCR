@@ -268,7 +268,7 @@ void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
     appStatus->getMessageDispatcher()->getVCVoltageRange(v);
     appStatus->getMessageDispatcher()->getVCCurrentRange(i);
     plot->setRect(model->initRect(v.min, v.max, i.min, i.max));
-    message = std::get<PMS_IV>(plotmessage);
+    message = std::get<BigPlot::BigPlotStatus::Iv>(plotmessage);
     if (message.currentValues.size() == 0 || message.voltageValues.size() == 0 || message.dataSize.size() == 0) {
         return;
     }
