@@ -17,6 +17,11 @@ public:
     void setEventDetectionTab(QWidget * wid);
     void setSpectrumPlot(QWidget * wid);
     void setTabsStatus(bool status, int idxOfDefaultEnabledTab);
+    void addEpisodicTab();
+    void addIvTab();
+    void addSpectrumTab();
+    void addGapFreeTab();
+    void addEventDetectionTab();
 
 private:
     QVBoxLayout * mainVl;

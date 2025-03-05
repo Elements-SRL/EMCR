@@ -11,6 +11,7 @@
 #include "plotconsumer.h"
 #include "centralwidgetcontroller.h"
 #include "devicecontroller.h"
+#include <map>
 
 class BigPlotController : public QObject {
     Q_OBJECT
@@ -36,7 +37,11 @@ private:
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
 
-    std::vector<CentralWidgetController* > controllers;
+    int gapFreeIndex = -1;
+    int episodicIndex = -1;
+
+    std::map<BigPlot::BigPlotStatus, CentralWidgetController*> controllers;
+    std::map<int, BigPlot::BigPlotStatus> translator;
 
     int voltageChannelsNum;
     int currentChannelsNum;

@@ -1,41 +1,10 @@
 #include "bigplotwidget.h"
-
 #include "plotmessage.h"
 #include "bigplot.h"
 
 BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QTabWidget(parent) {
-
     mainVl = new QVBoxLayout();
-
-    auto gapFreeLayout = new QVBoxLayout();
-    gapFreeTab = new QWidget();
-    gapFreeTab->setLayout(gapFreeLayout);
-    addTab(gapFreeTab, "GapFree");
-
-    auto episodicLayout = new QVBoxLayout();
-    episodicTab = new QWidget();
-    episodicTab->setLayout(episodicLayout);
-    addTab(episodicTab, "Episodic");
-
-    auto ivLayout = new QVBoxLayout();
-    ivTab = new QWidget();
-    ivTab->setLayout(ivLayout);
-    addTab(ivTab, "IV Graph");
-
-    auto spectrumLayout = new QVBoxLayout();
-    spectrumTab = new QWidget();
-    spectrumTab->setLayout(spectrumLayout);
-    addTab(spectrumTab, "Spectrum");
-
-    auto eventDetectionLayout = new QVBoxLayout();
-    eventDetectionTab = new QWidget();
-    eventDetectionTab->setLayout(eventDetectionLayout);
-    // todo this will change in the future to support multichannel devices
-    addTab(eventDetectionTab, "Event Detection");
-    if (channelsNumber > 1) {
-        this->setTabEnabled(BigPlot::BigPlotStatus::Event, false);
-    }
     mainVl->setContentsMargins(6, 0, 0, 6);
     mainVl->setSpacing(1);
     this->setLayout(mainVl);
@@ -68,4 +37,40 @@ void BigPlotWidget::setTabsStatus(bool status, int idxOfDefaultEnabledTab) {
             setTabEnabled(i, status);
         }
     }
+}
+
+void BigPlotWidget::addEpisodicTab() {
+    auto episodicLayout = new QVBoxLayout();
+    episodicTab = new QWidget();
+    episodicTab->setLayout(episodicLayout);
+    addTab(episodicTab, "Episodic");
+}
+
+void BigPlotWidget::addIvTab() {
+    auto ivLayout = new QVBoxLayout();
+    ivTab = new QWidget();
+    ivTab->setLayout(ivLayout);
+    addTab(ivTab, "IV Graph");
+}
+
+
+void BigPlotWidget::addSpectrumTab() {
+    auto spectrumLayout = new QVBoxLayout();
+    spectrumTab = new QWidget();
+    spectrumTab->setLayout(spectrumLayout);
+    addTab(spectrumTab, "Spectrum");
+}
+
+void BigPlotWidget::addGapFreeTab() {
+    auto gapFreeLayout = new QVBoxLayout();
+    gapFreeTab = new QWidget();
+    gapFreeTab->setLayout(gapFreeLayout);
+    addTab(gapFreeTab, "GapFree");
+}
+
+void BigPlotWidget::addEventDetectionTab() {
+    auto eventDetectionLayout = new QVBoxLayout();
+    eventDetectionTab = new QWidget();
+    eventDetectionTab->setLayout(eventDetectionLayout);
+    addTab(eventDetectionTab, "Event Detection");
 }
