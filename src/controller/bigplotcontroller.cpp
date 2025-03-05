@@ -23,7 +23,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     translator[translatorInitializer++] = BigPlot::GapFree;
     bpw->addGapFreeTab();
     controllers[BigPlot::GapFree] = new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
-    if (!appStatus->isEpisodic()) {
+    if (appStatus->isEpisodic()) {
         episodicIndex = translatorInitializer;
         translator[translatorInitializer++] = BigPlot::Episodic;
         bpw->addEpisodicTab();
