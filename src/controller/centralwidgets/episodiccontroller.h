@@ -18,7 +18,7 @@
 #include "abfdatawriterconsumer.h"
 #include "devicecontroller.h"
 #include <memory>
-#include "bigplotviewcontroller.h"
+#include "durationbasedbigplotviewcontroller.h"
 
 class CurveData;
 
@@ -34,7 +34,7 @@ public:
     std::vector <DeviceDataConsumer *> getConsumers() override;
 
 private:
-    std::unique_ptr<BigPlotViewController> bpvc;
+    std::unique_ptr<DurationBasedBigPlotViewController> bpvc;
     EpisodicPlotConsumer * consumer = nullptr;
     EpisodicWidget* episodicWidget = nullptr;
     AbfDataWriterConsumer* abfDataWriterConsumer = nullptr;

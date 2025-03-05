@@ -227,3 +227,9 @@ std::string ApplicationStatus::getClampingModalityString() {
     }
     return cms;
 }
+
+bool ApplicationStatus::isEpisodic() {
+    bool f;
+    msgDisp->isEpisodic(f);
+    return f;
+}

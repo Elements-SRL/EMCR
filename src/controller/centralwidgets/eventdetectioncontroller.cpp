@@ -501,18 +501,16 @@ void EventDetectionController::onExpandTrace(bool flag) {
 }
 
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
-    message = std::get<PMS_EVENT_DETECTION>(plotmessage);
+    message = std::get<BigPlot::BigPlotStatus::Event>(plotmessage);
     auto plot = widget->getPlot();
     auto sr = appStatus->getSamplingRate();
     std::vector <uint16_t> allChannels(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         allChannels[idx] = idx;
     }
-    uint32_t eventDurationAcc = 0;
     uint32_t len;
     for (const auto& pair : message.eventPackets) {
         auto chIdx = pair.first;
-        uint64_t acc = 0;
         const auto& eventPacket = pair.second;
         const auto& eventsInfo = eventPacket.eventsinfo;
         const auto& ib = eventPacket.iBaseline;
@@ -533,9 +531,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             amplitudeBinner->put(ei.amplitude);
             amplitudeAccumulator += ei.amplitude;
             const std::vector<int16_t>& data = event.rawData;
-            eventDurationAcc += data.size();
             const auto resolution = appStatus->getCurrentRange().step;
-            acc += data.size();
             if (eventsGroup.has_value()) {
                 writeEvent(eventsGroup.value(), event, "e_" + std::to_string(eventCounter++));
             }

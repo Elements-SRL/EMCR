@@ -22,11 +22,11 @@ class BigPlot : public QwtPlot {
 
 public:
     enum BigPlotStatus {
-        GapFree = PMS_GAPFREE,
-        Episodic = PMS_EPISODIC,
-        Iv = PMS_IV,
-        Spectrum = PMS_SPECTRUM,
-        Event = PMS_EVENT_DETECTION,
+        GapFree,
+        Episodic,
+        Iv,
+        Spectrum,
+        Event,
         NumberOfStatuses
     };
 

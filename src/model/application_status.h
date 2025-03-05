@@ -44,6 +44,7 @@ public:
     std::string getDeviceInfoString();
     ClampingModality_t getClampingModality();
     std::string getClampingModalityString();
+    bool isEpisodic();
 };
 
 
