@@ -17,7 +17,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
 
     episodicWidget = new EpisodicWidget(plot, mw);
 
-    bpvc = std::make_unique<BigPlotViewController>(std::move(model), plot);
+    bpvc = std::make_unique<DurationBasedBigPlotViewController>(std::move(model), plot);
     bpvc->setup();
 
     bigPlotWidget->setEpisodicPlot(episodicWidget);
@@ -51,7 +51,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
     connect(episodicWidget, &EpisodicWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
     connect(episodicWidget, &EpisodicWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
-    /*connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged); ! \todo FCON occhio che nei plot episodici la gestione della durata con
+    connect(bpvc.get(), &DurationBasedBigPlotViewController::durationChanged, consumer, &PlotConsumer::onDurationChanged); /*! \todo FCON occhio che nei plot episodici la gestione della durata con
                                                                                                                            lo zoom è gestita diversamente: esiste una durata preferenziale
                                                                                                                            che è quella del protocollo e l'asse temporale non può cambiare
                                                                                                                            rispetto alla configurazione iniziale */
