@@ -97,13 +97,13 @@ void SingleChannelController::onOffsetRecalibrationResult() {
     switch (mode) {
     case ClampingModality_t::VOLTAGE_CLAMP:
         msgDisp->getVCCurrentRangeIdx(rangeIdx);
-        singleChannelControlsDw->setOffsetRecalibrationValues(params.vcOffsetAdc[samplingRateIdx][rangeIdx]);
+        singleChannelControlsDw->setOffsetRecalibrationValues(params.getValues(CalTypesVcOffsetAdc, samplingRateIdx, rangeIdx));
         break;
 
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
     case ClampingModality_t::CURRENT_CLAMP:
         msgDisp->getCCVoltageRangeIdx(rangeIdx);
-        singleChannelControlsDw->setOffsetRecalibrationValues(params.ccOffsetAdc[samplingRateIdx][rangeIdx]);
+        singleChannelControlsDw->setOffsetRecalibrationValues(params.getValues(CalTypesCcOffsetAdc, samplingRateIdx, rangeIdx));
         break;
     }
 }
