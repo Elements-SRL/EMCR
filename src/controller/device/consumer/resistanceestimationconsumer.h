@@ -27,7 +27,6 @@ private:
         WaitingForInitialDelay,
         WaitingForFirstEdge,
         ComputingPeriod,
-        JustStarted,
         WaitingForTransient,
         CollectingData,
         WaitingForEdge,

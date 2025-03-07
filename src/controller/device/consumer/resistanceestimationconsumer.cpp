@@ -63,17 +63,13 @@ void ResistanceEstimationConsumer::performAnalysis() {
                 transientSamples = qRound(REC_TRANSIENT_PERC*(double)periodSamples);
                 toBeCollectedSamples = qRound((1.0-REC_TRANSIENT_PERC-REC_TRAIL_PERC)*(double)periodSamples);
                 periodSamples = 0;
-                status = JustStarted;
+                std::fill(currentSum.begin(), currentSum.end(), 0.0);
+                std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
+                status = WaitingForTransient;
             }
             else {
                 periodSamples++;
             }
-            break;
-
-        case JustStarted:
-            std::fill(currentSum.begin(), currentSum.end(), 0.0);
-            std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
-            status = WaitingForTransient;
             break;
 
         case WaitingForTransient:
@@ -86,9 +82,6 @@ void ResistanceEstimationConsumer::performAnalysis() {
 
         case CollectingData:
             if (collectingSamples++ < toBeCollectedSamples) {
-                voltageIdx = 0;
-                channelIdx = analysisIdx+voltageIdx;
-
                 for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
                     channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
                     currentSum[currentIdx] += buffer[channelIdx];
@@ -121,9 +114,6 @@ void ResistanceEstimationConsumer::performAnalysis() {
 
         case CollectingData2:
             if (collectingSamples++ < toBeCollectedSamples) {
-                voltageIdx = 0;
-                channelIdx = analysisIdx+voltageIdx;
-
                 for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
                     channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
                     currentSum2[currentIdx] += buffer[channelIdx];
@@ -154,7 +144,7 @@ void ResistanceEstimationConsumer::performAnalysis() {
             bufferedValue = buffer[analysisIdx+voltageIdx];
             if (bufferedValue != prevVoltage) {
                 prevVoltage = bufferedValue;
-                status = JustStarted;
+                status = WaitingForFirstEdge;
             }
             break;
         }
