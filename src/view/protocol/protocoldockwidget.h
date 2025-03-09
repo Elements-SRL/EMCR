@@ -22,6 +22,7 @@ public:
     ProtocolList * getVoltageProtocolList();
     ProtocolList * getAnalysisVoltageProtocolList();
     ProtocolList * getCurrentProtocolList();
+    ProtocolList * getAnalysisCurrentProtocolList();
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
@@ -49,6 +50,7 @@ private:
     ProtocolList * voltageProtocolList = nullptr;
     ProtocolList * analysisVoltageProtocolList = nullptr;
     ProtocolList * currentProtocolList = nullptr;
+    ProtocolList * analysisCurrentProtocolList = nullptr;
     ClampingModality_t clampingModality = e384CommLib::VOLTAGE_CLAMP;
     bool analysisProtocolsFlag = false;
     TimerDisplay * protocolTimer = nullptr;

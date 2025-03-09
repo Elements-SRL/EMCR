@@ -293,6 +293,7 @@ void MainController::onMainWindowCreated() {
             protocolDw->getVoltageProtocolList()->onStartProtocol();
             protocolDw->getAnalysisVoltageProtocolList()->onStartProtocol();
             protocolDw->getCurrentProtocolList()->onStartProtocol();
+            protocolDw->getAnalysisCurrentProtocolList()->onStartProtocol();
             deviceController->handleProtocolStatusChanged(true);
         });
         connect(protocolDw, &ProtocolDockWidget::restartProtocol,    this, [=] () {
@@ -310,6 +311,8 @@ void MainController::onMainWindowCreated() {
         connect(protocolDw->getAnalysisVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
         connect(protocolDw->getCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
         connect(protocolDw->getCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
+        connect(protocolDw->getAnalysisCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
+        connect(protocolDw->getAnalysisCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
     }
     connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
         msgDisp->setDebugBit(word, bit, flag);

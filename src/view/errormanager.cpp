@@ -579,8 +579,8 @@ QString protocolListCode2error(ProtocolList::ProtocolListStatus_t errorCode) {
         error = "No file protocols from last " + GLB_SOFTWARE_NAME + " execution " + YAML_LAST_FULL_FILE + " found";
         break;
 
-    case ProtocolList::ErrorLoadAnalysisVoltageProtocolsFail:
-        error = "No file protocols to perform analysis in voltage clamp " + YAML_ANALYSIS_VOLTAGE_FULL_FILE + " found";
+    case ProtocolList::ErrorLoadAnalysisProtocolsFail:
+        error = "No file protocols to perform analysis " + YAML_ANALYSIS_FULL_FILE + " found";
         break;
 
     case ProtocolList::ErrorLoadDefaultProtocolsFail:
@@ -622,8 +622,8 @@ QString protocolListCode2info(ProtocolList::ProtocolListStatus_t errorCode) {
                 " was not correctly saved during the last execution.";
         break;
 
-    case ProtocolList::ErrorLoadAnalysisVoltageProtocolsFail:
-        info = "Check that the file " + YAML_ANALYSIS_VOLTAGE_FULL_FILE +
+    case ProtocolList::ErrorLoadAnalysisProtocolsFail:
+        info = "Check that the file " + YAML_ANALYSIS_FULL_FILE +
                " exists.\nIf it doesn't please copy it from Protocols folder within " + GLB_SOFTWARE_NAME + " installation path.";
         break;
 

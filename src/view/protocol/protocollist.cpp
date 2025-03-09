@@ -15,7 +15,7 @@
 static int createdProtocolIdx = 0;
 
 ProtocolList::ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
-    QListWidget(),
+    QListWidget(parent),
     msgDisp(msgDisp),
     protocolPropertyDialog(protocolPropertyDialog),
     parent(parent) {
@@ -663,7 +663,7 @@ void ProtocolList::exportLastProtocols() {
 }
 
 void ProtocolList::exportAnalysisProtocols() {
-    QString fullFileName = YAML_ANALYSIS_VOLTAGE_FULL_FILE; /*! \todo FCON magari fare un unico file per le analisi senza distinguere tra voltage e current */
+    QString fullFileName = YAML_ANALYSIS_FULL_FILE;
     YAML::Protocols yamlProtocols;
     YAML::Node node;
 
@@ -726,10 +726,10 @@ void ProtocolList::importLastProtocols() {
     }
 }
 
-void ProtocolList::importAnalysisVoltageProtocols() {
-    /*! Import the protocols used to perform analysis in voltage clamp */
-    if (!(this->importProtocols(YAML_ANALYSIS_VOLTAGE_FULL_FILE))) {
-        ErrorManager e(ErrorLoadAnalysisVoltageProtocolsFail);
+void ProtocolList::importAnalysisProtocols() {
+    /*! Import the protocols used to perform analysis */
+    if (!(this->importProtocols(YAML_ANALYSIS_FULL_FILE))) {
+        ErrorManager e(ErrorLoadAnalysisProtocolsFail);
     }
 }
 
@@ -1039,7 +1039,7 @@ VoltageProtocolList::VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
-    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::VOLTAGE_CLAMP) != clampingModalities.end()) {
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
         this->importVhold0Protocol();
         this->importLastProtocols();
         this->onStopProtocol();
@@ -1069,8 +1069,8 @@ AnalysisVoltageProtocolList::AnalysisVoltageProtocolList(MessageDispatcher * msg
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
-    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::VOLTAGE_CLAMP) != clampingModalities.end()) {
-        this->importAnalysisVoltageProtocols();
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
+        this->importAnalysisProtocols();
         this->onStopProtocol();
         QThread::msleep(100);
     }
@@ -1106,7 +1106,7 @@ CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
-    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::CURRENT_CLAMP) != clampingModalities.end()) {
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
         this->importIhold0Protocol();
         this->importLastProtocols();
         this->onStopProtocol();
@@ -1126,4 +1126,41 @@ ProtocolWidget * CurrentProtocolList::newGapfreeProtocol(QString name) {
 ProtocolWidget * CurrentProtocolList::newEpisodicProtocol(QString name) {
     ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
     return protocol;
+}
+
+AnalysisCurrentProtocolList::AnalysisCurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
+    ProtocolList(msgDisp, protocolPropertyDialog, parent) {
+
+    clampingModality = ClampingModality_t::CURRENT_CLAMP;
+    protocolsGroupName = "analysiscurrentprotocols";
+
+    std::vector <ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
+        this->importAnalysisProtocols();
+        this->onStopProtocol();
+        QThread::msleep(100);
+    }
+}
+
+AnalysisCurrentProtocolList::~AnalysisCurrentProtocolList() {
+    this->exportAnalysisProtocols();
+}
+
+ProtocolWidget * AnalysisCurrentProtocolList::newGapfreeProtocol(QString name) {
+    ProtocolWidget * protocol = new GapfreeCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+ProtocolWidget * AnalysisCurrentProtocolList::newEpisodicProtocol(QString name) {
+    ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+void AnalysisCurrentProtocolList::contextMenuEvent(QContextMenuEvent * event) {
+    QMenu menu(this);
+    menu.addAction(startProtocolAct);
+    menu.addSeparator();
+    menu.addAction(openProtocolPropertiesAct);
+    menu.exec(event->globalPos());
 }

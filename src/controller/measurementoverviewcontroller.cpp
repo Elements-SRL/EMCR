@@ -92,8 +92,10 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
 
 void MeasurementOverviewController::onProtocolStarted(unsigned int protId, ProtocolWidget * protocol) {
     resistanceEstimationConsumer->onStopConsuming();
-    YAML::AnalysisType_t type;
-    protocol->getAnalysisType(type);
+    YAML::AnalysisType_t type = YAML::AnalysisNum;
+    if (!(protocol->getAnalysisType(type))) {
+        return;
+    }
     switch (type) {
     case YAML::ResistanceEstimation:
         resistanceEstimationConsumer->onStartConsuming();

@@ -43,6 +43,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     voltageProtocolList = new VoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
     analysisVoltageProtocolList = new AnalysisVoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
     currentProtocolList = new CurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
+    analysisCurrentProtocolList = new AnalysisCurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
 
     QHBoxLayout * sweepInfoHl = new QHBoxLayout;
     sweepInfoHl->setSpacing(1);
@@ -59,6 +60,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     mainSpl->addWidget(voltageProtocolList);
     mainSpl->addWidget(analysisVoltageProtocolList);
     mainSpl->addWidget(currentProtocolList);
+    mainSpl->addWidget(analysisCurrentProtocolList);
     this->setProtocolListVisibility();
     mainSpl->addWidget(protocolPropertyDialog);
 
@@ -164,7 +166,12 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             }
         }
         else {
-            currentProtocolList->onSetProtocolsShortCuts();
+            if (analysisProtocolsFlag) {
+                analysisCurrentProtocolList->onSetProtocolsShortCuts();
+            }
+            else {
+                currentProtocolList->onSetProtocolsShortCuts();
+            }
         }
     });
     btnLo->addWidget(setProtocolsShortCutsBtn, btnRow, btnCol++);
@@ -290,6 +297,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             voltageProtocolList->startProtocolFromShortCutIndex(keyIdx);
             analysisVoltageProtocolList->startProtocolFromShortCutIndex(keyIdx);
             currentProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            analysisCurrentProtocolList->startProtocolFromShortCutIndex(keyIdx);
         });
         shortcuts.append(sh);
 
@@ -304,18 +312,19 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
 
 ProtocolDockWidget::~ProtocolDockWidget() {
     if (voltageProtocolList != nullptr) {
-        delete voltageProtocolList;
         voltageProtocolList = nullptr;
     }
 
     if (analysisVoltageProtocolList != nullptr) {
-        delete analysisVoltageProtocolList;
         analysisVoltageProtocolList = nullptr;
     }
 
     if (currentProtocolList != nullptr) {
-        delete currentProtocolList;
         currentProtocolList = nullptr;
+    }
+
+    if (analysisCurrentProtocolList != nullptr) {
+        analysisCurrentProtocolList = nullptr;
     }
 
     if (protocolPropertyDialog != nullptr) {
@@ -385,6 +394,10 @@ ProtocolList * ProtocolDockWidget::getCurrentProtocolList() {
     return currentProtocolList;
 }
 
+ProtocolList * ProtocolDockWidget::getAnalysisCurrentProtocolList() {
+    return analysisCurrentProtocolList;
+}
+
 void ProtocolDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
     this->clampingModality = clampingModality;
 
@@ -410,7 +423,11 @@ void ProtocolDockWidget::setProtocolListVisibility() {
     analysisVoltageProtocolList->saveAndClosePropertyDialog();
     currentProtocolList->setClampingModality(clampingModality);
     currentProtocolList->saveAndClosePropertyDialog();
-    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+    analysisCurrentProtocolList->setClampingModality(clampingModality);
+    analysisCurrentProtocolList->saveAndClosePropertyDialog();
+
+    switch (clampingModality) {
+    case VOLTAGE_CLAMP:
         if (analysisProtocolsFlag) {
             voltageProtocolList->setVisible(false);
             analysisVoltageProtocolList->setVisible(true);
@@ -421,8 +438,28 @@ void ProtocolDockWidget::setProtocolListVisibility() {
             analysisVoltageProtocolList->setVisible(false);
             this->setWindowTitle("Voltage Protocols");
         }
+        break;
+
+    case ZERO_CURRENT_CLAMP:
+        this->setWindowTitle("Current Protocols");
+        break;
+
+    case CURRENT_CLAMP:
+        if (analysisProtocolsFlag) {
+            currentProtocolList->setVisible(false);
+            analysisCurrentProtocolList->setVisible(true);
+            this->setWindowTitle("Analysis Current Protocols");
+        }
+        else {
+            currentProtocolList->setVisible(true);
+            analysisCurrentProtocolList->setVisible(false);
+            this->setWindowTitle("Current Protocols");
+        }
+        break;
+    }
+
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
     }
     else if (clampingModality == e384CommLib::ZERO_CURRENT_CLAMP || clampingModality == e384CommLib::CURRENT_CLAMP) {
-        this->setWindowTitle("Current Protocols");
     }
 }
