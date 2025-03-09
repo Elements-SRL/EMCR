@@ -1,8 +1,15 @@
 #include "resistanceestimationconsumer.h"
 
 ResistanceEstimationConsumer::ResistanceEstimationConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
-    AnalysisConsumer(appStatus, producer) {
+    SquareVoltageBasedAnalysisConsumer(appStatus, producer) {
 
+    transient1Perc = REC_TRANSIENT_PERC;
+    transient2Perc = REC_TRANSIENT_PERC;
+    trail1Perc = REC_TRAIL_PERC;
+    trail2Perc = REC_TRAIL_PERC;
+    minPeriods = REC_MIN_PERIODS;
+    minBatchIntervalS = REC_MIN_BATCH_INTERVAL_S;
+    initialDelayS = REC_INITIAL_DELAY_S;
 }
 
 void ResistanceEstimationConsumer::initAnalysis() {
@@ -17,136 +24,60 @@ void ResistanceEstimationConsumer::initAnalysis() {
 }
 
 void ResistanceEstimationConsumer::resetAnalysis() {
-    minDataBatchSize = qRound(samplingRateHz*REC_MIN_BATCH_INTERVAL_S);
-    initialDelaySamples = qRound(samplingRateHz*REC_INITIAL_DELAY_S);
-    status = WaitingForInitialDelay;
-    collectedPeriods = 0;
-    initialDelaySamplesPassed = 0;
-    periodSamples = 0;
-    waitingSamples = 0;
-    collectingSamples = 0;
+    SquareVoltageBasedAnalysisConsumer::resetAnalysis();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         results[channelIdx].meas.value = 0.0;
         results[channelIdx].meas.prefix = voltageRange.prefix / currentRange.prefix;
     }
 }
 
-void ResistanceEstimationConsumer::performAnalysis() {
-    QMutexLocker locker(&mutex);
-    int bufferLen = buffer.size();
-    double bufferedValue;
-    int voltageIdx = 0; /*! \todo FCON sarebbe da assegnare il primo canale di tensione che non ha il protocollo disabilitato */
-    int currentIdx;
-    int channelIdx;
+void ResistanceEstimationConsumer::computingPeriodEnd() {
+    std::fill(currentSum.begin(), currentSum.end(), 0.0);
+    std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
+}
 
-    for (int analysisIdx = 0; analysisIdx < bufferLen; analysisIdx += totalChannelsNum) {
-        switch (status) {
-        case WaitingForInitialDelay:
-            if (++initialDelaySamplesPassed > initialDelaySamples) {
-                prevVoltage = buffer[analysisIdx+voltageIdx];
-                status = WaitingForFirstEdge;
-            }
-            break;
+void ResistanceEstimationConsumer::waitingForTransientEnd() {
+    voltageSum = buffer[analysisIdx+voltageIdx];
+}
 
-        case WaitingForFirstEdge:
-            bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
-                prevVoltage = bufferedValue;
-                status = ComputingPeriod;
-            }
-            break;
+void ResistanceEstimationConsumer::collectingDataExe() {
+    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+        int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
+        currentSum[currentIdx] += buffer[channelIdx];
+    }
+}
 
-        case ComputingPeriod:
-            bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
-                prevVoltage = bufferedValue;
-                transientSamples = qRound(REC_TRANSIENT_PERC*(double)periodSamples);
-                toBeCollectedSamples = qRound((1.0-REC_TRANSIENT_PERC-REC_TRAIL_PERC)*(double)periodSamples);
-                periodSamples = 0;
-                std::fill(currentSum.begin(), currentSum.end(), 0.0);
-                std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
-                status = WaitingForTransient;
-            }
-            else {
-                periodSamples++;
-            }
-            break;
+void ResistanceEstimationConsumer::collectingDataEnd() {
+    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+        currentSum[currentIdx] /= (double)toBeCollectedSamples;
+    }
+}
 
-        case WaitingForTransient:
-            if (waitingSamples++ > transientSamples) {
-                waitingSamples = 0;
-                voltageSum = buffer[analysisIdx+voltageIdx];
-                status = CollectingData;
-            }
-            break;
+void ResistanceEstimationConsumer::waitingForTransient2End() {
+    voltageSum2 = buffer[analysisIdx+voltageIdx];
+}
 
-        case CollectingData:
-            if (collectingSamples++ < toBeCollectedSamples) {
-                for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-                    channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
-                    currentSum[currentIdx] += buffer[channelIdx];
-                }
-            }
-            else {
-                for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-                    currentSum[currentIdx] /= (double)toBeCollectedSamples;
-                }
-                collectingSamples = 0;
-                status = WaitingForEdge;
-            }
-            break;
+void ResistanceEstimationConsumer::collectingData2Exe() {
+    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+        int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
+        currentSum2[currentIdx] += buffer[channelIdx];
+    }
+}
 
-        case WaitingForEdge:
-            bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
-                prevVoltage = bufferedValue;
-                status = WaitingForTransient2;
-            }
-            break;
-
-        case WaitingForTransient2:
-            if (waitingSamples++ > transientSamples) {
-                waitingSamples = 0;
-                voltageSum2 = buffer[analysisIdx+voltageIdx];
-                status = CollectingData2;
-            }
-            break;
-
-        case CollectingData2:
-            if (collectingSamples++ < toBeCollectedSamples) {
-                for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-                    channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
-                    currentSum2[currentIdx] += buffer[channelIdx];
-                }
-            }
-            else {
-                for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-                    currentSum2[currentIdx] /= (double)toBeCollectedSamples;
-                    results[currentIdx].meas.value += (voltageSum-voltageSum2)/(currentSum[currentIdx]-currentSum2[currentIdx]);
-                }
-                if (++collectedPeriods >= REC_MIN_PERIODS) {
-                    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-                        results[currentIdx].meas.value /= (double)collectedPeriods;
-                    }
-                    SingleMeasResultWrapper_t w = {results};
-                    emit sigResult(w);
-                    collectedPeriods = 0;
-                    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                        results[channelIdx].meas.value = 0.0;
-                    }
-                }
-                collectingSamples = 0;
-                status = WaitingForEdge2;
-            }
-            break;
-
-        case WaitingForEdge2:
-            bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
-                prevVoltage = bufferedValue;
-                status = WaitingForFirstEdge;
-            }
-            break;
+void ResistanceEstimationConsumer::collectingData2End() {
+    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+        currentSum2[currentIdx] /= (double)toBeCollectedSamples2;
+        results[currentIdx].meas.value += (voltageSum-voltageSum2)/(currentSum[currentIdx]-currentSum2[currentIdx]);
+    }
+    if (++collectedPeriods >= minPeriods) {
+        for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+            results[currentIdx].meas.value /= (double)collectedPeriods;
+        }
+        SingleMeasResultWrapper_t w = {results};
+        emit sigResult(w);
+        collectedPeriods = 0;
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            results[channelIdx].meas.value = 0.0;
         }
     }
 }

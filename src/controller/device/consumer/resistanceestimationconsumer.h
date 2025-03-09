@@ -7,11 +7,11 @@
 #define REC_MIN_PERIODS 5
 #define REC_INITIAL_DELAY_S 0.5
 
-#include "analysisconsumer.h"
+#include "squarevoltagebasedanalysisconsumer.h"
 #include "singlemeasresult.h"
 #include "singlemeasresultwrapper.h"
 
-class ResistanceEstimationConsumer : public AnalysisConsumer {
+class ResistanceEstimationConsumer : public SquareVoltageBasedAnalysisConsumer {
     Q_OBJECT
 
 public:
@@ -20,34 +20,16 @@ public:
 protected:
     void initAnalysis() override;
     void resetAnalysis() override;
-    void performAnalysis() override;
+
+    void computingPeriodEnd() override;
+    void waitingForTransientEnd() override;
+    void collectingDataExe() override;
+    void collectingDataEnd() override;
+    void waitingForTransient2End() override;
+    void collectingData2Exe() override;
+    void collectingData2End() override;
 
 private:
-    typedef enum Status {
-        WaitingForInitialDelay,
-        WaitingForFirstEdge,
-        ComputingPeriod,
-        WaitingForTransient,
-        CollectingData,
-        WaitingForEdge,
-        WaitingForTransient2,
-        CollectingData2,
-        WaitingForEdge2
-    } Status_t;
-
-    Status_t status = WaitingForInitialDelay;
-    int collectedPeriods = 0;
-
-    int initialDelaySamples;
-    int initialDelaySamplesPassed;
-    int waitingSamples;
-    int collectingSamples;
-    int periodSamples;
-    int transientSamples;
-    int toBeCollectedSamples;
-    int analysisSamples;
-    double prevVoltage;
-
     double voltageSum;
     double voltageSum2;
     std::vector <double> currentSum;
