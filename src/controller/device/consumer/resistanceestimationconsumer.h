@@ -28,6 +28,7 @@ protected:
     void waitingForTransient2End() override;
     void collectingData2Exe() override;
     void collectingData2End() override;
+    void computeResults() override;
 
 private:
     double voltageSum;

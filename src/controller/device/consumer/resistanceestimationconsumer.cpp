@@ -69,15 +69,15 @@ void ResistanceEstimationConsumer::collectingData2End() {
         currentSum2[currentIdx] /= (double)toBeCollectedSamples2;
         results[currentIdx].meas.value += (voltageSum-voltageSum2)/(currentSum[currentIdx]-currentSum2[currentIdx]);
     }
-    if (++collectedPeriods >= minPeriods) {
-        for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
-            results[currentIdx].meas.value /= (double)collectedPeriods;
-        }
-        SingleMeasResultWrapper_t w = {results};
-        emit sigResult(w);
-        collectedPeriods = 0;
-        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            results[channelIdx].meas.value = 0.0;
-        }
+}
+
+void ResistanceEstimationConsumer::computeResults() {
+    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+        results[currentIdx].meas.value /= (double)collectedPeriods;
+    }
+    SingleMeasResultWrapper_t w = {results};
+    emit sigResult(w);
+    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        results[channelIdx].meas.value = 0.0;
     }
 }

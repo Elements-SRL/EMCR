@@ -24,31 +24,35 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
     for (analysisIdx = 0; analysisIdx < bufferLen; analysisIdx += totalChannelsNum) {
         switch (status) {
         case WaitingForInitialDelay:
-            if (++initialDelaySamplesPassed > initialDelaySamples) {
+            if (++initialDelaySamplesPassed < initialDelaySamples) {
+                this->waitingForInitialDelayExe();
+            }
+            else {
                 prevVoltage = buffer[analysisIdx+voltageIdx];
                 status = WaitingForFirstEdge;
                 this->waitingForInitialDelayEnd();
-            }
-            else {
-                this->waitingForInitialDelayExe();
             }
             break;
 
         case WaitingForFirstEdge:
             bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
+            if (bufferedValue == prevVoltage) {
+                this->waitingForFirstEdgeExe();
+            }
+            else {
                 prevVoltage = bufferedValue;
                 status = ComputingPeriod;
                 this->waitingForFirstEdgeEnd();
-            }
-            else {
-                this->waitingForFirstEdgeExe();
             }
             break;
 
         case ComputingPeriod:
             bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
+            if (bufferedValue == prevVoltage) {
+                periodSamples++;
+                this->computingPeriodExe();
+            }
+            else {
                 prevVoltage = bufferedValue;
                 transientSamples = qRound(transient1Perc*(double)periodSamples);
                 transientSamples2 = qRound(transient2Perc*(double)periodSamples);
@@ -58,20 +62,16 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 status = WaitingForTransient;
                 this->computingPeriodEnd();
             }
-            else {
-                periodSamples++;
-                this->computingPeriodExe();
-            }
             break;
 
         case WaitingForTransient:
-            if (waitingSamples++ > transientSamples) {
+            if (waitingSamples++ < transientSamples) {
+                this->waitingForTransientExe();
+            }
+            else {
                 waitingSamples = 0;
                 status = CollectingData;
                 this->waitingForTransientEnd();
-            }
-            else {
-                this->waitingForTransientExe();
             }
             break;
 
@@ -88,24 +88,24 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
 
         case WaitingForEdge:
             bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
+            if (bufferedValue == prevVoltage) {
+                this->waitingForEdgeExe();
+            }
+            else {
                 prevVoltage = bufferedValue;
                 status = WaitingForTransient2;
                 this->waitingForEdgeEnd();
             }
-            else {
-                this->waitingForEdgeExe();
-            }
             break;
 
         case WaitingForTransient2:
-            if (waitingSamples++ > transientSamples2) {
+            if (waitingSamples++ < transientSamples2) {
+                this->waitingForTransient2Exe();
+            }
+            else {
                 waitingSamples = 0;
                 status = CollectingData2;
                 this->waitingForTransient2End();
-            }
-            else {
-                this->waitingForTransient2Exe();
             }
             break;
 
@@ -117,18 +117,23 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 collectingSamples = 0;
                 status = WaitingForEdge2;
                 this->collectingData2End();
+
+                if (++collectedPeriods >= minPeriods) {
+                    collectedPeriods = 0;
+                    this->computeResults();
+                }
             }
             break;
 
         case WaitingForEdge2:
             bufferedValue = buffer[analysisIdx+voltageIdx];
-            if (bufferedValue != prevVoltage) {
+            if (bufferedValue == prevVoltage) {
+                this->waitingForEdge2Exe();
+            }
+            else {
                 prevVoltage = bufferedValue;
                 status = WaitingForFirstEdge;
                 this->waitingForEdge2End();
-            }
-            else {
-                this->waitingForEdge2Exe();
             }
             break;
         }

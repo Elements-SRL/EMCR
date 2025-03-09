@@ -31,6 +31,7 @@ protected:
     virtual void collectingData2End() {};
     virtual void waitingForEdge2Exe() {};
     virtual void waitingForEdge2End() {};
+    virtual void computeResults() {};
 
     typedef enum Status {
         WaitingForInitialDelay,
