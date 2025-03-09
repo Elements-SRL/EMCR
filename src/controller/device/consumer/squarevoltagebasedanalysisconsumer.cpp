@@ -43,6 +43,7 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 prevVoltage = bufferedValue;
                 status = ComputingPeriod;
                 this->waitingForFirstEdgeEnd();
+                periodSamples = 0;
             }
             break;
 
@@ -58,9 +59,9 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 transientSamples2 = qRound(transient2Perc*(double)periodSamples);
                 toBeCollectedSamples = qRound((1.0-transient1Perc-trail1Perc)*(double)periodSamples);
                 toBeCollectedSamples2 = qRound((1.0-transient2Perc-trail2Perc)*(double)periodSamples);
-                periodSamples = 0;
                 status = WaitingForTransient;
                 this->computingPeriodEnd();
+                waitingSamples = 0;
             }
             break;
 
@@ -69,9 +70,9 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 this->waitingForTransientExe();
             }
             else {
-                waitingSamples = 0;
                 status = CollectingData;
                 this->waitingForTransientEnd();
+                collectingSamples = 0;
             }
             break;
 
@@ -80,7 +81,6 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 this->collectingDataExe();
             }
             else {
-                collectingSamples = 0;
                 status = WaitingForEdge;
                 this->collectingDataEnd();
             }
@@ -95,6 +95,7 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 prevVoltage = bufferedValue;
                 status = WaitingForTransient2;
                 this->waitingForEdgeEnd();
+                waitingSamples = 0;
             }
             break;
 
@@ -103,9 +104,9 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 this->waitingForTransient2Exe();
             }
             else {
-                waitingSamples = 0;
                 status = CollectingData2;
                 this->waitingForTransient2End();
+                collectingSamples = 0;
             }
             break;
 
@@ -114,13 +115,12 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
                 this->collectingData2Exe();
             }
             else {
-                collectingSamples = 0;
                 status = WaitingForEdge2;
                 this->collectingData2End();
 
                 if (++collectedPeriods >= minPeriods) {
-                    collectedPeriods = 0;
                     this->computeResults();
+                    collectedPeriods = 0;
                 }
             }
             break;
@@ -132,8 +132,9 @@ void SquareVoltageBasedAnalysisConsumer::performAnalysis() {
             }
             else {
                 prevVoltage = bufferedValue;
-                status = WaitingForFirstEdge;
+                status = WaitingForTransient;
                 this->waitingForEdge2End();
+                waitingSamples = 0;
             }
             break;
         }

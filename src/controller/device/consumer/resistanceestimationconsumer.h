@@ -21,7 +21,6 @@ protected:
     void initAnalysis() override;
     void resetAnalysis() override;
 
-    void computingPeriodEnd() override;
     void waitingForTransientEnd() override;
     void collectingDataExe() override;
     void collectingDataEnd() override;

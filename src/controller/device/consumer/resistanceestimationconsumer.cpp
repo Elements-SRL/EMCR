@@ -31,12 +31,9 @@ void ResistanceEstimationConsumer::resetAnalysis() {
     }
 }
 
-void ResistanceEstimationConsumer::computingPeriodEnd() {
+void ResistanceEstimationConsumer::waitingForTransientEnd() {
     std::fill(currentSum.begin(), currentSum.end(), 0.0);
     std::fill(currentSum2.begin(), currentSum2.end(), 0.0);
-}
-
-void ResistanceEstimationConsumer::waitingForTransientEnd() {
     voltageSum = buffer[analysisIdx+voltageIdx];
 }
 
