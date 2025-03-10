@@ -38,7 +38,6 @@ SOURCES += \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
     src/controller/durationbasedbigplotviewcontroller.cpp \
-    src/logbigplotmodel.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -90,6 +89,7 @@ SOURCES += \
     src/model/state.cpp \
     src/model/statearray.cpp \
     src/model/binner.cpp \
+    src/model/logbigplotmodel.cpp \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/activationbutton.cpp \
@@ -160,7 +160,6 @@ HEADERS += \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
     src/controller/durationbasedbigplotviewcontroller.h \
     src/globaldefines.h \
-    src/logbigplotmodel.h \
     src/model/singlemeasresult.h \
     src/model/singlemeasresultwrapper.h \
     src/protocoldefs.h \
@@ -221,6 +220,7 @@ HEADERS += \
     src/model/statisticsresult.h \
     src/model/statisticsresultwrapper.h \
     src/model/binner.h \
+    src/model/logbigplotmodel.h \
     src/model/filters/filter.h \
     src/model/filters/firstorderiirfilter.h \
     src/model/events/event.h \
