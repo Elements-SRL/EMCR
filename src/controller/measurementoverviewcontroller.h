@@ -11,6 +11,7 @@
 #include "livestatisticsconsumer.h"
 #include "statisticsresultwrapper.h"
 #include "resistanceestimationconsumer.h"
+#include "pipettecapacitanceestimationconsumer.h"
 #include "singlemeasresultwrapper.h"
 
 class MeasurementOverviewController : public ControllerWithConsumer {
@@ -39,11 +40,13 @@ private:
     std::vector<uint16_t> activeChannelsIdxs;
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
     ResistanceEstimationConsumer * resistanceEstimationConsumer = nullptr;
+    PipetteCapacitanceEstimationConsumer * pipetteCapacitanceEstimationConsumer = nullptr;
     void onSetLiveStatisticsConsumerStatus(bool status);
 
 private slots:
     void onLiveStatisticsResults(StatisticsResultWrapper_t);
     void onResistanceEstimationResults(SingleMeasResultWrapper_t);
+    void onPipetteCapacitanceEstimationResults(SingleMeasResultWrapper_t);
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H

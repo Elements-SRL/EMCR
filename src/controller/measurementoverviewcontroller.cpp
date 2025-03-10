@@ -14,8 +14,10 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
     });
     liveStatisticsConsumer = new LiveStatisticsConsumer(appStatus, producer);
     resistanceEstimationConsumer = new ResistanceEstimationConsumer(appStatus, producer);
+    pipetteCapacitanceEstimationConsumer = new PipetteCapacitanceEstimationConsumer(appStatus, producer);
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
     connect(resistanceEstimationConsumer, &ResistanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onResistanceEstimationResults);
+    connect(pipetteCapacitanceEstimationConsumer, &PipetteCapacitanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onPipetteCapacitanceEstimationResults);
     connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetLiveStatisticsConsumerStatus);
 
     mainWindow->setDockWidget(MainWindow::DWMeasurementsOverview, modw, false, Qt::BottomDockWidgetArea);
@@ -43,6 +45,11 @@ MeasurementOverviewController::~MeasurementOverviewController(){
         resistanceEstimationConsumer->onStopConsuming();
         delete resistanceEstimationConsumer;
         resistanceEstimationConsumer = nullptr;
+    }
+    if (pipetteCapacitanceEstimationConsumer!= nullptr) {
+        pipetteCapacitanceEstimationConsumer->onStopConsuming();
+        delete pipetteCapacitanceEstimationConsumer;
+        pipetteCapacitanceEstimationConsumer = nullptr;
     }
 }
 
@@ -92,6 +99,7 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
 
 void MeasurementOverviewController::onProtocolStarted(unsigned int protId, ProtocolWidget * protocol) {
     resistanceEstimationConsumer->onStopConsuming();
+    pipetteCapacitanceEstimationConsumer->onStopConsuming();
     YAML::AnalysisType_t type = YAML::AnalysisNum;
     if (!(protocol->getAnalysisType(type))) {
         return;
@@ -99,6 +107,10 @@ void MeasurementOverviewController::onProtocolStarted(unsigned int protId, Proto
     switch (type) {
     case YAML::ResistanceEstimation:
         resistanceEstimationConsumer->onStartConsuming();
+        return;
+
+    case YAML::PipetteCapacitanceEstimation:
+        pipetteCapacitanceEstimationConsumer->onStartConsuming();
         return;
     }
 }
@@ -131,8 +143,14 @@ void MeasurementOverviewController::onResistanceEstimationResults(SingleMeasResu
     modw->onResistanceEstimationResult(r);
 }
 
+void MeasurementOverviewController::onPipetteCapacitanceEstimationResults(SingleMeasResultWrapper_t result){
+    const auto r = result.results;
+    modm->setPipetteCapacitanceEstimationResult(r);
+    modw->onPipetteCapacitanceEstimationResult(r);
+}
+
 std::vector <DeviceDataConsumer*> MeasurementOverviewController::getConsumers() {
-    return {liveStatisticsConsumer, resistanceEstimationConsumer};
+    return {liveStatisticsConsumer, resistanceEstimationConsumer, pipetteCapacitanceEstimationConsumer};
 }
 
 void MeasurementOverviewController::boardMappingsLoaded(){

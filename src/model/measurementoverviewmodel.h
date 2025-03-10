@@ -15,6 +15,7 @@ private:
     int currentChannelsNum;
     std::vector <StatisticsResult_t> statisticsResults;
     std::vector <SingleMeasResult_t> resistanceEstimationResults;
+    std::vector <SingleMeasResult_t> pipetteCapacitanceEstimationResults;
     std::vector <Measurement_t> offsetRecalibrationResults;
     std::vector <Measurement_t> liquidJunctionResults;
     std::pair <QString, QString> getValueAndUnit(Measurement m) {
@@ -25,10 +26,12 @@ public:
     MeasurementOverviewModel(std::vector<uint16_t> activeChannelsIdxs, int voltageChannelsNum, int currentChannelsNum);
     std::vector <StatisticsResult_t> getStatisticsResults();
     std::vector <SingleMeasResult_t> getResistanceEstimationResults();
+    std::vector <SingleMeasResult_t> getPipetteCapacitanceEstimationResults();
     std::vector <Measurement_t> getOffsetRecalibrationResults();
     std::vector <Measurement_t> getLiquidJunctionResults();
     void setStatisticsResult(std::vector <StatisticsResult>);
     void setResistanceEstimationResult(std::vector <SingleMeasResult_t>);
+    void setPipetteCapacitanceEstimationResult(std::vector <SingleMeasResult_t>);
     void setOffsetRecalibrationResults(std::vector <Measurement_t>);
     void setLiquidJunctionResults(std::vector <Measurement_t>);
     void setActiveChannelsIdxs(std::vector <uint16_t>);
