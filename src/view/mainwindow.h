@@ -65,6 +65,8 @@ public:
     void setPlotPreferencesDialog(PlotPreferencesDialog * widget);
     void addViewActions();
     void removeViewActions();
+    void restoreUISettings();
+    void saveUISettings();
 
     QLabel * SRLbl = nullptr;
 
@@ -83,8 +85,6 @@ private:
 
     void createGuiControls();
     void destroyGuiControls();
-    void restoreUISettings();
-    void saveUISettings();
 
     MessageDispatcher * msgDisp = nullptr;
     QMenu * menuView = nullptr;

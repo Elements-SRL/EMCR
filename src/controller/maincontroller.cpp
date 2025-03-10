@@ -144,6 +144,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     mainWindow->connectDevice(true, ret);
     if (connectionSuccessful) {
         this->onMainWindowCreated();
+        mainWindow->restoreUISettings();
 
     } else {
         mainWindow->setConnectionLabel("Connection failed");

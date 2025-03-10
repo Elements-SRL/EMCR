@@ -478,7 +478,6 @@ void MainWindow::createGuiControls() {
     actionUpgradeFw->setEnabled(false);
     this->addViewActions();
 
-    this->restoreUISettings();
     interfaceCreated = true;
 }
 
@@ -534,7 +533,7 @@ void MainWindow::restoreUISettings() {
         QString settingsRoot = "Preferences/UI/";
         QString tag;
 
-        for (auto dw : dockWidgets) {
+        for (auto &&dw : dockWidgets) {
             if (dw != nullptr) {
                 tag = settingsRoot + dw->objectName() + "/geometry";
                 if (settings.contains(tag)) {
@@ -553,7 +552,7 @@ void MainWindow::restoreUISettings() {
 
 //        qDebug() << this->geometry();
 //        this->doc
-    });
+    }, Qt::QueuedConnection);
 
     timer->start();
 }
