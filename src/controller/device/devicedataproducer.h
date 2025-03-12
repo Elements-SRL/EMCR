@@ -12,8 +12,61 @@
 #define DDP_MAX_SAMPLES_FOR_BUFFER 0x2000000 // 32M
 #define DDP_MAX_WAIT_COUNT (10)
 
-class DataHook;
-class EpisodicDataHook;
+
+
+class DataHook {
+public:
+    DataHook(unsigned int totalChannelsNum);
+    virtual ~DataHook();
+
+    void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
+    bool getDataChunk(std::vector <unsigned short> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0);
+    void flush();
+
+private:
+    bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
+
+    unsigned int totalChannelsNum;
+
+    unsigned int dataIdx;
+    unsigned int bufferSize;
+    unsigned int halfBufferSize;
+    unsigned int bufferMask;
+};
+
+class EpisodicDataHook {
+public:
+    EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId, unsigned int sweepsNum);
+    virtual ~EpisodicDataHook();
+
+    void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
+    bool getDataChunk(std::vector <unsigned short> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
+    bool getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0);
+    void flush();
+
+    bool isLatestSweepNew();
+private:
+    bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
+
+    bool newSweep;
+    unsigned int totalChannelsNum;
+    unsigned int protocolId;
+    int sweepsNum;
+    unsigned int nextItemIdx = 0;
+    int currentSweepIdx = -1;
+    bool pushedNewSweepFlag = false;
+    bool newSweepFlag = false;
+    bool protocolFound = false;
+
+    unsigned int dataIdx;
+    unsigned int bufferSize;
+    unsigned int halfBufferSize;
+    unsigned int bufferMask;
+};
+
 
 class DeviceDataProducer : public QThread {
     Q_OBJECT
@@ -65,57 +118,6 @@ signals:
     void bitRateComputed(double); /*! ksps */
     void disconnectDevice();
     void resetDevice();
-};
-
-class DataHook {
-public:
-    DataHook(unsigned int totalChannelsNum);
-    virtual ~DataHook();
-
-    void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
-    bool getDataChunk(std::vector <unsigned short> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
-    bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
-    bool getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0);
-    void flush();
-
-private:
-    bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
-
-    unsigned int totalChannelsNum;
-
-    unsigned int dataIdx;
-    unsigned int bufferSize;
-    unsigned int halfBufferSize;
-    unsigned int bufferMask;
-};
-
-class EpisodicDataHook {
-public:
-    EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId, unsigned int sweepsNum);
-    virtual ~EpisodicDataHook();
-
-    void setBufferSize(unsigned int bufferSize, unsigned int bufferMask);
-    bool getDataChunk(std::vector <unsigned short> &buffer, bool &newSweep, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
-    bool getDataChunk(std::vector <double> &buffer, bool &newSweep, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
-    bool getDataChunks(std::vector <double>& doubleBuffer, bool &newSweep, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0);
-    void flush();
-
-private:
-    bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
-
-    unsigned int totalChannelsNum;
-    unsigned int protocolId;
-    int sweepsNum;
-    unsigned int nextItemIdx = 0;
-    int currentSweepIdx = -1;
-    bool pushedNewSweepFlag = false;
-    bool newSweepFlag = false;
-    bool protocolFound = false;
-
-    unsigned int dataIdx;
-    unsigned int bufferSize;
-    unsigned int halfBufferSize;
-    unsigned int bufferMask;
 };
 
 #endif // DEVICEDATAPRODUCER_H

@@ -380,7 +380,7 @@ void EpisodicDataHook::setBufferSize(unsigned int bufferSize, unsigned int buffe
     halfBufferSize = bufferSize/2;
 }
 
-bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, bool &newSweep, unsigned int, unsigned int minDataBatchSize) {
+bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -411,7 +411,7 @@ bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, bool &
     return true;
 }
 
-bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, bool &newSweep, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -484,7 +484,7 @@ bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, bool &newSweep
     return true;
 }
 
-bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, bool &newSweep, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
+bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -516,6 +516,10 @@ bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, bool &n
         newSweepFlag = false;
     }
     return true;
+}
+
+bool EpisodicDataHook::isLatestSweepNew() {
+    return newSweep;
 }
 
 void EpisodicDataHook::flush() {
