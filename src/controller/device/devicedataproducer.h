@@ -12,9 +12,19 @@
 #define DDP_MAX_SAMPLES_FOR_BUFFER 0x2000000 // 32M
 #define DDP_MAX_WAIT_COUNT (10)
 
+class AbstractDataHook {
+public:
+    virtual void setBufferSize(unsigned int bufferSize, unsigned int bufferMask) = 0;
+    virtual bool getDataChunk(std::vector <unsigned short> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0) = 0;
+    virtual bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0) = 0;
+    virtual bool getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0) = 0;
+    virtual void flush() = 0;
 
+private:
+    virtual bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) = 0;
+};
 
-class DataHook {
+class DataHook : public AbstractDataHook {
 public:
     DataHook(unsigned int totalChannelsNum);
     virtual ~DataHook();
@@ -36,7 +46,7 @@ private:
     unsigned int bufferMask;
 };
 
-class EpisodicDataHook {
+class EpisodicDataHook : public AbstractDataHook {
 public:
     EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId, unsigned int sweepsNum);
     virtual ~EpisodicDataHook();
@@ -66,7 +76,6 @@ private:
     unsigned int halfBufferSize;
     unsigned int bufferMask;
 };
-
 
 class DeviceDataProducer : public QThread {
     Q_OBJECT
