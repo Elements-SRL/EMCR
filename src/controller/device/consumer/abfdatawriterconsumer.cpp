@@ -1059,6 +1059,13 @@ unsigned int AbfDataWriterConsumer::blocksUsedBySection(long long sectionSize) {
 //    }
 //}
 
+EpisodicAbfDataWriterConsumer::EpisodicAbfDataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+    AbfDataWriterConsumer(appStatus, producer) {}
+
+EpisodicAbfDataWriterConsumer::~EpisodicAbfDataWriterConsumer() {
+    AbfDataWriterConsumer::~AbfDataWriterConsumer();
+}
+
 void EpisodicAbfDataWriterConsumer::setDataHook(unsigned int protocolId, unsigned int sweepsNum) {
     hook = new EpisodicDataHook(totalChannelsNum, protocolId, sweepsNum);
 }

@@ -75,8 +75,8 @@ public:
 public slots:
     void setDataHook(unsigned int protocolId, unsigned int sweepsNum);
 
-protected:
-    void run() override;
+// protected:
+//     void run() override;
 };
 
 #endif // ABFDATAWRITERCONSUMER_H
