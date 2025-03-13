@@ -19,6 +19,9 @@ public:
     virtual bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0) = 0;
     virtual bool getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0) = 0;
     virtual void flush() = 0;
+    virtual bool isLatestSweepNew() {
+        return false;
+    };
 
 private:
     virtual bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) = 0;
@@ -56,8 +59,8 @@ public:
     bool getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio = 1, unsigned int minDataBatchSize = 0);
     bool getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize = 0);
     void flush();
-
     bool isLatestSweepNew();
+
 private:
     bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax);
 

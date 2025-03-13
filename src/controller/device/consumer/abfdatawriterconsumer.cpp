@@ -1058,3 +1058,7 @@ unsigned int AbfDataWriterConsumer::blocksUsedBySection(long long sectionSize) {
 //        abf->WriteTagsInfo();
 //    }
 //}
+
+void EpisodicAbfDataWriterConsumer::setDataHook(unsigned int protocolId, unsigned int sweepsNum) {
+    hook = new EpisodicDataHook(totalChannelsNum, protocolId, sweepsNum);
+}

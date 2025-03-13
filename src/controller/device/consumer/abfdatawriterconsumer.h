@@ -65,4 +65,20 @@ protected:
 //    int tagIdx = 0;
 };
 
+class EpisodicAbfDataWriterConsumer : public AbfDataWriterConsumer {
+    Q_OBJECT
+public:
+    EpisodicAbfDataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
+    ~EpisodicAbfDataWriterConsumer();
+
+public slots:
+    void setDataHook(unsigned int protocolId, unsigned int sweepsNum);
+    //    virtual void onMarkTagTime() override;
+    //    virtual void onSaveTagString(QString tagString) override;
+
+protected:
+    void run() override;
+    EpisodicDataHook * hook = nullptr;
+};
+
 #endif // ABFDATAWRITERCONSUMER_H
