@@ -27,7 +27,7 @@ public slots:
 protected:
     ApplicationStatus * appStatus = nullptr;
     DeviceDataProducer * producer = nullptr;
-    DataHook * hook = nullptr;
+    AbstractDataHook * hook = nullptr;
 
     int voltageChannelsNum = 0;
     int currentChannelsNum = 0;
