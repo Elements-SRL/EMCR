@@ -53,7 +53,7 @@ void MembraneEstimationConsumer::waitingForTransientEnd() {
 }
 
 void MembraneEstimationConsumer::collectingDataExe() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
         currentSum[currentIdx] += buffer[channelIdx];
     }
@@ -67,7 +67,7 @@ void MembraneEstimationConsumer::waitingForTransient2End() {
 }
 
 void MembraneEstimationConsumer::collectingData2Exe() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
         currentTransient[currentIdx][secondPulseIdx] += buffer[channelIdx];
         if (secondPulseIdx >= waitForRegimeSamples) {
@@ -78,7 +78,7 @@ void MembraneEstimationConsumer::collectingData2Exe() {
 }
 
 void MembraneEstimationConsumer::computeResults() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         currentSum[currentIdx] /= (double)(toBeCollectedSamples*collectedPeriods);
         currentSum2[currentIdx] /= (double)(regimeSamples*collectedPeriods);
         double deltaVoltage = voltageSum2-voltageSum;
@@ -124,6 +124,7 @@ void MembraneEstimationConsumer::computeResults() {
         int ratioCounter = 0;
         int oldRatio = -2;
 
+        bool exitLoop = false;
         while (abs(ratio-oldRatio) > 3 && ratioCounter++ < 5) { /*! with oldRatio = -2 the first check verifies that ratio is bigger than 1, on following iterations it checks for convergence */
             oldRatio = ratio;
             rxx0 = 0.0;
@@ -151,9 +152,14 @@ void MembraneEstimationConsumer::computeResults() {
                 }
             }
             if (rxx1*rxx0 <= 0.0) {
-                continue;
+                exitLoop = true;
+                break;
             }
             estTau = -1.0/(samplingRateHz/(double)ratio*log(rxx1/rxx0));
+        }
+
+        if (exitLoop) {
+            continue;
         }
 
         double charge = currentIntegral/samplingRateHz+deltaCurrent*estTau; /*!< The second addend is the correction charge */

@@ -54,14 +54,9 @@ void PipetteCapacitanceEstimationConsumer::waitingForTransient2End() {
 }
 
 void PipetteCapacitanceEstimationConsumer::collectingData2Exe() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
         currentTransient[currentIdx][secondPulseIdx] += buffer[channelIdx];
-        if (currentIdx == 0 && secondPulseIdx == 0) {
-            double a = currentTransient[currentIdx][secondPulseIdx];
-            double b = buffer[channelIdx];
-            double c = a+b;
-        }
         if (secondPulseIdx >= waitForRegimeSamples) {
             currentSum2[currentIdx] += buffer[channelIdx];
         }
@@ -70,7 +65,7 @@ void PipetteCapacitanceEstimationConsumer::collectingData2Exe() {
 }
 
 void PipetteCapacitanceEstimationConsumer::computeResults() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         currentSum2[currentIdx] /= (double)(regimeSamples*collectedPeriods);
         double currentIntegral = -currentSum2[currentIdx]*(double)(toBeCollectedSamples2*collectedPeriods); /*! currentSum2 is the regime value, so it should be subtraced from each sample in current transient,
                                                                                                                 so we subtract it once here  */

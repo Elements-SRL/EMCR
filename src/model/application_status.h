@@ -30,6 +30,8 @@ public:
     std::vector <bool> getSelectedChannels();
     std::vector <uint16_t> getSelectedChannelsIndexes();
     std::vector <uint16_t> getExpandedChannelsIndexes();
+    std::vector <uint16_t> getStimActiveChannelsIndexes();
+    std::vector <uint16_t> getExpandedAndStimActiveChannelsIndexes();
     std::vector <uint16_t> getOffsetRecalibratingChannelsIndexes();
     std::vector <uint16_t> getLiquidJunctionCompensatingChannelsIndexes();
     std::vector <YAML::ChannelMapping> getMappings();

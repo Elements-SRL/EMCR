@@ -3,7 +3,7 @@
 SquareVoltageBasedAnalysisConsumer::SquareVoltageBasedAnalysisConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     AnalysisConsumer(appStatus, producer) {
 
-    flushAfterAnalysisFlag = false; /*! Protocol based nalaysis eed to process all of the data */
+    flushAfterAnalysisFlag = false; /*! Protocol based analysis need to process all of the data */
 }
 
 void SquareVoltageBasedAnalysisConsumer::resetAnalysis() {
@@ -15,6 +15,8 @@ void SquareVoltageBasedAnalysisConsumer::resetAnalysis() {
     periodSamples = 0;
     waitingSamples = 0;
     collectingSamples = 0;
+    channelsToBeAnalyzed = appStatus->getExpandedAndStimActiveChannelsIndexes();
+    voltageIdx = channelsToBeAnalyzed[0];
 }
 
 void SquareVoltageBasedAnalysisConsumer::performAnalysis() {

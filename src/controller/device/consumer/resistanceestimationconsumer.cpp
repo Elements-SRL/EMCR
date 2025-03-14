@@ -38,14 +38,14 @@ void ResistanceEstimationConsumer::waitingForTransientEnd() {
 }
 
 void ResistanceEstimationConsumer::collectingDataExe() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
         currentSum[currentIdx] += buffer[channelIdx];
     }
 }
 
 void ResistanceEstimationConsumer::collectingDataEnd() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         currentSum[currentIdx] /= (double)toBeCollectedSamples;
     }
 }
@@ -55,21 +55,21 @@ void ResistanceEstimationConsumer::waitingForTransient2End() {
 }
 
 void ResistanceEstimationConsumer::collectingData2Exe() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
         currentSum2[currentIdx] += buffer[channelIdx];
     }
 }
 
 void ResistanceEstimationConsumer::collectingData2End() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         currentSum2[currentIdx] /= (double)toBeCollectedSamples2;
         results[currentIdx].meas.value += (voltageSum-voltageSum2)/(currentSum[currentIdx]-currentSum2[currentIdx]);
     }
 }
 
 void ResistanceEstimationConsumer::computeResults() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         results[currentIdx].meas.value /= (double)collectedPeriods;
     }
     SingleMeasResultWrapper_t w = {results};
