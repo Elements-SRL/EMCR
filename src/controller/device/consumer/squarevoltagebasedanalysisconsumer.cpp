@@ -3,6 +3,7 @@
 SquareVoltageBasedAnalysisConsumer::SquareVoltageBasedAnalysisConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     AnalysisConsumer(appStatus, producer) {
 
+    flushAfterAnalysisFlag = false; /*! Protocol based nalaysis eed to process all of the data */
 }
 
 void SquareVoltageBasedAnalysisConsumer::resetAnalysis() {

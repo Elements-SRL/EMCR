@@ -9,8 +9,7 @@
 #include <QPushButton>
 #include "copyabletable.h"
 
-#include "statisticsresult.h"
-#include "singlemeasresult.h"
+#include "resultwrapper.h"
 
 class MeasurementsOverviewDockWidget : public QDockWidget {
     Q_OBJECT
@@ -24,6 +23,9 @@ private:
         ColCurrentRms,
         ColResistance,
         ColPipetteCapacitance,
+        ColMembraneCapacitance,
+        ColAccessResistance,
+        ColMembraneResistance,
         ColOffsetRecalibration,
         ColLiquidJunction,
         ColumnsNum
@@ -46,9 +48,10 @@ public:
     void updateActiveChannels(std::vector<uint16_t> newActiveChannels);
     void setOffsetRecalibrationResult(std::vector <e384cl::Measurement_t> result);
     void setLiquidJunctionResult(std::vector <e384cl::Measurement_t> result);
-    void onLiveStatisticsResult(std::vector<StatisticsResult_t> result);
-    void onResistanceEstimationResult(std::vector <SingleMeasResult_t> result);
-    void onPipetteCapacitanceEstimationResult(std::vector <SingleMeasResult_t> result);
+    void onLiveStatisticsResult(StatisticsResultWrapper_t result);
+    void onResistanceEstimationResult(SingleMeasResultWrapper_t result);
+    void onPipetteCapacitanceEstimationResult(SingleMeasResultWrapper_t result);
+    void onMembraneEstimationResult(MembraneResultWrapper_t result);
 
 public slots:
     void onUpdate();

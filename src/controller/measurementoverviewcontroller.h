@@ -9,10 +9,11 @@
 #include "application_status.h"
 #include "measurementoverviewmodel.h"
 #include "livestatisticsconsumer.h"
-#include "statisticsresultwrapper.h"
+#include "resultwrapper.h"
 #include "resistanceestimationconsumer.h"
 #include "pipettecapacitanceestimationconsumer.h"
-#include "singlemeasresultwrapper.h"
+#include "membraneestimationconsumer.h"
+#include "resultwrapper.h"
 
 class MeasurementOverviewController : public ControllerWithConsumer {
     Q_OBJECT
@@ -41,12 +42,14 @@ private:
     LiveStatisticsConsumer * liveStatisticsConsumer = nullptr;
     ResistanceEstimationConsumer * resistanceEstimationConsumer = nullptr;
     PipetteCapacitanceEstimationConsumer * pipetteCapacitanceEstimationConsumer = nullptr;
+    MembraneEstimationConsumer * membraneEstimationConsumer = nullptr;
     void onSetLiveStatisticsConsumerStatus(bool status);
 
 private slots:
     void onLiveStatisticsResults(StatisticsResultWrapper_t);
     void onResistanceEstimationResults(SingleMeasResultWrapper_t);
     void onPipetteCapacitanceEstimationResults(SingleMeasResultWrapper_t);
+    void onMembraneEstimationResults(MembraneResultWrapper_t);
 };
 
 #endif // MEASUREMENTOVERVIEWCONTROLLER_H

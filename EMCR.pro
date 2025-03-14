@@ -34,6 +34,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 SOURCES += \
     src/controller/bigplotviewcontroller.cpp \
     src/controller/device/consumer/analysisconsumer.cpp \
+    src/controller/device/consumer/membraneestimationconsumer.cpp \
     src/controller/device/consumer/pipettecapacitanceestimationconsumer.cpp \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
@@ -155,13 +156,14 @@ SOURCES += \
 HEADERS += \
     src/controller/bigplotviewcontroller.h \
     src/controller/device/consumer/analysisconsumer.h \
+    src/controller/device/consumer/membraneestimationconsumer.h \
     src/controller/device/consumer/pipettecapacitanceestimationconsumer.h \
     src/controller/device/consumer/resistanceestimationconsumer.h \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
     src/controller/durationbasedbigplotviewcontroller.h \
     src/globaldefines.h \
+    src/model/membraneresult.h \
     src/model/singlemeasresult.h \
-    src/model/singlemeasresultwrapper.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
@@ -218,7 +220,7 @@ HEADERS += \
     src/model/state.h \
     src/model/statearray.h \
     src/model/statisticsresult.h \
-    src/model/statisticsresultwrapper.h \
+    src/model/resultwrapper.h \
     src/model/binner.h \
     src/model/logbigplotmodel.h \
     src/model/filters/filter.h \
@@ -297,13 +299,16 @@ INCLUDEPATH += \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
     ./src/controller/centralwidgets \
+    ./src/controller/autodeclogger \
     ./src/model \
     ./src/model/filters \
     ./src/model/events \
+    ./src/model/autodeclogger \
     ./src/view \
     ./src/view/statearray \
     ./src/view/centralwidgets \
     ./src/view/protocol \
+    ./src/view/autodeclogger \
     ./src/view/questionmarkmenu \
     ./src/view/advancedmenu \
     ./src/abf
@@ -315,13 +320,16 @@ DEPENDPATH += \
     ./src/controller/device/consumer \
     ./src/controller/protocol \
     ./src/controller/centralwidgets \
+    ./src/controller/autodeclogger \
     ./src/model \
     ./src/model/filters \
     ./src/model/events \
+    ./src/model/autodeclogger \
     ./src/view \
     ./src/view/statearray \
     ./src/view/centralwidgets \
     ./src/view/protocol \
+    ./src/view/autodeclogger \
     ./src/view/questionmarkmenu \
     ./src/view/advancedmenu \
     ./src/abf

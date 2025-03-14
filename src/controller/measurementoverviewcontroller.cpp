@@ -15,9 +15,11 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
     liveStatisticsConsumer = new LiveStatisticsConsumer(appStatus, producer);
     resistanceEstimationConsumer = new ResistanceEstimationConsumer(appStatus, producer);
     pipetteCapacitanceEstimationConsumer = new PipetteCapacitanceEstimationConsumer(appStatus, producer);
+    membraneEstimationConsumer = new MembraneEstimationConsumer(appStatus, producer);
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
     connect(resistanceEstimationConsumer, &ResistanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onResistanceEstimationResults);
     connect(pipetteCapacitanceEstimationConsumer, &PipetteCapacitanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onPipetteCapacitanceEstimationResults);
+    connect(membraneEstimationConsumer, &MembraneEstimationConsumer::sigResult, this, &MeasurementOverviewController::onMembraneEstimationResults);
     connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetLiveStatisticsConsumerStatus);
 
     mainWindow->setDockWidget(MainWindow::DWMeasurementsOverview, modw, false, Qt::BottomDockWidgetArea);
@@ -50,6 +52,11 @@ MeasurementOverviewController::~MeasurementOverviewController(){
         pipetteCapacitanceEstimationConsumer->onStopConsuming();
         delete pipetteCapacitanceEstimationConsumer;
         pipetteCapacitanceEstimationConsumer = nullptr;
+    }
+    if (membraneEstimationConsumer!= nullptr) {
+        membraneEstimationConsumer->onStopConsuming();
+        delete membraneEstimationConsumer;
+        membraneEstimationConsumer = nullptr;
     }
 }
 
@@ -100,6 +107,7 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
 void MeasurementOverviewController::onProtocolStarted(unsigned int protId, ProtocolWidget * protocol) {
     resistanceEstimationConsumer->onStopConsuming();
     pipetteCapacitanceEstimationConsumer->onStopConsuming();
+    membraneEstimationConsumer->onStopConsuming();
     YAML::AnalysisType_t type = YAML::AnalysisNum;
     if (!(protocol->getAnalysisType(type))) {
         return;
@@ -111,6 +119,10 @@ void MeasurementOverviewController::onProtocolStarted(unsigned int protId, Proto
 
     case YAML::PipetteCapacitanceEstimation:
         pipetteCapacitanceEstimationConsumer->onStartConsuming();
+        return;
+
+    case YAML::MembraneEstimation:
+        membraneEstimationConsumer->onStartConsuming();
         return;
     }
 }
@@ -131,26 +143,32 @@ void MeasurementOverviewController::getNewActiveChannels(std::vector <int>& newA
     }
 }
 
-void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResultWrapper result){
-    const auto r = result.results;
+void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResultWrapper_t result){
+    const auto r = result;
     modm->setStatisticsResult(r);
     modw->onLiveStatisticsResult(r);
 }
 
 void MeasurementOverviewController::onResistanceEstimationResults(SingleMeasResultWrapper_t result){
-    const auto r = result.results;
+    const auto r = result;
     modm->setResistanceEstimationResult(r);
     modw->onResistanceEstimationResult(r);
 }
 
 void MeasurementOverviewController::onPipetteCapacitanceEstimationResults(SingleMeasResultWrapper_t result){
-    const auto r = result.results;
+    const auto r = result;
     modm->setPipetteCapacitanceEstimationResult(r);
     modw->onPipetteCapacitanceEstimationResult(r);
 }
 
+void MeasurementOverviewController::onMembraneEstimationResults(MembraneResultWrapper_t result){
+    const auto r = result;
+    modm->setMembraneEstimationResult(r);
+    modw->onMembraneEstimationResult(r);
+}
+
 std::vector <DeviceDataConsumer*> MeasurementOverviewController::getConsumers() {
-    return {liveStatisticsConsumer, resistanceEstimationConsumer, pipetteCapacitanceEstimationConsumer};
+    return {liveStatisticsConsumer, resistanceEstimationConsumer, pipetteCapacitanceEstimationConsumer, membraneEstimationConsumer};
 }
 
 void MeasurementOverviewController::boardMappingsLoaded(){

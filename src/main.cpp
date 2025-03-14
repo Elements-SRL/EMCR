@@ -5,8 +5,7 @@
 #include "globaldefines.h"
 #include "statisticsresult.h"
 #include "plotmessage.h"
-#include "singlemeasresultwrapper.h"
-#include "statisticsresultwrapper.h"
+#include "resultwrapper.h"
 #include "eventsdirection.h"
 
 int main(int argc, char *argv[]) {
@@ -25,6 +24,7 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType <PlotMessage>("PlotMessage");
     qRegisterMetaType <SingleMeasResultWrapper_t>("SingleMeasResultWrapper_t");
     qRegisterMetaType <StatisticsResultWrapper_t>("StatisticsResultWrapper_t");
+    qRegisterMetaType <MembraneResultWrapper_t>("MembraneResultWrapper_t");
     qRegisterMetaType <EventsDirection>("EventsDirection");
 
     QCoreApplication::setOrganizationName("Elements S.R.L.");
