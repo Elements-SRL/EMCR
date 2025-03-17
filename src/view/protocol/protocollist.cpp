@@ -12,6 +12,8 @@
 #include "messagedispatcher.h"
 #include "errormanager.h"
 
+namespace e384cl = e384CommLib;
+
 static int createdProtocolIdx = 0;
 
 ProtocolList::ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
@@ -222,10 +224,10 @@ void ProtocolList::onAddProtocol() {
     nameLo->addWidget(nameLbl);
     nameLo->addWidget(nameEdit);
 
-    QComboBox * protocolTypeEdit;
-    if (msgDisp->isEpisodic()) {
+    QComboBox * protocolTypeEdit = nullptr;
+    if (msgDisp->isEpisodic() == e384cl::Success) {
         /*! Get new protocol type (gap-free or episodic) */
-        QComboBox * protocolTypeEdit = new QComboBox();
+        protocolTypeEdit = new QComboBox();
         protocolTypeEdit->addItem("Gap-Free");
         protocolTypeEdit->addItem("Episodic");
 
@@ -255,14 +257,14 @@ void ProtocolList::onAddProtocol() {
     if (ok && !name.isEmpty()) {
         if (protocolsNames->contains(name)) {
             ErrorManager e(ErrorProtocolAlreadyExists);
-
-        } else {
+        }
+        else {
             ProtocolWidget * protocol;
-            if (msgDisp->isEpisodic()) {
+            if (protocolTypeEdit != nullptr) {
                 if (protocolTypeEdit->currentIndex() == 0) {
                     protocol = newGapfreeProtocol(name);
-
-                } else {
+                }
+                else {
                     protocol = newEpisodicProtocol(name);
                 }
             }
@@ -785,7 +787,7 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             for (unsigned int protIdx = 0; protIdx < yamlProtocols.voltageprotocols.size(); protIdx++) {
                 YAML::VoltageProtocol_t yamlProtocol = yamlProtocols.voltageprotocols[protIdx];
-                if (yamlProtocol.sweeps == 1 || !(msgDisp->isEpisodic())) { /*! Don't import if the protocol is episodic, but the device is not */
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() != e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
                     if (saveFlag[protIdx]) {
                         if (overwriteFlag[protIdx]) {
                             this->removeProtocolByName(namesSet[protIdx]);
@@ -798,7 +800,7 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
         } else {
             for (unsigned int protIdx = 0; protIdx < yamlProtocols.currentprotocols.size(); protIdx++) {
                 YAML::CurrentProtocol_t yamlProtocol = yamlProtocols.currentprotocols[protIdx];
-                if (yamlProtocol.sweeps == 1 || !(msgDisp->isEpisodic())) { /*! Don't import if the protocol is episodic, but the device is not */
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() != e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
                     if (saveFlag[protIdx]) {
                         if (overwriteFlag[protIdx]) {
                             this->removeProtocolByName(namesSet[protIdx]);
