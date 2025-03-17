@@ -318,16 +318,10 @@ void AbfDataWriterConsumer::initIVSections() {
         abf->FileInfo.ProtocolSection.llNumEntries = 1;
         blockIdx += this->blocksUsedBySection(abf->FileInfo.ProtocolSection);
 
-        //            if (recordSettings.episodicFlag == true) {
-        //                abf->ProtocolInfo.nOperationMode = ABF_WAVEFORMFILE;
-        //                abf->ProtocolInfo.fSynchTimeUnit = abfIntervalUsF32;
-        //                abf->ProtocolInfo.lNumberOfTrials = 1;
-
-        //            } else {
         abf->ProtocolInfo.nOperationMode = ABF_GAPFREEFILE;
         abf->ProtocolInfo.fSynchTimeUnit = 0.0;
         abf->ProtocolInfo.lNumberOfTrials = 0;
-        //            }
+
         abf->ProtocolInfo.fADCSequenceInterval = abfIntervalUsF32;
         abf->ProtocolInfo.fADCRange = 1.0;
 
@@ -904,7 +898,10 @@ unsigned int AbfDataWriterConsumer::blocksUsedBySection(long long sectionSize) {
 //}
 
 EpisodicAbfDataWriterConsumer::EpisodicAbfDataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
-    AbfDataWriterConsumer(appStatus, producer) {}
+    AbfDataWriterConsumer(appStatus, producer) {
+
+    connect(this, &EpisodicAbfDataWriterConsumer::finished, this, &EpisodicAbfDataWriterConsumer::protocolFinished);
+}
 
 EpisodicAbfDataWriterConsumer::~EpisodicAbfDataWriterConsumer() {
     AbfDataWriterConsumer::~AbfDataWriterConsumer();
@@ -1207,7 +1204,6 @@ void EpisodicAbfDataWriterConsumer::manageConsumptionEnd() {
         abfs[channelIdx] = abf;
     }
     DataWriterConsumer::manageConsumptionEnd();
-    emit protocolFinished();
 }
 
 void EpisodicAbfDataWriterConsumer::saveSynchInfo() {

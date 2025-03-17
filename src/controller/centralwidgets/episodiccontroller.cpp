@@ -404,6 +404,7 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
     }
     consumer->setProtocolId(protocolId);
     consumer->setSweepsNum(protocol->getSweepsNum());
+    episodicDataWriterConsumer->setDataHook(protocolId, protocol->getSweepsNum());
     auto duration = protocol->getTotalDuration();
     auto durationS = duration.getNoPrefixValue();
     if (durationS == 0.0) {

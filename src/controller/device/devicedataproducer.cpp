@@ -173,6 +173,22 @@ void DeviceDataProducer::run() {
                 samplesReceived += dataHeader.dataLen;
                 bitRateLock.unlock();
                 break;
+
+            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail:
+                if (currentProtIdx != (dataHeader.protocolId & PROTS_BUFFER_MASK)) {
+                    nextItemIdx = 0;
+                }
+                currentProtIdx = dataHeader.protocolId & PROTS_BUFFER_MASK;
+                dataLock.lockForWrite();
+                items[currentProtIdx][nextItemIdx] = items[currentProtIdx][nextItemIdx-1];
+                items[currentProtIdx][nextItemIdx].repsIdx = 1;
+                items[currentProtIdx][nextItemIdx].sweepIdx++;
+                items[currentProtIdx][nextItemIdx].itemIdx = 0;
+                items[currentProtIdx][nextItemIdx].dataPacketsIdx = dataPacketsIdx;
+                nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
+                items[currentProtIdx][nextItemIdx].available = false;
+                dataLock.unlock();
+                break;
             }
         }
         else {
@@ -536,6 +552,7 @@ void EpisodicDataHook::flush() {
     dataLock.unlock();
 }
 
+#include <QDebug>
 bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
     int waitCount = 0;
     dataLock.lockForRead();
@@ -582,6 +599,7 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
             if (currentSweepIdx == sweepsNum) {
                 protocolEndedFlag = true;
             }
+            qDebug() << currentSweepIdx;
             newSweepFlag = true;
             dataPacketsMax = item.dataPacketsIdx;
         }
