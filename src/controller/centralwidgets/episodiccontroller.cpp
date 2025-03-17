@@ -368,6 +368,7 @@ void EpisodicController::onRecordingRequest(bool flag) {
         ProtocolWidget * protocol = static_cast <ProtocolWidget *> (pl->currentItem());
 
         if (protocol->getType() != ProtocolTypeEpisodic) {
+            emit sigStopRecording();
             QString err = "No episodic protocol selected";
             QString info = "Select an episodic protocol to start the recording";
             ErrorManager e(err, info);
@@ -379,6 +380,7 @@ void EpisodicController::onRecordingRequest(bool flag) {
 
         }
         else {
+            emit sigStopRecording();
             QString err = "Recording to file not possible";
             QString info = "No channel checked for recording";
             ErrorManager e(err, info);
