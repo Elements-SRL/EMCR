@@ -80,7 +80,9 @@ void AnalysisConsumer::run() {
 
         if (hook!= nullptr && hook->getDataChunk(buffer, 1, minDataBatchSize)) {
             this->performAnalysis();
-            hook->flush(); /*! Get rid of some data, these analyses will work anyway */
+            if (flushAfterAnalysisFlag) {
+                hook->flush();
+            }
         }
     }
 

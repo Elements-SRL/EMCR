@@ -64,6 +64,9 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     dataTable->setItem(0, ColCurrentRms, new QTableWidgetItem("Current RMS [pA]"));
     dataTable->setItem(0, ColResistance, new QTableWidgetItem("Resistance [MOHm]"));
     dataTable->setItem(0, ColPipetteCapacitance, new QTableWidgetItem("Pipette capacitance [pF]"));
+    dataTable->setItem(0, ColMembraneCapacitance, new QTableWidgetItem("Membrane capacitance [pF]"));
+    dataTable->setItem(0, ColAccessResistance, new QTableWidgetItem("Access resistance [MOhm]"));
+    dataTable->setItem(0, ColMembraneResistance, new QTableWidgetItem("Membrane resistance [MOhm]"));
     dataTable->setItem(0, ColOffsetRecalibration, new QTableWidgetItem("Offset recalibration [pA]"));
     dataTable->setItem(0, ColLiquidJunction, new QTableWidgetItem("Liquid junction [mV]"));
     mainVl->addWidget(dataTable);
@@ -99,7 +102,7 @@ void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector <e384cl
     }
 }
 
-void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector <StatisticsResult_t> results) {
+void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResultWrapper_t results) {
     this->setCellText(0, ColMeanVoltage, QString::fromStdString("Mean Voltage [" + results[0].meanVoltage.getFullUnit())+ "]");
     this->setCellText(0, ColVoltageRms, QString::fromStdString("Voltage RMS [" + results[0].stdVoltage.getFullUnit())+ "]");
     this->setCellText(0, ColMeanCurrent, QString::fromStdString("Mean Current [" + results[0].meanCurrent.getFullUnit())+ "]");
@@ -112,7 +115,7 @@ void MeasurementsOverviewDockWidget::onLiveStatisticsResult(std::vector <Statist
     }
 }
 
-void MeasurementsOverviewDockWidget::onResistanceEstimationResult(std::vector <SingleMeasResult_t> results) {
+void MeasurementsOverviewDockWidget::onResistanceEstimationResult(SingleMeasResultWrapper_t results) {
     this->setCellText(0, ColResistance, QString::fromStdString("Resistance [" + results[0].meas.getFullUnit()) + "]");
     int row = 1;
     for (auto ch : activeChannels) {
@@ -122,12 +125,26 @@ void MeasurementsOverviewDockWidget::onResistanceEstimationResult(std::vector <S
     }
 }
 
-void MeasurementsOverviewDockWidget::onPipetteCapacitanceEstimationResult(std::vector <SingleMeasResult_t> results) {
+void MeasurementsOverviewDockWidget::onPipetteCapacitanceEstimationResult(SingleMeasResultWrapper_t results) {
     this->setCellText(0, ColPipetteCapacitance, QString::fromStdString("Pipette capacitance [" + results[0].meas.getFullUnit()) + "]");
     int row = 1;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
         this->setCellText(row, ColPipetteCapacitance, QString("%1").arg(result.meas.value));
+        row++;
+    }
+}
+
+void MeasurementsOverviewDockWidget::onMembraneEstimationResult(MembraneResultWrapper_t results) {
+    this->setCellText(0, ColMembraneCapacitance, QString::fromStdString("Membrane capacitance [" + results[0].membraneCapacitance.getFullUnit()) + "]");
+    this->setCellText(0, ColAccessResistance, QString::fromStdString("Access resistance [" + results[0].accessResistance.getFullUnit()) + "]");
+    this->setCellText(0, ColMembraneResistance, QString::fromStdString("Membrane resistance [" + results[0].membraneResistance.getFullUnit()) + "]");
+    int row = 1;
+    for (auto ch : activeChannels) {
+        auto &result = results[ch];
+        this->setCellText(row, ColMembraneCapacitance, QString("%1").arg(result.membraneCapacitance.value));
+        this->setCellText(row, ColAccessResistance, QString("%1").arg(result.accessResistance.value));
+        this->setCellText(row, ColMembraneResistance, QString("%1").arg(result.membraneResistance.value));
         row++;
     }
 }

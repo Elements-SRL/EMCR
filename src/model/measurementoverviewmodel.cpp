@@ -10,6 +10,7 @@ MeasurementOverviewModel::MeasurementOverviewModel(std::vector <uint16_t> active
     statisticsResults.resize(currentChannelsNum);
     resistanceEstimationResults.resize(currentChannelsNum);
     pipetteCapacitanceEstimationResults.resize(currentChannelsNum);
+    membraneEstimationResults.resize(currentChannelsNum);
     offsetRecalibrationResults.resize(currentChannelsNum);
     liquidJunctionResults.resize(currentChannelsNum);
 }
@@ -24,6 +25,10 @@ std::vector <SingleMeasResult_t> MeasurementOverviewModel::getResistanceEstimati
 
 std::vector <SingleMeasResult_t> MeasurementOverviewModel::getPipetteCapacitanceEstimationResults() {
     return pipetteCapacitanceEstimationResults;
+}
+
+std::vector <MembraneResult_t> MeasurementOverviewModel::getMembraneEstimationResults() {
+    return membraneEstimationResults;
 }
 
 std::vector <Measurement_t> MeasurementOverviewModel::getOffsetRecalibrationResults() {
@@ -46,6 +51,10 @@ void MeasurementOverviewModel::setPipetteCapacitanceEstimationResult(std::vector
     pipetteCapacitanceEstimationResults = results;
 }
 
+void MeasurementOverviewModel::setMembraneEstimationResult(std::vector <MembraneResult_t> results) {
+    membraneEstimationResults = results;
+}
+
 void MeasurementOverviewModel::setOffsetRecalibrationResults(std::vector <Measurement_t> orr) {
     offsetRecalibrationResults = orr;
 }
@@ -61,6 +70,9 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
         auto r = statisticsResults[0];
         auto res = resistanceEstimationResults[0];
         auto pip = pipetteCapacitanceEstimationResults[0];
+        auto memC = membraneEstimationResults[0].membraneCapacitance;
+        auto accR = membraneEstimationResults[0].accessResistance;
+        auto memR = membraneEstimationResults[0].membraneResistance;
         auto orr = offsetRecalibrationResults[0];
         auto lj = liquidJunctionResults[0];
         stream << "Channel idx,Mean Voltage [" << getValueAndUnit(r.meanVoltage).second << "],";
@@ -74,7 +86,10 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
         for (int i = 0; i < statisticsResults.size(); i++) {
             r = statisticsResults[i];
             res = resistanceEstimationResults[i];
-            res = pipetteCapacitanceEstimationResults[i];
+            pip = pipetteCapacitanceEstimationResults[i];
+            memC = membraneEstimationResults[i].membraneCapacitance;
+            accR = membraneEstimationResults[i].accessResistance;
+            memR = membraneEstimationResults[i].membraneResistance;
             orr = offsetRecalibrationResults[i];
             lj = liquidJunctionResults[i];
             std::vector <std::pair <QString, QString>> measurementsStrings = {
@@ -84,6 +99,9 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
                 getValueAndUnit(r.stdCurrent),
                 getValueAndUnit(res.meas),
                 getValueAndUnit(pip.meas),
+                getValueAndUnit(memC),
+                getValueAndUnit(accR),
+                getValueAndUnit(memR),
                 getValueAndUnit(orr),
                 getValueAndUnit(lj)};
             stream << r.chIdx+1;

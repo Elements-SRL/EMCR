@@ -72,6 +72,26 @@ std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
     return expandedChannels;
 };
 
+std::vector <uint16_t> ApplicationStatus::getStimActiveChannelsIndexes() {
+    std::vector <uint16_t> stimActiveChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isStimActive()) {
+            stimActiveChannels.push_back(ch->getId());
+        }
+    }
+    return stimActiveChannels;
+};
+
+std::vector <uint16_t> ApplicationStatus::getExpandedAndStimActiveChannelsIndexes() {
+    std::vector <uint16_t> stimActiveChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isExpanded() && ch->isStimActive()) {
+            stimActiveChannels.push_back(ch->getId());
+        }
+    }
+    return stimActiveChannels;
+};
+
 std::vector <uint16_t> ApplicationStatus::getOffsetRecalibratingChannelsIndexes() {
     std::vector <uint16_t> recalibratingChannels;
     for (const auto& ch : getChannels()) {

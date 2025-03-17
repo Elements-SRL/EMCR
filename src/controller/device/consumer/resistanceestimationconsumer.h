@@ -9,7 +9,7 @@
 
 #include "squarevoltagebasedanalysisconsumer.h"
 #include "singlemeasresult.h"
-#include "singlemeasresultwrapper.h"
+#include "resultwrapper.h"
 
 class ResistanceEstimationConsumer : public SquareVoltageBasedAnalysisConsumer {
     Q_OBJECT

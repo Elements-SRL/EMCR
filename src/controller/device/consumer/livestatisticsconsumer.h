@@ -6,7 +6,7 @@
 
 #include "analysisconsumer.h"
 #include "statisticsresult.h"
-#include "statisticsresultwrapper.h"
+#include "resultwrapper.h"
 
 class LiveStatisticsConsumer : public AnalysisConsumer {
     Q_OBJECT

@@ -24,7 +24,7 @@
 #include "statearraycontroller.h"
 #include "compensationcontroller.h"
 #include "plotpreferencescontroller.h"
-#include "autodeclogger/autodecloggercontroller.h"
+#include "autodecloggercontroller.h"
 
 
 class MainController : public QObject {

@@ -69,8 +69,8 @@ protected:
     double prevVoltage;
 
     int analysisIdx;
-    int voltageIdx = 0; /*! \todo FCON sarebbe da assegnare il primo canale di tensione che non ha il protocollo disabilitato */
-    int currentIdx;
+    int voltageIdx;
+    std::vector <uint16_t> channelsToBeAnalyzed;
 };
 
 #endif // SQUAREVOLTAGEBASEDANALYSISCONSUMER_H

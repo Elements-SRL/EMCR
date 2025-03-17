@@ -26,7 +26,6 @@ void PipetteCapacitanceEstimationConsumer::initAnalysis() {
 void PipetteCapacitanceEstimationConsumer::resetAnalysis() {
     SquareVoltageBasedAnalysisConsumer::resetAnalysis();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        results[channelIdx].meas.value = 0.0;
         results[channelIdx].meas.prefix = currentRange.prefix / voltageRange.prefix; /*! it should be current * time / voltage, but the time is in seconds */
     }
 }
@@ -55,9 +54,9 @@ void PipetteCapacitanceEstimationConsumer::waitingForTransient2End() {
 }
 
 void PipetteCapacitanceEstimationConsumer::collectingData2Exe() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         int channelIdx = analysisIdx+voltageChannelsNum+currentIdx;
-        currentTransient[currentIdx][secondPulseIdx] = buffer[channelIdx];
+        currentTransient[currentIdx][secondPulseIdx] += buffer[channelIdx];
         if (secondPulseIdx >= waitForRegimeSamples) {
             currentSum2[currentIdx] += buffer[channelIdx];
         }
@@ -66,20 +65,17 @@ void PipetteCapacitanceEstimationConsumer::collectingData2Exe() {
 }
 
 void PipetteCapacitanceEstimationConsumer::computeResults() {
-    for (currentIdx = 0; currentIdx < currentChannelsNum; currentIdx++) {
+    for (int currentIdx : channelsToBeAnalyzed) {
         currentSum2[currentIdx] /= (double)(regimeSamples*collectedPeriods);
-        double currentIntegral = -currentSum2[currentIdx]*(double)(collectedPeriods); /*! currentSum2 is the regime value, so it should be subtraced from each sample in current transient,
-                                                                                            so we subtract it once here  */
+        double currentIntegral = -currentSum2[currentIdx]*(double)(toBeCollectedSamples2*collectedPeriods); /*! currentSum2 is the regime value, so it should be subtraced from each sample in current transient,
+                                                                                                                so we subtract it once here  */
         for (int idx = 0; idx < toBeCollectedSamples2; idx++) {
             currentIntegral += currentTransient[currentIdx][idx];
         }
         currentIntegral /= (double)(collectedPeriods);
         double charge = currentIntegral/samplingRateHz; /*! Se non indispensabile non calcolo la tau per la pipetta */ //+deltaCurrent*estTau; /*!< The second addend is the correction charge */
-        results[currentIdx].meas.value = charge/(voltageSum-voltageSum2);
+        results[currentIdx].meas.value = charge/(voltageSum2-voltageSum);
     }
     SingleMeasResultWrapper_t w = {results};
     emit sigResult(w);
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        results[channelIdx].meas.value = 0.0;
-    }
 }

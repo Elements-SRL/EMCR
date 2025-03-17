@@ -126,8 +126,6 @@ public:
 
     virtual void forceAxisUpdate() override;
     void setMaxSamplesPerPlot(int samples);
-    // void lockCurves();
-    // void unlockCurves();
 
 public slots:
     virtual void onStartConsuming() override;
@@ -138,16 +136,6 @@ protected:
     void allocateData();
     void clearData();
     void emitPlotData() override;
-    // void updateRangeAxis() override;
-
-    // int timeIdx = 0;
-    // int dataSize = 0;
-
-    // int subSamplingRatio = 1;
-    // int subSamplingIdx = 0;
-
-    // QVector <CurveData *> activeCurrentCurveData;
-    // QVector <CurveData *> activeVoltageCurveData;
 
 private:
     void updateTimeAxis();
@@ -158,13 +146,6 @@ private:
     EpisodicDataHook * episodicHook = nullptr;
 
     EpisodicMessage episodicMessage;
-
-    // Measurement_t pushedSweepDuration;
-//     QRecursiveMutex curvesMtx;
-
-// signals:
-//     void plotDataUpdated(bool, bool, bool);
-//     void repaintPlot();
 };
 
 #endif // PLOTCONSUMER_H

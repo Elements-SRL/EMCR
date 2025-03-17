@@ -10,7 +10,7 @@
 
 #include "squarevoltagebasedanalysisconsumer.h"
 #include "singlemeasresult.h"
-#include "singlemeasresultwrapper.h"
+#include "resultwrapper.h"
 
 class PipetteCapacitanceEstimationConsumer : public SquareVoltageBasedAnalysisConsumer {
     Q_OBJECT
