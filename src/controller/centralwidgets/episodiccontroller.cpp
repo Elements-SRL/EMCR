@@ -59,6 +59,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
                                                                                                                            lo zoom è gestita diversamente: esiste una durata preferenziale
                                                                                                                            che è quella del protocollo e l'asse temporale non può cambiare
                                                                                                                            rispetto alla configurazione iniziale */
+    connect(episodicDataWriterConsumer, &EpisodicAbfDataWriterConsumer::protocolFinished, this, &EpisodicController::onStopRecording);
     connect(consumer, &PlotConsumer::setPlotData, this, &EpisodicController::onSetPlotData);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(PCS_MAX_SAMPLES_PER_EPISODIC_PLOT);
@@ -420,6 +421,7 @@ void EpisodicController::onStartRecording() {
 }
 
 void EpisodicController::onStopRecording() {
+    episodicWidget->setRecording(false);
     episodicDataWriterConsumer->onStopConsuming();
 }
 
