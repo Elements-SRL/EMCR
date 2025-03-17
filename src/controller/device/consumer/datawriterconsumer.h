@@ -55,10 +55,8 @@ protected:
 
     QFile headerFid;
     std::vector <int> pushedActiveChannels;
-    QVector <bool> pushedActiveChannelsFlag;
     int pushedActiveChannelsNum;
     std::vector<int> activeChannels;
-    QVector <bool> activeChannelsFlag;
     int activeChannelsNum;
     QString filename;
     QString recordPath;

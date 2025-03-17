@@ -392,8 +392,12 @@ void EpisodicPlotConsumer::run() {
         }
         if (episodicHook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
             // this->updateRangeAxis(); /*! \todo FCON aggiornare il range in episodico ha senso? */
-            episodicMessage.newSweepFlag = episodicHook->isLatestSweepNew();
+            episodicMessage.newSweepFlag = episodicHook->getSweepNewFlag();
             if (episodicMessage.newSweepFlag) {
+                if (episodicHook->getProtocolEndedFlag()) {
+                    consumptionStopped = true;
+                    continue;
+                }
                 timeIdx = 0;
             }
 

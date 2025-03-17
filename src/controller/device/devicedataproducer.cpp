@@ -518,8 +518,16 @@ bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, std::ve
     return true;
 }
 
-bool EpisodicDataHook::isLatestSweepNew() {
+bool EpisodicDataHook::getSweepNewFlag() {
     return newSweep;
+}
+
+int EpisodicDataHook::getSweepIdx() {
+    return currentSweepIdx;
+}
+
+bool EpisodicDataHook::getProtocolEndedFlag() {
+    return protocolEndedFlag;
 }
 
 void EpisodicDataHook::flush() {
@@ -527,25 +535,6 @@ void EpisodicDataHook::flush() {
     dataIdx = dataPacketsIdx;
     dataLock.unlock();
 }
-
-// std::tuple <bool, unsigned int, unsigned int, bool> isDataAvailable(bool isItemAvailable, bool protocolFound, bool isSameProtId, bool isSameSweep, unsigned int itemLastPacket, unsigned int dataIdx) {
-//     if (isItemAvailable) {
-//         if (!protocolFound && !isSameProtId) {
-//             return std::make_tuple (false, dataPacketsIdx, dataPacketsIdx, false);
-//         }
-
-//         if (!isSameSweep) {
-//             return std::make_tuple (true, itemLastPacket, dataIdx, true);
-//         }
-//         return std::make_tuple (true, dataPacketsIdx, dataIdx, true);
-//     }
-//     else {
-//         if (!protocolFound) {
-//             return std::make_tuple (false, dataPacketsIdx, dataPacketsIdx, false);
-//         }
-//         return std::make_tuple (true, dataPacketsIdx, dataIdx, true);
-//     }
-// }
 
 bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
     int waitCount = 0;
@@ -590,6 +579,9 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
             else {
                 currentSweepIdx = item.sweepIdx;
             }
+            if (currentSweepIdx == sweepsNum) {
+                protocolEndedFlag = true;
+            }
             newSweepFlag = true;
             dataPacketsMax = item.dataPacketsIdx;
         }
@@ -610,22 +602,4 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
 
     dataLock.unlock();
     return true;
-
-    // auto t = isDataAvailable(item.available, protocolFound, item.protId == protocolId, currentSweepIdx == item.sweepIdx, item.dataPacketsIdx, dataIdx);
-
-    // dataPacketsMax = std::get<1>(t);
-    // dataIdx = std::get<2>(t);
-    // protocolFound = std::get<3>(t);
-
-    // if (item.available && protocolFound) {
-    //     if (currentSweepIdx != item.sweepIdx) {
-    //         newSweepFlag = true;
-    //         currentSweepIdx = item.sweepIdx;
-    //     }
-    //     nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
-    // }
-
-    // dataLock.unlock();
-
-    // return std::get<0>(t);
 }

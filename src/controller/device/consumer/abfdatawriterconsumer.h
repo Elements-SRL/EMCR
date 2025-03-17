@@ -22,9 +22,13 @@ public slots:
 //    virtual void onSaveTagString(QString tagString) override;
 
 protected:
-    void run() override;
-    void initAbfSections();
-    void initIVSections();
+    /*! bufferIdx is used to index the buffer to be written, it's mutable and referenced because it indicates where to start at the next call
+        activeChannelsRatio is the total number of channels divided by the number of active channels
+        returns the number of samples in the buffer not processed */
+    virtual long long prepareBufferAndWriteToFile(long long &bufferIdx, double activeChannelsRatio);
+    virtual void run() override;
+    virtual void initAbfSections();
+    virtual void initIVSections();
     void initISections();
     void initVSections();
 
@@ -34,9 +38,6 @@ protected:
 
     unsigned int blocksUsedBySection(ABF_Section section);
     unsigned int blocksUsedBySection(long long sectonSize);
-//    void saveSynchInfo();
-//    void saveSynchInfo(ABF * abf);
-//    void writeSynchInfo(ABF * abf);
 //    void writeTagsInfo(ABF * abf);
 
     std::vector <unsigned short> buffer;
@@ -47,6 +48,7 @@ protected:
     int voltageDecimationRatio = 1;
 
     unsigned int rawBuffersLen;
+    long long maxDataSizeWritten;
     unsigned int maxMinPacketsPerBatch;
     QVector <ABF *> abfs;
     QVector <ABF *> abfsV;
@@ -56,11 +58,6 @@ protected:
 
     float abfIntervalUsF32;
     float abfIntervalUsF32V;
-
-//    unsigned short sweepIdx;
-//    int sweepsNum = 0;
-//    int episodeStart;
-//    int episodeLength;
 
 //    int tagIdx = 0;
 };
@@ -75,8 +72,21 @@ public:
 public slots:
     void setDataHook(unsigned int protocolId, unsigned int sweepsNum);
 
-// protected:
-//     void run() override;
+protected:
+    virtual long long prepareBufferAndWriteToFile(long long &bufferIdx, double activeChannelsRatio) override;
+    void run() override;
+    void initAbfSections() override;
+    void initIVSections() override;
+
+    void manageConsumptionBegin() override;
+    void manageConsumptionEnd() override;
+
+    void saveSynchInfo();
+    void saveSynchInfo(ABF * abf);
+    void writeSynchInfo(ABF * abf);
+
+    unsigned short sweepIdx;
+    int sweepsNum = 0;
 };
 
 #endif // ABFDATAWRITERCONSUMER_H

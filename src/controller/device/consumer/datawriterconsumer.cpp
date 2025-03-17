@@ -9,16 +9,12 @@ DataWriterConsumer::DataWriterConsumer(ApplicationStatus * appStatus, DeviceData
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         activeChannels[idx] = idx;
     }
-    activeChannelsFlag.resize(currentChannelsNum);
-    activeChannelsFlag.fill(true);
     activeChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channels */
 
     pushedActiveChannels.resize(currentChannelsNum);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         pushedActiveChannels[idx] = idx;
     }
-    pushedActiveChannelsFlag.resize(currentChannelsNum);
-    pushedActiveChannelsFlag.fill(true);
     pushedActiveChannelsNum = totalChannelsNum; /*! This has to take into account also the voltage channels */
 
     connect(this, &QThread::started, this, [=] () {
@@ -41,7 +37,6 @@ void DataWriterConsumer::onStartConsuming() {
      *  so when the recording starts freeze the active channels and use
      *  throughout the recording */
     activeChannels = pushedActiveChannels;
-    activeChannelsFlag = pushedActiveChannelsFlag;
     activeChannelsNum = pushedActiveChannelsNum;
     if (dataFormat == settings.fileFormat) {
         recordingInitialized = false;
@@ -91,13 +86,11 @@ void DataWriterConsumer::onRecordingSettingsSet(RecordSettingsDialog::RecordSett
 void DataWriterConsumer::onRecordSelectedChannels(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
     this->onStopConsuming();
     pushedActiveChannels.clear();
-    pushedActiveChannelsFlag.fill(false);
     pushedActiveChannelsNum = 0;
 
     for (int idx = 0; idx < channelIndexes.size(); idx++) {
         if (onValues[idx]) {
             pushedActiveChannels.push_back(channelIndexes[idx]);
-            pushedActiveChannelsFlag[channelIndexes[idx]] = true;
             pushedActiveChannelsNum+=channelsPerFile;
         }
     }

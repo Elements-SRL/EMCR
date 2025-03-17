@@ -368,11 +368,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
         itemIdxs.append(itemIdx++);
     }
 
-//    if (msgDisp->hasProtocolStepFeature() == Success) {
-//        libraryPidl->addItem(new ProtocolDragVRestItem());
-//        itemIdxs.append(itemIdx++);
-//    }
-
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
 
@@ -386,8 +381,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     itemIdxs.append(itemIdx++);
     libraryPidl->addItem(new ProtocolDragVInfRepSeqItem());
     itemIdxs.append(itemIdx++);
-//    libraryPidl->addItem(new ProtocolDragVRepSeqScaledItem());
-//    itemIdxs.append(itemIdx++);
 
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
@@ -575,11 +568,6 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
         libraryPidl->addItem(new ProtocolDragISinItem());
         itemIdxs.append(itemIdx++);
     }
-
-//    if (msgDisp->hasProtocolStepFeature() == Success) {
-//        libraryPidl->addItem(new ProtocolDragIRestItem());
-//        itemIdxs.append(itemIdx++);
-//    }
 
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
