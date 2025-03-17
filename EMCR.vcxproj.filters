@@ -394,6 +394,9 @@
     <ClCompile Include="src\model\logbigplotmodel.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\membraneestimationconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -773,6 +776,9 @@
     </QtMoc>
     <QtMoc Include="src\controller\device\consumer\resistanceestimationconsumer.h">
       <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\membraneestimationconsumer.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

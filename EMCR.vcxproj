@@ -200,6 +200,7 @@
     <ClCompile Include="src\controller\device\consumer\analysisconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\autodecloggerconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\eventdetectionconsumer.cpp" />
+    <ClCompile Include="src\controller\device\consumer\membraneestimationconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\pipettecapacitanceestimationconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\resistanceestimationconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\squarevoltagebasedanalysisconsumer.cpp" />
@@ -325,6 +326,7 @@
     <QtMoc Include="src\controller\durationbasedbigplotviewcontroller.h" />
     <QtMoc Include="src\controller\device\consumer\analysisconsumer.h" />
     <QtMoc Include="src\controller\device\consumer\resistanceestimationconsumer.h" />
+    <QtMoc Include="src\controller\device\consumer\membraneestimationconsumer.h" />
     <ClInclude Include="src\model\autodeclogger\autodecloggermodel.h" />
     <ClInclude Include="src\model\binner.h" />
     <QtMoc Include="src\model\devicemodel.h" />
