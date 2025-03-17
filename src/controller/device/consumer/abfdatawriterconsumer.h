@@ -87,6 +87,9 @@ protected:
 
     unsigned short sweepIdx;
     int sweepsNum = 0;
+
+signals:
+    void protocolFinished();
 };
 
 #endif // ABFDATAWRITERCONSUMER_H

@@ -4,11 +4,15 @@
 
 EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, MainWindow* mw, DeviceController* dc):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
-    
+
+    if (appStatus->getMessageDispatcher()->hasProtocols() == Success) {
+        pw = static_cast <ProtocolDockWidget *> (mw->getDockWidget(MainWindow::DWProtocol));
+    }
+
     auto model = std::make_unique<BigPlotModel>();
     consumer = new EpisodicPlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
-    this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);
+    this->episodicDataWriterConsumer = new EpisodicAbfDataWriterConsumer(appStatus, producer);
     auto plot = new BigPlot("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
 
     plot->enableAxis(QwtPlot::yRight);
@@ -42,15 +46,15 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     connect(episodicWidget, &EpisodicWidget::sigAutoZoom, this, [=]() {
         bpvc->getPlot()->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
     });
-    connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=](bool flag) {
+    connect(episodicDataWriterConsumer, &DataWriterConsumer::sigRecording, [=](bool flag) {
         this->onRecordingExecution(flag);
         dc->handleRecording(flag);
     });
     connect(this, &EpisodicController::sigStartRecording, this, &EpisodicController::onStartRecording);
     connect(this, &EpisodicController::sigStopRecording, this, &EpisodicController::onStopRecording);
-    connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
-    connect(episodicWidget, &EpisodicWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
-    connect(episodicWidget, &EpisodicWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
+    connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, episodicDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
+    connect(episodicWidget, &EpisodicWidget::sigFileNameChanged, episodicDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
+    connect(episodicWidget, &EpisodicWidget::sigRecordPathChanged, episodicDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
     connect(bpvc.get(), &DurationBasedBigPlotViewController::durationChanged, consumer, &PlotConsumer::onDurationChanged); /*! \todo FCON occhio che nei plot episodici la gestione della durata con
                                                                                                                            lo zoom è gestita diversamente: esiste una durata preferenziale
                                                                                                                            che è quella del protocollo e l'asse temporale non può cambiare
@@ -68,11 +72,12 @@ EpisodicController::~EpisodicController() {
         consumer = nullptr;
     }
     this->clearCurves();
-    if (abfDataWriterConsumer != nullptr) {
-        abfDataWriterConsumer->onStopConsuming();
-        delete abfDataWriterConsumer;
-        abfDataWriterConsumer = nullptr;
+    if (episodicDataWriterConsumer != nullptr) {
+        episodicDataWriterConsumer->onStopConsuming();
+        delete episodicDataWriterConsumer;
+        episodicDataWriterConsumer = nullptr;
     }
+    pw = nullptr;
 }
 
 void EpisodicController::clearCurves() {
@@ -345,7 +350,7 @@ PlotConsumer* EpisodicController::getConsumer() {
 }
 
 std::vector <DeviceDataConsumer *> EpisodicController::getConsumers() {
-    return {consumer, abfDataWriterConsumer};
+    return {consumer, episodicDataWriterConsumer};
 }
 
 void EpisodicController::onRecordingRequest(bool flag) {
@@ -353,6 +358,20 @@ void EpisodicController::onRecordingRequest(bool flag) {
         std::vector <uint16_t> selectedChannels;
         auto msgDisp = appStatus->getMessageDispatcher();
         msgDisp->getSelectedChannelsIndexes(selectedChannels);
+        ProtocolList * pl;
+        if (appStatus->getClampingModality() == e384CommLib::VOLTAGE_CLAMP) {
+            pl = pw->getVoltageProtocolList();
+        } else {
+            pl = pw->getCurrentProtocolList();
+        }
+        ProtocolWidget * protocol = static_cast <ProtocolWidget *> (pl->currentItem());
+
+        if (protocol->getType() != ProtocolTypeEpisodic) {
+            QString err = "No episodic protocol selected";
+            QString info = "Select an episodic protocol to start the recording";
+            ErrorManager e(err, info);
+            return;
+        }
 
         if (!(selectedChannels.empty())) {
             emit sigStartRecording();
@@ -364,6 +383,7 @@ void EpisodicController::onRecordingRequest(bool flag) {
             ErrorManager e(err, info);
         }
 
+        pl->onStartProtocol(true);
     }
     else {
         emit sigStopRecording();
@@ -396,11 +416,11 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
 void EpisodicController::onStartRecording() {
     const auto selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), true);
-    abfDataWriterConsumer->onRecordSelectedChannels(selectedChannels, values);
+    episodicDataWriterConsumer->onRecordSelectedChannels(selectedChannels, values);
 }
 
 void EpisodicController::onStopRecording() {
-    abfDataWriterConsumer->onStopConsuming();
+    episodicDataWriterConsumer->onStopConsuming();
 }
 
 CurveData::CurveData(int size) {

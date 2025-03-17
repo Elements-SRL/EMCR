@@ -1207,6 +1207,7 @@ void EpisodicAbfDataWriterConsumer::manageConsumptionEnd() {
         abfs[channelIdx] = abf;
     }
     DataWriterConsumer::manageConsumptionEnd();
+    emit protocolFinished();
 }
 
 void EpisodicAbfDataWriterConsumer::saveSynchInfo() {

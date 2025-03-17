@@ -34,10 +34,11 @@ public:
     std::vector <DeviceDataConsumer *> getConsumers() override;
 
 private:
+    ProtocolDockWidget * pw = nullptr;
     std::unique_ptr<DurationBasedBigPlotViewController> bpvc;
     EpisodicPlotConsumer * consumer = nullptr;
     EpisodicWidget* episodicWidget = nullptr;
-    AbfDataWriterConsumer* abfDataWriterConsumer = nullptr;
+    EpisodicAbfDataWriterConsumer* episodicDataWriterConsumer = nullptr;
     std::vector <std::vector <Curve *>> currentCurves;
     std::vector <std::vector <Curve *>> voltageCurves;
     std::vector <CurveData *> activeCurrentCurveData;
