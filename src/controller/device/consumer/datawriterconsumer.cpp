@@ -73,7 +73,7 @@ void DataWriterConsumer::onStopConsuming() {
         consumptionStopped = true;
 
         while (!exitedDataConsumingLoop) {
-            exitedDataConsumingLoopCv.wait(&consumptionMtx);
+            exitedDataConsumingLoopCv.wait(&consumptionMtx, 100);
         }
     }
 }

@@ -396,11 +396,14 @@ void EpisodicDataHook::setBufferSize(unsigned int bufferSize, unsigned int buffe
     halfBufferSize = bufferSize/2;
 }
 
+#include <QDebug>
 bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
+        qDebug() << "ciccia " << currentSweepIdx;
         return false;
     }
+    qDebug() << currentSweepIdx;
 
     unsigned int dataPacketsToBuffer;
     if (dataIdx <= dataPacketsMax) {
@@ -552,7 +555,6 @@ void EpisodicDataHook::flush() {
     dataLock.unlock();
 }
 
-#include <QDebug>
 bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) {
     int waitCount = 0;
     dataLock.lockForRead();
@@ -562,22 +564,7 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         dataCv.wait(&dataLock, 100);
     }
 
-    /*! No data if after several tries no data is obtained. However, if at least one sample is obtained process it, don't require
-     *  necessarily minDataBatchSize samples at this point */
-    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx) {
-        dataLock.unlock();
-        return false;
-    }
-
     auto item = items[protocolId & PROTS_BUFFER_MASK][nextItemIdx];
-
-    if (currentSweepIdx >= sweepsNum) {
-        dataPacketsMax = dataPacketsIdx;
-        dataIdx = dataPacketsIdx;
-        dataLock.unlock();
-
-        return false;
-    }
 
     if (item.available) {
         if (!protocolFound && item.protId != protocolId) {
@@ -596,11 +583,15 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
             else {
                 currentSweepIdx = item.sweepIdx;
             }
-            if (currentSweepIdx == sweepsNum) {
-                protocolEndedFlag = true;
-            }
-            qDebug() << currentSweepIdx;
             newSweepFlag = true;
+            if (currentSweepIdx >= sweepsNum) {
+                protocolEndedFlag = true;
+                dataPacketsMax = dataPacketsIdx;
+                dataIdx = dataPacketsIdx;
+                dataLock.unlock();
+
+                return false;
+            }
             dataPacketsMax = item.dataPacketsIdx;
         }
         else {
@@ -616,6 +607,13 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
 
             return false;
         }
+    }
+
+    /*! No data if after several tries no data is obtained. However, if at least one sample is obtained process it, don't require
+     *  necessarily minDataBatchSize samples at this point */
+    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx) {
+        dataLock.unlock();
+        return false;
     }
 
     dataLock.unlock();

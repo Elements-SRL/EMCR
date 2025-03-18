@@ -19,7 +19,7 @@ public:
     ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath = "");
     void loadChannelMappingFromYaml(std::string pathTofile);
     void setAllChannelsSelected(bool state);
-    void printEverything();
+    //void printEverything();
     int getVoltageChannelsNum();
     int getCurrentChannelsNum();
     int getBoardsNum();

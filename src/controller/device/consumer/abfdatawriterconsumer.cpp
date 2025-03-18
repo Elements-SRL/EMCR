@@ -908,7 +908,7 @@ EpisodicAbfDataWriterConsumer::~EpisodicAbfDataWriterConsumer() {
 }
 
 void EpisodicAbfDataWriterConsumer::setDataHook(unsigned int protocolId, unsigned int sweepsNum) {
-    hook = new EpisodicDataHook(totalChannelsNum, protocolId, sweepsNum);
+    hook = producer->getEpisodicDataHook(protocolId, sweepsNum);
 }
 
 long long EpisodicAbfDataWriterConsumer::prepareBufferAndWriteToFile(long long &bufferIdx, double activeChannelsRatio) {

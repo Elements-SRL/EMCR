@@ -394,10 +394,6 @@ void EpisodicPlotConsumer::run() {
             // this->updateRangeAxis(); /*! \todo FCON aggiornare il range in episodico ha senso? */
             episodicMessage.newSweepFlag = episodicHook->getSweepNewFlag();
             if (episodicMessage.newSweepFlag) {
-                if (episodicHook->getProtocolEndedFlag()) {
-                    consumptionStopped = true;
-                    continue;
-                }
                 timeIdx = 0;
             }
 
@@ -430,6 +426,9 @@ void EpisodicPlotConsumer::run() {
             emit setPlotData(episodicMessage);
 
             episodicMessage.newProtocolFlag = false;
+        }
+        if (episodicHook->getProtocolEndedFlag()) {
+            consumptionStopped = true;
         }
     }
     consumptionLock.relock();
