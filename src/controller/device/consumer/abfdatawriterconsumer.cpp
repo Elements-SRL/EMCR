@@ -1220,11 +1220,11 @@ void EpisodicAbfDataWriterConsumer::saveSynchInfo(ABF * abf) {
     /*! Do not save on first new sweep flag, since the at the protocol beginning the length of the sweep is not known yet */
     if (sweepIdx == 0) {
         abf->SynchArray[sweepIdx].lStart = 0;
-        abf->SynchArray[sweepIdx].lLength = savedValues;
+        abf->SynchArray[sweepIdx].lLength = samplesFromTheBeginning*DWC_ABF_CHANNEL_PER_FILE;
     }
     else if (sweepIdx > 0) {
         abf->SynchArray[sweepIdx].lStart = abf->SynchArray[sweepIdx-1].lStart+abf->SynchArray[sweepIdx-1].lLength/DWC_ABF_CHANNEL_PER_FILE;
-        abf->SynchArray[sweepIdx].lLength = savedValues-abf->SynchArray[sweepIdx].lStart* DWC_ABF_CHANNEL_PER_FILE;
+        abf->SynchArray[sweepIdx].lLength = (samplesFromTheBeginning-abf->SynchArray[sweepIdx].lStart)* DWC_ABF_CHANNEL_PER_FILE;
     }
 }
 
