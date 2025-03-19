@@ -74,15 +74,20 @@ protected:
     bool waitDataAvailable(unsigned int minDataBatchSize, unsigned int &dataPacketsMax) override;
 
 private:
-    bool newSweep;
     unsigned int totalChannelsNum;
     unsigned int protocolId;
     int sweepsNum;
     unsigned int nextItemIdx = 0;
     int currentSweepIdx = -1;
-    bool pushedNewSweepFlag = false;
+
     bool newSweepFlag = false;
+    bool pushedNewSweepFlag = false;
+    bool newSweepBuffer = false;
+
     bool protocolEndedFlag = false;
+    bool pushedProtocolEndedFlag = false;
+    bool protocolEndedBuffer = false;
+
     bool protocolFound = false;
 
     unsigned int dataIdx;

@@ -7,6 +7,8 @@
 #include "devicedataproducer.h"
 #include "e384commlib_global.h"
 
+namespace e384cl = e384CommLib;
+
 class DeviceDataConsumer : public QThread {
     Q_OBJECT
 
@@ -19,10 +21,10 @@ public slots:
     virtual void onStopConsuming() = 0;
     virtual void onResetConsuming();
 
-    virtual void onSamplingRateChanged(Measurement_t samplingRate) = 0;
+    virtual void onSamplingRateChanged(e384cl::Measurement_t samplingRate) = 0;
     virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) = 0;
-    virtual void onVoltageRangeChanged(RangedMeasurement_t range) = 0;
-    virtual void onCurrentRangeChanged(RangedMeasurement_t range) = 0;
+    virtual void onVoltageRangeChanged(e384cl::RangedMeasurement_t range) = 0;
+    virtual void onCurrentRangeChanged(e384cl::RangedMeasurement_t range) = 0;
 
 protected:
     ApplicationStatus * appStatus = nullptr;

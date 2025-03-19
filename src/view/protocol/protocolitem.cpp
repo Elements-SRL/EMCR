@@ -37,14 +37,6 @@ Measurement_t ProtocolItem::totalDuration(int stepsNum, bool withHidden) {
     return this->duration(withHidden)*(stepsNum == 0 ? 1.0 : (double)stepsNum);
 }
 
-void ProtocolItem::print() {
-    qDebug() << "type:" << type;
-    qDebug() << "nextItem" << nextItem;
-    qDebug() << "repsNum" << repsNum;
-    qDebug() << "visible" << visible;
-    qDebug() << "";
-}
-
 ProtocolXStepTStepItem::ProtocolXStepTStepItem(ProtocolDropItem * item, double hold, int nextItem) :
     ProtocolItem(ProtocolItemXStepTStep, nextItem, item->hasVisibleData()) {
     ProtocolDropVStepTStepItem * castItem = static_cast <ProtocolDropVStepTStepItem *> (item);

@@ -22,6 +22,7 @@ public slots:
 //    virtual void onSaveTagString(QString tagString) override;
 
 protected:
+    AbstractDataHook * getDataHook() override;
     /*! bufferIdx is used to index the buffer to be written, it's mutable and referenced because it indicates where to start at the next call
         activeChannelsRatio is the total number of channels divided by the number of active channels
         returns the number of samples in the buffer not processed */
@@ -69,10 +70,11 @@ public:
     EpisodicAbfDataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~EpisodicAbfDataWriterConsumer();
 
-public slots:
-    void setDataHook(unsigned int protocolId, unsigned int sweepsNum);
+    void setProtocolId(unsigned int protocolId);
+    void setSweepsNum(unsigned int sweepsNum);
 
 protected:
+    AbstractDataHook * getDataHook() override;
     virtual long long prepareBufferAndWriteToFile(long long &bufferIdx, double activeChannelsRatio) override;
     void run() override;
     void initAbfSections() override;
@@ -85,7 +87,8 @@ protected:
     void saveSynchInfo(ABF * abf);
     void writeSynchInfo(ABF * abf);
 
-    unsigned short sweepIdx;
+    int protocolId;
+    int sweepIdx;
     int sweepsNum = 0;
 
 signals:

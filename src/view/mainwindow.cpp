@@ -550,8 +550,6 @@ void MainWindow::restoreUISettings() {
         tag = settingsRoot + this->objectName() + "/state";
         this->restoreState(settings.value(tag).toByteArray());
 
-//        qDebug() << this->geometry();
-//        this->doc
     }, Qt::QueuedConnection);
 
     timer->start();

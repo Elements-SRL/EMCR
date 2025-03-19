@@ -37,6 +37,7 @@ public slots:
 
 protected:
     virtual bool openFile() = 0;
+    virtual AbstractDataHook * getDataHook() = 0;
     virtual void manageConsumptionBegin();
     virtual void manageConsumptionEnd();
 //    bool createHeaderFile();

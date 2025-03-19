@@ -12,7 +12,7 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     auto model = std::make_unique<BigPlotModel>();
     consumer = new EpisodicPlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
-    this->episodicDataWriterConsumer = new EpisodicAbfDataWriterConsumer(appStatus, producer);
+    episodicDataWriterConsumer = new EpisodicAbfDataWriterConsumer(appStatus, producer);
     auto plot = new BigPlot("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
 
     plot->enableAxis(QwtPlot::yRight);
@@ -399,12 +399,14 @@ void EpisodicController::onRecordingExecution(bool flag) {
 
 void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidget * protocol) {
     consumer->onStopConsuming();
+    episodicDataWriterConsumer->onStopConsuming();
     if (protocol->getType() != ProtocolTypeEpisodic) {
         return;
     }
     consumer->setProtocolId(protocolId);
     consumer->setSweepsNum(protocol->getSweepsNum());
-    episodicDataWriterConsumer->setDataHook(protocolId, protocol->getSweepsNum());
+    episodicDataWriterConsumer->setProtocolId(protocolId);
+    episodicDataWriterConsumer->setSweepsNum(protocol->getSweepsNum());
     auto duration = protocol->getTotalDuration();
     auto durationS = duration.getNoPrefixValue();
     if (durationS == 0.0) {
@@ -414,6 +416,7 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
     this->onRangeUpdated({0.0, duration.value, 1.0, duration.prefix, duration.unit}); /*! Set default duration every time a new protocol starts */
     consumer->onDurationChanged(duration);
     consumer->onStartConsuming();
+    episodicDataWriterConsumer->onStartConsuming();
 }
 
 //TODO this could be moved at the controller level and be managed by single controllers

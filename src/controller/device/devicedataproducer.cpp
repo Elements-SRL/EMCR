@@ -175,16 +175,12 @@ void DeviceDataProducer::run() {
                 break;
 
             case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail:
-                if (currentProtIdx != (dataHeader.protocolId & PROTS_BUFFER_MASK)) {
-                    nextItemIdx = 0;
+                if (currentProtIdx != (dataHeader.protocolId & PROTS_BUFFER_MASK) || nextItemIdx == 0) {
+                    break;
                 }
-                currentProtIdx = dataHeader.protocolId & PROTS_BUFFER_MASK;
                 dataLock.lockForWrite();
-                items[currentProtIdx][nextItemIdx] = items[currentProtIdx][nextItemIdx-1];
-                items[currentProtIdx][nextItemIdx].repsIdx = 1;
-                items[currentProtIdx][nextItemIdx].sweepIdx++;
-                items[currentProtIdx][nextItemIdx].itemIdx = 0;
-                items[currentProtIdx][nextItemIdx].dataPacketsIdx = dataPacketsIdx;
+                /*! Emulate a header packet with sweepIdx = sweepsNum */
+                items[currentProtIdx][nextItemIdx] = {dataHeader.protocolId, items[currentProtIdx][(nextItemIdx-1) & ITEMS_BUFFER_MASK].sweepIdx+1, 0, 1, dataPacketsIdx, true};
                 nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
                 items[currentProtIdx][nextItemIdx].available = false;
                 dataLock.unlock();
@@ -396,14 +392,12 @@ void EpisodicDataHook::setBufferSize(unsigned int bufferSize, unsigned int buffe
     halfBufferSize = bufferSize/2;
 }
 
-#include <QDebug>
 bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
+    buffer.clear();
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
-        qDebug() << "ciccia " << currentSweepIdx;
         return false;
     }
-    qDebug() << currentSweepIdx;
 
     unsigned int dataPacketsToBuffer;
     if (dataIdx <= dataPacketsMax) {
@@ -422,15 +416,11 @@ bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, unsign
         }
         dataIdx = (dataIdx+1) & bufferMask;
     }
-    newSweep = pushedNewSweepFlag;
-    pushedNewSweepFlag = newSweepFlag;
-    if (newSweepFlag) {
-        newSweepFlag = false;
-    }
     return true;
 }
 
 bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+    buffer.clear();
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -495,15 +485,12 @@ bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, unsigned int d
             dataIdx = (dataIdx+1) & bufferMask;
         }
     }
-    newSweep = pushedNewSweepFlag;
-    pushedNewSweepFlag = newSweepFlag;
-    if (newSweepFlag) {
-        newSweepFlag = false;
-    }
     return true;
 }
 
 bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
+    doubleBuffer.clear();
+    intBuffer.clear();
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -529,16 +516,11 @@ bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, std::ve
         }
         dataIdx = (dataIdx + 1) & bufferMask;
     }
-    newSweep = pushedNewSweepFlag;
-    pushedNewSweepFlag = newSweepFlag;
-    if (newSweepFlag) {
-        newSweepFlag = false;
-    }
     return true;
 }
 
 bool EpisodicDataHook::getSweepNewFlag() {
-    return newSweep;
+    return newSweepFlag;
 }
 
 int EpisodicDataHook::getSweepIdx() {
@@ -563,11 +545,14 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
            waitCount++ < DDP_MAX_WAIT_COUNT) {
         dataCv.wait(&dataLock, 100);
     }
+    newSweepBuffer = false;
+    protocolEndedBuffer = false;
 
     auto item = items[protocolId & PROTS_BUFFER_MASK][nextItemIdx];
 
     if (item.available) {
         if (!protocolFound && item.protId != protocolId) {
+            /*! ProId not found and protId in new header packet not correct, return with no data available */
             dataPacketsMax = dataPacketsIdx;
             dataIdx = dataPacketsIdx;
             dataLock.unlock();
@@ -577,31 +562,33 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         protocolFound = true;
 
         if (currentSweepIdx != item.sweepIdx) {
+            /*! Current sweepIdx different from sweepIdx in header packet, update it */
             if (item.sweepIdx < currentSweepIdx) {
+                /*! Some devices return itemSweepIdx = 0 after the last sweep has been performed, set it to sweepNum for consistency */
                 currentSweepIdx = sweepsNum;
             }
             else {
                 currentSweepIdx = item.sweepIdx;
             }
-            newSweepFlag = true;
+            newSweepBuffer = true;
             if (currentSweepIdx >= sweepsNum) {
-                protocolEndedFlag = true;
-                dataPacketsMax = dataPacketsIdx;
-                dataIdx = dataPacketsIdx;
-                dataLock.unlock();
-
-                return false;
+                /*! Last sweep performed, notify protocol ended and allow the acquisition of the last bunch of data */
+                protocolEndedBuffer = true;
             }
+            /*! Save data only up to the last header packet */
             dataPacketsMax = item.dataPacketsIdx;
         }
         else {
+            /*! No new sweep, acquire all the data currently available */
             dataPacketsMax = dataPacketsIdx;
         }
         nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
     }
     else {
+        /*! No item (thus no sweep) available, acquire all the data currently available*/
         dataPacketsMax = dataPacketsIdx;
         if (!protocolFound) {
+            /*! Unless the protId was not found yet, in which case don't acquire anything */
             dataIdx = dataPacketsIdx;
             dataLock.unlock();
 
@@ -609,13 +596,20 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
         }
     }
 
-    /*! No data if after several tries no data is obtained. However, if at least one sample is obtained process it, don't require
+    /*! Delay new sweep and protocol ended by one call. This allows all the data before it to be consumed */
+    newSweepFlag = pushedNewSweepFlag;
+    pushedNewSweepFlag = newSweepBuffer;
+    protocolEndedFlag = pushedProtocolEndedFlag;
+    pushedProtocolEndedFlag = protocolEndedBuffer;
+
+    /*! No data if after several tries no data is obtained. However, if at least one sample or data header is obtained process it, don't require
      *  necessarily minDataBatchSize samples at this point */
-    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx) {
+    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx && !newSweepFlag) {
         dataLock.unlock();
         return false;
     }
 
     dataLock.unlock();
+
     return true;
 }

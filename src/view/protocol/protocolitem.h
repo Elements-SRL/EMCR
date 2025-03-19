@@ -21,8 +21,6 @@ public:
     virtual Measurement_t totalDuration(int stepsNum, bool withHidden = false);
     virtual void applyPNScaling(double sign, double scale, double hold, double holdLeak) = 0;
 
-    void print();
-
     ProtocolItemType_t type;
     int nextItem = 0;
     int repsNum = 1;

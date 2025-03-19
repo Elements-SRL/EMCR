@@ -103,6 +103,10 @@ AbfDataWriterConsumer::~AbfDataWriterConsumer() {
 //    }
 //}
 
+AbstractDataHook * AbfDataWriterConsumer::getDataHook() {
+    return producer->getDataHook();
+}
+
 long long AbfDataWriterConsumer::prepareBufferAndWriteToFile(long long &bufferIdx, double activeChannelsRatio) {
     long long truncatedValues = 0;
     long long rawBufferLen;
@@ -904,11 +908,19 @@ EpisodicAbfDataWriterConsumer::EpisodicAbfDataWriterConsumer(ApplicationStatus *
 }
 
 EpisodicAbfDataWriterConsumer::~EpisodicAbfDataWriterConsumer() {
-    AbfDataWriterConsumer::~AbfDataWriterConsumer();
+
 }
 
-void EpisodicAbfDataWriterConsumer::setDataHook(unsigned int protocolId, unsigned int sweepsNum) {
-    hook = producer->getEpisodicDataHook(protocolId, sweepsNum);
+void EpisodicAbfDataWriterConsumer::setProtocolId(unsigned int protocolId) {
+    this->protocolId = protocolId;
+}
+
+void EpisodicAbfDataWriterConsumer::setSweepsNum(unsigned int sweepsNum) {
+    this->sweepsNum = sweepsNum;
+}
+
+AbstractDataHook * EpisodicAbfDataWriterConsumer::getDataHook() {
+    return producer->getEpisodicDataHook(protocolId, sweepsNum);
 }
 
 long long EpisodicAbfDataWriterConsumer::prepareBufferAndWriteToFile(long long &bufferIdx, double activeChannelsRatio) {
@@ -917,17 +929,6 @@ long long EpisodicAbfDataWriterConsumer::prepareBufferAndWriteToFile(long long &
     long long rawBufferIdx;
 
     long long valuesLen = round(((double) bufferLen) / activeChannelsRatio);
-    long long valuesToEndOfFile = valuesToBeSaved-savedValues;
-
-    if (valuesLen >= valuesToEndOfFile) {
-        truncatedValues = valuesLen - valuesToEndOfFile;
-        valuesLen = valuesToEndOfFile;
-        bufferLen = round((double)valuesToEndOfFile * activeChannelsRatio);
-    }
-
-    if (hook->getSweepNewFlag()) {
-        this->saveSynchInfo();
-    }
 
     while (bufferLen > 0) {
         rawBufferIdx = 0;
@@ -973,16 +974,17 @@ void EpisodicAbfDataWriterConsumer::run() {
         consumptionLock.unlock();
 
         if (hook->getDataChunk(buffer, 1, minPacketsPerBatch)) {
-            bufferIdx = 0;
-
-            bufferLen = buffer.size();
-
-            if (hook->getProtocolEndedFlag()) {
+            if (hook->getSweepNewFlag()) {
                 this->saveSynchInfo();
-                consumptionStopped = true;
-                continue;
             }
+
+            bufferIdx = 0;
+            bufferLen = buffer.size();
             this->prepareBufferAndWriteToFile(bufferIdx, activeChannelsRatio);
+        }
+
+        if (hook->getProtocolEndedFlag()) {
+            consumptionStopped = true;
         }
     }
 
@@ -1174,7 +1176,8 @@ void EpisodicAbfDataWriterConsumer::manageConsumptionBegin() {
 
     samplesFromTheBeginning = 0;
     //    tagIdx = 0;
-    sweepIdx = 0;
+    /*! Start at -1, this way when the first new sweep flag is received the index is correctly set at 0 */
+    sweepIdx = -1;
 }
 
 void EpisodicAbfDataWriterConsumer::manageConsumptionEnd() {
@@ -1210,19 +1213,18 @@ void EpisodicAbfDataWriterConsumer::saveSynchInfo() {
     for (int channelIdx : activeChannels) {
         this->saveSynchInfo(abfs[channelIdx]);
     }
-    sweepIdx++;
+    sweepsNum = ++sweepIdx;
 }
 
 void EpisodicAbfDataWriterConsumer::saveSynchInfo(ABF * abf) {
-    if (savedValues > 0) {
-        if (sweepIdx == 0) {
-            abf->SynchArray[sweepIdx].lStart = 0;
-            abf->SynchArray[sweepIdx].lLength = savedValues*DWC_ABF_CHANNEL_PER_FILE;
-        }
-        else {
-            abf->SynchArray[sweepIdx].lStart = abf->SynchArray[sweepIdx-1].lStart+abf->SynchArray[sweepIdx-1].lLength/DWC_ABF_CHANNEL_PER_FILE;
-            abf->SynchArray[sweepIdx].lLength = (savedValues-abf->SynchArray[sweepIdx].lStart)*DWC_ABF_CHANNEL_PER_FILE;
-        }
+    /*! Do not save on first new sweep flag, since the at the protocol beginning the length of the sweep is not known yet */
+    if (sweepIdx == 0) {
+        abf->SynchArray[sweepIdx].lStart = 0;
+        abf->SynchArray[sweepIdx].lLength = savedValues;
+    }
+    else if (sweepIdx > 0) {
+        abf->SynchArray[sweepIdx].lStart = abf->SynchArray[sweepIdx-1].lStart+abf->SynchArray[sweepIdx-1].lLength/DWC_ABF_CHANNEL_PER_FILE;
+        abf->SynchArray[sweepIdx].lLength = savedValues-abf->SynchArray[sweepIdx].lStart* DWC_ABF_CHANNEL_PER_FILE;
     }
 }
 

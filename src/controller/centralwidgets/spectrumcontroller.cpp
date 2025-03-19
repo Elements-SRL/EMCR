@@ -209,7 +209,9 @@ void SpectrumController::onExportSpectrum() {
     }
     else {
         // No file path selected
-        qDebug() << "No file path selected.";
+        QString err = "No file path selected.";
+        QString info = "";
+        ErrorManager e(err, info);
     }
 }
 

@@ -45,7 +45,7 @@ void DataWriterConsumer::onStartConsuming() {
             return;
         }
 
-        hook = producer->getDataHook();
+        hook = this->getDataHook();
         if (hook != nullptr) {
             voltageRange = pushedVoltageRange;
             currentRange = pushedCurrentRange;
@@ -94,7 +94,6 @@ void DataWriterConsumer::onRecordSelectedChannels(std::vector<uint16_t> channelI
             pushedActiveChannelsNum+=channelsPerFile;
         }
     }
-    this->onStartConsuming();
 }
 
 void DataWriterConsumer::onSamplingRateChanged(Measurement_t samplingRate) {
