@@ -551,7 +551,7 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
     auto item = items[protocolId & PROTS_BUFFER_MASK][nextItemIdx];
 
     if (item.available) {
-        if (!protocolFound && item.protId != protocolId) {
+        if (!protocolFoundFlag && item.protId != protocolId) {
             /*! ProId not found and protId in new header packet not correct, return with no data available */
             dataPacketsMax = dataPacketsIdx;
             dataIdx = dataPacketsIdx;
@@ -559,7 +559,7 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
 
             return false;
         }
-        protocolFound = true;
+        protocolFoundFlag = true;
 
         if (currentSweepIdx != item.sweepIdx) {
             /*! Current sweepIdx different from sweepIdx in header packet, update it */
@@ -587,7 +587,7 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
     else {
         /*! No item (thus no sweep) available, acquire all the data currently available*/
         dataPacketsMax = dataPacketsIdx;
-        if (!protocolFound) {
+        if (!protocolFoundFlag) {
             /*! Unless the protId was not found yet, in which case don't acquire anything */
             dataIdx = dataPacketsIdx;
             dataLock.unlock();

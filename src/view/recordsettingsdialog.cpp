@@ -12,7 +12,7 @@ RecordSettingsDialog::RecordSettingsDialog() :
     QDialog() {
 
     this->setWindowFlags(Qt::WindowTitleHint);
-    this->setWindowTitle("Recording properties");
+    this->setWindowTitle("Gap free recording properties");
 
     QVBoxLayout * mainVl = new QVBoxLayout();
     this->setLayout(mainVl);

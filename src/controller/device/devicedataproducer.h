@@ -88,7 +88,7 @@ private:
     bool pushedProtocolEndedFlag = false;
     bool protocolEndedBuffer = false;
 
-    bool protocolFound = false;
+    bool protocolFoundFlag = false;
 
     unsigned int dataIdx;
     unsigned int bufferSize;

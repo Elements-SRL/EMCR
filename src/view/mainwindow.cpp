@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget * parent) :
     menuRecordings = new QMenu("Recordings");
     menuBar->addMenu(menuRecordings);
 
-    actionRecordingSettings = new QAction("Settings");
+    actionRecordingSettings = new QAction("Gap free settings");
     menuRecordings->addAction(actionRecordingSettings);
     actionRecordingSettings->setEnabled(false);
 
