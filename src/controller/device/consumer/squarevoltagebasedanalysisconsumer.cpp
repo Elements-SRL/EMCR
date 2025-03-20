@@ -16,6 +16,10 @@ void SquareVoltageBasedAnalysisConsumer::resetAnalysis() {
     waitingSamples = 0;
     collectingSamples = 0;
     channelsToBeAnalyzed = appStatus->getExpandedAndStimActiveChannelsIndexes();
+    if (channelsToBeAnalyzed.empty()) {
+        channelsToBeAnalyzed = {0};
+        emit sigNoChannelsForAnalysis();
+    }
     voltageIdx = channelsToBeAnalyzed[0];
 }
 

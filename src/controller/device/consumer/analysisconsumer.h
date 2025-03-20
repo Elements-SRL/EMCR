@@ -36,6 +36,9 @@ protected:
     bool flushAfterAnalysisFlag = true; /*! Get rid of some data, these analyses will work anyway */
 
     QMutex mutex;
+
+signals:
+    void sigNoChannelsForAnalysis();
 };
 
 #endif // ANALYSISCONSUMER_H
