@@ -76,6 +76,16 @@ AbfDataWriterConsumer::~AbfDataWriterConsumer() {
     }
 }
 
+void AbfDataWriterConsumer::setReadyForRecording(bool) {
+    /*! Normally the data consumer is ready for recording and can start right away */
+    this->onStartConsuming();
+}
+
+bool AbfDataWriterConsumer::isReadyForRecording() {
+    /*! Normally the data consumer is ready for recording */
+    return true;
+}
+
 //void AbfDataWriterConsumer::onMarkTagTime() {
 //    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
 //        ABF * abf = abfs[channelIdx];
@@ -909,6 +919,15 @@ EpisodicAbfDataWriterConsumer::EpisodicAbfDataWriterConsumer(ApplicationStatus *
 
 EpisodicAbfDataWriterConsumer::~EpisodicAbfDataWriterConsumer() {
 
+}
+
+void EpisodicAbfDataWriterConsumer::setReadyForRecording(bool flag) {
+    /*! The episodic recording needs to wait for the protocol to start */
+    readyForRecording = flag;
+}
+
+bool EpisodicAbfDataWriterConsumer::isReadyForRecording() {
+    return readyForRecording;
 }
 
 void EpisodicAbfDataWriterConsumer::setProtocolId(unsigned int protocolId) {

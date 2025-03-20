@@ -20,6 +20,9 @@ public:
     DataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~DataWriterConsumer();
 
+    virtual void setReadyForRecording(bool flag) = 0;
+    virtual bool isReadyForRecording() = 0;
+
 public slots:
     virtual void onStartConsuming() override;
     virtual void onStopConsuming() override;

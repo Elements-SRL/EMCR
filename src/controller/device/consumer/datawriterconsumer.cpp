@@ -94,6 +94,7 @@ void DataWriterConsumer::onRecordSelectedChannels(std::vector<uint16_t> channelI
             pushedActiveChannelsNum+=channelsPerFile;
         }
     }
+    this->setReadyForRecording(true);
 }
 
 void DataWriterConsumer::onSamplingRateChanged(Measurement_t samplingRate) {

@@ -17,6 +17,9 @@ public:
     AbfDataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~AbfDataWriterConsumer();
 
+    virtual void setReadyForRecording(bool flag) override;
+    virtual bool isReadyForRecording() override;
+
 public slots:
 //    virtual void onMarkTagTime() override;
 //    virtual void onSaveTagString(QString tagString) override;
@@ -70,6 +73,9 @@ public:
     EpisodicAbfDataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~EpisodicAbfDataWriterConsumer();
 
+    void setReadyForRecording(bool flag) override;
+    bool isReadyForRecording() override;
+
     void setProtocolId(unsigned int protocolId);
     void setSweepsNum(unsigned int sweepsNum);
 
@@ -90,6 +96,8 @@ protected:
     int protocolId;
     int sweepIdx;
     int sweepsNum = 0;
+
+    bool readyForRecording = false;
 
 signals:
     void protocolFinished();
