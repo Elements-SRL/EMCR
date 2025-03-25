@@ -14,7 +14,7 @@ CONFIG(release, debug|release) {
 }
 
 contains(DEFINES, GLB_SHOW_DEBUG_CTRLS) {
-TARGET = EMCR_debug
+    TARGET = EMCR_debug
 }
 
 #DEFINES += GLB_ANALYSES_IN_PROTOCOL_EDITOR

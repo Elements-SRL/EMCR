@@ -753,12 +753,16 @@ bool ProtocolList::importProtocols(QString fullFileName) {
 
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             for (auto yamlProtocol : yamlProtocols.voltageprotocols) {
-                this->importProtocol(yamlProtocol);
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                    this->importProtocol(yamlProtocol);
+                }
             }
 
         } else {
             for (auto yamlProtocol : yamlProtocols.currentprotocols) {
-                this->importProtocol(yamlProtocol);
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                    this->importProtocol(yamlProtocol);
+                }
             }
         }
         return true;
@@ -787,7 +791,7 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             for (unsigned int protIdx = 0; protIdx < yamlProtocols.voltageprotocols.size(); protIdx++) {
                 YAML::VoltageProtocol_t yamlProtocol = yamlProtocols.voltageprotocols[protIdx];
-                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() != e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
                     if (saveFlag[protIdx]) {
                         if (overwriteFlag[protIdx]) {
                             this->removeProtocolByName(namesSet[protIdx]);
@@ -800,7 +804,7 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
         } else {
             for (unsigned int protIdx = 0; protIdx < yamlProtocols.currentprotocols.size(); protIdx++) {
                 YAML::CurrentProtocol_t yamlProtocol = yamlProtocols.currentprotocols[protIdx];
-                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() != e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
                     if (saveFlag[protIdx]) {
                         if (overwriteFlag[protIdx]) {
                             this->removeProtocolByName(namesSet[protIdx]);

@@ -7,6 +7,15 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         Version_t version;
         version.major = 0;
         version.minor = 20;
+        version.patch = 1;
+        version.sections[BugFixes] << "Fixed resistance estimation crash on single channel devices";
+        version.sections[BugFixes] << "Fixed recordings not starting";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
+        version.minor = 20;
         version.patch = 0;
         version.sections[NewFeatures] << "Added episodic plots and recordings for patch clamp experiments";
         version.sections[NewFeatures] << "Added compensations for patch clamp experiments";
