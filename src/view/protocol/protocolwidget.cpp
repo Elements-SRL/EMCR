@@ -65,7 +65,7 @@ ProtocolWidget::~ProtocolWidget() {
         protocolEditor = nullptr;
     }
 
-    this->clearPropertyDialog();
+    // this->clearPropertyDialog(); /*! \todo FCON fa crashare il sw alla chiusura, da capire il perchè */
 
     for (int idx = 0; idx < ctrlDispatchers->size(); idx++) {
         delete ctrlDispatchers->at(idx);
@@ -121,7 +121,7 @@ bool ProtocolWidget::isPropertyDialogOpened(QString &protocolName) {
 }
 
 void ProtocolWidget::populatePropertyDialog() {
-    if (!dialogPopulated) {
+    if (!dialog->populated) {
         /*! Protocol name */
         QLabel * nameLbl = new QLabel("Protocol ID");
         name = protocolEditor->getName();
@@ -382,7 +382,7 @@ void ProtocolWidget::populatePropertyDialog() {
 
         dialog->setOwner(this);
         dialog->setVisible(true);
-        dialogPopulated = true;
+        dialog->populated = true;
         propertyChangedFlag = false;
 
         protocolEditor->onUpdateProtocol();
@@ -425,7 +425,7 @@ ProtocolWidget::ClosureRequestReply_t ProtocolWidget::askForPropertyDialogClosur
 }
 
 void ProtocolWidget::clearPropertyDialog() {
-    if (dialogPopulated) {
+    if (dialog->populated) {
         QLayoutItem * item;
         int rowIdx;
         for (rowIdx = 0; rowIdx < PPD_CTRL_FIRST_ROW; rowIdx++) {
@@ -468,7 +468,7 @@ void ProtocolWidget::clearPropertyDialog() {
         delete propertyCancButton;
         propertyCancButton = nullptr;
 
-        dialogPopulated = false;
+        dialog->populated = false;
     }
 }
 

@@ -60,6 +60,7 @@ ProtocolPropertyDialog::ProtocolPropertyDialog(MessageDispatcher * msgDisp, Rang
 }
 
 ProtocolPropertyDialog::~ProtocolPropertyDialog() {
+    populated = false;
     if (preview != nullptr) {
         delete preview;
         preview = nullptr;

@@ -13,6 +13,12 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     setObjectName("deviceControlsDw");
 
+    msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    allChannels.clear();
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        allChannels.push_back(chIdx);
+    }
+
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
     QWidget * window = new QWidget;
@@ -26,6 +32,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     std::vector <RangedMeasurement_t> vcCurrentRanges;
     uint16_t vcCurrentRangeDefaultIdx;
     msgDisp->getVCCurrentRanges(vcCurrentRanges, vcCurrentRangeDefaultIdx);
+    bool independentVcCurrentRanges = (msgDisp->hasIndependentVCCurrentRanges() == Success ? true : false);
 
     std::vector <RangedMeasurement_t> vcVoltageRanges;
     uint16_t vcVoltageRangeDefaultIdx;
@@ -38,6 +45,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     std::vector <RangedMeasurement_t> ccVoltageRanges;
     uint16_t ccVoltageRangeDefaultIdx;
     msgDisp->getCCVoltageRanges(ccVoltageRanges, ccVoltageRangeDefaultIdx);
+    bool independentCcVoltageRanges = (msgDisp->hasIndependentCCVoltageRanges() == Success ? true : false);
 
     std::vector <Measurement_t> vcVoltageFilters;
     msgDisp->getVCVoltageFilters(vcVoltageFilters);
@@ -68,13 +76,28 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     this->setWindowTitle(TITLE);
 
     /*! VC Current range */
-    this->vcCurrentRangesSection = setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdx);
-    for (int i = 0; i < vcCurrentRangesRadioButtons.size(); i++) {
-        connect(vcCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
-            if (flag) {
-                emit sigVcCurrentRangeSelected(i);
+    vcCurrentRangesSections.clear();
+    if (independentVcCurrentRanges) {
+        for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+            vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE + QString(" ch %1").arg(chIdx+1).toStdString(), vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdx));
+            for (int i = 0; i < vcCurrentRangesRadioButtons.size(); i++) {
+                connect(vcCurrentRangesRadioButtons[chIdx][i], &QRadioButton::clicked, this, [=] (bool flag) {
+                    if (flag) {
+                        emit sigVcCurrentRangeSelected(chIdx, i);
+                    }
+                });
             }
-        });
+        }
+    }
+    else {
+        vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdx));
+        for (int i = 0; i < vcCurrentRangesRadioButtons.size(); i++) {
+            connect(vcCurrentRangesRadioButtons[0][i], &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigVcCurrentRangeSelected(currentChannelsNum, i);
+                }
+            });
+        }
     }
 
     /*! VC Voltage range */
@@ -98,13 +121,27 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! CC Voltage range */
-    this->ccVoltageRangesSection = setupSection(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, vLayout, ccVoltageRangesRadioButtons, ccVoltageRangeDefaultIdx);
-    for (int i = 0; i < ccVoltageRangesRadioButtons.size(); i++) {
-        connect(ccVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
-            if (flag) {
-                emit sigCcVoltageRangeSelected(i);
+    ccVoltageRangesSections.clear();
+    if (independentCcVoltageRanges) {
+        for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+            for (int i = 0; i < ccVoltageRangesRadioButtons.size(); i++) {
+                connect(ccVoltageRangesRadioButtons[chIdx][i], &QRadioButton::clicked, this, [=] (bool flag) {
+                    if (flag) {
+                        emit sigCcVoltageRangeSelected(chIdx, i);
+                    }
+                });
             }
-        });
+        }
+    }
+    else {
+        ccVoltageRangesSections.push_back(setupSection(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, vLayout, ccVoltageRangesRadioButtons, ccVoltageRangeDefaultIdx));
+        for (int i = 0; i < ccVoltageRangesRadioButtons.size(); i++) {
+            connect(ccVoltageRangesRadioButtons[0][i], &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigCcVoltageRangeSelected(voltageChannelsNum, i);
+                }
+            });
+        }
     }
 
     /*! VC Voltage filter */
@@ -260,10 +297,22 @@ void DeviceControlDockWidget::forceEmit() {
     msgDisp->getClampingModality(mode);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
-        for (int idx = 0; idx < vcCurrentRangesRadioButtons.size(); idx++) {
-            QRadioButton * btn = vcCurrentRangesRadioButtons[idx];
-            if (btn->isChecked()) {
-                emit sigVcCurrentRangeSelected(idx);
+        if (vcCurrentRangesRadioButtons.size() > 1) {
+            for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+                for (int idx = 0; idx < vcCurrentRangesRadioButtons[chIdx].size(); idx++) {
+                    QRadioButton * btn = vcCurrentRangesRadioButtons[chIdx][idx];
+                    if (btn->isChecked()) {
+                        emit sigVcCurrentRangeSelected(chIdx, idx);
+                    }
+                }
+            }
+        }
+        else {
+            for (int idx = 0; idx < vcCurrentRangesRadioButtons[0].size(); idx++) {
+                QRadioButton * btn = vcCurrentRangesRadioButtons[0][idx];
+                if (btn->isChecked()) {
+                    emit sigVcCurrentRangeSelected(currentChannelsNum, idx);
+                }
             }
         }
 
@@ -290,10 +339,22 @@ void DeviceControlDockWidget::forceEmit() {
             }
         }
 
-        for (int idx = 0; idx < ccVoltageRangesRadioButtons.size(); idx++) {
-            QRadioButton * btn = ccVoltageRangesRadioButtons[idx];
-            if (btn->isChecked()) {
-                emit sigCcVoltageRangeSelected(idx);
+        if (ccVoltageRangesRadioButtons.size() > 1) {
+            for (int chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
+                for (int idx = 0; idx < ccVoltageRangesRadioButtons[chIdx].size(); idx++) {
+                    QRadioButton * btn = ccVoltageRangesRadioButtons[chIdx][idx];
+                    if (btn->isChecked()) {
+                        emit sigCcVoltageRangeSelected(voltageChannelsNum, idx);
+                    }
+                }
+            }
+        }
+        else {
+            for (int idx = 0; idx < ccVoltageRangesRadioButtons[0].size(); idx++) {
+                QRadioButton * btn = ccVoltageRangesRadioButtons[0][idx];
+                if (btn->isChecked()) {
+                    emit sigCcVoltageRangeSelected(voltageChannelsNum, idx);
+                }
             }
         }
 
@@ -332,26 +393,39 @@ void DeviceControlDockWidget::updateParameters() {
     ClampingModality_t mode;
     msgDisp->getClampingModality(mode);
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
-        this->setWidgetVisible(ccVoltageRangesSection, false);
+        for (auto & section : ccVoltageRangesSections) {
+            this->setWidgetVisible(section, false);
+        }
         this->setWidgetVisible(ccCurrentRangesSection, false);
         this->setWidgetVisible(ccCurrentFiltersSection, false);
         this->setWidgetVisible(vcVoltageRangesSection, true);
-        this->setWidgetVisible(vcCurrentRangesSection, true);
+        for (auto & section : vcCurrentRangesSections) {
+            this->setWidgetVisible(section, true);
+        }
         this->setWidgetVisible(vcVoltageFiltersSection, true);
 
-        if (vcCurrentRangesRadioButtons.size()>0){
-            uint32_t idx;
-            msgDisp->getVCCurrentRangeIdx(idx);
-            vcCurrentRangesRadioButtons[idx]->setChecked(true);
+        if (!vcCurrentRangesRadioButtons.empty()){
+            if (vcCurrentRangesRadioButtons.size() > 1) {
+                std::vector <uint32_t> idxs;
+                msgDisp->getVCCurrentRangeIdx(allChannels, idxs);
+                for (auto chIdx : allChannels) {
+                    vcCurrentRangesRadioButtons[chIdx][idxs[chIdx]]->setChecked(true);
+                }
+            }
+            else {
+                uint32_t idx;
+                msgDisp->getVCCurrentRangeIdx(idx);
+                vcCurrentRangesRadioButtons[0][idx]->setChecked(true);
+            }
         }
 
-        if (vcVoltageRangesRadioButtons.size()>0){
+        if (!vcVoltageRangesRadioButtons.empty()){
             uint32_t idx;
             msgDisp->getVCVoltageRangeIdx(idx);
             vcVoltageRangesRadioButtons[idx]->setChecked(true);
         }
 
-        if (vcVoltageFiltersRadioButtons.size()>0){
+        if (!vcVoltageFiltersRadioButtons.empty()){
             uint32_t idx;
             msgDisp->getVCVoltageFilterIdx(idx);
             vcVoltageFiltersRadioButtons[idx]->setChecked(true);
@@ -359,24 +433,37 @@ void DeviceControlDockWidget::updateParameters() {
 
     } else if (mode == ClampingModality_t::CURRENT_CLAMP) {
         this->setWidgetVisible(vcVoltageRangesSection, false);
-        this->setWidgetVisible(vcCurrentRangesSection, false);
+        for (auto & section : vcCurrentRangesSections) {
+            this->setWidgetVisible(section, false);
+        }
         this->setWidgetVisible(vcVoltageFiltersSection, false);
-        this->setWidgetVisible(ccVoltageRangesSection, true);
+        for (auto & section : ccVoltageRangesSections) {
+            this->setWidgetVisible(section, true);
+        }
         this->setWidgetVisible(ccCurrentRangesSection, true);
         this->setWidgetVisible(ccCurrentFiltersSection, true);
-        if (ccCurrentRangesRadioButtons.size()>0){
+        if (!ccCurrentRangesRadioButtons.empty()){
             uint32_t idx;
             msgDisp->getCCCurrentRangeIdx(idx);
             ccCurrentRangesRadioButtons[idx]->setChecked(true);
         }
 
-        if (ccVoltageRangesRadioButtons.size()>0){
-            uint32_t idx;
-            msgDisp->getCCVoltageRangeIdx(idx);
-            ccVoltageRangesRadioButtons[idx]->setChecked(true);
+        if (!ccVoltageRangesRadioButtons.empty()){
+            if (ccVoltageRangesRadioButtons.size() > 1) {
+                std::vector <uint32_t> idxs;
+                msgDisp->getCCVoltageRangeIdx(allChannels, idxs);
+                for (auto chIdx : allChannels) {
+                    ccVoltageRangesRadioButtons[chIdx][idxs[chIdx]]->setChecked(true);
+                }
+            }
+            else {
+                uint32_t idx;
+                msgDisp->getCCVoltageRangeIdx(idx);
+                ccVoltageRangesRadioButtons[0][idx]->setChecked(true);
+            }
         }
 
-        if (ccCurrentFiltersRadioButtons.size()>0){
+        if (!ccCurrentFiltersRadioButtons.empty()){
             uint32_t idx;
             msgDisp->getCCCurrentFilterIdx(idx);
             ccCurrentFiltersRadioButtons[idx]->setChecked(true);
@@ -405,27 +492,31 @@ void DeviceControlDockWidget::updateParameters() {
 }
 
 void DeviceControlDockWidget::setVcVoltageRangesSectionEnabled(bool status){
-    setWidgetEnabled(vcVoltageRangesSection, status);
+    this->setWidgetEnabled(vcVoltageRangesSection, status);
 }
 
 void DeviceControlDockWidget::setVcCurrentRangesSectionEnabled(bool status){
-    setWidgetEnabled(vcCurrentRangesSection, status);
+    for (auto & section : vcCurrentRangesSections) {
+        this->setWidgetEnabled(section, status);
+    }
 }
 
 void DeviceControlDockWidget::setCcVoltageRangesSectionEnabled(bool status){
-    setWidgetEnabled(ccVoltageRangesSection, status);
+    for (auto & section : ccVoltageRangesSections) {
+        this->setWidgetEnabled(section, status);
+    }
 }
 
 void DeviceControlDockWidget::setCcCurrentRangesSectionEnabled(bool status){
-    setWidgetEnabled(ccCurrentRangesSection, status);
+    this->setWidgetEnabled(ccCurrentRangesSection, status);
 }
 
 void DeviceControlDockWidget::setSamplingRatesSectionEnabled(bool status){
-    setWidgetEnabled(samplingRatesSection, status);
+    this->setWidgetEnabled(samplingRatesSection, status);
 }
 
 void DeviceControlDockWidget::setDownsamplingRatioSbxEnabled(bool status){
-    setWidgetEnabled(downsamplingRatioSbx, status);
+    this->setWidgetEnabled(downsamplingRatioSbx, status);
 }
 
 void DeviceControlDockWidget::setWidgetEnabled(QWidget * widget, bool status) {
@@ -449,6 +540,13 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
         texts.push_back(QString::fromStdString(rm.getMax().niceLabel()));
     }
     return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
+}
+
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <std::vector <QRadioButton *>> &radioButtons, int defaultIdx) {
+    std::vector <QRadioButton *> buttons;
+    auto ret = setupSection(title, rangedMeasurements, parentLayout, buttons, defaultIdx);
+    radioButtons.push_back(buttons);
+    return ret;
 }
 
 CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {

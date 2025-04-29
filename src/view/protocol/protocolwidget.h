@@ -112,7 +112,6 @@ protected:
 
     QVector <bool> consumerRequests;
 
-    bool dialogPopulated = false;
     bool propertyChangedFlag = false;
 
     QDoubleSpinBox * holdEdit = nullptr;
