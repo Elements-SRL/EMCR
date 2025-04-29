@@ -17,3 +17,7 @@ void DeviceDataConsumer::onResetConsuming() {
     this->onStopConsuming();
     this->onStartConsuming();
 }
+
+ApplicationStatus * DeviceDataConsumer::getAppStatus() {
+    return appStatus;
+}

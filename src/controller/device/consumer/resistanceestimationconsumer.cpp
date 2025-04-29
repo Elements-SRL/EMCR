@@ -27,7 +27,7 @@ void ResistanceEstimationConsumer::resetAnalysis() {
     SquareVoltageBasedAnalysisConsumer::resetAnalysis();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         results[channelIdx].meas.value = 0.0;
-        results[channelIdx].meas.prefix = voltageRange.prefix / currentRange.prefix;
+        results[channelIdx].meas.prefix = voltageRange[channelIdx].prefix / currentRange[channelIdx].prefix;
     }
 }
 

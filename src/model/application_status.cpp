@@ -191,16 +191,50 @@ Measurement ApplicationStatus::getSamplingRate() {
     return sr;
 }
 
-RangedMeasurement ApplicationStatus::getVoltageRange() {
-    RangedMeasurement vr;
+RangedMeasurement_t ApplicationStatus::getVcVoltageRange() {
+    RangedMeasurement_t vr;
+    msgDisp->getVCVoltageRange(vr);
+    return vr;
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getVcCurrentRange() {
+    std::vector <RangedMeasurement_t> cr;
+    msgDisp->getVCCurrentRange(cr);
+    return cr;
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getCcVoltageRange() {
+    std::vector <RangedMeasurement_t> vr;
+    msgDisp->getCCVoltageRange(vr);
+    return vr;
+}
+
+RangedMeasurement_t ApplicationStatus::getCcCurrentRange() {
+    RangedMeasurement_t cr;
+    msgDisp->getCCCurrentRange(cr);
+    return cr;
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getVoltageRanges() {
+    std::vector <RangedMeasurement_t> vr;
     msgDisp->getVoltageRange(vr);
     return vr;
 }
 
-RangedMeasurement ApplicationStatus::getCurrentRange() {
-    RangedMeasurement cr;
+RangedMeasurement_t ApplicationStatus::getMaxVoltageRange() {
+    auto vr = this->getVoltageRanges();
+    return *std::max_element(vr.begin(), vr.end());
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getCurrentRanges() {
+    std::vector <RangedMeasurement_t> cr;
     msgDisp->getCurrentRange(cr);
     return cr;
+}
+
+RangedMeasurement_t ApplicationStatus::getMaxCurrentRange() {
+    auto cr = this->getCurrentRanges();
+    return *std::max_element(cr.begin(), cr.end());
 }
 
 std::string ApplicationStatus::getSerialNumber() {

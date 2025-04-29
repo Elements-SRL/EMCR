@@ -114,13 +114,13 @@ void DataWriterConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
     }
 }
 
-void DataWriterConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
-    pushedVoltageRange = range;
+void DataWriterConsumer::onVoltageRangeChanged() {
+    pushedVoltageRange = this->getAppStatus()->getVoltageRanges();
     pushedVoltageRangeFlag = true;
 }
 
-void DataWriterConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
-    pushedCurrentRange = range;
+void DataWriterConsumer::onCurrentRangeChanged() {
+    pushedCurrentRange = this->getAppStatus()->getCurrentRanges();
     pushedCurrentRangeFlag = true;
 }
 

@@ -26,7 +26,6 @@ public:
 
 private:
     AutoDecloggerModel * model = nullptr;
-    ApplicationStatus* appStatus = nullptr;
     AutoDecloggerWidget* widget = nullptr;
     AutodecloggerConsumer* consumer = nullptr;
     MainWindow* mainWindow = nullptr;

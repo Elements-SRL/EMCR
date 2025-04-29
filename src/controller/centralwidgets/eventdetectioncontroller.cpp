@@ -180,11 +180,10 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
         auto sr = appStatus->getSamplingRate();
         const auto srNoPref = sr.getNoPrefixValue();
         const auto period = 1.0 / srNoPref;
-        auto cr = appStatus->getCurrentRange();
+        auto cr = appStatus->getCurrentRanges()[0]; /*! \todo FCON usa solo il range del primo canale */
         auto crMultiplier = cr.multiplier();
-        auto vr = appStatus->getVoltageRange();
+        auto vr = appStatus->getVoltageRanges()[0]; /*! \todo FCON usa solo il range del primo canale */
         auto vrMultiplier = vr.multiplier();
-        auto crUnit = cr.getFullUnit();
         baselineGroup.createAttribute("Current uom", strdatatype, attSpace).write(strdatatype, cr.getFullUnit());
         baselineGroup.createAttribute("Current resolution", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &cr.step);
         baselineGroup.createAttribute("Current multiplier", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &crMultiplier);
@@ -226,11 +225,9 @@ std::tuple<std::optional<H5::DataSet>, std::optional<H5::DataSet>, std::optional
     }
 }
 
-
 //////////////////////////////////////////////////////////////
 ////////////// END OF FILE UTILITIES /////////////////////////
 //////////////////////////////////////////////////////////////
-
 
 EventDetectionController::EventDetectionController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget) :
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
@@ -239,7 +236,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     minDuration = { 10.0, UnitPfx::UnitPfxMicro, "s" };
     maxDuration = { 500.0, UnitPfx::UnitPfxMicro, "s"};
     minAmplitude = 0.0;
-    maxAmplitude = appStatus->getCurrentRange().getMax().value / 10;
+    maxAmplitude = appStatus->getCurrentRanges()[0].getMax().value / 10; /*! \todo FCON usa solo il range del primo canale */
     durationBinner = new Binner(minDuration.getNoPrefixValue(), maxDuration.getNoPrefixValue(), durationBins);
     amplitudeBinner = new Binner(minAmplitude, maxAmplitude, amplitudeBins);
     const auto highCutoffFrequency = sr.getNoPrefixValue() / 4.0;
@@ -248,7 +245,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
     const auto maxSamples = maxDuration.getNoPrefixValue() * sr.getNoPrefixValue();
 
     consumer = new EventDetectionConsumer(appStatus, producer, minSamples, maxSamples, highCutoffFrequency, maxAmplitude, STD_MULTIPLIER, eventsDirection);
-    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDuration, maxDuration, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRange(), maxAmplitude, STD_MULTIPLIER, eventsDirection);
+    widget = new EventDetectionWidget(sr.getNoPrefixValue()/2.0, minDuration, maxDuration, durationBins, amplitudeBins, highCutoffFrequency, appStatus->getCurrentRanges()[0], maxAmplitude, STD_MULTIPLIER, eventsDirection); /*! \todo FCON usa solo il range del primo canale */
     bigPlotWidget->setEventDetectionTab(widget);
     connect(consumer, &PlotConsumer::setPlotData, this, &EventDetectionController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &EventDetectionController::onReplot);
@@ -531,7 +528,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             amplitudeBinner->put(ei.amplitude);
             amplitudeAccumulator += ei.amplitude;
             const std::vector<int16_t>& data = event.rawData;
-            const auto resolution = appStatus->getCurrentRange().step;
+            const auto resolution = appStatus->getCurrentRanges()[chIdx].step;
             if (eventsGroup.has_value()) {
                 writeEvent(eventsGroup.value(), event, "e_" + std::to_string(eventCounter++));
             }

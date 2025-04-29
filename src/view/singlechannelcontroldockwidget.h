@@ -24,13 +24,14 @@ public:
 
 public slots:
     void onUpdate();
-    void onVcVoltageRangeSelected(int idx);
-    void onVcCurrentRangeSelected(int idx);
-    void onCcCurrentRangeSelected(int idx);
-    void onCcVoltageRangeSelected(int idx);
+    void onVcVoltageRangeSelected();
+    void onVcCurrentRangeSelected();
+    void onCcCurrentRangeSelected();
+    void onCcVoltageRangeSelected();
 
 protected:
     bool eventFilter(QObject * obj, QEvent * event);
+    ApplicationStatus * getAppStatus();
 
 private:
     typedef enum Operations {
@@ -65,8 +66,8 @@ private:
     bool anyOperationActive = false;
 
     QVector <QWidget *> operationButtonWidgets;
-    RangedMeasurement_t holdingTunerRange;
-    RangedMeasurement_t offsetRecalibrationRange;
+    std::vector <RangedMeasurement_t> holdingTunerRange;
+    std::vector <RangedMeasurement_t> offsetRecalibrationRange;
     RangedMeasurement_t liquidJunctionRange;
     QVector <NoWheelSpinBox *> setAllChannelsSbxs;
     void buildOperation(QLayout * layout, Operations_t operationType, bool visibility = false);

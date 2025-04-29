@@ -43,10 +43,10 @@ public slots:
     void onResetHw();
     void onDeviceConnected(ErrorCodes_t ret);
     void onMainWindowCreated();
-    void onVcCurrentRangeSelected(int idx);
-    void onVcVoltageRangeSelected(int idx);
-    void onCcCurrentRangeSelected(int idx);
-    void onCcVoltageRangeSelected(int idx);
+    void onVcCurrentRangeSelected();
+    void onVcVoltageRangeSelected();
+    void onCcCurrentRangeSelected();
+    void onCcVoltageRangeSelected();
     void onVcVoltageFilterSelected(int idx);
     void onCcCurrentFilterSelected(int idx);
     void onSamplingRateSelected(int idx);
@@ -93,8 +93,8 @@ private:
     int currentChannelsNumber;
     int boardsNumber;
 
-    std::optional <RangedMeasurement> previousVoltageRange = std::nullopt;
-    std::optional <RangedMeasurement> previousCurrentRange = std::nullopt;
+    std::optional <std::vector <RangedMeasurement>> previousVoltageRange = std::nullopt;
+    std::optional <std::vector <RangedMeasurement>> previousCurrentRange = std::nullopt;
 
 signals:
     void startDetecting();

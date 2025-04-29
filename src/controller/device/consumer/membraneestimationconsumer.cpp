@@ -29,9 +29,9 @@ void MembraneEstimationConsumer::initAnalysis() {
 void MembraneEstimationConsumer::resetAnalysis() {
     SquareVoltageBasedAnalysisConsumer::resetAnalysis();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        results[channelIdx].membraneCapacitance.prefix = currentRange.prefix / voltageRange.prefix; /*! it should be current * time / voltage, but the time is in seconds */
-        results[channelIdx].accessResistance.prefix = voltageRange.prefix / currentRange.prefix;
-        results[channelIdx].membraneResistance.prefix = voltageRange.prefix / currentRange.prefix;
+        results[channelIdx].membraneCapacitance.prefix = currentRange[channelIdx].prefix / voltageRange[channelIdx].prefix; /*! it should be current * time / voltage, but the time is in seconds */
+        results[channelIdx].accessResistance.prefix = voltageRange[channelIdx].prefix / currentRange[channelIdx].prefix;
+        results[channelIdx].membraneResistance.prefix = voltageRange[channelIdx].prefix / currentRange[channelIdx].prefix;
     }
 }
 

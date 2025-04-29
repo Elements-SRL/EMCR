@@ -3,7 +3,7 @@
 #include <QApplication>
 
 ChessboardController::ChessboardController(ApplicationStatus * appStatus, DeviceDataProducer* dataProducer, Measurement_t defaultDuration, MainWindow * mainWindow) :
-    appStatus(appStatus),
+    ControllerWithConsumer(appStatus),
     mainWindow(mainWindow) {
 
     stampPlotConsumer = new GapFreePlotConsumer(appStatus, dataProducer);
@@ -216,9 +216,9 @@ void ChessboardController::onTracesExpandedOnOffEx(bool flag) {
     }
 }
 
-void ChessboardController::onRangeUpdated(RangedMeasurement_t newRange) {
-    for (auto plot : plots) {
-        plot->onRangeUpdated(newRange);
+void ChessboardController::onRangeUpdated(std::vector <RangedMeasurement_t> newRange) {
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        plots[chIdx]->onRangeUpdated(newRange[chIdx]);
     }
 }
 

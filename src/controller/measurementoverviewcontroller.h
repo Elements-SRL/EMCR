@@ -32,7 +32,6 @@ public slots:
 
 private:
     void getNewActiveChannels(std::vector <int>& newActiveChannels);
-    ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     MeasurementsOverviewDockWidget * modw = nullptr;
     MeasurementOverviewModel * modm = nullptr;

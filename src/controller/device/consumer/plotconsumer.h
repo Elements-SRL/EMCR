@@ -30,8 +30,8 @@ public slots:
 
     virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
     virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
-    virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
-    virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
+    virtual void onVoltageRangeChanged() override;
+    virtual void onCurrentRangeChanged() override;
 
     void onDurationChanged(Measurement_t duration);
     void plotAllChannels(bool flag);

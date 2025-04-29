@@ -27,8 +27,8 @@ void EventDetectionConsumer::forceAxisUpdate() {
     emitPlotData();
 }
 
-void EventDetectionConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
-    PlotConsumer::onVoltageRangeChanged(range);
+void EventDetectionConsumer::onVoltageRangeChanged() {
+    PlotConsumer::onVoltageRangeChanged();
     allocateData();
     emitPlotData();
 }
@@ -82,7 +82,7 @@ void EventDetectionConsumer::run() {
             }
             for (auto channelIdx : expandedChannels) {
                 const auto valuesSize = currentValuesDouble[channelIdx].size();
-                eventDetectionChannels[channelIdx]->setChunk(currentValuesInt[channelIdx], currentValuesDouble[channelIdx], voltageValues[channelIdx], valuesSize, currentRange, voltageRange, appStatus->getSamplingRate());
+                eventDetectionChannels[channelIdx]->setChunk(currentValuesInt[channelIdx], currentValuesDouble[channelIdx], voltageValues[channelIdx], valuesSize, currentRange[channelIdx], voltageRange[channelIdx], appStatus->getSamplingRate());
             }
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {

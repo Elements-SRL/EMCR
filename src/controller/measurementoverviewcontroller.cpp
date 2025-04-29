@@ -1,7 +1,7 @@
 #include "measurementoverviewcontroller.h"
 
 MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus * appStatus, DeviceDataProducer * producer, MainWindow * mainWindow) :
-    appStatus(appStatus),
+    ControllerWithConsumer(appStatus),
     mainWindow(mainWindow) {
 
     voltageChannelsNum = appStatus->getVoltageChannelsNum();

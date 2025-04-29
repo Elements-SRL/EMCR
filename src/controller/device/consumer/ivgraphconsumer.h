@@ -18,7 +18,7 @@ public:
     void forceAxisUpdate() override;
 
 public slots:
-    void onVoltageRangeChanged(RangedMeasurement_t range) override;
+    void onVoltageRangeChanged() override;
 //    void onBinsNuberChanged(int numberOfBins);
 
 private:
@@ -32,7 +32,7 @@ private:
     std::vector<int> dataSize;
     QMutex voltageAxisMtx;
     QMutex currentAxisMtx;
-    int scaleToBins(double value);
+    int scaleToBins(int channelIdx, double value);
     void calculateBinSize();
     std::vector<double> voltageBins;
     std::vector<int> officialDataSize;

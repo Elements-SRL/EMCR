@@ -41,7 +41,7 @@ public slots:
     void onLjcTurnedOnOff(bool flag);
     void onTracesExpandedOnOff(bool flag);
     void onTracesExpandedOnOffEx(bool flag);
-    void onRangeUpdated(RangedMeasurement_t newRange);
+    void onRangeUpdated(std::vector <RangedMeasurement_t> newRange);
     void onDurationUpdated(Measurement_t duration);
     void onSetPlotData(PlotMessage plotMessage);
     void onReplot();
@@ -52,7 +52,6 @@ public slots:
 //    void onBackgroundColorChanged(QColor color);
 
 private:
-    ApplicationStatus * appStatus;
     MainWindow * mainWindow = nullptr;
     ChessboardDockWidget * chessboard = nullptr;
     GapFreePlotConsumer * stampPlotConsumer = nullptr;

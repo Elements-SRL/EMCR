@@ -26,7 +26,7 @@ void PipetteCapacitanceEstimationConsumer::initAnalysis() {
 void PipetteCapacitanceEstimationConsumer::resetAnalysis() {
     SquareVoltageBasedAnalysisConsumer::resetAnalysis();
     for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        results[channelIdx].meas.prefix = currentRange.prefix / voltageRange.prefix; /*! it should be current * time / voltage, but the time is in seconds */
+        results[channelIdx].meas.prefix = currentRange[channelIdx].prefix / voltageRange[channelIdx].prefix; /*! it should be current * time / voltage, but the time is in seconds */
     }
 }
 

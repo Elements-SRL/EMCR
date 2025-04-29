@@ -52,7 +52,6 @@ public:
 private:
     int voltageChannelsNum;
     int currentChannelsNum;
-    std::vector <uint16_t> allChannels;
 
     MessageDispatcher * msgDisp = nullptr;
     std::vector <CollapsibleSection *> vcCurrentRangesSections;

@@ -40,8 +40,8 @@ private:
     int gapFreeIndex = -1;
     int episodicIndex = -1;
 
-    std::map<BigPlot::BigPlotStatus, CentralWidgetController*> controllers;
-    std::map<int, BigPlot::BigPlotStatus> translator;
+    std::map <BigPlot::BigPlotStatus, CentralWidgetController*> controllers;
+    std::map <int, BigPlot::BigPlotStatus> translator;
 
     int voltageChannelsNum;
     int currentChannelsNum;

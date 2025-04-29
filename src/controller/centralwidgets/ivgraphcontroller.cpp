@@ -156,10 +156,8 @@ void IvGraphController::onCalcMeanSquared() {
 
 void IvGraphController::onStartIvGraph() {
     consumer->onStopConsuming();
-    RangedMeasurement r;
-    appStatus->getMessageDispatcher()->getVCVoltageRange(r);
     //sending this only to reset the data
-    consumer->onVoltageRangeChanged(r);
+    consumer->onVoltageRangeChanged();
     consumer->onStartConsuming();
 }
 

@@ -5,8 +5,8 @@
 PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
 
-    voltageRange.prefix = UnitPfxNone;
-    currentRange.prefix = UnitPfxNone;
+    maxVoltageRange.prefix = UnitPfxNone;
+    maxCurrentRange.prefix = UnitPfxNone;
 
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
     buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
@@ -65,15 +65,15 @@ void PlotConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
     pushedDownsamplingRatioFlag = true;
 }
 
-void PlotConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
+void PlotConsumer::onVoltageRangeChanged() {
     QMutexLocker locker(&rangeAxisMtx);
-    pushedVoltageRange = range;
+    pushedVoltageRange = this->getAppStatus()->getVoltageRanges();
     pushedVoltageRangeFlag = true;
 }
 
-void PlotConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
+void PlotConsumer::onCurrentRangeChanged() {
     QMutexLocker locker(&rangeAxisMtx);
-    pushedCurrentRange = range;
+    pushedCurrentRange = this->getAppStatus()->getCurrentRanges();
     pushedCurrentRangeFlag = true;
 }
 
@@ -107,30 +107,34 @@ void PlotConsumer::updateRangeAxis() {
     if (pushedVoltageRangeFlag) {
         anyPushed = true;
         pushedVoltageRangeFlag = false;
-        voltageRange.max = 1.0;
-        voltageRange.convertValues(pushedVoltageRange.prefix);
-        double coeff = voltageRange.max;
+        maxPushedVoltageRange = this->getAppStatus()->getMaxVoltageRange();
+        maxVoltageRange.max = 1.0;
+        maxVoltageRange.convertValues(maxPushedVoltageRange.prefix);
+        double coeff = maxVoltageRange.max;
         for (auto channelIdx : expandedChannels) {
             for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
                 voltageValues[channelIdx][sampleIdx] *= coeff;
             }
         }
         voltageRange = pushedVoltageRange;
+        maxVoltageRange = maxPushedVoltageRange;
     }
 
     if (pushedCurrentRangeFlag) {
         anyPushed = true;
         pushedCurrentRangeFlag = false;
+        maxPushedCurrentRange = this->getAppStatus()->getMaxCurrentRange();
         double coeff;
-        currentRange.max = 1.0;
-        currentRange.convertValues(pushedCurrentRange.prefix);
-        coeff = currentRange.max;
+        maxCurrentRange.max = 1.0;
+        maxCurrentRange.convertValues(maxPushedCurrentRange.prefix);
+        coeff = maxCurrentRange.max;
         for (auto channelIdx : expandedChannels) {
             for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
                 currentValues[channelIdx][sampleIdx] *= coeff;
             }
         }
         currentRange = pushedCurrentRange;
+        maxCurrentRange = maxPushedCurrentRange;
     }
 
     if (anyPushed) {

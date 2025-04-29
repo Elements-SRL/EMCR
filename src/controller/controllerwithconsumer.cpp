@@ -1,7 +1,12 @@
 #include "controllerwithconsumer.h"
 
-ControllerWithConsumer::ControllerWithConsumer() {
+ControllerWithConsumer::ControllerWithConsumer(ApplicationStatus * appStatus) :
+    appStatus(appStatus) {
 
+}
+
+ApplicationStatus * ControllerWithConsumer::getAppStatus() {
+    return appStatus;
 }
 
 void ControllerWithConsumer::onSamplingRateChanged(Measurement sr) {
@@ -16,15 +21,15 @@ void ControllerWithConsumer::onDownsamplingRatioChanged(unsigned int dsr) {
     }
 }
 
-void ControllerWithConsumer::onCurrentRangeChanged(RangedMeasurement rm) {
+void ControllerWithConsumer::onCurrentRangeChanged() {
     for (auto &consumer : getConsumers()) {
-        consumer->onCurrentRangeChanged(rm);
+        consumer->onCurrentRangeChanged();
     }
 }
 
-void ControllerWithConsumer::onVoltageRangeChanged(RangedMeasurement rm) {
+void ControllerWithConsumer::onVoltageRangeChanged() {
     for (auto &consumer : getConsumers()) {
-        consumer->onVoltageRangeChanged(rm);
+        consumer->onVoltageRangeChanged();
     }
 }
 

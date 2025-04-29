@@ -26,7 +26,7 @@ private:
     virtual void attachCurves(const std::vector <uint16_t>& channelIndexes) = 0;
 
 public slots:
-    virtual void onRangeUpdated(commlib::RangedMeasurement_t newRange) = 0;
+    virtual void onRangeUpdated(RangedMeasurement_t newRange) = 0;
     virtual void onCurrentColorsChanged(QVector <QColor> colors) = 0;
     virtual void onCurrentColorChanged(int channelIdx, QColor color) = 0;
     virtual void onBackgroundColorChanged(QColor color) = 0;
@@ -37,7 +37,6 @@ public slots:
 
 protected:
     BigPlotWidget* bigPlotWidget;
-    ApplicationStatus* appStatus;
     DeviceDataProducer* producer;
 
     int currentChannelsNum;

@@ -1,7 +1,7 @@
 #include "centralwidgetcontroller.h"
 
-CentralWidgetController::CentralWidgetController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget) {
-	this->appStatus = appStatus;
+CentralWidgetController::CentralWidgetController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget) :
+    ControllerWithConsumer(appStatus) {
 	this->producer = producer;
 	this->bigPlotWidget = bigPlotWidget;
 

@@ -40,15 +40,15 @@ void AutodecloggerConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
     pushedDownsamplingRatioFlag = true;
 }
 
-void AutodecloggerConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
+void AutodecloggerConsumer::onVoltageRangeChanged() {
     QMutexLocker locker(&rangeAxisMtx);
-    pushedVoltageRange = range;
+    pushedVoltageRange = this->getAppStatus()->getVoltageRanges();
     pushedVoltageRangeFlag = true;
 }
 
-void AutodecloggerConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
+void AutodecloggerConsumer::onCurrentRangeChanged() {
     QMutexLocker locker(&rangeAxisMtx);
-    pushedCurrentRange = range;
+    pushedCurrentRange = this->getAppStatus()->getCurrentRanges();
     pushedCurrentRangeFlag = true;
 }
 
@@ -94,13 +94,13 @@ void AutodecloggerConsumer::run() {
             bufferIdx = 0;
             bufferLen = buffer.size();
             std::map<int, std::vector<double>> currentValues;
-            const auto vr = appStatus->getVoltageRange();
+            const auto vr = appStatus->getVoltageRanges();
             while (bufferIdx + voltageChannelsNum < bufferLen) {
                 for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                     // if there is no previous voltage, read it
                     // could this have problems if I read old voltages?
                     if (!originalVoltages[channelIdx].has_value()) {
-                        const Measurement m = { buffer[bufferIdx], vr.prefix, vr.unit };
+                        const Measurement m = { buffer[bufferIdx], vr[channelIdx].prefix, vr[channelIdx].unit };
                         originalVoltages[channelIdx] = m;
                     }
                     const auto currentValue = buffer[bufferIdx + voltageChannelsNum];

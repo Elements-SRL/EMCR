@@ -60,10 +60,10 @@ void LiveStatisticsConsumer::performAnalysis() {
             const auto meanCurrent = currentSum[chIdx] / ((double)totalAnalysisSamples);
             const auto stdCurrent = qSqrt((currentSum2[chIdx] - currentSum[chIdx] * meanCurrent) / ((double)totalAnalysisSamples));
 
-            const Measurement meanVoltageMeasurement = { meanVoltage , voltageRange.prefix, voltageRange.unit };
-            const Measurement stdVoltageMeasurement = { stdVoltage, voltageRange.prefix, voltageRange.unit };
-            const Measurement meanCurrentMeasurement = { meanCurrent, currentRange.prefix, currentRange.unit };
-            const Measurement stdCurrentMeasurement = { stdCurrent, currentRange.prefix, currentRange.unit };
+            const Measurement meanVoltageMeasurement = { meanVoltage , voltageRange[chIdx].prefix, voltageRange[chIdx].unit };
+            const Measurement stdVoltageMeasurement = { stdVoltage, voltageRange[chIdx].prefix, voltageRange[chIdx].unit };
+            const Measurement meanCurrentMeasurement = { meanCurrent, currentRange[chIdx].prefix, currentRange[chIdx].unit };
+            const Measurement stdCurrentMeasurement = { stdCurrent, currentRange[chIdx].prefix, currentRange[chIdx].unit };
             const StatisticsResult sr = { chIdx, meanVoltageMeasurement, stdVoltageMeasurement, meanCurrentMeasurement, stdCurrentMeasurement };
             results[chIdx] = sr;
         }

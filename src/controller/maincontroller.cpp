@@ -430,89 +430,85 @@ void MainController::destroyControllers() {
     }
 }
 
-void MainController::onVcCurrentRangeSelected(int idx) {
+void MainController::onVcCurrentRangeSelected() {
     /*! update GUI */
     auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
     deviceControlDw->updateParameters();
 
-    RangedMeasurement_t range;
-    msgDisp->getVCCurrentRange(range);
+    auto range = appStatus->getCurrentRanges();
     if (previousCurrentRange.has_value() && previousCurrentRange.value() == range) {
         return;
     }
     previousCurrentRange.emplace(range);
 
     for (auto controller : controllersWithConsumer) {
-        controller->onCurrentRangeChanged(range);
+        controller->onCurrentRangeChanged();
     }
 
-    chessboardController->onRangeUpdated(range);
-    bigPlotController->onRangeUpdated(range);
+    chessboardController->onRangeUpdated(appStatus->getCurrentRanges());
+    bigPlotController->onRangeUpdated(appStatus->getMaxCurrentRange());
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
-    singleChannelControlDw->onVcCurrentRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono essere sostituite con chiamate ai controller */
+    singleChannelControlDw->onVcCurrentRangeSelected(); /*! \todo FCON vedere se questo genere di getXXXDw possono essere sostituite con chiamate ai controller */
 }
 
-void MainController::onVcVoltageRangeSelected(int idx) {
+void MainController::onVcVoltageRangeSelected() {
     /*! update GUI */
     auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
     deviceControlDw->updateParameters();
 
-    RangedMeasurement_t range;
-    msgDisp->getVCVoltageRange(range);
+    auto range = appStatus->getVoltageRanges();
     if (previousVoltageRange.has_value() && previousVoltageRange.value() == range) {
         return;
     }
     previousVoltageRange.emplace(range);
 
     for (auto controller : controllersWithConsumer) {
-        controller->onVoltageRangeChanged(range);
+        controller->onVoltageRangeChanged();
     }
 
-    bigPlotController->onRangeUpdated(range);
+    bigPlotController->onRangeUpdated(appStatus->getMaxVoltageRange());
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
-    singleChannelControlDw->onVcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
+    singleChannelControlDw->onVcVoltageRangeSelected(); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
-void MainController::onCcCurrentRangeSelected(int idx) {
+void MainController::onCcCurrentRangeSelected() {
     /*! update GUI */
     auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
     deviceControlDw->updateParameters();
 
-    RangedMeasurement_t range;
-    msgDisp->getCCCurrentRange(range);
+    auto range = appStatus->getCurrentRanges();
     if (previousCurrentRange.has_value() && previousCurrentRange.value() == range) {
         return;
     }
     previousCurrentRange.emplace(range);
 
     for (auto controller : controllersWithConsumer) {
-        controller->onCurrentRangeChanged(range);
+        controller->onCurrentRangeChanged();
     }
-    bigPlotController->onRangeUpdated(range);
+    bigPlotController->onRangeUpdated(appStatus->getMaxCurrentRange());
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
-    singleChannelControlDw->onCcCurrentRangeSelected(idx);
+    singleChannelControlDw->onCcCurrentRangeSelected();
 }
 
-void MainController::onCcVoltageRangeSelected(int idx) {
+void MainController::onCcVoltageRangeSelected() {
     /*! update GUI */
     auto deviceControlDw = static_cast <DeviceControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWDeviceControl));
     deviceControlDw->updateParameters();
 
-    RangedMeasurement_t range;
-    msgDisp->getCCVoltageRange(range);
+    auto range = appStatus->getVoltageRanges();
     if (previousVoltageRange.has_value() && previousVoltageRange.value() == range) {
         return;
     }
     previousVoltageRange.emplace(range);
 
     for (auto controller : controllersWithConsumer) {
-        controller->onVoltageRangeChanged(range);
+        controller->onVoltageRangeChanged();
     }
 
-    chessboardController->onRangeUpdated(range);
-    bigPlotController->onRangeUpdated(range);
+    chessboardController->onRangeUpdated(appStatus->getVoltageRanges());
+    bigPlotController->onRangeUpdated(appStatus->getMaxVoltageRange());
     auto singleChannelControlDw = static_cast <SingleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWSingleChannelControl));
-    singleChannelControlDw->onCcVoltageRangeSelected(idx); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
+    singleChannelControlDw->onCcVoltageRangeSelected(); /*! \todo FCON vedere se questo genere di getXXXDw possono esseresostittuite con chiamate ai controller */
 }
 
 void MainController::onVcVoltageFilterSelected(int) {

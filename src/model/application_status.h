@@ -40,8 +40,14 @@ public:
     std::vector <int> getVisibleChannels();
     std::vector<std::string> getNames();
     Measurement getSamplingRate();
-    RangedMeasurement getVoltageRange();
-    RangedMeasurement getCurrentRange();
+    RangedMeasurement_t getVcVoltageRange();
+    std::vector <RangedMeasurement_t> getVcCurrentRange();
+    std::vector <RangedMeasurement_t> getCcVoltageRange();
+    RangedMeasurement_t getCcCurrentRange();
+    std::vector <RangedMeasurement_t> getVoltageRanges();
+    RangedMeasurement_t getMaxVoltageRange();
+    std::vector <RangedMeasurement_t> getCurrentRanges();
+    RangedMeasurement_t getMaxCurrentRange();
     std::string getSerialNumber();
     std::string getDeviceInfoString();
     ClampingModality_t getClampingModality();

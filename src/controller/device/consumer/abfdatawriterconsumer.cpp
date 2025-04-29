@@ -345,13 +345,13 @@ void AbfDataWriterConsumer::initIVSections() {
         abf->PutString(QString("I%1").arg(channelIdx).toStdString().c_str());
         int iStringIdx = abf->GetStringNumber();
 
-        abf->PutString(currentRange.getFullUnit().c_str());
+        abf->PutString(currentRange[channelIdx].getFullUnit().c_str());
         int iStringUnitIdx = abf->GetStringNumber();
 
         abf->PutString(QString("V%1").arg(channelIdx).toStdString().c_str());
         int vStringIdx = abf->GetStringNumber();
 
-        abf->PutString(voltageRange.getFullUnit().c_str());
+        abf->PutString(voltageRange[channelIdx].getFullUnit().c_str());
         int vStringUnitIdx = abf->GetStringNumber();
 
         /*! ADC section */
@@ -366,7 +366,7 @@ void AbfDataWriterConsumer::initIVSections() {
         abf->ADCInfo[adcIdx].nADCNum = adcIdx;
         abf->ADCInfo[adcIdx].nADCPtoLChannelMap = adcIdx;
         abf->ADCInfo[adcIdx].nADCSamplingSeq = 0;
-        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(currentRange.step*32768.0);
+        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(currentRange[channelIdx].step*32768.0);
         abf->ADCInfo[adcIdx].fInstrumentOffset = 0.0F;
         abf->ADCInfo[adcIdx].fADCProgrammableGain = 1.0F;
 
@@ -378,7 +378,7 @@ void AbfDataWriterConsumer::initIVSections() {
         abf->ADCInfo[adcIdx].nADCNum = adcIdx;
         abf->ADCInfo[adcIdx].nADCPtoLChannelMap = adcIdx;
         abf->ADCInfo[adcIdx].nADCSamplingSeq = 0;
-        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(voltageRange.step*32768.0);
+        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(voltageRange[channelIdx].step*32768.0);
         abf->ADCInfo[adcIdx].fInstrumentOffset = 0.0F;
         abf->ADCInfo[adcIdx].fADCProgrammableGain = 1.0F;
 
@@ -510,13 +510,13 @@ void AbfDataWriterConsumer::initISections() {
         abf->PutString(QString("I%1").arg(channelIdx).toStdString().c_str());
         int iStringIdx = abf->GetStringNumber();
 
-        abf->PutString(currentRange.getFullUnit().c_str());
+        abf->PutString(currentRange[channelIdx].getFullUnit().c_str());
         int iStringUnitIdx = abf->GetStringNumber();
 
         abf->PutString(QString("V%1").arg(channelIdx).toStdString().c_str());
         int vStringIdx = abf->GetStringNumber();
 
-        abf->PutString(voltageRange.getFullUnit().c_str());
+        abf->PutString(voltageRange[channelIdx].getFullUnit().c_str());
         int vStringUnitIdx = abf->GetStringNumber();
 
         /*! ADC section */
@@ -531,7 +531,7 @@ void AbfDataWriterConsumer::initISections() {
         abf->ADCInfo[adcIdx].nADCNum = adcIdx;
         abf->ADCInfo[adcIdx].nADCPtoLChannelMap = adcIdx;
         abf->ADCInfo[adcIdx].nADCSamplingSeq = 0;
-        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(currentRange.step*32768.0);
+        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(currentRange[channelIdx].step*32768.0);
         abf->ADCInfo[adcIdx].fInstrumentOffset = 0.0F;
         abf->ADCInfo[adcIdx].fADCProgrammableGain = 1.0F;
 
@@ -663,7 +663,7 @@ void AbfDataWriterConsumer::initVSections() {
         abf->PutString(QString("V%1").arg(channelIdx).toStdString().c_str());
         int vStringIdx = abf->GetStringNumber();
 
-        abf->PutString(voltageRange.getFullUnit().c_str());
+        abf->PutString(voltageRange[channelIdx].getFullUnit().c_str());
         int vStringUnitIdx = abf->GetStringNumber();
 
         /*! ADC section */
@@ -678,7 +678,7 @@ void AbfDataWriterConsumer::initVSections() {
         abf->ADCInfo[adcIdx].nADCNum = adcIdx;
         abf->ADCInfo[adcIdx].nADCPtoLChannelMap = adcIdx;
         abf->ADCInfo[adcIdx].nADCSamplingSeq = 0;
-        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(voltageRange.step*32768.0);
+        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(voltageRange[channelIdx].step*32768.0);
         abf->ADCInfo[adcIdx].fInstrumentOffset = 0.0F;
         abf->ADCInfo[adcIdx].fADCProgrammableGain = 1.0F;
 
@@ -1077,13 +1077,13 @@ void EpisodicAbfDataWriterConsumer::initIVSections() {
         abf->PutString(QString("I%1").arg(channelIdx).toStdString().c_str());
         int iStringIdx = abf->GetStringNumber();
 
-        abf->PutString(currentRange.getFullUnit().c_str());
+        abf->PutString(currentRange[channelIdx].getFullUnit().c_str());
         int iStringUnitIdx = abf->GetStringNumber();
 
         abf->PutString(QString("V%1").arg(channelIdx).toStdString().c_str());
         int vStringIdx = abf->GetStringNumber();
 
-        abf->PutString(voltageRange.getFullUnit().c_str());
+        abf->PutString(voltageRange[channelIdx].getFullUnit().c_str());
         int vStringUnitIdx = abf->GetStringNumber();
 
         /*! ADC section */
@@ -1098,7 +1098,7 @@ void EpisodicAbfDataWriterConsumer::initIVSections() {
         abf->ADCInfo[adcIdx].nADCNum = adcIdx;
         abf->ADCInfo[adcIdx].nADCPtoLChannelMap = adcIdx;
         abf->ADCInfo[adcIdx].nADCSamplingSeq = 0;
-        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(currentRange.step*32768.0);
+        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(currentRange[channelIdx].step*32768.0);
         abf->ADCInfo[adcIdx].fInstrumentOffset = 0.0F;
         abf->ADCInfo[adcIdx].fADCProgrammableGain = 1.0F;
 
@@ -1110,7 +1110,7 @@ void EpisodicAbfDataWriterConsumer::initIVSections() {
         abf->ADCInfo[adcIdx].nADCNum = adcIdx;
         abf->ADCInfo[adcIdx].nADCPtoLChannelMap = adcIdx;
         abf->ADCInfo[adcIdx].nADCSamplingSeq = 0;
-        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(voltageRange.step*32768.0);
+        abf->ADCInfo[adcIdx].fInstrumentScaleFactor = 1.0F/(float)(voltageRange[channelIdx].step*32768.0);
         abf->ADCInfo[adcIdx].fInstrumentOffset = 0.0F;
         abf->ADCInfo[adcIdx].fADCProgrammableGain = 1.0F;
 

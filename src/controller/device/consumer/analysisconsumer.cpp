@@ -45,15 +45,15 @@ void AnalysisConsumer::onDownsamplingRatioChanged(unsigned int ratio) {
     pushedDownsamplingRatioFlag = true;
 }
 
-void AnalysisConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
+void AnalysisConsumer::onVoltageRangeChanged() {
     QMutexLocker locker(&rangesMtx);
-    pushedVoltageRange = range;
+    pushedVoltageRange = this->getAppStatus()->getVoltageRanges();
     pushedVoltageRangeFlag = true;
 }
 
-void AnalysisConsumer::onCurrentRangeChanged(RangedMeasurement_t range) {
+void AnalysisConsumer::onCurrentRangeChanged() {
     QMutexLocker locker(&rangesMtx);
-    pushedCurrentRange = range;
+    pushedCurrentRange = this->getAppStatus()->getCurrentRanges();
     pushedCurrentRangeFlag = true;
 }
 
