@@ -141,6 +141,7 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         break;
 
     case OperationLiquidJunction:
+        range.resize(currentChannelsNum);
         std::fill(range.begin(), range.end(), liquidJunctionRange);
         break;
     }
@@ -153,22 +154,21 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         }
     }
     switch (operationIdx) {
-    case OperationHoldingStimulus:{
+    case OperationHoldingStimulus:
         emit sigAppliedHoldValues(indexes, values);
         break;
-    }
-    case OperationOffsetRecalibration:{
+
+    case OperationOffsetRecalibration:
         emit sigAppliedOffsetRecalibration(indexes, values);
         break;
-    }
-    case OperationLiquidJunction:{
+
+    case OperationLiquidJunction:
         emit sigLiquidJunctionValues(indexes, values);
         break;
-    }
-    case OperationStimulusHalf:{
+
+    case OperationStimulusHalf:
         emit sigAppliedStimHalfValues(indexes, values);
         break;
-    }
     }
 }
 
