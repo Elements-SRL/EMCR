@@ -25,7 +25,8 @@
 #include "compensationcontroller.h"
 #include "plotpreferencescontroller.h"
 #include "autodecloggercontroller.h"
-
+#include "temperaturecontroller.h"
+#include "debugcontroller.h"
 
 class MainController : public QObject {
     Q_OBJECT
@@ -81,6 +82,8 @@ private:
     BoardController * boardController = nullptr;
     DeviceController * deviceController = nullptr;
     StateArrayController * stateArrayController = nullptr;
+    TemperatureController * temperatureController = nullptr;
+    DebugController * debugController = nullptr;
     CompensationController * compensationController = nullptr;
     MeasurementOverviewController * measurementOverviewController = nullptr;
     PlotPreferencesController * plotPreferencesController = nullptr;

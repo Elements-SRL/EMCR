@@ -153,9 +153,9 @@ ProtocolDropStimulusItem::ProtocolDropStimulusItem(MessageDispatcher * msgDisp, 
     cbStimulusHalf->setCheckState(Qt::Unchecked);
     stimulusHalfHl->addWidget(cbStimulusHalf);
 
-#ifdef GLB_HIDE_DEBUG_CTRLS
-    cbStimulusHalf->setVisible(false);
-#endif
+    if (debugControlsEnabled()) {
+        cbStimulusHalf->setVisible(false);
+    }
 
     propertyLo->setColumnStretch(0, 2);
     propertyLo->setColumnStretch(1, 3);

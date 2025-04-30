@@ -40,6 +40,14 @@ DeviceDataProducer::DeviceDataProducer(ApplicationStatus * appStatus, QObject * 
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
+    temperatureChannelsNum = appStatus->getTemperatureChannelsNum();
+    if (temperatureChannelsNum > 0) {
+        temperatureValuesDbl = new double[temperatureChannelsNum];
+        temperatureValues.resize(temperatureChannelsNum);
+        Measurement_t zeroDegrees = {0.0, UnitPfxNone, "°C"};
+        std::fill(temperatureValues.begin(), temperatureValues.end(), zeroDegrees);
+    }
+
     dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_SAMPLES_FOR_BUFFER/(double)totalChannelsNum));
     dataPacketsBufferMask = dataPacketsBufferLen-1U;
 
@@ -184,6 +192,17 @@ void DeviceDataProducer::run() {
                 nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
                 items[currentProtIdx][nextItemIdx].available = false;
                 dataLock.unlock();
+                break;
+
+            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature:
+                for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
+                    msgDisp->convertTemperatureValues(datain+wordsIdx, temperatureValuesDbl);
+                    for (chIdx = 0; chIdx < temperatureChannelsNum; chIdx++) {
+                        temperatureValues[chIdx].value = temperatureValuesDbl[chIdx];
+                    }
+                }
+
+                emit sigTemperatureRead(temperatureValues);
                 break;
             }
         }

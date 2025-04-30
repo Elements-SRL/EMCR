@@ -43,6 +43,16 @@ int ApplicationStatus::getBoardsNum(){
     return boardsNum;
 };
 
+int ApplicationStatus::getTemperatureChannelsNum(){
+    std::vector <std::string> names;
+    std::vector <RangedMeasurement_t> ranges;
+
+    if (msgDisp->getTemperatureChannelsFeatures(names, ranges) != Success) {
+        return 0;
+    }
+    return names.size();
+};
+
 std::vector <ChannelModel *> ApplicationStatus::getChannels(){
     std::vector <ChannelModel *> channels;
     msgDisp->getChannels(channels);

@@ -23,6 +23,7 @@ public:
     int getVoltageChannelsNum();
     int getCurrentChannelsNum();
     int getBoardsNum();
+    int getTemperatureChannelsNum();
     std::vector <ChannelModel *> getChannels();
     void setSelectedChannels(std::map<int, bool>);
     std::vector <int> getVisibleChannelsOnBoard(int boardIdx);

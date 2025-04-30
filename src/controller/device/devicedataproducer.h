@@ -119,6 +119,10 @@ private:
     int voltageChannelsNum;
     int currentChannelsNum;
     int totalChannelsNum;
+    int temperatureChannelsNum;
+
+    double * temperatureValuesDbl;
+    std::vector <Measurement_t> temperatureValues;
 
     unsigned int currentProtIdx = 0;
     unsigned int nextItemIdx = 0;
@@ -146,6 +150,7 @@ signals:
     void bitRateComputed(double); /*! ksps */
     void disconnectDevice();
     void resetDevice();
+    void sigTemperatureRead(std::vector <Measurement_t> temperatureValues);
 };
 
 #endif // DEVICEDATAPRODUCER_H

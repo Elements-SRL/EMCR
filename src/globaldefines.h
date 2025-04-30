@@ -5,6 +5,8 @@
 
 #include <QDebug>
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QDir>
 
 /*! Recordings settings*/
 #define PSD_DEFAULT_RECORD_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "/Recordings/")
@@ -41,13 +43,14 @@
 #define STAMP_PLOT_MIN_WIDTH 50
 #define STAMP_PLOT_MIN_HEIGHT 35
 #define GLB_MAX_PROT_ID 0xFFFF
+#define DEBUG_FILE_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "_debug.pls")
 
 /*! Utility to debug by printf */
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }
 
-/*! Undef to see all controls */
-#ifndef GLB_SHOW_DEBUG_CTRLS
-#define GLB_HIDE_DEBUG_CTRLS
-#endif
+inline bool debugControlsEnabled() {
+    QFileInfo fileInfo(DEBUG_FILE_PATH);
+    return fileInfo.exists() && fileInfo.isFile() ? true : false;
+}
 
 #endif // GLOBALDEFINES_H

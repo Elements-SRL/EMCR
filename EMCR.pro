@@ -5,16 +5,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG(debug, debug|release) {
     QMAKE_CXXFLAGS += /Od
-    DEFINES += GLB_SHOW_DEBUG_CTRLS
     DEFINES += DEBUG
 }
 
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
-}
-
-contains(DEFINES, GLB_SHOW_DEBUG_CTRLS) {
-    TARGET = EMCR_debug
 }
 
 #DEFINES += GLB_ANALYSES_IN_PROTOCOL_EDITOR
@@ -33,12 +28,14 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/controller/bigplotviewcontroller.cpp \
+    src/controller/debugcontroller.cpp \
     src/controller/device/consumer/analysisconsumer.cpp \
     src/controller/device/consumer/membraneestimationconsumer.cpp \
     src/controller/device/consumer/pipettecapacitanceestimationconsumer.cpp \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
     src/controller/durationbasedbigplotviewcontroller.cpp \
+    src/controller/temperaturecontroller.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -101,6 +98,7 @@ SOURCES += \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/copyabletable.cpp \
+    src/view/debugdockwidget.cpp \
     src/view/doubleclickmachine.cpp \
     src/view/lcddisplay.cpp \
     src/view/leftrightmousepushbutton.cpp \
@@ -151,16 +149,19 @@ SOURCES += \
     src/view/questionmarkmenu/deviceinfodialog.cpp \
     src/view/questionmarkmenu/releasenotesdialog.cpp \
     src/view/questionmarkmenu/messagedialog.cpp \
+    src/view/temperaturedockwidget.cpp \
     src/view/upgradefwview.cpp
 
 HEADERS += \
     src/controller/bigplotviewcontroller.h \
+    src/controller/debugcontroller.h \
     src/controller/device/consumer/analysisconsumer.h \
     src/controller/device/consumer/membraneestimationconsumer.h \
     src/controller/device/consumer/pipettecapacitanceestimationconsumer.h \
     src/controller/device/consumer/resistanceestimationconsumer.h \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
     src/controller/durationbasedbigplotviewcontroller.h \
+    src/controller/temperaturecontroller.h \
     src/globaldefines.h \
     src/model/membraneresult.h \
     src/model/singlemeasresult.h \
@@ -240,6 +241,7 @@ HEADERS += \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
     src/view/copyabletable.h \
+    src/view/debugdockwidget.h \
     src/view/doubleclickmachine.h \
     src/view/lcddisplay.h \
     src/view/leftrightmousepushbutton.h \
@@ -290,6 +292,7 @@ HEADERS += \
     src/view/questionmarkmenu/deviceinfodialog.h \
     src/view/questionmarkmenu/releasenotesdialog.h \
     src/view/questionmarkmenu/messagedialog.h \
+    src/view/temperaturedockwidget.h \
     src/view/upgradefwview.h
 
 INCLUDEPATH += \

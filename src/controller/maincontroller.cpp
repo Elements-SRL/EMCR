@@ -188,11 +188,21 @@ void MainController::onMainWindowCreated() {
     autoDecloggerController = new AutoDecloggerController(appStatus, mainWindow, deviceDataProducer);
     controllersWithConsumer.push_back(autoDecloggerController);
 
+    std::vector <std::string> temperatureNames;
+    std::vector <e384cl::RangedMeasurement_t> temperatureRanges;
+    if (appStatus->getTemperatureChannelsNum() > 0) {
+        temperatureController = new TemperatureController(appStatus, mainWindow);
+    }
+
+    if (debugControlsEnabled()) {
+        debugController = new DebugController(appStatus, mainWindow);
+    }
+
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
-    /*************\
+    /***************\
      * Controllers *
-    \*************/
+    \***************/
 
     for (auto &c: bigPlotController->getControllers()) {
         controllersWithConsumer.push_back(c);
@@ -315,12 +325,6 @@ void MainController::onMainWindowCreated() {
         connect(protocolDw->getAnalysisCurrentProtocolList(), &ProtocolList::startProtocolRequest, currentProtocolManager, &ProtocolManager::onStartProtocolRequest);
         connect(protocolDw->getAnalysisCurrentProtocolList(), &ProtocolList::increaseProtocolId,   voltageProtocolManager, &ProtocolManager::onIncreaseProtocolId);
     }
-    connect(mainWindow, &MainWindow::setDebugBit, this, [=] (int word, int bit, bool flag) {
-        msgDisp->setDebugBit(word, bit, flag);
-    });
-    connect(mainWindow, &MainWindow::setDebugWord, this, [=] (int word, int value) {
-        msgDisp->setDebugWord(word, value);
-    });
     connect(mainWindow, &MainWindow::sigBoardMappingFileChoosen, this, [=](QString filepath) {
         appStatus->loadChannelMappingFromYaml(filepath.toStdString());
         chessboardController->onBoardMappingLoaded();
@@ -328,14 +332,8 @@ void MainController::onMainWindowCreated() {
         measurementOverviewController->boardMappingsLoaded();
     });
 
-    connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, this, [=] (double value) {
-        if (value > 1.0e6) {
-            mainWindow->SRLbl->setText(QString("%1 Msps").arg(value/1.0e6));
-
-        } else {
-            mainWindow->SRLbl->setText(QString("%1 ksps").arg(value/1.0e3));
-        }
-    });
+    connect(deviceDataProducer, &DeviceDataProducer::sigTemperatureRead, temperatureController, &TemperatureController::sigTemperatureRead);
+    connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, mainWindow, &MainWindow::onBitRateComputed);
 
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};
@@ -427,6 +425,16 @@ void MainController::destroyControllers() {
     if (autoDecloggerController != nullptr) {
         delete autoDecloggerController;
         autoDecloggerController = nullptr;
+    }
+
+    if (debugController != nullptr) {
+        delete debugController;
+        debugController = nullptr;
+    }
+
+    if (temperatureController != nullptr) {
+        delete temperatureController;
+        temperatureController = nullptr;
     }
 }
 
