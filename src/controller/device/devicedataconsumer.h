@@ -7,6 +7,8 @@
 #include "devicedataproducer.h"
 #include "e384commlib_global.h"
 
+namespace e384cl = e384CommLib;
+
 class DeviceDataConsumer : public QThread {
     Q_OBJECT
 
@@ -19,16 +21,18 @@ public slots:
     virtual void onStopConsuming() = 0;
     virtual void onResetConsuming();
 
-    virtual void onSamplingRateChanged(Measurement_t samplingRate) = 0;
+    virtual void onSamplingRateChanged(e384cl::Measurement_t samplingRate) = 0;
     virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) = 0;
-    virtual void onVoltageRangeChanged(RangedMeasurement_t range) = 0;
-    virtual void onCurrentRangeChanged(RangedMeasurement_t range) = 0;
+    virtual void onVoltageRangeChanged() = 0;
+    virtual void onCurrentRangeChanged() = 0;
     virtual void onClampingModalityChanged(ClampingModality_t mode) = 0;
 
 protected:
+    ApplicationStatus * getAppStatus();
+
     ApplicationStatus * appStatus = nullptr;
     DeviceDataProducer * producer = nullptr;
-    DataHook * hook = nullptr;
+    AbstractDataHook * hook = nullptr;
 
     int voltageChannelsNum = 0;
     int currentChannelsNum = 0;
@@ -49,11 +53,15 @@ protected:
     unsigned int pushedDownsamplingRatio = 1;
     unsigned int downsamplingRatio = 1;
 
-    RangedMeasurement_t pushedVoltageRange;
-    RangedMeasurement_t voltageRange = {0.0, 1.0, 1.0, UnitPfxNone, "V"};
+    std::vector <RangedMeasurement_t> pushedVoltageRange;
+    std::vector <RangedMeasurement_t> voltageRange;
+    RangedMeasurement_t maxPushedVoltageRange;
+    RangedMeasurement_t maxVoltageRange;
 
-    RangedMeasurement_t pushedCurrentRange;
-    RangedMeasurement_t currentRange = {0.0, 1.0, 1.0, UnitPfxNone, "A"};
+    std::vector <RangedMeasurement_t> pushedCurrentRange;
+    std::vector <RangedMeasurement_t> currentRange;
+    RangedMeasurement_t maxPushedCurrentRange;
+    RangedMeasurement_t maxCurrentRange;
 
     ClampingModality_t pushedClampingModality;
     ClampingModality_t clampingModality = UNDEFINED_CLAMP;

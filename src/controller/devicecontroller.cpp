@@ -15,31 +15,30 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
     msgDisp->getCCCurrentFilters(ccCurrentFilters);
     msgDisp->getSamplingRatesFeatures(samplingRates);
 
-
     deviceControlDockWidget = new DeviceControlDockWidget(msgDisp);
     mainWindow->setDockWidget(MainWindow::DWDeviceControl, deviceControlDockWidget, false, Qt::LeftDockWidgetArea);
 
     model = new DeviceModel(appStatus, deviceControlDockWidget);
 
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcCurrentRangeSelected,     this, [=](uint16_t selectedVcCurrentRangeIndex) {
-        onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcCurrentRangeSelected,     this, [=](int chIdx, int selectedVcCurrentRangeIndex) {
+        onVcCurrentRangeSelected(chIdx, selectedVcCurrentRangeIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcVoltageRangeSelected,     this, [=](uint16_t selectedVcVoltageRangeIndex) {
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcVoltageRangeSelected,     this, [=](int selectedVcVoltageRangeIndex) {
         onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcCurrentRangeSelected,     this, [=](uint16_t selectedCcCurrentRangeIndex) {
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcCurrentRangeSelected,     this, [=](int selectedCcCurrentRangeIndex) {
         onCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcVoltageRangeSelected,     this, [=](uint16_t selectedCcVoltageRangeIndex) {
-        onCcVoltageRangeSelected(selectedCcVoltageRangeIndex);
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcVoltageRangeSelected,     this, [=](int chIdx, int selectedCcVoltageRangeIndex) {
+        onCcVoltageRangeSelected(chIdx, selectedCcVoltageRangeIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcVoltageFilterSelected,    this, [=](uint16_t selectedVcVoltageFilterIndex) {
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigVcVoltageFilterSelected,    this, [=](int selectedVcVoltageFilterIndex) {
         onVcVoltageFilterSelected(selectedVcVoltageFilterIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcCurrentFilterSelected,    this, [=](uint16_t selectedCcCurrentFilterIndex) {
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCcCurrentFilterSelected,    this, [=](int selectedCcCurrentFilterIndex) {
         onCcCurrentFilterSelected(selectedCcCurrentFilterIndex);
     });
-    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigSamplingRateSelected,       this, [=](uint16_t selectedSamplingRateIndex) {
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigSamplingRateSelected,       this, [=](int selectedSamplingRateIndex) {
         onSamplingRateSelected(selectedSamplingRateIndex);
     });
     connect(model, &DeviceModel::sigDownsamplingRatioSelected,  this, &DeviceController::onDownsamplingRatioSelected);
@@ -59,15 +58,15 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
         connect(protocolDw->getCurrentProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedCcCurrentRangeIndex) {
             onCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
         });
-        connect(protocolDw->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex) {
-            onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+        connect(protocolDw->getCurrentProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedCcVoltageRangeIndex) {
+            onCcVoltageRangeSelected(appStatus->getVoltageChannelsNum(), selectedCcVoltageRangeIndex);
         });
         connect(protocolDw->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex) {
             onSamplingRateSelected(selectedSamplingRateIndex);
         });
 
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedVcCurrentRangeIndex) {
-            onVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
+            onVcCurrentRangeSelected(appStatus->getCurrentChannelsNum(), selectedVcCurrentRangeIndex);
         } );
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex) {
             onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
@@ -87,54 +86,64 @@ DeviceController::~DeviceController() {
 void DeviceController::handleRecording(bool recording) {
     this->recording = recording;
     auto status = getStatusFromRecordingAndProtocol();
-    deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
-    deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
+    deviceControlDockWidget->setVcVoltageRangesSectionEnabled(status);
+    deviceControlDockWidget->setCcCurrentRangesSectionEnabled(status);
 
-    deviceControlDockWidget->setVcCurrentRangesGroupBoxEnabled(calcDefaultStatus(vcCurrentRanges.size(), recording));
-    deviceControlDockWidget->setCcVoltageRangesGroupBoxEnabled(calcDefaultStatus(ccVoltageRanges.size(), recording));
-    deviceControlDockWidget->setSamplingRatesGroupBoxEnabled(calcDefaultStatus(samplingRates.size(), recording));
+    deviceControlDockWidget->setVcCurrentRangesSectionEnabled(calcDefaultStatus(vcCurrentRanges.size(), recording));
+    deviceControlDockWidget->setCcVoltageRangesSectionEnabled(calcDefaultStatus(ccVoltageRanges.size(), recording));
+    deviceControlDockWidget->setSamplingRatesSectionEnabled(calcDefaultStatus(samplingRates.size(), recording));
     deviceControlDockWidget->setDownsamplingRatioSbxEnabled(!recording);
 }
 
 void DeviceController::handleProtocolStatusChanged(bool protocolRunning) {
     this->protocolRunning = protocolRunning;
     auto status = getStatusFromRecordingAndProtocol();
-    deviceControlDockWidget->setVcVoltageRangesroupBoxEnabled(status);
-    deviceControlDockWidget->setCcCurrentRangesGroupBoxEnabled(status);
+    deviceControlDockWidget->setVcVoltageRangesSectionEnabled(status);
+    deviceControlDockWidget->setCcCurrentRangesSectionEnabled(status);
 }
 
-//return the status to set the groupbox when a protocol is running or a registration is being made
+//return the status to set the Section when a protocol is running or a registration is being made
 bool DeviceController::getStatusFromRecordingAndProtocol() {
     return !(recording || protocolRunning);
 }
 
 // Slots (actionPerformed) for current and voltage ranges
 // ADC Current Range in VC
-void DeviceController::onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex) {
-    appStatus->getMessageDispatcher()->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
+void DeviceController::onVcCurrentRangeSelected(uint16_t chIdx, uint16_t selectedVcCurrentRangeIndex) {
+    if (chIdx < appStatus->getCurrentChannelsNum()) {
+        appStatus->getMessageDispatcher()->setVCCurrentRange({chIdx}, {selectedVcCurrentRangeIndex}, true);
+    }
+    else {
+        appStatus->getMessageDispatcher()->setVCCurrentRange(selectedVcCurrentRangeIndex, true);
+    }
 
-    emit sigVcCurrentRangeSelected(selectedVcCurrentRangeIndex);
+    emit sigVcCurrentRangeSelected();
 }
 
 // DAC Voltage Range in VC might be set by protocol
 void DeviceController::onVcVoltageRangeSelected(uint16_t selectedVcVoltageRangeIndex) {
     appStatus->getMessageDispatcher()->setVCVoltageRange(selectedVcVoltageRangeIndex, true);
 
-    emit sigVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+    emit sigVcVoltageRangeSelected();
 }
 
 // DAC Current Range in CC might be set by protocol
 void DeviceController::onCcCurrentRangeSelected(uint16_t selectedCcCurrentRangeIndex) {
     appStatus->getMessageDispatcher()->setCCCurrentRange(selectedCcCurrentRangeIndex, true);
 
-    emit sigCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
+    emit sigCcCurrentRangeSelected();
 }
 
 // ADC Voltage Range in CC
-void DeviceController::onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex) {
-    appStatus->getMessageDispatcher()->setCCVoltageRange(selectedCcVoltageRangeIndex, true);
+void DeviceController::onCcVoltageRangeSelected(uint16_t chIdx, uint16_t selectedCcVoltageRangeIndex) {
+    if (chIdx < appStatus->getVoltageChannelsNum()) {
+        appStatus->getMessageDispatcher()->setCCVoltageRange({chIdx}, {selectedCcVoltageRangeIndex}, true);
+    }
+    else {
+        appStatus->getMessageDispatcher()->setCCVoltageRange(selectedCcVoltageRangeIndex, true);
+    }
 
-    emit sigCcVoltageRangeSelected(selectedCcVoltageRangeIndex);
+    emit sigCcVoltageRangeSelected();
 }
 
 // Slots (actionPerformed) for current and voltage filters
@@ -180,36 +189,20 @@ void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
     msgDisp->setClampingModality(mode, true, true);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
-        uint32_t idx;
-        msgDisp->getVCCurrentRangeIdx(idx);
-        emit sigVcCurrentRangeSelected(idx);
-
-        msgDisp->getVCVoltageRangeIdx(idx);
-        emit sigVcVoltageRangeSelected(idx);
+        emit sigVcCurrentRangeSelected();
+        emit sigVcVoltageRangeSelected();
 
     } else if (mode == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
-        uint32_t idx;
-        msgDisp->getVCVoltageRangeIdx(idx);
-        emit sigVcVoltageRangeSelected(idx);
-
-        msgDisp->getCCVoltageRangeIdx(idx);
-        emit sigCcVoltageRangeSelected(idx);
+        emit sigVcVoltageRangeSelected();
+        emit sigCcVoltageRangeSelected();
 
     } else if (mode == ClampingModality_t::CURRENT_CLAMP_CURRENT_READ) {
-        uint32_t idx;
-        msgDisp->getCCCurrentRangeIdx(idx);
-        emit sigCcCurrentRangeSelected(idx);
-
-        msgDisp->getVCCurrentRangeIdx(idx);
-        emit sigVcCurrentRangeSelected(idx);
+        emit sigCcCurrentRangeSelected();
+        emit sigVcCurrentRangeSelected();
 
     } else {
-        uint32_t idx;
-        msgDisp->getCCCurrentRangeIdx(idx);
-        emit sigCcCurrentRangeSelected(idx);
-
-        msgDisp->getCCVoltageRangeIdx(idx);
-        emit sigCcVoltageRangeSelected(idx);
+        emit sigCcCurrentRangeSelected();
+        emit sigCcVoltageRangeSelected();
     }
 
     emit sigClampingModalitySelected(mode);
@@ -224,6 +217,6 @@ void DeviceController::onCustomDoubleChanged(uint32_t customDoubleIdx, double va
 }
 
 bool DeviceController::calcDefaultStatus(int size, bool recording) {
-//    if I'm not recording and there are more than 1 measurements enable the groupboxes
+//    if I'm not recording and there are more than 1 measurements enable the Sectiones
     return size > 1 && !recording;
 }

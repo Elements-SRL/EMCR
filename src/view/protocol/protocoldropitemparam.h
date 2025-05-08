@@ -125,43 +125,4 @@ private:
     double ctrlSign = 1.0;
 };
 
-class ProtocolDropAnalysisItemParam : public QObject {
-    Q_OBJECT
-
-public:
-    ProtocolDropAnalysisItemParam(/*ProtocolItemCtrlManager * cm, ProtocolItemCtrlTypes_t ct,
-                          */QString n);
-
-    void setName(QString n);
-//    virtual void setVisible(bool visible) = 0;
-
-    QLabel * getNameWidget();
-    QComboBox * getTimePointWidget();
-    int getCursorIdx();
-//    bool isEnabled();
-
-    void addCursors(int cursorsNum);
-    void removeCursors(QVector <int> cursorsMap);
-//    virtual void setValueToEditWidget() = 0;
-    void acceptEditWidget();
-    void rejectEditWidget();
-
-protected:
-//    ProtocolItemCtrlTypes_t ctrlType;
-//    ProtocolItemCtrlManager * ctrlManager;
-
-    QLabel * nameWidget = nullptr;
-    QComboBox * timePointWidget = nullptr;
-//    bool enabled = true;
-
-//    ProtocolDropItem * ctrlDelegateItem;
-//    QVector <ProtocolDropControlItem *> * ctrlItems;
-
-public slots:
-//    virtual void onCtrlWidgetActivated(int cbxIdx) = 0;
-
-signals:
-    void setWidgetString();
-};
-
 #endif // PROTOCOLDROPITEMPARAM_H

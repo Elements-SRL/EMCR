@@ -7,12 +7,13 @@
 #include "QDoubleSpinBox"
 #include "QLabel"
 #include "messagedispatcher.h"
+#include "activationbutton.h"
 
 class AutoDecloggerWidget : public QDockWidget {
     Q_OBJECT
 
 private:
-    QCheckBox* active;
+    ActivationButton* active;
     QDoubleSpinBox* thField;
     QDoubleSpinBox* voltageField;
     QDoubleSpinBox* timeField;

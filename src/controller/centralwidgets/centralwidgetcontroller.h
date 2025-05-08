@@ -7,6 +7,7 @@
 #include "application_status.h"
 #include "plotmessage.h"
 #include "plotconsumer.h"
+#include "protocolwidget.h"
 #include "application_status.h"
 
 class CentralWidgetController : public ControllerWithConsumer {
@@ -32,10 +33,10 @@ public slots:
     virtual void onReplot() = 0;
     virtual void onExpandTrace(bool flag) = 0;
     virtual void onSetPlotData(PlotMessage plotMessage) = 0;
+    virtual void onProtocolStarted(unsigned int protocolId, ProtocolWidget * protocol) {};
 
 protected:
     BigPlotWidget* bigPlotWidget;
-    ApplicationStatus* appStatus;
     DeviceDataProducer* producer;
 
     int currentChannelsNum;

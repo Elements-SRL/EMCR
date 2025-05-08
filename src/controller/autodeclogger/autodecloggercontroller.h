@@ -26,7 +26,6 @@ public:
 
 private:
     AutoDecloggerModel * model = nullptr;
-    ApplicationStatus* appStatus = nullptr;
     AutoDecloggerWidget* widget = nullptr;
     AutodecloggerConsumer* consumer = nullptr;
     MainWindow* mainWindow = nullptr;
@@ -37,8 +36,6 @@ public slots:
     void onVoltageFieldChanged(double);
     void onTimeFieldChanged(double);
     void onTimeBelowThresholdChanged(double);
-    void onCurrentRangeChanged(RangedMeasurement cr);
-    void onVoltageRangeChanged(RangedMeasurement vr);
     void onDecloggingStarted(std::vector<unsigned short>);
     void onDecloggingCompleted(std::vector<unsigned short>);
 

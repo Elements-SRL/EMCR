@@ -100,20 +100,18 @@ void SpectrumConsumer::updateRangeAxis() {
         clampingModality = pushedClampingModality;
     }
     if (anythingChanged) {
-        switch (clampingModality) {
-        case VOLTAGE_CLAMP:
+        ClampingModality_t mode;
+        appStatus->getMessageDispatcher()->getClampingModality(mode);
+        switch (mode) {
+        case e384CommLib::VOLTAGE_CLAMP:
         case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
-            bufferOffsetIdx = voltageChannelsNum;
-            processedChannelsNum = currentChannelsNum;
-            bypassedChannelsNum = voltageChannelsNum;
+            channelsOffset = voltageChannelsNum;
             break;
 
-        case ZERO_CURRENT_CLAMP:
-        case CURRENT_CLAMP:
+        case e384CommLib::CURRENT_CLAMP:
+        case e384CommLib::ZERO_CURRENT_CLAMP:
         case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
-            bufferOffsetIdx = 0;
-            processedChannelsNum = voltageChannelsNum;
-            bypassedChannelsNum = currentChannelsNum;
+            channelsOffset = 0;
             break;
         }
     }
@@ -145,56 +143,47 @@ void SpectrumConsumer::run() {
             bufferLen = buffer.size();
 
             /*! Copy data in buffers for FFT evaluation */
-            while (bufferIdx + bufferOffsetIdx < bufferLen) {
-                for (channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
-                    if (plottedChannels[channelIdx]) {
-                        auto currentValue = buffer[bufferIdx + bufferOffsetIdx];
-                        fftIn[channelIdx][binIndex] = currentValue;
-                    }
-                    bufferIdx++;
+            while (bufferIdx + channelsOffset < bufferLen) {
+                for (auto channelIdx : expandedChannels) {
+                    auto currentValue = buffer[bufferIdx + channelIdx + channelsOffset];
+                    fftIn[channelIdx][binIndex] = currentValue;
                 }
-                bufferIdx += bypassedChannelsNum;
+                bufferIdx += totalChannelsNum;
                 binIndex++;
 
                 /*! Enough data to compute FFT */
                 if (binIndex == nBins) {
                     if (integrationRoundIdx == 0) {
-                        for (int channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
-                            if (plottedChannels[channelIdx]) {
-                                fftw_execute(fftwPlans[channelIdx]);
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    currentValues[channelIdx][binIndex] = std::norm(fftOut[channelIdx][binIndex+1]);
-                                }
+                        for (auto channelIdx : expandedChannels) {
+                            fftw_execute(fftwPlans[channelIdx]);
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                currentValues[channelIdx][binIndex] = std::norm(fftOut[channelIdx][binIndex+1]);
                             }
                         }
 
                     } else {
-                        for (int channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
-                            if (plottedChannels[channelIdx]) {
-                                fftw_execute(fftwPlans[channelIdx]);
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
-                                }
+                        for (auto channelIdx : expandedChannels) {
+                            fftw_execute(fftwPlans[channelIdx]);
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
                             }
                         }
                     }
 
                     /*! Enough FFTs to estimate spectrum */
                     if (++integrationRoundIdx == integrationRounds) {
-                        for (int channelIdx = 0; channelIdx < processedChannelsNum; channelIdx++) {
-                            if (plottedChannels[channelIdx]) {
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
-                                    if (binIndex == 0) {
-                                        irmsValues[channelIdx][binIndex] = currentSpectrumValues[channelIdx][binIndex]*df;
+                        for (auto channelIdx : expandedChannels) {
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
+                                if (binIndex == 0) {
+                                    irmsValues[channelIdx][binIndex] = currentSpectrumValues[channelIdx][binIndex]*df;
 
-                                    } else {
-                                        irmsValues[channelIdx][binIndex] = irmsValues[channelIdx][binIndex-1]+currentSpectrumValues[channelIdx][binIndex]*df;
-                                    }
+                                } else {
+                                    irmsValues[channelIdx][binIndex] = irmsValues[channelIdx][binIndex-1]+currentSpectrumValues[channelIdx][binIndex]*df;
                                 }
-                                for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                    irmsValues[channelIdx][binIndex] = sqrt(irmsValues[channelIdx][binIndex]);
-                                }
+                            }
+                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
+                                irmsValues[channelIdx][binIndex] = sqrt(irmsValues[channelIdx][binIndex]);
                             }
                         }
                         integrationRoundIdx = 0;

@@ -25,7 +25,8 @@
 #include "compensationcontroller.h"
 #include "plotpreferencescontroller.h"
 #include "autodecloggercontroller.h"
-
+#include "temperaturecontroller.h"
+#include "debugcontroller.h"
 
 class MainController : public QObject {
     Q_OBJECT
@@ -43,10 +44,10 @@ public slots:
     void onResetHw();
     void onDeviceConnected(ErrorCodes_t ret);
     void onMainWindowCreated();
-    void onVcCurrentRangeSelected(int idx);
-    void onVcVoltageRangeSelected(int idx);
-    void onCcCurrentRangeSelected(int idx);
-    void onCcVoltageRangeSelected(int idx);
+    void onVcCurrentRangeSelected();
+    void onVcVoltageRangeSelected();
+    void onCcCurrentRangeSelected();
+    void onCcVoltageRangeSelected();
     void onVcVoltageFilterSelected(int idx);
     void onCcCurrentFilterSelected(int idx);
     void onSamplingRateSelected(int idx);
@@ -81,6 +82,8 @@ private:
     BoardController * boardController = nullptr;
     DeviceController * deviceController = nullptr;
     StateArrayController * stateArrayController = nullptr;
+    TemperatureController * temperatureController = nullptr;
+    DebugController * debugController = nullptr;
     CompensationController * compensationController = nullptr;
     MeasurementOverviewController * measurementOverviewController = nullptr;
     PlotPreferencesController * plotPreferencesController = nullptr;
@@ -93,8 +96,8 @@ private:
     int currentChannelsNumber;
     int boardsNumber;
 
-    std::optional <RangedMeasurement> previousVoltageRange = std::nullopt;
-    std::optional <RangedMeasurement> previousCurrentRange = std::nullopt;
+    std::optional <std::vector <RangedMeasurement>> previousVoltageRange = std::nullopt;
+    std::optional <std::vector <RangedMeasurement>> previousCurrentRange = std::nullopt;
 
 signals:
     void startDetecting();

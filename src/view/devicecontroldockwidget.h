@@ -12,6 +12,7 @@
 
 #include "activationbutton.h"
 #include "messagedispatcher.h"
+#include "collapsiblesection.h"
 
 #define DCW_CURRENT_RANGE_TITLE "Current Ranges"
 #define DCW_VOLTAGE_RANGE_TITLE "Voltage Ranges"
@@ -34,11 +35,11 @@ public:
 
     void forceEmit();
     void updateParameters();
-    void setVcVoltageRangesroupBoxEnabled(bool status);
-    void setVcCurrentRangesGroupBoxEnabled(bool status);
-    void setCcVoltageRangesGroupBoxEnabled(bool status);
-    void setCcCurrentRangesGroupBoxEnabled(bool status);
-    void setSamplingRatesGroupBoxEnabled(bool status);
+    void setVcVoltageRangesSectionEnabled(bool status);
+    void setVcCurrentRangesSectionEnabled(bool status);
+    void setCcVoltageRangesSectionEnabled(bool status);
+    void setCcCurrentRangesSectionEnabled(bool status);
+    void setSamplingRatesSectionEnabled(bool status);
     void setDownsamplingRatioSbxEnabled(bool status);
 
     QLabel * finalBandwidthLbl = nullptr;
@@ -49,44 +50,48 @@ public:
     QLabel * finalSamplingRateLbl = nullptr;
 
 private:
+    int voltageChannelsNum;
+    int currentChannelsNum;
+
     MessageDispatcher * msgDisp = nullptr;
-    QGroupBox * vcCurrentRangesGroupBox = nullptr;
-    std::vector <QRadioButton *> vcCurrentRangesRadioButtons;
-    QGroupBox * vcVoltageRangesGroupBox = nullptr;
+    std::vector <CollapsibleSection *> vcCurrentRangesSections;
+    std::vector <std::vector <QRadioButton *>> vcCurrentRangesRadioButtons;
+    CollapsibleSection * vcVoltageRangesSection = nullptr;
     std::vector <QRadioButton *> vcVoltageRangesRadioButtons;
-    QGroupBox * ccCurrentRangesGroupBox = nullptr;
+    CollapsibleSection * ccCurrentRangesSection = nullptr;
     std::vector <QRadioButton *> ccCurrentRangesRadioButtons;
-    QGroupBox * ccVoltageRangesGroupBox = nullptr;
-    std::vector <QRadioButton *> ccVoltageRangesRadioButtons;
-    QGroupBox * vcVoltageFiltersGroupBox = nullptr;
+    std::vector <CollapsibleSection *> ccVoltageRangesSections;
+    std::vector <std::vector <QRadioButton *>> ccVoltageRangesRadioButtons;
+    CollapsibleSection * vcVoltageFiltersSection = nullptr;
     std::vector <QRadioButton *> vcVoltageFiltersRadioButtons;
-    QGroupBox * ccCurrentFiltersGroupBox = nullptr;
+    CollapsibleSection * ccCurrentFiltersSection = nullptr;
     std::vector <QRadioButton *> ccCurrentFiltersRadioButtons;
-    QGroupBox * samplingRatesGroupBox = nullptr;
+    CollapsibleSection * samplingRatesSection = nullptr;
     std::vector <QRadioButton *> samplingRatesRadioButtons;
     QGroupBox * downsamplingRatiosGroupBox = nullptr;
     QGroupBox * digitalFilterGroupBox = nullptr;
-    QGroupBox * clampingModalitiesGroupBox = nullptr;
+    CollapsibleSection * clampingModalitiesSection = nullptr;
     std::vector <QRadioButton *> clampingModalitiesRadioButtons;
-    std::vector <QGroupBox *> customOptionsGroupBoxes;
+    std::vector <CollapsibleSection *> customOptionsSections;
     std::vector <std::vector <QRadioButton *>> customOptionsRadioButtons;
     std::vector <QGroupBox *> customDoublesGroupBoxes;
     std::vector <QDoubleSpinBox *> customDoublesSpinBoxes;
 
-    QGroupBox * setupGroupBox(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
-    QGroupBox * setupGroupBox(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
-    QGroupBox * setupGroupBox(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
-    QGroupBox * setupGroupBox(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons);
+    CollapsibleSection * setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <std::vector <QRadioButton *>> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
     QGroupBox * setupGroupBox(std::string title, QVBoxLayout * parentLayout, RangedMeasurement_t range, double valueDefault, QDoubleSpinBox * &spinbox);
 
     void setWidgetEnabled(QWidget * widget, bool status);
     void setWidgetVisible(QWidget * widget, bool status);
 
 signals:
-    void sigVcCurrentRangeSelected(int idx);
+    void sigVcCurrentRangeSelected(int chIdx, int idx);
     void sigVcVoltageRangeSelected(int idx);
     void sigCcCurrentRangeSelected(int idx);
-    void sigCcVoltageRangeSelected(int idx);
+    void sigCcVoltageRangeSelected(int chIdx, int idx);
     void sigVcVoltageFilterSelected(int idx);
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);

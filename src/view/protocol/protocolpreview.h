@@ -44,7 +44,6 @@ public:
     void setProtocol(ProtocolWidget * protocol);
     void setStimulusRange(RangedMeasurement_t &range);
     void setHoldingDelta(Measurement_t &holdingDelta);
-    void setAnalysisPidl(AnalysisProtocolItemDropList * analysisPidl);
     void setTooManyTriggersWarning(bool flag);
 
     std::vector <YAML::Cursor> getYamlCursors();

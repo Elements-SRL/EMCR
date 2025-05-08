@@ -4,11 +4,14 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <qwt_series_data.h>
+
 #include "devicedataconsumer.h"
 #include "plotmessage.h"
 
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
+#define PCS_MAX_SAMPLES_PER_EPISODIC_PLOT (8192)
 
 class PlotConsumer : public DeviceDataConsumer {
     Q_OBJECT
@@ -18,6 +21,8 @@ public:
     virtual ~PlotConsumer();
 
     virtual void forceAxisUpdate() = 0;
+    void setProtocolId(unsigned int protocolId);
+    void setSweepsNum(unsigned int sweepsNum);
 
 public slots:
     virtual void onStartConsuming() override;
@@ -25,13 +30,13 @@ public slots:
 
     virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
     virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
-    virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
-    virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
+    virtual void onVoltageRangeChanged() override;
+    virtual void onCurrentRangeChanged() override;
     virtual void onClampingModalityChanged(ClampingModality_t mode) override;
 
     void onDurationChanged(Measurement_t duration);
+    void plotAllChannels(bool flag);
     void onPlotSelectedChannels(bool flag);
-    void onPlotChannels(std::vector <uint16_t> channels, bool flag);
 
 signals:
     void setPlotData(PlotMessage plotMessage);
@@ -52,6 +57,9 @@ protected:
 
     double * timeValues = nullptr;
 
+    unsigned int protocolId = -1;
+    unsigned int sweepsNum = 0;
+
     std::vector <double> buffer;
 
     Measurement hold = {0.0, UnitPfxNone, "V"};
@@ -68,15 +76,10 @@ protected:
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
 
-    QVector <bool> plottedChannels;
+    std::vector <uint16_t> expandedChannels;
 
     int maxSamples = 256;
     int dataSize = 0;
-    /*! Having gapFreeTimeIdx as a property of the class ensures that when a new protocol starts the plot does not reset the x axis */
-    int gapFreeTimeIdx = 0;
-    /*! Having triggerBufferIdx and triggerLastIdx as properties of the class ensures that when a new protocol starts it can correctly trigger the plot */
-    int triggerBufferIdx = 0;
-    int triggerLastIdx;
 
     int subSamplingRatio = 1;
     int subSamplingIdx = 0;
@@ -107,6 +110,43 @@ protected:
 private:
     void updateTimeAxis();
     void computeTimeAxis();
+
+    /*! Having gapFreeTimeIdx as a property of the class ensures that when a new protocol starts the plot does not reset the x axis */
+    int gapFreeTimeIdx = 0;
+    /*! Having triggerBufferIdx and triggerLastIdx as properties of the class ensures that when a new protocol starts it can correctly trigger the plot */
+    int triggerBufferIdx = 0;
+    int triggerLastIdx;
+};
+
+class EpisodicPlotConsumer : public PlotConsumer {
+    Q_OBJECT
+
+public:
+    EpisodicPlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
+    ~EpisodicPlotConsumer();
+
+    virtual void forceAxisUpdate() override;
+    void setMaxSamplesPerPlot(int samples);
+
+public slots:
+    virtual void onStartConsuming() override;
+    virtual void onStopConsuming() override;
+
+protected:
+    void run() override;
+    void allocateData();
+    void clearData();
+    void emitPlotData() override;
+
+private:
+    void updateTimeAxis();
+    void computeTimeAxis();
+    void lockCurveData();
+    void unlockCurveData();
+
+    EpisodicDataHook * episodicHook = nullptr;
+
+    EpisodicMessage episodicMessage;
 };
 
 #endif // PLOTCONSUMER_H

@@ -9,7 +9,6 @@ class IvChannel
 {
 public:
     IvChannel(int nBins, double binSize);
-    ~IvChannel();
 
     void pushValue(int binIdx, double value);
     std::vector<std::optional<double>> getCurrents();
@@ -18,7 +17,7 @@ public:
 private:
     int nBins;
     double binSize;
-    std::vector<IvAccumulator *> ivAccumulators;
+    std::vector<IvAccumulator> ivAccumulators;
 };
 
 #endif // IVCHANNEL_H

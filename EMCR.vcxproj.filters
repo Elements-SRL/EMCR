@@ -46,25 +46,16 @@
     <ClCompile Include="src\view\addtagdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\analysiscursor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\model\application_status.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\abf\axon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\view\bigplot.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\controller\bigplotcontroller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\model\bigplotmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\view\bigplotwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\view\boardcontroldockwidget.cpp">
@@ -161,9 +152,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\controller\centralwidgets\ivgraphcontroller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\view\ivgraphwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\view\lcddisplay.cpp">
@@ -331,13 +319,7 @@
     <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\view\spectrumwidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\controller\offsetcorrectioncontroller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\view\gapfreewidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\view\activationbutton.cpp">
@@ -358,13 +340,61 @@
     <ClCompile Include="src\controller\autodeclogger\autodecloggercontroller.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\controller\controllerwithconsumer.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\controller\device\consumer\autodecloggerconsumer.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="src\view\autodeclogger\autodecloggerwidget.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\controller\controllerwithconsumer.cpp">
+    <ClCompile Include="src\view\centralwidgets\bigplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\centralwidgets\bigplotwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\centralwidgets\episodicwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\centralwidgets\gapfreewidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\centralwidgets\ivgraphwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\centralwidgets\spectrumwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\collapsiblesection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\centralwidgets\episodiccontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\bigplotviewcontroller.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\analysisconsumer.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\pipettecapacitanceestimationconsumer.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\resistanceestimationconsumer.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\squarevoltagebasedanalysisconsumer.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\durationbasedbigplotviewcontroller.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\logbigplotmodel.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\membraneestimationconsumer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -376,9 +406,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <ClInclude Include="src\view\addtagdialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\model\analysiscursor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\model\application_status.h">
@@ -393,16 +420,10 @@
     <ClInclude Include="src\abf\axon_structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <QtMoc Include="src\view\bigplot.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="src\controller\bigplotcontroller.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\model\bigplotmodel.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\view\bigplotwidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\boardcontroldockwidget.h">
@@ -514,9 +535,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\controller\centralwidgets\ivgraphcontroller.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\view\ivgraphwidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\lcddisplay.h">
@@ -681,9 +699,6 @@
     <QtMoc Include="src\view\centralwidgets\eventdetectionwidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\view\spectrumwidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="src\controller\centralwidgets\spectrumcontroller.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -694,9 +709,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\controller\offsetcorrectioncontroller.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\view\gapfreewidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\view\activationbutton.h">
@@ -717,10 +729,55 @@
     <QtMoc Include="src\controller\device\consumer\autodecloggerconsumer.h">
       <Filter>Generated Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\controller\controllerwithconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
     <QtMoc Include="src\view\autodeclogger\autodecloggerwidget.h">
       <Filter>Generated Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\controller\controllerwithconsumer.h">
+    <QtMoc Include="src\view\centralwidgets\bigplot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\centralwidgets\bigplotwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\centralwidgets\episodicwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\centralwidgets\gapfreewidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\centralwidgets\ivgraphwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\centralwidgets\spectrumwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\collapsiblesection.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\centralwidgets\episodiccontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\pipettecapacitanceestimationconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\squarevoltagebasedanalysisconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\bigplotviewcontroller.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\durationbasedbigplotviewcontroller.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\analysisconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\resistanceestimationconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\membraneestimationconsumer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -985,6 +1042,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\model\autodeclogger\autodecloggermodel.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\logbigplotmodel.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\singlemeasresult.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\singlemeasresultwrapper.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,10 +12,12 @@
 #include "messagedispatcher.h"
 #include "errormanager.h"
 
+namespace e384cl = e384CommLib;
+
 static int createdProtocolIdx = 0;
 
 ProtocolList::ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
-    QListWidget(),
+    QListWidget(parent),
     msgDisp(msgDisp),
     protocolPropertyDialog(protocolPropertyDialog),
     parent(parent) {
@@ -59,8 +61,6 @@ ProtocolList::ProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog *
 
 ProtocolList::~ProtocolList() {
     this->onStopProtocol();
-
-    this->exportLastProtocols();
 
     for (int itemIdx = 0; itemIdx < this->count(); itemIdx++) {
         ProtocolWidget * item = static_cast <ProtocolWidget *> (this->item(itemIdx));
@@ -114,8 +114,8 @@ void ProtocolList::inhibitProtocols(bool inhibitFlag) {
     }
 }
 
-void ProtocolList::startProtocol(int shortCutIdx) {
-    if (clampingModality == clampingModalitySet) {
+void ProtocolList::startProtocolFromShortCutIndex(int shortCutIdx) {
+    if (clampingModality == clampingModalitySet && this->isVisible()) {
         ProtocolWidget * protocol = shortCutsProtocols[shortCutIdx];
         if (protocol != nullptr) {
             this->setCurrentItem(protocol);
@@ -163,6 +163,10 @@ void ProtocolList::contextMenuEvent(QContextMenuEvent * event) {
 
 void ProtocolList::onStartProtocol(bool) {
     if (clampingModality != clampingModalitySet) {
+        return;
+    }
+
+    if (!(this->isVisible())) {
         return;
     }
 
@@ -220,12 +224,15 @@ void ProtocolList::onAddProtocol() {
     nameLo->addWidget(nameLbl);
     nameLo->addWidget(nameEdit);
 
-    /*! Get new protocol type (gap-free or episodic) */
-//    QComboBox * protocolTypeEdit = new QComboBox();
-//    protocolTypeEdit->addItem("Gap-Free");
-//    protocolTypeEdit->addItem("Episodic");
+    QComboBox * protocolTypeEdit = nullptr;
+    if (msgDisp->isEpisodic() == e384cl::Success) {
+        /*! Get new protocol type (gap-free or episodic) */
+        protocolTypeEdit = new QComboBox();
+        protocolTypeEdit->addItem("Gap-Free");
+        protocolTypeEdit->addItem("Episodic");
 
-//    dialogLo->addWidget(protocolTypeEdit);
+        dialogLo->addWidget(protocolTypeEdit);
+    }
 
     /*! OK / Cancel buttons */
     QHBoxLayout * buttonsLo = new QHBoxLayout();
@@ -250,15 +257,20 @@ void ProtocolList::onAddProtocol() {
     if (ok && !name.isEmpty()) {
         if (protocolsNames->contains(name)) {
             ErrorManager e(ErrorProtocolAlreadyExists);
-
-        } else {
+        }
+        else {
             ProtocolWidget * protocol;
-//            if (protocolTypeEdit->currentIndex() == 0) {
+            if (protocolTypeEdit != nullptr) {
+                if (protocolTypeEdit->currentIndex() == 0) {
+                    protocol = newGapfreeProtocol(name);
+                }
+                else {
+                    protocol = newEpisodicProtocol(name);
+                }
+            }
+            else {
                 protocol = newGapfreeProtocol(name);
-
-//            } else {
-//                protocol = newEpisodicProtocol(name);
-//            }
+            }
 
             this->addItem(protocol);
             protocols->push_back(protocol);
@@ -633,7 +645,35 @@ int ProtocolList::getShortCutByProtocol(ProtocolWidget * protocol) {
 
 void ProtocolList::exportLastProtocols() {
     QString fullFileName = YAML_LAST_FULL_FILE;
-    fullFileName.replace(YAML_FILE_EXTENSION, YAML_FILE_EXTENSION);
+    YAML::Protocols yamlProtocols;
+    YAML::Node node;
+
+    if (QFile::exists(fullFileName)) {
+        node = YAML::LoadFile(fullFileName.toStdString());
+        yamlProtocols = node.as <YAML::Protocols_t> ();
+    }
+
+    if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+        auto prots = this->getYamlProtocols().voltageprotocols;
+        if (!prots.empty()) {
+            yamlProtocols.voltageprotocols = prots;
+        }
+    }
+    else {
+        auto prots = this->getYamlProtocols().currentprotocols;
+        if (!prots.empty()) {
+            yamlProtocols.currentprotocols = prots;
+        }
+    }
+
+    node = yamlProtocols;
+    std::ofstream fout(fullFileName.toStdString());
+    fout << node;
+    fout.close();
+}
+
+void ProtocolList::exportAnalysisProtocols() {
+    QString fullFileName = YAML_ANALYSIS_FULL_FILE;
     YAML::Protocols yamlProtocols;
     YAML::Node node;
 
@@ -696,6 +736,13 @@ void ProtocolList::importLastProtocols() {
     }
 }
 
+void ProtocolList::importAnalysisProtocols() {
+    /*! Import the protocols used to perform analysis */
+    if (!(this->importProtocols(YAML_ANALYSIS_FULL_FILE))) {
+        ErrorManager e(ErrorLoadAnalysisProtocolsFail);
+    }
+}
+
 bool ProtocolList::importProtocols(QString fullFileName) {
     QString yamlFileName = fullFileName;
     if (QFile::exists(yamlFileName)) {
@@ -706,17 +753,21 @@ bool ProtocolList::importProtocols(QString fullFileName) {
 
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             for (auto yamlProtocol : yamlProtocols.voltageprotocols) {
-                this->importProtocol(yamlProtocol);
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                    this->importProtocol(yamlProtocol);
+                }
             }
 
         } else {
             for (auto yamlProtocol : yamlProtocols.currentprotocols) {
-                this->importProtocol(yamlProtocol);
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                    this->importProtocol(yamlProtocol);
+                }
             }
         }
         return true;
-
-    } else {
+    }
+    else {
         return false;
     }
 }
@@ -740,22 +791,26 @@ bool ProtocolList::importProtocols(ImportProtocolDialog * ipd) {
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             for (unsigned int protIdx = 0; protIdx < yamlProtocols.voltageprotocols.size(); protIdx++) {
                 YAML::VoltageProtocol_t yamlProtocol = yamlProtocols.voltageprotocols[protIdx];
-                if (saveFlag[protIdx]) {
-                    if (overwriteFlag[protIdx]) {
-                        this->removeProtocolByName(namesSet[protIdx]);
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                    if (saveFlag[protIdx]) {
+                        if (overwriteFlag[protIdx]) {
+                            this->removeProtocolByName(namesSet[protIdx]);
+                        }
+                        this->importProtocolAs(yamlProtocol, namesSet[protIdx]);
                     }
-                    this->importProtocolAs(yamlProtocol, namesSet[protIdx]);
                 }
             }
 
         } else {
             for (unsigned int protIdx = 0; protIdx < yamlProtocols.currentprotocols.size(); protIdx++) {
                 YAML::CurrentProtocol_t yamlProtocol = yamlProtocols.currentprotocols[protIdx];
-                if (saveFlag[protIdx]) {
-                    if (overwriteFlag[protIdx]) {
-                        this->removeProtocolByName(namesSet[protIdx]);
+                if (yamlProtocol.sweeps == 1 || (msgDisp->isEpisodic() == e384cl::Success)) { /*! Don't import if the protocol is episodic, but the device is not */
+                    if (saveFlag[protIdx]) {
+                        if (overwriteFlag[protIdx]) {
+                            this->removeProtocolByName(namesSet[protIdx]);
+                        }
+                        this->importProtocolAs(yamlProtocol, namesSet[protIdx]);
                     }
-                    this->importProtocolAs(yamlProtocol, namesSet[protIdx]);
                 }
             }
         }
@@ -931,9 +986,7 @@ void ProtocolList::removeProtocol(ProtocolWidget * protocol, QString name) {
 }
 
 ProtocolWidget * ProtocolList::findProtocolByName(QString name) {
-    ProtocolWidget * protocol;
-    for (int protIdx = 0; protIdx < protocols->size(); protIdx++) {
-        protocol = protocols->at(protIdx);
+    for (auto protocol : protocols[0]) {
         if (protocol->getName() == name) {
             return protocol;
         }
@@ -948,6 +1001,19 @@ QString ProtocolList::availableProtocolName(QString name) {
         ret = name + QString::number(idx++);
     }
     return ret;
+}
+
+int ProtocolList::getProtocolIndexFromAnalysis(YAML::AnalysisType_t type) {
+    for (int idx = 0; idx < protocols->size(); idx++) {
+        auto protocol = protocols->at(idx);
+        YAML::AnalysisType_t protType;
+        if (protocol->getAnalysisType(protType)) {
+            if (type == protType) {
+                return idx;
+            }
+        }
+    }
+    return -1;
 }
 
 YAML::Protocols_t ProtocolList::getYamlProtocols() {
@@ -991,7 +1057,7 @@ VoltageProtocolList::VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
-    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::VOLTAGE_CLAMP) != clampingModalities.end()) {
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
         this->importVhold0Protocol();
         this->importLastProtocols();
         this->onStopProtocol();
@@ -1000,7 +1066,7 @@ VoltageProtocolList::VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 }
 
 VoltageProtocolList::~VoltageProtocolList() {
-
+    this->exportLastProtocols();
 }
 
 ProtocolWidget * VoltageProtocolList::newGapfreeProtocol(QString name) {
@@ -1013,6 +1079,43 @@ ProtocolWidget * VoltageProtocolList::newEpisodicProtocol(QString name) {
     return protocol;
 }
 
+AnalysisVoltageProtocolList::AnalysisVoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
+    ProtocolList(msgDisp, protocolPropertyDialog, parent) {
+
+    clampingModality = ClampingModality_t::VOLTAGE_CLAMP;
+    protocolsGroupName = "analysisvoltageprotocols";
+
+    std::vector <ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
+        this->importAnalysisProtocols();
+        this->onStopProtocol();
+        QThread::msleep(100);
+    }
+}
+
+AnalysisVoltageProtocolList::~AnalysisVoltageProtocolList() {
+    this->exportAnalysisProtocols();
+}
+
+ProtocolWidget * AnalysisVoltageProtocolList::newGapfreeProtocol(QString name) {
+    ProtocolWidget * protocol = new GapfreeVoltageProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+ProtocolWidget * AnalysisVoltageProtocolList::newEpisodicProtocol(QString name) {
+    ProtocolWidget * protocol = new EpisodicVoltageProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+void AnalysisVoltageProtocolList::contextMenuEvent(QContextMenuEvent * event) {
+    QMenu menu(this);
+    menu.addAction(startProtocolAct);
+    menu.addSeparator();
+    menu.addAction(openProtocolPropertiesAct);
+    menu.exec(event->globalPos());
+}
+
 CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
     ProtocolList(msgDisp, protocolPropertyDialog, parent) {
 
@@ -1021,7 +1124,7 @@ CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
-    if (std::find(clampingModalities.begin(), clampingModalities.end(), e384CommLib::CURRENT_CLAMP) != clampingModalities.end()) {
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
         this->importIhold0Protocol();
         this->importLastProtocols();
         this->onStopProtocol();
@@ -1030,7 +1133,7 @@ CurrentProtocolList::CurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 }
 
 CurrentProtocolList::~CurrentProtocolList() {
-
+    this->exportLastProtocols();
 }
 
 ProtocolWidget * CurrentProtocolList::newGapfreeProtocol(QString name) {
@@ -1041,4 +1144,41 @@ ProtocolWidget * CurrentProtocolList::newGapfreeProtocol(QString name) {
 ProtocolWidget * CurrentProtocolList::newEpisodicProtocol(QString name) {
     ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
     return protocol;
+}
+
+AnalysisCurrentProtocolList::AnalysisCurrentProtocolList(MessageDispatcher * msgDisp, ProtocolPropertyDialog * protocolPropertyDialog, QWidget * parent) :
+    ProtocolList(msgDisp, protocolPropertyDialog, parent) {
+
+    clampingModality = ClampingModality_t::CURRENT_CLAMP;
+    protocolsGroupName = "analysiscurrentprotocols";
+
+    std::vector <ClampingModality_t> clampingModalities;
+    msgDisp->getClampingModalitiesFeatures(clampingModalities);
+    if (std::find(clampingModalities.begin(), clampingModalities.end(), clampingModality) != clampingModalities.end()) {
+        this->importAnalysisProtocols();
+        this->onStopProtocol();
+        QThread::msleep(100);
+    }
+}
+
+AnalysisCurrentProtocolList::~AnalysisCurrentProtocolList() {
+    this->exportAnalysisProtocols();
+}
+
+ProtocolWidget * AnalysisCurrentProtocolList::newGapfreeProtocol(QString name) {
+    ProtocolWidget * protocol = new GapfreeCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+ProtocolWidget * AnalysisCurrentProtocolList::newEpisodicProtocol(QString name) {
+    ProtocolWidget * protocol = new EpisodicCurrentProtocolWidget(msgDisp, name, protocolPropertyDialog);
+    return protocol;
+}
+
+void AnalysisCurrentProtocolList::contextMenuEvent(QContextMenuEvent * event) {
+    QMenu menu(this);
+    menu.addAction(startProtocolAct);
+    menu.addSeparator();
+    menu.addAction(openProtocolPropertiesAct);
+    menu.exec(event->globalPos());
 }

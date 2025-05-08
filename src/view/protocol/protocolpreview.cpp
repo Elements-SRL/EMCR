@@ -197,10 +197,6 @@ void ProtocolPreview::setHoldingDelta(Measurement_t &newHoldingDelta) {
     }
 }
 
-void ProtocolPreview::setAnalysisPidl(AnalysisProtocolItemDropList * analysisPidl) {
-    cursorsManager->setAnalysisPidl(analysisPidl);
-}
-
 void ProtocolPreview::setTooManyTriggersWarning(bool flag) {
     cursorsWarningLbl->setVisible(flag);
     cursorsWarningPlaceHolderLbl->setVisible(!flag);
@@ -244,7 +240,6 @@ void ProtocolPreview::updateView() {
             if ((status != ItemsProcOk) && (manageCursorBtn->isEnabled())) {
                 manageCursorBtn->click();
             }
-            cursorsManager->enableAnalysis(status == ItemsProcOk);
             protocol->setProtocolValid(status == ItemsProcOk);
         }
     }
@@ -505,7 +500,6 @@ void ProtocolPreview::updateView() {
         protocol->setProtocolSections(protocolSections);
         protocolPlot->setProtocol(protocol);
 
-        cursorsManager->enableAnalysis(status == ItemsProcOk);
         protocol->setProtocolValid(status == ItemsProcOk);
         RangedMeasurement_t appliedRange;
         appliedRange.min = minStimulusApplied;

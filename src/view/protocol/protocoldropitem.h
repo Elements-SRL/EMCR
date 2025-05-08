@@ -76,7 +76,6 @@ public slots:
 
 signals:
     void updateItem();
-    void analysisChanged();
     void protocolDropItemDeleteRequest(ProtocolDropItem *);
 };
 
@@ -86,6 +85,7 @@ public:
 
     QString getName() override;
     bool getStimHalf();
+
 protected:
     QCheckBox* cbStimulusHalf;
 };
@@ -677,185 +677,6 @@ public slots:
     void onAcceptPropertyDialog() override;
     void onRejectPropertyDialog() override;
     void onUpdateHold(double value) override;
-};
-
-class ProtocolDropAnalysisItem : public ProtocolDropItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropAnalysisItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, ClampingModality_t clampingModality, int type = PROT_DROP_LIST_ANALYSIS_ITEM_TYPE);
-    ~ProtocolDropAnalysisItem();
-
-    void openPropertyDialog() override;
-    QString getName() override;
-    void setStimulusRange(RangedMeasurement_t &range) override;
-
-    void addCursors(QVector <ProtocolCursor *> * cursors);
-    void removeCursors(QVector <ProtocolCursor *> * cursors, QVector <int> cursorsMap);
-    QVector <int> getCursorMapping();
-
-    YAML::Analysis_t getYamlAnalysis();
-
-    void setAnalysisFromYaml(const YAML::Analysis_t &yamlAnalysis);
-
-public slots:
-    void onAcceptPropertyDialog() override;
-    void setEnabled(bool enabled);
-    virtual QString onCheckCursorsValidity();
-
-protected:
-    virtual void initializeWidgets();
-    virtual void updateTimePointsNum(int timePointsNum);
-    bool allTimePointsSet();
-    void setValidToolTip();
-    void setInvalidProtocolToolTip();
-    void setMissingCursorsToolTip();
-    void setInvalidPrecedenceToolTip();
-    void setInvalidLoopsToolTip();
-
-    bool analysisEnabled = true;
-    int timePointsRequired = 0;
-    QVector <ProtocolDropAnalysisItemParam *> timePointParams;
-    QVector <ProtocolCursor *> * protocolCursors = nullptr;
-    QVector <ProtocolCursor *> * analysisCursors = nullptr;
-
-    YAML::AnalysisType_t analysisType;
-};
-
-/*! \todo FCON All analyses so far defined as voltage clamp analysis */
-class ProtocolDropNoiseReportItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropNoiseReportItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_NOISE_REPORT_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-};
-
-class ProtocolDropHistogramItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropHistogramItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_HISTOGRAM_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-};
-
-class ProtocolDropSpectrumItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropSpectrumItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_SPECTRUM_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-};
-
-class ProtocolDropResistanceEstimationItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropResistanceEstimationItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-};
-
-class ProtocolDropMembraneTestItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropMembraneTestItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_MEMBRANE_TEST_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-};
-
-class ProtocolDropIvGraphItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropIvGraphItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_IV_GRAPH_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-
-protected:
-    void initializeWidgets() override;
-    void updateTimePointsNum(int timePointsNum) override;
-
-private:
-    void updateTimePointsNumHouseKeeping();
-
-    QSpinBox * intervalsNumSb;
-};
-
-class ProtocolDropVoltageTrackingItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropVoltageTrackingItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_VOLTAGE_TRACKING_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-};
-
-class ProtocolDropApThresholdItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropApThresholdItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_AP_THRESHOLD_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
-};
-
-class ProtocolDropApStatisticsItem : public ProtocolDropAnalysisItem {
-    Q_OBJECT
-
-public:
-    ProtocolDropApStatisticsItem(MessageDispatcher * msgDisp, ProtocolItemCtrlManager * ctrlManager, double hold0, int type = PROT_DROP_LIST_AP_STATISTICS_ITEM_TYPE);
-
-public slots:
-    void onSetString() override;
-    void onAcceptPropertyDialog() override;
-    void onRejectPropertyDialog() override;
-    void onUpdateHold(double value) override;
-    QString onCheckCursorsValidity() override;
 };
 
 #endif // PROTOCOLDROPITEM_H

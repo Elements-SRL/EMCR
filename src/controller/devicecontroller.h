@@ -18,9 +18,9 @@ public:
     void handleProtocolStatusChanged(bool);
 
 public slots:
-    void onVcCurrentRangeSelected(uint16_t selectedVcCurrentRangeIndex);
+    void onVcCurrentRangeSelected(uint16_t chIdx, uint16_t selectedVcCurrentRangeIndex);
     void onVcVoltageRangeSelected(uint16_t selectedVcCurrentRangeIndex);
-    void onCcVoltageRangeSelected(uint16_t selectedCcVoltageRangeIndex);
+    void onCcVoltageRangeSelected(uint16_t chIdx, uint16_t selectedCcVoltageRangeIndex);
     void onCcCurrentRangeSelected(uint16_t selectedCcVoltageRangeIndex);
     void onVcVoltageFilterSelected(uint16_t selectedVcVoltageFilterIndex);
     void onCcCurrentFilterSelected(uint16_t selectedCcCurrentFilterIndex);
@@ -51,10 +51,10 @@ private:
     bool calcDefaultStatus(int, bool);
 
 signals:
-    void sigVcCurrentRangeSelected(int idx);
-    void sigVcVoltageRangeSelected(int idx);
-    void sigCcCurrentRangeSelected(int idx);
-    void sigCcVoltageRangeSelected(int idx);
+    void sigVcCurrentRangeSelected();
+    void sigVcVoltageRangeSelected();
+    void sigCcCurrentRangeSelected();
+    void sigCcVoltageRangeSelected();
     void sigVcVoltageFilterSelected(int idx);
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);

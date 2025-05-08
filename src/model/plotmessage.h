@@ -11,7 +11,6 @@
 
 #include <QVector>
 
-
 struct IvMessage{
     std::vector <double *> voltageValues;
     std::vector <double *> currentValues;
@@ -25,8 +24,13 @@ struct GapFreeMessage{
     int dataSize;
 };
 
-struct EventDetectionMessage {
-    std::map <uint32_t, EventPacket> eventPackets;
+struct EpisodicMessage{
+    std::vector <double> timeValues;
+    std::vector <std::vector <double>> voltageValues;
+    std::vector <std::vector <double>> currentValues;
+    double durationS;
+    bool newProtocolFlag;
+    bool newSweepFlag;
 };
 
 struct SpectrumMessage {
@@ -36,12 +40,17 @@ struct SpectrumMessage {
     int dataSize;
 };
 
+struct EventDetectionMessage {
+    std::map <uint32_t, EventPacket> eventPackets;
+};
+
 // Forward declaration of the variant type
 typedef std::variant<
     GapFreeMessage,
+    EpisodicMessage,
     IvMessage,
-    EventDetectionMessage,
-    SpectrumMessage
+    SpectrumMessage,
+    EventDetectionMessage
 > PlotMessage;
 
 #endif // PLOTMESSAGE_H

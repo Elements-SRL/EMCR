@@ -44,6 +44,7 @@ public:
         DWStateArray,
         DWMeasurementsOverview,
         DWAutoDeclogger,
+        DWTemperatureSensors,
         DWDebug,
         DockWidgetsNum
     } DockWidgets_t;
@@ -65,12 +66,13 @@ public:
     void setPlotPreferencesDialog(PlotPreferencesDialog * widget);
     void addViewActions();
     void removeViewActions();
-
-    QLabel * SRLbl = nullptr;
+    void restoreUISettings();
+    void saveUISettings();
 
 public slots:
     void onNeedToChangeModelCellMsg(QString msg);
     void onBoardMappingPressed();
+    void onBitRateComputed(double bitRate);
 
 private:
     typedef enum {
@@ -83,8 +85,6 @@ private:
 
     void createGuiControls();
     void destroyGuiControls();
-    void restoreUISettings();
-    void saveUISettings();
 
     MessageDispatcher * msgDisp = nullptr;
     QMenu * menuView = nullptr;
@@ -111,10 +111,11 @@ private:
     QAction * actionSupport = nullptr;
     QAction * actionReleaseNotes = nullptr;
 
+    QLabel * SRLbl = nullptr;
+
     BigPlotWidget * bigPlotW = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
-    IvGraphWidget * ivGraphWidget = nullptr;
     SpectrumWidget * spectrumWidget = nullptr;
 
     QComboBox * devicesComboBox = nullptr;
@@ -132,8 +133,6 @@ private slots:
     void onRearrangeView();
 
 signals:
-    void setDebugBit(int word, int bit, bool flag);
-    void setDebugWord(int word, int value);
     void sigModelCellChanged(bool modelCellChanged);
     void sigBoardMappingFileChoosen(QString filename);
     void sigUpgradeFw();

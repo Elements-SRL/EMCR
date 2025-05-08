@@ -1,9 +1,9 @@
 #include "autodeclogger/autodecloggercontroller.h"
 
 AutoDecloggerController::AutoDecloggerController(ApplicationStatus* appStatus, MainWindow* mainWindow, DeviceDataProducer* ddt) :
-	appStatus(appStatus), 
+    ControllerWithConsumer(appStatus),
 	mainWindow(mainWindow) {
-	widget = new AutoDecloggerWidget(appStatus->getCurrentRange(), appStatus->getVoltageRange());
+    widget = new AutoDecloggerWidget(appStatus->getMaxCurrentRange(), appStatus->getMaxVoltageRange()); /*! \todo FCON si dà per scontato di usare il range più grande tra tutti i canali */
 	mainWindow->setDockWidget(MainWindow::DWAutoDeclogger, widget);
 	consumer = new AutodecloggerConsumer(appStatus, ddt);
 	connect(consumer, &AutodecloggerConsumer::sigDecloggingStarted, this, &AutoDecloggerController::onDecloggingStarted);
@@ -65,8 +65,6 @@ void AutoDecloggerController::onDecloggingStarted(std::vector<unsigned short> ch
 void AutoDecloggerController::onDecloggingCompleted(std::vector<unsigned short> channels) {
 	widget->onPoreFree();
 }
-void AutoDecloggerController::onCurrentRangeChanged(RangedMeasurement cr) {}
-void AutoDecloggerController::onVoltageRangeChanged(RangedMeasurement vr) {}
 
 void AutoDecloggerController::onThFieldChanged(double th) {
 	std::map<int, double> m;

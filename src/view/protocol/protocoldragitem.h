@@ -235,57 +235,6 @@ public:
     ProtocolDragNaturalNumControlItem(int type = PROT_DRAG_LIST_NATURAL_NUM_CONTROL_ITEM_TYPE);
 };
 
-class ProtocolDragAnalysisItem : public ProtocolDragItem {
-public:
-    ProtocolDragAnalysisItem(e384CommLib::ClampingModality_t clampingModality, int type = PROT_DRAG_LIST_ANALYSIS_ITEM_TYPE);
-};
-
-/*! \todo FCON All analyses so far defined as voltage clamp analysis */
-class ProtocolDragNoiseReportItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragNoiseReportItem(int type = PROT_DRAG_LIST_NOISE_REPORT_ITEM_TYPE);
-};
-
-class ProtocolDragHistogramItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragHistogramItem(int type = PROT_DRAG_LIST_HISTOGRAM_ITEM_TYPE);
-};
-
-class ProtocolDragSpectrumItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragSpectrumItem(int type = PROT_DRAG_LIST_SPECTRUM_ITEM_TYPE);
-};
-
-class ProtocolDragResistanceEstimationItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragResistanceEstimationItem(int type = PROT_DRAG_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE);
-};
-
-class ProtocolDragMembraneTestItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragMembraneTestItem(int type = PROT_DRAG_LIST_MEMBRANE_TEST_ITEM_TYPE);
-};
-
-class ProtocolDragIvGraphItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragIvGraphItem(int type = PROT_DRAG_LIST_IV_GRAPH_ITEM_TYPE);
-};
-
-class ProtocolDragVoltageTrackingItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragVoltageTrackingItem(int type = PROT_DRAG_LIST_VOLTAGE_TRACKING_ITEM_TYPE);
-};
-
-class ProtocolDragApThresholdItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragApThresholdItem(int type = PROT_DRAG_LIST_AP_THRESHOLD_ITEM_TYPE);
-};
-
-class ProtocolDragApStatisticsItem : public ProtocolDragAnalysisItem {
-public:
-    ProtocolDragApStatisticsItem(int type = PROT_DRAG_LIST_AP_STATISTICS_ITEM_TYPE);
-};
-
 class ProtocolDragSeparator : public ProtocolDragItem {
 public:
     ProtocolDragSeparator(int type = PROT_DRAG_LIST_SEPARATOR_TYPE);

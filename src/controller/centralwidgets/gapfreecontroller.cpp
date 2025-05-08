@@ -1,14 +1,16 @@
 #include "gapfreecontroller.h"
 
-GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mw, DeviceController* dc):
+GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, Measurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, MainWindow* mw, DeviceController* dc):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
     
-    model = new BigPlotModel(BigPlot::GapFree);
+    auto model = std::make_unique<BigPlotModel>();
+    auto plot = new BigPlot("", "[s]", "", BigPlot::GapFree, bigPlotWidget);
+    plot->enableAxis(QwtPlot::yRight);
+    dbbovc = std::make_unique<DurationBasedBigPlotViewController>(std::move(model), plot);
+    dbbovc->setup();
     consumer = new GapFreePlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration);
     this->abfDataWriterConsumer = new AbfDataWriterConsumer(appStatus, producer);
-    plot = new BigPlot("", "[s]", "", BigPlot::GapFree, bigPlotWidget);
-    plot->enableAxis(QwtPlot::yRight);
 
     gapFreeWidget = new GapFreeWidget(plot, mw);
     bigPlotWidget->setGapFreePlot(gapFreeWidget);
@@ -21,21 +23,7 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
         voltageCurves[i]->setYAxis(QwtPlot::yRight);
     }
     auto recordingSettingsDialog = mw->getRecordSettingsDialog();
-    connect(plot, &BigPlot::zoomInRequest, bigPlotController, [=](Rect4 r) {
-        bigPlotController->handleZoomInRequest(model, plot, r);
-    });
-    connect(plot, &BigPlot::zoomOutRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomOutRequest(model, plot);
-    });
-    connect(plot, &BigPlot::zoomResetRequest, bigPlotController, [=]() {
-        bigPlotController->handleZoomResetRequest(model, plot);
-    });
-    connect(plot, &BigPlot::singleAxisZoomRequest, bigPlotController, [=](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
-        bigPlotController->handleSingleAxisZoomRequest(model, plot, axis, zoomIn, mousePosition);
-    });
-    connect(plot, &BigPlot::singleAxisShiftRequest, bigPlotController, [=](QwtPlot::Axis axis, int shift) {
-        bigPlotController->handleSingleAxisShiftRequest(model, plot, axis, shift);
-    });
+
     connect(gapFreeWidget, &GapFreeWidget::sigStartRecording, this, [=]() {
         this->onRecordingRequest(true);
     });
@@ -43,7 +31,7 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
         this->onRecordingRequest(false);
     });
     connect(gapFreeWidget, &GapFreeWidget::sigAutoZoom, this, [=]() {
-        plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
+        dbbovc->getPlot()->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
     });
     connect(abfDataWriterConsumer, &DataWriterConsumer::sigRecording, [=](bool flag) {
         this->onRecordingExecution(flag);
@@ -54,32 +42,19 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
     connect(gapFreeWidget, &GapFreeWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
     connect(gapFreeWidget, &GapFreeWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
-    connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
+    connect(dbbovc.get(), &DurationBasedBigPlotViewController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
     connect(consumer, &PlotConsumer::setPlotData, this, &GapFreeController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &GapFreeController::onReplot);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-    }
-    consumer->onPlotChannels(allChannels, false);
     consumer->onStopConsuming();
     recordingSettingsDialog->forceSettingsEmit();
 }
 
 GapFreeController::~GapFreeController() {
-    if (model != nullptr) {
-        delete model;
-        model = nullptr;
-    }
     if (consumer != nullptr) {
         delete consumer;
         consumer = nullptr;
-    }
-    if (plot != nullptr) {
-        delete plot;
-        plot = nullptr;
     }
     if (abfDataWriterConsumer != nullptr) {
         abfDataWriterConsumer->onStopConsuming();
@@ -91,6 +66,7 @@ GapFreeController::~GapFreeController() {
 }
 
 void GapFreeController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
+    auto plot = dbbovc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->detach();
     }
@@ -101,6 +77,7 @@ void GapFreeController::detachCurves(const std::vector <uint16_t>& channelIndexe
 }
 
 void GapFreeController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
+    auto plot = dbbovc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->attach(plot);
     }
@@ -135,19 +112,19 @@ void GapFreeController::onCurrentColorsChanged(QVector <QColor> colors) {
 }
 
 void GapFreeController::onCurrentColorChanged(int channelIdx, QColor color) {
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentCurves[channelIdx]->setColor(color);
-        voltageCurves[channelIdx]->setColor(color);
-    }
+    currentCurves[channelIdx]->setColor(color);
+    voltageCurves[channelIdx]->setColor(color);
 }
 
-void GapFreeController::onBackgroundColorChanged(QColor color) {
+void GapFreeController::onBackgroundColorChanged(QColor color) {    
+    auto plot = dbbovc->getPlot();
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
     }
 }
 
 void GapFreeController::onReplot() {
+    auto plot = dbbovc->getPlot();
     if (plot != nullptr) {
         plot->replot();
     }
@@ -155,6 +132,8 @@ void GapFreeController::onReplot() {
 
 //todo Check clamping modality too
 void GapFreeController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
+    auto plot = dbbovc->getPlot();
+    auto model = dbbovc->getModel();
     QwtPlot::Axis axisIdx;
     if (newRange.unit == "s") {
         axisIdx = QwtPlot::xBottom;
@@ -191,7 +170,7 @@ void GapFreeController::onExpandTrace(bool flag) {
 }
 
 void GapFreeController::onSetPlotData(PlotMessage plotmessage) {
-    GapFreeMessage gapFreeMessage = std::get<0>(plotmessage);
+    GapFreeMessage gapFreeMessage = std::get<BigPlot::BigPlotStatus::GapFree>(plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[idx], gapFreeMessage.dataSize);
         voltageCurves[idx]->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.voltageValues[idx], gapFreeMessage.dataSize);
@@ -232,6 +211,15 @@ void GapFreeController::onRecordingExecution(bool flag) {
     gapFreeWidget->setRecording(flag);
 }
 
+void GapFreeController::onProtocolStarted(unsigned int, ProtocolWidget * protocol) {
+    if (protocol->getType() != ProtocolTypeGapfree) {
+        consumer->onStopConsuming();
+        return;
+    }
+    if (!(consumer->isRunning())) {
+        consumer->onStartConsuming();
+    }
+}
 
 //TODO this could be moved at the controller level and b managed by single controllers
 void GapFreeController::onStartRecording() {

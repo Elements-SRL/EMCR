@@ -25,10 +25,6 @@ ProtocolItemDropList::ProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleS
     timeCtrlItems = new QVector <ProtocolDropControlItem *>;
     frequencyCtrlItems = new QVector <ProtocolDropControlItem *>;
     naturalNumCtrlItems = new QVector <ProtocolDropControlItem *>;
-    analysisItems = new QVector <ProtocolDropAnalysisItem *> (PTD_PROTOCOL_ANALYSIS_NUM);
-    for (int analysisIdx = 0; analysisIdx < PTD_PROTOCOL_ANALYSIS_NUM; analysisIdx++) {
-        analysisItems->replace(analysisIdx, nullptr);
-    }
 
     this->installEventFilter(this);
     this->createActions();
@@ -82,24 +78,6 @@ QVector <ProtocolDropControlItem *> * ProtocolItemDropList::getFrequencyCtrlItem
 QVector <ProtocolDropControlItem *> * ProtocolItemDropList::getNaturalNumCtrlItems() {
     this->updateNaturalNumCtrlItemsList();
     return naturalNumCtrlItems;
-}
-
-bool ProtocolItemDropList::analysisRequested(ProtocolConsumerType_t consumerType) {
-    return (analysisItems->at(consumerType-PTD_PROTOCOL_ANALYSIS_OFFSET) != nullptr);
-}
-
-bool ProtocolItemDropList::analysisValid(ProtocolConsumerType_t consumerType) {
-    ProtocolDropAnalysisItem * analysis = analysisItems->at(consumerType-PTD_PROTOCOL_ANALYSIS_OFFSET);
-    if (analysis != nullptr) {
-        return (analysis->onCheckCursorsValidity() == "OK");
-
-    } else {
-        return false;
-    }
-}
-
-QVector <int> ProtocolItemDropList::getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType) {
-    return analysisItems->at(consumerType-PTD_PROTOCOL_ANALYSIS_OFFSET)->getCursorMapping();
 }
 
 void ProtocolItemDropList::setStimulusRange(RangedMeasurement_t &range) {
@@ -231,34 +209,6 @@ std::vector <YAML::Phase_t> ProtocolItemDropList::getYamlPhases() {
         }
     }
     return yamlPhases;
-}
-
-std::vector <YAML::Analysis_t> ProtocolItemDropList::getYamlAnalyses() {
-    std::vector <YAML::Analysis_t> yamlAnalyses;
-
-    this->updateDropItemsList();
-
-    for (int itemIdx = 0; itemIdx < items->size(); itemIdx++) {
-        ProtocolDropItem * item = items->at(itemIdx);
-
-        switch (item->type()) {
-        case PROT_DROP_LIST_NOISE_REPORT_ITEM_TYPE:
-        case PROT_DROP_LIST_HISTOGRAM_ITEM_TYPE:
-        case PROT_DROP_LIST_SPECTRUM_ITEM_TYPE:
-        case PROT_DROP_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE:
-        case PROT_DROP_LIST_MEMBRANE_TEST_ITEM_TYPE:
-        case PROT_DROP_LIST_IV_GRAPH_ITEM_TYPE:
-        case PROT_DROP_LIST_VOLTAGE_TRACKING_ITEM_TYPE:
-        case PROT_DROP_LIST_AP_THRESHOLD_ITEM_TYPE:
-        case PROT_DROP_LIST_AP_STATISTICS_ITEM_TYPE:
-            yamlAnalyses.push_back(static_cast <ProtocolDropAnalysisItem *> (item)->getYamlAnalysis());
-            break;
-
-        default:
-            break;
-        }
-    }
-    return yamlAnalyses;
 }
 
 void ProtocolItemDropList::setControlsFromYaml(const std::vector <YAML::Control_t> &yamlControls, int voltageRangeIdx, int currentRangeIdx) {
@@ -485,143 +435,6 @@ void ProtocolItemDropList::setPhasesFromYaml(const std::vector <YAML::Phase_t> &
     }
 }
 
-void ProtocolItemDropList::setAnalysesFromYaml(const std::vector <YAML::Analysis_t> &yamlAnalyses) {
-    for (auto yamlAnalysis : yamlAnalyses) {
-        ProtocolDropItem * item = nullptr;
-        switch (yamlAnalysis.type) {
-        case YAML::NoiseReport: {
-            item = new ProtocolDropNoiseReportItem(msgDisp, ctrlManager, holdEdit->value());
-            ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-            this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
-            emit requestCursors(castItem);
-
-            connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-            emit analysisChanged();
-            break;
-        }
-
-        case YAML::Histogram: {
-            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                item = new ProtocolDropNoiseReportItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
-                emit requestCursors(castItem);
-
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-            }
-            break;
-        }
-
-        case YAML::Spectrum: {
-            if (!(this->analysisRequested(ProtocolConsumerSpectrum))) {
-                item = new ProtocolDropSpectrumItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerSpectrum, castItem);
-                emit requestCursors(castItem);
-
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-            }
-            break;
-        }
-
-        case YAML::MembraneTest: {
-            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                if (!(this->analysisRequested(ProtocolConsumerMembraneTest))) {
-                    item = new ProtocolDropMembraneTestItem(msgDisp, ctrlManager, holdEdit->value());
-                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                    this->setAnalysis(ProtocolConsumerMembraneTest, castItem);
-                    emit requestCursors(castItem);
-
-                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                    emit analysisChanged();
-                }
-
-            } else {
-                /*! \todo FCON da implementare se serve una analisi diversa in current clamp */
-            }
-            break;
-        }
-
-        case YAML::IVGraph: {
-            if (!(this->analysisRequested(ProtocolConsumerIvGraph))) {
-                item = new ProtocolDropIvGraphItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerIvGraph, castItem);
-                emit requestCursors(castItem);
-
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-            }
-            break;
-        }
-
-        case YAML::ResistanceEstimation: {
-            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                /*! \todo FCON da implementare se serve una analisi diversa in voltage clamp */
-
-            } else {
-                if (!(this->analysisRequested(ProtocolConsumerResistanceEstimation))) {
-                    item = new ProtocolDropResistanceEstimationItem(msgDisp, ctrlManager, holdEdit->value());
-                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                    this->setAnalysis(ProtocolConsumerResistanceEstimation, castItem);
-                    emit requestCursors(castItem);
-
-                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                    emit analysisChanged();
-                }
-            }
-            break;
-        }
-
-        case YAML::APThreshold: {
-            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                /*! \todo FCON da implementare se serve una analisi diversa in voltage clamp */
-
-            } else {
-                if (!(this->analysisRequested(ProtocolConsumerApThreshold))) {
-                    item = new ProtocolDropApThresholdItem(msgDisp, ctrlManager, holdEdit->value());
-                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                    this->setAnalysis(ProtocolConsumerApThreshold, castItem);
-                    emit requestCursors(castItem);
-
-                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                    emit analysisChanged();
-                }
-            }
-            break;
-        }
-
-        case YAML::APStatistics: {
-            if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-                /*! \todo FCON da implementare se serve una analisi diversa in voltage clamp */
-
-            } else {
-                if (!(this->analysisRequested(ProtocolConsumerApStatistics))) {
-                    item = new ProtocolDropApStatisticsItem(msgDisp, ctrlManager, holdEdit->value());
-                    ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                    this->setAnalysis(ProtocolConsumerApStatistics, castItem);
-                    emit requestCursors(castItem);
-
-                    connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                    emit analysisChanged();
-                }
-            }
-            break;
-        }
-        }
-
-        if (item != nullptr) {
-            static_cast <ProtocolDropAnalysisItem *> (item)->setAnalysisFromYaml(yamlAnalysis);
-
-            this->addItem(item);
-            connect(item, &ProtocolDropItem::updateItem, this, &ProtocolItemDropList::onUpdateItem);
-            connect(item, &ProtocolDropItem::protocolDropItemDeleteRequest, this, &ProtocolItemDropList::onDropItemDelete);
-        }
-    }
-}
-
 void ProtocolItemDropList::onItemDoubleClicked(QListWidgetItem * item) {
     static_cast <ProtocolDropItem *> (item)->openPropertyDialog();
 }
@@ -634,7 +447,6 @@ void ProtocolItemDropList::onDropItemDelete(ProtocolDropItem * item) {
     if (item != nullptr) {
         this->manageItemDelete(item);
         this->manageCtrlDelete(item);
-        this->manageAnalysisDelete(item);
 
         delete item;
         item = nullptr;
@@ -720,14 +532,6 @@ void ProtocolItemDropList::updateNaturalNumCtrlItemsList() {
             }
         }
     }
-}
-
-void ProtocolItemDropList::setAnalysis(ProtocolConsumerType_t consumerType, ProtocolDropAnalysisItem * item) {
-    analysisItems->replace(consumerType-PTD_PROTOCOL_ANALYSIS_OFFSET, item);
-}
-
-void ProtocolItemDropList::resetAnalysis(ProtocolConsumerType_t consumerType) {
-    this->setAnalysis(consumerType, nullptr);
 }
 
 void ProtocolItemDropList::dragEnterEvent(QDragEnterEvent * event) {
@@ -894,132 +698,6 @@ void ProtocolItemDropList::dropEvent(QDropEvent * event) {
             item = new ProtocolDropNaturalNumControlItem(msgDisp, ctrlManager, holdEdit->value());
             break;
 
-        case PROT_DRAG_LIST_NOISE_REPORT_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerNoiseReport))) {
-                item = new ProtocolDropNoiseReportItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerNoiseReport, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_HISTOGRAM_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerHistogram))) {
-                item = new ProtocolDropHistogramItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerHistogram, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_SPECTRUM_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerSpectrum))) {
-                item = new ProtocolDropSpectrumItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerSpectrum, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerResistanceEstimation))) {
-                item = new ProtocolDropResistanceEstimationItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerResistanceEstimation, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_MEMBRANE_TEST_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerMembraneTest))) {
-                item = new ProtocolDropMembraneTestItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerMembraneTest, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_IV_GRAPH_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerIvGraph))) {
-                item = new ProtocolDropIvGraphItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerIvGraph, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_VOLTAGE_TRACKING_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerVoltageTracking))) {
-                item = new ProtocolDropVoltageTrackingItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerVoltageTracking, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_AP_THRESHOLD_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerApThreshold))) {
-                item = new ProtocolDropApThresholdItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerApThreshold, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
-        case PROT_DRAG_LIST_AP_STATISTICS_ITEM_TYPE:
-            if (!(this->analysisRequested(ProtocolConsumerApStatistics))) {
-                item = new ProtocolDropApStatisticsItem(msgDisp, ctrlManager, holdEdit->value());
-                ProtocolDropAnalysisItem * castItem = static_cast <ProtocolDropAnalysisItem *> (item);
-                this->setAnalysis(ProtocolConsumerApStatistics, castItem);
-                emit requestCursors(castItem);
-                connect(item, &ProtocolDropItem::analysisChanged, this, &ProtocolItemDropList::analysisChanged);
-                emit analysisChanged();
-
-            } else {
-                event->ignore();
-            }
-            break;
-
         case PROT_DRAG_LIST_SEPARATOR_TYPE:
             event->ignore();
             return;
@@ -1140,14 +818,6 @@ void ProtocolItemDropList::manageCtrlDelete(ProtocolDropItem * item) {
     }
 }
 
-void ProtocolItemDropList::manageAnalysisDelete(ProtocolDropItem * item) {
-    ProtocolDropAnalysisItem * analysisItem = dynamic_cast <ProtocolDropAnalysisItem *> (item);
-    if (analysisItem != nullptr) {
-        this->resetAnalysis(analysisItem->getConsumerType());
-        emit analysisChanged();
-    }
-}
-
 void ProtocolItemDropList::createActions() {
     editAct = new QAction("Edit item", this);
     editAct->setIcon(QIcon(":/imgs/edit protocol.png"));
@@ -1241,60 +911,6 @@ bool CtrlProtocolItemDropList::acceptedMimeDataFormat(const QMimeData * mimeData
             mimeData->hasFormat(PROT_DRAG_LIST_TIME_CONTROL_ITEM_MIME_FORMAT) ||
             mimeData->hasFormat(PROT_DRAG_LIST_FREQUENCY_CONTROL_ITEM_MIME_FORMAT) ||
             mimeData->hasFormat(PROT_DRAG_LIST_NATURAL_NUM_CONTROL_ITEM_MIME_FORMAT)) {
-        return true;
-
-    } else {
-        return false;
-    }
-}
-
-AnalysisProtocolItemDropList::AnalysisProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality) :
-    ProtocolItemDropList(msgDisp, holdEdit, clampingModality) {
-
-}
-
-void AnalysisProtocolItemDropList::addCursors(QVector <ProtocolCursor *> * cursors) {
-    for (int itemIdx = 0; itemIdx < analysisItems->size(); itemIdx++) {
-        if (analysisItems->at(itemIdx) != nullptr) {
-            analysisItems->at(itemIdx)->addCursors(cursors);
-        }
-    }
-}
-
-void AnalysisProtocolItemDropList::removeCursors(QVector <ProtocolCursor *> * cursors, QVector <int> cursorsMap) {
-    for (int itemIdx = 0; itemIdx < analysisItems->size(); itemIdx++) {
-        if (analysisItems->at(itemIdx) != nullptr) {
-            analysisItems->at(itemIdx)->removeCursors(cursors, cursorsMap);
-        }
-    }
-}
-
-void AnalysisProtocolItemDropList::updateCursors() {
-    for (int itemIdx = 0; itemIdx < analysisItems->size(); itemIdx++) {
-        if (analysisItems->at(itemIdx) != nullptr) {
-            analysisItems->at(itemIdx)->onAcceptPropertyDialog();
-        }
-    }
-}
-
-void AnalysisProtocolItemDropList::enableAnalysis(bool enabled) {
-    for (int itemIdx = 0; itemIdx < analysisItems->size(); itemIdx++) {
-        if (analysisItems->at(itemIdx) != nullptr) {
-            analysisItems->at(itemIdx)->setEnabled(enabled);
-        }
-    }
-}
-
-bool AnalysisProtocolItemDropList::acceptedMimeDataFormat(const QMimeData * mimeData) {
-    if (((mimeData->hasFormat(PROT_DRAG_LIST_NOISE_REPORT_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerNoiseReport)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_HISTOGRAM_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerHistogram)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_SPECTRUM_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerSpectrum)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_RESISTANCE_ESTIMATION_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerResistanceEstimation)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_MEMBRANE_TEST_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerMembraneTest)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_IV_GRAPH_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerIvGraph)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_VOLTAGE_TRACKING_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerVoltageTracking)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_AP_THRESHOLD_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerApThreshold)))) ||
-            ((mimeData->hasFormat(PROT_DRAG_LIST_AP_STATISTICS_ITEM_MIME_FORMAT)) && (!(this->analysisRequested(ProtocolConsumerApStatistics))))) {
         return true;
 
     } else {

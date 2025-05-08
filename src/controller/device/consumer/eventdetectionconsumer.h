@@ -32,7 +32,7 @@ public:
     void reinitFilters(double highCutoffFreq);
 
 public slots:
-    void onVoltageRangeChanged(RangedMeasurement_t range) override;
+    void onVoltageRangeChanged() override;
     void onSamplingRateChanged(Measurement_t samplingRate) override;
     void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
 

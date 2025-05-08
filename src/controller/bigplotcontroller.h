@@ -8,13 +8,10 @@
 #include "plotconsumer.h"
 #include <QPointF>
 #include "application_status.h"
-#include "plotmessage.h"
-#include "ivgraphconsumer.h"
-#include "eventdetectionconsumer.h"
 #include "plotconsumer.h"
 #include "centralwidgetcontroller.h"
 #include "devicecontroller.h"
-#include "abfdatawriterconsumer.h"
+#include <map>
 
 class BigPlotController : public QObject {
     Q_OBJECT
@@ -32,12 +29,7 @@ public slots:
     void onBackgroundColorChanged(QColor color);
     void onExpandTrace(bool);
     void onRangeUpdated(RangedMeasurement_t newRange);
-
-    void handleZoomInRequest(BigPlotModel* model, BigPlot* plot, Rect4 r);
-    void handleZoomOutRequest(BigPlotModel* model, BigPlot* plot);
-    void handleZoomResetRequest(BigPlotModel* model, BigPlot* plot);
-    void handleSingleAxisZoomRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int, QPointF);
-    void handleSingleAxisShiftRequest(BigPlotModel* model, BigPlot* plot, QwtPlot::Axis, int);
+    void onProtocolStarted(unsigned int protId, ProtocolWidget * protocol);
 
 private:
     BigPlot::BigPlotStatus bps;
@@ -45,7 +37,11 @@ private:
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
 
-    std::vector<CentralWidgetController* > controllers;
+    int gapFreeIndex = -1;
+    int episodicIndex = -1;
+
+    std::map <BigPlot::BigPlotStatus, CentralWidgetController*> controllers;
+    std::map <int, BigPlot::BigPlotStatus> translator;
 
     int voltageChannelsNum;
     int currentChannelsNum;

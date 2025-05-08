@@ -5,16 +5,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG(debug, debug|release) {
     QMAKE_CXXFLAGS += /Od
-    DEFINES += GLB_SHOW_DEBUG_CTRLS
     DEFINES += DEBUG
 }
 
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
-}
-
-contains(DEFINES, GLB_SHOW_DEBUG_CTRLS) {
-TARGET = EMCR_debug
 }
 
 #DEFINES += GLB_ANALYSES_IN_PROTOCOL_EDITOR
@@ -32,7 +27,15 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/controllerwithconsumer.cpp \
+    src/controller/bigplotviewcontroller.cpp \
+    src/controller/debugcontroller.cpp \
+    src/controller/device/consumer/analysisconsumer.cpp \
+    src/controller/device/consumer/membraneestimationconsumer.cpp \
+    src/controller/device/consumer/pipettecapacitanceestimationconsumer.cpp \
+    src/controller/device/consumer/resistanceestimationconsumer.cpp \
+    src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
+    src/controller/durationbasedbigplotviewcontroller.cpp \
+    src/controller/temperaturecontroller.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -40,6 +43,7 @@ SOURCES += \
     src/controller/device/consumer/eventdetectionconsumer.cpp \
     src/controller/device/consumer/spectrumconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
+    src/controller/controllerwithconsumer.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/plotpreferencescontroller.cpp \
@@ -67,11 +71,11 @@ SOURCES += \
     src/controller/centralwidgets/centralwidgetcontroller.cpp \
     src/controller/centralwidgets/ivgraphcontroller.cpp \
     src/controller/centralwidgets/gapfreecontroller.cpp \
+    src/controller/centralwidgets/episodiccontroller.cpp \
     src/controller/centralwidgets/eventdetectioncontroller.cpp \
     src/controller/centralwidgets/spectrumcontroller.cpp \
     src/controller/autodeclogger/autodecloggercontroller.cpp \
     src/model/devicemodel.cpp \
-    src/model/analysiscursor.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
     src/model/ivaccumulator.cpp \
@@ -83,20 +87,19 @@ SOURCES += \
     src/model/state.cpp \
     src/model/statearray.cpp \
     src/model/binner.cpp \
+    src/model/logbigplotmodel.cpp \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/activationbutton.cpp \
-    src/view/bigplotwidget.cpp \
-    src/view/gapfreewidget.cpp \
-    src/view/spectrumwidget.cpp \
+    src/view/collapsiblesection.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
     src/view/compensationcontroldockwidget.cpp \
     src/view/addtagdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/copyabletable.cpp \
+    src/view/debugdockwidget.cpp \
     src/view/doubleclickmachine.cpp \
-    src/view/ivgraphwidget.cpp \
     src/view/lcddisplay.cpp \
     src/view/leftrightmousepushbutton.cpp \
     src/view/mainwindow.cpp \
@@ -104,12 +107,17 @@ SOURCES += \
     src/view/elementslogowidget.cpp \
     src/view/channeloverviewwidget.cpp \
     src/view/baseplot.cpp \
-    src/view/bigplot.cpp \
     src/view/curve.cpp \
     src/view/measurementsoverviewdockwidget.cpp \
     src/view/multiplechannelcontroldockwidget.cpp \
     src/view/nowheelspinbox.cpp \
     src/view/plotpreferencesdialog.cpp \
+    src/view/centralwidgets/bigplot.cpp \
+    src/view/centralwidgets/bigplotwidget.cpp \
+    src/view/centralwidgets/gapfreewidget.cpp \
+    src/view/centralwidgets/episodicwidget.cpp \
+    src/view/centralwidgets/spectrumwidget.cpp \
+    src/view/centralwidgets/ivgraphwidget.cpp \
     src/view/centralwidgets/eventdetectionwidget.cpp \
     src/view/protocol/impexpprotocoldialog.cpp \
     src/view/protocol/protocolcursor.cpp \
@@ -141,12 +149,22 @@ SOURCES += \
     src/view/questionmarkmenu/deviceinfodialog.cpp \
     src/view/questionmarkmenu/releasenotesdialog.cpp \
     src/view/questionmarkmenu/messagedialog.cpp \
+    src/view/temperaturedockwidget.cpp \
     src/view/upgradefwview.cpp
 
 HEADERS += \
-    src/controller/controllerwithconsumer.h \
+    src/controller/bigplotviewcontroller.h \
+    src/controller/debugcontroller.h \
+    src/controller/device/consumer/analysisconsumer.h \
+    src/controller/device/consumer/membraneestimationconsumer.h \
+    src/controller/device/consumer/pipettecapacitanceestimationconsumer.h \
+    src/controller/device/consumer/resistanceestimationconsumer.h \
+    src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
+    src/controller/durationbasedbigplotviewcontroller.h \
+    src/controller/temperaturecontroller.h \
     src/globaldefines.h \
-    src/model/multiplechannelmodel.h \
+    src/model/membraneresult.h \
+    src/model/singlemeasresult.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
@@ -156,6 +174,7 @@ HEADERS += \
     src/controller/device/consumer/eventdetectionconsumer.h \
     src/controller/device/consumer/spectrumconsumer.h \
     src/controller/device/deviceconnector.h \
+    src/controller/controllerwithconsumer.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
     src/controller/plotpreferencescontroller.h \
@@ -183,11 +202,12 @@ HEADERS += \
     src/controller/centralwidgets/centralwidgetcontroller.h \
     src/controller/centralwidgets/ivgraphcontroller.h \
     src/controller/centralwidgets/gapfreecontroller.h \
+    src/controller/centralwidgets/episodiccontroller.h \
     src/controller/centralwidgets/eventdetectioncontroller.h \
     src/controller/centralwidgets/spectrumcontroller.h \
     src/controller/autodeclogger/autodecloggercontroller.h \
+    src/model/multiplechannelmodel.h \
     src/model/devicemodel.h \
-    src/model/analysiscursor.h \
     src/model/application_status.h \
     src/model/bigplotmodel.h \
     src/model/channel_and_name.h \
@@ -201,8 +221,9 @@ HEADERS += \
     src/model/state.h \
     src/model/statearray.h \
     src/model/statisticsresult.h \
-    src/model/statisticsresultwrapper.h \
+    src/model/resultwrapper.h \
     src/model/binner.h \
+    src/model/logbigplotmodel.h \
     src/model/filters/filter.h \
     src/model/filters/firstorderiirfilter.h \
     src/model/events/event.h \
@@ -213,31 +234,34 @@ HEADERS += \
     src/model/events/eventsandbaseline.h \
     src/model/autodeclogger/autodecloggermodel.h \
     src/view/activationbutton.h \
-    src/view/bigplotwidget.h \
-    src/view/gapfreewidget.h \
-    src/view/spectrumwidget.h \
+    src/view/collapsiblesection.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \
     src/view/compensationcontroldockwidget.h \
     src/view/addtagdialog.h \
     src/view/conversionscaledraw.h \
     src/view/copyabletable.h \
+    src/view/debugdockwidget.h \
     src/view/doubleclickmachine.h \
-    src/view/ivgraphwidget.h \
     src/view/lcddisplay.h \
     src/view/leftrightmousepushbutton.h \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
     src/view/channeloverviewwidget.h \
-    src/view/bigplot.h \
     src/view/baseplot.h \
     src/view/curve.h \
     src/view/measurementsoverviewdockwidget.h \
     src/view/multiplechannelcontroldockwidget.h \
     src/view/nowheelspinbox.h \
     src/view/plotpreferencesdialog.h \
+    src/view/centralwidgets/bigplot.h \
+    src/view/centralwidgets/bigplotwidget.h \
+    src/view/centralwidgets/gapfreewidget.h \
+    src/view/centralwidgets/episodicwidget.h \
+    src/view/centralwidgets/ivgraphwidget.h \
     src/view/centralwidgets/eventdetectionwidget.h \
+    src/view/centralwidgets/spectrumwidget.h \
     src/view/protocol/impexpprotocoldialog.h \
     src/view/protocol/protocolcursor.h \
     src/view/protocol/protocoldockwidget.h \
@@ -268,6 +292,7 @@ HEADERS += \
     src/view/questionmarkmenu/deviceinfodialog.h \
     src/view/questionmarkmenu/releasenotesdialog.h \
     src/view/questionmarkmenu/messagedialog.h \
+    src/view/temperaturedockwidget.h \
     src/view/upgradefwview.h
 
 INCLUDEPATH += \
@@ -278,13 +303,16 @@ INCLUDEPATH += \
     ./src/controller/protocol \
     ./src/controller/autodeclogger \
     ./src/controller/centralwidgets \
+    ./src/controller/autodeclogger \
     ./src/model \
     ./src/model/filters \
     ./src/model/events \
+    ./src/model/autodeclogger \
     ./src/view \
     ./src/view/statearray \
     ./src/view/centralwidgets \
     ./src/view/protocol \
+    ./src/view/autodeclogger \
     ./src/view/questionmarkmenu \
     ./src/view/advancedmenu \
     ./src/abf
@@ -297,13 +325,16 @@ DEPENDPATH += \
     ./src/controller/protocol \
     ./src/controller/autodeclogger \
     ./src/controller/centralwidgets \
+    ./src/controller/autodeclogger \
     ./src/model \
     ./src/model/filters \
     ./src/model/events \
+    ./src/model/autodeclogger \
     ./src/view \
     ./src/view/statearray \
     ./src/view/centralwidgets \
     ./src/view/protocol \
+    ./src/view/autodeclogger \
     ./src/view/questionmarkmenu \
     ./src/view/advancedmenu \
     ./src/abf

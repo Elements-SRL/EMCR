@@ -19,12 +19,14 @@ public:
     ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModality_t clampingModality, QWidget * parent = nullptr);
     ~ProtocolDockWidget();
 
-    ProtocolList * getProtocolList();
     ProtocolList * getVoltageProtocolList();
+    ProtocolList * getAnalysisVoltageProtocolList();
     ProtocolList * getCurrentProtocolList();
+    ProtocolList * getAnalysisCurrentProtocolList();
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
+    void onSetAnalysisProtocols(bool analysisProtocols);
 
 protected:
     bool eventFilter(QObject * obj, QEvent * event) override;
@@ -37,10 +39,20 @@ private:
     void setProtocolListVisibility();
 
     MessageDispatcher * msgDisp = nullptr;
+    QPushButton * addProtocolBtn = nullptr;
+    QPushButton * removeProtocolBtn = nullptr;
+    QPushButton * editProtocolBtn = nullptr;
+    QPushButton * copyProtocolBtn = nullptr;
+    QPushButton * setProtocolsShortCutsBtn = nullptr;
+    QPushButton * importProtocolBtn = nullptr;
+    QPushButton * exportProtocolBtn = nullptr;
     ProtocolPropertyDialog * protocolPropertyDialog = nullptr;
     ProtocolList * voltageProtocolList = nullptr;
+    ProtocolList * analysisVoltageProtocolList = nullptr;
     ProtocolList * currentProtocolList = nullptr;
+    ProtocolList * analysisCurrentProtocolList = nullptr;
     ClampingModality_t clampingModality = e384CommLib::VOLTAGE_CLAMP;
+    bool analysisProtocolsFlag = false;
     TimerDisplay * protocolTimer = nullptr;
     QVector <QShortcut *> shortcuts;
 

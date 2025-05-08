@@ -43,6 +43,7 @@ public:
     bool isOpened(QString &protocolName);
     void setOwner(ProtocolWidget * owner);
     ProtocolWidget * getOwner();
+    bool populated = false;
 
 private:
     QGridLayout * controlsLo;

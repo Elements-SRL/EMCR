@@ -1,0 +1,76 @@
+#include "bigplotwidget.h"
+#include "plotmessage.h"
+#include "bigplot.h"
+
+BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
+    QTabWidget(parent) {
+    mainVl = new QVBoxLayout();
+    mainVl->setContentsMargins(6, 0, 0, 6);
+    mainVl->setSpacing(1);
+    this->setLayout(mainVl);
+    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+void BigPlotWidget::setGapFreePlot(QWidget* wid) {
+    gapFreeTab->layout()->addWidget(wid);
+}
+
+void BigPlotWidget::setEpisodicPlot(QWidget* wid) {
+    episodicTab->layout()->addWidget(wid);
+}
+
+void BigPlotWidget::setIvGraph(QWidget* wid){
+    ivTab->layout()->addWidget(wid);
+}
+
+void BigPlotWidget::setEventDetectionTab(QWidget * wid) {
+    eventDetectionTab->layout()->addWidget(wid);
+}
+
+void BigPlotWidget::setSpectrumPlot(QWidget* wid) {
+    spectrumTab->layout()->addWidget(wid);
+}
+
+void BigPlotWidget::setTabsStatus(bool status, int idxOfDefaultEnabledTab) {
+    for (int i = 0; i < this->count(); i++) {
+        if (i != idxOfDefaultEnabledTab) {
+            setTabEnabled(i, status);
+        }
+    }
+}
+
+void BigPlotWidget::addEpisodicTab() {
+    auto episodicLayout = new QVBoxLayout();
+    episodicTab = new QWidget();
+    episodicTab->setLayout(episodicLayout);
+    addTab(episodicTab, "Episodic");
+}
+
+void BigPlotWidget::addIvTab() {
+    auto ivLayout = new QVBoxLayout();
+    ivTab = new QWidget();
+    ivTab->setLayout(ivLayout);
+    addTab(ivTab, "IV Graph");
+}
+
+
+void BigPlotWidget::addSpectrumTab() {
+    auto spectrumLayout = new QVBoxLayout();
+    spectrumTab = new QWidget();
+    spectrumTab->setLayout(spectrumLayout);
+    addTab(spectrumTab, "Spectrum");
+}
+
+void BigPlotWidget::addGapFreeTab() {
+    auto gapFreeLayout = new QVBoxLayout();
+    gapFreeTab = new QWidget();
+    gapFreeTab->setLayout(gapFreeLayout);
+    addTab(gapFreeTab, "GapFree");
+}
+
+void BigPlotWidget::addEventDetectionTab() {
+    auto eventDetectionLayout = new QVBoxLayout();
+    eventDetectionTab = new QWidget();
+    eventDetectionTab->setLayout(eventDetectionLayout);
+    addTab(eventDetectionTab, "Event Detection");
+}

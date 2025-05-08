@@ -11,7 +11,6 @@
 #include "control.h"
 #include "phase.h"
 #include "cursor.h"
-#include "analysis.h"
 #include "messagedispatcher.h"
 
 class ProtocolItemDropList : public QListWidget {
@@ -30,18 +29,13 @@ public:
     QVector <ProtocolDropControlItem *> * getTimeCtrlItems();
     QVector <ProtocolDropControlItem *> * getFrequencyCtrlItems();
     QVector <ProtocolDropControlItem *> * getNaturalNumCtrlItems();
-    bool analysisRequested(ProtocolConsumerType_t consumerType);
-    bool analysisValid(ProtocolConsumerType_t consumerType);
-    QVector <int> getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType);
     void setStimulusRange(RangedMeasurement_t &range);
 
     std::vector <YAML::Control_t> getYamlControls();
     std::vector <YAML::Phase_t> getYamlPhases();
-    std::vector <YAML::Analysis_t> getYamlAnalyses();
 
     void setControlsFromYaml(const std::vector <YAML::Control_t> &yamlControls, int voltageRangeIdx, int currentRangeIdx);
     void setPhasesFromYaml(const std::vector <YAML::Phase_t> &yamlPhases, int voltageRangeIdx, int currentRangeIdx);
-    void setAnalysesFromYaml(const std::vector <YAML::Analysis_t> &yamlAnalyses);
 
 public slots:
     void onItemDoubleClicked(QListWidgetItem * item);
@@ -56,8 +50,6 @@ protected:
     void updateTimeCtrlItemsList();
     void updateFrequencyCtrlItemsList();
     void updateNaturalNumCtrlItemsList();
-    void setAnalysis(ProtocolConsumerType_t consumerType, ProtocolDropAnalysisItem * item);
-    void resetAnalysis(ProtocolConsumerType_t consumerType);
 
     virtual void dragEnterEvent(QDragEnterEvent * event) override;
     virtual void dragMoveEvent(QDragMoveEvent * event) override;
@@ -66,7 +58,6 @@ protected:
     void contextMenuEvent(QContextMenuEvent * event) override;
     void manageItemDelete(ProtocolDropItem * item);
     void manageCtrlDelete(ProtocolDropItem * item);
-    void manageAnalysisDelete(ProtocolDropItem * item);
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) = 0;
 
     MessageDispatcher * msgDisp = nullptr;
@@ -79,7 +70,6 @@ protected:
     QVector <ProtocolDropControlItem *> * timeCtrlItems;
     QVector <ProtocolDropControlItem *> * frequencyCtrlItems;
     QVector <ProtocolDropControlItem *> * naturalNumCtrlItems;
-    QVector <ProtocolDropAnalysisItem *> * analysisItems;
     ProtocolItemCtrlManager * ctrlManager;
     QString stimulusAbbrName;
 
@@ -92,8 +82,6 @@ private:
 signals:
     void updateProtocol();
     void updateHold(double);
-    void requestCursors(ProtocolDropAnalysisItem *);
-    void analysisChanged();
 };
 
 class GapfreeProtocolItemDropList : public ProtocolItemDropList {
@@ -121,21 +109,6 @@ class CtrlProtocolItemDropList : public ProtocolItemDropList {
 
 public:
     CtrlProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
-
-protected:
-    virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;
-};
-
-class AnalysisProtocolItemDropList : public ProtocolItemDropList {
-    Q_OBJECT
-
-public:
-    AnalysisProtocolItemDropList(MessageDispatcher * msgDisp, QDoubleSpinBox * holdEdit, ClampingModality_t clampingModality);
-
-    void addCursors(QVector <ProtocolCursor *> * cursors);
-    void removeCursors(QVector <ProtocolCursor *> * cursors, QVector <int> cursorsMap);
-    void updateCursors();
-    void enableAnalysis(bool enabled);
 
 protected:
     virtual bool acceptedMimeDataFormat(const QMimeData * mimeData) override;

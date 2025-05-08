@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget * parent) :
     menuRecordings = new QMenu("Recordings");
     menuBar->addMenu(menuRecordings);
 
-    actionRecordingSettings = new QAction("Settings");
+    actionRecordingSettings = new QAction("Gap free settings");
     menuRecordings->addAction(actionRecordingSettings);
     actionRecordingSettings->setEnabled(false);
 
@@ -317,160 +317,6 @@ void MainWindow::createGuiControls() {
         this->setDockWidget(MainWindow::DWProtocol, protocolDw, false, Qt::LeftDockWidgetArea);
     }
 
-#ifndef GLB_HIDE_DEBUG_CTRLS
-
-    /**************\
-     * debug dock *
-    \**************/
-
-    auto debugDw = new QDockWidget();
-    debugDw->setObjectName("debugDw");
-    debugDw->setWindowTitle("Debug");
-    this->setDockWidget(MainWindow::DWDebug, debugDw, true, Qt::RightDockWidgetArea);
-
-    QWidget * debugWid = new QWidget;
-    debugDw->setWidget(debugWid);
-
-    QVBoxLayout * debugVl = new QVBoxLayout;
-    debugWid->setLayout(debugVl);
-
-    debugVl->addWidget(new QLabel("Word"));
-    QHBoxLayout * debugWordHl = new QHBoxLayout;
-    debugVl->addLayout(debugWordHl);
-
-    QSpinBox * debugWordSbx = new QSpinBox;
-    debugWordSbx->setRange(0, 32767);
-    debugWordSbx->setValue(0);
-    debugWordHl->addWidget(debugWordSbx);
-
-    QCheckBox * debugRangeWordChx = new QCheckBox("Range");
-    debugWordHl->addWidget(debugRangeWordChx);
-
-    QSpinBox * debugLastWordSbx = new QSpinBox;
-    debugLastWordSbx->setRange(0, 32767);
-    debugLastWordSbx->setValue(0);
-    debugLastWordSbx->setEnabled(false);
-    debugWordHl->addWidget(debugLastWordSbx);
-
-    connect(debugRangeWordChx, &QCheckBox::clicked, debugLastWordSbx, &QWidget::setEnabled);
-
-    debugVl->addWidget(new QLabel("Bit"));
-    QHBoxLayout * debugBitHl = new QHBoxLayout;
-    debugVl->addLayout(debugBitHl);
-
-    QSpinBox * debugBitSbx = new QSpinBox;
-    debugBitSbx->setRange(0, 15);
-    debugBitSbx->setValue(0);
-    debugBitHl->addWidget(debugBitSbx);
-
-    QCheckBox * debugRangeBitChx = new QCheckBox("Range");
-    debugBitHl->addWidget(debugRangeBitChx);
-
-    QSpinBox * debugLastBitSbx = new QSpinBox;
-    debugLastBitSbx->setRange(0, 15);
-    debugLastBitSbx->setValue(0);
-    debugLastBitSbx->setEnabled(false);
-    debugBitHl->addWidget(debugLastBitSbx);
-
-    connect(debugRangeBitChx, &QCheckBox::clicked, debugLastBitSbx, &QWidget::setEnabled);
-
-    QHBoxLayout * debugBitSetHl = new QHBoxLayout;
-    debugVl->addLayout(debugBitSetHl);
-
-    QPushButton * debugResetBitBtn = new QPushButton("RESET bit");
-    debugResetBitBtn->setCheckable(false);
-    debugBitSetHl->addWidget(debugResetBitBtn);
-
-    QPushButton * debugSetBitBtn = new QPushButton("SET bit");
-    debugSetBitBtn->setCheckable(false);
-    debugBitSetHl->addWidget(debugSetBitBtn);
-
-    connect(debugResetBitBtn, &QPushButton::clicked, this, [=] () {
-        if (debugRangeWordChx->isChecked()) {
-            for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
-                if (debugRangeBitChx->isChecked()) {
-                    for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
-                        emit setDebugBit(wordIdx, bitIdx, false);
-                    }
-
-                } else {
-                    emit setDebugBit(wordIdx, debugBitSbx->value(), false);
-                }
-            }
-
-        } else {
-            if (debugRangeBitChx->isChecked()) {
-                for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
-                    emit setDebugBit(debugWordSbx->value(), bitIdx, false);
-                }
-
-            } else {
-                emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), false);
-            }
-        }
-    });
-
-    connect(debugSetBitBtn, &QPushButton::clicked, this, [=] () {
-        if (debugRangeWordChx->isChecked()) {
-            for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
-                if (debugRangeBitChx->isChecked()) {
-                    for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
-                        emit setDebugBit(wordIdx, bitIdx, true);
-                    }
-
-                } else {
-                    emit setDebugBit(wordIdx, debugBitSbx->value(), true);
-                }
-            }
-
-        } else {
-            if (debugRangeBitChx->isChecked()) {
-                for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
-                    emit setDebugBit(debugWordSbx->value(), bitIdx, true);
-                }
-
-            } else {
-                emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), true);
-            }
-        }
-    });
-
-    debugVl->addWidget(new QLabel("Value"));
-    QHBoxLayout * debugValueSetHl = new QHBoxLayout;
-    debugVl->addLayout(debugValueSetHl);
-
-    QSpinBox * debugValueSbx = new QSpinBox;
-    debugValueSbx->setRange(0, 65535);
-    debugValueSbx->setValue(0);
-    debugValueSetHl->addWidget(debugValueSbx);
-
-    QLabel * debugValueHexLbl = new QLabel("0x0000");
-    debugValueSetHl->addWidget(debugValueHexLbl);
-    connect(debugValueSbx, QOverload <int> ::of (&QSpinBox::valueChanged), this, [=] (int value) {
-        debugValueHexLbl->setText(QString("0x%1").arg(value, 4, 16, QLatin1Char('0')));
-    });
-
-    QPushButton * debugApplyValueBtn = new QPushButton("SET value");
-    debugApplyValueBtn->setCheckable(false);
-    debugValueSetHl->addWidget(debugApplyValueBtn);
-
-    connect(debugApplyValueBtn, &QPushButton::clicked, this, [=] () {
-        if (debugRangeWordChx->isChecked()) {
-            for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
-                emit setDebugWord(wordIdx, debugValueSbx->value());
-            }
-
-        } else {
-            emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
-        }
-    });
-
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    debugVl->addWidget(spacer);
-
-#endif
-
     actionRecordingSettings->setEnabled(true);
     actionPlotPreferences->setEnabled(true);
 //    TODO maybe activate it only for devices with more then N channels
@@ -478,7 +324,6 @@ void MainWindow::createGuiControls() {
     actionUpgradeFw->setEnabled(false);
     this->addViewActions();
 
-    this->restoreUISettings();
     interfaceCreated = true;
 }
 
@@ -534,7 +379,7 @@ void MainWindow::restoreUISettings() {
         QString settingsRoot = "Preferences/UI/";
         QString tag;
 
-        for (auto dw : dockWidgets) {
+        for (auto &&dw : dockWidgets) {
             if (dw != nullptr) {
                 tag = settingsRoot + dw->objectName() + "/geometry";
                 if (settings.contains(tag)) {
@@ -551,9 +396,7 @@ void MainWindow::restoreUISettings() {
         tag = settingsRoot + this->objectName() + "/state";
         this->restoreState(settings.value(tag).toByteArray());
 
-//        qDebug() << this->geometry();
-//        this->doc
-    });
+    }, Qt::QueuedConnection);
 
     timer->start();
 }
@@ -594,6 +437,15 @@ void MainWindow::onBoardMappingPressed(){
 //    else {
 //        QMessageBox::critical(this, "Invalid Board Mapping", "The file you chose is not a valid board mapping. Please try again.", QMessageBox::Ok);
 //    }
+}
+
+void MainWindow::onBitRateComputed(double value) {
+    if (value > 1.0e6) {
+        SRLbl->setText(QString("%1 Msps").arg(value/1.0e6));
+    }
+    else {
+        SRLbl->setText(QString("%1 ksps").arg(value/1.0e3));
+    }
 }
 
 void MainWindow::onOpenDialog(Dialogs_t type) {

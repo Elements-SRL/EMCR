@@ -116,11 +116,6 @@ ProtocolEditor::~ProtocolEditor() {
         ctrlPidl = nullptr;
     }
 
-    if (analysisPidl != nullptr) {
-        delete analysisPidl;
-        analysisPidl = nullptr;
-    }
-
     if (protocolItemCtrlManager != nullptr) {
         delete protocolItemCtrlManager;
         protocolItemCtrlManager = nullptr;
@@ -164,7 +159,6 @@ YAML::VoltageProtocol_t ProtocolEditor::getYamlVoltageProtocol() {
     yamlProtocol.phases = phasesPidl->getYamlPhases();
     yamlProtocol.controls = ctrlPidl->getYamlControls();
     yamlProtocol.cursors = protocolPreview->getYamlCursors();
-    yamlProtocol.analysis = analysisPidl->getYamlAnalyses();
 
     return yamlProtocol;
 }
@@ -184,7 +178,6 @@ YAML::CurrentProtocol ProtocolEditor::getYamlCurrentProtocol() {
     yamlProtocol.phases = phasesPidl->getYamlPhases();
     yamlProtocol.controls = ctrlPidl->getYamlControls();
     yamlProtocol.cursors = protocolPreview->getYamlCursors();
-    yamlProtocol.analysis = analysisPidl->getYamlAnalyses();
 
     return yamlProtocol;
 }
@@ -225,7 +218,6 @@ void ProtocolEditor::setProtocolFromYaml(const YAML::VoltageProtocol_t &yamlProt
     protocolPreview->updateView();
 
     protocolPreview->setCursorsFromYaml(yamlProtocol.cursors);
-    analysisPidl->setAnalysesFromYaml(yamlProtocol.analysis);
 }
 
 void ProtocolEditor::setProtocolFromYaml(const YAML::CurrentProtocol_t &yamlProtocol) {
@@ -264,7 +256,6 @@ void ProtocolEditor::setProtocolFromYaml(const YAML::CurrentProtocol_t &yamlProt
     protocolPreview->updateView();
 
     protocolPreview->setCursorsFromYaml(yamlProtocol.cursors);
-    analysisPidl->setAnalysesFromYaml(yamlProtocol.analysis);
 }
 
 void ProtocolEditor::onUpdateCtrlItem() {
@@ -289,27 +280,6 @@ void ProtocolEditor::onStimulusRangeSelected(int rangeIdx) {
 
 QVector <ProtocolDropControlItem *> * ProtocolEditor::getCtrlItems() {
     return ctrlPidl->getCtrlItems();
-}
-
-bool ProtocolEditor::analysisRequested(ProtocolConsumerType_t consumerType) {
-    return analysisPidl->analysisRequested(consumerType);
-}
-
-bool ProtocolEditor::analysisValid(ProtocolConsumerType_t consumerType) {
-    return analysisPidl->analysisValid(consumerType);
-}
-
-bool ProtocolEditor::allAnalysisValid() {
-    for (int analysisIdx = PTD_PROTOCOL_ANALYSIS_OFFSET; analysisIdx < ProtocolConsumerTypesNum; analysisIdx++) {
-        if (analysisPidl->analysisValid((ProtocolConsumerType_t)analysisIdx) != analysisPidl->analysisRequested((ProtocolConsumerType_t)analysisIdx)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-QVector <int> ProtocolEditor::getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType) {
-    return analysisPidl->getAnalysisCursorsMapping(consumerType);
 }
 
 void ProtocolEditor::setName(QString value) {
@@ -398,11 +368,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
         itemIdxs.append(itemIdx++);
     }
 
-//    if (msgDisp->hasProtocolStepFeature() == Success) {
-//        libraryPidl->addItem(new ProtocolDragVRestItem());
-//        itemIdxs.append(itemIdx++);
-//    }
-
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
 
@@ -416,8 +381,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     itemIdxs.append(itemIdx++);
     libraryPidl->addItem(new ProtocolDragVInfRepSeqItem());
     itemIdxs.append(itemIdx++);
-//    libraryPidl->addItem(new ProtocolDragVRepSeqScaledItem());
-//    itemIdxs.append(itemIdx++);
 
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
@@ -437,25 +400,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
 
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
-
-#ifdef GLB_ANALYSES_IN_PROTOCOL_EDITOR
-    libraryPidl->addItem(new ProtocolDragSeparator());
-    btn = libraryPidl->setSeparator("Analysis", PROT_EDITOR_ANALYSIS_SEPARATOR_COLOR);
-    itemIdx++;
-
-    libraryPidl->addItem(new ProtocolDragNoiseReportItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragHistogramItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragSpectrumItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragMembraneTestItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragIvGraphItem());
-    itemIdxs.append(itemIdx++);
-
-    libraryPidl->setSeparatorItems(btn, itemIdxs);
-#endif
 
     /*! Protocol wide controls */
     double hold = 0.0;
@@ -540,24 +484,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
 
     ctrlPidl->setCtrlManager(protocolItemCtrlManager);
 
-    /*! Analysis items */
-    QVBoxLayout * analysisItemsVl = new QVBoxLayout;
-    editorHl->addLayout(analysisItemsVl);
-
-    QLabel * analysisTitle = new QLabel("Analysis");
-    analysisTitle->setFont(titlesFont);
-    analysisItemsVl->addWidget(analysisTitle);
-
-    analysisPidl = new AnalysisProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
-    analysisItemsVl->addWidget(analysisPidl);
-
-    connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
-
-#ifndef GLB_ANALYSES_IN_PROTOCOL_EDITOR
-    analysisTitle->setVisible(false);
-    analysisPidl->setVisible(false);
-#endif
-
     connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
     connect(holdRefEdit, &QCheckBox::stateChanged, this, &ProtocolEditor::onUpdateHoldRef);
     connect(sweepsNumEdit, QOverload <int> ::of(&QSpinBox::valueChanged), this, &ProtocolEditor::onUpdateProtocol);
@@ -571,7 +497,6 @@ VoltageProtocolEditor::VoltageProtocolEditor() {
     timeRange.convertValues(UnitPfxMilli);
     protocolPreview = new ProtocolPreview(msgDisp, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
-    protocolPreview->setAnalysisPidl(static_cast <AnalysisProtocolItemDropList *> (analysisPidl));
 
     mainVl->addWidget(protocolPreview);
 
@@ -644,11 +569,6 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
         itemIdxs.append(itemIdx++);
     }
 
-//    if (msgDisp->hasProtocolStepFeature() == Success) {
-//        libraryPidl->addItem(new ProtocolDragIRestItem());
-//        itemIdxs.append(itemIdx++);
-//    }
-
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
 
@@ -681,29 +601,6 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
 
     libraryPidl->setSeparatorItems(btn, itemIdxs);
     itemIdxs.clear();
-
-#ifdef GLB_ANALYSES_IN_PROTOCOL_EDITOR
-    libraryPidl->addItem(new ProtocolDragSeparator());
-    btn = libraryPidl->setSeparator("Analysis", PROT_EDITOR_ANALYSIS_SEPARATOR_COLOR);
-    itemIdx++;
-
-    libraryPidl->addItem(new ProtocolDragNoiseReportItem());
-    itemIdxs.append(itemIdx++);
-    //  libraryPidl->addItem(new ProtocolDragHistogramItem());
-    //  itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragSpectrumItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragResistanceEstimationItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragIvGraphItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragApThresholdItem());
-    itemIdxs.append(itemIdx++);
-    libraryPidl->addItem(new ProtocolDragApStatisticsItem());
-    itemIdxs.append(itemIdx++);
-
-    libraryPidl->setSeparatorItems(btn, itemIdxs);
-#endif
 
     /*! Protocol wide controls */
     double hold = 0.0;
@@ -788,24 +685,6 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
 
     ctrlPidl->setCtrlManager(protocolItemCtrlManager);
 
-    /*! Analysis items */
-    QVBoxLayout * analysisItemsVl = new QVBoxLayout;
-    editorHl->addLayout(analysisItemsVl);
-
-    QLabel * analysisTitle = new QLabel("Analysis");
-    analysisTitle->setFont(titlesFont);
-    analysisItemsVl->addWidget(analysisTitle);
-
-    analysisPidl = new AnalysisProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
-    analysisItemsVl->addWidget(analysisPidl);
-
-    connect(analysisPidl, &AnalysisProtocolItemDropList::analysisChanged, parentWidget, &ProtocolWidget::onCheckAnalysisValid);
-
-#ifndef GLB_ANALYSES_IN_PROTOCOL_EDITOR
-    analysisTitle->setVisible(false);
-    analysisPidl->setVisible(false);
-#endif
-
     connect(holdEdit, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, &ProtocolEditor::onUpdateHold);
     connect(holdRefEdit, &QCheckBox::stateChanged, this, &ProtocolEditor::onUpdateHoldRef);
     connect(sweepsNumEdit, QOverload <int> ::of(&QSpinBox::valueChanged), this, &ProtocolEditor::onUpdateProtocol);
@@ -819,7 +698,6 @@ CurrentProtocolEditor::CurrentProtocolEditor() {
     timeRange.convertValues(UnitPfxMilli);
     protocolPreview = new ProtocolPreview(msgDisp, timeRange, stimulusRange, "Protocol Preview");
     protocolPreview->setProtocol(parentWidget);
-    protocolPreview->setAnalysisPidl(static_cast <AnalysisProtocolItemDropList *> (analysisPidl));
 
     mainVl->addWidget(protocolPreview);
 

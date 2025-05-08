@@ -41,7 +41,9 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     protocolPropertyDialog = new ProtocolPropertyDialog(msgDisp, timeRange, stimulusRange);
 
     voltageProtocolList = new VoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
+    analysisVoltageProtocolList = new AnalysisVoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
     currentProtocolList = new CurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
+    analysisCurrentProtocolList = new AnalysisCurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
 
     QHBoxLayout * sweepInfoHl = new QHBoxLayout;
     sweepInfoHl->setSpacing(1);
@@ -56,7 +58,9 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     mainVl->addWidget(mainSpl);
 
     mainSpl->addWidget(voltageProtocolList);
+    mainSpl->addWidget(analysisVoltageProtocolList);
     mainSpl->addWidget(currentProtocolList);
+    mainSpl->addWidget(analysisCurrentProtocolList);
     this->setProtocolListVisibility();
     mainSpl->addWidget(protocolPropertyDialog);
 
@@ -67,7 +71,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     int btnRow = 0;
     int btnCol = 0;
 
-    QPushButton * addProtocolBtn = new QPushButton; {
+    addProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/add protocol.png");
         QIcon btnIcon(btnPix);
         addProtocolBtn->setIcon(btnIcon);
@@ -79,14 +83,14 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(addProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onAddProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onAddProtocol();
         }
     });
     btnLo->addWidget(addProtocolBtn, btnRow, btnCol++);
 
-    QPushButton * removeProtocolBtn = new QPushButton; {
+    removeProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/remove protocol.png");
         QIcon btnIcon(btnPix);
         removeProtocolBtn->setIcon(btnIcon);
@@ -98,14 +102,14 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(removeProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onRemoveProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onRemoveProtocol();
         }
     });
     btnLo->addWidget(removeProtocolBtn, btnRow, btnCol++);
 
-    QPushButton * editProtocolBtn = new QPushButton; {
+    editProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/edit protocol.png");
         QIcon btnIcon(btnPix);
         editProtocolBtn->setIcon(btnIcon);
@@ -117,14 +121,14 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(editProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onEditProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onEditProtocol();
         }
     });
     btnLo->addWidget(editProtocolBtn, btnRow, btnCol++);
 
-    QPushButton * copyProtocolBtn = new QPushButton; {
+    copyProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/copy protocol.png");
         QIcon btnIcon(btnPix);
         copyProtocolBtn->setIcon(btnIcon);
@@ -136,14 +140,14 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(copyProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onCopyProtocol();
-
-        } else {
+        }
+        else {
             currentProtocolList->onCopyProtocol();
         }
     });
     btnLo->addWidget(copyProtocolBtn, btnRow, btnCol++);
 
-    QPushButton * setProtocolsShortCutsBtn = new QPushButton; {
+    setProtocolsShortCutsBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/protocols shortcuts.png");
         QIcon btnIcon(btnPix);
         setProtocolsShortCutsBtn->setIcon(btnIcon);
@@ -154,15 +158,25 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     setProtocolsShortCutsBtn->setCheckable(false);
     connect(setProtocolsShortCutsBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-            voltageProtocolList->onSetProtocolsShortCuts();
-
-        } else {
-            currentProtocolList->onSetProtocolsShortCuts();
+            if (analysisProtocolsFlag) {
+                analysisVoltageProtocolList->onSetProtocolsShortCuts();
+            }
+            else {
+                voltageProtocolList->onSetProtocolsShortCuts();
+            }
+        }
+        else {
+            if (analysisProtocolsFlag) {
+                analysisCurrentProtocolList->onSetProtocolsShortCuts();
+            }
+            else {
+                currentProtocolList->onSetProtocolsShortCuts();
+            }
         }
     });
     btnLo->addWidget(setProtocolsShortCutsBtn, btnRow, btnCol++);
 
-    QPushButton * importProtocolBtn = new QPushButton; {
+    importProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/import protocol.png");
         QIcon btnIcon(btnPix);
         importProtocolBtn->setIcon(btnIcon);
@@ -174,14 +188,14 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(importProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onImportProtocols();
-
-        } else {
+        }
+        else {
             currentProtocolList->onImportProtocols();
         }
     });
     btnLo->addWidget(importProtocolBtn, btnRow, btnCol++);
 
-    QPushButton * exportProtocolBtn = new QPushButton; {
+    exportProtocolBtn = new QPushButton; {
         QPixmap btnPix(":/imgs/export protocol.png");
         QIcon btnIcon(btnPix);
         exportProtocolBtn->setIcon(btnIcon);
@@ -193,8 +207,8 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     connect(exportProtocolBtn, &QPushButton::clicked, this, [=] () {
         if (this->clampingModality == e384CommLib::VOLTAGE_CLAMP) {
             voltageProtocolList->onExportProtocols();
-
-        } else {
+        }
+        else {
             currentProtocolList->onExportProtocols();
         }
     });
@@ -253,6 +267,21 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     });
 
     sweepInfoHl->insertWidget(btnCol++, stopProtocolBtn);
+
+    QPushButton * analysisProtocolBtn = new QPushButton; {
+        QPixmap btnPix(":/imgs/data monitor.png");
+        QIcon btnIcon(btnPix);
+        analysisProtocolBtn->setIcon(btnIcon);
+        analysisProtocolBtn->setIconSize(QSize(30, 30));
+        analysisProtocolBtn->setFixedSize(32, 32);
+        analysisProtocolBtn->setToolTip("Show/Hide protocols that perform analyses");
+    }
+    analysisProtocolBtn->setCheckable(true);
+    analysisProtocolBtn->setChecked(false);
+    connect(analysisProtocolBtn, &QPushButton::clicked, this, &ProtocolDockWidget::onSetAnalysisProtocols);
+
+    sweepInfoHl->insertWidget(btnCol++, analysisProtocolBtn);
+
     {
         QWidget * spacer = new QWidget;
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -260,13 +289,15 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     }
 
     QShortcut * sh;
-    int startKeyOffset = Qt::ControlModifier + Qt::Key_0;
+    QKeyCombination startKeyOffset = Qt::ControlModifier | Qt::Key_0;
 //    int recordKeyOffset = Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_0;
     for (int keyIdx = 0; keyIdx < 10; keyIdx++) {
-        sh = new QShortcut(QKeySequence(startKeyOffset+keyIdx), parent);
+        sh = new QShortcut(QKeySequence(startKeyOffset | keyIdx), parent);
         connect(sh, &QShortcut::activated, this, [=] () {
-            voltageProtocolList->startProtocol(keyIdx);
-            currentProtocolList->startProtocol(keyIdx);
+            voltageProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            analysisVoltageProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            currentProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            analysisCurrentProtocolList->startProtocolFromShortCutIndex(keyIdx);
         });
         shortcuts.append(sh);
 
@@ -281,13 +312,19 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
 
 ProtocolDockWidget::~ProtocolDockWidget() {
     if (voltageProtocolList != nullptr) {
-        delete voltageProtocolList;
         voltageProtocolList = nullptr;
     }
 
+    if (analysisVoltageProtocolList != nullptr) {
+        analysisVoltageProtocolList = nullptr;
+    }
+
     if (currentProtocolList != nullptr) {
-        delete currentProtocolList;
         currentProtocolList = nullptr;
+    }
+
+    if (analysisCurrentProtocolList != nullptr) {
+        analysisCurrentProtocolList = nullptr;
     }
 
     if (protocolPropertyDialog != nullptr) {
@@ -314,7 +351,8 @@ bool ProtocolDockWidget::eventFilter(QObject * obj, QEvent * event) {
         if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
             if ((keyEvent->modifiers() & Qt::ShiftModifier) > 0) {
 
-            } else {
+            }
+            else {
                 this->onStartProtocol(true);
             }
         }
@@ -327,8 +365,8 @@ void ProtocolDockWidget::onStartProtocol(bool flag) {
     if (flag) {
         protocolTimer->onStartTimer();
         emit startProtocol();
-
-    } else {
+    }
+    else {
         emit stopProtocol();
     }
 }
@@ -338,18 +376,9 @@ void ProtocolDockWidget::onRestartProtocol(bool flag) {
     if (flag) {
         protocolTimer->onStartTimer();
         emit restartProtocol();
-
-    } else {
-        emit stopProtocol();
     }
-}
-
-ProtocolList * ProtocolDockWidget::getProtocolList() {
-    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-        return voltageProtocolList;
-
-    } else {
-        return currentProtocolList;
+    else {
+        emit stopProtocol();
     }
 }
 
@@ -357,8 +386,16 @@ ProtocolList * ProtocolDockWidget::getVoltageProtocolList() {
     return voltageProtocolList;
 }
 
+ProtocolList * ProtocolDockWidget::getAnalysisVoltageProtocolList() {
+    return analysisVoltageProtocolList;
+}
+
 ProtocolList * ProtocolDockWidget::getCurrentProtocolList() {
     return currentProtocolList;
+}
+
+ProtocolList * ProtocolDockWidget::getAnalysisCurrentProtocolList() {
+    return analysisCurrentProtocolList;
 }
 
 void ProtocolDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
@@ -367,22 +404,62 @@ void ProtocolDockWidget::onSetClampingModality(ClampingModality_t clampingModali
     this->setProtocolListVisibility();
 }
 
+void ProtocolDockWidget::onSetAnalysisProtocols(bool analysisProtocols) {
+    this->analysisProtocolsFlag = analysisProtocols;
+    addProtocolBtn->setEnabled(!analysisProtocols);
+    removeProtocolBtn->setEnabled(!analysisProtocols);
+    editProtocolBtn->setEnabled(!analysisProtocols);
+    copyProtocolBtn->setEnabled(!analysisProtocols);
+    importProtocolBtn->setEnabled(!analysisProtocols);
+    exportProtocolBtn->setEnabled(!analysisProtocols);
+
+    this->setProtocolListVisibility();
+}
+
 void ProtocolDockWidget::setProtocolListVisibility() {
-    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
-        this->setWindowTitle("Voltage Protocols");
-        voltageProtocolList->setClampingModality(clampingModality);
-        voltageProtocolList->saveAndClosePropertyDialog();
-        currentProtocolList->setClampingModality(clampingModality);
-        currentProtocolList->saveAndClosePropertyDialog();
+    voltageProtocolList->setClampingModality(clampingModality);
+    voltageProtocolList->saveAndClosePropertyDialog();
+    analysisVoltageProtocolList->setClampingModality(clampingModality);
+    analysisVoltageProtocolList->saveAndClosePropertyDialog();
+    currentProtocolList->setClampingModality(clampingModality);
+    currentProtocolList->saveAndClosePropertyDialog();
+    analysisCurrentProtocolList->setClampingModality(clampingModality);
+    analysisCurrentProtocolList->saveAndClosePropertyDialog();
 
-    } else if (clampingModality == e384CommLib::ZERO_CURRENT_CLAMP) {
-        /*! Nothing to do */
+    switch (clampingModality) {
+    case VOLTAGE_CLAMP:
+        if (analysisProtocolsFlag) {
+            voltageProtocolList->setVisible(false);
+            analysisVoltageProtocolList->setVisible(true);
+            this->setWindowTitle("Analysis Voltage Protocols");
+        }
+        else {
+            voltageProtocolList->setVisible(true);
+            analysisVoltageProtocolList->setVisible(false);
+            this->setWindowTitle("Voltage Protocols");
+        }
+        break;
 
-    } else if (clampingModality == e384CommLib::CURRENT_CLAMP) {
+    case ZERO_CURRENT_CLAMP:
         this->setWindowTitle("Current Protocols");
-        voltageProtocolList->setClampingModality(clampingModality);
-        voltageProtocolList->saveAndClosePropertyDialog();
-        currentProtocolList->setClampingModality(clampingModality);
-        currentProtocolList->saveAndClosePropertyDialog();
+        break;
+
+    case CURRENT_CLAMP:
+        if (analysisProtocolsFlag) {
+            currentProtocolList->setVisible(false);
+            analysisCurrentProtocolList->setVisible(true);
+            this->setWindowTitle("Analysis Current Protocols");
+        }
+        else {
+            currentProtocolList->setVisible(true);
+            analysisCurrentProtocolList->setVisible(false);
+            this->setWindowTitle("Current Protocols");
+        }
+        break;
+    }
+
+    if (clampingModality == e384CommLib::VOLTAGE_CLAMP) {
+    }
+    else if (clampingModality == e384CommLib::ZERO_CURRENT_CLAMP || clampingModality == e384CommLib::CURRENT_CLAMP) {
     }
 }

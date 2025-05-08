@@ -1,0 +1,58 @@
+#include "durationbasedbigplotviewcontroller.h"
+
+DurationBasedBigPlotViewController::DurationBasedBigPlotViewController(std::unique_ptr<BigPlotModel> model, BigPlot* plot, QObject *parent)
+    : BigPlotViewController{std::move(model), plot, parent}
+{
+}
+
+void DurationBasedBigPlotViewController::setup() {
+    connect(this->plot, &BigPlot::zoomInRequest, this, [this](Rect4 r) {
+        handleZoomInRequest(r);
+    });
+    connect(this->plot, &BigPlot::zoomOutRequest, this, [this]() {
+        handleZoomOutRequest();
+    });
+    connect(this->plot, &BigPlot::zoomResetRequest, this, [this]() {
+        handleZoomResetRequest();
+    });
+    connect(this->plot, &BigPlot::singleAxisZoomRequest, this, [this](QwtPlot::Axis axis, int zoomIn, QPointF mousePosition) {
+        handleSingleAxisZoomRequest(axis, zoomIn, mousePosition);
+    });
+    connect(this->plot, &BigPlot::singleAxisShiftRequest, this, [this](QwtPlot::Axis axis, int shift) {
+        handleSingleAxisShiftRequest(axis, shift);
+    });
+}
+
+Rect4 DurationBasedBigPlotViewController::handleZoomInRequest(Rect4 r) {
+    const auto zoom = BigPlotViewController::handleZoomInRequest(r);
+    emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+    return zoom;
+}
+
+Rect4 DurationBasedBigPlotViewController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, int zoomIn, QPointF mousePosition){
+    const auto zoom = BigPlotViewController::handleSingleAxisZoomRequest(axis, zoomIn, mousePosition);
+    if (axis == QwtPlot::Axis::xBottom){
+        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    }
+    return zoom;
+}
+
+Rect4 DurationBasedBigPlotViewController::handleSingleAxisZoomRequest(QwtPlot::Axis axis, QwtInterval i) {
+    const auto zoom = BigPlotViewController::handleSingleAxisZoomRequest(axis, i);
+    if (axis == QwtPlot::Axis::xBottom){
+        emit durationChanged({zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s"});
+    }
+    return zoom;
+}
+
+Rect4 DurationBasedBigPlotViewController::handleZoomOutRequest(){
+    const auto zoom = BigPlotViewController::handleZoomOutRequest();
+    emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+    return zoom;
+}
+
+Rect4 DurationBasedBigPlotViewController::handleZoomResetRequest(){
+    const auto zoom = BigPlotViewController::handleZoomResetRequest();
+    emit durationChanged({ zoom[QwtPlot::xBottom].width(), model->getCurrentRange(QwtPlot::xBottom).prefix, "s" });
+    return zoom;
+}

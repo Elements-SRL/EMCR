@@ -8,12 +8,27 @@ MeasurementOverviewModel::MeasurementOverviewModel(std::vector <uint16_t> active
     this->voltageChannelsNum = voltageChannelsNum;
     this->currentChannelsNum = currentChannelsNum;
     statisticsResults.resize(currentChannelsNum);
+    resistanceEstimationResults.resize(currentChannelsNum);
+    pipetteCapacitanceEstimationResults.resize(currentChannelsNum);
+    membraneEstimationResults.resize(currentChannelsNum);
     offsetRecalibrationResults.resize(currentChannelsNum);
     liquidJunctionResults.resize(currentChannelsNum);
 }
 
-std::vector <StatisticsResult> MeasurementOverviewModel::getStatisticsResult() {
+std::vector <StatisticsResult_t> MeasurementOverviewModel::getStatisticsResults() {
     return statisticsResults;
+}
+
+std::vector <SingleMeasResult_t> MeasurementOverviewModel::getResistanceEstimationResults() {
+    return resistanceEstimationResults;
+}
+
+std::vector <SingleMeasResult_t> MeasurementOverviewModel::getPipetteCapacitanceEstimationResults() {
+    return pipetteCapacitanceEstimationResults;
+}
+
+std::vector <MembraneResult_t> MeasurementOverviewModel::getMembraneEstimationResults() {
+    return membraneEstimationResults;
 }
 
 std::vector <Measurement_t> MeasurementOverviewModel::getOffsetRecalibrationResults() {
@@ -28,6 +43,18 @@ void MeasurementOverviewModel::setStatisticsResult(std::vector <StatisticsResult
     statisticsResults = results;
 }
 
+void MeasurementOverviewModel::setResistanceEstimationResult(std::vector <SingleMeasResult_t> results) {
+    resistanceEstimationResults = results;
+}
+
+void MeasurementOverviewModel::setPipetteCapacitanceEstimationResult(std::vector <SingleMeasResult_t> results) {
+    pipetteCapacitanceEstimationResults = results;
+}
+
+void MeasurementOverviewModel::setMembraneEstimationResult(std::vector <MembraneResult_t> results) {
+    membraneEstimationResults = results;
+}
+
 void MeasurementOverviewModel::setOffsetRecalibrationResults(std::vector <Measurement_t> orr) {
     offsetRecalibrationResults = orr;
 }
@@ -40,22 +67,46 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
     QFile file(QString::fromStdString(filepath));
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        stream << "Channel idx,Mean Voltage,unit,Std Voltage,unit,Mean Current, unit,Std Current,unit,Conductivity,unit,Offset Recalibration,unit,Liquid Junction,unit\n";
+        auto r = statisticsResults[0];
+        auto res = resistanceEstimationResults[0];
+        auto pip = pipetteCapacitanceEstimationResults[0];
+        auto memC = membraneEstimationResults[0].membraneCapacitance;
+        auto accR = membraneEstimationResults[0].accessResistance;
+        auto memR = membraneEstimationResults[0].membraneResistance;
+        auto orr = offsetRecalibrationResults[0];
+        auto lj = liquidJunctionResults[0];
+        stream << "Channel idx,Mean Voltage [" << getValueAndUnit(r.meanVoltage).second << "],";
+        stream << "Std Voltage [" << getValueAndUnit(r.stdVoltage).second << "],";
+        stream << "Mean Current [" << getValueAndUnit(r.meanCurrent).second << "],";
+        stream << "Std Current [" << getValueAndUnit(r.stdCurrent).second << "],";
+        stream << "Resistance [" << getValueAndUnit(res.meas).second << "],";
+        stream << "Pipette capacitance [" << getValueAndUnit(pip.meas).second << "],";
+        stream << "Offset Recalibration [" << getValueAndUnit(orr).second << "],";
+        stream << "Liquid Junction [" << getValueAndUnit(lj).second << "]\n";
         for (int i = 0; i < statisticsResults.size(); i++) {
-            auto r = statisticsResults[i];
-            auto orr = offsetRecalibrationResults[i];
-            auto lj = liquidJunctionResults[i];
+            r = statisticsResults[i];
+            res = resistanceEstimationResults[i];
+            pip = pipetteCapacitanceEstimationResults[i];
+            memC = membraneEstimationResults[i].membraneCapacitance;
+            accR = membraneEstimationResults[i].accessResistance;
+            memR = membraneEstimationResults[i].membraneResistance;
+            orr = offsetRecalibrationResults[i];
+            lj = liquidJunctionResults[i];
             std::vector <std::pair <QString, QString>> measurementsStrings = {
                 getValueAndUnit(r.meanVoltage),
                 getValueAndUnit(r.stdVoltage),
                 getValueAndUnit(r.meanCurrent),
                 getValueAndUnit(r.stdCurrent),
-                getValueAndUnit(r.conductivity),
+                getValueAndUnit(res.meas),
+                getValueAndUnit(pip.meas),
+                getValueAndUnit(memC),
+                getValueAndUnit(accR),
+                getValueAndUnit(memR),
                 getValueAndUnit(orr),
                 getValueAndUnit(lj)};
             stream << r.chIdx+1;
             for (auto p : measurementsStrings) {
-                stream << "," << p.first << "," << p.second;
+                stream << "," << p.first;
             }
             stream << "\n";
         }

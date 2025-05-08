@@ -1,7 +1,7 @@
 #include "measurementoverviewcontroller.h"
 
 MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus * appStatus, DeviceDataProducer * producer, MainWindow * mainWindow) :
-    appStatus(appStatus),
+    ControllerWithConsumer(appStatus),
     mainWindow(mainWindow) {
 
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
@@ -13,16 +13,23 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
         modm->exportToCsv(filepath.toStdString());
     });
     liveStatisticsConsumer = new LiveStatisticsConsumer(appStatus, producer);
+    resistanceEstimationConsumer = new ResistanceEstimationConsumer(appStatus, producer);
+    pipetteCapacitanceEstimationConsumer = new PipetteCapacitanceEstimationConsumer(appStatus, producer);
+    membraneEstimationConsumer = new MembraneEstimationConsumer(appStatus, producer);
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
-    connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetConsumerStatus);
+    connect(resistanceEstimationConsumer, &ResistanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onResistanceEstimationResults);
+    connect(pipetteCapacitanceEstimationConsumer, &PipetteCapacitanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onPipetteCapacitanceEstimationResults);
+    connect(membraneEstimationConsumer, &MembraneEstimationConsumer::sigResult, this, &MeasurementOverviewController::onMembraneEstimationResults);
+    connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetLiveStatisticsConsumerStatus);
 
     mainWindow->setDockWidget(MainWindow::DWMeasurementsOverview, modw, false, Qt::BottomDockWidgetArea);
 }
 
-void MeasurementOverviewController::onSetConsumerStatus(bool status) {
+void MeasurementOverviewController::onSetLiveStatisticsConsumerStatus(bool status) {
     if (status) {
         liveStatisticsConsumer->onStartConsuming();
-    } else {
+    }
+    else {
         liveStatisticsConsumer->onStopConsuming();
     }
 }
@@ -35,6 +42,21 @@ MeasurementOverviewController::~MeasurementOverviewController(){
         liveStatisticsConsumer->onStopConsuming();
         delete liveStatisticsConsumer;
         liveStatisticsConsumer = nullptr;
+    }
+    if (resistanceEstimationConsumer!= nullptr) {
+        resistanceEstimationConsumer->onStopConsuming();
+        delete resistanceEstimationConsumer;
+        resistanceEstimationConsumer = nullptr;
+    }
+    if (pipetteCapacitanceEstimationConsumer!= nullptr) {
+        pipetteCapacitanceEstimationConsumer->onStopConsuming();
+        delete pipetteCapacitanceEstimationConsumer;
+        pipetteCapacitanceEstimationConsumer = nullptr;
+    }
+    if (membraneEstimationConsumer!= nullptr) {
+        membraneEstimationConsumer->onStopConsuming();
+        delete membraneEstimationConsumer;
+        membraneEstimationConsumer = nullptr;
     }
 }
 
@@ -52,15 +74,15 @@ void MeasurementOverviewController::onOffsetRecalibrationResult(bool started) {
         switch (mode) {
         case ClampingModality_t::VOLTAGE_CLAMP:
             msgDisp->getVCCurrentRangeIdx(rangeIdx);
-            modm->setOffsetRecalibrationResults(params.vcOffsetAdc[samplingRateIdx][rangeIdx]);
-            modw->setOffsetRecalibrationResult(params.vcOffsetAdc[samplingRateIdx][rangeIdx]);
+            modm->setOffsetRecalibrationResults(params.getValues(CalTypesVcOffsetAdc, samplingRateIdx, rangeIdx));
+            modw->setOffsetRecalibrationResult(params.getValues(CalTypesVcOffsetAdc, samplingRateIdx, rangeIdx));
             break;
 
         case ClampingModality_t::ZERO_CURRENT_CLAMP:
         case ClampingModality_t::CURRENT_CLAMP:
             msgDisp->getCCVoltageRangeIdx(rangeIdx);
-            modm->setOffsetRecalibrationResults(params.ccOffsetAdc[samplingRateIdx][rangeIdx]);
-            modw->setOffsetRecalibrationResult(params.ccOffsetAdc[samplingRateIdx][rangeIdx]);
+            modm->setOffsetRecalibrationResults(params.getValues(CalTypesCcOffsetAdc, samplingRateIdx, rangeIdx));
+            modw->setOffsetRecalibrationResult(params.getValues(CalTypesCcOffsetAdc, samplingRateIdx, rangeIdx));
             break;
         }
     }
@@ -82,6 +104,29 @@ void MeasurementOverviewController::onLiquidJunctionResult(bool started) {
     }
 }
 
+void MeasurementOverviewController::onProtocolStarted(unsigned int protId, ProtocolWidget * protocol) {
+    resistanceEstimationConsumer->onStopConsuming();
+    pipetteCapacitanceEstimationConsumer->onStopConsuming();
+    membraneEstimationConsumer->onStopConsuming();
+    YAML::AnalysisType_t type = YAML::AnalysisNum;
+    if (!(protocol->getAnalysisType(type))) {
+        return;
+    }
+    switch (type) {
+    case YAML::ResistanceEstimation:
+        resistanceEstimationConsumer->onStartConsuming();
+        return;
+
+    case YAML::PipetteCapacitanceEstimation:
+        pipetteCapacitanceEstimationConsumer->onStartConsuming();
+        return;
+
+    case YAML::MembraneEstimation:
+        membraneEstimationConsumer->onStartConsuming();
+        return;
+    }
+}
+
 void MeasurementOverviewController::onChannelsUpdated(){
     activeChannelsIdxs = appStatus->getSelectedChannelsIndexes();
     modm->setActiveChannelsIdxs(activeChannelsIdxs);
@@ -98,18 +143,32 @@ void MeasurementOverviewController::getNewActiveChannels(std::vector <int>& newA
     }
 }
 
-void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResultWrapper result){
-    const auto r = result.results;
+void MeasurementOverviewController::onLiveStatisticsResults(StatisticsResultWrapper_t result){
+    const auto r = result;
     modm->setStatisticsResult(r);
     modw->onLiveStatisticsResult(r);
 }
 
-LiveStatisticsConsumer * MeasurementOverviewController::getLiveStatisticsConsumer(){
-    return liveStatisticsConsumer;
+void MeasurementOverviewController::onResistanceEstimationResults(SingleMeasResultWrapper_t result){
+    const auto r = result;
+    modm->setResistanceEstimationResult(r);
+    modw->onResistanceEstimationResult(r);
+}
+
+void MeasurementOverviewController::onPipetteCapacitanceEstimationResults(SingleMeasResultWrapper_t result){
+    const auto r = result;
+    modm->setPipetteCapacitanceEstimationResult(r);
+    modw->onPipetteCapacitanceEstimationResult(r);
+}
+
+void MeasurementOverviewController::onMembraneEstimationResults(MembraneResultWrapper_t result){
+    const auto r = result;
+    modm->setMembraneEstimationResult(r);
+    modw->onMembraneEstimationResult(r);
 }
 
 std::vector <DeviceDataConsumer*> MeasurementOverviewController::getConsumers() {
-    return {liveStatisticsConsumer};
+    return {liveStatisticsConsumer, resistanceEstimationConsumer, pipetteCapacitanceEstimationConsumer, membraneEstimationConsumer};
 }
 
 void MeasurementOverviewController::boardMappingsLoaded(){

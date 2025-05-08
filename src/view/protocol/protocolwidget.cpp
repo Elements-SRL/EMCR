@@ -49,7 +49,7 @@ ProtocolWidget::ProtocolWidget(MessageDispatcher * msgDisp, QString name, Protoc
     propertyCtrlLo = dialog->getControlsLayout();
     propertyBtnsHl = dialog->getButtonsLayout();
 
-    consumerRequests.resize(ProtocolConsumerAnalysis);
+    consumerRequests.resize(ProtocolConsumerTypesNum);
     this->initConsumerRequests();
 
 //    mDev->getMaxOutputTriggers(maxTriggerEvents);
@@ -65,7 +65,7 @@ ProtocolWidget::~ProtocolWidget() {
         protocolEditor = nullptr;
     }
 
-    this->clearPropertyDialog();
+    // this->clearPropertyDialog(); /*! \todo FCON fa crashare il sw alla chiusura, da capire il perchè */
 
     for (int idx = 0; idx < ctrlDispatchers->size(); idx++) {
         delete ctrlDispatchers->at(idx);
@@ -73,19 +73,13 @@ ProtocolWidget::~ProtocolWidget() {
 }
 
 void ProtocolWidget::initConsumerRequests() {
-    for (int consumerIdx = 0; consumerIdx < ProtocolConsumerAnalysis; consumerIdx++) {
+    for (int consumerIdx = 0; consumerIdx < ProtocolConsumerTypesNum; consumerIdx++) {
         consumerRequests[consumerIdx] = false;
     }
 }
 
 bool ProtocolWidget::consumerRequested(ProtocolConsumerType_t consumerType) {
-    if (consumerType < ProtocolConsumerAnalysis) {
-        return consumerRequests[consumerType];
-
-    } else {
-        return (protocolEditor->analysisRequested(consumerType) &&
-                protocolEditor->analysisValid(consumerType));
-    }
+    return consumerRequests[consumerType];
 }
 
 void ProtocolWidget::setConsumerRequest(ProtocolConsumerType_t consumerType) {
@@ -93,13 +87,9 @@ void ProtocolWidget::setConsumerRequest(ProtocolConsumerType_t consumerType) {
 }
 
 void ProtocolWidget::resetConsumerRequests() {
-    for (int consumerIdx = 0; consumerIdx < ProtocolConsumerAnalysis; consumerIdx++) {
+    for (int consumerIdx = 0; consumerIdx < ProtocolConsumerTypesNum; consumerIdx++) {
         consumerRequests[consumerIdx] = false;
     }
-}
-
-QVector <int> ProtocolWidget::getAnalysisCursorsMapping(ProtocolConsumerType_t consumerType) {
-    return protocolEditor->getAnalysisCursorsMapping(consumerType);
 }
 
 QString ProtocolWidget::getName() {
@@ -131,7 +121,7 @@ bool ProtocolWidget::isPropertyDialogOpened(QString &protocolName) {
 }
 
 void ProtocolWidget::populatePropertyDialog() {
-    if (!dialogPopulated) {
+    if (!dialog->populated) {
         /*! Protocol name */
         QLabel * nameLbl = new QLabel("Protocol ID");
         name = protocolEditor->getName();
@@ -359,10 +349,13 @@ void ProtocolWidget::populatePropertyDialog() {
             }
 
             case ProtocolItemCtrlNone:
-                GLB_HERE
                 break;
             }
         }
+
+        QWidget * spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        propertyCtrlLo->addWidget(spacer);
 
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
             RangedMeasurement_t stimulusRange;
@@ -389,7 +382,7 @@ void ProtocolWidget::populatePropertyDialog() {
 
         dialog->setOwner(this);
         dialog->setVisible(true);
-        dialogPopulated = true;
+        dialog->populated = true;
         propertyChangedFlag = false;
 
         protocolEditor->onUpdateProtocol();
@@ -432,7 +425,7 @@ ProtocolWidget::ClosureRequestReply_t ProtocolWidget::askForPropertyDialogClosur
 }
 
 void ProtocolWidget::clearPropertyDialog() {
-    if (dialogPopulated) {
+    if (dialog->populated) {
         QLayoutItem * item;
         int rowIdx;
         for (rowIdx = 0; rowIdx < PPD_CTRL_FIRST_ROW; rowIdx++) {
@@ -457,6 +450,14 @@ void ProtocolWidget::clearPropertyDialog() {
                 }
                 delete ctrlDispatchers->at(ctrlIdx+PPD_CTRL_DISPATCHER_IDX);
             }
+
+            for (int colIdx = 0; colIdx < PPD_COLUMNS_NUM; colIdx++) {
+                item = propertyCtrlLo->itemAtPosition(rowIdx+ctrlItems->size(), colIdx);
+                if (item != nullptr) {
+                    propertyCtrlLo->removeItem(item);
+                    delete item->widget();
+                }
+            }
             ctrlItems = nullptr;
         }
 
@@ -467,7 +468,7 @@ void ProtocolWidget::clearPropertyDialog() {
         delete propertyCancButton;
         propertyCancButton = nullptr;
 
-        dialogPopulated = false;
+        dialog->populated = false;
     }
 }
 
@@ -525,19 +526,11 @@ QVector <ProtocolItem *> ProtocolWidget::getProtocolItems() {
     return protocolItems;
 }
 
-void ProtocolWidget::pushAnalysisCursors(QVector <AnalysisCursor *> cursors) {
-    pushedAnalysisCursors = cursors;
-}
-
 void ProtocolWidget::pushTriggerCursors(QVector <TriggerCursor *> cursors) {
     pushedTriggerCursors = cursors;
     cursorsValid = (pushedTriggerCursors.size() > (int)maxTriggerEvents ? false : true);
     protocolEditor->setTooManyTriggersWarning(!cursorsValid);
     this->setValidityColor();
-}
-
-QVector <AnalysisCursor *> ProtocolWidget::getAnalysisCursors() {
-    return analysisCursors;
 }
 
 void ProtocolWidget::setTriggerCursors() {
@@ -639,6 +632,14 @@ void ProtocolWidget::setAppliedRange(RangedMeasurement_t &newAppliedRange) {
 
 RangedMeasurement_t ProtocolWidget::getAppliedRange() {
     return appliedRange;
+}
+
+bool ProtocolWidget::getAnalysisType(YAML::AnalysisType_t &type) {
+    if (analysesNode.empty()) {
+        return false;
+    }
+    type = analysesNode[0].type;
+    return true;
 }
 
 void ProtocolWidget::getSweepTrigger(double &value, bool &rising) {
@@ -744,21 +745,25 @@ bool ProtocolWidget::hasInfiniteRepetition() {
 YAML::VoltageProtocol ProtocolWidget::getYamlVoltageProtocol() {
     YAML::VoltageProtocol yamlProtocol = protocolEditor->getYamlVoltageProtocol();
     yamlProtocol.shortcutindex = shortCutIdx;
+    yamlProtocol.analysis = analysesNode;
     return yamlProtocol;
 }
 
 YAML::CurrentProtocol ProtocolWidget::getYamlCurrentProtocol() {
     YAML::CurrentProtocol yamlProtocol = protocolEditor->getYamlCurrentProtocol();
     yamlProtocol.shortcutindex = shortCutIdx;
+    yamlProtocol.analysis = analysesNode;
     return yamlProtocol;
 }
 
 void ProtocolWidget::setProtocolFromYaml(const YAML::VoltageProtocol &yamlProtocol) {
     protocolEditor->setProtocolFromYaml(yamlProtocol);
+    analysesNode = yamlProtocol.analysis;
 }
 
 void ProtocolWidget::setProtocolFromYaml(const YAML::CurrentProtocol &yamlProtocol) {
     protocolEditor->setProtocolFromYaml(yamlProtocol);
+    analysesNode = yamlProtocol.analysis;
 }
 
 void ProtocolWidget::onAcceptPropertyDialog() {
@@ -783,11 +788,6 @@ void ProtocolWidget::onRejectPropertyDialog() {
     dialog->setVisible(false);
 }
 
-void ProtocolWidget::onCheckAnalysisValid() {
-    analysisValid = protocolEditor->allAnalysisValid();
-    this->setValidityColor();
-}
-
 void ProtocolWidget::updateText() {
     QString suffix = "";
     if (shortCutIdx >= 0) {
@@ -797,15 +797,10 @@ void ProtocolWidget::updateText() {
 }
 
 void ProtocolWidget::setValidityColor() {
-    if (protocolValid && !protocolInhibited) {
-        if (analysisValid && cursorsValid) {
-            this->setBackground(PROT_WIDGET_VALID_COLOR);
-
-        } else {
-            this->setBackground(PROT_WIDGET_ANALYSIS_INVALID_COLOR);
-        }
-
-    } else {
+    if (protocolValid && !protocolInhibited && cursorsValid) {
+        this->setBackground(PROT_WIDGET_VALID_COLOR);
+    }
+    else {
         this->setBackground(PROT_WIDGET_INVALID_COLOR);
     }
 }
@@ -875,47 +870,11 @@ GapfreeProtocolWidget::GapfreeProtocolWidget() {
     this->setIcon(icon);
 }
 
-void GapfreeProtocolWidget::setAnalysisCursors() {
-    if (processingStatus == ItemsProcOk) {
-        /*! Delete previous cursors */
-        /*! \todo FCON qui converrebbe cancellare gli elementi del vecchio protocollo, ma se li sta ancora usando qualche analisi
-         * gli si cancellano i dati sotto i piedi. Questa cosa è da verificare */
-//        for (int idx = 0; idx < analysisCursors.size(); idx++) {
-
-//        }
-        analysisCursors.clear();
-
-        for (int idx = 0; idx < pushedAnalysisCursors.size(); idx++) {
-            switch (pushedAnalysisCursors[idx]->type) {
-            case AnalysisCursorGapFree:
-                analysisCursors.push_back(new AnalysisGapFreeCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            case AnalysisCursorGapFreeAllReps:
-                analysisCursors.push_back(new AnalysisGapFreeAllRepsCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            case AnalysisCursorGapFreeInfReps:
-                analysisCursors.push_back(new AnalysisGapFreeInfRepsCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            case AnalysisCursorGapFreeInfAllReps:
-                analysisCursors.push_back(new AnalysisGapFreeInfAllRepsCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            default:
-                /*! Nothing to do */
-                break;
-            }
-        }
-    }
-}
-
-double GapfreeProtocolWidget::getTotalDuration() {
-    double totalDuration = 0.0;
+Measurement_t GapfreeProtocolWidget::getTotalDuration() {
+    Measurement_t totalDuration = {0.0, UnitPfxNone, "s"};
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
         if (protocolItems[itemIdx]->nextItem > itemIdx) {
-            totalDuration += protocolItems[itemIdx]->duration();
+            totalDuration += (protocolItems[itemIdx]->duration());
 
         } else {
             /*! Last item of a loop is not added before, so it is added here */
@@ -1011,44 +970,8 @@ EpisodicProtocolWidget::EpisodicProtocolWidget() {
     this->setIcon(icon);
 }
 
-void EpisodicProtocolWidget::setAnalysisCursors() {
-    if (processingStatus == ItemsProcOk) {
-        /*! Delete previous cursors */
-        /*! \todo FCON qui converrebbe cancellare gli elementi del vecchio protocollo, ma se li sta ancora usando qualche analisi
-         * gli si cancellano i dati sotto i piedi. Questa cosa è da verificare */
-//        for (int idx = 0; idx < analysisCursors.size(); idx++) {
-
-//        }
-        analysisCursors.clear();
-
-        for (int idx = 0; idx < pushedAnalysisCursors.size(); idx++) {
-            switch (pushedAnalysisCursors[idx]->type) {
-            case AnalysisCursorEpisodic:
-                analysisCursors.push_back(new AnalysisEpisodicCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            case AnalysisCursorEpisodicAllReps:
-                analysisCursors.push_back(new AnalysisEpisodicAllRepsCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            case AnalysisCursorEpisodicAllSweeps:
-                analysisCursors.push_back(new AnalysisEpisodicAllSweepsCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            case AnalysisCursorEpisodicAllRepsAllSweeps:
-                analysisCursors.push_back(new AnalysisEpisodicAllRepsAllSweepsCursor(pushedAnalysisCursors[idx]));
-                break;
-
-            default:
-                /*! Nothing to do */
-                break;
-            }
-        }
-    }
-}
-
-double EpisodicProtocolWidget::getTotalDuration() {
-    double totalDuration = 0.0;
+Measurement_t EpisodicProtocolWidget::getTotalDuration() {
+    Measurement_t totalDuration = {0.0, UnitPfxNone, "s"};
     int sweepsNum = sweepsNumEditOrig->value();
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
         if (protocolItems[itemIdx]->nextItem > itemIdx) {

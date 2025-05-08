@@ -17,7 +17,7 @@ ProtocolPropertyDialog::ProtocolPropertyDialog(MessageDispatcher * msgDisp, Rang
 
     QWidget * propertyW = new QWidget();
     mainSpl->addWidget(propertyW);
-    propertyW->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    propertyW->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
     QVBoxLayout * propertyVl = new QVBoxLayout();
     propertyVl->setContentsMargins(0, 0, 0, 0);
@@ -32,7 +32,7 @@ ProtocolPropertyDialog::ProtocolPropertyDialog(MessageDispatcher * msgDisp, Rang
 
     QGroupBox * propertyFrame = new QGroupBox("Protocol properties panel");
     controlsSa->setWidget(propertyFrame);
-    propertyFrame->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    propertyFrame->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
     controlsLo = new QGridLayout();
     controlsLo->setContentsMargins(1, 1, 1, 1);
@@ -60,6 +60,7 @@ ProtocolPropertyDialog::ProtocolPropertyDialog(MessageDispatcher * msgDisp, Rang
 }
 
 ProtocolPropertyDialog::~ProtocolPropertyDialog() {
+    populated = false;
     if (preview != nullptr) {
         delete preview;
         preview = nullptr;

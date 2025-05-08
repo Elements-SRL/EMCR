@@ -27,8 +27,8 @@ void EventDetectionConsumer::forceAxisUpdate() {
     emitPlotData();
 }
 
-void EventDetectionConsumer::onVoltageRangeChanged(RangedMeasurement_t range) {
-    PlotConsumer::onVoltageRangeChanged(range);
+void EventDetectionConsumer::onVoltageRangeChanged() {
+    PlotConsumer::onVoltageRangeChanged();
     allocateData();
     emitPlotData();
 }
@@ -73,28 +73,16 @@ void EventDetectionConsumer::run() {
             bufferLen = doubleBuffer.size();
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
-                //voltages
-                for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-                    if (plottedChannels[channelIdx]) {
-                        voltageValues[channelIdx].push_back(doubleBuffer[bufferIdx]);
-                    }
-                    bufferIdx++;
+                for (auto channelIdx : expandedChannels) {
+                    voltageValues[channelIdx].push_back(doubleBuffer[bufferIdx+channelIdx]);
+                    currentValuesInt[channelIdx].push_back(intBuffer[bufferIdx+channelIdx+voltageChannelsNum]);
+                    currentValuesDouble[channelIdx].push_back(doubleBuffer[bufferIdx+channelIdx+voltageChannelsNum]);
                 }
-                //currents
-                for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                    if (plottedChannels[channelIdx]) {
-                        //current copied in currentValues
-                        currentValuesInt[channelIdx].push_back(intBuffer[bufferIdx]);
-                        currentValuesDouble[channelIdx].push_back(doubleBuffer[bufferIdx]);
-                    }
-                    bufferIdx++;
-                }
+                bufferIdx += totalChannelsNum;
             }
-            for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                if (plottedChannels[channelIdx]) {
-                    const auto valuesSize = currentValuesDouble[channelIdx].size();
-                    eventDetectionChannels[channelIdx]->setChunk(currentValuesInt[channelIdx], currentValuesDouble[channelIdx], voltageValues[channelIdx], valuesSize, currentRange, voltageRange, appStatus->getSamplingRate());
-                }
+            for (auto channelIdx : expandedChannels) {
+                const auto valuesSize = currentValuesDouble[channelIdx].size();
+                eventDetectionChannels[channelIdx]->setChunk(currentValuesInt[channelIdx], currentValuesDouble[channelIdx], voltageValues[channelIdx], valuesSize, currentRange[channelIdx], voltageRange[channelIdx], appStatus->getSamplingRate());
             }
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs - lastUpdateTimeMs > PCS_MIN_UPDATE_PLOT_TIME_MS) {

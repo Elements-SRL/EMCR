@@ -20,6 +20,9 @@ public:
     DataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     virtual ~DataWriterConsumer();
 
+    virtual void setReadyForRecording(bool flag) = 0;
+    virtual bool isReadyForRecording() = 0;
+
 public slots:
     virtual void onStartConsuming() override;
     virtual void onStopConsuming() override;
@@ -30,8 +33,8 @@ public slots:
     void onFilePathSet(QString);
     virtual void onSamplingRateChanged(Measurement_t samplingRate) override;
     virtual void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;
-    virtual void onVoltageRangeChanged(RangedMeasurement_t range) override;
-    virtual void onCurrentRangeChanged(RangedMeasurement_t range) override;
+    virtual void onVoltageRangeChanged() override;
+    virtual void onCurrentRangeChanged() override;
     virtual void onClampingModalityChanged(ClampingModality_t mode) override;
 
 //    virtual void onMarkTagTime();
@@ -39,6 +42,7 @@ public slots:
 
 protected:
     virtual bool openFile() = 0;
+    virtual AbstractDataHook * getDataHook() = 0;
     virtual void manageConsumptionBegin();
     virtual void manageConsumptionEnd();
 //    bool createHeaderFile();
@@ -57,10 +61,8 @@ protected:
 
     QFile headerFid;
     std::vector <int> pushedActiveChannels;
-    QVector <bool> pushedActiveChannelsFlag;
     int pushedActiveChannelsNum;
     std::vector<int> activeChannels;
-    QVector <bool> activeChannelsFlag;
     int activeChannelsNum;
     QString filename;
     QString recordPath;

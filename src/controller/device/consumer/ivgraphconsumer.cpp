@@ -19,8 +19,8 @@ void IvGraphConsumer::forceAxisUpdate() {
     emitPlotData();
 }
 
-void IvGraphConsumer::onVoltageRangeChanged(RangedMeasurement_t range){
-    PlotConsumer::onVoltageRangeChanged(range);
+void IvGraphConsumer::onVoltageRangeChanged(){
+    PlotConsumer::onVoltageRangeChanged();
     calculateBinSize();
     allocateData();
     emitPlotData();
@@ -32,7 +32,6 @@ void IvGraphConsumer::run() {
     emitPlotData();
     int bufferIdx;
     int bufferLen = 0;
-    int channelIdx;
     QElapsedTimer updateDataTimer;
     updateDataTimer.start();
 
@@ -55,19 +54,16 @@ void IvGraphConsumer::run() {
 
             /*! Copy data in curves */
             while (bufferIdx + voltageChannelsNum < bufferLen) {
-                for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                    if (plottedChannels[channelIdx]) {
-                        auto voltage = buffer[bufferIdx];
-//                      use the voltage value to index the currents
-                        auto binIndex = scaleToBins(voltage);
-                        auto currentValue = buffer[bufferIdx + voltageChannelsNum];
-                        if (ivChannels[channelIdx] != nullptr) {
-                            ivChannels[channelIdx]->pushValue(binIndex, currentValue);
-                        }    
+                for (auto channelIdx : expandedChannels) {
+                    auto voltage = buffer[bufferIdx+channelIdx];
+                    //                      use the voltage value to index the currents
+                    auto binIndex = scaleToBins(channelIdx, voltage);
+                    auto currentValue = buffer[bufferIdx+channelIdx + voltageChannelsNum];
+                    if (ivChannels[channelIdx] != nullptr) {
+                        ivChannels[channelIdx]->pushValue(binIndex, currentValue);
                     }
-                    bufferIdx++;
                 }
-                bufferIdx+=currentChannelsNum;
+                bufferIdx += totalChannelsNum;
             }
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs-lastUpdateTimeMs > IVC_MIN_UPDATE_PLOT_TIME_MS) {
@@ -106,9 +102,9 @@ void IvGraphConsumer::run() {
     exitedDataConsumingLoopCv.wakeAll();
 }
 
-int IvGraphConsumer::scaleToBins(double value) {
-    value = (value > pushedVoltageRange.max ? pushedVoltageRange.max : value < pushedVoltageRange.min ? pushedVoltageRange.min : value);
-    return static_cast<int>((value - pushedVoltageRange.min) / binSize);
+int IvGraphConsumer::scaleToBins(int channelIdx, double value) {
+    value = (value > maxVoltageRange.max ? maxVoltageRange.max : value < maxVoltageRange.min ? maxVoltageRange.min : value);
+    return static_cast<int>((value - maxVoltageRange.min) / binSize);
 }
 
 void IvGraphConsumer::allocateData() {
@@ -125,7 +121,7 @@ void IvGraphConsumer::allocateData() {
     officialDataSize.resize(currentChannelsNum);
     voltageBins.resize(nBins);
     for (int i = 0; i<nBins; i++){
-        voltageBins[i] = ((double) i) * binSize + pushedVoltageRange.min;
+        voltageBins[i] = ((double) i) * binSize + maxVoltageRange.min;
     }
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[nBins]);
@@ -140,7 +136,7 @@ void IvGraphConsumer::allocateData() {
 //todo call this method when bin size changes or when voltage range changes
 void IvGraphConsumer::calculateBinSize(){
     // Calculate the size of each bin
-    binSize = pushedVoltageRange.delta() / ((double) (nBins - 1));
+    binSize = maxVoltageRange.delta() / ((double) (nBins - 1));
 }
 
 void IvGraphConsumer::emitPlotData() {

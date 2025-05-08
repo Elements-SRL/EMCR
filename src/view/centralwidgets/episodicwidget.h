@@ -1,5 +1,5 @@
-#ifndef GAPFREEWIDGET_H
-#define GAPFREEWIDGET_H
+#ifndef EPISODICWIDGET_H
+#define EPISODICWIDGET_H
 
 #include <QWidget>
 #include <QBoxLayout>
@@ -12,7 +12,7 @@
 #include "globaldefines.h"
 
 
-class GapFreeWidget : public QWidget {
+class EpisodicWidget : public QWidget {
     Q_OBJECT
 
 private:
@@ -24,7 +24,7 @@ private:
     void emitFilePath();
 
 public:
-    GapFreeWidget(BigPlot* plot, QWidget* parent = nullptr);
+    EpisodicWidget(BigPlot* plot, QWidget* parent = nullptr);
     void setRecording(bool flag);
 
 signals:
@@ -35,4 +35,4 @@ signals:
     void sigAutoZoom();
 };
 
-#endif // GAPFREEWIDGET_H
+#endif // EPISODICWIDGET_H

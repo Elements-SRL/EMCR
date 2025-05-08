@@ -43,6 +43,16 @@ int ApplicationStatus::getBoardsNum(){
     return boardsNum;
 };
 
+int ApplicationStatus::getTemperatureChannelsNum(){
+    std::vector <std::string> names;
+    std::vector <RangedMeasurement_t> ranges;
+
+    if (msgDisp->getTemperatureChannelsFeatures(names, ranges) != Success) {
+        return 0;
+    }
+    return names.size();
+};
+
 std::vector <ChannelModel *> ApplicationStatus::getChannels(){
     std::vector <ChannelModel *> channels;
     msgDisp->getChannels(channels);
@@ -70,6 +80,26 @@ std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
         }
     }
     return expandedChannels;
+};
+
+std::vector <uint16_t> ApplicationStatus::getStimActiveChannelsIndexes() {
+    std::vector <uint16_t> stimActiveChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isStimActive()) {
+            stimActiveChannels.push_back(ch->getId());
+        }
+    }
+    return stimActiveChannels;
+};
+
+std::vector <uint16_t> ApplicationStatus::getExpandedAndStimActiveChannelsIndexes() {
+    std::vector <uint16_t> stimActiveChannels;
+    for (const auto& ch : getChannels()) {
+        if (ch->isExpanded() && ch->isStimActive()) {
+            stimActiveChannels.push_back(ch->getId());
+        }
+    }
+    return stimActiveChannels;
 };
 
 std::vector <uint16_t> ApplicationStatus::getOffsetRecalibratingChannelsIndexes() {
@@ -171,16 +201,50 @@ Measurement ApplicationStatus::getSamplingRate() {
     return sr;
 }
 
-RangedMeasurement ApplicationStatus::getVoltageRange() {
-    RangedMeasurement vr;
+RangedMeasurement_t ApplicationStatus::getVcVoltageRange() {
+    RangedMeasurement_t vr;
+    msgDisp->getVCVoltageRange(vr);
+    return vr;
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getVcCurrentRange() {
+    std::vector <RangedMeasurement_t> cr;
+    msgDisp->getVCCurrentRange(cr);
+    return cr;
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getCcVoltageRange() {
+    std::vector <RangedMeasurement_t> vr;
+    msgDisp->getCCVoltageRange(vr);
+    return vr;
+}
+
+RangedMeasurement_t ApplicationStatus::getCcCurrentRange() {
+    RangedMeasurement_t cr;
+    msgDisp->getCCCurrentRange(cr);
+    return cr;
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getVoltageRanges() {
+    std::vector <RangedMeasurement_t> vr;
     msgDisp->getVoltageRange(vr);
     return vr;
 }
 
-RangedMeasurement ApplicationStatus::getCurrentRange() {
-    RangedMeasurement cr;
+RangedMeasurement_t ApplicationStatus::getMaxVoltageRange() {
+    auto vr = this->getVoltageRanges();
+    return *std::max_element(vr.begin(), vr.end());
+}
+
+std::vector <RangedMeasurement_t> ApplicationStatus::getCurrentRanges() {
+    std::vector <RangedMeasurement_t> cr;
     msgDisp->getCurrentRange(cr);
     return cr;
+}
+
+RangedMeasurement_t ApplicationStatus::getMaxCurrentRange() {
+    auto cr = this->getCurrentRanges();
+    return *std::max_element(cr.begin(), cr.end());
 }
 
 std::string ApplicationStatus::getSerialNumber() {
@@ -226,4 +290,8 @@ std::string ApplicationStatus::getClampingModalityString() {
         break;
     }
     return cms;
+}
+
+bool ApplicationStatus::isEpisodic() {
+    return (msgDisp->isEpisodic() == Success);
 }

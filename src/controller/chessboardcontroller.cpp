@@ -3,7 +3,7 @@
 #include <QApplication>
 
 ChessboardController::ChessboardController(ApplicationStatus * appStatus, DeviceDataProducer* dataProducer, Measurement_t defaultDuration, MainWindow * mainWindow) :
-    appStatus(appStatus),
+    ControllerWithConsumer(appStatus),
     mainWindow(mainWindow) {
 
     stampPlotConsumer = new GapFreePlotConsumer(appStatus, dataProducer);
@@ -45,11 +45,6 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, Device
     stampPlotConsumer->onDurationChanged(defaultDuration);
     stampPlotConsumer->forceAxisUpdate();
     stampPlotConsumer->setMaxSamplesPerPlot(256);
-    std::vector <uint16_t> allChannels(currentChannelsNum);
-    for (int idx = 0; idx < currentChannelsNum; idx++) {
-        allChannels[idx] = idx;
-    }
-    stampPlotConsumer->onPlotChannels(allChannels, true);
 
     connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::sigAllChannelsClicked);
     connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::sigOneBoardClicked);
@@ -221,9 +216,9 @@ void ChessboardController::onTracesExpandedOnOffEx(bool flag) {
     }
 }
 
-void ChessboardController::onRangeUpdated(RangedMeasurement_t newRange) {
-    for (auto plot : plots) {
-        plot->onRangeUpdated(newRange);
+void ChessboardController::onRangeUpdated(std::vector <RangedMeasurement_t> newRange) {
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        plots[chIdx]->onRangeUpdated(newRange[chIdx]);
     }
 }
 
@@ -237,8 +232,8 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
     ClampingModality_t mode;
     appStatus->getMessageDispatcher()->getClampingModality(mode);
     switch (plotMessage.index()) {
-    case 0:{ // GapFree message
-        GapFreeMessage message = std::get<0>(plotMessage);
+    case BigPlot::BigPlotStatus::GapFree: {
+        GapFreeMessage message = std::get<BigPlot::BigPlotStatus::GapFree>(plotMessage);
         switch (mode) {
         case e384CommLib::VOLTAGE_CLAMP:
         case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
@@ -258,16 +253,16 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
         break;
     }
 
-    case 1:{ // IvGraph message
-        IvMessage message = std::get<1>(plotMessage);
+    case BigPlot::BigPlotStatus::Iv: {
+        IvMessage message = std::get<BigPlot::BigPlotStatus::Iv>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.voltageValues[idx], message.currentValues[idx], message.dataSize[idx]);
         }
         break;
     }
 
-    case 3:{ // Spectrum message
-        SpectrumMessage message = std::get<3>(plotMessage);
+    case BigPlot::BigPlotStatus::Spectrum: {
+        SpectrumMessage message = std::get<BigPlot::BigPlotStatus::Spectrum>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
         }
@@ -284,7 +279,7 @@ void ChessboardController::onReplot() {
 
 void ChessboardController::onSelectedPlotsUpdated() {
     auto selectedChannels = appStatus->getSelectedChannels();
-    for(int i = 0; i < currentChannelsNum; i++){
+    for (int i = 0; i < currentChannelsNum; i++) {
         plots[i]->setSelected(selectedChannels[i]);
     }
 }
@@ -366,7 +361,7 @@ void ChessboardController::clickBehaviour(bool newState) {
 
 void ChessboardController::updateChessboard(){
     const auto mappings = appStatus->getMappings();
-    for(int i = 0; i<appStatus->getCurrentChannelsNum(); i++){
+    for (int i = 0; i<appStatus->getCurrentChannelsNum(); i++) {
         const auto mapping = mappings[i];
         const auto name = mapping.name;
 //        const auto channelIdx = mapping.index;

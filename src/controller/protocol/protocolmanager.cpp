@@ -33,7 +33,6 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
     /*! Preprocess protocol items */
     protocol->setProtocolItems();
     protocol->setProcessingStatus();
-    protocol->setAnalysisCursors();
     protocol->setTriggerCursors();
     QVector <ProtocolItem *> protocolItems = protocol->getProtocolItems();
     ProtocolApplicationStatus_t status = this->toProtocolApplicationStatus(protocol->getProcessingStatus());
@@ -78,6 +77,8 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
         xAmp.unit = "A";
         xAmpStep.unit = "A";
     }
+
+    emit protocolStarted(protocolId, protocol);
 
     for (int itemIdx = 0; itemIdx < protocolItems.size(); itemIdx++) {
         ProtocolItem * protocolItem = protocolItems[itemIdx];
@@ -139,14 +140,12 @@ ProtocolApplicationStatus_t ProtocolManager::startProtocol(ProtocolWidget * prot
         }
     }
 
-    msgDisp->startProtocol();
-
     protocol->resetConsumerRequests();
     if (recordFlag) {
         protocol->setConsumerRequest(ProtocolConsumerDataWriter);
     }
 
-    emit protocolStarted(protocolId, protocol);
+    msgDisp->startProtocol();
 
     if (!recordFlag) {
         lastRunProtocolId = protocolId;

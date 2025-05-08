@@ -10,9 +10,9 @@
 
 typedef struct ItemCoords {
     unsigned int protId = 0;
-    unsigned int sweepIdx = 0;
-    unsigned int itemIdx = 0;
-    unsigned int repsIdx = 0;
+    int sweepIdx = 0;
+    int itemIdx = 0;
+    int repsIdx = 0;
     unsigned int dataPacketsIdx = 0;
     bool available = false;
 } ItemCoords_t;
@@ -40,8 +40,18 @@ DeviceDataProducer::DeviceDataProducer(ApplicationStatus * appStatus, QObject * 
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
+    temperatureChannelsNum = appStatus->getTemperatureChannelsNum();
+    if (temperatureChannelsNum > 0) {
+        temperatureValuesDbl = new double[temperatureChannelsNum];
+        temperatureValues.resize(temperatureChannelsNum);
+        Measurement_t zeroDegrees = {0.0, UnitPfxNone, "°C"};
+        std::fill(temperatureValues.begin(), temperatureValues.end(), zeroDegrees);
+    }
+
     dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_SAMPLES_FOR_BUFFER/(double)totalChannelsNum));
     dataPacketsBufferMask = dataPacketsBufferLen-1U;
+
+    currentProtIdx = (-1 & PROTS_BUFFER_MASK);
 
     dataSamplesBuffer = new int16_t * [dataPacketsBufferLen];
     floatDataSamplesBuffer = new double * [dataPacketsBufferLen];
@@ -81,10 +91,10 @@ DataHook * DeviceDataProducer::getDataHook() {
     return hook;
 }
 
-EpisodicDataHook * DeviceDataProducer::getEpisodicDataHook(unsigned int protocolId) {
+EpisodicDataHook * DeviceDataProducer::getEpisodicDataHook(unsigned int protocolId, unsigned int sweepsNum) {
     EpisodicDataHook * hook;
 
-    hook = new EpisodicDataHook(totalChannelsNum, protocolId);
+    hook = new EpisodicDataHook(totalChannelsNum, protocolId, sweepsNum);
     hook->setBufferSize(dataPacketsBufferLen, dataPacketsBufferMask);
 
     return hook;
@@ -134,9 +144,12 @@ void DeviceDataProducer::run() {
         if (ret == Success) {
             switch (dataHeader.msgTypeId) {
             case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader:
+                if (currentProtIdx != (dataHeader.protocolId & PROTS_BUFFER_MASK)) {
+                    nextItemIdx = 0;
+                }
                 currentProtIdx = dataHeader.protocolId & PROTS_BUFFER_MASK;
                 dataLock.lockForWrite();
-                 /*! da capire se il dataPacketsIdx è corretto o ci va messo un -1 o qualcosa del genere */
+                 /*! \todo FCON da capire se il dataPacketsIdx è corretto o ci va messo un -1 o qualcosa del genere */
                 items[currentProtIdx][nextItemIdx] = {dataHeader.protocolId, dataHeader.protocolSweepIdx, dataHeader.protocolItemIdx, dataHeader.protocolRepsIdx, dataPacketsIdx, true};
                 nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
                 items[currentProtIdx][nextItemIdx].available = false;
@@ -167,6 +180,29 @@ void DeviceDataProducer::run() {
                 bitRateLock.relock();
                 samplesReceived += dataHeader.dataLen;
                 bitRateLock.unlock();
+                break;
+
+            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail:
+                if (currentProtIdx != (dataHeader.protocolId & PROTS_BUFFER_MASK) || nextItemIdx == 0) {
+                    break;
+                }
+                dataLock.lockForWrite();
+                /*! Emulate a header packet with sweepIdx = sweepsNum */
+                items[currentProtIdx][nextItemIdx] = {dataHeader.protocolId, items[currentProtIdx][(nextItemIdx-1) & ITEMS_BUFFER_MASK].sweepIdx+1, 0, 1, dataPacketsIdx, true};
+                nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
+                items[currentProtIdx][nextItemIdx].available = false;
+                dataLock.unlock();
+                break;
+
+            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature:
+                for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
+                    msgDisp->convertTemperatureValues(datain+wordsIdx, temperatureValuesDbl);
+                    for (chIdx = 0; chIdx < temperatureChannelsNum; chIdx++) {
+                        temperatureValues[chIdx].value = temperatureValuesDbl[chIdx];
+                    }
+                }
+
+                emit sigTemperatureRead(temperatureValues);
                 break;
             }
         }
@@ -344,7 +380,9 @@ bool DataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &da
         dataCv.wait(&dataLock, 100);
     }
 
-    if (waitCount >= DDP_MAX_WAIT_COUNT) {
+    /*! No data if after several tries no data is obtained. However, if at least one sample is obtained process it, don't require
+     *  necessarily minDataBatchSize samples at this point */
+    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx) {
         dataLock.unlock();
         return false;
     }
@@ -355,9 +393,10 @@ bool DataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned int &da
     return true;
 }
 
-EpisodicDataHook::EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId) :
+EpisodicDataHook::EpisodicDataHook(unsigned int totalChannelsNum, unsigned int protocolId, unsigned int sweepsNum) :
     totalChannelsNum(totalChannelsNum),
-    protocolId(protocolId) {
+    protocolId(protocolId),
+    sweepsNum(sweepsNum) {
 
     this->flush();
 }
@@ -372,7 +411,8 @@ void EpisodicDataHook::setBufferSize(unsigned int bufferSize, unsigned int buffe
     halfBufferSize = bufferSize/2;
 }
 
-bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, bool &newSweep, unsigned int, unsigned int minDataBatchSize) {
+bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, unsigned int, unsigned int minDataBatchSize) {
+    buffer.clear();
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -395,14 +435,11 @@ bool EpisodicDataHook::getDataChunk(std::vector <unsigned short> &buffer, bool &
         }
         dataIdx = (dataIdx+1) & bufferMask;
     }
-    newSweep = newSweepFlag;
-    if (newSweepFlag) {
-        newSweepFlag = false;
-    }
     return true;
 }
 
-bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, bool &newSweep, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, unsigned int downsamplingRatio, unsigned int minDataBatchSize) {
+    buffer.clear();
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -467,14 +504,12 @@ bool EpisodicDataHook::getDataChunk(std::vector <double> &buffer, bool &newSweep
             dataIdx = (dataIdx+1) & bufferMask;
         }
     }
-    newSweep = newSweepFlag;
-    if (newSweepFlag) {
-        newSweepFlag = false;
-    }
     return true;
 }
 
-bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, bool &newSweep, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
+bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, std::vector <short>& intBuffer, unsigned int minDataBatchSize) {
+    doubleBuffer.clear();
+    intBuffer.clear();
     unsigned int dataPacketsMax;
     if (!this->waitDataAvailable(minDataBatchSize, dataPacketsMax)) {
         return false;
@@ -500,11 +535,19 @@ bool EpisodicDataHook::getDataChunks(std::vector <double>& doubleBuffer, bool &n
         }
         dataIdx = (dataIdx + 1) & bufferMask;
     }
-    newSweep = newSweepFlag;
-    if (newSweepFlag) {
-        newSweepFlag = false;
-    }
     return true;
+}
+
+bool EpisodicDataHook::getSweepNewFlag() {
+    return newSweepFlag;
+}
+
+int EpisodicDataHook::getSweepIdx() {
+    return currentSweepIdx;
+}
+
+bool EpisodicDataHook::getProtocolEndedFlag() {
+    return protocolEndedFlag;
 }
 
 void EpisodicDataHook::flush() {
@@ -521,28 +564,70 @@ bool EpisodicDataHook::waitDataAvailable(unsigned int minDataBatchSize, unsigned
            waitCount++ < DDP_MAX_WAIT_COUNT) {
         dataCv.wait(&dataLock, 100);
     }
+    newSweepBuffer = false;
+    protocolEndedBuffer = false;
 
-    if (waitCount >= DDP_MAX_WAIT_COUNT) {
-        dataLock.unlock();
-        return false;
-    }
-
-    auto item = items[protocolId][nextItemIdx];
+    auto item = items[protocolId & PROTS_BUFFER_MASK][nextItemIdx];
 
     if (item.available) {
+        if (!protocolFoundFlag && item.protId != protocolId) {
+            /*! ProId not found and protId in new header packet not correct, return with no data available */
+            dataPacketsMax = dataPacketsIdx;
+            dataIdx = dataPacketsIdx;
+            dataLock.unlock();
+
+            return false;
+        }
+        protocolFoundFlag = true;
+
         if (currentSweepIdx != item.sweepIdx) {
-            newSweepFlag = true;
-            currentSweepIdx = item.sweepIdx;
+            /*! Current sweepIdx different from sweepIdx in header packet, update it */
+            if (item.sweepIdx < currentSweepIdx) {
+                /*! Some devices return itemSweepIdx = 0 after the last sweep has been performed, set it to sweepNum for consistency */
+                currentSweepIdx = sweepsNum;
+            }
+            else {
+                currentSweepIdx = item.sweepIdx;
+            }
+            newSweepBuffer = true;
+            if (currentSweepIdx >= sweepsNum) {
+                /*! Last sweep performed, notify protocol ended and allow the acquisition of the last bunch of data */
+                protocolEndedBuffer = true;
+            }
+            /*! Save data only up to the last header packet */
             dataPacketsMax = item.dataPacketsIdx;
         }
         else {
+            /*! No new sweep, acquire all the data currently available */
             dataPacketsMax = dataPacketsIdx;
         }
         nextItemIdx = (nextItemIdx+1) & ITEMS_BUFFER_MASK;
     }
     else {
+        /*! No item (thus no sweep) available, acquire all the data currently available*/
         dataPacketsMax = dataPacketsIdx;
+        if (!protocolFoundFlag) {
+            /*! Unless the protId was not found yet, in which case don't acquire anything */
+            dataIdx = dataPacketsIdx;
+            dataLock.unlock();
+
+            return false;
+        }
     }
+
+    /*! Delay new sweep and protocol ended by one call. This allows all the data before it to be consumed */
+    newSweepFlag = pushedNewSweepFlag;
+    pushedNewSweepFlag = newSweepBuffer;
+    protocolEndedFlag = pushedProtocolEndedFlag;
+    pushedProtocolEndedFlag = protocolEndedBuffer;
+
+    /*! No data if after several tries no data is obtained. However, if at least one sample or data header is obtained process it, don't require
+     *  necessarily minDataBatchSize samples at this point */
+    if (waitCount >= DDP_MAX_WAIT_COUNT && dataIdx == dataPacketsIdx && !newSweepFlag) {
+        dataLock.unlock();
+        return false;
+    }
+
     dataLock.unlock();
 
     return true;

@@ -177,46 +177,6 @@ void ProtocolItemDragList::mousePressEvent(QMouseEvent * event) {
         mimeData->setData(PROT_DRAG_LIST_NATURAL_NUM_CONTROL_ITEM_MIME_FORMAT, itemData);
         break;
 
-    case PROT_DRAG_LIST_ANALYSIS_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_ANALYSIS_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_NOISE_REPORT_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_NOISE_REPORT_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_HISTOGRAM_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_HISTOGRAM_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_SPECTRUM_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_SPECTRUM_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_RESISTANCE_ESTIMATION_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_RESISTANCE_ESTIMATION_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_MEMBRANE_TEST_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_MEMBRANE_TEST_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_IV_GRAPH_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_IV_GRAPH_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_VOLTAGE_TRACKING_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_VOLTAGE_TRACKING_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_AP_THRESHOLD_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_AP_THRESHOLD_ITEM_MIME_FORMAT, itemData);
-        break;
-
-    case PROT_DRAG_LIST_AP_STATISTICS_ITEM_TYPE:
-        mimeData->setData(PROT_DRAG_LIST_AP_STATISTICS_ITEM_MIME_FORMAT, itemData);
-        break;
-
     case PROT_DRAG_LIST_SEPARATOR_TYPE:
         mimeData->setData(PROT_DRAG_LIST_SEPARATOR_MIME_FORMAT, itemData);
         break;

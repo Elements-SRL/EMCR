@@ -2,6 +2,7 @@
 #define LCDDISPLAY_H
 
 #include <QLCDNumber>
+#include <QElapsedTimer>
 #include <QTimer>
 #include <QTime>
 
@@ -35,9 +36,11 @@ public slots:
 private:
     QString timeFormat;
     QTimer * timer = nullptr;
+    QElapsedTimer elapsedTimer;
+    qint64 elapsedEvents = 0;
     bool ascendingTimer;
     QTime currentTime;
-    int reaminingTime = TDP_INTERVAL_MS;
+    int remainingTime = TDP_INTERVAL_MS;
     bool paused = false;
 
 private slots:

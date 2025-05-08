@@ -3,23 +3,21 @@
 
 #include "bigplotwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
-#include "bigplotmodel.h"
 #include "plotconsumer.h"
 #include <QPointF>
 #include "application_status.h"
 #include "plotmessage.h"
 #include "ivgraphconsumer.h"
-#include "eventdetectionconsumer.h"
 #include "ivgraphwidget.h"
 #include "centralwidgetcontroller.h"
-#include "bigplotcontroller.h"
+#include "bigplotviewcontroller.h"
+#include <memory>
 
 class IvGraphController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget, BigPlotController* bigPlotController, MainWindow* mainWindow);
+    IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer* producer, BigPlotWidget* bigPlotWidget, MainWindow* mainWindow);
     ~IvGraphController();
 
     void stop() override;
@@ -29,9 +27,10 @@ public:
     IvGraphWidget * getIvGraphWidget();
 
 private:
-    BigPlotModel * model = nullptr;
+    std::unique_ptr<BigPlotViewController> bpvc;
+    // BigPlotModel * model = nullptr;
     IvGraphConsumer * consumer = nullptr;
-    BigPlot * plot = nullptr;
+    // BigPlot * plot = nullptr;
     std::vector <Curve *> currentCurves;
     IvGraphWidget * ivGraphWidget = nullptr;
     MainWindow * mainWindow = nullptr;

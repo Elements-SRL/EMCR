@@ -6,6 +6,32 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
     {
         Version_t version;
         version.major = 0;
+        version.minor = 20;
+        version.patch = 1;
+        version.sections[BugFixes] << "Fixed resistance estimation crash on single channel devices";
+        version.sections[BugFixes] << "Fixed recordings not starting";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
+        version.minor = 20;
+        version.patch = 0;
+        version.sections[NewFeatures] << "Added episodic plots and recordings for patch clamp experiments";
+        version.sections[NewFeatures] << "Added compensations for patch clamp experiments";
+        version.sections[NewFeatures] << "Added autodeclogger for nanopore experiments";
+        version.sections[NewFeatures] << "Online resistance estimation";
+        version.sections[NewFeatures] << "Online pipette capacitance estimation";
+        version.sections[NewFeatures] << "Online membrane estimation";
+        version.sections[Gui] << "Added slidebar and collapsible sections to device controls";
+        version.sections[Qol] << "Implemented auto buttons for stimulus and trace expand as well";
+        version.sections[BugFixes] << "Fixed measurement overview buggy behaviour";
+        version.sections[BugFixes] << "Improved accuracy of timers";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
         version.minor = 18;
         version.patch = 3;
         version.sections[NewFeatures] << "Digital filters";

@@ -19,10 +19,11 @@ public:
     ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath = "");
     void loadChannelMappingFromYaml(std::string pathTofile);
     void setAllChannelsSelected(bool state);
-    void printEverything();
+    //void printEverything();
     int getVoltageChannelsNum();
     int getCurrentChannelsNum();
     int getBoardsNum();
+    int getTemperatureChannelsNum();
     std::vector <ChannelModel *> getChannels();
     void setSelectedChannels(std::map<int, bool>);
     std::vector <int> getVisibleChannelsOnBoard(int boardIdx);
@@ -30,6 +31,8 @@ public:
     std::vector <bool> getSelectedChannels();
     std::vector <uint16_t> getSelectedChannelsIndexes();
     std::vector <uint16_t> getExpandedChannelsIndexes();
+    std::vector <uint16_t> getStimActiveChannelsIndexes();
+    std::vector <uint16_t> getExpandedAndStimActiveChannelsIndexes();
     std::vector <uint16_t> getOffsetRecalibratingChannelsIndexes();
     std::vector <uint16_t> getLiquidJunctionCompensatingChannelsIndexes();
     std::vector <YAML::ChannelMapping> getMappings();
@@ -38,12 +41,19 @@ public:
     std::vector <int> getVisibleChannels();
     std::vector<std::string> getNames();
     Measurement getSamplingRate();
-    RangedMeasurement getVoltageRange();
-    RangedMeasurement getCurrentRange();
+    RangedMeasurement_t getVcVoltageRange();
+    std::vector <RangedMeasurement_t> getVcCurrentRange();
+    std::vector <RangedMeasurement_t> getCcVoltageRange();
+    RangedMeasurement_t getCcCurrentRange();
+    std::vector <RangedMeasurement_t> getVoltageRanges();
+    RangedMeasurement_t getMaxVoltageRange();
+    std::vector <RangedMeasurement_t> getCurrentRanges();
+    RangedMeasurement_t getMaxCurrentRange();
     std::string getSerialNumber();
     std::string getDeviceInfoString();
     ClampingModality_t getClampingModality();
     std::string getClampingModalityString();
+    bool isEpisodic();
 };
 
 

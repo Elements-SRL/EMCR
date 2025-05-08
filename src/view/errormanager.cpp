@@ -579,6 +579,10 @@ QString protocolListCode2error(ProtocolList::ProtocolListStatus_t errorCode) {
         error = "No file protocols from last " + GLB_SOFTWARE_NAME + " execution " + YAML_LAST_FULL_FILE + " found";
         break;
 
+    case ProtocolList::ErrorLoadAnalysisProtocolsFail:
+        error = "No file protocols to perform analysis " + YAML_ANALYSIS_FULL_FILE + " found";
+        break;
+
     case ProtocolList::ErrorLoadDefaultProtocolsFail:
         error = "Failed to load the file of deafult protocols";
         break;
@@ -616,6 +620,11 @@ QString protocolListCode2info(ProtocolList::ProtocolListStatus_t errorCode) {
     case ProtocolList::ErrorLoadLastExecutedProtocolFail:
         info = "It is possible that the file " + YAML_LAST_PROTOCOL_FULL_FILE +
                 " was not correctly saved during the last execution.";
+        break;
+
+    case ProtocolList::ErrorLoadAnalysisProtocolsFail:
+        info = "Check that the file " + YAML_ANALYSIS_FULL_FILE +
+               " exists.\nIf it doesn't please copy it from Protocols folder within " + GLB_SOFTWARE_NAME + " installation path.";
         break;
 
     case ProtocolList::ErrorLoadLastExecutionProtocolsFail:
