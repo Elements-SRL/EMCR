@@ -346,6 +346,11 @@ void MainWindow::destroyGuiControls() {
         dockWidgets[DWProtocol] = nullptr;
     }
 
+    if (dockWidgets[DWTemperatureSensors] != nullptr){
+        delete dockWidgets[DWTemperatureSensors];
+        dockWidgets[DWTemperatureSensors] = nullptr;
+    }
+
     if (dockWidgets[DWDebug] != nullptr){
         delete dockWidgets[DWDebug];
         dockWidgets[DWDebug] = nullptr;

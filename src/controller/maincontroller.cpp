@@ -332,7 +332,7 @@ void MainController::onMainWindowCreated() {
         measurementOverviewController->boardMappingsLoaded();
     });
 
-    connect(deviceDataProducer, &DeviceDataProducer::sigTemperatureRead, temperatureController, &TemperatureController::sigTemperatureRead);
+    connect(deviceDataProducer, &DeviceDataProducer::sigTemperatureRead, temperatureController, &TemperatureController::onTemperatureRead);
     connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, mainWindow, &MainWindow::onBitRateComputed);
 
     chessboardController->onDurationUpdated(defaultPlotDuration);
