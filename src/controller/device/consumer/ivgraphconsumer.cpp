@@ -3,9 +3,7 @@
 
 IvGraphConsumer::IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer):
     PlotConsumer(appStatus, producer) {
-//    todo read from file this value?
-    this->nBins = 3201;
-    calculateBinSize();
+    /*! \todo FCON update binSize from user input? */
 }
 
 IvGraphConsumer::~IvGraphConsumer() {
@@ -21,7 +19,6 @@ void IvGraphConsumer::forceAxisUpdate() {
 
 void IvGraphConsumer::onVoltageRangeChanged(){
     PlotConsumer::onVoltageRangeChanged();
-    calculateBinSize();
     allocateData();
     emitPlotData();
 }
@@ -49,6 +46,7 @@ void IvGraphConsumer::run() {
         }
         consumptionLock.unlock();
         if (hook->getDataChunk(buffer, subSamplingRatio, minDataBatchSize)) {
+            this->updateRangeAxis();
             bufferIdx = 0;
             bufferLen = buffer.size();
 
@@ -133,15 +131,18 @@ void IvGraphConsumer::allocateData() {
     }
 }
 
-//todo call this method when bin size changes or when voltage range changes
-void IvGraphConsumer::calculateBinSize(){
-    // Calculate the size of each bin
+void IvGraphConsumer::calculateBinSize() {
     binSize = maxVoltageRange.delta() / ((double) (nBins - 1));
 }
 
 void IvGraphConsumer::emitPlotData() {
     IvMessage message = {voltageData, currentValues, dataSize};
     emit setPlotData(message);
+}
+
+void IvGraphConsumer::updateRangeAxis() {
+    PlotConsumer::updateRangeAxis();
+    this->calculateBinSize();
 }
 
 void IvGraphConsumer::clearData(){

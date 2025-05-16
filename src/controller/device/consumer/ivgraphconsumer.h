@@ -16,15 +16,16 @@ public:
     IvGraphConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
     ~IvGraphConsumer();
     void forceAxisUpdate() override;
+    void calculateBinSize();
 
 public slots:
     void onVoltageRangeChanged() override;
 //    void onBinsNuberChanged(int numberOfBins);
 
 private:
-    int nBins;
+    int nBins = 3201;
     int subSamplingRatio = 1;
-    double binSize;
+    double binSize = 1.0;
     std::vector<double> buffer;
     std::vector<IvChannel *> ivChannels;
     std::vector<double *> currentValues;
@@ -33,7 +34,6 @@ private:
     QMutex voltageAxisMtx;
     QMutex currentAxisMtx;
     int scaleToBins(int channelIdx, double value);
-    void calculateBinSize();
     std::vector<double> voltageBins;
     std::vector<int> officialDataSize;
 
@@ -42,6 +42,7 @@ protected:
     void run() override;
     void allocateData();
     void emitPlotData() override;
+    void updateRangeAxis() override;
 };
 
 #endif // IVGRAPHCONSUMER_H
