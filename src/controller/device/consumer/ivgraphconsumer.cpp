@@ -65,23 +65,23 @@ void IvGraphConsumer::run() {
             }
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs-lastUpdateTimeMs > IVC_MIN_UPDATE_PLOT_TIME_MS) {
-                for (int i=0; i<currentChannelsNum; i++) {
-                    auto currents = ivChannels[i]->getCurrents();
+                for (auto channelIdx : expandedChannels) {
+                    auto currents = ivChannels[channelIdx]->getCurrents();
                     int counterOfSomeVariant = 0;
                     for(int c_idx = 0; c_idx<currents.size(); c_idx++) {
                         const auto current = currents[c_idx];
                         if(current.has_value()){
-                            voltageData[i][counterOfSomeVariant] = voltageBins[c_idx];
-                            currentValues[i][counterOfSomeVariant] = current.value();
+                            voltageData[channelIdx][counterOfSomeVariant] = voltageBins[c_idx];
+                            currentValues[channelIdx][counterOfSomeVariant] = current.value();
                             counterOfSomeVariant++;
                         }
                     }
-                    dataSize[i] = counterOfSomeVariant;
+                    dataSize[channelIdx] = counterOfSomeVariant;
                 }
                 bool isDataChanged = false;
-                for (int i=0; i<currentChannelsNum; i++) {
-                    if (dataSize [i] != officialDataSize[i]) {
-                        officialDataSize[i] = dataSize [i];
+                for (auto channelIdx : expandedChannels) {
+                    if (dataSize [channelIdx] != officialDataSize[channelIdx]) {
+                        officialDataSize[channelIdx] = dataSize [channelIdx];
                         isDataChanged = true;
                     }
                 }
@@ -133,6 +133,9 @@ void IvGraphConsumer::allocateData() {
 
 void IvGraphConsumer::calculateBinSize() {
     binSize = maxVoltageRange.delta() / ((double) (nBins - 1));
+    for (int i = 0; i<voltageBins.size(); i++){
+        voltageBins[i] = ((double) i) * binSize + maxVoltageRange.min;
+    }
 }
 
 void IvGraphConsumer::emitPlotData() {
