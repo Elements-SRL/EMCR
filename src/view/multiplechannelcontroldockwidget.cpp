@@ -157,6 +157,24 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     connect(expandTraceAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto);
     qhblExpandTrace->addWidget(expandTraceAutoBtn);
 
+
+    // PlotDetail
+    auto channelDetailGb = new QGroupBox(QString::fromStdString("Plot Detail"));
+    auto qhblChannelDetail = new QHBoxLayout();
+
+    channelDetailGb->setLayout(qhblChannelDetail);
+    mainLayout->addWidget(channelDetailGb);
+
+    auto expandChannelDetailBtn = new QPushButton("ON (E)");
+    connect(expandChannelDetailBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddPlotDetail);
+    qhblChannelDetail->addWidget(expandChannelDetailBtn);
+    auto reduceChannelDetailBtn = new QPushButton("OFF");
+    connect(reduceChannelDetailBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigRemovePlotDetail);
+    qhblChannelDetail->addWidget(reduceChannelDetailBtn);
+    auto channelDetailAutoBtn = new QPushButton("AUTO");
+    channelDetailAutoBtn->setCheckable(true);
+    connect(channelDetailAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto);
+    qhblChannelDetail->addWidget(channelDetailAutoBtn);
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     mainLayout->addWidget(spacer);

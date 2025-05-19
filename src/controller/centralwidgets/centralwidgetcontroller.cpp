@@ -10,11 +10,5 @@ CentralWidgetController::CentralWidgetController(ApplicationStatus* appStatus, D
 }
 
 bool CentralWidgetController::isAtLeastOneChannelExpanded() {
-	auto channels = appStatus->getChannels();
-	for (auto c : channels) {
-		if (c->isExpanded()) {
-			return true;
-		}
-	}
-	return false;
+    return appStatus->getExpandedChannelsIndexes().size() > 0;
 }

@@ -111,6 +111,7 @@ SOURCES += \
     src/view/measurementsoverviewdockwidget.cpp \
     src/view/multiplechannelcontroldockwidget.cpp \
     src/view/nowheelspinbox.cpp \
+    src/view/plotdetail.cpp \
     src/view/plotpreferencesdialog.cpp \
     src/view/centralwidgets/bigplot.cpp \
     src/view/centralwidgets/bigplotwidget.cpp \
@@ -254,6 +255,7 @@ HEADERS += \
     src/view/measurementsoverviewdockwidget.h \
     src/view/multiplechannelcontroldockwidget.h \
     src/view/nowheelspinbox.h \
+    src/view/plotdetail.h \
     src/view/plotpreferencesdialog.h \
     src/view/centralwidgets/bigplot.h \
     src/view/centralwidgets/bigplotwidget.h \

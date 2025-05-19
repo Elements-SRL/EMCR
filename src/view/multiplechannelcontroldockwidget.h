@@ -76,6 +76,9 @@ signals:
     void sigAddToBigPlot();
     void sigRemoveFromBigPlot();
     void sigAddToBigPlotAuto(bool flag);
+    void sigAddPlotDetail();
+    void sigRemovePlotDetail();
+    void sigAddPlotDetailAuto(bool flag);
 };
 
 #endif // MULTIPLECHANNELCONTROLDOCKWIDGET_H

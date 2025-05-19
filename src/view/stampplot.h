@@ -27,7 +27,8 @@ public:
         StateLiquidJunctionCompensation = 0x0004,
         StateTraceExpanded = 0x0008,
         StateCalibrationResistorsOn = 0x0010,
-        StateOffsetRecalibrationOn = 0x0020
+        StateOffsetRecalibrationOn = 0x0020,
+        StatePlotDetailOn = 0x0040,
     } States_t;
 
     StampPlot(int channelIdx, std::string channelname, int idealPlotWidth, int idealPlotHeight, QWidget * parent = nullptr);

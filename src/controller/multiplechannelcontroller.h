@@ -17,7 +17,7 @@ public:
     ~MultipleChannelController();
     void addRemoveFromBigPlot(bool flag);
     void addRemoveFromBigPlotEx(bool flag);
-
+    void addRemovePlotDetail(bool flag);
 public slots:
     void onChannelsSelected();
 
@@ -54,6 +54,7 @@ signals:
     void sigLjResetted();
     void sigAddRemoveFromBigPlot(bool flag);
     void sigAddRemoveFromBigPlotEx(bool flag);
+    void sigAddRemovePlotDetail(bool flag);
 };
 
 #endif // MULTIPLECHANNELCONTROLLER_H

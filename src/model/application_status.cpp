@@ -73,13 +73,15 @@ std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
 };
 
 std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
-    std::vector <uint16_t> expandedChannels;
-    for (const auto& ch : getChannels()) {
-        if (ch->isExpanded()) {
-            expandedChannels.push_back(ch->getId());
+    auto expChannels = this->getExpandedTraces();
+
+    std::vector<uint16_t> keys;
+    for (const auto& pair : expChannels) {
+        if (pair.second) {
+            keys.push_back(pair.first);
         }
     }
-    return expandedChannels;
+    return keys;
 };
 
 std::vector <uint16_t> ApplicationStatus::getStimActiveChannelsIndexes() {
@@ -93,9 +95,10 @@ std::vector <uint16_t> ApplicationStatus::getStimActiveChannelsIndexes() {
 };
 
 std::vector <uint16_t> ApplicationStatus::getExpandedAndStimActiveChannelsIndexes() {
+    auto expandedChannelsIndexes = this->getExpandedChannelsIndexes();
     std::vector <uint16_t> stimActiveChannels;
     for (const auto& ch : getChannels()) {
-        if (ch->isExpanded() && ch->isStimActive()) {
+        if (ch->isStimActive() && std::find(expandedChannelsIndexes.begin(), expandedChannelsIndexes.end(), ch->getId()) != expandedChannelsIndexes.end()) {
             stimActiveChannels.push_back(ch->getId());
         }
     }
@@ -265,6 +268,25 @@ ClampingModality_t ApplicationStatus::getClampingModality() {
     msgDisp->getClampingModality(c);
     return c;
 }
+
+std::map <uint16_t, bool> ApplicationStatus::getExpandedTraces() {
+    return this->expandedTraces;
+}
+
+void ApplicationStatus::setExpandedTraces(std::map <uint16_t, bool> other){
+    other.merge(this->expandedTraces);
+    expandedTraces = other;
+}
+
+std::map <uint16_t, bool> ApplicationStatus::getDetailedPlots() {
+    return this->detailedPlots;
+}
+
+void ApplicationStatus::setDetailedPlots(std::map <uint16_t, bool> other){
+    other.merge(this->detailedPlots);
+    detailedPlots = other;
+}
+
 
 std::string ApplicationStatus::getClampingModalityString() {
     auto cm = getClampingModality();

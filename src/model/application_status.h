@@ -3,6 +3,7 @@
 
 #include <channel_mapping.h>
 #include "messagedispatcher.h"
+#include <map>
 #include "channel_and_name.h"
 
 class ApplicationStatus {
@@ -14,6 +15,8 @@ private:
     int boardsNum = 1;
     MessageDispatcher * msgDisp;
     std::vector<int> filterVisibleChannels(std::vector<int>);
+    std::map <uint16_t, bool> expandedTraces;
+    std::map <uint16_t, bool> detailedPlots;
 
 public:
     ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath = "");
@@ -44,6 +47,13 @@ public:
     RangedMeasurement_t getVcVoltageRange();
     std::vector <RangedMeasurement_t> getVcCurrentRange();
     std::vector <RangedMeasurement_t> getCcVoltageRange();
+
+    std::map <uint16_t, bool> getExpandedTraces();
+    void setExpandedTraces(std::map <uint16_t, bool>);
+
+    std::map <uint16_t, bool> getDetailedPlots();
+    void setDetailedPlots(std::map <uint16_t, bool>);
+
     RangedMeasurement_t getCcCurrentRange();
     std::vector <RangedMeasurement_t> getVoltageRanges();
     RangedMeasurement_t getMaxVoltageRange();

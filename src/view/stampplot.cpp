@@ -138,6 +138,13 @@ void StampPlot::setState(States_t newState) {
         anyLabelAssigned = true;
     }
 
+    if (state & StatePlotDetailOn) {
+        if (anyLabelAssigned) {
+            stateText += ",";
+        }
+        stateText += "P";
+        anyLabelAssigned = true;
+    }
     stateLbl->setText(stateText);
     this->resizeEvent(nullptr);
 }

@@ -131,6 +131,16 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         model->turnExpandAuto(flag);
         this->onChannelsSelected();
     });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddPlotDetail,          this, [=] () {
+        this->addRemovePlotDetail(true);
+    });
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigRemovePlotDetail,     this, [=] () {
+        this->addRemovePlotDetail(false);
+    });
+    // connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto,     this, [=] (bool flag) {
+    //     model->turnExpandAuto(flag);
+    //     this->onChannelsSelected();
+    // });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
@@ -147,21 +157,33 @@ MultipleChannelController::~MultipleChannelController(){
 }
 
 void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
-    std::vector <bool> values(selectedChannels.size(), flag);
-    msgDisp->expandTraces(selectedChannels, values);
-
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
+    std::map<uint16_t, bool> flags;
+    for (uint16_t i = 0; i< selectedChannels.size(); ++i) {
+        flags[i] = flag;
+    }
+    appStatus->setExpandedTraces(flags);
     emit sigAddRemoveFromBigPlot(flag);
 }
 
-void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
-    for (auto &&v : selectedChannels) {
-        v = !(v^flag);
+void MultipleChannelController::addRemovePlotDetail(bool flag) {
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
+    std::map<uint16_t, bool> flags;
+    for (uint16_t i = 0; i< selectedChannels.size(); ++i) {
+        flags[i] = flag;
     }
-    msgDisp->expandTraces(allChannels, selectedChannels);
+    appStatus->setDetailedPlots(flags);
+    emit sigAddRemovePlotDetail(flag);
+}
+
+void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
+    const auto selectedChannels = appStatus->getSelectedChannels();
+    std::map<uint16_t, bool> expandedChannels;
+    for (uint16_t i=0; i< selectedChannels.size(); ++i){
+        const auto v = selectedChannels[i];
+        expandedChannels[i] = !(v^flag);
+    }
+    appStatus->setExpandedTraces(expandedChannels);
 
     emit sigAddRemoveFromBigPlotEx(flag);
 }
