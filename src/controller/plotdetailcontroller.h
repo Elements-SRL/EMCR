@@ -20,7 +20,7 @@ public:
     PlotDetailController(ApplicationStatus * appStatus, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc);
 
 private slots:
-    void createPlotDetail(bool);
+    void plotDetailAction(bool);
 
 signals:
     void removeState(std::vector<uint16_t>);

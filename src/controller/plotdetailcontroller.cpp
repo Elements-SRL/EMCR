@@ -1,15 +1,14 @@
 #include "plotdetailcontroller.h"
 #include "plotdetailmodel.h"
 
-//todo: passare al controller direttamente il controller della chessboard e attaccarsi a quello
-// per gestire signal/slot
 PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc) :
     appStatus(appStatus), mainWindow(mainWindow) {
-    connect(mcc, &MultipleChannelController::sigAddRemovePlotDetail, this, &PlotDetailController::createPlotDetail);
+    connect(mcc, &MultipleChannelController::sigAddRemovePlotDetail, this, &PlotDetailController::plotDetailAction);
     connect(this, &PlotDetailController::addState, cc, &ChessboardController::onPlotDetailCreation);
     connect(this, &PlotDetailController::removeState, cc, &ChessboardController::onPlotDetailDeletion);
 }
 
+// build a map where the keys are the vec entry and the values the flag
 std::map<uint16_t, bool> buildCoherentMap(std::vector<uint16_t> chs, bool flag) {
     std::map<uint16_t, bool> plotDetails;
     for (auto &s : chs) {
@@ -18,9 +17,11 @@ std::map<uint16_t, bool> buildCoherentMap(std::vector<uint16_t> chs, bool flag) 
     return plotDetails;
 }
 
-void PlotDetailController::createPlotDetail(bool flag) {
+void PlotDetailController::plotDetailAction(bool flag) {
+    // get selected channels
     const auto sChs = appStatus->getSelectedChannelsIndexes();
     const auto pds = buildCoherentMap(sChs, flag);
+    // update the plot details
     appStatus->setDetailedPlots(pds);
     if (flag) {
         manageCreation();
@@ -32,11 +33,13 @@ void PlotDetailController::createPlotDetail(bool flag) {
 void PlotDetailController::manageCreation(){
     auto detailedPlots = appStatus->getDetailedPlots();
     for (auto &ch: detailedPlots) {
+        // if not already created
         if(pds.find(ch) == pds.end()){
             auto pm = new PlotDetailModel(ch);
             auto pd = new PlotDetail(pm);
             pd->show();
             pds[ch] = pd;
+            // manage deletion of the widget pressing x
             connect(pd, &PlotDetail::close, this, [=]() {
                 const auto upd = buildCoherentMap({pd->getChannel()}, false);
                 appStatus->setDetailedPlots(upd);
@@ -44,6 +47,7 @@ void PlotDetailController::manageCreation(){
             });
         };
     }
+    // signal to chessboard that plots have been added
     emit addState(detailedPlots);
 }
 
@@ -57,6 +61,7 @@ void PlotDetailController::manageDeletion(){
         }
     }
     appStatus->setDetailedPlots(buildCoherentMap(toRemove, false));
+    // signal to chessboard that plots have been deleted
     emit removeState(toRemove);
     for (auto &tr : toRemove) {
         pds.erase(tr);
