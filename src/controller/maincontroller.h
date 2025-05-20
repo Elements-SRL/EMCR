@@ -27,6 +27,7 @@
 #include "autodecloggercontroller.h"
 #include "temperaturecontroller.h"
 #include "debugcontroller.h"
+#include "plotdetailcontroller.h"
 
 class MainController : public QObject {
     Q_OBJECT

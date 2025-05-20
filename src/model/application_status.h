@@ -51,7 +51,7 @@ public:
     std::map <uint16_t, bool> getExpandedTraces();
     void setExpandedTraces(std::map <uint16_t, bool>);
 
-    std::map <uint16_t, bool> getDetailedPlots();
+    std::vector<uint16_t> getDetailedPlots();
     void setDetailedPlots(std::map <uint16_t, bool>);
 
     RangedMeasurement_t getCcCurrentRange();

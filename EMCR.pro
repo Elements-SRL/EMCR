@@ -35,6 +35,7 @@ SOURCES += \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
     src/controller/durationbasedbigplotviewcontroller.cpp \
+    src/controller/plotdetailcontroller.cpp \
     src/controller/temperaturecontroller.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
@@ -82,6 +83,7 @@ SOURCES += \
     src/model/ivchannel.cpp \
     src/model/measurementoverviewmodel.cpp \
     src/model/multiplechannelmodel.cpp \
+    src/model/plotdetailmodel.cpp \
     src/model/plotpreferencesmodel.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
@@ -162,9 +164,11 @@ HEADERS += \
     src/controller/device/consumer/resistanceestimationconsumer.h \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
     src/controller/durationbasedbigplotviewcontroller.h \
+    src/controller/plotdetailcontroller.h \
     src/controller/temperaturecontroller.h \
     src/globaldefines.h \
     src/model/membraneresult.h \
+    src/model/plotdetailmodel.h \
     src/model/singlemeasresult.h \
     src/protocoldefs.h \
     src/abf/axon.h \

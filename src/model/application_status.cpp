@@ -278,8 +278,14 @@ void ApplicationStatus::setExpandedTraces(std::map <uint16_t, bool> other){
     expandedTraces = other;
 }
 
-std::map <uint16_t, bool> ApplicationStatus::getDetailedPlots() {
-    return this->detailedPlots;
+std::vector<uint16_t> ApplicationStatus::getDetailedPlots() {
+    std::vector<uint16_t> detailed;
+    for (auto &p: this->detailedPlots) {
+        if (p.second) {
+            detailed.push_back(p.first);
+        }
+    }
+    return detailed;
 }
 
 void ApplicationStatus::setDetailedPlots(std::map <uint16_t, bool> other){

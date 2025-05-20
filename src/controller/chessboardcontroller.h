@@ -41,6 +41,11 @@ public slots:
     void onLjcTurnedOnOff(bool flag);
     void onTracesExpandedOnOff(bool flag);
     void onTracesExpandedOnOffEx(bool flag);
+    // Plot detail
+    void onPlotDetailOnOff(bool flag);
+    void onPlotDetailCreation(std::vector<uint16_t>);
+    void onPlotDetailDeletion(std::vector<uint16_t>);
+
     void onRangeUpdated(std::vector <RangedMeasurement_t> newRange);
     void onDurationUpdated(Measurement_t duration);
     void onSetPlotData(PlotMessage plotMessage);

@@ -216,6 +216,28 @@ void ChessboardController::onTracesExpandedOnOffEx(bool flag) {
     }
 }
 
+void ChessboardController::onPlotDetailOnOff(bool flag) {
+    for (auto channelIdx : appStatus->getSelectedChannelsIndexes()) {
+        if (flag) {
+            plots[channelIdx]->addState(StampPlot::StatePlotDetailOn);
+        }
+        else {
+            plots[channelIdx]->removeState(StampPlot::StatePlotDetailOn);
+        }
+    }
+}
+
+void ChessboardController::onPlotDetailCreation(std::vector<uint16_t> channels){
+    for (auto channelIdx : channels) {
+        plots[channelIdx]->addState(StampPlot::StatePlotDetailOn);
+    }
+}
+void ChessboardController::onPlotDetailDeletion(std::vector<uint16_t> channels){
+    for (auto channelIdx : channels) {
+        plots[channelIdx]->removeState(StampPlot::StatePlotDetailOn);
+    }
+}
+
 void ChessboardController::onRangeUpdated(std::vector <RangedMeasurement_t> newRange) {
     for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
         plots[chIdx]->onRangeUpdated(newRange[chIdx]);
