@@ -6,6 +6,7 @@ ProtocolManager::ProtocolManager(MessageDispatcher * msgDisp) :
     QObject(),
     msgDisp(msgDisp) {
 
+    msgDisp->enableRxMessageType(MsgTypeIdAcquisitionHeader, false);
 }
 
 void ProtocolManager::onStartProtocolRequest(ProtocolWidget * protocol) {

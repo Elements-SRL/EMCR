@@ -32,8 +32,9 @@ private:
     const double pg = -1.0;
     const double ig = -0.5;
     const double ieMax = 1.0;
-    const double maxFanSpeed = 6300.0;
+    double maxFanSpeed = 1.0;
     const double minRT = 0.35;
+    Measurement_t speedSet;
 };
 
 #endif // TEMPERATURECONTROLLER_H

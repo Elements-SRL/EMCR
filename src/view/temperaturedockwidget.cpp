@@ -28,6 +28,7 @@ void TemperatureDockWidget::enableFansControls(e384cl::RangedMeasurement_t range
 
     QDoubleSpinBox * fanSbx = new QDoubleSpinBox;
     fanSbx->setRange(range.min, range.max);
+    fanSbx->setValue(range.max);
     fanHl->addWidget(fanSbx);
     fanHl->addWidget(new QLabel(QString::fromStdString(range.getFullUnit())));
 
