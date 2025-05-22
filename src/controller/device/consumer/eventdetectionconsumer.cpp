@@ -73,14 +73,14 @@ void EventDetectionConsumer::run() {
             bufferLen = doubleBuffer.size();
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
-                for (auto channelIdx : expandedChannels) {
+                for (auto channelIdx : channels) {
                     voltageValues[channelIdx].push_back(doubleBuffer[bufferIdx+channelIdx]);
                     currentValuesInt[channelIdx].push_back(intBuffer[bufferIdx+channelIdx+voltageChannelsNum]);
                     currentValuesDouble[channelIdx].push_back(doubleBuffer[bufferIdx+channelIdx+voltageChannelsNum]);
                 }
                 bufferIdx += totalChannelsNum;
             }
-            for (auto channelIdx : expandedChannels) {
+            for (auto channelIdx : channels) {
                 const auto valuesSize = currentValuesDouble[channelIdx].size();
                 eventDetectionChannels[channelIdx]->setChunk(currentValuesInt[channelIdx], currentValuesDouble[channelIdx], voltageValues[channelIdx], valuesSize, currentRange[channelIdx], voltageRange[channelIdx], appStatus->getSamplingRate());
             }

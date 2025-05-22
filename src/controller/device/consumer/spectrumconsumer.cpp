@@ -139,7 +139,7 @@ void SpectrumConsumer::run() {
 
             /*! Copy data in buffers for FFT evaluation */
             while (bufferIdx + channelsOffset < bufferLen) {
-                for (auto channelIdx : expandedChannels) {
+                for (auto channelIdx : channels) {
                     auto currentValue = buffer[bufferIdx + channelIdx + channelsOffset];
                     fftIn[channelIdx][binIndex] = currentValue;
                 }
@@ -149,7 +149,7 @@ void SpectrumConsumer::run() {
                 /*! Enough data to compute FFT */
                 if (binIndex == nBins) {
                     if (integrationRoundIdx == 0) {
-                        for (auto channelIdx : expandedChannels) {
+                        for (auto channelIdx : channels) {
                             fftw_execute(fftwPlans[channelIdx]);
                             for (binIndex = 0; binIndex < n2Bins; binIndex++) {
                                 currentValues[channelIdx][binIndex] = std::norm(fftOut[channelIdx][binIndex+1]);
@@ -157,7 +157,7 @@ void SpectrumConsumer::run() {
                         }
 
                     } else {
-                        for (auto channelIdx : expandedChannels) {
+                        for (auto channelIdx : channels) {
                             fftw_execute(fftwPlans[channelIdx]);
                             for (binIndex = 0; binIndex < n2Bins; binIndex++) {
                                 currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
@@ -167,7 +167,7 @@ void SpectrumConsumer::run() {
 
                     /*! Enough FFTs to estimate spectrum */
                     if (++integrationRoundIdx == integrationRounds) {
-                        for (auto channelIdx : expandedChannels) {
+                        for (auto channelIdx : channels) {
                             for (binIndex = 0; binIndex < n2Bins; binIndex++) {
                                 currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
                                 if (binIndex == 0) {

@@ -13,11 +13,17 @@
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
 #define PCS_MAX_SAMPLES_PER_EPISODIC_PLOT (8192)
 
+enum InterestedChannels{
+    Expanded,
+    Detailed,
+    InterestedChannelsNum,
+};
+
 class PlotConsumer : public DeviceDataConsumer {
     Q_OBJECT
 
 public:
-    PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
+    PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer, InterestedChannels ic = InterestedChannels::Expanded);
     virtual ~PlotConsumer();
 
     virtual void forceAxisUpdate() = 0;
@@ -34,7 +40,6 @@ public slots:
     virtual void onCurrentRangeChanged() override;
 
     void onDurationChanged(Measurement_t duration);
-    void plotAllChannels(bool flag);
     void onPlotSelectedChannels(bool flag);
 
 signals:
@@ -47,6 +52,8 @@ protected:
         JustTriggered,
         Triggered
     } TriggerStatus_t;
+
+    InterestedChannels ic;
 
     virtual void emitPlotData() = 0;
     virtual void updateRangeAxis();
@@ -75,7 +82,7 @@ protected:
     QMutex timeAxisMtx;
     QMutex rangeAxisMtx;
 
-    std::vector <uint16_t> expandedChannels;
+    std::vector <uint16_t> channels;
 
     int maxSamples = 256;
     int dataSize = 0;

@@ -2,7 +2,7 @@
 
 #include <QTime>
 
-PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
+PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer, InterestedChannels ic) :
     DeviceDataConsumer(appStatus, producer) {
 
     maxVoltageRange.prefix = UnitPfxNone;
@@ -11,7 +11,9 @@ PlotConsumer::PlotConsumer(ApplicationStatus * appStatus, DeviceDataProducer * p
     /*! Allocate buffer max size once and for all, so we avoid real time memory reallocations */
     buffer.reserve(producer->getDataPacketsBufferLen()*totalChannelsNum);
 
-    this->plotAllChannels(true);
+    for (int idx = 0; idx < appStatus->getCurrentChannelsNum(); idx++) {
+        channels.push_back(idx);
+    }
 }
 
 PlotConsumer::~PlotConsumer() {
@@ -84,19 +86,15 @@ void PlotConsumer::onDurationChanged(Measurement_t duration) {
     pushedDurationFlag = true;
 }
 
-void PlotConsumer::plotAllChannels(bool flag) {
-    if (flag) {
-        for (int idx = 0; idx < appStatus->getCurrentChannelsNum(); idx++) {
-            expandedChannels.push_back(idx);
-        }
-    }
-    else {
-        expandedChannels.clear();
-    }
-}
-
 void PlotConsumer::onPlotSelectedChannels(bool flag) {
-    expandedChannels = appStatus->getExpandedChannelsIndexes();
+    switch (ic) {
+    case InterestedChannels::Expanded:
+        channels = appStatus->getExpandedChannelsIndexes();
+        break;
+    case InterestedChannels::Detailed:
+        channels = appStatus->getDetailedPlots();
+        break;
+    }
     forceAxisUpdate();
 }
 
@@ -111,7 +109,7 @@ void PlotConsumer::updateRangeAxis() {
         maxVoltageRange.max = 1.0;
         maxVoltageRange.convertValues(maxPushedVoltageRange.prefix);
         double coeff = maxVoltageRange.max;
-        for (auto channelIdx : expandedChannels) {
+        for (auto channelIdx : channels) {
             for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
                 voltageValues[channelIdx][sampleIdx] *= coeff;
             }
@@ -128,7 +126,7 @@ void PlotConsumer::updateRangeAxis() {
         maxCurrentRange.max = 1.0;
         maxCurrentRange.convertValues(maxPushedCurrentRange.prefix);
         coeff = maxCurrentRange.max;
-        for (auto channelIdx : expandedChannels) {
+        for (auto channelIdx : channels) {
             for (int sampleIdx = 0; sampleIdx < dataSize; sampleIdx++) {
                 currentValues[channelIdx][sampleIdx] *= coeff;
             }
@@ -210,7 +208,7 @@ void GapFreePlotConsumer::run() {
 
             /*! Copy data in curves */
             while (bufferIdx < bufferLen) {
-                for (auto channelIdx : expandedChannels) {
+                for (auto channelIdx : channels) {
                     voltageValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx];
                     currentValues[channelIdx][gapFreeTimeIdx] = buffer[bufferIdx+channelIdx+voltageChannelsNum];
                 }

@@ -1,11 +1,21 @@
 #include "plotdetailcontroller.h"
 #include "plotdetailmodel.h"
 
-PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc) :
-    appStatus(appStatus), mainWindow(mainWindow) {
+PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measurement_t defaultPlotDuration, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc, DeviceDataProducer* p) :
+    ControllerWithConsumer(appStatus), mainWindow(mainWindow) {
     connect(mcc, &MultipleChannelController::sigAddRemovePlotDetail, this, &PlotDetailController::plotDetailAction);
     connect(this, &PlotDetailController::addState, cc, &ChessboardController::onPlotDetailCreation);
     connect(this, &PlotDetailController::removeState, cc, &ChessboardController::onPlotDetailDeletion);
+    consumer = new GapFreePlotConsumer(appStatus, p);
+    consumer->onDurationChanged(defaultPlotDuration);
+
+    for (auto cm : appStatus->getChannels()) {
+        pdms.push_back(new PlotDetailModel(cm->getId()));
+    }
+    connect(consumer, &PlotConsumer::setPlotData, this, &PlotDetailController::onSetPlotData);
+    consumer->forceAxisUpdate();
+    consumer->setMaxSamplesPerPlot(4096);
+    connect(consumer, &PlotConsumer::plotDataUpdated, this, &PlotDetailController::onReplot);
 }
 
 // build a map where the keys are the vec entry and the values the flag
@@ -28,6 +38,7 @@ void PlotDetailController::plotDetailAction(bool flag) {
     } else {
         manageDeletion();
     }
+    manageComsuner(flag);
 }
 
 void PlotDetailController::manageCreation(){
@@ -35,8 +46,7 @@ void PlotDetailController::manageCreation(){
     for (auto &ch: detailedPlots) {
         // if not already created
         if(pds.find(ch) == pds.end()){
-            auto pm = new PlotDetailModel(ch);
-            auto pd = new PlotDetail(pm);
+            auto pd = new PlotDetail(pdms[ch]);
             pd->show();
             pds[ch] = pd;
             // manage deletion of the widget pressing x
@@ -57,6 +67,7 @@ void PlotDetailController::manageDeletion(){
     for (auto &pair : pds) {
         if (std::find(detailedPlots.begin(), detailedPlots.end(), pair.first) == detailedPlots.end()) {
             toRemove.push_back(pair.first);
+            pdms[pair.first]->getCurve()->detach();
             pair.second->deleteLater();
         }
     }
@@ -66,4 +77,30 @@ void PlotDetailController::manageDeletion(){
     for (auto &tr : toRemove) {
         pds.erase(tr);
     }
+}
+
+void PlotDetailController::manageComsuner(bool flag) {
+    auto plotDetails = appStatus->getDetailedPlots();
+    consumer->onStopConsuming();
+    consumer->forceAxisUpdate();
+    if (plotDetails.size()) {
+        consumer->onStartConsuming();
+    }
+}
+
+void PlotDetailController::onSetPlotData(PlotMessage plotmessage) {
+    GapFreeMessage gapFreeMessage = std::get<BigPlot::BigPlotStatus::GapFree>(plotmessage);
+    for (int i=0; i< pdms.size(); ++i) {
+        pdms[i]->getCurve()->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[i], gapFreeMessage.dataSize);
+    }
+}
+
+void PlotDetailController::onReplot() {
+    for (auto &p: pds) {
+        p.second->replot();
+    }
+}
+
+std::vector <DeviceDataConsumer*> PlotDetailController::getConsumers() {
+    return {consumer};
 }

@@ -200,7 +200,7 @@ void MainController::onMainWindowCreated() {
 
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
-    auto plotDetailController = new PlotDetailController(appStatus, mainWindow, multipleChannelController, chessboardController);
+    auto plotDetailController = new PlotDetailController(appStatus, defaultPlotDuration, mainWindow, multipleChannelController, chessboardController, deviceDataProducer);
     /***************\
      * Controllers *
     \***************/
@@ -208,7 +208,7 @@ void MainController::onMainWindowCreated() {
     for (auto &c: bigPlotController->getControllers()) {
         controllersWithConsumer.push_back(c);
     }
-    
+    controllersWithConsumer.push_back(plotDetailController);
     mainWindow->addViewActions();
 
     /***********\

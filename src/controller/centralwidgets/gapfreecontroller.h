@@ -1,12 +1,6 @@
 #ifndef GAPFREECONTROLLER_H
 #define GAPFREECONTROLLER_H
 
-#include <QPointF>
-#include "bigplotwidget.h"
-#include "mainwindow.h"
-#include "bigplotmodel.h"
-#include "plotconsumer.h"
-#include "application_status.h"
 #include "plotmessage.h"
 #include "centralwidgetcontroller.h"
 #include "gapfreewidget.h"

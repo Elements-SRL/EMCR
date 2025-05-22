@@ -52,7 +52,7 @@ void IvGraphConsumer::run() {
 
             /*! Copy data in curves */
             while (bufferIdx + voltageChannelsNum < bufferLen) {
-                for (auto channelIdx : expandedChannels) {
+                for (auto channelIdx : channels) {
                     auto voltage = buffer[bufferIdx+channelIdx];
                     //                      use the voltage value to index the currents
                     auto binIndex = scaleToBins(channelIdx, voltage);
@@ -65,7 +65,7 @@ void IvGraphConsumer::run() {
             }
             currentTimeMs = updateDataTimer.elapsed();
             if (currentTimeMs-lastUpdateTimeMs > IVC_MIN_UPDATE_PLOT_TIME_MS) {
-                for (auto channelIdx : expandedChannels) {
+                for (auto channelIdx : channels) {
                     auto currents = ivChannels[channelIdx]->getCurrents();
                     int counterOfSomeVariant = 0;
                     for(int c_idx = 0; c_idx<currents.size(); c_idx++) {
@@ -79,7 +79,7 @@ void IvGraphConsumer::run() {
                     dataSize[channelIdx] = counterOfSomeVariant;
                 }
                 bool isDataChanged = false;
-                for (auto channelIdx : expandedChannels) {
+                for (auto channelIdx : channels) {
                     if (dataSize [channelIdx] != officialDataSize[channelIdx]) {
                         officialDataSize[channelIdx] = dataSize [channelIdx];
                         isDataChanged = true;
