@@ -47,7 +47,22 @@ void TemperatureDockWidget::enableFansControls(e384cl::RangedMeasurement_t range
         emit sigSetFanSpeed({fanSbx->value(), range.prefix, range.unit});
     });
 
-    connect(setTEnBtn, &ActivationButton::clicked, this, &TemperatureDockWidget::sigEnableTControl);
+    connect(setTEnBtn, &ActivationButton::clicked, this, &TemperatureDockWidget::sigEnableKTControl);
+
+    QHBoxLayout * setT1Hl = new QHBoxLayout;
+    mainVl->addLayout(setT1Hl);
+
+    setT1Sbx = new QDoubleSpinBox;
+    setT1Sbx->setRange(30.0, 60.0);
+    setT1Hl->addWidget(setT1Sbx);
+    setT1Hl->addWidget(new QLabel("°C"));
+
+    ActivationButton * setTEn1Btn = new ActivationButton;
+    setT1Hl->addWidget(setTEn1Btn);
+
+    connect(setTEn1Btn, &ActivationButton::clicked, this, [=](bool enable) {
+        emit sigEnableTControl({setT1Sbx->value(), e384CommLib::UnitPfxNone, "°C"}, enable);
+    });
 }
 
 e384cl::Measurement_t TemperatureDockWidget::getTSet() {

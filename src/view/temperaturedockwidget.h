@@ -26,12 +26,14 @@ public slots:
 private:
     QVBoxLayout * mainVl = nullptr;
     QDoubleSpinBox * setTSbx = nullptr;
+    QDoubleSpinBox * setT1Sbx = nullptr;
 
     QVector <QLabel *> temperatureLbls;
 
 signals:
     void sigSetFanSpeed(e384cl::Measurement_t speed);
-    void sigEnableTControl(bool enable);
+    void sigEnableKTControl(bool enable);
+    void sigEnableTControl(e384cl::Measurement_t temperature, bool enable);
 };
 
 #endif // TEMPERATUREDOCKWIDGET_H

@@ -20,6 +20,7 @@ TemperatureController::TemperatureController(ApplicationStatus * appStatus, Main
         appStatus->getMessageDispatcher()->setCoolingFansSpeed(speed, true);
     });
 
+    connect(view, &TemperatureDockWidget::sigEnableKTControl, this, &TemperatureController::onEnableKTControl);
     connect(view, &TemperatureDockWidget::sigEnableTControl, this, &TemperatureController::onEnableTControl);
 }
 
@@ -32,7 +33,7 @@ void TemperatureController::onTemperatureRead(std::vector <e384cl::Measurement_t
     double Tm1 = values[1].value;
     auto Ts = view->getTSet();
     Ts.convertValue(UnitPfxNone);
-    qDebug() << Tm0 << Tm1 << speedSet.value;
+    // qDebug() << Tm0 << Tm1 << speedSet.value;
     if (tControlEnabled) {
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count();
@@ -50,11 +51,15 @@ void TemperatureController::onTemperatureRead(std::vector <e384cl::Measurement_t
     }
 }
 
-void TemperatureController::onEnableTControl(bool enable) {
+void TemperatureController::onEnableKTControl(bool enable) {
     if (enable == tControlEnabled) {
         return;
     }
     tControlEnabled = enable;
     ie = 0.0;
     then = std::chrono::steady_clock::now();
+}
+
+void TemperatureController::onEnableTControl(Measurement_t temperature, bool enable) {
+    appStatus->getMessageDispatcher()->setTemperatureControl(temperature, enable);
 }

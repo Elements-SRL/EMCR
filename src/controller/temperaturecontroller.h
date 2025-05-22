@@ -16,7 +16,8 @@ public:
 
 public slots:
     void onTemperatureRead(std::vector <e384cl::Measurement_t> values);
-    void onEnableTControl(bool enable);
+    void onEnableKTControl(bool enable);
+    void onEnableTControl(Measurement_t temperature, bool enable);
 
 private:
     ApplicationStatus * appStatus = nullptr;
