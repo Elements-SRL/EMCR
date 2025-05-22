@@ -39,12 +39,12 @@ private:
 
     /*! kalman */
     const double dt = 2.0;
-    const double Rh = 0.023389878788146;
-    const double Cb = 51.709799818984635;
-    const double Ca = 5.154520605431273e+02;
-    const double offRT = 1.829506286371586;
-    const double maxRT = 0.335107062018345;
-    const double minRT = 0.239087355650064;
+    const double Rh = 0.009211645116870;
+    const double Cb = 4.088122458948907e+02;
+    const double Ca = 1.540082025770994e+02;
+    const double offRT = 1.582470252096335;
+    const double maxRT = 0.390196941234880;
+    const double minRT = 0.264962843373366;
     const double powerOut = 50.0;
     const double sR2 = 0.25*0.25/12;
     const double sQ12 = sR2/20.0;
@@ -58,7 +58,7 @@ private:
     const double B11 = dt/Cb;
     double B22p = 0.0;
     double B22 = 0.0;
-    double Rf = 0.0;
+    double Rf = offRT;
 
     double x1 = 0.0;
     double x2 = 0.0;

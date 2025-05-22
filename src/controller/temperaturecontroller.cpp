@@ -37,7 +37,7 @@ void TemperatureController::onTemperatureRead(std::vector <e384cl::Measurement_t
     if (tControlEnabled) {
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count();
-        if (elapsed < 800.0) {
+        if (elapsed < 1800.0) {
             return;
         }
         then = now;
@@ -51,23 +51,30 @@ void TemperatureController::onTemperatureRead(std::vector <e384cl::Measurement_t
         F22 = F22p-dt/(Rf*Ca);
         B22 = B22p+dt/(Rf*Ca);
 
-        x1 = F11*x1+F12*x2+B11*powerOut;
-        x2 = F21*x1+F22*x2+B22*Tm1;
+        auto x1r = x1;
+        x1 = F11*x1r+F12*x2+B11*powerOut;
+        x2 = F21*x1r+F22*x2+B22*Tm1;
 
-        Pk11 = F11*(F11*Pk11+F12*Pk21)+F12*(F11*Pk12+F12*Pk22)+sQ12;
-        Pk12 = F21*(F11*Pk11+F12*Pk21)+F22*(F11*Pk12+F12*Pk22);
-        Pk21 = F11*(F21*Pk11+F22*Pk21)+F12*(F21*Pk12+F22*Pk22);
-        Pk22 = F21*(F21*Pk11+F22*Pk21)+F22*(F21*Pk12+F22*Pk22)+sQ22;
+        auto Pk11r = Pk11;
+        auto Pk12r = Pk12;
+        auto Pk21r = Pk21;
+        auto Pk22r = Pk22;
+        Pk11 = F11*(F11*Pk11r+F12*Pk21r)+F12*(F11*Pk12r+F12*Pk22r)+sQ12;
+        Pk12 = F21*(F11*Pk11r+F12*Pk21r)+F22*(F11*Pk12r+F12*Pk22r);
+        Pk21 = F11*(F21*Pk11r+F22*Pk21r)+F12*(F21*Pk12r+F22*Pk22r);
+        Pk22 = F21*(F21*Pk11r+F22*Pk21r)+F22*(F21*Pk12r+F22*Pk22r)+sQ22;
         y = Tm0-x1;
         S = Pk11+sR2;
         K1 = Pk11/S;
         K2 = Pk21/S;
         x1 += K1*y;
         x2 += K2*y;
-        Pk11 = (1-K1)*Pk11;
-        Pk12 = (1-K1)*Pk12;
-        Pk21 = -K2*Pk11+Pk21;
-        Pk22 = -K2*Pk12+Pk22;
+        Pk11r = Pk11;
+        Pk12r = Pk12;
+        Pk11 = (1.0-K1)*Pk11r;
+        Pk12 = (1.0-K1)*Pk12r;
+        Pk21 = -K2*Pk11r+Pk21;
+        Pk22 = -K2*Pk12r+Pk22;
 
         Tm0 = x1;
 
@@ -79,6 +86,10 @@ void TemperatureController::onTemperatureRead(std::vector <e384cl::Measurement_t
         appStatus->getMessageDispatcher()->setCoolingFansSpeed(speed, true);
         w = speed.value;
         qDebug() << Tm0 << Ts.value << e << ie << RT << speed.value;
+    }
+    else {
+        x1 = Tm0;
+        x2 = 0.5*(Tm0+Tm1);
     }
 }
 
