@@ -63,6 +63,39 @@ void TemperatureDockWidget::enableFansControls(e384cl::RangedMeasurement_t range
     connect(setTEn1Btn, &ActivationButton::clicked, this, [=](bool enable) {
         emit sigEnableTControl({setT1Sbx->value(), e384CommLib::UnitPfxNone, "°C"}, enable);
     });
+
+    QGridLayout * gl = new QGridLayout;
+    mainVl->addLayout(gl);
+    auto pg = new QDoubleSpinBox;
+    pg->setRange(0.0001, 100.0);
+    pg->setDecimals(4);
+    pg->setValue(0.04);
+    gl->addWidget(pg, 0, 0);
+    gl->addWidget(new QLabel("pg"), 0, 1);
+
+    auto ig = new QDoubleSpinBox;
+    ig->setRange(0.0001, 100.0);
+    ig->setDecimals(4);
+    ig->setValue(0.006);
+    gl->addWidget(ig, 1, 0);
+    gl->addWidget(new QLabel("ig"), 1, 1);
+
+    auto ieMax = new QDoubleSpinBox;
+    ieMax->setRange(1.0, 10000.0);
+    ieMax->setDecimals(0);
+    ieMax->setValue(200.0);
+    gl->addWidget(ieMax, 2, 0);
+    gl->addWidget(new QLabel("ieMax"), 2, 1);
+
+    connect(pg, &QDoubleSpinBox::editingFinished, this, [=]() {
+        emit sigPidParams(pg->value(), ig->value(), ieMax->value());
+    });
+    connect(ig, &QDoubleSpinBox::editingFinished, this, [=]() {
+        emit sigPidParams(pg->value(), ig->value(), ieMax->value());
+    });
+    connect(ieMax, &QDoubleSpinBox::editingFinished, this, [=]() {
+        emit sigPidParams(pg->value(), ig->value(), ieMax->value());
+    });
 }
 
 e384cl::Measurement_t TemperatureDockWidget::getTSet() {

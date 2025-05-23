@@ -18,6 +18,7 @@ public slots:
     void onTemperatureRead(std::vector <e384cl::Measurement_t> values);
     void onEnableKTControl(bool enable);
     void onEnableTControl(Measurement_t temperature, bool enable);
+    void onPidParams(double pg, double ig, double ieMax);
 
 private:
     ApplicationStatus * appStatus = nullptr;
@@ -30,9 +31,9 @@ private:
     std::chrono::time_point <std::chrono::steady_clock> then;
 
     double ie = 0.0;
-    const double pg = -1.0;
-    const double ig = -0.5;
-    const double ieMax = 1.0;
+    double pg = 0.04;
+    double ig = 0.006;
+    double ieMax = 200.0;
     double maxFanSpeed = 1.0;
     const double minFanSpeed = 3524.0;
     Measurement_t speedSet;

@@ -34,6 +34,7 @@ signals:
     void sigSetFanSpeed(e384cl::Measurement_t speed);
     void sigEnableKTControl(bool enable);
     void sigEnableTControl(e384cl::Measurement_t temperature, bool enable);
+    void sigPidParams(double pg, double ig, double ieMax);
 };
 
 #endif // TEMPERATUREDOCKWIDGET_H
