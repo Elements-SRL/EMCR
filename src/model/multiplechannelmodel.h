@@ -12,10 +12,12 @@ public:
     void turnChannelsAuto(bool flag);
     void turnStimulusAuto(bool flag);
     void turnExpandAuto(bool flag);
+    void turnPlotDetailAuto(bool flag);
 
     bool getChannelsAuto();
     bool getStimulusAuto();
     bool getExpandAuto();
+    bool getPlotDetailAuto();
 
     void saveSettings();
     void loadSettings();
@@ -32,6 +34,9 @@ private:
 
     bool expandAuto = false;
     bool expandAutoSet = false;
+
+    bool plotDetailAuto = false;
+    bool plotDetailAutoSet = false;
 };
 
 #endif // MULTIPLECHANNELMODEL_H

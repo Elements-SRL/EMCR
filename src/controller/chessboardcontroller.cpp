@@ -227,6 +227,18 @@ void ChessboardController::onPlotDetailOnOff(bool flag) {
     }
 }
 
+void ChessboardController::onPlotDetailOnOffEx(bool flag) {
+    auto selectedChannels = appStatus->getSelectedChannels();
+    for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
+        if (flag == selectedChannels[channelIdx]) {
+            plots[channelIdx]->addState(StampPlot::StatePlotDetailOn);
+        }
+        else {
+            plots[channelIdx]->removeState(StampPlot::StatePlotDetailOn);
+        }
+    }
+}
+
 void ChessboardController::onPlotDetailCreation(std::vector<uint16_t> channels){
     for (auto channelIdx : channels) {
         plots[channelIdx]->addState(StampPlot::StatePlotDetailOn);

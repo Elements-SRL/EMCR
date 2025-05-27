@@ -17,7 +17,7 @@ public:
     ~MultipleChannelController();
     void addRemoveFromBigPlot(bool flag);
     void addRemoveFromBigPlotEx(bool flag);
-    void addRemovePlotDetail(bool flag);
+
 public slots:
     void onChannelsSelected();
 
@@ -33,6 +33,7 @@ private:
     void resetOffsetRecalibration();
     void turnSelectedLjcOnOff(bool flag);
     void resetLj();
+    void addRemovePlotDetailEx(bool flag);
 
     ApplicationStatus * appStatus = nullptr;
     MessageDispatcher * msgDisp = nullptr;
@@ -41,6 +42,8 @@ private:
     MultipleChannelModel * model = nullptr;
     OffsetCorrectionController * offsetCorrectionController = nullptr;
     std::vector <uint16_t> allChannels;
+private slots:
+    void addRemovePlotDetail(bool flag);
 
 signals:
     void sigChannelsTurnedOnOff(bool flag);
@@ -54,7 +57,9 @@ signals:
     void sigLjResetted();
     void sigAddRemoveFromBigPlot(bool flag);
     void sigAddRemoveFromBigPlotEx(bool flag);
+    // Plot detail
     void sigAddRemovePlotDetail(bool flag);
+    void sigAddRemovePlotDetailEx(bool flag);
 };
 
 #endif // MULTIPLECHANNELCONTROLLER_H

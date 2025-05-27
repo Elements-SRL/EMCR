@@ -15,19 +15,24 @@ private:
     MainWindow* mainWindow;
     void manageCreation();
     void manageDeletion();
-    void manageComsuner(bool flag);
+    void manageComsuner();
     GapFreePlotConsumer * consumer = nullptr;
 
 protected:
-    std::vector <DeviceDataConsumer*> getConsumers();
+    std::vector <DeviceDataConsumer*> getConsumers() override;
+    void onCurrentRangeChanged() override;
 
 public:
     PlotDetailController(ApplicationStatus * appStatus, Measurement_t defaultPlotDuration, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc, DeviceDataProducer* p);
+
+public slots:
+    void plotDetailActionEx();
 
 private slots:
     void plotDetailAction(bool);
     void onSetPlotData(PlotMessage plotMessage);
     void onReplot();
+    void handleEndOfPlot();
 
 signals:
     void removeState(std::vector<uint16_t>);

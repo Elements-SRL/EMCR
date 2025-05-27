@@ -44,6 +44,7 @@ public slots:
 
 signals:
     void setPlotData(PlotMessage plotMessage);
+    void endOfPlotReached();
 
 protected:
     typedef enum {

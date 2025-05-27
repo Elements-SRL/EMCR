@@ -51,8 +51,9 @@ public:
     std::map <uint16_t, bool> getExpandedTraces();
     void setExpandedTraces(std::map <uint16_t, bool>);
 
-    std::vector<uint16_t> getDetailedPlots();
+    std::vector<uint16_t> getDetailedPlotIndexes();
     void setDetailedPlots(std::map <uint16_t, bool>);
+    void clearPlotDetails();
 
     RangedMeasurement_t getCcCurrentRange();
     std::vector <RangedMeasurement_t> getVoltageRanges();

@@ -43,6 +43,7 @@ public slots:
     void onTracesExpandedOnOffEx(bool flag);
     // Plot detail
     void onPlotDetailOnOff(bool flag);
+    void onPlotDetailOnOffEx(bool flag);
     void onPlotDetailCreation(std::vector<uint16_t>);
     void onPlotDetailDeletion(std::vector<uint16_t>);
 

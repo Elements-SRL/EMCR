@@ -255,6 +255,9 @@ void MainController::onMainWindowCreated() {
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           chessboardController,           &ChessboardController::onTracesExpandedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetail,              chessboardController,           &ChessboardController::onPlotDetailOnOff);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetailEx,            chessboardController,           &ChessboardController::onPlotDetailOnOffEx);
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetailEx,            plotDetailController,           &PlotDetailController::plotDetailActionEx);
+
 
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOffEx,            chessboardController,           &ChessboardController::onChannelsTurnedOnOffEx);

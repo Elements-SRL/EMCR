@@ -1,5 +1,6 @@
 #include "application_status.h"
 #include <filesystem>
+#include <iostream>
 
 ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath):
     msgDisp(msgDisp) {
@@ -274,11 +275,10 @@ std::map <uint16_t, bool> ApplicationStatus::getExpandedTraces() {
 }
 
 void ApplicationStatus::setExpandedTraces(std::map <uint16_t, bool> other){
-    other.merge(this->expandedTraces);
     expandedTraces = other;
 }
 
-std::vector<uint16_t> ApplicationStatus::getDetailedPlots() {
+std::vector<uint16_t> ApplicationStatus::getDetailedPlotIndexes() {
     std::vector<uint16_t> detailed;
     for (auto &p: this->detailedPlots) {
         if (p.second) {
@@ -289,10 +289,12 @@ std::vector<uint16_t> ApplicationStatus::getDetailedPlots() {
 }
 
 void ApplicationStatus::setDetailedPlots(std::map <uint16_t, bool> other){
-    other.merge(this->detailedPlots);
     detailedPlots = other;
 }
 
+void ApplicationStatus::clearPlotDetails(){
+    detailedPlots.clear();
+}
 
 std::string ApplicationStatus::getClampingModalityString() {
     auto cm = getClampingModality();

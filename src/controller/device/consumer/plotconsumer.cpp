@@ -92,7 +92,7 @@ void PlotConsumer::onPlotSelectedChannels(bool flag) {
         channels = appStatus->getExpandedChannelsIndexes();
         break;
     case InterestedChannels::Detailed:
-        channels = appStatus->getDetailedPlots();
+        channels = appStatus->getDetailedPlotIndexes();
         break;
     }
     forceAxisUpdate();
@@ -217,6 +217,7 @@ void GapFreePlotConsumer::run() {
                 gapFreeTimeIdx++;
                 if (gapFreeTimeIdx >= dataSize) {
                     gapFreeTimeIdx = 0;
+                    emit endOfPlotReached();
                 }
             }
 

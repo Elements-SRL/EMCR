@@ -165,11 +165,15 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     channelDetailGb->setLayout(qhblChannelDetail);
     mainLayout->addWidget(channelDetailGb);
 
-    auto expandChannelDetailBtn = new QPushButton("ON (E)");
-    connect(expandChannelDetailBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddPlotDetail);
+    auto expandChannelDetailBtn = new QPushButton("ON (P)");
+    connect(expandChannelDetailBtn, &QPushButton::clicked, this, [=]() {
+        emit sigAddRemovePlotDetail(true);
+    });
     qhblChannelDetail->addWidget(expandChannelDetailBtn);
     auto reduceChannelDetailBtn = new QPushButton("OFF");
-    connect(reduceChannelDetailBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigRemovePlotDetail);
+    connect(reduceChannelDetailBtn, &QPushButton::clicked, this, [=]() {
+        emit sigAddRemovePlotDetail(false);
+    });
     qhblChannelDetail->addWidget(reduceChannelDetailBtn);
     auto channelDetailAutoBtn = new QPushButton("AUTO");
     channelDetailAutoBtn->setCheckable(true);

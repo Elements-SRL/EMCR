@@ -9,13 +9,16 @@ PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measur
     consumer = new GapFreePlotConsumer(appStatus, p);
     consumer->onDurationChanged(defaultPlotDuration);
 
-    for (auto cm : appStatus->getChannels()) {
-        pdms.push_back(new PlotDetailModel(cm->getId()));
+    auto crs = appStatus->getCurrentRanges();
+    for (int i = 0; i < crs.size(); i++) {
+        pdms.push_back(new PlotDetailModel(i, crs[i]));
     }
+
     connect(consumer, &PlotConsumer::setPlotData, this, &PlotDetailController::onSetPlotData);
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &PlotDetailController::onReplot);
+    connect(consumer, &PlotConsumer::endOfPlotReached, this, &PlotDetailController::handleEndOfPlot);
 }
 
 // build a map where the keys are the vec entry and the values the flag
@@ -38,11 +41,17 @@ void PlotDetailController::plotDetailAction(bool flag) {
     } else {
         manageDeletion();
     }
-    manageComsuner(flag);
+    manageComsuner();
+}
+
+void PlotDetailController::plotDetailActionEx(){
+    manageDeletion();
+    manageCreation();
+    manageComsuner();
 }
 
 void PlotDetailController::manageCreation(){
-    auto detailedPlots = appStatus->getDetailedPlots();
+    auto detailedPlots = appStatus->getDetailedPlotIndexes();
     for (auto &ch: detailedPlots) {
         // if not already created
         if(pds.find(ch) == pds.end()){
@@ -62,7 +71,7 @@ void PlotDetailController::manageCreation(){
 }
 
 void PlotDetailController::manageDeletion(){
-    auto detailedPlots = appStatus->getDetailedPlots();
+    auto detailedPlots = appStatus->getDetailedPlotIndexes();
     std::vector<uint16_t> toRemove;
     for (auto &pair : pds) {
         if (std::find(detailedPlots.begin(), detailedPlots.end(), pair.first) == detailedPlots.end()) {
@@ -79,8 +88,8 @@ void PlotDetailController::manageDeletion(){
     }
 }
 
-void PlotDetailController::manageComsuner(bool flag) {
-    auto plotDetails = appStatus->getDetailedPlots();
+void PlotDetailController::manageComsuner() {
+    auto plotDetails = appStatus->getDetailedPlotIndexes();
     consumer->onStopConsuming();
     consumer->forceAxisUpdate();
     if (plotDetails.size()) {
@@ -101,6 +110,27 @@ void PlotDetailController::onReplot() {
     }
 }
 
+void PlotDetailController::onCurrentRangeChanged(){
+    auto crs = appStatus->getCurrentRanges();
+    auto detailedPlots = appStatus->getDetailedPlotIndexes();
+    for (int i = 0; i < pdms.size(); i++) {
+        pdms[i]->setCurrentRange(crs[i]);
+    }
+    for (auto &i : detailedPlots) {
+        pds[i]->updateLabel();
+    }
+}
+
 std::vector <DeviceDataConsumer*> PlotDetailController::getConsumers() {
     return {consumer};
+}
+
+void PlotDetailController::handleEndOfPlot() {
+    for (auto &pdm : pdms) {
+        pdm->updateMargins();
+    }
+
+    for (auto &pair : pds) {
+        pair.second->updatePlot();
+    }
 }

@@ -131,16 +131,11 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         model->turnExpandAuto(flag);
         this->onChannelsSelected();
     });
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddPlotDetail,          this, [=] () {
-        this->addRemovePlotDetail(true);
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddRemovePlotDetail,        this, &MultipleChannelController::addRemovePlotDetail);
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto,     this, [=] (bool flag) {
+        model->turnPlotDetailAuto(flag);
+        this->onChannelsSelected();
     });
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigRemovePlotDetail,     this, [=] () {
-        this->addRemovePlotDetail(false);
-    });
-    // connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto,     this, [=] (bool flag) {
-    //     model->turnExpandAuto(flag);
-    //     this->onChannelsSelected();
-    // });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
@@ -159,7 +154,7 @@ MultipleChannelController::~MultipleChannelController(){
 void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::map<uint16_t, bool> flags;
-    for (uint16_t i = 0; i< selectedChannels.size(); ++i) {
+    for (auto &i : selectedChannels) {
         flags[i] = flag;
     }
     appStatus->setExpandedTraces(flags);
@@ -169,7 +164,7 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
 void MultipleChannelController::addRemovePlotDetail(bool flag) {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::map<uint16_t, bool> flags;
-    for (uint16_t i = 0; i< selectedChannels.size(); ++i) {
+    for (auto &i : selectedChannels) {
         flags[i] = flag;
     }
     appStatus->setDetailedPlots(flags);
@@ -184,8 +179,13 @@ void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
         expandedChannels[i] = !(v^flag);
     }
     appStatus->setExpandedTraces(expandedChannels);
-
     emit sigAddRemoveFromBigPlotEx(flag);
+}
+
+void MultipleChannelController::addRemovePlotDetailEx(bool flag) {
+    appStatus->clearPlotDetails();
+    addRemoveFromBigPlotEx(flag);
+    emit sigAddRemovePlotDetailEx(flag);
 }
 
 void MultipleChannelController::onChannelsSelected() {
@@ -197,6 +197,9 @@ void MultipleChannelController::onChannelsSelected() {
     }
     if (model->getExpandAuto()) {
         addRemoveFromBigPlotEx(true);
+    }
+    if (model->getPlotDetailAuto()) {
+        addRemovePlotDetailEx(true);
     }
 }
 

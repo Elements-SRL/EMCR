@@ -20,6 +20,9 @@ public:
     PlotDetail(PlotDetailModel * pdm, QWidget * parent = nullptr);
     uint16_t getChannel();
     void replot();
+    void updateLabel();
+    void updatePlot();
+
 signals:
     void close();
 };

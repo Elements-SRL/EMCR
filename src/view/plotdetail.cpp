@@ -5,15 +5,10 @@
 PlotDetail::PlotDetail(PlotDetailModel * pdm, QWidget * parent):
     QWidget(parent),
     pdm(pdm){
-    // this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     auto mainVl = new QVBoxLayout(this);
-    mainVl->addWidget(new QLabel(QString::fromStdString(pdm->getLabel())));
-    plot = new BasePlot("Detailed", "s", "A", parent);
+    plot = new BasePlot(pdm->getLabel(), "s", pdm->getUom(), parent);
     mainVl->addWidget(plot);
     pdm->getCurve()->attach(plot);
-    // plot->setAxisAutoScale(QwtPlot::yLeft);
-    plot->setAxisScale(QwtPlot::yLeft, -200, 200);
-    // plot->setAxisScale(QwtPlot::xBottom, 0, 2);
 }
 
 uint16_t PlotDetail::getChannel(){
@@ -25,6 +20,15 @@ void PlotDetail::closeEvent(QCloseEvent *event)  {
 }
 
 void PlotDetail::replot() {
-    plot->update();
     plot->replot();
+}
+
+void PlotDetail::updateLabel() {
+    plot->setLabel(this->pdm->getLabel(), QwtPlot::Axis::yLeft);
+}
+
+void PlotDetail::updatePlot() {
+    const auto by = pdm->getBottomY();
+    const auto ty = pdm->getTopY();
+    plot->getPlot()->setAxisScale(QwtPlot::Axis::yLeft, by, ty);
 }

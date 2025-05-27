@@ -30,6 +30,11 @@ void MultipleChannelModel::turnExpandAuto(bool flag) {
     expandAuto = flag;
 }
 
+void MultipleChannelModel::turnPlotDetailAuto(bool flag) {
+    plotDetailAutoSet = true;
+    plotDetailAuto = flag;
+}
+
 bool MultipleChannelModel::getChannelsAuto() {
     return channelsAuto;
 }
@@ -40,6 +45,10 @@ bool MultipleChannelModel::getStimulusAuto() {
 
 bool MultipleChannelModel::getExpandAuto() {
     return expandAuto;
+}
+
+bool MultipleChannelModel::getPlotDetailAuto() {
+    return plotDetailAuto;
 }
 
 void MultipleChannelModel::saveSettings() {
