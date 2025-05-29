@@ -17,6 +17,7 @@ private:
     std::vector<int> filterVisibleChannels(std::vector<int>);
     std::map <uint16_t, bool> expandedTraces;
     std::map <uint16_t, bool> detailedPlots;
+    bool plotDetailAuto;
 
 public:
     ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath = "");
@@ -51,9 +52,12 @@ public:
     std::map <uint16_t, bool> getExpandedTraces();
     void setExpandedTraces(std::map <uint16_t, bool>);
 
+    // Plot detail
     std::vector<uint16_t> getDetailedPlotIndexes();
     void setDetailedPlots(std::map <uint16_t, bool>);
     void clearPlotDetails();
+    void setPlotDetailAuto(bool);
+    bool isPlotDetailAuto();
 
     RangedMeasurement_t getCcCurrentRange();
     std::vector <RangedMeasurement_t> getVoltageRanges();

@@ -33,7 +33,6 @@ private:
     void resetOffsetRecalibration();
     void turnSelectedLjcOnOff(bool flag);
     void resetLj();
-    void addRemovePlotDetailEx(bool flag);
 
     ApplicationStatus * appStatus = nullptr;
     MessageDispatcher * msgDisp = nullptr;
@@ -59,7 +58,6 @@ signals:
     void sigAddRemoveFromBigPlotEx(bool flag);
     // Plot detail
     void sigAddRemovePlotDetail(bool flag);
-    void sigAddRemovePlotDetailEx(bool flag);
 };
 
 #endif // MULTIPLECHANNELCONTROLLER_H

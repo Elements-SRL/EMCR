@@ -131,10 +131,9 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         model->turnExpandAuto(flag);
         this->onChannelsSelected();
     });
-    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddRemovePlotDetail,        this, &MultipleChannelController::addRemovePlotDetail);
+    connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddRemovePlotDetail,   this, &MultipleChannelController::addRemovePlotDetail);
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto,     this, [=] (bool flag) {
-        model->turnPlotDetailAuto(flag);
-        this->onChannelsSelected();
+        appStatus->setPlotDetailAuto(flag);
     });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
@@ -182,12 +181,6 @@ void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
     emit sigAddRemoveFromBigPlotEx(flag);
 }
 
-void MultipleChannelController::addRemovePlotDetailEx(bool flag) {
-    appStatus->clearPlotDetails();
-    addRemoveFromBigPlotEx(flag);
-    emit sigAddRemovePlotDetailEx(flag);
-}
-
 void MultipleChannelController::onChannelsSelected() {
     if (model->getChannelsAuto()) {
         turnSelectedChannelsOnOffEx(true);
@@ -197,9 +190,6 @@ void MultipleChannelController::onChannelsSelected() {
     }
     if (model->getExpandAuto()) {
         addRemoveFromBigPlotEx(true);
-    }
-    if (model->getPlotDetailAuto()) {
-        addRemovePlotDetailEx(true);
     }
 }
 

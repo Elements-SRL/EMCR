@@ -37,6 +37,8 @@
 #define GLB_CONTROLS_CHANNEL_AUTO_TAG "Controls/Settings/channelAuto"
 #define GLB_CONTROLS_STIMULUS_AUTO_TAG "Controls/Settings/stimulusAuto"
 #define GLB_CONTROLS_EXPAND_AUTO_TAG "Controls/Settings/expandAuto"
+#define GLB_CONTROLS_PLOT_DETAIL_AUTO_TAG "Controls/Settings/plotDetailsAuto"
+
 /*! Utility defines */
 
 /*! Global defines */

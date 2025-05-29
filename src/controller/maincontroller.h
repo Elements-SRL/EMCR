@@ -89,6 +89,7 @@ private:
     MeasurementOverviewController * measurementOverviewController = nullptr;
     PlotPreferencesController * plotPreferencesController = nullptr;
     AutoDecloggerController* autoDecloggerController = nullptr;
+    PlotDetailController* plotDetailController = nullptr;
 
     ProtocolManager * voltageProtocolManager = nullptr;
     ProtocolManager * currentProtocolManager = nullptr;

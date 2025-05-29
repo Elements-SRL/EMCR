@@ -175,10 +175,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         emit sigAddRemovePlotDetail(false);
     });
     qhblChannelDetail->addWidget(reduceChannelDetailBtn);
-    auto channelDetailAutoBtn = new QPushButton("AUTO");
-    channelDetailAutoBtn->setCheckable(true);
-    connect(channelDetailAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto);
-    qhblChannelDetail->addWidget(channelDetailAutoBtn);
+    plotDetailAutoBtn = new QPushButton("AUTO");
+    plotDetailAutoBtn->setCheckable(true);
+    connect(plotDetailAutoBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto);
+    qhblChannelDetail->addWidget(plotDetailAutoBtn);
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     mainLayout->addWidget(spacer);
@@ -198,6 +198,10 @@ void MultipleChannelControlDockWidget::setStimulusAuto(bool flag) {
 
 void MultipleChannelControlDockWidget::setExpandAuto(bool flag) {
     expandTraceAutoBtn->setChecked(flag);
+}
+
+void MultipleChannelControlDockWidget::setPlotDetailAuto(bool flag) {
+    plotDetailAutoBtn->setChecked(flag);
 }
 
 bool MultipleChannelControlDockWidget::getExpertMode() {

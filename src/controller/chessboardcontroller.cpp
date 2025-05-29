@@ -46,10 +46,26 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, Device
     stampPlotConsumer->forceAxisUpdate();
     stampPlotConsumer->setMaxSamplesPerPlot(256);
 
-    connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::sigAllChannelsClicked);
-    connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::sigOneBoardClicked);
-    connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::sigOneRowClicked);
-    connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked, this,       &ChessboardController::sigSingleChannelClicked);
+    connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       [=](bool newChannelState){
+        onSelectedPlotsUpdated();
+        onAllChannelsClicked(newChannelState);
+        emit sigAllChannelsClicked(newChannelState);
+    });
+    connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       [=](uint16_t changedBoardIndex, bool newChannelState){
+        onSelectedPlotsUpdated();
+        onOneBoardClicked(changedBoardIndex, newChannelState);
+        emit sigOneBoardClicked(changedBoardIndex, newChannelState);
+    });
+    connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       [=](uint16_t changedRowIndex, bool newChannelState){
+        onSelectedPlotsUpdated();
+        onOneRowClicked(changedRowIndex, newChannelState);
+        emit sigAllChannelsClicked(newChannelState);
+    });
+    connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked, this,       [=](uint16_t changedChannelIndex, QMouseEvent * event){
+        onSelectedPlotsUpdated();
+        onSingleChannelClicked(changedChannelIndex, event);
+        emit sigSingleChannelClicked(changedChannelIndex, event);
+    });
 
     connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::onSelectedPlotsUpdated);
@@ -231,10 +247,10 @@ void ChessboardController::onPlotDetailOnOffEx(bool flag) {
     auto selectedChannels = appStatus->getSelectedChannels();
     for (int channelIdx = 0; channelIdx < appStatus->getCurrentChannelsNum(); channelIdx++) {
         if (flag == selectedChannels[channelIdx]) {
-            plots[channelIdx]->addState(StampPlot::StatePlotDetailOn);
+            plots[channelIdx]->addState(StampPlot::StateTraceExpanded);
         }
         else {
-            plots[channelIdx]->removeState(StampPlot::StatePlotDetailOn);
+            plots[channelIdx]->removeState(StampPlot::StateTraceExpanded);
         }
     }
 }
@@ -244,6 +260,7 @@ void ChessboardController::onPlotDetailCreation(std::vector<uint16_t> channels){
         plots[channelIdx]->addState(StampPlot::StatePlotDetailOn);
     }
 }
+
 void ChessboardController::onPlotDetailDeletion(std::vector<uint16_t> channels){
     for (auto channelIdx : channels) {
         plots[channelIdx]->removeState(StampPlot::StatePlotDetailOn);

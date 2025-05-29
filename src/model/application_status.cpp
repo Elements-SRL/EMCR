@@ -296,6 +296,14 @@ void ApplicationStatus::clearPlotDetails(){
     detailedPlots.clear();
 }
 
+void ApplicationStatus::setPlotDetailAuto(bool flag) {
+    plotDetailAuto = flag;
+}
+
+bool ApplicationStatus::isPlotDetailAuto() {
+    return plotDetailAuto;
+}
+
 std::string ApplicationStatus::getClampingModalityString() {
     auto cm = getClampingModality();
     std::string cms;

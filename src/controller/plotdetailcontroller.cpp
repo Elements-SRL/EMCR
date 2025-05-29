@@ -19,6 +19,37 @@ PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measur
     consumer->setMaxSamplesPerPlot(4096);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &PlotDetailController::onReplot);
     connect(consumer, &PlotConsumer::endOfPlotReached, this, &PlotDetailController::handleEndOfPlot);
+    connect(cc, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
+        plotDetailAction(newChannelState);
+    });
+    connect(cc, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
+        plotDetailAction(newChannelState);
+    });
+    connect(cc, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
+        plotDetailAction(newChannelState);
+    });
+    connect(cc, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
+        bool newState = event->button() == Qt::LeftButton;
+        // clickBehaviour(newState);
+        // auto msgDisp = appStatus->getMessageDispatcher();
+        // if (newState) {
+        //     // slightly inefficient
+        //     auto selectedIndexes = appStatus->getSelectedChannelsIndexes();
+        //     bool isChSelected = false;
+        //     for (auto idx: selectedIndexes){
+        //         if (idx == chIdx){
+        //             isChSelected = true;
+        //             break;
+        //         }
+        //     }
+        //     // if the channel is selected but the user is pressing ctrl toggle it
+        //     msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
+        // }
+        // else {
+        //     msgDisp->setChannelSelected(chIdx, newState);
+        // }
+        plotDetailAction(newState);
+    });
 }
 
 // build a map where the keys are the vec entry and the values the flag
@@ -31,6 +62,12 @@ std::map<uint16_t, bool> buildCoherentMap(std::vector<uint16_t> chs, bool flag) 
 }
 
 void PlotDetailController::plotDetailAction(bool flag) {
+    if (appStatus->isPlotDetailAuto()) {
+        // clear the plot details to keep them consistent
+        appStatus->clearPlotDetails();
+        // delete current plot detail
+        manageDeletion();
+    }
     // get selected channels
     const auto sChs = appStatus->getSelectedChannelsIndexes();
     const auto pds = buildCoherentMap(sChs, flag);
@@ -41,12 +78,6 @@ void PlotDetailController::plotDetailAction(bool flag) {
     } else {
         manageDeletion();
     }
-    manageComsuner();
-}
-
-void PlotDetailController::plotDetailActionEx(){
-    manageDeletion();
-    manageCreation();
     manageComsuner();
 }
 

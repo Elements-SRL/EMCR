@@ -19,6 +19,7 @@ public:
     void setChannelsAuto(bool flag);
     void setStimulusAuto(bool flag);
     void setExpandAuto(bool flag);
+    void setPlotDetailAuto(bool flag);
     bool getExpertMode();
     void enableExpertMode(bool flag);
 
@@ -49,6 +50,7 @@ private:
     QPushButton * expandTraceBtn = nullptr;
     QPushButton * reduceTraceBtn = nullptr;
     QPushButton * expandTraceAutoBtn = nullptr;
+    QPushButton * plotDetailAutoBtn = nullptr;
     QPushButton * recordingStartBtn = nullptr;
     QPushButton * recordingStopBtn = nullptr;
     QLineEdit * fileNameLineEdit = nullptr;

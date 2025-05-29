@@ -200,7 +200,7 @@ void MainController::onMainWindowCreated() {
 
     stateArrayController = new StateArrayController(msgDisp, mainWindow);
 
-    auto plotDetailController = new PlotDetailController(appStatus, defaultPlotDuration, mainWindow, multipleChannelController, chessboardController, deviceDataProducer);
+    plotDetailController = new PlotDetailController(appStatus, defaultPlotDuration, mainWindow, multipleChannelController, chessboardController, deviceDataProducer);
     /***************\
      * Controllers *
     \***************/
@@ -216,22 +216,18 @@ void MainController::onMainWindowCreated() {
     \***********/
 
     connect(chessboardController, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
-        chessboardController->onAllChannelsClicked(newChannelState);
         singleChannelController->onChannelsSelected();
         multipleChannelController->onChannelsSelected();
     });
     connect(chessboardController, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
-        chessboardController->onOneBoardClicked(changedBoardIndex, newChannelState);
         singleChannelController->onChannelsSelected();
         multipleChannelController->onChannelsSelected();
     });
     connect(chessboardController, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
-        chessboardController->onOneRowClicked(changedRowIndex, newChannelState);
         singleChannelController->onChannelsSelected();
         multipleChannelController->onChannelsSelected();
     });
     connect(chessboardController, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
-        chessboardController->onSingleChannelClicked(changedChannelIndex, event);
         singleChannelController->onChannelsSelected();
         multipleChannelController->onChannelsSelected();
     });
@@ -255,9 +251,7 @@ void MainController::onMainWindowCreated() {
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           chessboardController,           &ChessboardController::onTracesExpandedOnOffEx);
     connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetail,              chessboardController,           &ChessboardController::onPlotDetailOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetailEx,            chessboardController,           &ChessboardController::onPlotDetailOnOffEx);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetailEx,            plotDetailController,           &PlotDetailController::plotDetailActionEx);
-
+    connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetail,              plotDetailController,           &PlotDetailController::plotDetailAction);
 
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
     connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOffEx,            chessboardController,           &ChessboardController::onChannelsTurnedOnOffEx);

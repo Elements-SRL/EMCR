@@ -30,11 +30,6 @@ void MultipleChannelModel::turnExpandAuto(bool flag) {
     expandAuto = flag;
 }
 
-void MultipleChannelModel::turnPlotDetailAuto(bool flag) {
-    plotDetailAutoSet = true;
-    plotDetailAuto = flag;
-}
-
 bool MultipleChannelModel::getChannelsAuto() {
     return channelsAuto;
 }
@@ -45,10 +40,6 @@ bool MultipleChannelModel::getStimulusAuto() {
 
 bool MultipleChannelModel::getExpandAuto() {
     return expandAuto;
-}
-
-bool MultipleChannelModel::getPlotDetailAuto() {
-    return plotDetailAuto;
 }
 
 void MultipleChannelModel::saveSettings() {
@@ -65,6 +56,10 @@ void MultipleChannelModel::saveSettings() {
     if (expandAutoSet) {
         settings.setValue(GLB_CONTROLS_EXPAND_AUTO_TAG, expandAuto);
     }
+
+    if (appStatus->isPlotDetailAuto()) {
+        settings.setValue(GLB_CONTROLS_PLOT_DETAIL_AUTO_TAG, true);
+    }
 }
 
 void MultipleChannelModel::loadSettings() {
@@ -78,4 +73,8 @@ void MultipleChannelModel::loadSettings() {
 
     expandAuto = settings.value(GLB_CONTROLS_EXPAND_AUTO_TAG, expandAuto).toBool();
     view->setExpandAuto(expandAuto);
+
+    auto pda = settings.value(GLB_CONTROLS_PLOT_DETAIL_AUTO_TAG).toBool();
+    appStatus->setPlotDetailAuto(pda);
+    view->setPlotDetailAuto(pda);
 }

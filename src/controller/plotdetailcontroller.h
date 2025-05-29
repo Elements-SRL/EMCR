@@ -24,12 +24,10 @@ protected:
 
 public:
     PlotDetailController(ApplicationStatus * appStatus, Measurement_t defaultPlotDuration, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc, DeviceDataProducer* p);
-
 public slots:
-    void plotDetailActionEx();
-
-private slots:
     void plotDetailAction(bool);
+private slots:
+    // void plotDetailAction(bool);
     void onSetPlotData(PlotMessage plotMessage);
     void onReplot();
     void handleEndOfPlot();
