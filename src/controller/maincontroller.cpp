@@ -436,6 +436,11 @@ void MainController::destroyControllers() {
         delete temperatureController;
         temperatureController = nullptr;
     }
+
+    if (plotDetailController != nullptr) {
+        delete plotDetailController;
+        plotDetailController = nullptr;
+    }
 }
 
 void MainController::onVcCurrentRangeSelected() {

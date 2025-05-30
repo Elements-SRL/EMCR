@@ -24,6 +24,8 @@ protected:
 
 public:
     PlotDetailController(ApplicationStatus * appStatus, Measurement_t defaultPlotDuration, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc, DeviceDataProducer* p);
+    ~PlotDetailController();
+
 public slots:
     void plotDetailAction(bool);
 private slots:

@@ -34,6 +34,17 @@ PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measur
     });
 }
 
+PlotDetailController::~PlotDetailController() {
+    consumer->onStopConsuming();
+    if (consumer != nullptr) {
+        delete consumer;
+        consumer = nullptr;
+    }
+    appStatus->clearPlotDetails();
+    manageDeletion();
+}
+
+
 // build a map where the keys are the vec entry and the values the flag
 std::map<uint16_t, bool> buildCoherentMap(std::vector<uint16_t> chs, bool flag) {
     std::map<uint16_t, bool> plotDetails;
@@ -68,7 +79,7 @@ void PlotDetailController::manageCreation(){
     for (auto &ch: detailedPlots) {
         // if not already created
         if(pds.find(ch) == pds.end()){
-            auto pd = new PlotDetail(pdms[ch]);
+            auto pd = new PlotDetail(pdms[ch], mainWindow);
             pd->show();
             pds[ch] = pd;
             // manage deletion of the widget pressing x
