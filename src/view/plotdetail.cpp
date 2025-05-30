@@ -9,6 +9,7 @@ PlotDetail::PlotDetail(PlotDetailModel * pdm, QWidget * parent):
     plot = new BasePlot(pdm->getLabel(), "s", pdm->getUom(), parent);
     mainVl->addWidget(plot);
     pdm->getCurve()->attach(plot);
+    setWindowFlags(Qt::Window);
 }
 
 uint16_t PlotDetail::getChannel(){
