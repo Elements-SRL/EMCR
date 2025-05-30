@@ -30,11 +30,11 @@ void PlotDetailModel::setCurrentRange(e384CommLib::RangedMeasurement_t cr) {
 
 void PlotDetailModel::updateMargins() {
     QRectF br = qwtBoundingRect(* this->getCurve()->data());
-    const auto bY = br.bottom();
-    const auto tY = br.top();
-    const auto padding = abs(bY-tY)/10;
-    bottomY = bY + padding;
-    topY = tY - padding;
+    const auto bY = br.top(); // For some reason the bottom returns the top and viceversa
+    const auto tY = br.bottom();
+    const auto padding = abs(tY-bY)/10;
+    bottomY = bY - padding;
+    topY = tY + padding;
 }
 
 double PlotDetailModel::getTopY() {

@@ -30,24 +30,6 @@ PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measur
     });
     connect(cc, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
         bool newState = event->button() == Qt::LeftButton;
-        // clickBehaviour(newState);
-        // auto msgDisp = appStatus->getMessageDispatcher();
-        // if (newState) {
-        //     // slightly inefficient
-        //     auto selectedIndexes = appStatus->getSelectedChannelsIndexes();
-        //     bool isChSelected = false;
-        //     for (auto idx: selectedIndexes){
-        //         if (idx == chIdx){
-        //             isChSelected = true;
-        //             break;
-        //         }
-        //     }
-        //     // if the channel is selected but the user is pressing ctrl toggle it
-        //     msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
-        // }
-        // else {
-        //     msgDisp->setChannelSelected(chIdx, newState);
-        // }
         plotDetailAction(newState);
     });
 }
