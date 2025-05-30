@@ -333,3 +333,27 @@ std::string ApplicationStatus::getClampingModalityString() {
 bool ApplicationStatus::isEpisodic() {
     return (msgDisp->isEpisodic() == Success);
 }
+
+void ApplicationStatus::setChannelsAuto(bool flag) {
+    this->channelsAuto = flag;
+}
+
+bool ApplicationStatus::isChannelsAuto() {
+    return channelsAuto;
+}
+
+void ApplicationStatus::setStimulusAuto(bool flag) {
+    this->stimulusAuto = flag;
+}
+
+bool ApplicationStatus::isStimulusAuto() {
+    return stimulusAuto;
+}
+
+void ApplicationStatus::setExpandAuto(bool flag) {
+    this->expandAuto = flag;
+}
+
+bool ApplicationStatus::isExpandAuto() {
+    return expandAuto;
+}

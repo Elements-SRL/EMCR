@@ -16,65 +16,50 @@ MultipleChannelModel::~MultipleChannelModel() {
 }
 
 void MultipleChannelModel::turnChannelsAuto(bool flag) {
-    channelsAutoSet = true;
-    channelsAuto = flag;
+    appStatus->setChannelsAuto(flag);
 }
 
 void MultipleChannelModel::turnStimulusAuto(bool flag) {
-    stimulusAutoSet = true;
-    stimulusAuto = flag;
+    appStatus->setStimulusAuto(flag);
 }
 
 void MultipleChannelModel::turnExpandAuto(bool flag) {
-    expandAutoSet = true;
-    expandAuto = flag;
+    appStatus->setExpandAuto(flag);
 }
 
 bool MultipleChannelModel::getChannelsAuto() {
-    return channelsAuto;
+    return appStatus->isChannelsAuto();
 }
 
 bool MultipleChannelModel::getStimulusAuto() {
-    return stimulusAuto;
+    return appStatus->isStimulusAuto();
 }
 
 bool MultipleChannelModel::getExpandAuto() {
-    return expandAuto;
+    return appStatus->isExpandAuto();
 }
 
 void MultipleChannelModel::saveSettings() {
     QSettings settings;
 
-    if (channelsAutoSet) {
-        settings.setValue(GLB_CONTROLS_CHANNEL_AUTO_TAG, channelsAuto);
-    }
-
-    if (stimulusAutoSet) {
-        settings.setValue(GLB_CONTROLS_STIMULUS_AUTO_TAG, stimulusAuto);
-    }
-
-    if (expandAutoSet) {
-        settings.setValue(GLB_CONTROLS_EXPAND_AUTO_TAG, expandAuto);
-    }
-
-    if (appStatus->isPlotDetailAuto()) {
-        settings.setValue(GLB_CONTROLS_PLOT_DETAIL_AUTO_TAG, true);
-    }
+    settings.setValue(GLB_CONTROLS_CHANNEL_AUTO_TAG, appStatus->isChannelsAuto());
+    settings.setValue(GLB_CONTROLS_STIMULUS_AUTO_TAG, appStatus->isStimulusAuto());
+    settings.setValue(GLB_CONTROLS_EXPAND_AUTO_TAG,  appStatus->isExpandAuto());
+    settings.setValue(GLB_CONTROLS_PLOT_DETAIL_AUTO_TAG, appStatus->isPlotDetailAuto());
 }
 
 void MultipleChannelModel::loadSettings() {
     QSettings settings;
-
-    channelsAuto = settings.value(GLB_CONTROLS_CHANNEL_AUTO_TAG, channelsAuto).toBool();
+    auto channelsAuto = settings.value(GLB_CONTROLS_CHANNEL_AUTO_TAG).toBool();
     view->setChannelsAuto(channelsAuto);
 
-    stimulusAuto = settings.value(GLB_CONTROLS_STIMULUS_AUTO_TAG, stimulusAuto).toBool();
+    auto stimulusAuto = settings.value(GLB_CONTROLS_STIMULUS_AUTO_TAG).toBool();
     view->setStimulusAuto(stimulusAuto);
 
-    expandAuto = settings.value(GLB_CONTROLS_EXPAND_AUTO_TAG, expandAuto).toBool();
+    auto expandAuto = settings.value(GLB_CONTROLS_EXPAND_AUTO_TAG).toBool();
     view->setExpandAuto(expandAuto);
 
-    auto pda = settings.value(GLB_CONTROLS_PLOT_DETAIL_AUTO_TAG).toBool();
-    appStatus->setPlotDetailAuto(pda);
-    view->setPlotDetailAuto(pda);
+    auto plotDetailAuto = settings.value(GLB_CONTROLS_PLOT_DETAIL_AUTO_TAG).toBool();
+    appStatus->setPlotDetailAuto(plotDetailAuto);
+    view->setPlotDetailAuto(plotDetailAuto);
 }

@@ -18,6 +18,9 @@ private:
     std::map <uint16_t, bool> expandedTraces;
     std::map <uint16_t, bool> detailedPlots;
     bool plotDetailAuto;
+    bool channelsAuto;
+    bool stimulusAuto;
+    bool expandAuto;
 
 public:
     ApplicationStatus(MessageDispatcher * msgDisp, std::string filepath = "");
@@ -58,6 +61,14 @@ public:
     void clearPlotDetails();
     void setPlotDetailAuto(bool);
     bool isPlotDetailAuto();
+
+    // Auto
+    void setChannelsAuto(bool);
+    bool isChannelsAuto();
+    void setStimulusAuto(bool);
+    bool isStimulusAuto();
+    void setExpandAuto(bool);
+    bool isExpandAuto();
 
     RangedMeasurement_t getCcCurrentRange();
     std::vector <RangedMeasurement_t> getVoltageRanges();

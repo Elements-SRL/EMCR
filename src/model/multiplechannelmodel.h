@@ -24,15 +24,6 @@ public:
 private:
     ApplicationStatus * appStatus = nullptr;
     MultipleChannelControlDockWidget * view = nullptr;
-
-    bool channelsAuto = false;
-    bool channelsAutoSet = false;
-
-    bool stimulusAuto = false;
-    bool stimulusAutoSet = false;
-
-    bool expandAuto = false;
-    bool expandAutoSet = false;
 };
 
 #endif // MULTIPLECHANNELMODEL_H
