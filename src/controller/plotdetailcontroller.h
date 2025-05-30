@@ -27,16 +27,16 @@ public:
     ~PlotDetailController();
 
 public slots:
-    void plotDetailAction(bool);
+    void onPlotDetailAction(bool);
 private slots:
     // void plotDetailAction(bool);
     void onSetPlotData(PlotMessage plotMessage);
     void onReplot();
-    void handleEndOfPlot();
+    void onHandleEndOfPlot();
 
 signals:
-    void removeState(std::vector<uint16_t>);
-    void addState(std::vector<uint16_t>);
+    void sigRemoveState(std::vector<uint16_t>);
+    void sigAddState(std::vector<uint16_t>);
 };
 
 #endif // PLOTDETAILCONTROLLER_H

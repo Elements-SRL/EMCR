@@ -3,9 +3,9 @@
 
 PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measurement_t defaultPlotDuration, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc, DeviceDataProducer* p) :
     ControllerWithConsumer(appStatus), mainWindow(mainWindow) {
-    connect(mcc, &MultipleChannelController::sigAddRemovePlotDetail, this, &PlotDetailController::plotDetailAction);
-    connect(this, &PlotDetailController::addState, cc, &ChessboardController::onPlotDetailCreation);
-    connect(this, &PlotDetailController::removeState, cc, &ChessboardController::onPlotDetailDeletion);
+    connect(mcc, &MultipleChannelController::sigAddRemovePlotDetail, this, &PlotDetailController::onPlotDetailAction);
+    connect(this, &PlotDetailController::sigAddState, cc, &ChessboardController::onPlotDetailCreation);
+    connect(this, &PlotDetailController::sigRemoveState, cc, &ChessboardController::onPlotDetailDeletion);
     consumer = new GapFreePlotConsumer(appStatus, p);
     consumer->onDurationChanged(defaultPlotDuration);
 
@@ -18,19 +18,19 @@ PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measur
     consumer->forceAxisUpdate();
     consumer->setMaxSamplesPerPlot(4096);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &PlotDetailController::onReplot);
-    connect(consumer, &PlotConsumer::endOfPlotReached, this, &PlotDetailController::handleEndOfPlot);
+    connect(consumer, &PlotConsumer::endOfPlotReached, this, &PlotDetailController::onHandleEndOfPlot);
     connect(cc, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
-        plotDetailAction(newChannelState);
+        onPlotDetailAction(newChannelState);
     });
     connect(cc, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
-        plotDetailAction(newChannelState);
+        onPlotDetailAction(newChannelState);
     });
     connect(cc, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
-        plotDetailAction(newChannelState);
+        onPlotDetailAction(newChannelState);
     });
     connect(cc, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
         bool newState = event->button() == Qt::LeftButton;
-        plotDetailAction(newState);
+        onPlotDetailAction(newState);
     });
 }
 
@@ -54,7 +54,7 @@ std::map<uint16_t, bool> buildCoherentMap(std::vector<uint16_t> chs, bool flag) 
     return plotDetails;
 }
 
-void PlotDetailController::plotDetailAction(bool flag) {
+void PlotDetailController::onPlotDetailAction(bool flag) {
     if (appStatus->isPlotDetailAuto()) {
         // clear the plot details to keep them consistent
         appStatus->clearPlotDetails();
@@ -91,7 +91,7 @@ void PlotDetailController::manageCreation(){
         };
     }
     // signal to chessboard that plots have been added
-    emit addState(detailedPlots);
+    emit sigAddState(detailedPlots);
 }
 
 void PlotDetailController::manageDeletion(){
@@ -106,7 +106,7 @@ void PlotDetailController::manageDeletion(){
     }
     appStatus->setDetailedPlots(buildCoherentMap(toRemove, false));
     // signal to chessboard that plots have been deleted
-    emit removeState(toRemove);
+    emit sigRemoveState(toRemove);
     for (auto &tr : toRemove) {
         pds.erase(tr);
     }
@@ -149,7 +149,7 @@ std::vector <DeviceDataConsumer*> PlotDetailController::getConsumers() {
     return {consumer};
 }
 
-void PlotDetailController::handleEndOfPlot() {
+void PlotDetailController::onHandleEndOfPlot() {
     for (auto &pdm : pdms) {
         pdm->updateMargins();
     }
