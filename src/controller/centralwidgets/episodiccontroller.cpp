@@ -356,9 +356,7 @@ std::vector <DeviceDataConsumer *> EpisodicController::getConsumers() {
 
 void EpisodicController::onRecordingRequest(bool flag) {
     if (flag) {
-        std::vector <uint16_t> selectedChannels;
-        auto msgDisp = appStatus->getMessageDispatcher();
-        msgDisp->getSelectedChannelsIndexes(selectedChannels);
+        std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
         ProtocolList * pl;
         if (appStatus->getClampingModality() == e384CommLib::VOLTAGE_CLAMP) {
             pl = pw->getVoltageProtocolList();

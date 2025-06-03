@@ -76,7 +76,6 @@ private slots:
     void onOperationSelected(int operationIdx);
     void onApplyButtonClicked();
     void onApplyButtonClicked(int idx, bool applyAll);
-    void onAllButtonClicked(bool);
     void onSetAllButtonClicked();
 
 signals:

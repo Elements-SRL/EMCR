@@ -172,29 +172,12 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
     }
 }
 
-//TODO Questo non viene mai chiamato
-void SingleChannelControlDockWidget::onAllButtonClicked(bool newState) {
-    QCheckBox * cb;
-    std::vector<bool> values;
-    std::vector<uint16_t> indexes;
-    std::vector <bool> selectedChannels;
-    auto msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->getSelectedChannels(selectedChannels);
-    for (int i = 0; i<selectedChannels.size(); i++) {
-        cb = static_cast<QCheckBox *>(operationEdits[operationCbx->currentIndex()][i]);
-        if (selectedChannels.at(i)) {
-            cb->setChecked(newState);
-        }
-    }
-}
 
 void SingleChannelControlDockWidget::onSetAllButtonClicked() {
     SpinBoxWithChannel * spinBox;
     std::vector<bool> values;
     std::vector<uint16_t> indexes;
-    std::vector <bool> selectedChannels;
-    auto msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->getSelectedChannels(selectedChannels);
+    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     for (int i = 0; i < selectedChannels.size(); i++) {
         spinBox = static_cast <SpinBoxWithChannel *> (operationEdits[operationCbx->currentIndex()][i]);
         if (selectedChannels.at(i)) {

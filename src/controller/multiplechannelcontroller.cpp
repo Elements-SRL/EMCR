@@ -194,28 +194,23 @@ void MultipleChannelController::onChannelsSelected() {
 }
 
 void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->turnChannelsOn(selectedChannels, values, true);
-
     emit sigChannelsTurnedOnOff(flag);
 }
 
 void MultipleChannelController::turnSelectedChannelsOnOffEx(bool flag) {
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
+    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     for (auto &&v : selectedChannels) {
         v = !(v^flag);
     }
     msgDisp->turnChannelsOn(allChannels, selectedChannels, true);
-
     emit sigChannelsTurnedOnOffEx(flag);
 }
 
 void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->turnCalSwOn(selectedChannels, values, true);
 
@@ -223,8 +218,7 @@ void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag)
 }
 
 void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->enableStimulus(selectedChannels, values, true);
 
@@ -232,8 +226,7 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
 }
 
 void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
-    std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
+    std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     for (auto &&v : selectedChannels) {
         v = !(v^flag);
     }
@@ -243,8 +236,7 @@ void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
 }
 
 void MultipleChannelController::zap(Measurement_t duration) {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     msgDisp->zap(selectedChannels, duration);
 }
 
@@ -309,8 +301,7 @@ void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) 
     } else {
         QApplication::restoreOverrideCursor();
     }
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), flag);
     ErrorCodes_t err = msgDisp->readoutOffsetRecalibration(selectedChannels, values, true);
     if (err == Success) {
@@ -322,8 +313,7 @@ void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) 
 }
 
 void MultipleChannelController::resetOffsetRecalibration() {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     msgDisp->resetOffsetRecalibration(selectedChannels, true);
 
     emit sigOffsetRecalibrationResetted();
@@ -337,8 +327,7 @@ void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
     } else {
         QApplication::restoreOverrideCursor();
     }
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), flag);
     ErrorCodes_t err = msgDisp->liquidJunctionCompensation(selectedChannels, values, true);
     if (err == Success) {
@@ -350,8 +339,7 @@ void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
 }
 
 void MultipleChannelController::resetLj() {
-    std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
 
     emit sigLjResetted();

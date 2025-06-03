@@ -65,8 +65,6 @@ private:
     QVector <StampPlot *> plots;
     QVector <Curve *> currentCurves;
 
-    std::vector <ChannelModel *> channels;
-
     int voltageChannelsNum;
     int currentChannelsNum;
     void onSetConsumerStatus(bool status);

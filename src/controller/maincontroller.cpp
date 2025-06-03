@@ -158,7 +158,7 @@ void MainController::onMainWindowCreated() {
     \*********/
 
     appStatus = new ApplicationStatus(msgDisp);
-    msgDisp->setChannelSelected(0, true);
+    appStatus->setChannelSelected(0, true);
 
     /************\
      * Producer *

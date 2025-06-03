@@ -6,6 +6,9 @@ ApplicationStatus::ApplicationStatus(MessageDispatcher * msgDisp, std::string fi
     msgDisp(msgDisp) {
 
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    for (uint16_t i = 0; i < currentChannelsNum; i++) {
+        channelStates.push_back(new ChannelState(i));
+    }
     if(!filepath.empty() && std::filesystem::exists(filepath)) {
 //        if there's a mapping file read from it
         loadChannelMappingFromYaml(filepath);
@@ -26,7 +29,9 @@ void ApplicationStatus::loadChannelMappingFromYaml(std::string pathTofile) {
 }
 
 void ApplicationStatus::setAllChannelsSelected(bool state){
-    msgDisp->setAllChannelsSelected(state);
+    for (auto &ch: channelStates) {
+        ch->setSelected(state);
+    }
 }
 
 int ApplicationStatus::getVoltageChannelsNum(){
@@ -62,20 +67,25 @@ std::vector <ChannelModel *> ApplicationStatus::getChannels(){
 
 std::vector <bool> ApplicationStatus::getSelectedChannels(){
     std::vector <bool> selectedChannels;
-    msgDisp->getSelectedChannels(selectedChannels);
+    for (auto ch: channelStates) {
+        selectedChannels.push_back(ch->isSelected());
+    }
     return selectedChannels;
 
 };
 
 std::vector <uint16_t> ApplicationStatus::getSelectedChannelsIndexes(){
     std::vector <uint16_t> selectedChannels;
-    msgDisp->getSelectedChannelsIndexes(selectedChannels);
+    for (auto ch: channelStates) {
+        if (ch->isSelected()) {
+            selectedChannels.push_back(ch->getIndex());
+        }
+    }
     return selectedChannels;
 };
 
 std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
     auto expChannels = this->getExpandedTraces();
-
     std::vector<uint16_t> keys;
     for (const auto& pair : expChannels) {
         if (pair.second) {
@@ -183,7 +193,7 @@ std::vector<int> ApplicationStatus::filterVisibleChannels(std::vector<int> chann
 
 void ApplicationStatus::setSelectedChannels(std::map<int, bool> channelAndStatus){
     for(auto ch: channelAndStatus){
-        msgDisp->setChannelSelected(ch.first, ch.second);
+        channelStates[ch.first]->setSelected(ch.second);
     }
 }
 
@@ -271,29 +281,39 @@ ClampingModality_t ApplicationStatus::getClampingModality() {
 }
 
 std::map <uint16_t, bool> ApplicationStatus::getExpandedTraces() {
-    return this->expandedTraces;
+    std::map<uint16_t, bool> expandedTraces;
+    for (uint16_t i = 0; i < channelStates.size(); i++) {
+        expandedTraces[i] = channelStates[i];
+    }
+    return expandedTraces;
 }
 
 void ApplicationStatus::setExpandedTraces(std::map <uint16_t, bool> other){
-    expandedTraces = other;
+    for(auto ch: other){
+        channelStates[ch.first]->setExpanded(ch.second);
+    }
 }
 
 std::vector<uint16_t> ApplicationStatus::getDetailedPlotIndexes() {
     std::vector<uint16_t> detailed;
-    for (auto &p: this->detailedPlots) {
-        if (p.second) {
-            detailed.push_back(p.first);
+    for (auto &p: this->channelStates) {
+        if (p->isDetailed()) {
+            detailed.push_back(p->getIndex());
         }
     }
     return detailed;
 }
 
 void ApplicationStatus::setDetailedPlots(std::map <uint16_t, bool> other){
-    detailedPlots = other;
+    for (auto o : other) {
+        channelStates[o.first]->setDetailed(o.second);
+    }
 }
 
 void ApplicationStatus::clearPlotDetails(){
-    detailedPlots.clear();
+    for (auto &p: this->channelStates) {
+        p->setDetailed(false);
+    }
 }
 
 void ApplicationStatus::setPlotDetailAuto(bool flag) {
@@ -356,4 +376,8 @@ void ApplicationStatus::setExpandAuto(bool flag) {
 
 bool ApplicationStatus::isExpandAuto() {
     return expandAuto;
+}
+
+void ApplicationStatus::setChannelSelected(uint16_t idx, bool flag) {
+    channelStates[idx]->setSelected(flag);
 }

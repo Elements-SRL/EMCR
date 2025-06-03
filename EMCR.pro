@@ -76,6 +76,7 @@ SOURCES += \
     src/controller/centralwidgets/eventdetectioncontroller.cpp \
     src/controller/centralwidgets/spectrumcontroller.cpp \
     src/controller/autodeclogger/autodecloggercontroller.cpp \
+    src/model/channelstate.cpp \
     src/model/devicemodel.cpp \
     src/model/application_status.cpp \
     src/model/bigplotmodel.cpp \
@@ -167,6 +168,7 @@ HEADERS += \
     src/controller/plotdetailcontroller.h \
     src/controller/temperaturecontroller.h \
     src/globaldefines.h \
+    src/model/channelstate.h \
     src/model/membraneresult.h \
     src/model/plotdetailmodel.h \
     src/model/singlemeasresult.h \

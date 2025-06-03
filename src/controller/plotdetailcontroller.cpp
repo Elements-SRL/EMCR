@@ -20,17 +20,23 @@ PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measur
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &PlotDetailController::onReplot);
     connect(consumer, &PlotConsumer::endOfPlotReached, this, &PlotDetailController::onHandleEndOfPlot);
     connect(cc, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
-        onPlotDetailAction(newChannelState);
+        if (appStatus->isPlotDetailAuto()) {
+            onPlotDetailAction(newChannelState);
+        }
     });
     connect(cc, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
-        onPlotDetailAction(newChannelState);
-    });
+        if (appStatus->isPlotDetailAuto()) {
+            onPlotDetailAction(newChannelState);
+        }    });
     connect(cc, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
-        onPlotDetailAction(newChannelState);
-    });
+        if (appStatus->isPlotDetailAuto()) {
+            onPlotDetailAction(newChannelState);
+        }    });
     connect(cc, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
         bool newState = event->button() == Qt::LeftButton;
-        onPlotDetailAction(newState);
+        if (appStatus->isPlotDetailAuto()) {
+            onPlotDetailAction(newState);
+        }
     });
 }
 
@@ -136,12 +142,11 @@ void PlotDetailController::onReplot() {
 
 void PlotDetailController::onCurrentRangeChanged(){
     auto crs = appStatus->getCurrentRanges();
-    auto detailedPlots = appStatus->getDetailedPlotIndexes();
     for (int i = 0; i < pdms.size(); i++) {
         pdms[i]->setCurrentRange(crs[i]);
     }
-    for (auto &i : detailedPlots) {
-        pds[i]->updateLabel();
+    for (auto pd : pds) {
+        pd.second->updateLabel();
     }
 }
 

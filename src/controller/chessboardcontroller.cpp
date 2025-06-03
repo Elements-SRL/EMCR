@@ -9,7 +9,6 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, Device
     stampPlotConsumer = new GapFreePlotConsumer(appStatus, dataProducer);
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
     currentChannelsNum = appStatus->getCurrentChannelsNum();
-    channels = appStatus->getChannels();
 
     chessboard = new ChessboardDockWidget(appStatus, mainWindow);
 
@@ -379,10 +378,10 @@ void ChessboardController::onSingleChannelClicked(uint16_t chIdx, QMouseEvent *e
             }
         }
         // if the channel is selected but the user is pressing ctrl toggle it
-        msgDisp->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
+        appStatus->setChannelSelected(chIdx, !((QApplication::keyboardModifiers() & Qt::ControlModifier) && isChSelected));
     }
     else {
-        msgDisp->setChannelSelected(chIdx, newState);
+        appStatus->setChannelSelected(chIdx, newState);
     }
 }
 
@@ -407,7 +406,7 @@ void ChessboardController::clickBehaviour(bool newState) {
         return;
     }
     // Ctrl key is pressed
-    appStatus->getMessageDispatcher()->setAllChannelsSelected(false);
+    appStatus->setAllChannelsSelected(false);
 }
 
 void ChessboardController::updateChessboard(){

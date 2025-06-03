@@ -5,6 +5,7 @@
 #include "messagedispatcher.h"
 #include <map>
 #include "channel_and_name.h"
+#include "channelstate.h"
 
 class ApplicationStatus {
 //    TODO maybe use a status and act as a state machin, if the configuration is not the default one do we need another way to get channels num and board num?
@@ -15,8 +16,7 @@ private:
     int boardsNum = 1;
     MessageDispatcher * msgDisp;
     std::vector<int> filterVisibleChannels(std::vector<int>);
-    std::map <uint16_t, bool> expandedTraces;
-    std::map <uint16_t, bool> detailedPlots;
+    std::vector <ChannelState *> channelStates;
     bool plotDetailAuto;
     bool channelsAuto;
     bool stimulusAuto;
@@ -31,17 +31,22 @@ public:
     int getCurrentChannelsNum();
     int getBoardsNum();
     int getTemperatureChannelsNum();
+
     std::vector <ChannelModel *> getChannels();
     void setSelectedChannels(std::map<int, bool>);
-    std::vector <int> getVisibleChannelsOnBoard(int boardIdx);
-    std::vector <int> getVisibleChannelsOnRow(int rowIdx);
-    std::vector <bool> getSelectedChannels();
     std::vector <uint16_t> getSelectedChannelsIndexes();
     std::vector <uint16_t> getExpandedChannelsIndexes();
     std::vector <uint16_t> getStimActiveChannelsIndexes();
     std::vector <uint16_t> getExpandedAndStimActiveChannelsIndexes();
     std::vector <uint16_t> getOffsetRecalibratingChannelsIndexes();
     std::vector <uint16_t> getLiquidJunctionCompensatingChannelsIndexes();
+
+    std::map <uint16_t, bool> getExpandedTraces();
+    void setExpandedTraces(std::map <uint16_t, bool>);
+
+    std::vector <int> getVisibleChannelsOnBoard(int boardIdx);
+    std::vector <int> getVisibleChannelsOnRow(int rowIdx);
+    std::vector <bool> getSelectedChannels();
     std::vector <YAML::ChannelMapping> getMappings();
     std::set <int> getVisibleBoards();
     MessageDispatcher * getMessageDispatcher();
@@ -51,9 +56,6 @@ public:
     RangedMeasurement_t getVcVoltageRange();
     std::vector <RangedMeasurement_t> getVcCurrentRange();
     std::vector <RangedMeasurement_t> getCcVoltageRange();
-
-    std::map <uint16_t, bool> getExpandedTraces();
-    void setExpandedTraces(std::map <uint16_t, bool>);
 
     // Plot detail
     std::vector<uint16_t> getDetailedPlotIndexes();
@@ -80,6 +82,8 @@ public:
     ClampingModality_t getClampingModality();
     std::string getClampingModalityString();
     bool isEpisodic();
+
+    void setChannelSelected(uint16_t, bool);
 };
 
 
