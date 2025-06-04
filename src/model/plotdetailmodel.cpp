@@ -44,3 +44,7 @@ double PlotDetailModel::getTopY() {
 double PlotDetailModel::getBottomY() {
     return this->bottomY;
 }
+
+void PlotDetailModel::setCurveColor(QColor c) {
+    this->curve->setColor(c);
+}

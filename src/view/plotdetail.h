@@ -22,6 +22,7 @@ public:
     void replot();
     void updateLabel();
     void updatePlot();
+    void setBackgroundColor(QColor);
 
 signals:
     void close();

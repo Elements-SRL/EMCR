@@ -28,6 +28,10 @@ public:
 
 public slots:
     void onPlotDetailAction(bool);
+    void onCurrentColorsChanged(QVector <QColor> colors);
+    void onCurrentColorChanged(int channelIdx, QColor color);
+    void onBackgroundColorChanged(QColor color);
+
 private slots:
     // void plotDetailAction(bool);
     void onSetPlotData(PlotMessage plotMessage);

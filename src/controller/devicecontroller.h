@@ -6,7 +6,6 @@
 #include "devicecontroldockwidget.h"
 #include "mainwindow.h"
 #include "devicemodel.h"
-#include "messagedispatcher.h"
 
 class DeviceController : public QObject {
     Q_OBJECT

@@ -262,6 +262,10 @@ void MainController::onMainWindowCreated() {
     connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  chessboardController, &ChessboardController::onCurrentColorChanged);
 //    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    chessboardController, &ChessboardController::onBackgroundColorChanged);
 
+    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, plotDetailController, &PlotDetailController::onCurrentColorsChanged);
+    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  plotDetailController, &PlotDetailController::onCurrentColorChanged);
+    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    plotDetailController, &PlotDetailController::onBackgroundColorChanged);
+
     if (msgDisp->hasProtocols() == Success) {
         auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
         connect(voltageProtocolManager, &ProtocolManager::protocolRequestOutcome,   protocolDw->getVoltageProtocolList(), &ProtocolList::onProtocolRequestOutcome);

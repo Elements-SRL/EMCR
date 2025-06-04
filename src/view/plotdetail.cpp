@@ -33,3 +33,7 @@ void PlotDetail::updatePlot() {
     const auto ty = pdm->getTopY();
     plot->getPlot()->setAxisScale(QwtPlot::Axis::yLeft, by, ty);
 }
+
+void PlotDetail::setBackgroundColor(QColor c) {
+    plot->setCanvasBackground(c);
+}

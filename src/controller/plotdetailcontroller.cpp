@@ -1,5 +1,6 @@
 #include "plotdetailcontroller.h"
 #include "plotdetailmodel.h"
+#include <cassert>
 
 PlotDetailController::PlotDetailController(ApplicationStatus * appStatus, Measurement_t defaultPlotDuration, MainWindow* mainWindow, MultipleChannelController * mcc, ChessboardController * cc, DeviceDataProducer* p) :
     ControllerWithConsumer(appStatus), mainWindow(mainWindow) {
@@ -161,5 +162,23 @@ void PlotDetailController::onHandleEndOfPlot() {
 
     for (auto &pair : pds) {
         pair.second->updatePlot();
+    }
+}
+
+void PlotDetailController::onCurrentColorsChanged(QVector <QColor> colors) {
+    assert(colors.size() == pdms.size());
+    for (int i=0; i<colors.size(); i++) {
+        pdms[i]->setCurveColor(colors[i]);
+    }
+}
+
+void PlotDetailController::onCurrentColorChanged(int channelIdx, QColor c) {
+    assert(channelIdx < pdms.size());
+    pdms[channelIdx]->setCurveColor(c);
+}
+
+void PlotDetailController::onBackgroundColorChanged(QColor color) {
+    for (auto &pd: pds) {
+        pd.second->setBackgroundColor(color);
     }
 }

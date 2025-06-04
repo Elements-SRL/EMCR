@@ -26,6 +26,7 @@ public:
     void updateMargins();
     double getTopY();
     double getBottomY();
+    void setCurveColor(QColor);
 };
 
 #endif // PLOTDETAILMODEL_H
