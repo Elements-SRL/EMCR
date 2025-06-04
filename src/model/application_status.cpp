@@ -282,8 +282,8 @@ ClampingModality_t ApplicationStatus::getClampingModality() {
 
 std::map <uint16_t, bool> ApplicationStatus::getExpandedTraces() {
     std::map<uint16_t, bool> expandedTraces;
-    for (uint16_t i = 0; i < channelStates.size(); i++) {
-        expandedTraces[i] = channelStates[i];
+    for (auto chs: channelStates) {
+        expandedTraces[chs->getIndex()] = chs->isExpanded();
     }
     return expandedTraces;
 }
