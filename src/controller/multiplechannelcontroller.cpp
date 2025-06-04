@@ -2,9 +2,13 @@
 
 #include <QMessageBox>
 #include <QApplication>
-
 #include "errormanager.h"
 #include "globaldefines.h"
+#include "chessboardcontroller.h"
+#include "plotdetailcontroller.h"
+#include "measurementoverviewcontroller.h"
+#include "singlechannelcontroller.h"
+#include "bigplotcontroller.h"
 
 MultipleChannelController::MultipleChannelController(ApplicationStatus * appStatus, MainWindow * mainWindow) :
     appStatus(appStatus),
@@ -343,4 +347,44 @@ void MultipleChannelController::resetLj() {
     msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
 
     emit sigLjResetted();
+}
+
+void MultipleChannelController::connectBigPlotController(BigPlotController* bpc) {
+    connect(this, &MultipleChannelController::sigAddRemoveFromBigPlot, bpc, &BigPlotController::onExpandTrace);
+    connect(this, &MultipleChannelController::sigAddRemoveFromBigPlotEx, bpc, &BigPlotController::onExpandTrace);
+}
+
+void MultipleChannelController::connectChessboardController(ChessboardController* cc) {
+    connect(this, &MultipleChannelController::sigAddRemoveFromBigPlot, cc, &ChessboardController::onTracesExpandedOnOff);
+    connect(this, &MultipleChannelController::sigAddRemoveFromBigPlotEx, cc, &ChessboardController::onTracesExpandedOnOffEx);
+    connect(this, &MultipleChannelController::sigAddRemovePlotDetail, cc, &ChessboardController::onPlotDetailOnOff);
+    connect(this, &MultipleChannelController::sigChannelsTurnedOnOff, cc, &ChessboardController::onChannelsTurnedOnOff);
+    connect(this, &MultipleChannelController::sigChannelsTurnedOnOffEx, cc, &ChessboardController::onChannelsTurnedOnOffEx);
+    connect(this, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff, cc, &ChessboardController::onCalibrationResistorsTurnedOnOff);
+    connect(this, &MultipleChannelController::sigStimuliTurnedOnOff, cc, &ChessboardController::onStimuliTurnedOnOff);
+    connect(this, &MultipleChannelController::sigStimuliTurnedOnOffEx, cc, &ChessboardController::onStimuliTurnedOnOffEx);
+    connect(this, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff, cc, &ChessboardController::onOffsetRecalibrationTurnedOnOff);
+    connect(this, &MultipleChannelController::sigLjcTurnedOnOff, cc, &ChessboardController::onLjcTurnedOnOff);
+}
+
+void MultipleChannelController::connectPlotDetailController(PlotDetailController* pdc) {
+    connect(this, &MultipleChannelController::sigAddRemovePlotDetail, pdc, &PlotDetailController::onPlotDetailAction);
+}
+
+void MultipleChannelController::connectMeasurementOverviewController(MeasurementOverviewController* moc) {
+    connect(this, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff, moc, &MeasurementOverviewController::onOffsetRecalibrationResult);
+    connect(this, &MultipleChannelController::sigLjcTurnedOnOff, moc, &MeasurementOverviewController::onLiquidJunctionResult);
+    connect(this, &MultipleChannelController::sigOffsetRecalibrationResetted, moc, [=] () {
+        moc->onOffsetRecalibrationResult(false);
+    });
+    connect(this, &MultipleChannelController::sigLjResetted, moc, [=] () {
+        moc->onLiquidJunctionResult(false);
+    });
+}
+
+void MultipleChannelController::connectSingleChannelController(SingleChannelController* scc) {
+    connect(this, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff, scc, &SingleChannelController::onOffsetRecalibrationResult);
+    connect(this, &MultipleChannelController::sigLjcTurnedOnOff, scc, &SingleChannelController::onLiquidJunctionResult);
+    connect(this, &MultipleChannelController::sigOffsetRecalibrationResetted, scc, &SingleChannelController::onOffsetRecalibrationResult);
+    connect(this, &MultipleChannelController::sigLjResetted, scc, &SingleChannelController::onLiquidJunctionResult);
 }

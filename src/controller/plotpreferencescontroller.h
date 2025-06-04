@@ -2,11 +2,14 @@
 #define PLOTPREFERENCESCONTROLLER_H
 
 #include <QObject>
-
 #include "messagedispatcher.h"
 #include "plotpreferencesdialog.h"
 #include "plotpreferencesmodel.h"
 #include "mainwindow.h"
+
+class BigPlotController;
+class ChessboardController;
+class PlotDetailController;
 
 class PlotPreferencesController : public QObject {
     Q_OBJECT
@@ -16,6 +19,9 @@ public:
     ~PlotPreferencesController();
 
     void initializePlotColors();
+    void connectPlotDetailController(PlotDetailController*);
+    void connectChessboardController(ChessboardController*);
+    void connectBigPlotController(BigPlotController*);
 
 private:
     MessageDispatcher * msgDisp = nullptr;

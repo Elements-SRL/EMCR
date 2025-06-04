@@ -227,44 +227,16 @@ void MainController::onMainWindowCreated() {
     connect(deviceController, &DeviceController::sigSamplingRateSelected,       this, &MainController::onSamplingRateSelected);
     connect(deviceController, &DeviceController::sigDownsamplingRatioSelected,  this, &MainController::onDownsamplingRatioSelected);
     connect(deviceController, &DeviceController::sigClampingModalitySelected,   this, &MainController::onClampingModalitySelected);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             bigPlotController,              &BigPlotController::onExpandTrace);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           bigPlotController,              &BigPlotController::onExpandTrace);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlot,             chessboardController,           &ChessboardController::onTracesExpandedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemoveFromBigPlotEx,           chessboardController,           &ChessboardController::onTracesExpandedOnOffEx);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetail,              chessboardController,           &ChessboardController::onPlotDetailOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigAddRemovePlotDetail,              plotDetailController,           &PlotDetailController::onPlotDetailAction);
 
-    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOff,              chessboardController,           &ChessboardController::onChannelsTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigChannelsTurnedOnOffEx,            chessboardController,           &ChessboardController::onChannelsTurnedOnOffEx);
-    connect(multipleChannelController, &MultipleChannelController::sigCalibrationResistorsTurnedOnOff,  chessboardController,           &ChessboardController::onCalibrationResistorsTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOff,               chessboardController,           &ChessboardController::onStimuliTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigStimuliTurnedOnOffEx,             chessboardController,           &ChessboardController::onStimuliTurnedOnOffEx);
-    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   chessboardController,           &ChessboardController::onOffsetRecalibrationTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   measurementOverviewController,  &MeasurementOverviewController::onOffsetRecalibrationResult);
-    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationTurnedOnOff,   singleChannelController,        &SingleChannelController::onOffsetRecalibrationResult);
-    connect(multipleChannelController, &MultipleChannelController::sigOffsetRecalibrationResetted,      this, [=] () {
-        measurementOverviewController->onOffsetRecalibrationResult(false);
-        singleChannelController->onOffsetRecalibrationResult();
-    });
-    connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   chessboardController,           &ChessboardController::onLjcTurnedOnOff);
-    connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   measurementOverviewController,  &MeasurementOverviewController::onLiquidJunctionResult);
-    connect(multipleChannelController, &MultipleChannelController::sigLjcTurnedOnOff,                   singleChannelController,        &SingleChannelController::onLiquidJunctionResult);
-    connect(multipleChannelController, &MultipleChannelController::sigLjResetted,                       this, [=] () {
-        measurementOverviewController->onLiquidJunctionResult(false);
-        singleChannelController->onLiquidJunctionResult();
-    });
+    multipleChannelController->connectChessboardController(chessboardController);
+    multipleChannelController->connectSingleChannelController(singleChannelController);
+    multipleChannelController->connectBigPlotController(bigPlotController);
+    multipleChannelController->connectPlotDetailController(plotDetailController);
+    multipleChannelController->connectMeasurementOverviewController(measurementOverviewController);
 
-    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, bigPlotController, &BigPlotController::onCurrentColorsChanged);
-    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  bigPlotController, &BigPlotController::onCurrentColorChanged);
-    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    bigPlotController, &BigPlotController::onBackgroundColorChanged);
-
-    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, chessboardController, &ChessboardController::onCurrentColorsChanged);
-    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  chessboardController, &ChessboardController::onCurrentColorChanged);
-//    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    chessboardController, &ChessboardController::onBackgroundColorChanged);
-
-    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorsChanged, plotDetailController, &PlotDetailController::onCurrentColorsChanged);
-    connect(plotPreferencesController, &PlotPreferencesController::sigCurrentColorChanged,  plotDetailController, &PlotDetailController::onCurrentColorChanged);
-    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    plotDetailController, &PlotDetailController::onBackgroundColorChanged);
+    plotPreferencesController->connectBigPlotController(bigPlotController);
+    plotPreferencesController->connectPlotDetailController(plotDetailController);
+    plotPreferencesController->connectChessboardController(chessboardController);
 
     if (msgDisp->hasProtocols() == Success) {
         auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));

@@ -9,6 +9,15 @@
 #include "messagedispatcher.h"
 #include "offsetcorrectioncontroller.h"
 
+// // Use Forward Declarations
+// // When a class only uses a pointer or reference to another class,
+// // you don't need a full definition, just a forward declaration.
+class BigPlotController;
+class ChessboardController;
+class PlotDetailController;
+class MeasurementOverviewController;
+class SingleChannelController;
+
 class MultipleChannelController : public QObject {
     Q_OBJECT
 
@@ -17,6 +26,11 @@ public:
     ~MultipleChannelController();
     void addRemoveFromBigPlot(bool flag);
     void addRemoveFromBigPlotEx(bool flag);
+    void connectBigPlotController(BigPlotController*);
+    void connectChessboardController(ChessboardController*);
+    void connectPlotDetailController(PlotDetailController*);
+    void connectMeasurementOverviewController(MeasurementOverviewController*);
+    void connectSingleChannelController(SingleChannelController*);
 
 public slots:
     void onChannelsSelected();

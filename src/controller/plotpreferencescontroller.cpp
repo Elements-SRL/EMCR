@@ -1,6 +1,9 @@
 #include "plotpreferencescontroller.h"
 
 #include <QColorDialog>
+#include "bigplotcontroller.h"
+#include "chessboardcontroller.h"
+#include "plotdetailcontroller.h"
 
 PlotPreferencesController::PlotPreferencesController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp),
@@ -74,4 +77,23 @@ void PlotPreferencesController::initializePlotColors() {
     dialog->setDarkMode(model->isDarkModeActive());
 
     emit sigBackgroundChanged(model->getBackGroundColor());
+}
+
+
+void PlotPreferencesController::connectPlotDetailController(PlotDetailController* pdc) {
+    connect(this, &PlotPreferencesController::sigCurrentColorsChanged, pdc, &PlotDetailController::onCurrentColorsChanged);
+    connect(this, &PlotPreferencesController::sigCurrentColorChanged, pdc, &PlotDetailController::onCurrentColorChanged);
+    connect(this, &PlotPreferencesController::sigBackgroundChanged, pdc, &PlotDetailController::onBackgroundColorChanged);
+}
+
+void PlotPreferencesController::connectChessboardController(ChessboardController* cc) {
+    connect(this, &PlotPreferencesController::sigCurrentColorsChanged, cc, &ChessboardController::onCurrentColorsChanged);
+    connect(this, &PlotPreferencesController::sigCurrentColorChanged, cc, &ChessboardController::onCurrentColorChanged);
+    //    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    chessboardController, &ChessboardController::onBackgroundColorChanged);
+}
+
+void PlotPreferencesController::connectBigPlotController(BigPlotController* bpc) {
+    connect(this, &PlotPreferencesController::sigCurrentColorsChanged, bpc, &BigPlotController::onCurrentColorsChanged);
+    connect(this, &PlotPreferencesController::sigCurrentColorChanged, bpc, &BigPlotController::onCurrentColorChanged);
+    connect(this, &PlotPreferencesController::sigBackgroundChanged, bpc, &BigPlotController::onBackgroundColorChanged);
 }
