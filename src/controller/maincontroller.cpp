@@ -214,28 +214,9 @@ void MainController::onMainWindowCreated() {
     /***********\
      * Connect *
     \***********/
-
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked, this, [=](bool newChannelState) {
-        singleChannelController->onChannelsSelected();
-        multipleChannelController->onChannelsSelected();
-    });
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked, this, [=](uint16_t changedBoardIndex, bool newChannelState) {
-        singleChannelController->onChannelsSelected();
-        multipleChannelController->onChannelsSelected();
-    });
-    connect(chessboardController, &ChessboardController::sigOneRowClicked, this, [=](uint16_t changedRowIndex, bool newChannelState) {
-        singleChannelController->onChannelsSelected();
-        multipleChannelController->onChannelsSelected();
-    });
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked, this, [=](uint16_t changedChannelIndex, QMouseEvent * event) {
-        singleChannelController->onChannelsSelected();
-        multipleChannelController->onChannelsSelected();
-    });
-
-    connect(chessboardController, &ChessboardController::sigAllChannelsClicked,     measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
-    connect(chessboardController, &ChessboardController::sigOneBoardClicked,        measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
-    connect(chessboardController, &ChessboardController::sigOneRowClicked,          measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
-    connect(chessboardController, &ChessboardController::sigSingleChannelClicked,   measurementOverviewController, &MeasurementOverviewController::onChannelsUpdated);
+    chessboardController->connectSingleChannelController(singleChannelController);
+    chessboardController->connectMultipleChannelController(multipleChannelController);
+    chessboardController->connectMeasurementOverviewController(measurementOverviewController);
 
     connect(deviceController, &DeviceController::sigVcCurrentRangeSelected,     this, &MainController::onVcCurrentRangeSelected);
     connect(deviceController, &DeviceController::sigVcVoltageRangeSelected,     this, &MainController::onVcVoltageRangeSelected);

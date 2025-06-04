@@ -8,6 +8,9 @@
 #include "plotconsumer.h"
 #include "application_status.h"
 #include "plotmessage.h"
+#include "singlechannelcontroller.h"
+#include "multiplechannelcontroller.h"
+#include "measurementoverviewcontroller.h"
 
 class ChessboardController : public ControllerWithConsumer {
     Q_OBJECT
@@ -25,6 +28,9 @@ public:
     virtual std::vector <DeviceDataConsumer *> getConsumers() override;
     void onBoardMappingLoaded();
     void clickBehaviour(bool newState);
+    void connectSingleChannelController(SingleChannelController*);
+    void connectMultipleChannelController(MultipleChannelController*);
+    void connectMeasurementOverviewController(MeasurementOverviewController*);
 
 public slots:
     void onSingleChannelClicked(uint16_t chIdx, QMouseEvent *event);

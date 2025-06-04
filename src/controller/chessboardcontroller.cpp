@@ -431,3 +431,24 @@ void ChessboardController::setSelectedStatus(std::vector<int> channelIndexes, bo
     }
     appStatus->setSelectedChannels(channelsAndStatus);
 }
+
+void ChessboardController::connectSingleChannelController(SingleChannelController* scc) {
+    connect(this, &ChessboardController::sigAllChannelsClicked, scc, &SingleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigOneBoardClicked, scc, &SingleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigOneRowClicked, scc, &SingleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigSingleChannelClicked, scc, &SingleChannelController::onChannelsSelected);
+}
+
+void ChessboardController::connectMultipleChannelController(MultipleChannelController* mcc) {
+    connect(this, &ChessboardController::sigAllChannelsClicked, mcc, &MultipleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigOneBoardClicked, mcc, &MultipleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigOneRowClicked, mcc, &MultipleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigSingleChannelClicked, mcc, &MultipleChannelController::onChannelsSelected);
+}
+
+void ChessboardController::connectMeasurementOverviewController(MeasurementOverviewController* moc) {
+    connect(this, &ChessboardController::sigAllChannelsClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
+    connect(this, &ChessboardController::sigOneBoardClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
+    connect(this, &ChessboardController::sigOneRowClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
+    connect(this, &ChessboardController::sigSingleChannelClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
+}
