@@ -9,15 +9,6 @@ public:
     MultipleChannelModel(ApplicationStatus * appStatus, MultipleChannelControlDockWidget * multipleChannelControlsDw);
     ~MultipleChannelModel();
 
-    void turnChannelsAuto(bool flag);
-    void turnStimulusAuto(bool flag);
-    void turnExpandAuto(bool flag);
-    void turnPlotDetailAuto(bool flag);
-
-    bool getChannelsAuto();
-    bool getStimulusAuto();
-    bool getExpandAuto();
-
     void saveSettings();
     void loadSettings();
 

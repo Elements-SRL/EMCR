@@ -28,7 +28,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         this->turnSelectedChannelsOnOff(false);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelAuto, this, [=](bool flag) {
-        model->turnChannelsAuto(flag);
+        appStatus->setChannelsAuto(flag);
         this->onChannelsSelected();
     });
 
@@ -46,7 +46,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         this->turnSelectedStimuliOnOff(false);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulusAuto, this, [=](bool flag) {
-        model->turnStimulusAuto(flag);
+        appStatus->setStimulusAuto(flag);
         this->onChannelsSelected();
     });
 
@@ -128,7 +128,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
         this->addRemoveFromBigPlot(false);
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto,     this, [=] (bool flag) {
-        model->turnExpandAuto(flag);
+        appStatus->setExpandAuto(flag);
         this->onChannelsSelected();
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddRemovePlotDetail,   this, &MultipleChannelController::addRemovePlotDetail);
@@ -182,13 +182,13 @@ void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
 }
 
 void MultipleChannelController::onChannelsSelected() {
-    if (model->getChannelsAuto()) {
+    if (appStatus->isChannelsAuto()) {
         turnSelectedChannelsOnOffEx(true);
     }
-    if (model->getStimulusAuto()) {
+    if (appStatus->isStimulusAuto()) {
         turnSelectedStimuliOnOffEx(true);
     }
-    if (model->getExpandAuto()) {
+    if (appStatus->isExpandAuto()) {
         addRemoveFromBigPlotEx(true);
     }
 }

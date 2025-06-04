@@ -15,30 +15,6 @@ MultipleChannelModel::~MultipleChannelModel() {
     this->saveSettings();
 }
 
-void MultipleChannelModel::turnChannelsAuto(bool flag) {
-    appStatus->setChannelsAuto(flag);
-}
-
-void MultipleChannelModel::turnStimulusAuto(bool flag) {
-    appStatus->setStimulusAuto(flag);
-}
-
-void MultipleChannelModel::turnExpandAuto(bool flag) {
-    appStatus->setExpandAuto(flag);
-}
-
-bool MultipleChannelModel::getChannelsAuto() {
-    return appStatus->isChannelsAuto();
-}
-
-bool MultipleChannelModel::getStimulusAuto() {
-    return appStatus->isStimulusAuto();
-}
-
-bool MultipleChannelModel::getExpandAuto() {
-    return appStatus->isExpandAuto();
-}
-
 void MultipleChannelModel::saveSettings() {
     QSettings settings;
 
