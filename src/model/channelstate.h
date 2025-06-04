@@ -6,10 +6,10 @@ class ChannelState
 {
 
 private:
-    uint16_t index;
-    bool expanded;
-    bool detailed;
-    bool selected;
+    uint16_t index = 0;
+    bool expanded = 0;
+    bool detailed = 0;
+    bool selected = 0;
 
 public:
     ChannelState(uint16_t index);
