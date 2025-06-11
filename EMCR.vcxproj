@@ -196,6 +196,7 @@
     <ClCompile Include="src\controller\centralwidgets\eventdetectioncontroller.cpp" />
     <ClCompile Include="src\controller\centralwidgets\spectrumcontroller.cpp" />
     <ClCompile Include="src\controller\controllerwithconsumer.cpp" />
+    <ClCompile Include="src\controller\debugcontroller.cpp" />
     <ClCompile Include="src\controller\device\consumer\abfdatawriterconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\analysisconsumer.cpp" />
     <ClCompile Include="src\controller\device\consumer\autodecloggerconsumer.cpp" />
@@ -206,11 +207,15 @@
     <ClCompile Include="src\controller\device\consumer\squarevoltagebasedanalysisconsumer.cpp" />
     <ClCompile Include="src\controller\durationbasedbigplotviewcontroller.cpp" />
     <ClCompile Include="src\controller\offsetcorrectioncontroller.cpp" />
+    <ClCompile Include="src\controller\plotdetailcontroller.cpp" />
+    <ClCompile Include="src\controller\temperaturecontroller.cpp" />
     <ClCompile Include="src\model\binner.cpp" />
     <ClCompile Include="src\controller\device\consumer\spectrumconsumer.cpp" />
+    <ClCompile Include="src\model\channelstate.cpp" />
     <ClCompile Include="src\model\devicemodel.cpp" />
     <ClCompile Include="src\model\logbigplotmodel.cpp" />
     <ClCompile Include="src\model\multiplechannelmodel.cpp" />
+    <ClCompile Include="src\model\plotdetailmodel.cpp" />
     <ClCompile Include="src\view\activationbutton.cpp" />
     <ClCompile Include="src\view\advancedmenu\resethwhelpdialog.cpp" />
     <ClCompile Include="src\view\autodeclogger\autodecloggerwidget.cpp" />
@@ -223,6 +228,8 @@
     <ClCompile Include="src\view\centralwidgets\ivgraphwidget.cpp" />
     <ClCompile Include="src\view\centralwidgets\spectrumwidget.cpp" />
     <ClCompile Include="src\view\collapsiblesection.cpp" />
+    <ClCompile Include="src\view\debugdockwidget.cpp" />
+    <ClCompile Include="src\view\plotdetail.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\aboutdialog.cpp" />
     <ClCompile Include="src\view\addtagdialog.cpp" />
     <ClCompile Include="src\model\application_status.cpp" />
@@ -309,9 +316,11 @@
     <ClCompile Include="src\view\statearray\statearraydockwidget.cpp" />
     <ClCompile Include="src\view\questionmarkmenu\supportdialog.cpp" />
     <ClCompile Include="src\controller\upgradefwcontroller.cpp" />
+    <ClCompile Include="src\view\temperaturedockwidget.cpp" />
     <ClCompile Include="src\view\upgradefwview.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\view\temperaturedockwidget.h" />
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h" />
     <QtMoc Include="src\view\questionmarkmenu\aboutdialog.h" />
     <QtMoc Include="src\controller\centralwidgets\eventdetectioncontroller.h" />
@@ -327,9 +336,13 @@
     <QtMoc Include="src\controller\device\consumer\analysisconsumer.h" />
     <QtMoc Include="src\controller\device\consumer\resistanceestimationconsumer.h" />
     <QtMoc Include="src\controller\device\consumer\membraneestimationconsumer.h" />
+    <QtMoc Include="src\controller\debugcontroller.h" />
+    <QtMoc Include="src\controller\plotdetailcontroller.h" />
+    <QtMoc Include="src\controller\temperaturecontroller.h" />
     <ClInclude Include="src\model\autodeclogger\autodecloggermodel.h" />
     <ClInclude Include="src\model\binner.h" />
     <QtMoc Include="src\model\devicemodel.h" />
+    <ClInclude Include="src\model\channelstate.h" />
     <ClInclude Include="src\model\events\baseline.h" />
     <QtMoc Include="src\controller\centralwidgets\spectrumcontroller.h" />
     <QtMoc Include="src\controller\device\consumer\spectrumconsumer.h" />
@@ -339,6 +352,7 @@
     <QtMoc Include="src\view\activationbutton.h" />
     <ClInclude Include="src\model\logbigplotmodel.h" />
     <ClInclude Include="src\model\multiplechannelmodel.h" />
+    <ClInclude Include="src\model\plotdetailmodel.h" />
     <ClInclude Include="src\model\singlemeasresult.h" />
     <ClInclude Include="src\model\singlemeasresultwrapper.h" />
     <ClInclude Include="src\view\addtagdialog.h" />
@@ -381,6 +395,7 @@
     <QtMoc Include="src\controller\device\devicedataproducer.h" />
     <QtMoc Include="src\controller\device\devicedetector.h" />
     <QtMoc Include="src\view\questionmarkmenu\deviceinfodialog.h" />
+    <QtMoc Include="src\view\debugdockwidget.h" />
     <ClInclude Include="src\view\doubleclickmachine.h" />
     <QtMoc Include="src\view\elementslogowidget.h" />
     <QtMoc Include="src\view\errormanager.h" />
@@ -404,6 +419,7 @@
     <ClInclude Include="src\model\measurementoverviewmodel.h" />
     <QtMoc Include="src\view\measurementsoverviewdockwidget.h" />
     <QtMoc Include="src\view\baseplot.h" />
+    <QtMoc Include="src\view\plotdetail.h" />
     <ClInclude Include="src\view\questionmarkmenu\messagedialog.h" />
     <QtMoc Include="src\view\multiplechannelcontroldockwidget.h" />
     <QtMoc Include="src\controller\multiplechannelcontroller.h" />
