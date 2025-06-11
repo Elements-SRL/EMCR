@@ -1,12 +1,12 @@
 #include "protocolplot.h"
-
 #include <QBitmap>
-
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_canvas.h"
-
+#include "qwt_picker_machine.h"
+#include "qwt_plot_histogram.h"
 #include "protocolwidget.h"
+#include "doubleclickmachine.h"
 
 ProtocolPlot::ProtocolPlot(MessageDispatcher * msgDisp, QString titleString, QString xUnitString, QString yUnitString, QWidget * parent) :
     QwtPlot(parent),

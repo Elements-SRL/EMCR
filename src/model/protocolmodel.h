@@ -1,7 +1,7 @@
 #ifndef PROTOCOLMODEL_H
 #define PROTOCOLMODEL_H
 
-#include "e384commlib_global.h"
+#include "e384commlib_global_addendum.h"
 
 class ProtocolModel {
 public:

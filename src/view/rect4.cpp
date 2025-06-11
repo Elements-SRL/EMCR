@@ -1,7 +1,5 @@
 #include "rect4.h"
 
-#include "qwt_interval.h"
-
 Rect4::Rect4(QwtPlot * plot) {
     for (int axisIdx = 0; axisIdx < QwtPlot::axisCnt; axisIdx++) {
         this->push_back(plot->axisInterval(axisIdx));

@@ -7,7 +7,6 @@
 #include "qwt_plot_curve.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_picker.h"
-#include "qwt_picker_machine.h"
 #include "qwt_text_label.h"
 
 #include "e384commlib_global.h"

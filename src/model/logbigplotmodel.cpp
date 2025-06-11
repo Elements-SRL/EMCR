@@ -1,4 +1,5 @@
 #include "logbigplotmodel.h"
+#include <qwt_interval.h>
 
 // The LogBigPlotModel need to be used by logaritmic plots, so:
 // Spectrum

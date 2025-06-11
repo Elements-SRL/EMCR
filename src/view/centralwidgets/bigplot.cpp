@@ -1,13 +1,13 @@
 #include "bigplot.h"
 #include <cmath>
-
 #include <QPen>
-
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_map.h"
+#include "qwt_picker_machine.h"
+#include "doubleclickmachine.h"
 
 using namespace e384CommLib;
 
@@ -302,7 +302,7 @@ void BigPlot::onZoomInPickerSelected(const QRectF &r) {
         rH -= rY;
     }
 
-    bool rightLogFlag = dynamic_cast <const QwtLogScaleEngine*>(this->axisScaleEngine(yRight)) != nullptr ? true : false;
+    bool rightLogFlag = dynamic_cast <const QwtLogScaleEngine*>(this->axisScaleEngine(yRight)) != nullptr;
 
     if (rightLogFlag) {
         hR = log(yR + hR);

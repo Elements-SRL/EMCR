@@ -1,5 +1,5 @@
 #include "bigplotmodel.h"
-#include <cmath>
+#include <qwt_interval.h>
 
 BigPlotModel::BigPlotModel() {
     for (int i = 0; i<QwtPlot::Axis::axisCnt; i++){
@@ -47,7 +47,7 @@ Rect4 BigPlotModel::resetZoomStack(){
     return currentZoom;
 }
 
-void BigPlotModel::setCurrentRange(QwtPlot::Axis axisIdx, RangedMeasurement newRange){
+void BigPlotModel::setCurrentRange(QwtPlot::Axis axisIdx, e384CommLib::RangedMeasurement newRange){
     if (!isRangeInitialized(axisIdx) || newRange.unit != currentRange[axisIdx].unit) {
         currentRange[axisIdx] = newRange;
         rangeInitialized[axisIdx] = true;
@@ -68,11 +68,11 @@ void BigPlotModel::setCurrentRange(QwtPlot::Axis axisIdx, RangedMeasurement newR
     yScale = 0.5*coeff*interval.width();
 }
 
-void BigPlotModel::setCurrentRangeLog(QwtPlot::Axis axisIdx, RangedMeasurement newRange){
+void BigPlotModel::setCurrentRangeLog(QwtPlot::Axis axisIdx, e384CommLib::RangedMeasurement newRange){
     auto newMax = newRange.max;
     auto newMin = newMax / 1.0e15;
     if (!isRangeInitialized(axisIdx) || newRange.unit != currentRange[axisIdx].unit) {
-        RangedMeasurement rm = RangedMeasurement{ newMin, newMax, newRange.step, newRange.prefix, newRange.unit };
+        e384CommLib::RangedMeasurement rm = e384CommLib::RangedMeasurement{ newMin, newMax, newRange.step, newRange.prefix, newRange.unit };
         currentRange[axisIdx] = rm;
         rangeInitialized[axisIdx] = true;
         setCurrentZoom(axisIdx, newMin, newMax);
@@ -96,7 +96,7 @@ bool BigPlotModel::isRangeInitialized(QwtPlot::Axis axisIdx){
     return rangeInitialized[axisIdx];
 }
 
-RangedMeasurement_t BigPlotModel::getCurrentRange(QwtPlot::Axis axisIdx){
+e384CommLib::RangedMeasurement_t BigPlotModel::getCurrentRange(QwtPlot::Axis axisIdx){
     return currentRange[axisIdx];
 }
 

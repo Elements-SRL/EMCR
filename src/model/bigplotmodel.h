@@ -3,8 +3,7 @@
 
 #include <QObject>
 #include <QRectF>
-#include "bigplot.h"
-#include "messagedispatcher.h"
+#include "e384commlib_global.h"
 #include "rect4.h"
 
 class BigPlotModel: public QObject {
@@ -20,8 +19,8 @@ private:
     bool isEmptyZoomStack();
     void clearZoomStack();
     double yScale = 1.0;
-    RangedMeasurement_t currentRange[QwtPlot::axisCnt];
-    UnitPfx_t xAxisPrefix = UnitPfxNone;
+    e384CommLib::RangedMeasurement_t currentRange[QwtPlot::axisCnt];
+    e384CommLib::UnitPfx_t xAxisPrefix = e384CommLib::UnitPfxNone;
     void pushZoomStack(Rect4);
     void setCurrentZoom(QwtPlot::Axis, double, double);
     Rect4 popZoomStack();
@@ -35,10 +34,10 @@ public:
     };
     BigPlotModel();
 //    RangedMeasurement getCurrentRange(QwtPlot::Axis);
-    void setCurrentRange(QwtPlot::Axis axis, RangedMeasurement currentRange);
-    void setCurrentRangeLog(QwtPlot::Axis axis, RangedMeasurement currentRange);
+    void setCurrentRange(QwtPlot::Axis axis, e384CommLib::RangedMeasurement currentRange);
+    void setCurrentRangeLog(QwtPlot::Axis axis, e384CommLib::RangedMeasurement currentRange);
     bool isRangeInitialized(QwtPlot::Axis);
-    RangedMeasurement_t getCurrentRange(QwtPlot::Axis);
+    e384CommLib::RangedMeasurement_t getCurrentRange(QwtPlot::Axis);
 //    getCurrentZoom will take an enum
     Rect4 getZoom(Zoom);
     QwtInterval getCurrentZoomInterval(QwtPlot::Axis);

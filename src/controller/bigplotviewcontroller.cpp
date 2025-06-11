@@ -23,6 +23,9 @@ void BigPlotViewController::setup() {
     });
 }
 
+/*spostare la logica dell'handleZoomInRequest nel plotmodel, il bigplot (view) dovra' solo reinderizzare i segnali.
+Il model esporra' dei metodi da implementare per ogni zoom, e in base all' implementazione fornita aggiornera' lo stato
+interno dello zoom. potrebbero venir meno le connect qui sotto!*/
 Rect4 BigPlotViewController::handleZoomInRequest(Rect4 r) {
     //    non idale, rischio di incoerenza con le altre chiamate nel model
     model->updateCurrentZoom(r);

@@ -6,13 +6,10 @@
 #include "qwt_plot_curve.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_picker.h"
-#include "qwt_picker_machine.h"
 #include "qwt_plot_grid.h"
 #include "qwt_text_label.h"
 #include "conversionscaledraw.h"
-#include "doubleclickmachine.h"
 #include "rect4.h"
-#include "plotmessage.h"
 #include "e384commlib_global.h"
 
 namespace commlib = e384CommLib;

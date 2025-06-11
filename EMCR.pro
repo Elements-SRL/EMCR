@@ -85,6 +85,7 @@ SOURCES += \
     src/model/measurementoverviewmodel.cpp \
     src/model/multiplechannelmodel.cpp \
     src/model/plotdetailmodel.cpp \
+    src/model/plotmodel.cpp \
     src/model/plotpreferencesmodel.cpp \
     src/model/protocolmodel.cpp \
     src/model/state.cpp \
@@ -93,7 +94,9 @@ SOURCES += \
     src/model/logbigplotmodel.cpp \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
+    src/model/zoom.cpp \
     src/view/activationbutton.cpp \
+    src/view/baseplot2.cpp \
     src/view/collapsiblesection.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
@@ -171,7 +174,9 @@ HEADERS += \
     src/model/channelstate.h \
     src/model/membraneresult.h \
     src/model/plotdetailmodel.h \
+    src/model/plotmodel.h \
     src/model/singlemeasresult.h \
+    src/model/zoom.h \
     src/protocoldefs.h \
     src/abf/axon.h \
     src/abf/axon_defs.h \
@@ -241,6 +246,7 @@ HEADERS += \
     src/model/events/eventsandbaseline.h \
     src/model/autodeclogger/autodecloggermodel.h \
     src/view/activationbutton.h \
+    src/view/baseplot2.h \
     src/view/collapsiblesection.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \

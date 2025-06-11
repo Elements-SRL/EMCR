@@ -6,6 +6,7 @@
 #include "protocol/protocolwidget.h"
 #include "bigplotmodel.h"
 #include <memory>
+#include "bigplot.h"
 
 class BigPlotViewController : public QObject
 {

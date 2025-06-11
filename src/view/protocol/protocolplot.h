@@ -8,18 +8,13 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_symbol.h"
-//#include "qwt_plot_scaleitem.h"
 #include "qwt_scale_draw.h"
 #include "qwt_text_label.h"
 #include "qwt_plot_picker.h"
-#include "qwt_picker_machine.h"
-#include "qwt_plot_histogram.h"
-
 #include "messagedispatcher.h"
 #include "protocolcursor.h"
 #include "cursor.h"
 #include "conversionscaledraw.h"
-#include "doubleclickmachine.h"
 #include "rect4.h"
 
 #include "e384commlib_global.h"

@@ -2,6 +2,7 @@
 #define RECT4_H
 
 #include "qwt_plot.h"
+#include "qwt_interval.h"
 
 class Rect4 : public QVector <QwtInterval> {
 public:
