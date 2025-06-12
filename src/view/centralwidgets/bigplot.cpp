@@ -235,10 +235,8 @@ void BigPlot::recomputeXAxisFactor(double duration) {
 void BigPlot::onZoomInPickerAppended(const QPointF &p) {
     auto dyMin = this->axisInterval(yLeft).minValue();
     auto dyMax = this->axisInterval(yLeft).maxValue();
-    auto cdx = (double)this->canvas()->width();
     auto dxMin = this->axisInterval(xBottom).minValue();
     auto dxMax = this->axisInterval(xBottom).maxValue();
-    auto cdy = (double)this->canvas()->height();
     if (status == BigPlotStatus::Spectrum) {
         dyMin = log10(dyMin);
         dyMax = log10(dyMax); 
@@ -251,7 +249,9 @@ void BigPlot::onZoomInPickerAppended(const QPointF &p) {
     }
     auto dy = dyMax - dyMin;
     auto dx = dxMax - dxMin;
-    pickerZoomDiscriminantNorm = (dy*cdx) /(dx * cdy);
+    auto cdx = (double)this->canvas()->width();
+    auto cdy = (double)this->canvas()->height();
+    pickerZoomDiscriminantNorm = (dy*cdx) / (dx * cdy);
     zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
     pickerZoomType = PickerZoomRect;
 }

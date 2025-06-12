@@ -12,19 +12,16 @@ class BasePlot2 : public QwtPlot
 {
     Q_OBJECT
 private:
-    // QwtTextLabel * xUnit;
-    // QwtTextLabel * yLeftUnit;
-    // QwtTextLabel * yRightUnit;
-
+    QwtPlotPicker * zoomInPicker;
     void handleLabelsPosition();
     std::shared_ptr<PlotModel> pm;
     std::map<QwtPlot::Axis, QwtTextLabel*> labels;
     QwtTextLabel* createTextLabel(std::string, QwtPlot::Axis);
 
 private slots:
-    // void onZoomInPickerAppended(const QPointF &p);
-    // void ongZoomInPickerMoved(const QPointF &p);
-    // void ongZoomInPickerSelected(const QRectF &r);
+    void onZoomInPickerAppended(const QPointF &p);
+    void onZoomInPickerMoved(const QPointF &p);
+    void onZoomInPickerSelected(const QRectF &r);
 
 protected:
     virtual void resizeEvent(QResizeEvent * e) override;
@@ -39,11 +36,10 @@ public:
     void drawCanvas(QPainter * p) override;
 
 signals:
-    void sigZoomInPickerAppended(const QPointF &p);
-    void sigZoomInPickerMoved(const QPointF &p);
-    void sigZoomInPickerSelected(const QRectF &r);
     void sigZoomOut();
     void sigZoomReset();
+    void singleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
+    void singleAxisShiftRequest(QwtPlot::Axis, int);
 };
 
 #endif // BASEPLOT2_H

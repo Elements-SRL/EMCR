@@ -8,6 +8,8 @@
 #include "e384commlib_global_addendum.h"
 #include <map>
 #include "zoom.h"
+#include "qwt_plot_picker.h"
+#include <QWheelEvent>
 
 struct AxisInfo {
     // if log is false then scale is linear
@@ -23,6 +25,11 @@ class PlotModel: public QObject {
 private:
     std::map<QwtPlot::Axis, AxisInfo> axisInfo;
     Zoom zoom;
+    QPointF processPoint (const QPointF &p);
+    QwtPlotPicker * picker;
+    double pickerZoomDiscriminantNorm = 1.0;
+    std::optional<QPointF> pickerFirstCornerPos;
+    std::optional<QwtPlotPicker::RubberBand> rubberBand;
 
 public:
     PlotModel(std::map<QwtPlot::Axis, AxisInfo>);
@@ -32,11 +39,20 @@ public:
     virtual std::optional<std::string> getUnitLabel(QwtPlot::Axis) = 0;
     virtual std::map<QwtPlot::Axis, std::string> getUnitLabes() = 0;
     Rect4 getZoom();
+    std::optional<QPointF> getPickerFirstCornerPos();
+    std::optional<QwtPlotPicker *> getPicker();
+    std::optional<QwtPlotPicker::RubberBand> getRubberBand();
+    bool isAxisEnabled(QwtPlot::Axis);
 
 public slots:
     virtual void onAxisChanged(QwtPlot::Axis, e384CommLib::RangedMeasurement_t) = 0;
     virtual void onCurveColorChanged(std::map<uint16_t, QColor>) = 0;
     virtual void onBackgroundColorChanged(QColor) = 0;
+    void onZoomInPickerAppended(const QPointF &p, QWidget* canvas);
+    void onZoomInPickerMoved(const QPointF &p);
+    void onZoomInPickerSelected(const QRectF &r);
+    void onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mousePosition);
+    void onSingleAxisShift(QwtPlot::Axis ax, int shiftFactor);
 };
 
 #endif // PLOTMODEL_H

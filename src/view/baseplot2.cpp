@@ -37,14 +37,14 @@ BasePlot2::BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent)
     font.setPointSize(10);
 
     /*! Zoom in picker */
-    auto zoomInPicker = new QwtPlotPicker(this->canvas());
+    zoomInPicker = new QwtPlotPicker(this->canvas());
     zoomInPicker->setStateMachine(new QwtPickerDragRectMachine());
     zoomInPicker->setTrackerMode(QwtPlotPicker::ActiveOnly);
     zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
     zoomInPicker->setRubberBandPen(QColor(Qt::blue));
-    connect(zoomInPicker, &QwtPlotPicker::appended, this, &BasePlot2::sigZoomInPickerAppended);
-    connect(zoomInPicker, &QwtPlotPicker::moved, this, &BasePlot2::sigZoomInPickerMoved);
-    connect(zoomInPicker, QOverload <const QRectF &> ::of(&QwtPlotPicker::selected), this, &BasePlot2::sigZoomInPickerSelected);
+    connect(zoomInPicker, &QwtPlotPicker::appended, this, &BasePlot2::onZoomInPickerAppended);
+    connect(zoomInPicker, &QwtPlotPicker::moved, this, &BasePlot2::onZoomInPickerMoved);
+    connect(zoomInPicker, QOverload <const QRectF &> ::of(&QwtPlotPicker::selected), this, &BasePlot2::onZoomInPickerSelected);
 
     /*! Zoom out picker */
     auto zoomOutPicker = new QwtPlotPicker(this->canvas());
@@ -126,19 +126,19 @@ void BasePlot2::wheelEvent(QWheelEvent * we) {
     QwtScaleMap yMap = canvasMap(vertAxis);
     QPointF plotCoordinates = QPointF(xMap.invTransform(plotPos.x()), yMap.invTransform(plotPos.y()));
 
-    // switch (key) {
-    // case Qt::Modifier::CTRL:
-    //     emit singleAxisZoomRequest(vertAxis, verticalRotation, plotCoordinates);
-    //     break;
+    switch (key) {
+    case Qt::Modifier::CTRL:
+        emit singleAxisZoomRequest(vertAxis, verticalRotation, plotCoordinates);
+        break;
 
-    // case Qt::Modifier::SHIFT:
-    //     emit singleAxisZoomRequest(xBottom, verticalRotation, plotCoordinates);
-    //     break;
+    case Qt::Modifier::SHIFT:
+        emit singleAxisZoomRequest(xBottom, verticalRotation, plotCoordinates);
+        break;
 
-    // default:
-    //     emit singleAxisShiftRequest(vertAxis, verticalRotation);
-    //     break;
-    // }
+    default:
+        emit singleAxisShiftRequest(vertAxis, verticalRotation);
+        break;
+    }
 }
 
 void BasePlot2::resizeEvent(QResizeEvent * e) {
@@ -172,3 +172,25 @@ void BasePlot2::updateRect() {
     }
     this->replot();
 }
+
+void BasePlot2::onZoomInPickerAppended(const QPointF &p) {
+    pm->onZoomInPickerAppended(p, canvas());
+    zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
+}
+
+void BasePlot2::onZoomInPickerMoved(const QPointF &p) {
+    pm->onZoomInPickerMoved(p);
+    auto rb = pm->getRubberBand();
+    if (rb.has_value()) {
+        zoomInPicker->setRubberBand(rb.value());
+    }
+}
+
+void BasePlot2::onZoomInPickerSelected(const QRectF &r) {
+    pm->onZoomInPickerSelected(r);
+    auto rb = pm->getRubberBand();
+    if (rb.has_value()) {
+        zoomInPicker->setRubberBand(rb.value());
+    }
+}
+
