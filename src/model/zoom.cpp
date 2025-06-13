@@ -7,12 +7,13 @@ Zoom::Zoom(Rect4 r) {
 Rect4 Zoom::reset() {
     const auto r = zoomStack.front();
     zoomStack.clear();
-    zoomStack.push_back(r);
+    push(r);
     return r;
 }
 
 Rect4 Zoom::push(Rect4 r) {
     zoomStack.push_back(r);
+    emit sigZoomChanged();
     return r;
 }
 
@@ -21,6 +22,7 @@ Rect4 Zoom::pop() {
     if (zoomStack.size() > 1) {
         zoomStack.pop_back();
     }
+    emit sigZoomChanged();
     return r;
 }
 

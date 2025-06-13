@@ -15,13 +15,14 @@ Rect4 buildRect(std::map<QwtPlot::Axis, AxisInfo> axisInfos) {
 }
 
 PlotModel::PlotModel(std::map<QwtPlot::Axis, AxisInfo> axisInfos) {
-    zoom = Zoom(buildRect(axisInfos));
+    zoom = std::make_unique<Zoom>(buildRect(axisInfos));
+    connect(zoom.get(), &Zoom::sigZoomChanged, this, &PlotModel::sigReplot);
     // todo in the plot loop over the plot model enabled axis to enable them
 }
 
 void PlotModel::setRangedMeasurement(QwtPlot::Axis axis, e384CommLib::RangedMeasurement_t range) {
     axisInfo[axis].range = range;
-    zoom = Zoom(buildRect(axisInfo));
+    zoom = std::make_unique<Zoom>(buildRect(axisInfo));
     // todo in the plot loop over the plot model enabled axis to enable them
 }
 
@@ -38,7 +39,7 @@ std::map<QwtPlot::Axis, std::string> PlotModel::getUnitLabes() {
 }
 
 Rect4 PlotModel::getZoom() {
-    return zoom.peek();
+    return zoom->peek();
 }
 
 void PlotModel::onZoomInPickerAppended(const QPointF &p, QWidget* canvas) {
@@ -77,6 +78,7 @@ void PlotModel::onZoomInPickerMoved(const QPointF &p) {
     } else {
         rubberBand = std::make_optional(QwtPlotPicker::RectRubberBand);
     }
+    emit sigRubberBandUpdated();
 }
 
 QPointF PlotModel::processPoint(const QPointF &p) {
@@ -128,7 +130,7 @@ void PlotModel::onZoomInPickerSelected(const QRectF &r) {
     const auto rightOffset = yR+(rY-yL)*rightLeftRatio;
     const auto rightHeight = rH*rightLeftRatio;
     const auto rb = rubberBand.value();
-    const auto cache = zoom.peek();
+    const auto cache = zoom->peek();
 
     const auto i0 = rightLogFlag ? exp(rightOffset) : rightOffset;
     const auto i1 = rightLogFlag ? exp(rightOffset + rightHeight) : rightOffset + rightHeight;
@@ -152,8 +154,9 @@ void PlotModel::onZoomInPickerSelected(const QRectF &r) {
         }
         break;
     }
-    zoom.push(rect);
+    zoom->push(rect);
     rubberBand = std::nullopt;
+    emit sigRubberBandUpdated();
 }
 
 bool PlotModel::isAxisEnabled(QwtPlot::Axis a) {
@@ -161,7 +164,7 @@ bool PlotModel::isAxisEnabled(QwtPlot::Axis a) {
 }
 
 void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mousePosition) {
-    auto currentZoom = zoom.peek();
+    auto currentZoom = zoom->peek();
     const auto interval = currentZoom[ax];
     // suppose that linear stuff all start at zero
     bool zeroLockFlag = ax == QwtPlot::xBottom;
@@ -191,11 +194,11 @@ void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mou
     }
 
     currentZoom[ax].setInterval(newMin, newMax);
-    this->zoom.push(currentZoom);
+    this->zoom->push(currentZoom);
 }
 
 void PlotModel::onSingleAxisShift(QwtPlot::Axis ax, int shiftFactor) {
-    auto currentZoom = zoom.peek();
+    auto currentZoom = zoom->peek();
     const auto interval = currentZoom[ax];
     const auto min = interval.minValue();
     const auto max = interval.maxValue();
@@ -203,5 +206,13 @@ void PlotModel::onSingleAxisShift(QwtPlot::Axis ax, int shiftFactor) {
     auto newMin = min - shift;
     auto newMax = max - shift;
     currentZoom[ax].setInterval(newMin, newMax);
-    zoom.push(currentZoom);
+    zoom->push(currentZoom);
+}
+
+void PlotModel::onZoomOut() {
+    zoom->pop();
+}
+
+void PlotModel::onZoomReset() {
+    zoom->reset();
 }

@@ -18,14 +18,13 @@ private:
     std::map<QwtPlot::Axis, QwtTextLabel*> labels;
     QwtTextLabel* createTextLabel(std::string, QwtPlot::Axis);
 
-private slots:
-    void onZoomInPickerAppended(const QPointF &p);
-    void onZoomInPickerMoved(const QPointF &p);
-    void onZoomInPickerSelected(const QRectF &r);
-
 protected:
     virtual void resizeEvent(QResizeEvent * e) override;
     virtual void wheelEvent(QWheelEvent * e) override;
+
+public slots:
+    void onReplot();
+    void onRubberBandUpdated();
 
 public:
     explicit BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent = nullptr);
@@ -40,6 +39,9 @@ signals:
     void sigZoomReset();
     void singleAxisZoomRequest(QwtPlot::Axis, int, QPointF);
     void singleAxisShiftRequest(QwtPlot::Axis, int);
+    void sigZoomInPickerAppended(const QPointF &p, QWidget* canvas);
+    void sigZoomInPickerMoved(const QPointF &p);
+    void sigZoomInPickerSelected(const QRectF &r);
 };
 
 #endif // BASEPLOT2_H

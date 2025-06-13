@@ -42,9 +42,12 @@ BasePlot2::BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent)
     zoomInPicker->setTrackerMode(QwtPlotPicker::ActiveOnly);
     zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
     zoomInPicker->setRubberBandPen(QColor(Qt::blue));
-    connect(zoomInPicker, &QwtPlotPicker::appended, this, &BasePlot2::onZoomInPickerAppended);
-    connect(zoomInPicker, &QwtPlotPicker::moved, this, &BasePlot2::onZoomInPickerMoved);
-    connect(zoomInPicker, QOverload <const QRectF &> ::of(&QwtPlotPicker::selected), this, &BasePlot2::onZoomInPickerSelected);
+    connect(zoomInPicker, &QwtPlotPicker::appended, this, [=](const QPointF &p) {
+        emit sigZoomInPickerAppended(p, this->canvas());
+        zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
+    });
+    connect(zoomInPicker, &QwtPlotPicker::moved, this, &BasePlot2::sigZoomInPickerMoved);
+    connect(zoomInPicker, QOverload <const QRectF &> ::of(&QwtPlotPicker::selected), this, &BasePlot2::sigZoomInPickerSelected);
 
     /*! Zoom out picker */
     auto zoomOutPicker = new QwtPlotPicker(this->canvas());
@@ -170,27 +173,14 @@ void BasePlot2::updateRect() {
     for (int i =0; i < QwtPlot::Axis::axisCnt; i++) {
         this->setAxisScale(i, r[i].minValue(), r[i].maxValue());
     }
-    this->replot();
 }
 
-void BasePlot2::onZoomInPickerAppended(const QPointF &p) {
-    pm->onZoomInPickerAppended(p, canvas());
-    zoomInPicker->setRubberBand(QwtPlotPicker::RectRubberBand);
+void BasePlot2::onRubberBandUpdated() {
+    zoomInPicker->setRubberBand(pm->getRubberBand().value_or(QwtPlotPicker::RubberBand::NoRubberBand));
+    replot();
 }
 
-void BasePlot2::onZoomInPickerMoved(const QPointF &p) {
-    pm->onZoomInPickerMoved(p);
-    auto rb = pm->getRubberBand();
-    if (rb.has_value()) {
-        zoomInPicker->setRubberBand(rb.value());
-    }
+void BasePlot2::onReplot(){
+    updateRect();
+    replot();
 }
-
-void BasePlot2::onZoomInPickerSelected(const QRectF &r) {
-    pm->onZoomInPickerSelected(r);
-    auto rb = pm->getRubberBand();
-    if (rb.has_value()) {
-        zoomInPicker->setRubberBand(rb.value());
-    }
-}
-

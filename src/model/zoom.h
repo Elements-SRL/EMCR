@@ -3,8 +3,10 @@
 
 #include "rect4.h"
 #include <deque>
+#include <QObject>
 
-class Zoom {
+class Zoom: public QObject {
+    Q_OBJECT
 
 private:
     std::deque<Rect4> zoomStack;
@@ -14,6 +16,8 @@ public:
     Rect4 push(Rect4);
     Rect4 pop();
     Rect4 peek();
+signals:
+    void sigZoomChanged();
 };
 
 #endif // ZOOM_H
