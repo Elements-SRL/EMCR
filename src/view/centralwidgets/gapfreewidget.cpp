@@ -9,7 +9,7 @@
 #include <QDir>
 #include "globaldefines.h"
 
-GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
+GapFreeWidget::GapFreeWidget(QWidget* plot, QWidget* parent):
     QWidget(parent) {
     this->setObjectName("gapFree");
     this->setWindowTitle("GapFree");

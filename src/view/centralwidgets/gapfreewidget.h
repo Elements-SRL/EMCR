@@ -5,8 +5,6 @@
 #include <QBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
-#include "bigplot.h"
-
 
 class GapFreeWidget : public QWidget {
     Q_OBJECT
@@ -20,7 +18,7 @@ private:
     void emitFilePath();
 
 public:
-    GapFreeWidget(BigPlot* plot, QWidget* parent = nullptr);
+    GapFreeWidget(QWidget* plot, QWidget* parent = nullptr);
     void setRecording(bool flag);
 
 signals:
