@@ -54,7 +54,6 @@ public slots:
 signals:
     void sigReplot();
     void sigRubberBandUpdated();
-
 };
 
 #endif // PLOTMODEL_H

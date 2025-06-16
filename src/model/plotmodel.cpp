@@ -1,4 +1,5 @@
 #include "plotmodel.h"
+#include <iostream>
 
 void axisInfo2Rect(std::pair<QwtPlot::Axis, AxisInfo> ai, Rect4 &r) {
     const auto v = ai.second;
@@ -69,10 +70,14 @@ void PlotModel::onZoomInPickerAppended(const QPointF &p, QWidget* canvas) {
 }
 
 void PlotModel::onZoomInPickerMoved(const QPointF &p) {
-    QPointF deltaP = processPoint(p);
+    if (pickerFirstCornerPos->isNull()) {
+        return;
+    }
+    QPointF deltaP = pickerFirstCornerPos.value() - processPoint(p);
     auto dx = deltaP.x();
     auto dy = deltaP.y();
     double zoomDiscriminantRatio = abs(dx / dy)*pickerZoomDiscriminantNorm;
+    std::cout << zoomDiscriminantRatio << std::endl;
     if (zoomDiscriminantRatio < 0.1) {
         rubberBand = std::make_optional(QwtPlotPicker::VLineRubberBand);
     } else if (zoomDiscriminantRatio > 10.0) {
@@ -80,6 +85,7 @@ void PlotModel::onZoomInPickerMoved(const QPointF &p) {
     } else {
         rubberBand = std::make_optional(QwtPlotPicker::RectRubberBand);
     }
+    std::cout << rubberBand.value() << std::endl;
     emit sigRubberBandUpdated();
 }
 
