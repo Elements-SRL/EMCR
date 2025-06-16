@@ -32,6 +32,9 @@ public:
     int getBoardsNum();
     int getTemperatureChannelsNum();
 
+    RangedMeasurement_t getCurretRange();
+    RangedMeasurement_t getVoltageRange();
+
     std::vector <ChannelModel *> getChannels();
     void setSelectedChannels(std::map<int, bool>);
     std::vector <uint16_t> getSelectedChannelsIndexes();

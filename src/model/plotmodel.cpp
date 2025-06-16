@@ -2,7 +2,7 @@
 
 void axisInfo2Rect(std::pair<QwtPlot::Axis, AxisInfo> ai, Rect4 &r) {
     const auto v = ai.second;
-    const auto min = v.fixedMinimum.has_value() ? v.fixedMinimum.value(): v.range.max;
+    const auto min = v.fixedMinimum.has_value() ? v.fixedMinimum.value(): v.range.min;
     r[ai.first].setInterval(min, v.range.max);
 }
 
@@ -17,12 +17,14 @@ Rect4 buildRect(std::map<QwtPlot::Axis, AxisInfo> axisInfos) {
 PlotModel::PlotModel(std::map<QwtPlot::Axis, AxisInfo> axisInfos) {
     zoom = std::make_unique<Zoom>(buildRect(axisInfos));
     connect(zoom.get(), &Zoom::sigZoomChanged, this, &PlotModel::sigReplot);
+    emit sigReplot();
     // todo in the plot loop over the plot model enabled axis to enable them
 }
 
 void PlotModel::setRangedMeasurement(QwtPlot::Axis axis, e384CommLib::RangedMeasurement_t range) {
     axisInfo[axis].range = range;
     zoom = std::make_unique<Zoom>(buildRect(axisInfo));
+    emit sigReplot();
     // todo in the plot loop over the plot model enabled axis to enable them
 }
 
@@ -215,4 +217,12 @@ void PlotModel::onZoomOut() {
 
 void PlotModel::onZoomReset() {
     zoom->reset();
+}
+
+std::vector <QwtPlot::Axis> PlotModel::getActiveAxes() {
+    std::vector <QwtPlot::Axis> axes;
+    for (auto a: axisInfo) {
+        axes.push_back(a.first);
+    }
+    return axes;
 }

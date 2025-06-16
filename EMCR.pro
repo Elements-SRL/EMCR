@@ -173,6 +173,7 @@ HEADERS += \
     src/controller/plotdetailcontroller.h \
     src/controller/temperaturecontroller.h \
     src/globaldefines.h \
+    src/model/axisinfo.h \
     src/model/channelstate.h \
     src/model/membraneresult.h \
     src/model/plotdetailmodel.h \

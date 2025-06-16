@@ -168,8 +168,9 @@ void MainController::onMainWindowCreated() {
 
     /*! Plots durations */
     Measurement_t defaultPlotDuration = {2.0, UnitPfxNone, "s"};
+    RangedMeasurement_t defaultPlotDurationRm = {0.0, 2.0, 1.0, UnitPfxNone, "s"};
     deviceController = new DeviceController(appStatus, mainWindow);
-    bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow, deviceController);
+    bigPlotController = new BigPlotController(appStatus, deviceDataProducer, defaultPlotDurationRm, mainWindow, deviceController);
     chessboardController = new ChessboardController(appStatus, deviceDataProducer, defaultPlotDuration, mainWindow);
     controllersWithConsumer.push_back(chessboardController);
 //    COMPENSATION CONTROLLER MUST BE INITIALIZED BEFORE CONTROLLER CHANNEL

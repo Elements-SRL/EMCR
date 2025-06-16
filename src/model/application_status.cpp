@@ -381,3 +381,15 @@ bool ApplicationStatus::isExpandAuto() {
 void ApplicationStatus::setChannelSelected(uint16_t idx, bool flag) {
     channelStates[idx]->setSelected(flag);
 }
+
+RangedMeasurement_t ApplicationStatus::getCurretRange() {
+    RangedMeasurement r;
+    msgDisp->getCurrentRange(r);
+    return r;
+}
+
+RangedMeasurement_t ApplicationStatus::getVoltageRange() {
+    RangedMeasurement r;
+    msgDisp->getVoltageRange(r);
+    return r;
+}

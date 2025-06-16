@@ -5,7 +5,7 @@
 #include "eventdetectioncontroller.h"
 #include "spectrumcontroller.h"
 
-BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotDuration, MainWindow * mainWindow, DeviceController* dc) :
+BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, RangedMeasurement_t defaultPlotDuration, MainWindow * mainWindow, DeviceController* dc) :
     appStatus(appStatus),
     mainWindow(mainWindow) {
 
@@ -22,12 +22,13 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     gapFreeIndex = translatorInitializer;
     translator[translatorInitializer++] = BigPlot::GapFree;
     bpw->addGapFreeTab();
+
     controllers[BigPlot::GapFree] = new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
     if (appStatus->isEpisodic()) {
         episodicIndex = translatorInitializer;
         translator[translatorInitializer++] = BigPlot::Episodic;
         bpw->addEpisodicTab();
-        controllers[BigPlot::Episodic] = new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
+        controllers[BigPlot::Episodic] = new EpisodicController(appStatus, producer, defaultPlotDuration.getMax(), bpw, mainWindow, dc);
     }
     translator[translatorInitializer++] = BigPlot::Iv;
     bpw->addIvTab();

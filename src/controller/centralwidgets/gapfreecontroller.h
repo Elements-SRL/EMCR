@@ -6,14 +6,14 @@
 #include "gapfreewidget.h"
 #include "abfdatawriterconsumer.h"
 #include "devicecontroller.h"
-#include "durationbasedbigplotviewcontroller.h"
 #include <memory>
+#include "plotcontroller.h"
 
 class GapFreeController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    GapFreeController(ApplicationStatus*, DeviceDataProducer*, Measurement_t, BigPlotWidget*, MainWindow*, DeviceController*);
+    GapFreeController(ApplicationStatus*, DeviceDataProducer*, RangedMeasurement_t, BigPlotWidget*, MainWindow*, DeviceController*);
     ~GapFreeController();
     void stop() override;
     void start() override;
@@ -21,7 +21,7 @@ public:
     std::vector <DeviceDataConsumer*> getConsumers() override;
 
 private:
-    std::unique_ptr<DurationBasedBigPlotViewController> dbbovc;
+    std::unique_ptr<PlotController> pc;
     GapFreePlotConsumer * consumer = nullptr;
     GapFreeWidget* gapFreeWidget = nullptr;
     AbfDataWriterConsumer* abfDataWriterConsumer = nullptr;

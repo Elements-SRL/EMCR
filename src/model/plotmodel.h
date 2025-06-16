@@ -8,14 +8,7 @@
 #include "zoom.h"
 #include "qwt_plot_picker.h"
 #include <QWheelEvent>
-
-struct AxisInfo {
-    // if log is false then scale is linear
-    e384CommLib::RangedMeasurement_t range;
-    std::optional<double> fixedMinimum = std::nullopt;
-    bool log = false;
-    bool inverted = false;
-};
+#include "axisinfo.h"
 
 class PlotModel: public QObject {
     Q_OBJECT
@@ -44,6 +37,7 @@ public:
     std::optional<QwtPlotPicker *> getPicker();
     std::optional<QwtPlotPicker::RubberBand> getRubberBand();
     bool isAxisEnabled(QwtPlot::Axis);
+    std::vector <QwtPlot::Axis> getActiveAxes();
 
 public slots:
     // virtual void onAxisChanged(QwtPlot::Axis, e384CommLib::RangedMeasurement_t) = 0;

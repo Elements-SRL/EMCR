@@ -15,7 +15,7 @@ class BigPlotController : public QObject {
     Q_OBJECT
 
 public:
-    BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultDuration, MainWindow * mainWindow, DeviceController* dc);
+    BigPlotController(ApplicationStatus * appStatus, DeviceDataProducer * producer, RangedMeasurement_t defaultDuration, MainWindow * mainWindow, DeviceController* dc);
     ~BigPlotController();
 
     std::vector<PlotConsumer*> getConsumers();

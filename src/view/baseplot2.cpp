@@ -184,3 +184,13 @@ void BasePlot2::onReplot(){
     updateRect();
     replot();
 }
+
+void BasePlot2::onAutoZoom(std::vector <QwtPlot::Axis> axes) {
+    for (auto a : axes) {
+        this->setAxisAutoScale(a, true);
+    }
+    this->replot();
+    for (auto a : axes) {
+        this->setAxisAutoScale(a, false);
+    }
+}
