@@ -1,5 +1,7 @@
 #include "zoom.h"
 
+#include <iostream>
+
 Zoom::Zoom(Rect4 r) {
     zoomStack.push_back(r);
 }
@@ -13,6 +15,7 @@ Rect4 Zoom::reset() {
 
 Rect4 Zoom::push(Rect4 r) {
     zoomStack.push_back(r);
+    std::cout <<"fired" << std::endl;
     emit sigZoomChanged();
     return r;
 }

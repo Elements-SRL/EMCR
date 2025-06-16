@@ -14,5 +14,9 @@ struct AxisInfo {
     std::optional<double> fixedMinimum = std::nullopt;
     bool log = false;
     bool inverted = false;
+
+    void setRange(e384CommLib::RangedMeasurement_t r) {
+        this->range = r;
+    }
 };
 #endif // AXISINFO_H

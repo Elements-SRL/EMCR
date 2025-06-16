@@ -1,5 +1,4 @@
 #include "plotmodel.h"
-#include <iostream>
 
 void axisInfo2Rect(std::pair<QwtPlot::Axis, AxisInfo> ai, Rect4 &r) {
     const auto v = ai.second;
@@ -17,14 +16,16 @@ Rect4 buildRect(std::map<QwtPlot::Axis, AxisInfo> axisInfos) {
 
 PlotModel::PlotModel(std::map<QwtPlot::Axis, AxisInfo> axisInfos) {
     zoom = std::make_unique<Zoom>(buildRect(axisInfos));
-    connect(zoom.get(), &Zoom::sigZoomChanged, this, &PlotModel::sigReplot);
+    connect(zoom.get(), &Zoom::sigZoomChanged, this, &PlotModel::sigReplot, Qt::QueuedConnection);
+    axisInfo = axisInfos;
     emit sigReplot();
     // todo in the plot loop over the plot model enabled axis to enable them
 }
 
 void PlotModel::setRangedMeasurement(QwtPlot::Axis axis, e384CommLib::RangedMeasurement_t range) {
-    axisInfo[axis].range = range;
+    axisInfo[axis].setRange(range);
     zoom = std::make_unique<Zoom>(buildRect(axisInfo));
+    connect(zoom.get(), &Zoom::sigZoomChanged, this, &PlotModel::sigReplot, Qt::QueuedConnection);
     emit sigReplot();
     // todo in the plot loop over the plot model enabled axis to enable them
 }
@@ -77,7 +78,6 @@ void PlotModel::onZoomInPickerMoved(const QPointF &p) {
     auto dx = deltaP.x();
     auto dy = deltaP.y();
     double zoomDiscriminantRatio = abs(dx / dy)*pickerZoomDiscriminantNorm;
-    std::cout << zoomDiscriminantRatio << std::endl;
     if (zoomDiscriminantRatio < 0.1) {
         rubberBand = std::make_optional(QwtPlotPicker::VLineRubberBand);
     } else if (zoomDiscriminantRatio > 10.0) {
@@ -85,7 +85,6 @@ void PlotModel::onZoomInPickerMoved(const QPointF &p) {
     } else {
         rubberBand = std::make_optional(QwtPlotPicker::RectRubberBand);
     }
-    std::cout << rubberBand.value() << std::endl;
     emit sigRubberBandUpdated();
 }
 
@@ -203,6 +202,7 @@ void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mou
 
     currentZoom[ax].setInterval(newMin, newMax);
     this->zoom->push(currentZoom);
+    // emit sigReplot();
 }
 
 void PlotModel::onSingleAxisShift(QwtPlot::Axis ax, int shiftFactor) {

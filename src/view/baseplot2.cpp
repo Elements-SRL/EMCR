@@ -63,10 +63,12 @@ BasePlot2::BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent)
     zoomResetPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::RightButton);
     connect(zoomResetPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &BasePlot2::sigZoomReset);
 
-    const auto pmLabels = pm->getUnitLabes();
-    for (auto l : pmLabels) {
-        // enable axis
-        this->axisEnabled(l.first);
+
+    for (auto axis: pm->getActiveAxes()) {
+        this->enableAxis(axis);
+    }
+
+    for (auto l : pm->getUnitLabes()) {
         // create label
         labels[l.first] = createTextLabel(l.second, l.first);
     }
