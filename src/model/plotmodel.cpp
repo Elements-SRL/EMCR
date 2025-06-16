@@ -1,5 +1,7 @@
 #include "plotmodel.h"
 
+#include <iostream>
+
 void axisInfo2Rect(std::pair<QwtPlot::Axis, AxisInfo> ai, Rect4 &r) {
     const auto v = ai.second;
     const auto min = v.fixedMinimum.has_value() ? v.fixedMinimum.value(): v.range.min;
@@ -106,19 +108,22 @@ std::optional<QwtPlotPicker::RubberBand> PlotModel::getRubberBand() {
 
 void PlotModel::onZoomInPickerSelected(const QRectF &r) {
     Rect4 rect(r);
-    if ((rect.at(QwtPlot::Axis::yLeft).width() == 0.0) && (rect.at(QwtPlot::Axis::xBottom).width() == 0.0 || !rubberBand.has_value())) {
+    const auto yLAxis = QwtPlot::Axis::yLeft;
+    const auto yRAxis = QwtPlot::Axis::yRight;
+    const auto xBottom = QwtPlot::Axis::xBottom;
+    if ((rect.at(yLAxis).width() == 0.0) && (rect.at(xBottom).width() == 0.0 || !rubberBand.has_value())) {
         return;
     }
+    auto oldRect = zoom->peek();
+
     auto rY = r.y();
     auto rH = r.height();
-    const auto yLeft = axisInfo[QwtPlot::Axis::yLeft];
-    const auto yRight = axisInfo[QwtPlot::Axis::yRight];
-    auto yL = yLeft.range.min;
-    auto hL = yLeft.range.max;
-    auto yR = yRight.range.min;
-    auto hR = yRight.range.max;
+    auto yL = oldRect[yLAxis].minValue();
+    auto hL = oldRect[yLAxis].width();
+    auto yR = oldRect[yRAxis].minValue();
+    auto hR = oldRect[yRAxis].width();
 
-    if (yLeft.log) {
+    if (axisInfo[yLAxis].log) {
         hL = log(yL + hL);
         yL = log(yL);
         hL -= yL;
@@ -126,44 +131,47 @@ void PlotModel::onZoomInPickerSelected(const QRectF &r) {
         rY = log(rY);
         rH -= rY;
     }
-
-    const auto rightLogFlag = yRight.log;
-    if (rightLogFlag) {
+    auto yRLog = axisInfo[yRAxis].log;
+    if (yRLog) {
         hR = log(yR + hR);
         yR = log(yR);
         hR -= yR;
     }
-    const auto rightLeftRatio = hR/hL;
-    const auto rightOffset = yR+(rY-yL)*rightLeftRatio;
-    const auto rightHeight = rH*rightLeftRatio;
-    const auto rb = rubberBand.value();
-    const auto cache = zoom->peek();
+    auto rightLeftRatio = hR/hL;
+    auto rightOffset = yR+(rY-yL)*rightLeftRatio;
+    auto rightHeight = rH*rightLeftRatio;
+    auto yR0 = rightOffset;
+    auto yR1 = rightOffset + rightHeight;
+    yR0 = yRLog ? log(yR0) : yR0;
+    yR1 = yRLog ? log(yR1) : yR1;
 
-    const auto i0 = rightLogFlag ? exp(rightOffset) : rightOffset;
-    const auto i1 = rightLogFlag ? exp(rightOffset + rightHeight) : rightOffset + rightHeight;
-
+    auto rb = rubberBand.value();
     switch (rb) {
     case QwtPlotPicker::RectRubberBand:
-        if (isAxisEnabled(QwtPlot::Axis::yRight)) {
-            rect[QwtPlot::Axis::yRight].setInterval(i0, i1);
+        if (isAxisEnabled(yRAxis)) {
+            rect[QwtPlot::Axis::yRight].setInterval(yR0, yR1);
+        }
+        if (axisInfo[xBottom].fixedMinimum.has_value()) {
+            rect[xBottom].setInterval(oldRect[xBottom].minValue(), rect[xBottom].maxValue());
         }
         break;
-
     case QwtPlotPicker::HLineRubberBand:
-        rect[QwtPlot::Axis::yLeft].setInterval(cache[QwtPlot::Axis::yLeft].minValue(), cache[QwtPlot::Axis::yLeft].maxValue());
-        rect[QwtPlot::Axis::yRight].setInterval(cache[QwtPlot::Axis::yRight].minValue(), cache[QwtPlot::Axis::yRight].maxValue());
+        rect[yLAxis].setInterval(oldRect[yLAxis].minValue(), oldRect[yLAxis].maxValue());
+        rect[yRAxis].setInterval(oldRect[yRAxis].minValue(), oldRect[yRAxis].maxValue());
         break;
-
     case QwtPlotPicker::VLineRubberBand:
-        rect[QwtPlot::Axis::xBottom].setInterval(cache[QwtPlot::Axis::xBottom].minValue(), cache[QwtPlot::Axis::xBottom].maxValue());
-        if (isAxisEnabled(QwtPlot::Axis::yRight)) {
-            rect[QwtPlot::Axis::yRight].setInterval(i0, i1);
+        rect[xBottom].setInterval(oldRect[xBottom].minValue(), oldRect[xBottom].maxValue());
+        if (isAxisEnabled(yRAxis)) {
+            rect[QwtPlot::Axis::yRight].setInterval(yR0, yR1);
+        }
+        if (axisInfo[xBottom].fixedMinimum.has_value()) {
+            rect[xBottom].setInterval(oldRect[xBottom].minValue(), rect[xBottom].maxValue());
         }
         break;
     }
+    emit sigRubberBandUpdated();
     zoom->push(rect);
     rubberBand = std::nullopt;
-    emit sigRubberBandUpdated();
 }
 
 bool PlotModel::isAxisEnabled(QwtPlot::Axis a) {
@@ -172,6 +180,7 @@ bool PlotModel::isAxisEnabled(QwtPlot::Axis a) {
 
 void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mousePosition) {
     auto currentZoom = zoom->peek();
+    auto fm = axisInfo[ax].fixedMinimum;
     const auto interval = currentZoom[ax];
     // suppose that linear stuff all start at zero
     bool zeroLockFlag = ax == QwtPlot::xBottom;
@@ -197,6 +206,8 @@ void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mou
         // zoom only around the cursor
         const auto x = mousePosition.x();
         newMin = x - ((x - min) / divisor);
+        // if minimum is fixed use fixed minimum
+        newMin = fm.value_or(min - newMin);
         newMax = x + ((max - x) / divisor);
     }
 
@@ -207,11 +218,12 @@ void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mou
 
 void PlotModel::onSingleAxisShift(QwtPlot::Axis ax, int shiftFactor) {
     auto currentZoom = zoom->peek();
+    auto fm = axisInfo[ax].fixedMinimum;
     const auto interval = currentZoom[ax];
-    const auto min = interval.minValue();
+    const auto min = fm.value_or(interval.minValue());
     const auto max = interval.maxValue();
     const auto shift = (double) shiftFactor/10000*(max-min);
-    auto newMin = min - shift;
+    auto newMin = fm.value_or(min - shift);
     auto newMax = max - shift;
     currentZoom[ax].setInterval(newMin, newMax);
     zoom->push(currentZoom);

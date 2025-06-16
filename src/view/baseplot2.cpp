@@ -19,8 +19,6 @@ BasePlot2::BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent)
         this->axisWidget(axis)->setMargin(0);
     }
 
-    // xBottomScaleDraw = new ConversionScaleDraw;
-    // this->setAxisScaleDraw(xBottom, xBottomScaleDraw);
     QwtPlotCanvas * canvas = new QwtPlotCanvas();
     canvas->setFrameStyle(QFrame::NoFrame);
     this->setCanvas(canvas);
@@ -62,7 +60,6 @@ BasePlot2::BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent)
     zoomResetPicker->setTrackerMode(QwtPlotPicker::AlwaysOff);
     zoomResetPicker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::RightButton);
     connect(zoomResetPicker, QOverload <const QPointF &> ::of(&QwtPlotPicker::selected), this, &BasePlot2::sigZoomReset);
-
 
     for (auto axis: pm->getActiveAxes()) {
         this->enableAxis(axis);
