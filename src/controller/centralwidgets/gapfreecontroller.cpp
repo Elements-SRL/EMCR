@@ -3,7 +3,6 @@
 GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, RangedMeasurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, MainWindow* mw, DeviceController* dc):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
 
-
     std::map<QwtPlot::Axis, AxisInfo> m;
     m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange()};
     m[QwtPlot::Axis::yRight] = {appStatus->getVoltageRange()};
@@ -154,8 +153,6 @@ void GapFreeController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
         return;
     }
     pc->setRangedMeasurement(axis, newRange);
-    // plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
-    // plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
 }
 
 void GapFreeController::onExpandTrace(bool flag) {
@@ -188,7 +185,6 @@ std::vector <DeviceDataConsumer*> GapFreeController::getConsumers() {
 
 void GapFreeController::onRecordingRequest(bool flag) {
     if (flag) {
-        auto msgDisp = appStatus->getMessageDispatcher();
         auto selectedChannels = appStatus->getSelectedChannelsIndexes();
 
         if (!(selectedChannels.empty())) {
