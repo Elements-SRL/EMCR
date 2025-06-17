@@ -10,8 +10,8 @@
 #include "ivgraphconsumer.h"
 #include "ivgraphwidget.h"
 #include "centralwidgetcontroller.h"
-#include "bigplotviewcontroller.h"
 #include <memory>
+#include "plotcontroller.h"
 
 class IvGraphController : public CentralWidgetController {
     Q_OBJECT
@@ -27,10 +27,8 @@ public:
     IvGraphWidget * getIvGraphWidget();
 
 private:
-    std::unique_ptr<BigPlotViewController> bpvc;
-    // BigPlotModel * model = nullptr;
+    std::unique_ptr<PlotController> pc;
     IvGraphConsumer * consumer = nullptr;
-    // BigPlot * plot = nullptr;
     std::vector <Curve *> currentCurves;
     IvGraphWidget * ivGraphWidget = nullptr;
     MainWindow * mainWindow = nullptr;

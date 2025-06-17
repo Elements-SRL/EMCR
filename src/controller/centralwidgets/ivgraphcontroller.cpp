@@ -6,12 +6,12 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
 
     consumer = new IvGraphConsumer(appStatus, producer);
 
-    auto m = std::make_unique<BigPlotModel>();
-    auto plot = new BigPlot("", "[V]", "", BigPlot::Iv, bigPlotWidget);
-    ivGraphWidget = new IvGraphWidget(currentChannelsNum, plot, mainWindow);
+    std::map<QwtPlot::Axis, AxisInfo> m;
+    m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange()};
+    m[QwtPlot::Axis::xBottom] = {appStatus->getVoltageRange()};
+    pc = std::make_unique<PlotController>(m, mainWindow);
+    ivGraphWidget = new IvGraphWidget(currentChannelsNum, pc->getPlot(), mainWindow);
 
-    bpvc = std::make_unique<BigPlotViewController>(std::move(m), std::move(plot));
-    bpvc->setup();
     bigPlotWidget->setIvGraph(ivGraphWidget);
     // creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -29,9 +29,7 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     connect(ivGraphWidget, &IvGraphWidget::sigCalcMeanSquared, this, &IvGraphController::onCalcMeanSquared);
     connect(ivGraphWidget, &IvGraphWidget::sigStartIvGraph, this, &IvGraphController::onStartIvGraph);
     connect(ivGraphWidget, &IvGraphWidget::sigStopIvGraph, this, &IvGraphController::onStopIvGraph);
-    connect(ivGraphWidget, &IvGraphWidget::sigAutoZoom, this, [this] () {
-        bpvc->getPlot()->onAutoZoom({QwtPlot::xBottom, QwtPlot::yLeft});
-    });
+    connect(ivGraphWidget, &IvGraphWidget::sigAutoZoom, pc.get(), &PlotController::onAutoZoom);
 }
 
 IvGraphController::~IvGraphController() {
@@ -184,7 +182,7 @@ void IvGraphController::stop() {
 }
 
 void IvGraphController::detachCurves(const std::vector <uint16_t>& channelIndexes) {
-    auto plot = bpvc->getPlot();
+    auto plot = pc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->detach();
     }
@@ -192,7 +190,7 @@ void IvGraphController::detachCurves(const std::vector <uint16_t>& channelIndexe
 }
 
 void IvGraphController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
-    auto plot = bpvc->getPlot();
+    auto plot = pc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->attach(plot);
     }
@@ -214,14 +212,14 @@ void IvGraphController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void IvGraphController::onBackgroundColorChanged(QColor color) {
-    auto plot = bpvc->getPlot();
+    auto plot = pc->getPlot();
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
     }
 }
 
 void IvGraphController::onReplot() {
-    auto plot = bpvc->getPlot();
+    auto plot = pc->getPlot();
     if (plot != nullptr) {
         plot->replot();
     }
@@ -229,22 +227,18 @@ void IvGraphController::onReplot() {
 
 //todo Check clampingmodality as well
 void IvGraphController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
-    auto plot = bpvc->getPlot();
-    auto model = bpvc->getModel();
-    QwtPlot::Axis axisIdx;
+    auto model = pc->getModel();
+    QwtPlot::Axis axis;
     if (newRange.unit == "s") {
         return;
     }
     else if (newRange.unit == "V") {
-        axisIdx = QwtPlot::xBottom;
+        axis = QwtPlot::xBottom;
     }
     else if (newRange.unit == "A") {
-        axisIdx = QwtPlot::yLeft;
+        axis = QwtPlot::yLeft;
     }
-    model->setCurrentRange(axisIdx, newRange);
-    plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
-    plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
-    plot->replot();
+    pc->setRangedMeasurement(axis, newRange);
 }
 
 void IvGraphController::onExpandTrace(bool flag) {
@@ -260,14 +254,11 @@ void IvGraphController::onExpandTrace(bool flag) {
 }
 
 void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
-    auto plot = bpvc->getPlot();
-    auto model = bpvc->getModel();
     RangedMeasurement v;
     RangedMeasurement i;
     // IvGraph message
     appStatus->getMessageDispatcher()->getVCVoltageRange(v);
     appStatus->getMessageDispatcher()->getVCCurrentRange(i);
-    plot->setRect(model->initRect(v.min, v.max, i.min, i.max));
     message = std::get<BigPlot::BigPlotStatus::Iv>(plotmessage);
     if (message.currentValues.size() == 0 || message.voltageValues.size() == 0 || message.dataSize.size() == 0) {
         return;

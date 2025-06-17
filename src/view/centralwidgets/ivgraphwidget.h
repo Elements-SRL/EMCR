@@ -10,10 +10,9 @@
 #include <QHeaderView>
 #include <QString>
 
-#include "copyabletable.h"
-#include "messagedispatcher.h"
+#include <QTableWidget>
 #include "e384commlib_global_addendum.h"
-#include "bigplot.h"
+#include <qwt_plot.h>
 
 class IvGraphWidget : public QWidget {
     Q_OBJECT
@@ -23,8 +22,8 @@ private:
     bool status = false;
 
 public:
-    IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent = nullptr);
-    void setParams(std::map <uint32_t, std::vector <Measurement>> params);
+    IvGraphWidget(uint32_t channelsNum, QwtPlot* plot, QWidget * parent = nullptr);
+    void setParams(std::map <uint32_t, std::vector <e384CommLib::Measurement_t>> params);
 
 signals:
     void sigExportIvGraph();

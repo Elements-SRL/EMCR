@@ -1,7 +1,9 @@
 #include "ivgraphwidget.h"
-#include <QSplitter>
 
-IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent) :
+#include <QSplitter>
+#include "copyabletable.h"
+
+IvGraphWidget::IvGraphWidget(uint32_t channelsNum, QwtPlot* plot, QWidget * parent) :
     QWidget(parent) {
 
     this->setObjectName("ivGraph");
@@ -94,7 +96,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     mainVl->addLayout(zoomButtonsHl);
 }
 
-void IvGraphWidget::setParams(std::map<uint32_t, std::vector<Measurement>> params) {
+void IvGraphWidget::setParams(std::map<uint32_t, std::vector<e384CommLib::Measurement_t>> params) {
     for (auto &entry: params) {
         const auto key = entry.first;
         const auto values = entry.second;
