@@ -45,9 +45,10 @@ public slots:
 private slots:
     void onStartRecording();
     void onStopRecording();
+    void onAxesChanged();
 
 signals:
-    void durationChanged(Measurement_t duration);
+    void sigDurationChanged(Measurement_t duration);
     void sigStartRecording();
     void sigStopRecording();
 };

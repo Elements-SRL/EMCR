@@ -1,7 +1,5 @@
 #include "plotmodel.h"
 
-#include <iostream>
-
 void axisInfo2Rect(std::pair<QwtPlot::Axis, AxisInfo> ai, Rect4 &r) {
     const auto v = ai.second;
     const auto min = v.fixedMinimum.has_value() ? v.fixedMinimum.value(): v.range.min;
@@ -115,7 +113,6 @@ void PlotModel::onZoomInPickerSelected(const QRectF &r) {
         return;
     }
     auto oldRect = zoom->peek();
-
     auto rY = r.y();
     auto rH = r.height();
     auto yL = oldRect[yLAxis].minValue();
@@ -127,12 +124,12 @@ void PlotModel::onZoomInPickerSelected(const QRectF &r) {
         hL = log(yL + hL);
         yL = log(yL);
         hL -= yL;
-        rH = log(rY + rH);
-        rY = log(rY);
-        rH -= rY;
     }
     auto yRLog = axisInfo[yRAxis].log;
     if (yRLog) {
+        rH = log(rY + rH);
+        rY = log(rY);
+        rH -= rY;
         hR = log(yR + hR);
         yR = log(yR);
         hR -= yR;
@@ -158,6 +155,9 @@ void PlotModel::onZoomInPickerSelected(const QRectF &r) {
     case QwtPlotPicker::HLineRubberBand:
         rect[yLAxis].setInterval(oldRect[yLAxis].minValue(), oldRect[yLAxis].maxValue());
         rect[yRAxis].setInterval(oldRect[yRAxis].minValue(), oldRect[yRAxis].maxValue());
+        if (axisInfo[xBottom].fixedMinimum.has_value()) {
+            rect[xBottom].setInterval(oldRect[xBottom].minValue(), rect[xBottom].maxValue());
+        }
         break;
     case QwtPlotPicker::VLineRubberBand:
         rect[xBottom].setInterval(oldRect[xBottom].minValue(), oldRect[xBottom].maxValue());
@@ -213,7 +213,6 @@ void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mou
 
     currentZoom[ax].setInterval(newMin, newMax);
     this->zoom->push(currentZoom);
-    // emit sigReplot();
 }
 
 void PlotModel::onSingleAxisShift(QwtPlot::Axis ax, int shiftFactor) {
@@ -243,4 +242,14 @@ std::vector <QwtPlot::Axis> PlotModel::getActiveAxes() {
         axes.push_back(a.first);
     }
     return axes;
+}
+
+e384CommLib::RangedMeasurement_t PlotModel::getAxisRangedMeasurement(QwtPlot::Axis axis) {
+    const auto r = zoom->peek();
+    const auto min = r[axis].minValue();
+    const auto max = r[axis].maxValue();
+    auto rm = axisInfo[axis].range;
+    rm.min = min;
+    rm.max = max;
+    return rm;
 }

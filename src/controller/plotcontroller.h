@@ -15,6 +15,7 @@ private:
 public:
     PlotController(std::map<QwtPlot::Axis, AxisInfo>, QWidget *parent = nullptr);
     QwtPlot * getPlot();
+    std::shared_ptr<PlotModel> getModel();
     void setRangedMeasurement(QwtPlot::Axis, e384CommLib::RangedMeasurement_t rm);
 
 public slots:
@@ -22,6 +23,7 @@ public slots:
 
 signals:
     void sigAutoZoom(std::vector <QwtPlot::Axis>);
+    void sigPlotUpdated();
 };
 
 #endif // PLOTCONTROLLER_H

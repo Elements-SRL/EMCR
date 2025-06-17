@@ -24,11 +24,6 @@ private:
 
 public:
     PlotModel(std::map<QwtPlot::Axis, AxisInfo>);
-    // used for gapfree plot which has fixed minimum at 0;
-    // std::optional<bool> getMinimumFixed();
-    // virtual void setRangedMeasurement(QwtPlot::Axis, e384CommLib::RangedMeasurement_t) = 0;
-    // virtual std::optional<std::string> getUnitLabel(QwtPlot::Axis) = 0;
-    // virtual std::map<QwtPlot::Axis, std::string> getUnitLabes() = 0;
     void setRangedMeasurement(QwtPlot::Axis, e384CommLib::RangedMeasurement_t);
     std::optional<std::string> getUnitLabel(QwtPlot::Axis);
     std::map<QwtPlot::Axis, std::string> getUnitLabes();
@@ -38,6 +33,7 @@ public:
     std::optional<QwtPlotPicker::RubberBand> getRubberBand();
     bool isAxisEnabled(QwtPlot::Axis);
     std::vector <QwtPlot::Axis> getActiveAxes();
+    e384CommLib::RangedMeasurement_t getAxisRangedMeasurement(QwtPlot::Axis);
 
 public slots:
     // virtual void onAxisChanged(QwtPlot::Axis, e384CommLib::RangedMeasurement_t) = 0;

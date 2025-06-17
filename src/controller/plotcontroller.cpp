@@ -14,6 +14,7 @@ PlotController::PlotController(std::map<QwtPlot::Axis, AxisInfo> ai, QWidget *pa
 
     connect(pm.get(), &PlotModel::sigReplot, bp, &BasePlot2::onReplot);
     connect(pm.get(), &PlotModel::sigRubberBandUpdated, bp, &BasePlot2::onRubberBandUpdated);
+    connect(pm.get(), &PlotModel::sigReplot, this, &PlotController::sigPlotUpdated);
 
     connect(this, &PlotController::sigAutoZoom, bp, &BasePlot2::onAutoZoom, Qt::QueuedConnection);
 }
@@ -28,4 +29,8 @@ void PlotController::setRangedMeasurement(QwtPlot::Axis axis, e384CommLib::Range
 
 void PlotController::onAutoZoom() {
     emit sigAutoZoom(pm->getActiveAxes());
+}
+
+std::shared_ptr<PlotModel> PlotController::getModel() {
+    return pm;
 }

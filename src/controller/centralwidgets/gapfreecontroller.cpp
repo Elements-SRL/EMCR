@@ -49,7 +49,8 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     connect(gapFreeWidget, &GapFreeWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
 
     // TODO FARE QUESTO COMPATIBILE
-    // connect(dbbovc.get(), &DurationBasedBigPlotViewController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
+    connect(pc.get(), &PlotController::sigPlotUpdated, this, &GapFreeController::onAxesChanged);
+    connect(this, &GapFreeController::sigDurationChanged, consumer, &PlotConsumer::onDurationChanged);
 
     connect(consumer, &PlotConsumer::setPlotData, this, &GapFreeController::onSetPlotData);
     connect(consumer, &PlotConsumer::plotDataUpdated, this, &GapFreeController::onReplot);
@@ -144,7 +145,7 @@ void GapFreeController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     QwtPlot::Axis axis;
     if (newRange.unit == "s") {
         axis = QwtPlot::xBottom;
-        emit durationChanged(newRange.getMax());
+        emit sigDurationChanged(newRange.getMax());
     } else if (newRange.unit == "V") {
         axis = QwtPlot::yRight;
     } else if (newRange.unit == "A") {
@@ -229,4 +230,11 @@ void GapFreeController::onStartRecording() {
 
 void GapFreeController::onStopRecording() {
     abfDataWriterConsumer->onStopConsuming();
+}
+
+void GapFreeController::onAxesChanged() {
+    auto rm = pc->getModel()->getAxisRangedMeasurement(QwtPlot::Axis::xBottom);
+    auto delta = rm.delta();
+    Measurement duration = {delta, rm.prefix, rm.unit};
+    emit sigDurationChanged(duration);
 }
