@@ -30,8 +30,11 @@ void TemperatureController::onTemperatureRead(std::vector <e384cl::Measurement_t
 
     values[0].convertValue(UnitPfxNone);
     double Tm0 = values[0].value;
-    values[1].convertValue(UnitPfxNone);
-    double Tm1 = values[1].value;
+    double Tm1 = Tm0;
+    if (values.size() > 1) {
+        values[1].convertValue(UnitPfxNone);
+        Tm1 = values[1].value;
+    }
     auto Ts = view->getTSet();
     Ts.convertValue(UnitPfxNone);
     // qDebug() << Tm0 << Tm1 << speedSet.value;
