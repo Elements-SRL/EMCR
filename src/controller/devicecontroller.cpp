@@ -192,8 +192,7 @@ void DeviceController::onDigitalFilterSettingsChanged(Measurement_t cutoffrequen
 // ADC Voltage Filter in CC set by Sampling rate
 
 void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
-    MessageDispatcher * msgDisp = appStatus->getMessageDispatcher();
-    msgDisp->setClampingModality(mode, true, true);
+    appStatus->getMessageDispatcher()->setClampingModality(mode, true, true);
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
         emit sigVcCurrentRangeSelected();

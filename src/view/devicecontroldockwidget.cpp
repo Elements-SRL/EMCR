@@ -428,8 +428,8 @@ void DeviceControlDockWidget::updateParameters() {
             msgDisp->getVCVoltageFilterIdx(idx);
             vcVoltageFiltersRadioButtons[idx]->setChecked(true);
         }
-
-    } else if (mode == ClampingModality_t::CURRENT_CLAMP) {
+    }
+    else if (mode == ClampingModality_t::CURRENT_CLAMP || mode == ClampingModality_t::ZERO_CURRENT_CLAMP) {
         this->setWidgetVisible(vcVoltageRangesSection, false);
         for (auto & section : vcCurrentRangesSections) {
             this->setWidgetVisible(section, false);
