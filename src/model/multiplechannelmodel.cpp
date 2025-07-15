@@ -27,7 +27,7 @@ void MultipleChannelModel::saveSettings() {
 void MultipleChannelModel::loadSettings() {
     QSettings settings;
     auto channelsAuto = settings.value(GLB_CONTROLS_CHANNEL_AUTO_TAG).toBool();
-    appStatus->setStimulusAuto(channelsAuto);
+    appStatus->setChannelsAuto(channelsAuto);
     view->setChannelsAuto(channelsAuto);
 
     auto stimulusAuto = settings.value(GLB_CONTROLS_STIMULUS_AUTO_TAG).toBool();

@@ -561,7 +561,7 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
         return nullptr;
     }
     std::vector <QString> texts;
-    for (auto s : strings) {
+    for (auto &s : strings) {
         texts.push_back(QString::fromStdString(s));
     }
     return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
