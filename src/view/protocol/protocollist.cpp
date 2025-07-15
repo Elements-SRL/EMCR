@@ -131,6 +131,10 @@ void ProtocolList::setClampingModality(ClampingModality_t clampingModalitySet) {
 }
 
 void ProtocolList::saveAndClosePropertyDialog() {
+    if (!(this->isVisible())) {
+        return;
+    }
+
     QString openedProtocolName;
     if (protocolPropertyDialog->isOpened(openedProtocolName)) {
         ProtocolWidget * openedProtocol = findProtocolByName(openedProtocolName);

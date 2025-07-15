@@ -64,6 +64,15 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
         connect(protocolDw->getCurrentProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex) {
             onSamplingRateSelected(selectedSamplingRateIndex);
         });
+        connect(protocolDw->getAnalysisCurrentProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedCcCurrentRangeIndex) {
+            onCcCurrentRangeSelected(selectedCcCurrentRangeIndex);
+        });
+        connect(protocolDw->getAnalysisCurrentProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedCcVoltageRangeIndex) {
+            onCcVoltageRangeSelected(appStatus->getVoltageChannelsNum(), selectedCcVoltageRangeIndex);
+        });
+        connect(protocolDw->getAnalysisCurrentProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex) {
+            onSamplingRateSelected(selectedSamplingRateIndex);
+        });
 
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedVcCurrentRangeIndex) {
             onVcCurrentRangeSelected(appStatus->getCurrentChannelsNum(), selectedVcCurrentRangeIndex);
@@ -72,6 +81,15 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
             onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
         });
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex) {
+            onSamplingRateSelected(selectedSamplingRateIndex);
+        });
+        connect(protocolDw->getAnalysisVoltageProtocolList(), &ProtocolList::requestCurrentRange,  this, [=](uint16_t selectedVcCurrentRangeIndex) {
+            onVcCurrentRangeSelected(appStatus->getCurrentChannelsNum(), selectedVcCurrentRangeIndex);
+        } );
+        connect(protocolDw->getAnalysisVoltageProtocolList(), &ProtocolList::requestVoltageRange,  this, [=](uint16_t selectedVcVoltageRangeIndex) {
+            onVcVoltageRangeSelected(selectedVcVoltageRangeIndex);
+        });
+        connect(protocolDw->getAnalysisVoltageProtocolList(), &ProtocolList::requestSamplingRate,  this, [=](uint16_t selectedSamplingRateIndex) {
             onSamplingRateSelected(selectedSamplingRateIndex);
         });
     }
