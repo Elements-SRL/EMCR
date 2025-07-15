@@ -13,6 +13,7 @@
 #include "resistanceestimationconsumer.h"
 #include "pipettecapacitanceestimationconsumer.h"
 #include "membraneestimationconsumer.h"
+#include "ccresistanceestimationconsumer.h"
 #include "resultwrapper.h"
 
 class MeasurementOverviewController : public ControllerWithConsumer {
@@ -42,6 +43,7 @@ private:
     ResistanceEstimationConsumer * resistanceEstimationConsumer = nullptr;
     PipetteCapacitanceEstimationConsumer * pipetteCapacitanceEstimationConsumer = nullptr;
     MembraneEstimationConsumer * membraneEstimationConsumer = nullptr;
+    CcResistanceEstimationConsumer * ccResistanceEstimationConsumer = nullptr;
     void onSetLiveStatisticsConsumerStatus(bool status);
 
 private slots:

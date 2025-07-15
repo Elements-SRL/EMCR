@@ -1,15 +1,15 @@
-#ifndef RESISTANCEESTIMATIONCONSUMER_H
-#define RESISTANCEESTIMATIONCONSUMER_H
+#ifndef CCRESISTANCEESTIMATIONCONSUMER_H
+#define CCRESISTANCEESTIMATIONCONSUMER_H
 
-#include "squarevoltagebasedanalysisconsumer.h"
+#include "squarecurrentbasedanalysisconsumer.h"
 #include "singlemeasresult.h"
 #include "resultwrapper.h"
 
-class ResistanceEstimationConsumer : public SquareVoltageBasedAnalysisConsumer {
+class CcResistanceEstimationConsumer : public SquareCurrentBasedAnalysisConsumer {
     Q_OBJECT
 
 public:
-    ResistanceEstimationConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
+    CcResistanceEstimationConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer);
 
 protected:
     void initAnalysis() override;
@@ -24,14 +24,14 @@ protected:
     void computeResults() override;
 
 private:
-    double voltageSum;
-    double voltageSum2;
-    std::vector <double> currentSum;
-    std::vector <double> currentSum2;
+    double currentSum;
+    double currentSum2;
+    std::vector <double> voltageSum;
+    std::vector <double> voltageSum2;
     std::vector <SingleMeasResult_t> results;
 
 signals:
     void sigResult(SingleMeasResultWrapper_t res);
 };
 
-#endif // RESISTANCEESTIMATIONCONSUMER_H
+#endif // CCRESISTANCEESTIMATIONCONSUMER_H

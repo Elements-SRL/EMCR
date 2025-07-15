@@ -16,10 +16,12 @@ MeasurementOverviewController::MeasurementOverviewController(ApplicationStatus *
     resistanceEstimationConsumer = new ResistanceEstimationConsumer(appStatus, producer);
     pipetteCapacitanceEstimationConsumer = new PipetteCapacitanceEstimationConsumer(appStatus, producer);
     membraneEstimationConsumer = new MembraneEstimationConsumer(appStatus, producer);
+    ccResistanceEstimationConsumer = new CcResistanceEstimationConsumer(appStatus, producer);
     connect(liveStatisticsConsumer, &LiveStatisticsConsumer::sigResult, this, &MeasurementOverviewController::onLiveStatisticsResults);
     connect(resistanceEstimationConsumer, &ResistanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onResistanceEstimationResults);
     connect(pipetteCapacitanceEstimationConsumer, &PipetteCapacitanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onPipetteCapacitanceEstimationResults);
     connect(membraneEstimationConsumer, &MembraneEstimationConsumer::sigResult, this, &MeasurementOverviewController::onMembraneEstimationResults);
+    connect(ccResistanceEstimationConsumer, &CcResistanceEstimationConsumer::sigResult, this, &MeasurementOverviewController::onResistanceEstimationResults);
     connect(modw, &QDockWidget::visibilityChanged, this, &MeasurementOverviewController::onSetLiveStatisticsConsumerStatus);
 
     mainWindow->setDockWidget(MainWindow::DWMeasurementsOverview, modw, false, Qt::BottomDockWidgetArea);
@@ -57,6 +59,11 @@ MeasurementOverviewController::~MeasurementOverviewController(){
         membraneEstimationConsumer->onStopConsuming();
         delete membraneEstimationConsumer;
         membraneEstimationConsumer = nullptr;
+    }
+    if (ccResistanceEstimationConsumer!= nullptr) {
+        ccResistanceEstimationConsumer->onStopConsuming();
+        delete ccResistanceEstimationConsumer;
+        ccResistanceEstimationConsumer = nullptr;
     }
 }
 
@@ -108,6 +115,7 @@ void MeasurementOverviewController::onProtocolStarted(unsigned int protId, Proto
     resistanceEstimationConsumer->onStopConsuming();
     pipetteCapacitanceEstimationConsumer->onStopConsuming();
     membraneEstimationConsumer->onStopConsuming();
+    ccResistanceEstimationConsumer->onStopConsuming();
     YAML::AnalysisType_t type = YAML::AnalysisNum;
     if (!(protocol->getAnalysisType(type))) {
         return;
@@ -123,6 +131,10 @@ void MeasurementOverviewController::onProtocolStarted(unsigned int protId, Proto
 
     case YAML::MembraneEstimation:
         membraneEstimationConsumer->onStartConsuming();
+        return;
+
+    case YAML::CcResistanceEstimation:
+        ccResistanceEstimationConsumer->onStartConsuming();
         return;
     }
 }
@@ -168,7 +180,7 @@ void MeasurementOverviewController::onMembraneEstimationResults(MembraneResultWr
 }
 
 std::vector <DeviceDataConsumer*> MeasurementOverviewController::getConsumers() {
-    return {liveStatisticsConsumer, resistanceEstimationConsumer, pipetteCapacitanceEstimationConsumer, membraneEstimationConsumer};
+    return {liveStatisticsConsumer, resistanceEstimationConsumer, pipetteCapacitanceEstimationConsumer, membraneEstimationConsumer, ccResistanceEstimationConsumer};
 }
 
 void MeasurementOverviewController::boardMappingsLoaded(){

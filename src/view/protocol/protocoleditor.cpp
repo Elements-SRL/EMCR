@@ -1,6 +1,5 @@
 #include "protocoleditor.h"
 
-#include <QSplitter>
 #include "protocolutils.h"
 #include "protocolwidget.h"
 
