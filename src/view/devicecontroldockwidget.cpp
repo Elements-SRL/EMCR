@@ -98,6 +98,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! VC Voltage range */
     this->vcVoltageRangesSection = setupSection(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, vLayout, vcVoltageRangesRadioButtons, vcVoltageRangeDefaultIdx);
+    this->setWidgetEnabled(vcVoltageRangesSection, false);
     for (int i = 0; i < vcVoltageRangesRadioButtons.size(); i++) {
         connect(vcVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -108,6 +109,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! CC Current range */
     this->ccCurrentRangesSection = setupSection(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, vLayout, ccCurrentRangesRadioButtons, ccCurrentRangeDefaultIdx);
+    this->setWidgetEnabled(ccCurrentRangesSection, false);
     for (int i = 0; i < ccCurrentRangesRadioButtons.size(); i++) {
         connect(ccCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -488,26 +490,46 @@ void DeviceControlDockWidget::updateParameters() {
 }
 
 void DeviceControlDockWidget::setVcVoltageRangesSectionEnabled(bool status){
+    if (vcVoltageRangesSection->getSingleOption()) {
+        /*! Cannot enable controls with a single option */
+        status = false;
+    }
     this->setWidgetEnabled(vcVoltageRangesSection, status);
 }
 
 void DeviceControlDockWidget::setVcCurrentRangesSectionEnabled(bool status){
     for (auto & section : vcCurrentRangesSections) {
+        if (section->getSingleOption()) {
+            /*! Cannot enable controls with a single option */
+            status = false;
+        }
         this->setWidgetEnabled(section, status);
     }
 }
 
 void DeviceControlDockWidget::setCcVoltageRangesSectionEnabled(bool status){
     for (auto & section : ccVoltageRangesSections) {
+        if (section->getSingleOption()) {
+            /*! Cannot enable controls with a single option */
+            status = false;
+        }
         this->setWidgetEnabled(section, status);
     }
 }
 
 void DeviceControlDockWidget::setCcCurrentRangesSectionEnabled(bool status){
+    if (ccCurrentRangesSection->getSingleOption()) {
+        /*! Cannot enable controls with a single option */
+        status = false;
+    }
     this->setWidgetEnabled(ccCurrentRangesSection, status);
 }
 
 void DeviceControlDockWidget::setSamplingRatesSectionEnabled(bool status){
+    if (samplingRatesSection->getSingleOption()) {
+        /*! Cannot enable controls with a single option */
+        status = false;
+    }
     this->setWidgetEnabled(samplingRatesSection, status);
 }
 

@@ -103,9 +103,6 @@ DeviceController::~DeviceController() {
 
 void DeviceController::handleRecording(bool recording) {
     this->recording = recording;
-    auto status = getStatusFromRecordingAndProtocol();
-    deviceControlDockWidget->setVcVoltageRangesSectionEnabled(status);
-    deviceControlDockWidget->setCcCurrentRangesSectionEnabled(status);
 
     deviceControlDockWidget->setVcCurrentRangesSectionEnabled(calcDefaultStatus(vcCurrentRanges.size(), recording));
     deviceControlDockWidget->setCcVoltageRangesSectionEnabled(calcDefaultStatus(ccVoltageRanges.size(), recording));
@@ -115,14 +112,6 @@ void DeviceController::handleRecording(bool recording) {
 
 void DeviceController::handleProtocolStatusChanged(bool protocolRunning) {
     this->protocolRunning = protocolRunning;
-    auto status = getStatusFromRecordingAndProtocol();
-    deviceControlDockWidget->setVcVoltageRangesSectionEnabled(status);
-    deviceControlDockWidget->setCcCurrentRangesSectionEnabled(status);
-}
-
-//return the status to set the Section when a protocol is running or a registration is being made
-bool DeviceController::getStatusFromRecordingAndProtocol() {
-    return !(recording || protocolRunning);
 }
 
 // Slots (actionPerformed) for current and voltage ranges
@@ -209,8 +198,8 @@ void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
         emit sigVcCurrentRangeSelected();
         emit sigVcVoltageRangeSelected();
-
-    } else {
+    }
+    else {
         emit sigCcCurrentRangeSelected();
         emit sigCcVoltageRangeSelected();
     }

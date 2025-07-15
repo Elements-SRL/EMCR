@@ -46,7 +46,6 @@ private:
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
     bool recording = false;
     bool protocolRunning = false;
-    bool getStatusFromRecordingAndProtocol();
     bool calcDefaultStatus(int, bool);
 
 signals:
