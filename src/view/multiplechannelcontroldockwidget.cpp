@@ -5,6 +5,8 @@
 #include <QDesktopServices>
 #include <QDoubleSpinBox>
 
+#include "globaldefines.h"
+
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
     msgDisp(msgDisp) {
@@ -34,7 +36,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         qhblChannels_input->addWidget(switchChannelsAutoBtn);
     }
 
-    if (msgDisp->hasCalSw() == Success) {
+    if (msgDisp->hasCalSw() == Success && debugControlsEnabled()) {
         auto calib_gb = new QGroupBox(QString::fromStdString("Calibration resistors"));
         auto qhbl = new QHBoxLayout();
         calib_gb->setLayout(qhbl);
