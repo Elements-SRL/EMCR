@@ -490,6 +490,9 @@ void DeviceControlDockWidget::updateParameters() {
 }
 
 void DeviceControlDockWidget::setVcVoltageRangesSectionEnabled(bool status){
+    if (vcVoltageRangesSection == nullptr) {
+        return;
+    }
     if (vcVoltageRangesSection->getSingleOption()) {
         /*! Cannot enable controls with a single option */
         status = false;
@@ -499,6 +502,9 @@ void DeviceControlDockWidget::setVcVoltageRangesSectionEnabled(bool status){
 
 void DeviceControlDockWidget::setVcCurrentRangesSectionEnabled(bool status){
     for (auto & section : vcCurrentRangesSections) {
+        if (section == nullptr) {
+            continue;
+        }
         if (section->getSingleOption()) {
             /*! Cannot enable controls with a single option */
             status = false;
@@ -509,6 +515,9 @@ void DeviceControlDockWidget::setVcCurrentRangesSectionEnabled(bool status){
 
 void DeviceControlDockWidget::setCcVoltageRangesSectionEnabled(bool status){
     for (auto & section : ccVoltageRangesSections) {
+        if (section == nullptr) {
+            continue;
+        }
         if (section->getSingleOption()) {
             /*! Cannot enable controls with a single option */
             status = false;
@@ -518,6 +527,9 @@ void DeviceControlDockWidget::setCcVoltageRangesSectionEnabled(bool status){
 }
 
 void DeviceControlDockWidget::setCcCurrentRangesSectionEnabled(bool status){
+    if (ccCurrentRangesSection == nullptr) {
+        return;
+    }
     if (ccCurrentRangesSection->getSingleOption()) {
         /*! Cannot enable controls with a single option */
         status = false;
@@ -526,6 +538,9 @@ void DeviceControlDockWidget::setCcCurrentRangesSectionEnabled(bool status){
 }
 
 void DeviceControlDockWidget::setSamplingRatesSectionEnabled(bool status){
+    if (samplingRatesSection == nullptr) {
+        return;
+    }
     if (samplingRatesSection->getSingleOption()) {
         /*! Cannot enable controls with a single option */
         status = false;
