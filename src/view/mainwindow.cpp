@@ -466,7 +466,7 @@ void MainWindow::onOpenDialog(Dialogs_t type) {
         break;
     }
     case DeviceInfoDlg: {
-        DeviceInfoDialog a(msgDisp != nullptr, devicesComboBox->currentText(), this);
+        DeviceInfoDialog a(msgDisp, devicesComboBox->currentText(), this);
         a.exec();
         break;
     }
