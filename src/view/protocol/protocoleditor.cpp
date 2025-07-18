@@ -45,7 +45,7 @@ ProtocolEditor::ProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * mode
     int sweepsNum = 1;
     sweepsNumName = new QLabel("Sweeps");
     sweepsNumEdit = new QSpinBox();
-    sweepsNumEdit->setRange(1, 100);
+    sweepsNumEdit->setRange(1, 65535);
     sweepsNumEdit->setValue(sweepsNum);
 
     protocolWideCtrlsGl->addWidget(sweepsNumName, PTE_SWEEPS_ROW, 0, Qt::AlignRight);
