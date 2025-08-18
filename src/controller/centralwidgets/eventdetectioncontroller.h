@@ -68,10 +68,6 @@ private:
     void resetStats();
     void samplingRateChangedroutine(Measurement sr);
 
-signals:
-    // Check if this is used
-    void sigDurationChanged(Measurement_t duration);
-
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
     void onCurrentColorsChanged(QVector <QColor> colors) override;

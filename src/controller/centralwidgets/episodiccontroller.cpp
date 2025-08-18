@@ -9,13 +9,10 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
         pw = static_cast <ProtocolDockWidget *> (mw->getDockWidget(MainWindow::DWProtocol));
     }
 
-    auto model = std::make_unique<BigPlotModel>();
     consumer = new EpisodicPlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration.getMax());
     episodicDataWriterConsumer = new EpisodicAbfDataWriterConsumer(appStatus, producer);
     // sauto plot = new BigPlot("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
-
-
 
     std::map<QwtPlot::Axis, AxisInfo> m;
     AxisInfo a =  {defaultPlotDuration, std::make_optional(0.0)};

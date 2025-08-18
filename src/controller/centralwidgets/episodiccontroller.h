@@ -2,13 +2,9 @@
 #define EPISODICCONTROLLER_H
 
 #include <QPointF>
-
 #include <qwt_plot_directpainter.h>
-
 #include "bigplotwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
-#include "bigplotmodel.h"
 #include "plotconsumer.h"
 #include "application_status.h"
 #include "plotmessage.h"
@@ -17,8 +13,6 @@
 #include "abfdatawriterconsumer.h"
 #include "devicecontroller.h"
 #include <memory>
-#include "durationbasedbigplotviewcontroller.h"
-
 #include "plotcontroller.h"
 
 class CurveData;
