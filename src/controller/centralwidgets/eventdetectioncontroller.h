@@ -69,7 +69,8 @@ private:
     void samplingRateChangedroutine(Measurement sr);
 
 signals:
-    void durationChanged(Measurement_t duration);
+    // Check if this is used
+    void sigDurationChanged(Measurement_t duration);
 
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;

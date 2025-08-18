@@ -8,7 +8,7 @@
 #include <QFileDialog>
 #include <QDir>
 
-EpisodicWidget::EpisodicWidget(BigPlot* plot, QWidget* parent):
+EpisodicWidget::EpisodicWidget(QWidget* plot, QWidget* parent):
     QWidget(parent) {
     this->setObjectName("episodic");
     this->setWindowTitle("Episodic");

@@ -28,7 +28,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
         episodicIndex = translatorInitializer;
         translator[translatorInitializer++] = BigPlot::Episodic;
         bpw->addEpisodicTab();
-        controllers[BigPlot::Episodic] = new EpisodicController(appStatus, producer, defaultPlotDuration.getMax(), bpw, mainWindow, dc);
+        controllers[BigPlot::Episodic] = new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
     }
     translator[translatorInitializer++] = BigPlot::Iv;
     bpw->addIvTab();

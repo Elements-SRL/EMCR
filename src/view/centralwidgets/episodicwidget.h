@@ -24,7 +24,7 @@ private:
     void emitFilePath();
 
 public:
-    EpisodicWidget(BigPlot* plot, QWidget* parent = nullptr);
+    EpisodicWidget(QWidget* plot, QWidget* parent = nullptr);
     void setRecording(bool flag);
 
 signals:

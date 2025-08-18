@@ -13,12 +13,13 @@
 #include "application_status.h"
 #include "plotmessage.h"
 #include "centralwidgetcontroller.h"
-#include "bigplotcontroller.h"
 #include "episodicwidget.h"
 #include "abfdatawriterconsumer.h"
 #include "devicecontroller.h"
 #include <memory>
 #include "durationbasedbigplotviewcontroller.h"
+
+#include "plotcontroller.h"
 
 class CurveData;
 
@@ -26,7 +27,7 @@ class EpisodicController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    EpisodicController(ApplicationStatus* , DeviceDataProducer* , Measurement_t , BigPlotWidget* , MainWindow*, DeviceController*);
+    EpisodicController(ApplicationStatus* , DeviceDataProducer* , RangedMeasurement_t , BigPlotWidget* , MainWindow*, DeviceController*);
     ~EpisodicController();
     void stop() override;
     void start() override;
@@ -35,7 +36,8 @@ public:
 
 private:
     ProtocolDockWidget * pw = nullptr;
-    std::unique_ptr<DurationBasedBigPlotViewController> bpvc;
+    std::unique_ptr<PlotController> pc;
+    //Sstd::unique_ptr<DurationBasedBigPlotViewController> bpvc;
     EpisodicPlotConsumer * consumer = nullptr;
     EpisodicWidget* episodicWidget = nullptr;
     EpisodicAbfDataWriterConsumer* episodicDataWriterConsumer = nullptr;
@@ -76,7 +78,7 @@ private slots:
     void onStopRecording();
 
 signals:
-    void durationChanged(Measurement_t duration);
+    void sigDurationChanged(Measurement_t duration);
     void sigStartRecording();
     void sigStopRecording();
 };
