@@ -129,7 +129,7 @@ void PlotDetailController::manageComsuner() {
 }
 
 void PlotDetailController::onSetPlotData(PlotMessage plotmessage) {
-    GapFreeMessage gapFreeMessage = std::get<BigPlot::BigPlotStatus::GapFree>(plotmessage);
+    GapFreeMessage gapFreeMessage = std::get<GapFreeMessage>(plotmessage);
     for (int i=0; i< pdms.size(); ++i) {
         pdms[i]->getCurve()->setRawSamples(gapFreeMessage.timeValues, gapFreeMessage.currentValues[i], gapFreeMessage.dataSize);
     }

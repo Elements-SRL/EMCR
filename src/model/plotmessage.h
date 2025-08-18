@@ -3,12 +3,8 @@
 
 #include <variant>
 #include <vector>
-#include <tuple>
 #include <map>
-
 #include "eventpacket.h"
-#include "baseline.h"
-
 #include <QVector>
 
 struct IvMessage{

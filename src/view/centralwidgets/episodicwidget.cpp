@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDir>
+#include "globaldefines.h"
 
 EpisodicWidget::EpisodicWidget(QWidget* plot, QWidget* parent):
     QWidget(parent) {

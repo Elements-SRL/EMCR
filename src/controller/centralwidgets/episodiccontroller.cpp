@@ -12,7 +12,6 @@ EpisodicController::EpisodicController(ApplicationStatus* appStatus, DeviceDataP
     consumer = new EpisodicPlotConsumer(appStatus, producer);
     consumer->onDurationChanged(defaultPlotDuration.getMax());
     episodicDataWriterConsumer = new EpisodicAbfDataWriterConsumer(appStatus, producer);
-    // sauto plot = new BigPlot("", "[s]", "", BigPlot::Episodic, bigPlotWidget);
 
     std::map<QwtPlot::Axis, AxisInfo> m;
     AxisInfo a =  {defaultPlotDuration, std::make_optional(0.0)};
@@ -286,7 +285,7 @@ void EpisodicController::onExpandTrace(bool flag) {
 void EpisodicController::onSetPlotData(PlotMessage plotmessage) {
     auto plot = pc->getPlot();
     auto model = pc->getModel();
-    EpisodicMessage episodicMessage = std::get<BigPlot::BigPlotStatus::Episodic>(plotmessage);
+    EpisodicMessage episodicMessage = std::get<::EpisodicMessage>(plotmessage);
     if (episodicMessage.newProtocolFlag) {
         this->clearCurves();
         // bpvc->handleSingleAxisZoomRequest(model, plot, QwtPlot::xBottom, QwtInterval(0.0, episodicMessage.durationS)); /*! \todo FCON non è detto che qui serva in s la misura, verificare */
