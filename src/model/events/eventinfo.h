@@ -6,9 +6,9 @@
 struct EventInfo {
     double amplitude;
     double duration;
-    Event event;
+    Event_t event;
 
-    EventInfo(double amplitude_, double duration_, Event event_)
+    EventInfo(double amplitude_, double duration_, Event_t event_)
         : amplitude(amplitude_), duration(duration_), event(event_) {}
 };
 

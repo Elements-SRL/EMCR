@@ -30,7 +30,7 @@ public slots:
     void onProtocolStarted(unsigned int protId, ProtocolWidget * protocol);
 
 private:
-    BigPlot::BigPlotStatus bps;
+    OperationMode_t om;
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
     BigPlotWidget * bpw = nullptr;
@@ -38,8 +38,8 @@ private:
     int gapFreeIndex = -1;
     int episodicIndex = -1;
 
-    std::map <BigPlot::BigPlotStatus, CentralWidgetController*> controllers;
-    std::map <int, BigPlot::BigPlotStatus> translator;
+    std::map <OperationMode_t, CentralWidgetController*> controllers;
+    std::map <int, OperationMode_t> translator;
 
     int voltageChannelsNum;
     int currentChannelsNum;

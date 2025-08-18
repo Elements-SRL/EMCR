@@ -11,6 +11,7 @@
 #include "conversionscaledraw.h"
 #include "rect4.h"
 #include "e384commlib_global.h"
+#include "operationmode.h"
 
 namespace commlib = e384CommLib;
 
@@ -18,16 +19,7 @@ class BigPlot : public QwtPlot {
     Q_OBJECT
 
 public:
-    enum BigPlotStatus {
-        GapFree,
-        Episodic,
-        Iv,
-        Spectrum,
-        Event,
-        NumberOfStatuses
-    };
-
-    BigPlot(QString titleString, QString xUnitString, QString yUnitString, BigPlotStatus status, QWidget * parent = nullptr);
+    BigPlot(QString titleString, QString xUnitString, QString yUnitString, OperationMode_t om, QWidget * parent = nullptr);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -85,7 +77,7 @@ private:
     void handleLabelsPosition();
     void setAndFormatText(QString, QwtTextLabel *, Qt::AlignmentFlag = Qt::AlignLeft);
 
-    BigPlotStatus status;
+    OperationMode_t om;
     QVector <bool> rangeInitialized;
 
 signals:

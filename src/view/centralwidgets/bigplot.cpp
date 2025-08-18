@@ -11,11 +11,11 @@
 
 using namespace e384CommLib;
 
-BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, BigPlotStatus status, QWidget * parent) :
+BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, OperationMode_t om, QWidget * parent) :
     QwtPlot(parent) {
 
     this->plotLayout()->setAlignCanvasToScales(true);
-    this->status = status;
+    this->om = om;
     for (int axis = 0; axis < axisCnt; axis++) {
         this->axisWidget(axis)->setMargin(0);
     }
@@ -145,7 +145,7 @@ void BigPlot::setRect(Rect4 r) {
     if (((r.at(yLeft).width() == 0.0) && (r.at(yRight).width() == 0.0)) || (r.at(xBottom).width() == 0.0)) {
         return;
     }
-    switch (status) {
+    switch (om) {
     case GapFree:
         this->setAxisScale(xBottom, 0.0, r[xBottom].width());
         break;
@@ -219,7 +219,7 @@ void BigPlot::wheelEvent(QWheelEvent * we) {
 }
 
 void BigPlot::recomputeXAxisFactor(double duration) {
-    if (status != BigPlot::GapFree && status != BigPlot::Episodic) {
+    if (om != OperationMode_t::GapFree && om != OperationMode_t::Episodic) {
         return;
     }
     Measurement_t durationMeas = {duration, commlib::UnitPfxNone, "s"};
@@ -237,7 +237,7 @@ void BigPlot::onZoomInPickerAppended(const QPointF &p) {
     auto dyMax = this->axisInterval(yLeft).maxValue();
     auto dxMin = this->axisInterval(xBottom).minValue();
     auto dxMax = this->axisInterval(xBottom).maxValue();
-    if (status == BigPlotStatus::Spectrum) {
+    if (om == OperationMode_t::Spectrum) {
         dyMin = log10(dyMin);
         dyMax = log10(dyMax); 
         dxMin = log10(dxMin);
@@ -258,7 +258,7 @@ void BigPlot::onZoomInPickerAppended(const QPointF &p) {
 
 void BigPlot::onZoomInPickerMoved(const QPointF &p) {
     QPointF deltaP; 
-    if (status == BigPlotStatus::Spectrum) {
+    if (om == OperationMode_t::Spectrum) {
         deltaP = pickerFirstCornerPos - QPointF(log10(p.x()), log10(p.y()));
     }
     else {

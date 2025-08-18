@@ -88,7 +88,7 @@ H5::DataSet createBaseline(H5::Group& parentGroup, const std::string datasetName
     }
 }
 
-void writeEvent(H5::Group &parentGroup, const Event& event, const std::string eventName) {
+void writeEvent(H5::Group &parentGroup, const Event_t & event, const std::string eventName) {
     try {
         //H5std_string groupName = eventName;
         //H5::Group group = parentGroup.createGroup(eventName);
@@ -383,7 +383,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStopConsuming();
         }
         widget->setRecordingStatus(true);
-        bigPlotWidget->setTabsStatus(false, BigPlot::BigPlotStatus::Event);
+        bigPlotWidget->setTabsStatus(false, OperationMode_t::Event);
         initHDF5();
         if (wasThisRunning) {
             consumer->onStartConsuming();
@@ -395,7 +395,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
             consumer->onStopConsuming();
         }
         widget->setRecordingStatus(false);
-        bigPlotWidget->setTabsStatus(true, BigPlot::BigPlotStatus::Event);
+        bigPlotWidget->setTabsStatus(true, OperationMode_t::Event);
         closeHDF5();
         if (wasThisRunning) {
             consumer->onStartConsuming();
@@ -498,7 +498,7 @@ void EventDetectionController::onExpandTrace(bool flag) {
 }
 
 void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
-    message = std::get<BigPlot::BigPlotStatus::Event>(plotmessage);
+    message = std::get<OperationMode_t::Event>(plotmessage);
     auto plot = widget->getPlot();
     auto sr = appStatus->getSamplingRate();
     std::vector <uint16_t> allChannels(currentChannelsNum);

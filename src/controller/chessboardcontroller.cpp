@@ -282,8 +282,8 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
     ClampingModality_t mode;
     appStatus->getMessageDispatcher()->getClampingModality(mode);
     switch (plotMessage.index()) {
-    case BigPlot::BigPlotStatus::GapFree: {
-        GapFreeMessage message = std::get<BigPlot::BigPlotStatus::GapFree>(plotMessage);
+    case OperationMode_t::GapFree: {
+        GapFreeMessage message = std::get<OperationMode_t::GapFree>(plotMessage);
         switch (mode) {
         case e384CommLib::VOLTAGE_CLAMP:
         case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
@@ -303,16 +303,16 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
         break;
     }
 
-    case BigPlot::BigPlotStatus::Iv: {
-        IvMessage message = std::get<BigPlot::BigPlotStatus::Iv>(plotMessage);
+    case OperationMode_t::Iv: {
+        IvMessage message = std::get<OperationMode_t::Iv>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.voltageValues[idx], message.currentValues[idx], message.dataSize[idx]);
         }
         break;
     }
 
-    case BigPlot::BigPlotStatus::Spectrum: {
-        SpectrumMessage message = std::get<BigPlot::BigPlotStatus::Spectrum>(plotMessage);
+    case OperationMode_t::Spectrum: {
+        SpectrumMessage message = std::get<OperationMode_t::Spectrum>(plotMessage);
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             currentCurves.at(idx)->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
         }

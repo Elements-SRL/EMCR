@@ -259,7 +259,7 @@ void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
     // IvGraph message
     appStatus->getMessageDispatcher()->getVCVoltageRange(v);
     appStatus->getMessageDispatcher()->getVCCurrentRange(i);
-    message = std::get<BigPlot::BigPlotStatus::Iv>(plotmessage);
+    message = std::get<OperationMode_t::Iv>(plotmessage);
     if (message.currentValues.size() == 0 || message.voltageValues.size() == 0 || message.dataSize.size() == 0) {
         return;
     }

@@ -16,7 +16,7 @@ SpectrumController::SpectrumController(
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
 
-    auto plot = new BigPlot("", "[Hz]", "", BigPlot::Spectrum, bigPlotWidget);
+    auto plot = new BigPlot("", "[Hz]", "", OperationMode_t::Spectrum, bigPlotWidget);
     plot->enableAxis(QwtPlot::yRight);
     plot->setAxisAutoScale(QwtPlot::xBottom, false);
     plot->setAxisAutoScale(QwtPlot::yLeft, false);
@@ -180,7 +180,7 @@ void SpectrumController::onExpandTrace(bool flag) {
 }
 
 void SpectrumController::onSetPlotData(PlotMessage plotmessage) {
-    message = std::get <BigPlot::BigPlotStatus::Spectrum> (plotmessage);
+    message = std::get <OperationMode_t::Spectrum> (plotmessage);
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         psdCurves[idx]->setRawSamples(message.frequencyValues, message.psdValues[idx], message.dataSize);
         irmsCurves[idx]->setRawSamples(message.frequencyValues, message.irmsValues[idx], message.dataSize);

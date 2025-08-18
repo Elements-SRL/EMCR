@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-struct Event {
+typedef struct Event {
     uint64_t eventIdx;
     std::vector<int16_t> rawData;
     int16_t stimulus;
@@ -37,6 +37,6 @@ struct Event {
         stimulusMultiplier(stimulusMultiplier) {
     
     }
-};
+} Event_t;
 
 #endif // EVENT_H

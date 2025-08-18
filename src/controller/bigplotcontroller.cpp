@@ -18,40 +18,40 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
     connect(bpw, &BigPlotWidget::tabBarClicked, this, &BigPlotController::manageStatus);
     
     int translatorInitializer = 0;
-    bps = BigPlot::GapFree;
+    om = OperationMode_t::GapFree;
     gapFreeIndex = translatorInitializer;
-    translator[translatorInitializer++] = BigPlot::GapFree;
+    translator[translatorInitializer++] = OperationMode_t::GapFree;
     bpw->addGapFreeTab();
 
-    controllers[BigPlot::GapFree] = new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
+    controllers[OperationMode_t::GapFree] = new GapFreeController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
     if (appStatus->isEpisodic()) {
         episodicIndex = translatorInitializer;
-        translator[translatorInitializer++] = BigPlot::Episodic;
+        translator[translatorInitializer++] = OperationMode_t::Episodic;
         bpw->addEpisodicTab();
-        controllers[BigPlot::Episodic] = new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
+        controllers[OperationMode_t::Episodic] = new EpisodicController(appStatus, producer, defaultPlotDuration, bpw, mainWindow, dc);
     }
-    translator[translatorInitializer++] = BigPlot::Iv;
+    translator[translatorInitializer++] = OperationMode_t::Iv;
     bpw->addIvTab();
-    controllers[BigPlot::Iv] = new IvGraphController(appStatus, producer, bpw, mainWindow);
+    controllers[OperationMode_t::Iv] = new IvGraphController(appStatus, producer, bpw, mainWindow);
 
-    translator[translatorInitializer++] = BigPlot::Spectrum;
+    translator[translatorInitializer++] = OperationMode_t::Spectrum;
     bpw->addSpectrumTab();
-    controllers[BigPlot::Spectrum] = new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, mainWindow);
+    controllers[OperationMode_t::Spectrum] = new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, mainWindow);
     if (currentChannelsNum == 1) {
-        translator[translatorInitializer++] = BigPlot::Event;
+        translator[translatorInitializer++] = OperationMode_t::Event;
         bpw->addEventDetectionTab();
-        controllers[BigPlot::Event] = new EventDetectionController(appStatus, producer, bpw);
+        controllers[OperationMode_t::Event] = new EventDetectionController(appStatus, producer, bpw);
     }
-    controllers[bps]->start();
+    controllers[om]->start();
 }
 
 void BigPlotController::manageStatus(int idx) {
     if (!(bpw->isTabEnabled(idx))) {
         return;
     }
-    controllers[bps]->stop();
-    bps = translator[idx];
-    controllers[bps]->start();
+    controllers[om]->stop();
+    om = translator[idx];
+    controllers[om]->start();
 }
 
 BigPlotController::~BigPlotController() {
@@ -74,14 +74,14 @@ void BigPlotController::onRangeUpdated(RangedMeasurement_t newRange) {
 }
 
 void BigPlotController::onProtocolStarted(unsigned int protId, ProtocolWidget * protocol) {
-    if (bps != BigPlot::GapFree && bps != BigPlot::Episodic) {
+    if (om != OperationMode_t::GapFree && om != OperationMode_t::Episodic) {
         return;
     }
-    if (bps == BigPlot::GapFree && protocol->getType() == ProtocolTypeEpisodic) {
+    if (om == OperationMode_t::GapFree && protocol->getType() == ProtocolTypeEpisodic) {
         bpw->setCurrentIndex(episodicIndex);
         this->manageStatus(episodicIndex);
     }
-    if (bps == BigPlot::Episodic && protocol->getType() == ProtocolTypeGapfree) {
+    if (om == OperationMode_t::Episodic && protocol->getType() == ProtocolTypeGapfree) {
         bpw->setCurrentIndex(gapFreeIndex);
         this->manageStatus(gapFreeIndex);
     }
@@ -110,7 +110,7 @@ void BigPlotController::onExpandTrace(bool flag) {
         v->onExpandTrace(flag);
     }
     if (flag) {
-        controllers[bps]->start();
+        controllers[om]->start();
     }
 }
 

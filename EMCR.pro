@@ -176,6 +176,7 @@ HEADERS += \
     src/model/axisinfo.h \
     src/model/channelstate.h \
     src/model/membraneresult.h \
+    src/model/operationmode.h \
     src/model/plotdetailmodel.h \
     src/model/plotmodel.h \
     src/model/singlemeasresult.h \

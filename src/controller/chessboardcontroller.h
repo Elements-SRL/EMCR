@@ -11,6 +11,7 @@
 #include "singlechannelcontroller.h"
 #include "multiplechannelcontroller.h"
 #include "measurementoverviewcontroller.h"
+#include "operationmode.h"
 
 class ChessboardController : public ControllerWithConsumer {
     Q_OBJECT
