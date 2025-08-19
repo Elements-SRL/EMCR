@@ -1,9 +1,8 @@
 #include "eventdetectioncontroller.h"
 #include "eventdetectionwidget.h"
 #include "globaldefines.h"
-#include "bigplot.h"
-
 #include <iomanip>
+#include "operationmode.h"
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     try {

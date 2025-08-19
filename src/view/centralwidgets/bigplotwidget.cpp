@@ -1,6 +1,4 @@
 #include "bigplotwidget.h"
-#include "plotmessage.h"
-#include "bigplot.h"
 
 BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QTabWidget(parent) {
