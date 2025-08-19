@@ -26,7 +26,6 @@ public:
 
 private:
     std::unique_ptr<PlotController> pc;
-    //std::unique_ptr<BigPlotViewController> bpvc;
     SpectrumConsumer * consumer = nullptr;
     std::vector <Curve *> psdCurves;
     std::vector <Curve *> irmsCurves;
