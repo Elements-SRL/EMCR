@@ -23,17 +23,7 @@ SpectrumController::SpectrumController(
 
     pc = std::make_unique<PlotController>(m, mainWindow);
 
-    //plot->enableAxis(QwtPlot::yRight);
-    //plot->setAxisAutoScale(QwtPlot::xBottom, false);
-    //plot->setAxisAutoScale(QwtPlot::yLeft, false);
-    //plot->setAxisAutoScale(QwtPlot::yRight, false);
-    //plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
-    //plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
-
     spectrumWidget = new SpectrumWidget(currentChannelsNum, pc->getPlot(), bigPlotWidget);
-
-    // bpvc = std::make_unique<BigPlotViewController>(std::move(model), plot);
-    // bpvc->setup();
 
     bigPlotWidget->setSpectrumPlot(spectrumWidget);
     //    creating curves for spectra

@@ -3,14 +3,12 @@
 
 #include "bigplotwidget.h"
 #include "mainwindow.h"
-//#include "logbigplotmodel.h"
 #include "spectrumconsumer.h"
 #include "application_status.h"
 #include "plotmessage.h"
 #include "centralwidgetcontroller.h"
 #include "spectrumwidget.h"
 #include <memory>
-//#include "bigplotviewcontroller.h"
 #include "plotcontroller.h"
 
 class SpectrumController : public CentralWidgetController {
