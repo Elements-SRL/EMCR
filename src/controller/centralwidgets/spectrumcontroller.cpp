@@ -1,33 +1,39 @@
 #include "spectrumcontroller.h"
-
 #include <qwt_date_scale_engine.h>
+#include "operationmode.h"
 
 SpectrumController::SpectrumController(
     ApplicationStatus * appStatus,
     DeviceDataProducer * producer,
-    Measurement_t defaultPlotBandwidth,
+    RangedMeasurement_t defaultPlotBandwidth,
     BigPlotWidget * bigPlotWidget,
     MainWindow * mainWindow
     ):
     CentralWidgetController(appStatus, producer, bigPlotWidget),
     mainWindow(mainWindow){
 
-    auto model = std::make_unique<LogBigPlotModel>();
     consumer = new SpectrumConsumer(appStatus, producer);
     consumer->onIntegrationWindowChanged({1.0, UnitPfxNone, "s"});
 
-    auto plot = new BigPlot("", "[Hz]", "", OperationMode_t::Spectrum, bigPlotWidget);
-    plot->enableAxis(QwtPlot::yRight);
-    plot->setAxisAutoScale(QwtPlot::xBottom, false);
-    plot->setAxisAutoScale(QwtPlot::yLeft, false);
-    plot->setAxisAutoScale(QwtPlot::yRight, false);
-    plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
-    plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
+    std::map<QwtPlot::Axis, AxisInfo> m;
+    //TODO lrossi correctly initialize these with filo
+    m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange(), std::nullopt, true};
+    m[QwtPlot::Axis::yRight] = {appStatus->getVoltageRange(), std::nullopt, true};
+    m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::make_optional(0.0)};
 
-    spectrumWidget = new SpectrumWidget(currentChannelsNum, plot, bigPlotWidget);
+    pc = std::make_unique<PlotController>(m, mainWindow);
 
-    bpvc = std::make_unique<BigPlotViewController>(std::move(model), plot);
-    bpvc->setup();
+    //plot->enableAxis(QwtPlot::yRight);
+    //plot->setAxisAutoScale(QwtPlot::xBottom, false);
+    //plot->setAxisAutoScale(QwtPlot::yLeft, false);
+    //plot->setAxisAutoScale(QwtPlot::yRight, false);
+    //plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
+    //plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
+
+    spectrumWidget = new SpectrumWidget(currentChannelsNum, pc->getPlot(), bigPlotWidget);
+
+    // bpvc = std::make_unique<BigPlotViewController>(std::move(model), plot);
+    // bpvc->setup();
 
     bigPlotWidget->setSpectrumPlot(spectrumWidget);
     //    creating curves for spectra
@@ -46,9 +52,8 @@ SpectrumController::SpectrumController(
     connect(spectrumWidget, &SpectrumWidget::sigStartPressed, consumer, &SpectrumConsumer::onStartConsuming);
     connect(spectrumWidget, &SpectrumWidget::sigStopPressed, consumer, &SpectrumConsumer::onStopConsuming);
     connect(spectrumWidget, &SpectrumWidget::sigExportSpectrum, this, &SpectrumController::onExportSpectrum);
-    connect(spectrumWidget, &SpectrumWidget::sigAutoZoom, this, [this] () {
-        bpvc->getPlot()->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
-    });
+    connect(spectrumWidget, &SpectrumWidget::sigAutoZoom, pc.get(), &PlotController::onAutoZoom);
+    connect(this, &SpectrumController::sigLabelsOverride, pc.get(), &PlotController::onLabelsOverride);
     consumer->forceAxisUpdate();
     consumer->onStopConsuming();
 }
@@ -67,11 +72,11 @@ void SpectrumController::detachCurves(const std::vector <uint16_t>& channelIndex
         psdCurves[ch]->detach();
         irmsCurves[ch]->detach();
     }
-    bpvc->getPlot()->replot();
+    pc->getPlot()->replot();
 }
 
 void SpectrumController::attachCurves(const std::vector <uint16_t>& channelIndexes) {
-    auto plot = bpvc->getPlot();
+    auto plot = pc->getPlot();
     for (auto ch : channelIndexes) {
         psdCurves[ch]->attach(plot);
         irmsCurves[ch]->attach(plot);
@@ -109,28 +114,28 @@ void SpectrumController::onCurrentColorChanged(int channelIdx, QColor color) {
 }
 
 void SpectrumController::onBackgroundColorChanged(QColor color) {
-    auto plot = bpvc->getPlot();
+    auto plot = pc->getPlot();
     if (plot != nullptr) {
         plot->setCanvasBackground(color);
     }
 }
 
 void SpectrumController::onReplot() {
-    auto plot = bpvc->getPlot();
+    auto plot = pc->getPlot();
     if (plot != nullptr) {
         if (plotInitializedFlag) {
             plot->replot();
         }
         else {
-            plot->onAutoZoom({QwtPlot::yLeft, QwtPlot::yRight});
+            pc->onAutoZoom();
             plotInitializedFlag = true;
         }
     }
 }
 
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
-    auto plot = bpvc->getPlot();
-    auto model = bpvc->getModel();
+    auto plot = pc->getPlot();
+    auto model = pc->getModel();
     ClampingModality_t mode;
     appStatus->getMessageDispatcher()->getClampingModality(mode);
     std::string unit = "";
@@ -147,24 +152,22 @@ void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     }
     QwtPlot::Axis axisIdx;
     if (newRange.unit == unit) {
+        std::map<QwtPlot::Axis, std::string> labels;
         axisIdx = QwtPlot::yLeft;
-        model->setCurrentRangeLog(axisIdx, newRange);
-        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "^2/Hz", axisIdx);
-
+        auto pm = pc->getModel();
+        auto rm = pm->getAxisRangedMeasurement(axisIdx);
+        labels[axisIdx] = rm.getFullUnit() + "^2/Hz";
         axisIdx = QwtPlot::yRight;
-        model->setCurrentRangeLog(axisIdx, newRange);
-        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()) + "rms", axisIdx);
-    }
-    else if (newRange.unit == "Hz") {
+        rm = pm->getAxisRangedMeasurement(axisIdx);
+        labels[axisIdx] = rm.getFullUnit() + "rms";
+
+    } else if (newRange.unit == "Hz") {
         axisIdx = QwtPlot::xBottom;
-        model->setCurrentRange(axisIdx, newRange);
-        plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
+        pc->setRangedMeasurement(axisIdx, newRange);
     }
     else {
         return;
     }
-    plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
-    plot->replot();
 }
 
 void SpectrumController::onExpandTrace(bool flag) {

@@ -10,6 +10,7 @@
 #include "centralwidgetcontroller.h"
 #include "devicecontroller.h"
 #include <map>
+#include "operationmode.h"
 
 class BigPlotController : public QObject {
     Q_OBJECT

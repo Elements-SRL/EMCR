@@ -2,7 +2,6 @@
 #define EVENTPACKET_H
 
 #include <vector>
-#include <string>
 #include "eventinfo.h"
 #include "baseline.h"
 

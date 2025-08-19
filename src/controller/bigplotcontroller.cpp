@@ -36,7 +36,7 @@ BigPlotController::BigPlotController(ApplicationStatus * appStatus, DeviceDataPr
 
     translator[translatorInitializer++] = OperationMode_t::Spectrum;
     bpw->addSpectrumTab();
-    controllers[OperationMode_t::Spectrum] = new SpectrumController(appStatus, producer, {100.0, UnitPfxKilo, "Hz"}, bpw, mainWindow);
+    controllers[OperationMode_t::Spectrum] = new SpectrumController(appStatus, producer, {0.0, 100.0, 10.0, UnitPfxKilo, "Hz"}, bpw, mainWindow);
     if (currentChannelsNum == 1) {
         translator[translatorInitializer++] = OperationMode_t::Event;
         bpw->addEventDetectionTab();

@@ -4,7 +4,7 @@
 #include <QLabel>
 #include <QSplitter>
 
-SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent) :
+SpectrumWidget::SpectrumWidget(uint32_t channelsNum, QWidget* plot, QWidget * parent) :
     QWidget(parent) {
 
     this->setObjectName("spectrum");

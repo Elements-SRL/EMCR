@@ -1,4 +1,5 @@
 #include "ivgraphcontroller.h"
+#include "operationmode.h"
 
 IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataProducer * producer, BigPlotWidget * bigPlotWidget, MainWindow * mainWindow) :
     CentralWidgetController(appStatus, producer, bigPlotWidget),

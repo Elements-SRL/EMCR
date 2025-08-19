@@ -1,6 +1,14 @@
 #include "gapfreecontroller.h"
+#include "operationmode.h"
 
-GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataProducer* producer, RangedMeasurement_t defaultPlotDuration, BigPlotWidget* bigPlotWidget, MainWindow* mw, DeviceController* dc):
+GapFreeController::GapFreeController(
+    ApplicationStatus* appStatus,
+    DeviceDataProducer* producer,
+    RangedMeasurement_t defaultPlotDuration,
+    BigPlotWidget* bigPlotWidget,
+    MainWindow* mw,
+    DeviceController* dc
+    ):
     CentralWidgetController(appStatus, producer, bigPlotWidget) {
 
     std::map<QwtPlot::Axis, AxisInfo> m;

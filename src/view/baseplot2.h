@@ -26,6 +26,7 @@ public slots:
     void onReplot();
     void onRubberBandUpdated();
     void onAutoZoom(std::vector <QwtPlot::Axis>);
+    void onLabelsOverride(std::map<QwtPlot::Axis, std::string>);
 
 public:
     explicit BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent = nullptr);

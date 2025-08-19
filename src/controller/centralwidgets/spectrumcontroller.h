@@ -3,22 +3,21 @@
 
 #include "bigplotwidget.h"
 #include "mainwindow.h"
-#include "messagedispatcher.h"
-#include "logbigplotmodel.h"
+//#include "logbigplotmodel.h"
 #include "spectrumconsumer.h"
 #include "application_status.h"
 #include "plotmessage.h"
 #include "centralwidgetcontroller.h"
-#include "bigplotcontroller.h"
 #include "spectrumwidget.h"
 #include <memory>
-#include "bigplotviewcontroller.h"
+//#include "bigplotviewcontroller.h"
+#include "plotcontroller.h"
 
 class SpectrumController : public CentralWidgetController {
     Q_OBJECT
 
 public:
-    SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, Measurement_t defaultPlotBandwidth, BigPlotWidget * bigPlotWidget, MainWindow * mainWindow);
+    SpectrumController(ApplicationStatus * appStatus, DeviceDataProducer * producer, RangedMeasurement_t defaultPlotBandwidth, BigPlotWidget * bigPlotWidget, MainWindow * mainWindow);
     ~SpectrumController();
 
     void stop() override;
@@ -28,7 +27,8 @@ public:
     SpectrumWidget * getSpectrumWidget();
 
 private:
-    std::unique_ptr<BigPlotViewController> bpvc;
+    std::unique_ptr<PlotController> pc;
+    //std::unique_ptr<BigPlotViewController> bpvc;
     SpectrumConsumer * consumer = nullptr;
     std::vector <Curve *> psdCurves;
     std::vector <Curve *> irmsCurves;
@@ -50,6 +50,9 @@ public slots:
     void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
     void onExportSpectrum();
+
+signals:
+    void sigLabelsOverride(std::map<QwtPlot::Axis, std::string> newLabels);
 };
 
 #endif // SPECTRUMCONTROLLER_H

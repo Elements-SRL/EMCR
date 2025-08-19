@@ -4,13 +4,12 @@
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QPushButton>
-#include "bigplot.h"
 
 class SpectrumWidget : public QWidget {
     Q_OBJECT
 
 public:
-    SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent = nullptr);
+    SpectrumWidget(uint32_t channelsNum, QWidget* plot, QWidget * parent = nullptr);
 
 private:
     QPushButton * startButton;

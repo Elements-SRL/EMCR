@@ -20,10 +20,12 @@ public:
 
 public slots:
     void onAutoZoom();
+    void onLabelsOverride(std::map<QwtPlot::Axis, std::string> newLabels);
 
 signals:
     void sigAutoZoom(std::vector <QwtPlot::Axis>);
     void sigPlotUpdated();
+    void sigLabelsOverride(std::map<QwtPlot::Axis, std::string> newLabels);
 };
 
 #endif // PLOTCONTROLLER_H

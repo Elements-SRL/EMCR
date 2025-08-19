@@ -11,6 +11,19 @@
 #include <QWheelEvent>
 #include "qwt_series_data.h"
 #include "qwt_scale_map.h"
+#include <qwt_text_label.h>
+#include <QString>
+#include <string>
+
+QwtTextLabel* makeQwtTextLabel(const std::string &str) {
+    // Create a new QwtTextLabel
+    QwtTextLabel *label = new QwtTextLabel();
+    // Convert std::string -> QString
+    QString qstr = QString::fromStdString(str);
+    // Set the text directly (implicit QwtText conversion)
+    label->setText(qstr);
+    return label;
+}
 
 BasePlot2::BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent)
     : QwtPlot{parent}, pm(pm) {
@@ -177,6 +190,12 @@ void BasePlot2::updateRect() {
 void BasePlot2::onRubberBandUpdated() {
     zoomInPicker->setRubberBand(pm->getRubberBand().value_or(QwtPlotPicker::RubberBand::NoRubberBand));
     replot();
+}
+
+void BasePlot2::onLabelsOverride(std::map<QwtPlot::Axis, std::string> newLabels){
+    for (auto &t: newLabels) {
+        labels[t.first] = makeQwtTextLabel(t.second);
+    }
 }
 
 void BasePlot2::onReplot(){
