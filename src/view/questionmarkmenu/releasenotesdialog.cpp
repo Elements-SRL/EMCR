@@ -7,7 +7,7 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         Version_t version;
         version.major = 0;
         version.minor = 23;
-        version.patch = 1;
+        version.patch = 2;
         version.sections[NewFeatures] << "Resistance estimation in current clamp";
         version.sections[NewFeatures] << "Increased max number of applicable sweeps";
         version.sections[BugFixes] << "Fixed recording in event detection tab that could not be stopped";
@@ -17,6 +17,7 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.sections[BugFixes] << "Current protocols set correctly the range";
         version.sections[BugFixes] << "Fixed crash happening when a voltage and current protocols have the same name";
         version.sections[BugFixes] << "Device info working for all devices";
+        version.sections[BugFixes] << "Fixed driver installer not running during SW installation";
         this->appendVersion(version);
     }
     {
