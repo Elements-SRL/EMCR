@@ -187,9 +187,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         auto btn = setupActButton(customFlags[customFlagIdx], vLayout, customFlagDefault[customFlagIdx]);
         customFlagsButtons.push_back(btn);
         connect(btn, &ActivationButton::clicked, this, [=] (bool flag) {
-            if (flag) {
-                emit sigCustomFlagSelected(customFlagIdx, flag);
-            }
+            emit sigCustomFlagSelected(customFlagIdx, flag);
         });
     }
 
