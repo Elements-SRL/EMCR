@@ -812,7 +812,6 @@ void ProtocolItemDropList::manageCtrlDelete(ProtocolDropItem * item) {
             break;
 
         case ProtocolItemCtrlNone:
-            GLB_HERE
             break;
         }
     }

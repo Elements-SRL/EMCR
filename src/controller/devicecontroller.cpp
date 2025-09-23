@@ -46,6 +46,9 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](ClampingModality_t selectedClampingModality) {
         onClampingModalitySelected(selectedClampingModality);
     });
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCustomFlagSelected,   this, [=](uint32_t customFlagIdx, bool selectedCustomFlag) {
+        onCustomFlagSelected(customFlagIdx, selectedCustomFlag);
+    });
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigCustomOptionSelected,   this, [=](uint32_t customOptionIdx, int selectedCustomOptionIdx) {
         onCustomOptionSelected(customOptionIdx, selectedCustomOptionIdx);
     });
@@ -204,6 +207,10 @@ void DeviceController::onClampingModalitySelected(ClampingModality_t mode) {
     }
 
     emit sigClampingModalitySelected(mode);
+}
+
+void DeviceController::onCustomFlagSelected(uint32_t customFlagIdx, bool flag) {
+    appStatus->getMessageDispatcher()->setCustomFlag(customFlagIdx, flag, true);
 }
 
 void DeviceController::onCustomOptionSelected(uint32_t customOptionIdx, int idx) {

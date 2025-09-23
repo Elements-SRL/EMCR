@@ -72,6 +72,7 @@ private:
     QGroupBox * digitalFilterGroupBox = nullptr;
     CollapsibleSection * clampingModalitiesSection = nullptr;
     std::vector <QRadioButton *> clampingModalitiesRadioButtons;
+    std::vector <ActivationButton *> customFlagsButtons;
     std::vector <CollapsibleSection *> customOptionsSections;
     std::vector <std::vector <QRadioButton *>> customOptionsRadioButtons;
     std::vector <QGroupBox *> customDoublesGroupBoxes;
@@ -82,6 +83,7 @@ private:
     CollapsibleSection * setupSection(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
     CollapsibleSection * setupSection(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
     CollapsibleSection * setupSection(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    ActivationButton * setupActButton(std::string title, QVBoxLayout * parentLayout, bool defaultFlag);
     QGroupBox * setupGroupBox(std::string title, QVBoxLayout * parentLayout, RangedMeasurement_t range, double valueDefault, QDoubleSpinBox * &spinbox);
 
     void setWidgetEnabled(QWidget * widget, bool status);
@@ -95,6 +97,7 @@ signals:
     void sigVcVoltageFilterSelected(int idx);
     void sigCcCurrentFilterSelected(int idx);
     void sigSamplingRateSelected(int idx);
+    void sigCustomFlagSelected(unsigned int customFlagIdx, bool flag);
     void sigCustomOptionSelected(unsigned int customOptionIdx, int idx);
     void sigCustomDoubleChanged(unsigned int customDoubleIdx, double value);
     void sigClampingModalitySelected(ClampingModality_t mode);
