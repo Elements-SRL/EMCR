@@ -523,7 +523,9 @@ void MainController::onClampingModalitySelected(ClampingModality_t mode) {
     deviceControlDw->updateParameters();
 
     auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
-    protocolDw->onSetClampingModality(mode);
+    if (protocolDw != nullptr) {
+        protocolDw->onSetClampingModality(mode);
+    }
 
     auto multipleChannelDw = static_cast <MultipleChannelControlDockWidget *> (mainWindow->getDockWidget(MainWindow::DWMultipleChannelControl));
     multipleChannelDw->onSetClampingModality(mode);

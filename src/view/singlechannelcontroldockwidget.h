@@ -20,6 +20,7 @@ public:
     SingleChannelControlDockWidget(ApplicationStatus * appStatus, QWidget * parent = nullptr);
     void setOffsetRecalibrationValues(std::vector <Measurement_t> values);
     void setLiquidJunctionVoltages(std::vector <Measurement_t> voltages);
+    void setOffsetTrackingValues(std::vector <Measurement_t> values);
     void onBoardMappingsLoaded();
 
 public slots:
@@ -39,6 +40,7 @@ private:
         OperationOffsetRecalibration,
         OperationLiquidJunction,
         OperationStimulusHalf,
+        OperationOffsetTracking,
         OperationsNum
     } Operations_t;
 
@@ -83,6 +85,7 @@ signals:
     void sigAppliedOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigAppliedStimHalfValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigLiquidJunctionValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
+    void sigAppliedOffsetTracking(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
 };
 
 class SpinBoxWithChannel : public QWidget {

@@ -11,6 +11,7 @@ SingleChannelController::SingleChannelController(ApplicationStatus * appStatus, 
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedOffsetRecalibration, this, &SingleChannelController::onApplyOffsetRecalibration);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedStimHalfValues, this, &SingleChannelController::onApplyStimHalfValues);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigLiquidJunctionValues, this, &SingleChannelController::onLiquidJunctionValues);
+    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedOffsetTracking, this, &SingleChannelController::onApplyOffsetTracking);
 
     mainWindow->setDockWidget(MainWindow::DWSingleChannelControl, singleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
@@ -71,6 +72,19 @@ void SingleChannelController::onApplyStimHalfValues(std::vector<uint16_t> channe
 
     } else {
         msgDisp->setCurrentHalf(channelIndexes, halfValues, true);
+    }
+}
+
+void SingleChannelController::onApplyOffsetTracking(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsetValues){
+    ClampingModality_t mode;
+    auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->getClampingModality(mode);
+
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+        msgDisp->setCurrentTracking(channelIndexes, offsetValues, true);
+
+    // } else {
+    //     msgDisp->setCalibCcVoltageOffset(channelIndexes, offsetValues, true);
     }
 }
 
