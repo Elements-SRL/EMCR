@@ -28,6 +28,9 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     operationTitles[OperationLiquidJunction] = "Liquid junction compensation";
     operationTitles[OperationStimulusHalf] = "Stimulus half";
     operationTitles[OperationOffsetTracking] = "Offset tracking";
+    operationTitles[OperationInitialStimulusRamp] = "Ramp initial stimulus";
+    operationTitles[OperationFinalStimulusRamp] = "Ramp final stimulus";
+    operationTitles[OperationDurationRamp] = "Ramp duration";
 
     operationCbx = new QComboBox;
     mainVl->addWidget(operationCbx);
@@ -47,22 +50,19 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     std::vector <RangedMeasurement_t> ranges;
     if (msgDisp->getVoltageHoldTunerFeatures(ranges) == Success) {
         buildOperation(mainVl, OperationHoldingStimulus, true);
-        anyOperationActive = true;
-
-    } else {
+    }
+    else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
         QStandardItem * item = model->item(OperationHoldingStimulus);
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
 
     buildOperation(mainVl, OperationOffsetRecalibration);
-    anyOperationActive = true;
 
     if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
         buildOperation(mainVl, OperationLiquidJunction);
-        anyOperationActive = true;
-
-    } else {
+    }
+    else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
         QStandardItem * item = model->item(OperationLiquidJunction);
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
@@ -70,16 +70,29 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     if (msgDisp->hasStimulusHalf() == Success) {
         buildOperation(mainVl, OperationStimulusHalf);
-        anyOperationActive = true;
-
-    } else {
+    }
+    else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
         QStandardItem * item = model->item(OperationStimulusHalf);
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
 
     buildOperation(mainVl, OperationOffsetTracking);
-    anyOperationActive = true;
+
+    if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDuration) == Success) {
+        buildOperation(mainVl, OperationInitialStimulusRamp);
+        buildOperation(mainVl, OperationFinalStimulusRamp);
+        buildOperation(mainVl, OperationDurationRamp);
+    }
+    else {
+        QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
+        QStandardItem * item = model->item(OperationInitialStimulusRamp);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        item = model->item(OperationFinalStimulusRamp);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        item = model->item(OperationDurationRamp);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+    }
 
     applyBtn = new QPushButton("Apply");
     connect(applyBtn, &QPushButton::clicked, this, QOverload <> ::of(&SingleChannelControlDockWidget::onApplyButtonClicked));
@@ -91,6 +104,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &SingleChannelControlDockWidget::onOperationSelected);
 
     this->installEventFilter(this);
+    widgetInitialized = true;
 }
 
 void SingleChannelControlDockWidget::buildOperation(QLayout * layout, Operations_t operationType, bool visibility){
@@ -111,7 +125,7 @@ void SingleChannelControlDockWidget::buildOperation(QLayout * layout, Operations
 }
 
 void SingleChannelControlDockWidget::onUpdate() {
-    if (anyOperationActive) {
+    if (widgetInitialized) {
         std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(selectedChannels[channelIdx]);
@@ -132,11 +146,16 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
     }
     SpinBoxWithChannel * sbx;
     std::vector <Measurement_t> values;
+    std::vector <Measurement_t> values2;
+    std::vector <Measurement_t> values3;
     std::vector <uint16_t> indexes;
     std::vector <RangedMeasurement_t> range;
     switch (operationIdx) {
     case OperationHoldingStimulus:
     case OperationStimulusHalf:
+    case OperationInitialStimulusRamp:
+    case OperationFinalStimulusRamp:
+    case OperationDurationRamp:
         range = holdingTunerRange;
         break;
 
@@ -153,12 +172,33 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         range = offsetRecalibrationRange;
         break;
     }
-    for (int i = 0; i < selectedChannels.size(); i++) {
-        sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
-        if (selectedChannels.at(i)) {
-            Measurement_t m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
-            values.push_back(m);
-            indexes.push_back(i);
+    if (operationIdx < OperationInitialStimulusRamp) {
+        for (int i = 0; i < selectedChannels.size(); i++) {
+            if (selectedChannels.at(i)) {
+                sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
+                Measurement_t m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
+                values.push_back(m);
+                indexes.push_back(i);
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < selectedChannels.size(); i++) {
+            if (selectedChannels.at(i)) {
+                sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationInitialStimulusRamp][i]);
+                Measurement_t m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
+                values.push_back(m);
+
+                sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationFinalStimulusRamp][i]);
+                m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
+                values2.push_back(m);
+
+                sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationDurationRamp][i]);
+                m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
+                values2.push_back(m);
+
+                indexes.push_back(i);
+            }
         }
     }
     switch (operationIdx) {
@@ -183,7 +223,6 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         break;
     }
 }
-
 
 void SingleChannelControlDockWidget::onSetAllButtonClicked() {
     SpinBoxWithChannel * spinBox;

@@ -41,6 +41,9 @@ private:
         OperationLiquidJunction,
         OperationStimulusHalf,
         OperationOffsetTracking,
+        OperationInitialStimulusRamp, /*!< \note keep as last enums (the code contains some checks with inequality signs */
+        OperationFinalStimulusRamp,
+        OperationDurationRamp,
         OperationsNum
     } Operations_t;
 
@@ -65,12 +68,13 @@ private:
 
     QVector <QVector <QWidget *>> operationEdits;
 
-    bool anyOperationActive = false;
+    bool widgetInitialized = false;
 
     QVector <QWidget *> operationButtonWidgets;
     std::vector <RangedMeasurement_t> holdingTunerRange;
     std::vector <RangedMeasurement_t> offsetRecalibrationRange;
     RangedMeasurement_t liquidJunctionRange;
+    RangedMeasurement_t stimulusDurationRange;
     QVector <NoWheelSpinBox *> setAllChannelsSbxs;
     void buildOperation(QLayout * layout, Operations_t operationType, bool visibility = false);
 
