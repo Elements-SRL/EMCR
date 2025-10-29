@@ -47,8 +47,9 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     }
 
     auto msgDisp = appStatus->getMessageDispatcher();
+
     std::vector <RangedMeasurement_t> ranges;
-    if (msgDisp->getVoltageHoldTunerFeatures(ranges) == Success) {
+    if (msgDisp->getVoltageHoldTunerFeatures(ranges) == Success || msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) == Success) {
         buildOperation(mainVl, OperationHoldingStimulus, true);
     }
     else {
@@ -79,7 +80,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     buildOperation(mainVl, OperationOffsetTracking);
 
-    if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDuration) == Success) {
+    if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) == Success) {
         buildOperation(mainVl, OperationInitialStimulusRamp);
         buildOperation(mainVl, OperationFinalStimulusRamp);
         buildOperation(mainVl, OperationDurationRamp);
@@ -194,8 +195,8 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
                 values2.push_back(m);
 
                 sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationDurationRamp][i]);
-                m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
-                values2.push_back(m);
+                m = {sbx->getSpinBox()->value(), stimulusDurationRange.prefix, stimulusDurationRange.unit};
+                values3.push_back(m);
 
                 indexes.push_back(i);
             }
@@ -220,6 +221,12 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
 
     case OperationOffsetTracking:
         emit sigAppliedOffsetTracking(indexes, values);
+        break;
+
+    case OperationInitialStimulusRamp:
+    case OperationFinalStimulusRamp:
+    case OperationDurationRamp:
+        emit sigAppliedRamp(indexes, values, values2, values3);
         break;
     }
 }
@@ -282,6 +289,29 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected() {
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(liquidJunctionRange.min, liquidJunctionRange.max);
             sbx->setDecimals(liquidJunctionRange.decimals());
+        }
+    }
+
+    if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) == Success) {
+        holdingTunerRange = this->getAppStatus()->getVoltageRanges();
+        unit = QString().fromStdString(maxRange.getFullUnit());
+        setAllChannelsSbxs[OperationInitialStimulusRamp]->setSuffix(QString(" ") + unit);
+        setAllChannelsSbxs[OperationInitialStimulusRamp]->setRange(maxRange.min, maxRange.max);
+        setAllChannelsSbxs[OperationInitialStimulusRamp]->setDecimals(maxRange.decimals());
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationInitialStimulusRamp][channelIdx])->getSpinBox();
+            sbx->setSuffix(QString(" ") + unit);
+            sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
+            sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
+        }
+        setAllChannelsSbxs[OperationFinalStimulusRamp]->setSuffix(QString(" ") + unit);
+        setAllChannelsSbxs[OperationFinalStimulusRamp]->setRange(maxRange.min, maxRange.max);
+        setAllChannelsSbxs[OperationFinalStimulusRamp]->setDecimals(maxRange.decimals());
+        for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationFinalStimulusRamp][channelIdx])->getSpinBox();
+            sbx->setSuffix(QString(" ") + unit);
+            sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
+            sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
         }
     }
 }
@@ -399,7 +429,7 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 
     switch (idx) {
     case OperationHoldingStimulus:
-        if (msgDisp->getVoltageHoldTunerFeatures(ranges) != Success) {
+        if (msgDisp->getVoltageHoldTunerFeatures(ranges) != Success && msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) != Success) {
             return nullptr;
         }
         break;
@@ -426,6 +456,20 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
         if (msgDisp->getVCCurrentRanges(ranges, _) != Success) {
             return nullptr;
         }
+        break;
+
+    case OperationInitialStimulusRamp:
+    case OperationFinalStimulusRamp:
+        if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) != Success) {
+            return nullptr;
+        }
+        break;
+
+    case OperationDurationRamp:
+        if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) != Success) {
+            return nullptr;
+        }
+        std::fill(ranges.begin(), ranges.end(), stimulusDurationRange);
         break;
     }
 
@@ -459,7 +503,7 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
 
     switch (idx) {
     case OperationHoldingStimulus:
-        if (msgDisp->getVoltageHoldTunerFeatures(ranges) != Success) {
+        if (msgDisp->getVoltageHoldTunerFeatures(ranges) != Success && msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) != Success) {
             return nullptr;
         }
         break;
@@ -486,6 +530,20 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
         if (msgDisp->getVCCurrentRanges(ranges, _) != Success) {
             return nullptr;
         }
+        break;
+
+    case OperationInitialStimulusRamp:
+    case OperationFinalStimulusRamp:
+        if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) != Success) {
+            return nullptr;
+        }
+        break;
+
+    case OperationDurationRamp:
+        if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) != Success) {
+            return nullptr;
+        }
+        std::fill(ranges.begin(), ranges.end(), stimulusDurationRange);
         break;
     }
 

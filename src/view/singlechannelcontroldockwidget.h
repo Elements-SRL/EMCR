@@ -90,6 +90,7 @@ signals:
     void sigAppliedStimHalfValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigLiquidJunctionValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigAppliedOffsetTracking(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
+    void sigAppliedRamp(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> vInitial, std::vector <Measurement_t> vFinal, std::vector <Measurement_t> duration);
 };
 
 class SpinBoxWithChannel : public QWidget {
