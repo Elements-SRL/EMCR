@@ -99,13 +99,11 @@ void SpectrumConsumer::updateRangeAxis() {
         appStatus->getMessageDispatcher()->getClampingModality(mode);
         switch (mode) {
         case e384CommLib::VOLTAGE_CLAMP:
-        case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
             channelsOffset = voltageChannelsNum;
             break;
 
         case e384CommLib::CURRENT_CLAMP:
         case e384CommLib::ZERO_CURRENT_CLAMP:
-        case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
             channelsOffset = 0;
             break;
         }

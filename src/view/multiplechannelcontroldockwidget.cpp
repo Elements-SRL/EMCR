@@ -217,7 +217,6 @@ void MultipleChannelControlDockWidget::enableExpertMode(bool flag) {
 void MultipleChannelControlDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
     switch (clampingModality) {
     case ClampingModality_t::VOLTAGE_CLAMP:
-    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
         if (zapGb!= nullptr) {
             zapGb->setEnabled(true);
         }
@@ -225,7 +224,6 @@ void MultipleChannelControlDockWidget::onSetClampingModality(ClampingModality_t 
 
     case ClampingModality_t::CURRENT_CLAMP:
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
-    case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
         if (zapGb!= nullptr) {
             zapGb->setEnabled(false);
         }
