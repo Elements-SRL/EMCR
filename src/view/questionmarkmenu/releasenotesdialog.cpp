@@ -6,6 +6,14 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
     {
         Version_t version;
         version.major = 0;
+        version.minor = 24;
+        version.patch = 0;
+        version.sections[NewFeatures] << "Compatibility with new devices";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
         version.minor = 23;
         version.patch = 2;
         version.sections[NewFeatures] << "Resistance estimation in current clamp";
