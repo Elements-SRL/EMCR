@@ -286,7 +286,6 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
         GapFreeMessage message = std::get<OperationMode_t::GapFree>(plotMessage);
         switch (mode) {
         case e384CommLib::VOLTAGE_CLAMP:
-        case e384CommLib::CURRENT_CLAMP_CURRENT_READ:
             for (int idx = 0; idx < currentChannelsNum; idx++) {
                 currentCurves.at(idx)->setRawSamples(message.timeValues, message.currentValues[idx], message.dataSize);
             }
@@ -294,7 +293,6 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
 
         case e384CommLib::CURRENT_CLAMP:
         case e384CommLib::ZERO_CURRENT_CLAMP:
-        case e384CommLib::VOLTAGE_CLAMP_VOLTAGE_READ:
             for (int idx = 0; idx < voltageChannelsNum; idx++) {
                 currentCurves.at(idx)->setRawSamples(message.timeValues, message.voltageValues[idx], message.dataSize);
             }

@@ -12,6 +12,7 @@ public:
 signals:
     void setDebugBit(int word, int bit, bool flag);
     void setDebugWord(int word, int value);
+    void sigWriteCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size);
 };
 
 #endif // DEBUGDOCKWIDGET_H

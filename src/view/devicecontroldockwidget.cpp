@@ -55,6 +55,10 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     unsigned int maxDownsamplingRatio;
     msgDisp->getMaxDownsamplingRatioFeature(maxDownsamplingRatio);
 
+    std::vector <std::string> customFlags;
+    std::vector <bool> customFlagDefault;
+    msgDisp->getCustomFlags(customFlags, customFlagDefault);
+
     std::vector <std::string> customOptions;
     std::vector <std::vector <std::string>> customOptionDescriptions;
     std::vector <uint16_t> customOptionDefault;
@@ -98,6 +102,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! VC Voltage range */
     this->vcVoltageRangesSection = setupSection(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, vLayout, vcVoltageRangesRadioButtons, vcVoltageRangeDefaultIdx);
+    this->setWidgetEnabled(vcVoltageRangesSection, false);
     for (int i = 0; i < vcVoltageRangesRadioButtons.size(); i++) {
         connect(vcVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -108,6 +113,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! CC Current range */
     this->ccCurrentRangesSection = setupSection(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, vLayout, ccCurrentRangesRadioButtons, ccCurrentRangeDefaultIdx);
+    this->setWidgetEnabled(ccCurrentRangesSection, false);
     for (int i = 0; i < ccCurrentRangesRadioButtons.size(); i++) {
         connect(ccCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -175,6 +181,15 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /*! Digital filter */
     digitalFilterGroupBox = new QGroupBox(DCW_DIGITAL_FILTER_TITLE);
+
+    /*! Custom flags */
+    for (unsigned int customFlagIdx = 0; customFlagIdx < customFlags.size(); customFlagIdx++) {
+        auto btn = setupActButton(customFlags[customFlagIdx], vLayout, customFlagDefault[customFlagIdx]);
+        customFlagsButtons.push_back(btn);
+        connect(btn, &ActivationButton::clicked, this, [=] (bool flag) {
+            emit sigCustomFlagSelected(customFlagIdx, flag);
+        });
+    }
 
     /*! Custom options */
     for (unsigned int customOptionIdx = 0; customOptionIdx < customOptions.size(); customOptionIdx++) {
@@ -371,6 +386,10 @@ void DeviceControlDockWidget::forceEmit() {
 
 //    emit sigDownsamplingRatioSelected(downsamplingRatioSbx->value());
 
+    for (int customFlagIdx = 0; customFlagIdx < customFlagsButtons.size(); customFlagIdx++) {
+        emit sigCustomFlagSelected(customFlagIdx, customFlagsButtons[customFlagIdx]->isChecked());
+    }
+
     for (int customOptionIdx = 0; customOptionIdx < customOptionsRadioButtons.size(); customOptionIdx++) {
         for (int idx = 0; idx < customOptionsRadioButtons[customOptionIdx].size(); idx++) {
             QRadioButton * btn = customOptionsRadioButtons[customOptionIdx][idx];
@@ -426,8 +445,8 @@ void DeviceControlDockWidget::updateParameters() {
             msgDisp->getVCVoltageFilterIdx(idx);
             vcVoltageFiltersRadioButtons[idx]->setChecked(true);
         }
-
-    } else if (mode == ClampingModality_t::CURRENT_CLAMP) {
+    }
+    else if (mode == ClampingModality_t::CURRENT_CLAMP || mode == ClampingModality_t::ZERO_CURRENT_CLAMP) {
         this->setWidgetVisible(vcVoltageRangesSection, false);
         for (auto & section : vcCurrentRangesSections) {
             this->setWidgetVisible(section, false);
@@ -488,26 +507,61 @@ void DeviceControlDockWidget::updateParameters() {
 }
 
 void DeviceControlDockWidget::setVcVoltageRangesSectionEnabled(bool status){
+    if (vcVoltageRangesSection == nullptr) {
+        return;
+    }
+    if (vcVoltageRangesSection->getSingleOption()) {
+        /*! Cannot enable controls with a single option */
+        status = false;
+    }
     this->setWidgetEnabled(vcVoltageRangesSection, status);
 }
 
 void DeviceControlDockWidget::setVcCurrentRangesSectionEnabled(bool status){
     for (auto & section : vcCurrentRangesSections) {
+        if (section == nullptr) {
+            continue;
+        }
+        if (section->getSingleOption()) {
+            /*! Cannot enable controls with a single option */
+            status = false;
+        }
         this->setWidgetEnabled(section, status);
     }
 }
 
 void DeviceControlDockWidget::setCcVoltageRangesSectionEnabled(bool status){
     for (auto & section : ccVoltageRangesSections) {
+        if (section == nullptr) {
+            continue;
+        }
+        if (section->getSingleOption()) {
+            /*! Cannot enable controls with a single option */
+            status = false;
+        }
         this->setWidgetEnabled(section, status);
     }
 }
 
 void DeviceControlDockWidget::setCcCurrentRangesSectionEnabled(bool status){
+    if (ccCurrentRangesSection == nullptr) {
+        return;
+    }
+    if (ccCurrentRangesSection->getSingleOption()) {
+        /*! Cannot enable controls with a single option */
+        status = false;
+    }
     this->setWidgetEnabled(ccCurrentRangesSection, status);
 }
 
 void DeviceControlDockWidget::setSamplingRatesSectionEnabled(bool status){
+    if (samplingRatesSection == nullptr) {
+        return;
+    }
+    if (samplingRatesSection->getSingleOption()) {
+        /*! Cannot enable controls with a single option */
+        status = false;
+    }
     this->setWidgetEnabled(samplingRatesSection, status);
 }
 
@@ -561,7 +615,7 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
         return nullptr;
     }
     std::vector <QString> texts;
-    for (auto s : strings) {
+    for (auto &s : strings) {
         texts.push_back(QString::fromStdString(s));
     }
     return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
@@ -589,6 +643,25 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
         radioButtons.push_back(static_cast <QRadioButton *> (btn));
     }
     return sec;
+}
+
+ActivationButton * DeviceControlDockWidget::setupActButton(std::string title, QVBoxLayout * parentLayout, bool defaultFlag) {
+    QWidget * wid = new QWidget;
+    parentLayout->addWidget(wid);
+
+    QHBoxLayout * hl = new QHBoxLayout;
+    hl->setContentsMargins(0, 0, 0, 0);
+    wid->setLayout(hl);
+
+    auto btn = new ActivationButton();
+    btn->setChecked(defaultFlag);
+
+    QLabel * lbl = new QLabel(QString::fromStdString(title));
+
+    hl->addWidget(btn);
+    hl->addWidget(lbl);
+
+    return btn;
 }
 
 QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, QVBoxLayout * parentLayout, RangedMeasurement_t range, double valueDefault, QDoubleSpinBox * &spinbox) {

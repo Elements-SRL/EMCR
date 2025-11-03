@@ -331,14 +331,8 @@ std::string ApplicationStatus::getClampingModalityString() {
     case ClampingModality_t::VOLTAGE_CLAMP:
         cms = "Voltage clamp";
         break;
-    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
-        cms = "Voltage clamp voltage read";
-        break;
     case ClampingModality_t::CURRENT_CLAMP:
         cms = "Current clamp";
-        break;
-    case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
-        cms = "Current clamp current read";
         break;
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
         cms = "Zero current clamp";

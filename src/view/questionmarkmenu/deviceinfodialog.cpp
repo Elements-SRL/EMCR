@@ -7,9 +7,8 @@
 #include <QClipboard>
 
 #include "globaldefines.h"
-#include "messagedispatcher.h"
 
-DeviceInfoDialog::DeviceInfoDialog(bool connected, QString deviceId, QWidget* parent) :
+DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWidget* parent) :
     MessageDialog("Device Info", true, parent) {
 
     deviceIdLbl = new QLabel;
@@ -46,7 +45,17 @@ DeviceInfoDialog::DeviceInfoDialog(bool connected, QString deviceId, QWidget* pa
     uint32_t deviceVer;
     uint32_t deviceSubver;
     uint32_t fwVer;
-    ErrorCodes_t ret = MessageDispatcher::getDeviceInfo(deviceId.toStdString(), deviceVer, deviceSubver, fwVer);
+    bool connected;
+    ErrorCodes_t ret;
+
+    if (md == nullptr) {
+        connected = false;
+        ret = MessageDispatcher::getDeviceInfo(deviceId.toStdString(), deviceVer, deviceSubver, fwVer);
+    }
+    else {
+        connected = true;
+        ret = md->getDeviceInfo(deviceVer, deviceSubver, fwVer);
+    }
 
     deviceIdLbl->setText("Device ID: " + deviceId + (connected ? " (connected)" : " (not connected)"));
     switch (ret) {
@@ -57,13 +66,6 @@ DeviceInfoDialog::DeviceInfoDialog(bool connected, QString deviceId, QWidget* pa
         deviceVerLbl->setVisible(true);
         fwVerLbl->setText("Firmware version: " + QString::number(fwVer));
         deviceVerLbl->setVisible(true);
-        copyToClipboardBtn->setVisible(true);
-        break;
-
-    case ErrorFeatureNotImplemented:
-        deviceVerLbl->setVisible(false);
-        deviceVerLbl->setVisible(false);
-        deviceVerLbl->setVisible(false);
         copyToClipboardBtn->setVisible(true);
         break;
 

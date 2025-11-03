@@ -14,4 +14,9 @@ DebugController::DebugController(ApplicationStatus * appStatus, MainWindow * mai
     connect(view, &DebugDockWidget::setDebugWord, this, [=] (int word, int value) {
         msgDisp->setDebugWord(word, value);
     });
+    connect(view, &DebugDockWidget::sigWriteCalibrationEeprom, this, [=] (std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
+        msgDisp->setCalibrationMode(true);
+        msgDisp->writeCalibrationEeprom(value, address, size);
+        msgDisp->setCalibrationMode(false);
+    });
 }

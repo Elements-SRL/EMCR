@@ -110,6 +110,10 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "The amplifier's FW upgrade procedure failed";
         break;
 
+    case ErrorNotConnectedToUsb3:
+        error = "The device is not connected to a super speed USB 3 port";
+        break;
+
     case ErrorSendMessageFailed:
         error = "Failed to send message to the device";
         break;
@@ -327,6 +331,10 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorFwUpgradeFailed:
         info = "Please try again. If this is not your first attempt please contact support@elements-ic.com.";
+        break;
+
+    case ErrorNotConnectedToUsb3:
+        info = "Please check that the device is connected directly to a Super Speed USB 3 port, possibly not via a USB hub.";
         break;
 
     case ErrorSendMessageFailed:

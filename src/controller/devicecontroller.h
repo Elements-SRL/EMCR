@@ -27,6 +27,7 @@ public slots:
     void onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex);
     void onDigitalFilterSettingsChanged(Measurement_t cutoffrequency, bool lowPassFlag, bool activeFlag);
     void onClampingModalitySelected(ClampingModality_t mode);
+    void onCustomFlagSelected(uint32_t customFlagIdx, bool flag);
     void onCustomOptionSelected(uint32_t customOptionIdx, int idx);
     void onCustomDoubleChanged(uint32_t customDoubleIdx, double value);
 
@@ -46,7 +47,6 @@ private:
     DeviceControlDockWidget * deviceControlDockWidget = nullptr;
     bool recording = false;
     bool protocolRunning = false;
-    bool getStatusFromRecordingAndProtocol();
     bool calcDefaultStatus(int, bool);
 
 signals:

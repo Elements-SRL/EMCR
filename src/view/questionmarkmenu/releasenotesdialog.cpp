@@ -6,6 +6,42 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
     {
         Version_t version;
         version.major = 0;
+        version.minor = 24;
+        version.patch = 0;
+        version.sections[NewFeatures] << "Compatibility with new devices";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
+        version.minor = 23;
+        version.patch = 2;
+        version.sections[NewFeatures] << "Resistance estimation in current clamp";
+        version.sections[NewFeatures] << "Increased max number of applicable sweeps";
+        version.sections[BugFixes] << "Fixed recording in event detection tab that could not be stopped";
+        version.sections[BugFixes] << "Fixed downsampling not correctly decimating the data";
+        version.sections[BugFixes] << "Fixed default status of AUTO buttons";
+        version.sections[BugFixes] << "Fixed ranges shown in I0 clamp";
+        version.sections[BugFixes] << "Current protocols set correctly the range";
+        version.sections[BugFixes] << "Fixed crash happening when a voltage and current protocols have the same name";
+        version.sections[BugFixes] << "Device info working for all devices";
+        version.sections[BugFixes] << "Fixed driver installer not running during SW installation";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
+        version.minor = 22;
+        version.patch = 2;
+        version.sections[NewFeatures] << "Handles new 2x10MHz and 4x10MHz nanopore readers";
+        version.sections[NewFeatures] << "Added Plot Detail feature: plots a single trace in a separate resizable window";
+        version.sections[BugFixes] << "Fixed crash in I/V graph";
+        version.sections[BugFixes] << "Fixed crash during clamping modality change";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
         version.minor = 20;
         version.patch = 1;
         version.sections[BugFixes] << "Fixed resistance estimation crash on single channel devices";
@@ -100,7 +136,7 @@ void ReleaseNotesDialog::appendVersion(Version_t version) {
                 break;
             }
 
-            for (auto item : section) {
+            for (auto &item : section) {
                 stream << "\n- " << item;
             }
         }

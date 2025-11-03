@@ -11,6 +11,8 @@ SingleChannelController::SingleChannelController(ApplicationStatus * appStatus, 
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedOffsetRecalibration, this, &SingleChannelController::onApplyOffsetRecalibration);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedStimHalfValues, this, &SingleChannelController::onApplyStimHalfValues);
     connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigLiquidJunctionValues, this, &SingleChannelController::onLiquidJunctionValues);
+    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedOffsetTracking, this, &SingleChannelController::onApplyOffsetTracking);
+    connect(singleChannelControlsDw, &SingleChannelControlDockWidget::sigAppliedRamp, this, &SingleChannelController::onApplyRamp);
 
     mainWindow->setDockWidget(MainWindow::DWSingleChannelControl, singleChannelControlsDw, false, Qt::RightDockWidgetArea);
 }
@@ -74,6 +76,19 @@ void SingleChannelController::onApplyStimHalfValues(std::vector<uint16_t> channe
     }
 }
 
+void SingleChannelController::onApplyOffsetTracking(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsetValues){
+    ClampingModality_t mode;
+    auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->getClampingModality(mode);
+
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+        msgDisp->setCurrentTracking(channelIndexes, offsetValues, true);
+
+    // } else {
+    //     msgDisp->setCalibCcVoltageOffset(channelIndexes, offsetValues, true);
+    }
+}
+
 void SingleChannelController::onLiquidJunctionValues(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> values) {
     ClampingModality_t mode;
     auto msgDisp = appStatus->getMessageDispatcher();
@@ -81,6 +96,16 @@ void SingleChannelController::onLiquidJunctionValues(std::vector<uint16_t> chann
 
     if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
         msgDisp->setLiquidJunctionVoltage(channelIndexes, values, true);
+    }
+}
+
+void SingleChannelController::onApplyRamp(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> vInitial, std::vector <Measurement_t> vFinal, std::vector <Measurement_t> duration) {
+    ClampingModality_t mode;
+    auto msgDisp = appStatus->getMessageDispatcher();
+    msgDisp->getClampingModality(mode);
+
+    if (mode == ClampingModality_t::VOLTAGE_CLAMP) {
+        msgDisp->setVoltageRampTuner(channelIndexes, vInitial, vFinal, duration);
     }
 }
 

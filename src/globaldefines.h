@@ -51,7 +51,7 @@
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }
 
 inline bool debugControlsEnabled() {
-    static std::optional<bool> cachedResult;
+    static std::optional <bool> cachedResult;
     if (!cachedResult.has_value()) {
         QFileInfo fileInfo(DEBUG_FILE_PATH);
         cachedResult = fileInfo.exists() && fileInfo.isFile() ? true : false;

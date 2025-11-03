@@ -5,6 +5,8 @@
 #include <QDesktopServices>
 #include <QDoubleSpinBox>
 
+#include "globaldefines.h"
+
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
     QDockWidget(parent),
     msgDisp(msgDisp) {
@@ -34,7 +36,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         qhblChannels_input->addWidget(switchChannelsAutoBtn);
     }
 
-    if (msgDisp->hasCalSw() == Success) {
+    if (msgDisp->hasCalSw() == Success && debugControlsEnabled()) {
         auto calib_gb = new QGroupBox(QString::fromStdString("Calibration resistors"));
         auto qhbl = new QHBoxLayout();
         calib_gb->setLayout(qhbl);
@@ -215,7 +217,6 @@ void MultipleChannelControlDockWidget::enableExpertMode(bool flag) {
 void MultipleChannelControlDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {
     switch (clampingModality) {
     case ClampingModality_t::VOLTAGE_CLAMP:
-    case ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ:
         if (zapGb!= nullptr) {
             zapGb->setEnabled(true);
         }
@@ -223,7 +224,6 @@ void MultipleChannelControlDockWidget::onSetClampingModality(ClampingModality_t 
 
     case ClampingModality_t::CURRENT_CLAMP:
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
-    case ClampingModality_t::CURRENT_CLAMP_CURRENT_READ:
         if (zapGb!= nullptr) {
             zapGb->setEnabled(false);
         }

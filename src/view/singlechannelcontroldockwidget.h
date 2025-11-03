@@ -20,6 +20,7 @@ public:
     SingleChannelControlDockWidget(ApplicationStatus * appStatus, QWidget * parent = nullptr);
     void setOffsetRecalibrationValues(std::vector <Measurement_t> values);
     void setLiquidJunctionVoltages(std::vector <Measurement_t> voltages);
+    void setOffsetTrackingValues(std::vector <Measurement_t> values);
     void onBoardMappingsLoaded();
 
 public slots:
@@ -39,6 +40,10 @@ private:
         OperationOffsetRecalibration,
         OperationLiquidJunction,
         OperationStimulusHalf,
+        OperationOffsetTracking,
+        OperationInitialStimulusRamp, /*!< \note keep as last enums (the code contains some checks with inequality signs */
+        OperationFinalStimulusRamp,
+        OperationDurationRamp,
         OperationsNum
     } Operations_t;
 
@@ -63,12 +68,13 @@ private:
 
     QVector <QVector <QWidget *>> operationEdits;
 
-    bool anyOperationActive = false;
+    bool widgetInitialized = false;
 
     QVector <QWidget *> operationButtonWidgets;
     std::vector <RangedMeasurement_t> holdingTunerRange;
     std::vector <RangedMeasurement_t> offsetRecalibrationRange;
     RangedMeasurement_t liquidJunctionRange;
+    RangedMeasurement_t stimulusDurationRange;
     QVector <NoWheelSpinBox *> setAllChannelsSbxs;
     void buildOperation(QLayout * layout, Operations_t operationType, bool visibility = false);
 
@@ -83,6 +89,8 @@ signals:
     void sigAppliedOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigAppliedStimHalfValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
     void sigLiquidJunctionValues(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
+    void sigAppliedOffsetTracking(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> values);
+    void sigAppliedRamp(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> vInitial, std::vector <Measurement_t> vFinal, std::vector <Measurement_t> duration);
 };
 
 class SpinBoxWithChannel : public QWidget {

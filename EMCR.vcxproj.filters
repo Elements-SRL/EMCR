@@ -397,6 +397,30 @@
     <ClCompile Include="src\controller\device\consumer\membraneestimationconsumer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\controller\debugcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\plotdetailcontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\temperaturecontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\plotdetail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\plotdetailmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\debugdockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\temperaturedockwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\channelstate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -780,6 +804,24 @@
     <QtMoc Include="src\controller\device\consumer\membraneestimationconsumer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\controller\debugcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\plotdetailcontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\temperaturecontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\plotdetail.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\debugdockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\view\temperaturedockwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -1052,6 +1094,12 @@
     </ClInclude>
     <ClInclude Include="src\model\singlemeasresultwrapper.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\plotdetailmodel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\channelstate.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

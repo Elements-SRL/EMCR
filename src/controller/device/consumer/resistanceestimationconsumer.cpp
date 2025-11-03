@@ -1,5 +1,11 @@
 #include "resistanceestimationconsumer.h"
 
+#define REC_TRANSIENT_PERC 0.5
+#define REC_TRAIL_PERC 0.25
+#define REC_MIN_BATCH_INTERVAL_S 0.001
+#define REC_MIN_PERIODS 5
+#define REC_INITIAL_DELAY_S 0.5
+
 ResistanceEstimationConsumer::ResistanceEstimationConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     SquareVoltageBasedAnalysisConsumer(appStatus, producer) {
 

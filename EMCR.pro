@@ -30,9 +30,11 @@ SOURCES += \
     src/controller/bigplotviewcontroller.cpp \
     src/controller/debugcontroller.cpp \
     src/controller/device/consumer/analysisconsumer.cpp \
+    src/controller/device/consumer/ccresistanceestimationconsumer.cpp \
     src/controller/device/consumer/membraneestimationconsumer.cpp \
     src/controller/device/consumer/pipettecapacitanceestimationconsumer.cpp \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
+    src/controller/device/consumer/squarecurrentbasedanalysisconsumer.cpp \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
     src/controller/durationbasedbigplotviewcontroller.cpp \
     src/controller/plotcontroller.cpp \
@@ -164,9 +166,11 @@ HEADERS += \
     src/controller/bigplotviewcontroller.h \
     src/controller/debugcontroller.h \
     src/controller/device/consumer/analysisconsumer.h \
+    src/controller/device/consumer/ccresistanceestimationconsumer.h \
     src/controller/device/consumer/membraneestimationconsumer.h \
     src/controller/device/consumer/pipettecapacitanceestimationconsumer.h \
     src/controller/device/consumer/resistanceestimationconsumer.h \
+    src/controller/device/consumer/squarecurrentbasedanalysisconsumer.h \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
     src/controller/durationbasedbigplotviewcontroller.h \
     src/controller/plotcontroller.h \
