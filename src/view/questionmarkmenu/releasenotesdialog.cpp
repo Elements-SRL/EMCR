@@ -7,7 +7,7 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         Version_t version;
         version.major = 0;
         version.minor = 24;
-        version.patch = 4;
+        version.patch = 6;
         version.sections[NewFeatures] << "Compatibility with new devices";
         version.sections[BugFixes] << "Fixed sinusoidal protocol in e192";
         this->appendVersion(version);
