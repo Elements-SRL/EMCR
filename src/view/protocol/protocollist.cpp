@@ -653,8 +653,13 @@ void ProtocolList::exportLastProtocols() {
     YAML::Node node;
 
     if (QFile::exists(fullFileName)) {
-        node = YAML::LoadFile(fullFileName.toStdString());
-        yamlProtocols = node.as <YAML::Protocols_t> ();
+        try {
+            node = YAML::LoadFile(fullFileName.toStdString());
+            yamlProtocols = node.as <YAML::Protocols_t> ();
+        }
+        catch (const std::exception&) {
+            /*! Just bypass file loading */
+        }
     }
 
     if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
@@ -752,7 +757,13 @@ bool ProtocolList::importProtocols(QString fullFileName) {
     if (QFile::exists(yamlFileName)) {
         fullFileName = yamlFileName;
 
-        YAML::Node node = YAML::LoadFile(fullFileName.toStdString());
+        YAML::Node node;
+        try {
+            node = YAML::LoadFile(fullFileName.toStdString());
+        }
+        catch (const std::exception&) {
+            return false;
+        }
         YAML::Protocols yamlProtocols = node.as <YAML::Protocols> ();
 
         if (clampingModality == ClampingModality_t::VOLTAGE_CLAMP) {

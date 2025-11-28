@@ -5,13 +5,14 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
     MessageDialog("Release Notes", true, parent) {
     {
         Version_t version;
-        version.major = 0;
-        version.minor = 24;
-        version.patch = 7;
+        version.major = VERSION_MAJOR;
+        version.minor = VERSION_MINOR;
+        version.patch = VERSION_PATCH;
         version.sections[NewFeatures] << "Compatibility with new devices";
         version.sections[NewFeatures] << "Current tracking";
         version.sections[BugFixes] << "Fixed sinusoidal protocol in e192";
         version.sections[BugFixes] << "Fixed zap not being applied";
+        version.sections[BugFixes] << "Fixed crash when a corrupted protocol file is loaded on startup";
         this->appendVersion(version);
     }
     {
