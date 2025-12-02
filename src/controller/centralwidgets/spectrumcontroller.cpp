@@ -17,8 +17,8 @@ SpectrumController::SpectrumController(
 
     std::map<QwtPlot::Axis, AxisInfo> m;
     //TODO lrossi correctly initialize these with filo
-    m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange(), std::nullopt, true};
-    m[QwtPlot::Axis::yRight] = {appStatus->getVoltageRange(), std::nullopt, true};
+    m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange(), std::nullopt, true, false, "^2/Hz"};
+    m[QwtPlot::Axis::yRight] = {appStatus->getVoltageRange(), std::nullopt, true, false, "rms"};
     m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::make_optional(0.0)};
 
     pc = std::make_unique<PlotController>(m, mainWindow);
@@ -124,7 +124,6 @@ void SpectrumController::onReplot() {
 }
 
 void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
-    auto plot = pc->getPlot();
     auto model = pc->getModel();
     ClampingModality_t mode;
     appStatus->getMessageDispatcher()->getClampingModality(mode);
@@ -144,11 +143,8 @@ void SpectrumController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
         axisIdx = QwtPlot::yLeft;
         auto pm = pc->getModel();
         auto rm = pm->getAxisRangedMeasurement(axisIdx);
-        labels[axisIdx] = rm.getFullUnit() + "^2/Hz";
         axisIdx = QwtPlot::yRight;
         rm = pm->getAxisRangedMeasurement(axisIdx);
-        labels[axisIdx] = rm.getFullUnit() + "rms";
-
     } else if (newRange.unit == "Hz") {
         axisIdx = QwtPlot::xBottom;
         pc->setRangedMeasurement(axisIdx, newRange);

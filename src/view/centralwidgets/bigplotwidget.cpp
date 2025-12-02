@@ -1,4 +1,5 @@
 #include "bigplotwidget.h"
+#include "operationmode.h"
 
 BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QTabWidget(parent) {
@@ -43,7 +44,7 @@ void BigPlotWidget::addEpisodicTab() {
     auto episodicLayout = new QVBoxLayout();
     episodicTab = new QWidget();
     episodicTab->setLayout(episodicLayout);
-    episodicTab->setProperty("TabID", BigPlot::BigPlotStatus::Episodic);
+    episodicTab->setProperty("TabID", OperationMode::Episodic);
     addTab(episodicTab, "Episodic");
 }
 
@@ -51,7 +52,7 @@ void BigPlotWidget::addIvTab() {
     auto ivLayout = new QVBoxLayout();
     ivTab = new QWidget();
     ivTab->setLayout(ivLayout);
-    ivTab->setProperty("TabID", BigPlot::BigPlotStatus::Iv);
+    ivTab->setProperty("TabID", OperationMode::Iv);
     addTab(ivTab, "IV Graph");
 }
 
@@ -59,7 +60,7 @@ void BigPlotWidget::addSpectrumTab() {
     auto spectrumLayout = new QVBoxLayout();
     spectrumTab = new QWidget();
     spectrumTab->setLayout(spectrumLayout);
-    spectrumTab->setProperty("TabID", BigPlot::BigPlotStatus::Spectrum);
+    spectrumTab->setProperty("TabID", OperationMode::Spectrum);
     addTab(spectrumTab, "Spectrum");
 }
 
@@ -67,7 +68,7 @@ void BigPlotWidget::addGapFreeTab() {
     auto gapFreeLayout = new QVBoxLayout();
     gapFreeTab = new QWidget();
     gapFreeTab->setLayout(gapFreeLayout);
-    gapFreeTab->setProperty("TabID", BigPlot::BigPlotStatus::GapFree);
+    gapFreeTab->setProperty("TabID", OperationMode::GapFree);
     addTab(gapFreeTab, "GapFree");
 }
 
@@ -75,6 +76,6 @@ void BigPlotWidget::addEventDetectionTab() {
     auto eventDetectionLayout = new QVBoxLayout();
     eventDetectionTab = new QWidget();
     eventDetectionTab->setLayout(eventDetectionLayout);
-    eventDetectionTab->setProperty("TabID", BigPlot::BigPlotStatus::Event);
+    eventDetectionTab->setProperty("TabID", OperationMode::Event);
     addTab(eventDetectionTab, "Event Detection");
 }
