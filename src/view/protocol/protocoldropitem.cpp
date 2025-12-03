@@ -153,7 +153,7 @@ ProtocolDropStimulusItem::ProtocolDropStimulusItem(MessageDispatcher * msgDisp, 
     cbStimulusHalf->setCheckState(Qt::Unchecked);
     stimulusHalfHl->addWidget(cbStimulusHalf);
 
-    if (debugControlsEnabled()) {
+    if (!debugControlsEnabled()) {
         cbStimulusHalf->setVisible(false);
     }
 

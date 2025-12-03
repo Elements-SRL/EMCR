@@ -5,17 +5,21 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
     MessageDialog("Release Notes", true, parent) {
     {
         Version_t version;
-        version.major = 0;
-        version.minor = 24;
-        version.patch = 0;
+        version.major = VERSION_MAJOR;
+        version.minor = VERSION_MINOR;
+        version.patch = VERSION_PATCH;
         version.sections[NewFeatures] << "Compatibility with new devices";
+        version.sections[NewFeatures] << "Current tracking";
+        version.sections[BugFixes] << "Fixed sinusoidal protocol in e192";
+        version.sections[BugFixes] << "Fixed zap not being applied";
+        version.sections[BugFixes] << "Fixed crash when a corrupted protocol file is loaded on startup";
         this->appendVersion(version);
     }
     {
         Version_t version;
         version.major = 0;
         version.minor = 23;
-        version.patch = 2;
+        version.patch = 3;
         version.sections[NewFeatures] << "Resistance estimation in current clamp";
         version.sections[NewFeatures] << "Increased max number of applicable sweeps";
         version.sections[BugFixes] << "Fixed recording in event detection tab that could not be stopped";
@@ -44,15 +48,6 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.major = 0;
         version.minor = 20;
         version.patch = 1;
-        version.sections[BugFixes] << "Fixed resistance estimation crash on single channel devices";
-        version.sections[BugFixes] << "Fixed recordings not starting";
-        this->appendVersion(version);
-    }
-    {
-        Version_t version;
-        version.major = 0;
-        version.minor = 20;
-        version.patch = 0;
         version.sections[NewFeatures] << "Added episodic plots and recordings for patch clamp experiments";
         version.sections[NewFeatures] << "Added compensations for patch clamp experiments";
         version.sections[NewFeatures] << "Added autodeclogger for nanopore experiments";
@@ -63,6 +58,8 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.sections[Qol] << "Implemented auto buttons for stimulus and trace expand as well";
         version.sections[BugFixes] << "Fixed measurement overview buggy behaviour";
         version.sections[BugFixes] << "Improved accuracy of timers";
+        version.sections[BugFixes] << "Fixed resistance estimation crash on single channel devices";
+        version.sections[BugFixes] << "Fixed recordings not starting";
         this->appendVersion(version);
     }
     {

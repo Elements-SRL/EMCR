@@ -99,9 +99,9 @@ protected:
     QComboBox * samplingRateEdit = nullptr;
 };
 
-class VoltageProtocolEditor : virtual public ProtocolEditor {
+class VoltageProtocolEditor : public ProtocolEditor {
 public:
-    VoltageProtocolEditor();
+    VoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name);
 
     int getCurrentRangeIndex() override;
     QComboBox * getCurrentRangeEdit() override;
@@ -113,9 +113,9 @@ protected:
     void stimulusRangeSelected(int rangeIdx) override;
 };
 
-class CurrentProtocolEditor : virtual public ProtocolEditor {
+class CurrentProtocolEditor : public ProtocolEditor {
 public:
-    CurrentProtocolEditor();
+    CurrentProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name);
 
     int getCurrentRangeIndex() override;
     QComboBox * getCurrentRangeEdit() override;
@@ -127,38 +127,28 @@ protected:
     void stimulusRangeSelected(int rangeIdx) override;
 };
 
-class GapfreeProtocolEditor : virtual public ProtocolEditor {
-public:
-    GapfreeProtocolEditor();
-};
-
-class EpisodicProtocolEditor : virtual public ProtocolEditor {
-public:
-    EpisodicProtocolEditor();
-};
-
-class GapfreeVoltageProtocolEditor : public VoltageProtocolEditor, public GapfreeProtocolEditor {
+class GapfreeVoltageProtocolEditor : public VoltageProtocolEditor {
     Q_OBJECT
 
 public:
     GapfreeVoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name);
 };
 
-class EpisodicVoltageProtocolEditor : public VoltageProtocolEditor, public EpisodicProtocolEditor {
+class EpisodicVoltageProtocolEditor : public VoltageProtocolEditor {
     Q_OBJECT
 
 public:
     EpisodicVoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name);
 };
 
-class GapfreeCurrentProtocolEditor : public CurrentProtocolEditor, public GapfreeProtocolEditor {
+class GapfreeCurrentProtocolEditor : public CurrentProtocolEditor {
     Q_OBJECT
 
 public:
     GapfreeCurrentProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name);
 };
 
-class EpisodicCurrentProtocolEditor : public CurrentProtocolEditor, public EpisodicProtocolEditor {
+class EpisodicCurrentProtocolEditor : public CurrentProtocolEditor {
     Q_OBJECT
 
 public:

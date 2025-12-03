@@ -166,70 +166,66 @@ signals:
     void nameChanged(QString, QString);
 };
 
-class VoltageProtocolWidget : virtual public ProtocolWidget {
+class GapfreeProtocolWidget : public ProtocolWidget {
 public:
-    VoltageProtocolWidget();
-
-    void setStimulusRangeIndex(int idx) override;
-    int getStimulusRangeIndex() override;
-    int getCurrentRangeIndex() override;
-    int getVoltageRangeIndex() override;
-};
-
-class CurrentProtocolWidget : virtual public ProtocolWidget {
-public:
-    CurrentProtocolWidget();
-
-    void setStimulusRangeIndex(int idx) override;
-    int getStimulusRangeIndex() override;
-    int getCurrentRangeIndex() override;
-    int getVoltageRangeIndex() override;
-};
-
-class GapfreeProtocolWidget : virtual public ProtocolWidget {
-public:
-    GapfreeProtocolWidget();
+    GapfreeProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality);
 
     Measurement_t getTotalDuration() override;
     ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) override;
     ProtocolSection * getItemAtTime(double time, int itemIdx, int repsIdx, int sweepIdx, double &offset) override;
 };
 
-class EpisodicProtocolWidget : virtual public ProtocolWidget {
+class EpisodicProtocolWidget : public ProtocolWidget {
 public:
-    EpisodicProtocolWidget();
+    EpisodicProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality);
 
     Measurement_t getTotalDuration() override;
     ProtocolSection * getItemAtTime(double time, int sweepIdx, double &offset) override;
     ProtocolSection * getItemAtTime(double time, int itemIdx, int repsIdx, int sweepIdx, double &offset) override;
 };
 
-class GapfreeVoltageProtocolWidget : public VoltageProtocolWidget, public GapfreeProtocolWidget {
+class GapfreeVoltageProtocolWidget : public GapfreeProtocolWidget {
     Q_OBJECT
 
 public:
     GapfreeVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
+    void setStimulusRangeIndex(int idx) override;
+    int getStimulusRangeIndex() override;
+    int getCurrentRangeIndex() override;
+    int getVoltageRangeIndex() override;
 };
 
-class EpisodicVoltageProtocolWidget : public VoltageProtocolWidget, public EpisodicProtocolWidget {
+class EpisodicVoltageProtocolWidget :public EpisodicProtocolWidget {
     Q_OBJECT
 
 public:
     EpisodicVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
+    void setStimulusRangeIndex(int idx) override;
+    int getStimulusRangeIndex() override;
+    int getCurrentRangeIndex() override;
+    int getVoltageRangeIndex() override;
 };
 
-class GapfreeCurrentProtocolWidget : public CurrentProtocolWidget, public GapfreeProtocolWidget {
+class GapfreeCurrentProtocolWidget : public GapfreeProtocolWidget {
     Q_OBJECT
 
 public:
     GapfreeCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
+    void setStimulusRangeIndex(int idx) override;
+    int getStimulusRangeIndex() override;
+    int getCurrentRangeIndex() override;
+    int getVoltageRangeIndex() override;
 };
 
-class EpisodicCurrentProtocolWidget : public CurrentProtocolWidget, public EpisodicProtocolWidget {
+class EpisodicCurrentProtocolWidget : public EpisodicProtocolWidget {
     Q_OBJECT
 
 public:
     EpisodicCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog);
+    void setStimulusRangeIndex(int idx) override;
+    int getStimulusRangeIndex() override;
+    int getCurrentRangeIndex() override;
+    int getVoltageRangeIndex() override;
 };
 
 class ProtocolCtrlDispatcher : public QObject {
