@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
     QDir().mkpath(YAML_DEFAULT_FOLDER);
 
-    a.setStyle(QStyleFactory::create("Windows"));
+    a.setStyle(QStyleFactory::create("Fusion"));
 
     MainController c;
     return a.exec();

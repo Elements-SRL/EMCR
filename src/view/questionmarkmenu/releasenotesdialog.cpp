@@ -10,6 +10,7 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.patch = VERSION_PATCH;
         version.sections[NewFeatures] << "Compatibility with new devices";
         version.sections[NewFeatures] << "Current tracking";
+        version.sections[Gui] << "UI theme changed";
         version.sections[BugFixes] << "Fixed sinusoidal protocol in e192";
         version.sections[BugFixes] << "Fixed zap not being applied";
         version.sections[BugFixes] << "Fixed crash when a corrupted protocol file is loaded on startup";
