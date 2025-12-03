@@ -27,7 +27,7 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
     debugWordSbx->setValue(0);
     debugWordHl->addWidget(debugWordSbx);
 
-    QCheckBox * debugRangeWordChx = new QCheckBox("Range");
+    QCheckBox * debugRangeWordChx = new QCheckBox("Up to");
     debugWordHl->addWidget(debugRangeWordChx);
 
     QSpinBox * debugLastWordSbx = new QSpinBox;
@@ -47,16 +47,16 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
     debugBitSbx->setValue(0);
     debugBitHl->addWidget(debugBitSbx);
 
-    QCheckBox * debugRangeBitChx = new QCheckBox("Range");
+    QCheckBox * debugRangeBitChx = new QCheckBox("Down to");
     debugBitHl->addWidget(debugRangeBitChx);
 
-    QSpinBox * debugLastBitSbx = new QSpinBox;
-    debugLastBitSbx->setRange(0, 15);
-    debugLastBitSbx->setValue(0);
-    debugLastBitSbx->setEnabled(false);
-    debugBitHl->addWidget(debugLastBitSbx);
+    QSpinBox * debugFirstBitSbx = new QSpinBox;
+    debugFirstBitSbx->setRange(0, 15);
+    debugFirstBitSbx->setValue(0);
+    debugFirstBitSbx->setEnabled(false);
+    debugBitHl->addWidget(debugFirstBitSbx);
 
-    connect(debugRangeBitChx, &QCheckBox::clicked, debugLastBitSbx, &QWidget::setEnabled);
+    connect(debugRangeBitChx, &QCheckBox::clicked, debugFirstBitSbx, &QWidget::setEnabled);
 
     QHBoxLayout * debugBitSetHl = new QHBoxLayout;
     debugVl->addLayout(debugBitSetHl);
@@ -73,22 +73,22 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
         if (debugRangeWordChx->isChecked()) {
             for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
                 if (debugRangeBitChx->isChecked()) {
-                    for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                    for (int bitIdx = debugFirstBitSbx->value(); bitIdx <= debugBitSbx->value(); bitIdx++) {
                         emit setDebugBit(wordIdx, bitIdx, false);
                     }
-
-                } else {
+                }
+                else {
                     emit setDebugBit(wordIdx, debugBitSbx->value(), false);
                 }
             }
-
-        } else {
+        }
+        else {
             if (debugRangeBitChx->isChecked()) {
-                for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                for (int bitIdx = debugFirstBitSbx->value(); bitIdx <= debugBitSbx->value(); bitIdx++) {
                     emit setDebugBit(debugWordSbx->value(), bitIdx, false);
                 }
-
-            } else {
+            }
+            else {
                 emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), false);
             }
         }
@@ -98,22 +98,22 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
         if (debugRangeWordChx->isChecked()) {
             for (int wordIdx = debugWordSbx->value(); wordIdx <= debugLastWordSbx->value(); wordIdx++) {
                 if (debugRangeBitChx->isChecked()) {
-                    for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                    for (int bitIdx = debugFirstBitSbx->value(); bitIdx <= debugBitSbx->value(); bitIdx++) {
                         emit setDebugBit(wordIdx, bitIdx, true);
                     }
-
-                } else {
+                }
+                else {
                     emit setDebugBit(wordIdx, debugBitSbx->value(), true);
                 }
             }
-
-        } else {
+        }
+        else {
             if (debugRangeBitChx->isChecked()) {
-                for (int bitIdx = debugBitSbx->value(); bitIdx <= debugLastBitSbx->value(); bitIdx++) {
+                for (int bitIdx = debugFirstBitSbx->value(); bitIdx <= debugBitSbx->value(); bitIdx++) {
                     emit setDebugBit(debugWordSbx->value(), bitIdx, true);
                 }
-
-            } else {
+            }
+            else {
                 emit setDebugBit(debugWordSbx->value(), debugBitSbx->value(), true);
             }
         }
@@ -147,6 +147,23 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
         } else {
             emit setDebugWord(debugWordSbx->value(), debugValueSbx->value());
         }
+    });
+
+    debugVl->addWidget(new QLabel("Trigger"));
+    QHBoxLayout * debugTriggerHl = new QHBoxLayout;
+    debugVl->addLayout(debugTriggerHl);
+
+    QSpinBox * debugTriggerSbx = new QSpinBox;
+    debugTriggerSbx->setRange(0, 32767);
+    debugTriggerSbx->setValue(0);
+    debugTriggerHl->addWidget(debugTriggerSbx);
+
+    QPushButton * debugTriggerBtn = new QPushButton("TRIGGER");
+    debugTriggerBtn->setCheckable(false);
+    debugTriggerHl->addWidget(debugTriggerBtn);
+
+    connect(debugTriggerBtn, &QPushButton::clicked, this, [=] () {
+        emit setDebugTrigger(debugTriggerSbx->value());
     });
 
     debugVl->addWidget(new QLabel("Eeprom Address"));
