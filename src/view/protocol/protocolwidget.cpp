@@ -821,49 +821,8 @@ void ProtocolWidget::onPropertyChanged() {
     propertyChangedFlag = true;
 }
 
-VoltageProtocolWidget::VoltageProtocolWidget() {
-    holdName = "V-Hold";
-    hold.unit = "V";
-}
-
-void VoltageProtocolWidget::setStimulusRangeIndex(int idx) {
-    voltageRangeEditOrig->setCurrentIndex(idx);
-}
-
-int VoltageProtocolWidget::getStimulusRangeIndex() {
-    return voltageRangeEditOrig->currentIndex(); /*!< "none" option is not present in stimulus range */
-}
-
-int VoltageProtocolWidget::getCurrentRangeIndex() {
-    return currentRangeEditOrig->currentIndex()-1; /*!< -1 is to remove the offset due to the "none" option */
-}
-
-int VoltageProtocolWidget::getVoltageRangeIndex() {
-    return voltageRangeEditOrig->currentIndex(); /*!< "none" option is not present in voltage clamp */
-}
-
-CurrentProtocolWidget::CurrentProtocolWidget() {
-    holdName = "I-Hold";
-    hold.unit = "A";
-}
-
-void CurrentProtocolWidget::setStimulusRangeIndex(int idx) {
-    currentRangeEditOrig->setCurrentIndex(idx);
-}
-
-int CurrentProtocolWidget::getStimulusRangeIndex() {
-    return currentRangeEditOrig->currentIndex(); /*!< "none" option is not present in stimulus range */
-}
-
-int CurrentProtocolWidget::getCurrentRangeIndex() {
-    return currentRangeEditOrig->currentIndex(); /*!< "none" option is not present in current clamp */
-}
-
-int CurrentProtocolWidget::getVoltageRangeIndex() {
-    return voltageRangeEditOrig->currentIndex()-1; /*!< -1 is to remove the offset due to the "none" option */
-}
-
-GapfreeProtocolWidget::GapfreeProtocolWidget() {
+GapfreeProtocolWidget::GapfreeProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
+ProtocolWidget(msgDisp, name, dialog, type,clampingModality) {
     QString iconString = ":imgs/gap free icon.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -963,7 +922,8 @@ ProtocolSection * GapfreeProtocolWidget::getItemAtTime(double time, int itemIdx,
     return protocolSections->at(sectionIdx);
 }
 
-EpisodicProtocolWidget::EpisodicProtocolWidget() {
+EpisodicProtocolWidget::EpisodicProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
+    ProtocolWidget(msgDisp, name, dialog, type,clampingModality) {
     QString iconString = ":imgs/episodic icon.png";
     QIcon icon;
     icon.addPixmap(iconString);
@@ -1068,31 +1028,92 @@ ProtocolSection * EpisodicProtocolWidget::getItemAtTime(double time, int itemIdx
 }
 
 GapfreeVoltageProtocolWidget::GapfreeVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeGapfree, ClampingModality_t::VOLTAGE_CLAMP),
-    VoltageProtocolWidget(),
-    GapfreeProtocolWidget() {
+    GapfreeProtocolWidget(msgDisp, name, dialog, ProtocolTypeGapfree, ClampingModality_t::VOLTAGE_CLAMP) {
+    holdName = "V-Hold";
+    hold.unit = "V";
+}
 
+void GapfreeVoltageProtocolWidget::setStimulusRangeIndex(int idx) {
+    voltageRangeEditOrig->setCurrentIndex(idx);
+}
+
+int GapfreeVoltageProtocolWidget::getStimulusRangeIndex() {
+    return voltageRangeEditOrig->currentIndex(); /*!< "none" option is not present in stimulus range */
+}
+
+int GapfreeVoltageProtocolWidget::getCurrentRangeIndex() {
+    return currentRangeEditOrig->currentIndex()-1; /*!< -1 is to remove the offset due to the "none" option */
+}
+
+int GapfreeVoltageProtocolWidget::getVoltageRangeIndex() {
+    return voltageRangeEditOrig->currentIndex(); /*!< "none" option is not present in voltage clamp */
 }
 
 EpisodicVoltageProtocolWidget::EpisodicVoltageProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::VOLTAGE_CLAMP),
-    VoltageProtocolWidget(),
-    EpisodicProtocolWidget() {
-
+    EpisodicProtocolWidget(msgDisp, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::VOLTAGE_CLAMP) {
+    holdName = "V-Hold";
+    hold.unit = "V";
 }
 
-GapfreeCurrentProtocolWidget::GapfreeCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeGapfree, ClampingModality_t::CURRENT_CLAMP),
-    CurrentProtocolWidget(),
-    GapfreeProtocolWidget() {
+void EpisodicVoltageProtocolWidget::setStimulusRangeIndex(int idx) {
+    voltageRangeEditOrig->setCurrentIndex(idx);
+}
 
+int EpisodicVoltageProtocolWidget::getStimulusRangeIndex() {
+    return voltageRangeEditOrig->currentIndex(); /*!< "none" option is not present in stimulus range */
+}
+
+int EpisodicVoltageProtocolWidget::getCurrentRangeIndex() {
+    return currentRangeEditOrig->currentIndex()-1; /*!< -1 is to remove the offset due to the "none" option */
+}
+
+int EpisodicVoltageProtocolWidget::getVoltageRangeIndex() {
+    return voltageRangeEditOrig->currentIndex(); /*!< "none" option is not present in voltage clamp */
+}
+
+
+GapfreeCurrentProtocolWidget::GapfreeCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
+    GapfreeProtocolWidget(msgDisp, name, dialog, ProtocolTypeGapfree, ClampingModality_t::CURRENT_CLAMP) {
+    holdName = "I-Hold";
+    hold.unit = "A";
+}
+
+void GapfreeCurrentProtocolWidget::setStimulusRangeIndex(int idx) {
+    currentRangeEditOrig->setCurrentIndex(idx);
+}
+
+int GapfreeCurrentProtocolWidget::getStimulusRangeIndex() {
+    return currentRangeEditOrig->currentIndex(); /*!< "none" option is not present in stimulus range */
+}
+
+int GapfreeCurrentProtocolWidget::getCurrentRangeIndex() {
+    return currentRangeEditOrig->currentIndex(); /*!< "none" option is not present in current clamp */
+}
+
+int GapfreeCurrentProtocolWidget::getVoltageRangeIndex() {
+    return voltageRangeEditOrig->currentIndex()-1; /*!< -1 is to remove the offset due to the "none" option */
 }
 
 EpisodicCurrentProtocolWidget::EpisodicCurrentProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog) :
-    ProtocolWidget(msgDisp, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::CURRENT_CLAMP),
-    CurrentProtocolWidget(),
-    EpisodicProtocolWidget() {
+    EpisodicProtocolWidget(msgDisp, name, dialog, ProtocolTypeEpisodic, ClampingModality_t::CURRENT_CLAMP) {
+    holdName = "I-Hold";
+    hold.unit = "A";
+}
 
+void EpisodicCurrentProtocolWidget::setStimulusRangeIndex(int idx) {
+    currentRangeEditOrig->setCurrentIndex(idx);
+}
+
+int EpisodicCurrentProtocolWidget::getStimulusRangeIndex() {
+    return currentRangeEditOrig->currentIndex(); /*!< "none" option is not present in stimulus range */
+}
+
+int EpisodicCurrentProtocolWidget::getCurrentRangeIndex() {
+    return currentRangeEditOrig->currentIndex(); /*!< "none" option is not present in current clamp */
+}
+
+int EpisodicCurrentProtocolWidget::getVoltageRangeIndex() {
+    return voltageRangeEditOrig->currentIndex()-1; /*!< -1 is to remove the offset due to the "none" option */
 }
 
 ProtocolCtrlDispatcher::ProtocolCtrlDispatcher() {

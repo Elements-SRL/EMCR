@@ -335,7 +335,8 @@ QComboBox * ProtocolEditor::getSamplingRateEdit() {
     return samplingRateEdit;
 }
 
-VoltageProtocolEditor::VoltageProtocolEditor() {
+VoltageProtocolEditor::VoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(msgDisp, model, protocolWidget, name) {
     stimulusAbbrName = "V";
 
     /*! Library */
@@ -536,7 +537,8 @@ void VoltageProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     ctrlPidl->setStimulusRange(stimulusRange);
 }
 
-CurrentProtocolEditor::CurrentProtocolEditor() {
+CurrentProtocolEditor::CurrentProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    ProtocolEditor(msgDisp, model, protocolWidget, name) {
     stimulusAbbrName = "I";
 
     /*! Library */
@@ -737,7 +739,10 @@ void CurrentProtocolEditor::stimulusRangeSelected(int rangeIdx) {
     ctrlPidl->setStimulusRange(stimulusRange);
 }
 
-GapfreeProtocolEditor::GapfreeProtocolEditor() {
+
+GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
+    VoltageProtocolEditor(msgDisp, model, protocolWidget, name) {
+    // INIT PART OF GAPFREE
     type = "Gap Free";
 
     sweepsNumName->setVisible(false);
@@ -750,24 +755,7 @@ GapfreeProtocolEditor::GapfreeProtocolEditor() {
     QLabel * phasesTitle = new QLabel("Gap-free items");
     phasesTitle->setFont(titlesFont);
     phasesVl->addWidget(phasesTitle);
-}
-
-EpisodicProtocolEditor::EpisodicProtocolEditor() {
-    type = "Episodic";
-
-    /*! Phases */
-    phasesVl = new QVBoxLayout;
-    editorHl->insertLayout(PTE_PHASES_COLUMN_IDX, phasesVl);
-
-    QLabel * phasesTitle = new QLabel("Sweeps items");
-    phasesTitle->setFont(titlesFont);
-    phasesVl->addWidget(phasesTitle);
-}
-
-GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(msgDisp, model, protocolWidget, name),
-    VoltageProtocolEditor(),
-    GapfreeProtocolEditor() {
+    // END PART OF GAPFREE
 
     phasesPidl = new GapfreeProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     phasesVl->addWidget(phasesPidl);
@@ -777,9 +765,19 @@ GapfreeVoltageProtocolEditor::GapfreeVoltageProtocolEditor(MessageDispatcher * m
 }
 
 EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(msgDisp, model, protocolWidget, name),
-    VoltageProtocolEditor(),
-    EpisodicProtocolEditor() {
+    VoltageProtocolEditor(msgDisp, model, protocolWidget, name) {
+
+    // INIT PART OF Episodic
+    type = "Episodic";
+
+    /*! Phases */
+    phasesVl = new QVBoxLayout;
+    editorHl->insertLayout(PTE_PHASES_COLUMN_IDX, phasesVl);
+
+    QLabel * phasesTitle = new QLabel("Sweeps items");
+    phasesTitle->setFont(titlesFont);
+    phasesVl->addWidget(phasesTitle);
+    // End PART OF Episodic
 
     phasesPidl = new EpisodicProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::VOLTAGE_CLAMP );
     phasesVl->addWidget(phasesPidl);
@@ -789,9 +787,21 @@ EpisodicVoltageProtocolEditor::EpisodicVoltageProtocolEditor(MessageDispatcher *
 }
 
 GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(msgDisp, model, protocolWidget, name),
-    CurrentProtocolEditor(),
-    GapfreeProtocolEditor() {
+    CurrentProtocolEditor(msgDisp, model, protocolWidget, name) {
+    // INIT PART OF GAPFREE
+    type = "Gap Free";
+
+    sweepsNumName->setVisible(false);
+    sweepsNumEdit->setVisible(false);
+
+    /*! Phases */
+    phasesVl = new QVBoxLayout;
+    editorHl->insertLayout(PTE_PHASES_COLUMN_IDX, phasesVl);
+
+    QLabel * phasesTitle = new QLabel("Gap-free items");
+    phasesTitle->setFont(titlesFont);
+    phasesVl->addWidget(phasesTitle);
+    // END PART OF GAPFREE
 
     phasesPidl = new GapfreeProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     phasesVl->addWidget(phasesPidl);
@@ -801,9 +811,19 @@ GapfreeCurrentProtocolEditor::GapfreeCurrentProtocolEditor(MessageDispatcher * m
 }
 
 EpisodicCurrentProtocolEditor::EpisodicCurrentProtocolEditor(MessageDispatcher * msgDisp, ProtocolModel * model, ProtocolWidget * protocolWidget, QString name) :
-    ProtocolEditor(msgDisp, model, protocolWidget, name),
-    CurrentProtocolEditor(),
-    EpisodicProtocolEditor() {
+    CurrentProtocolEditor(msgDisp, model, protocolWidget, name) {
+
+    // INIT PART OF Episodic
+    type = "Episodic";
+
+    /*! Phases */
+    phasesVl = new QVBoxLayout;
+    editorHl->insertLayout(PTE_PHASES_COLUMN_IDX, phasesVl);
+
+    QLabel * phasesTitle = new QLabel("Sweeps items");
+    phasesTitle->setFont(titlesFont);
+    phasesVl->addWidget(phasesTitle);
+    // End PART OF Episodic
 
     phasesPidl = new EpisodicProtocolItemDropList(msgDisp, holdEdit, e384CommLib::ClampingModality_t::CURRENT_CLAMP );
     phasesVl->addWidget(phasesPidl);
