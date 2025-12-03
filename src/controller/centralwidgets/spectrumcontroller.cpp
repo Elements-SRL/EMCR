@@ -17,9 +17,9 @@ SpectrumController::SpectrumController(
 
     std::map<QwtPlot::Axis, AxisInfo> m;
     //TODO lrossi correctly initialize these with filo
-    m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange(), std::nullopt, true, false, "^2/Hz"};
-    m[QwtPlot::Axis::yRight] = {appStatus->getVoltageRange(), std::nullopt, true, false, "rms"};
-    m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::make_optional(0.0)};
+    m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange(), std::make_optional(0.0), true, false, "^2/Hz"};
+    m[QwtPlot::Axis::yRight] = {appStatus->getVoltageRange(), std::make_optional(0.0), true, false, "rms"};
+    m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::make_optional(0.0), true, false, "Hz"};
 
     pc = std::make_unique<PlotController>(m, mainWindow);
 

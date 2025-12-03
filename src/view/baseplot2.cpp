@@ -14,6 +14,7 @@
 #include <qwt_text_label.h>
 #include <QString>
 #include <string>
+#include <qwt_scale_engine.h>
 
 QwtTextLabel* makeQwtTextLabel(const std::string &str) {
     // Create a new QwtTextLabel
@@ -76,12 +77,15 @@ BasePlot2::BasePlot2(std::shared_ptr<PlotModel> pm, QWidget *parent)
 
     for (auto axis: pm->getActiveAxes()) {
         this->enableAxis(axis);
+        if (pm->isAxisLog(axis)) {
+            setAxisScaleEngine(axis, new QwtLogScaleEngine());
+        }
     }
 
     for (auto l : pm->getUnitLabes()) {
         // create label
         labels[l.first] = createTextLabel(l.second, l.first);
-    }
+    }   
     handleLabelsPosition();
 }
 

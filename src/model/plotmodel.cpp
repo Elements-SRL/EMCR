@@ -22,6 +22,15 @@ PlotModel::PlotModel(std::map<QwtPlot::Axis, AxisInfo> axisInfos) {
     // todo in the plot loop over the plot model enabled axis to enable them
 }
 
+bool PlotModel::isAxisLog(QwtPlot::Axis ax) {
+    for (auto &t: axisInfo) {
+        if (t.first == ax){
+            return t.second.log;
+        }
+    }
+    return false;
+}
+
 void PlotModel::setRangedMeasurement(QwtPlot::Axis axis, e384CommLib::RangedMeasurement_t range) {
     axisInfo[axis].setRange(range);
     zoom = std::make_unique<Zoom>(buildRect(axisInfo));

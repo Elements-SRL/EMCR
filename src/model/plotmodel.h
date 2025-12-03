@@ -34,6 +34,7 @@ public:
     bool isAxisEnabled(QwtPlot::Axis);
     std::vector <QwtPlot::Axis> getActiveAxes();
     e384CommLib::RangedMeasurement_t getAxisRangedMeasurement(QwtPlot::Axis);
+    bool isAxisLog(QwtPlot::Axis);
 
 public slots:
     // virtual void onAxisChanged(QwtPlot::Axis, e384CommLib::RangedMeasurement_t) = 0;
