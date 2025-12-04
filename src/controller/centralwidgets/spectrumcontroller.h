@@ -47,6 +47,7 @@ public slots:
     void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;
     void onExportSpectrum();
+    void onSamplingRateChanged(Measurement sr) override;
 
 signals:
     void sigLabelsOverride(std::map<QwtPlot::Axis, std::string> newLabels);

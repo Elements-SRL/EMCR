@@ -17,9 +17,19 @@ SpectrumController::SpectrumController(
 
     std::map<QwtPlot::Axis, AxisInfo> m;
     //TODO lrossi correctly initialize these with filo
-    m[QwtPlot::Axis::yLeft] = {appStatus->getCurretRange(), std::make_optional(0.0), true, false, "^2/Hz"};
-    m[QwtPlot::Axis::yRight] = {appStatus->getVoltageRange(), std::make_optional(0.0), true, false, "rms"};
-    m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::make_optional(0.0), true, false, "Hz"};
+    auto crPsd = appStatus->getCurretRange();
+    crPsd.max /= 10;
+    crPsd.min = crPsd.max * 10e-15;
+    crPsd.unit = crPsd.unit.append("^2/Hz");
+
+    // min = max/ 10^15
+    auto crRms = appStatus->getCurretRange();
+    crRms.min = 0;
+    crRms.max /= 100;
+
+    m[QwtPlot::Axis::yLeft] = {crPsd, std::nullopt, true };
+    m[QwtPlot::Axis::yRight] = {crRms, std::nullopt, true };
+    m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::make_optional(100.0), true, false, "Hz"};
 
     pc = std::make_unique<PlotController>(m, mainWindow);
 
@@ -234,5 +244,20 @@ void SpectrumController::saveToCSV(const QString& originalFilePath, const Spectr
             out << data.frequencyValues[row] << "," << data.psdValues[i][row] << "," << data.irmsValues[i][row] << "\n";
         }
         file.close();
+    }
+}
+
+void SpectrumController::onSamplingRateChanged(Measurement sr) {
+    CentralWidgetController::onSamplingRateChanged(sr);
+    auto max = sr.value / 2;
+    RangedMeasurement_t r = {max / 10000, max, 1.0, sr.prefix};
+    auto wasRunning = consumer->isRunning();
+    if (wasRunning) {
+        stop();
+        pc->setRangedMeasurement(QwtPlot::Axis::xBottom, r);
+        start();
+    }
+    else {
+        pc->setRangedMeasurement(QwtPlot::Axis::xBottom, r);
     }
 }

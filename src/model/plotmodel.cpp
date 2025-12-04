@@ -34,6 +34,7 @@ bool PlotModel::isAxisLog(QwtPlot::Axis ax) {
 void PlotModel::setRangedMeasurement(QwtPlot::Axis axis, e384CommLib::RangedMeasurement_t range) {
     axisInfo[axis].setRange(range);
     zoom = std::make_unique<Zoom>(buildRect(axisInfo));
+    // by removing this there is no zoom
     connect(zoom.get(), &Zoom::sigZoomChanged, this, &PlotModel::sigReplot, Qt::QueuedConnection);
     emit sigReplot();
     // todo in the plot loop over the plot model enabled axis to enable them

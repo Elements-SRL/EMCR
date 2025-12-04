@@ -17,7 +17,6 @@ PlotController::PlotController(std::map<QwtPlot::Axis, AxisInfo> ai, QWidget *pa
     connect(pm.get(), &PlotModel::sigReplot, this, &PlotController::sigPlotUpdated);
 
     connect(this, &PlotController::sigAutoZoom, bp, &BasePlot2::onAutoZoom, Qt::QueuedConnection);
-    connect(this, &PlotController::sigAutoZoom, bp, &BasePlot2::onAutoZoom, Qt::QueuedConnection);
     connect(this, &PlotController::sigLabelsOverride, bp, &BasePlot2::onLabelsOverride, Qt::QueuedConnection);
 }
 
