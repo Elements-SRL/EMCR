@@ -24,8 +24,8 @@ SpectrumController::SpectrumController(
 
     // min = max/ 10^15
     auto crRms = appStatus->getCurretRange();
-    crRms.min = 0;
     crRms.max /= 100;
+    crRms.min = crRms.max/1000;
 
     m[QwtPlot::Axis::yLeft] = {crPsd, std::nullopt, true };
     m[QwtPlot::Axis::yRight] = {crRms, std::nullopt, true };

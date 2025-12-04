@@ -228,12 +228,19 @@ void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mou
 void PlotModel::onSingleAxisShift(QwtPlot::Axis ax, int shiftFactor) {
     auto currentZoom = zoom->peek();
     auto fm = axisInfo[ax].fixedMinimum;
+    auto logFlag =  isAxisLog(ax);
     const auto interval = currentZoom[ax];
-    const auto min = fm.value_or(interval.minValue());
-    const auto max = interval.maxValue();
+    const auto tmpMin = fm.value_or(interval.minValue());
+    const auto min = logFlag ? log10(tmpMin) : tmpMin;
+    const auto max = logFlag ? log10(interval.maxValue()) : interval.maxValue();
     const auto shift = (double) shiftFactor/10000*(max-min);
-    auto newMin = fm.value_or(min - shift);
+    // auto newMin = fm.value_or(min - shift);
+    auto newMin = min - shift;
     auto newMax = max - shift;
+    if (logFlag) {
+        newMin = pow(10, newMin);
+        newMax = pow(10, newMax);
+    }
     currentZoom[ax].setInterval(newMin, newMax);
     zoom->push(currentZoom);
 }
