@@ -29,7 +29,7 @@ SpectrumController::SpectrumController(
 
     m[QwtPlot::Axis::yLeft] = {crPsd, std::nullopt, true };
     m[QwtPlot::Axis::yRight] = {crRms, std::nullopt, true };
-    m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::make_optional(100.0), true, false, "Hz"};
+    m[QwtPlot::Axis::xBottom] = {defaultPlotBandwidth, std::nullopt, true };
 
     pc = std::make_unique<PlotController>(m, mainWindow);
 
