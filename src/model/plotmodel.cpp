@@ -191,12 +191,17 @@ bool PlotModel::isAxisEnabled(QwtPlot::Axis a) {
 void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mousePosition) {
     auto currentZoom = zoom->peek();
     auto fm = axisInfo[ax].fixedMinimum;
+    auto logFlag = isAxisLog(ax);
     const auto interval = currentZoom[ax];
     // suppose that linear stuff all start at zero
     bool zeroLockFlag = ax == QwtPlot::xBottom;
 
-    const auto min = interval.minValue();
-    const auto max = interval.maxValue();
+    auto min = interval.minValue();
+    auto max = interval.maxValue();
+    if (logFlag) {
+        min = log10(min);
+        max = log10(max);
+    }
     const auto zoom = (double) zoomInFactor / 100;
     const auto divisor = (zoom > 0 ? zoom: -1 / zoom);
 
@@ -208,19 +213,24 @@ void PlotModel::onSingleAxisZoom(QwtPlot::Axis ax, int zoomInFactor, QPointF mou
 
     } else if (ax == QwtPlot::Axis::yLeft || ax == QwtPlot::Axis::yRight) {
         // zoom only around the cursor
-        const auto y = mousePosition.y();
+        const auto mousePos = mousePosition.y();
+        const auto y = logFlag ? log10(mousePos) : mousePos;
         newMin = y - ((y - min) / divisor);
         newMax = y + ((max - y) / divisor);
-
     } else if (ax == QwtPlot::xBottom) {
         // zoom only around the cursor
-        const auto x = mousePosition.x();
+        const auto mousePos = mousePosition.x();
+        const auto x = logFlag ? log10(mousePos) : mousePos;
         newMin = x - ((x - min) / divisor);
         // if minimum is fixed use fixed minimum
         newMin = fm.value_or(min - newMin);
         newMax = x + ((max - x) / divisor);
     }
-
+    //come back to the linear domain
+    if (logFlag) {
+        newMin = pow(10, newMin);
+        newMax = pow(10, newMax);
+    }
     currentZoom[ax].setInterval(newMin, newMax);
     this->zoom->push(currentZoom);
 }
