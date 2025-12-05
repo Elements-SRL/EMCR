@@ -27,7 +27,6 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/controller/bigplotviewcontroller.cpp \
     src/controller/debugcontroller.cpp \
     src/controller/device/consumer/analysisconsumer.cpp \
     src/controller/device/consumer/ccresistanceestimationconsumer.cpp \
@@ -36,7 +35,6 @@ SOURCES += \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
     src/controller/device/consumer/squarecurrentbasedanalysisconsumer.cpp \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
-    src/controller/durationbasedbigplotviewcontroller.cpp \
     src/controller/plotcontroller.cpp \
     src/controller/plotdetailcontroller.cpp \
     src/controller/temperaturecontroller.cpp \
@@ -122,7 +120,6 @@ SOURCES += \
     src/view/nowheelspinbox.cpp \
     src/view/plotdetail.cpp \
     src/view/plotpreferencesdialog.cpp \
-    src/view/centralwidgets/bigplot.cpp \
     src/view/centralwidgets/bigplotwidget.cpp \
     src/view/centralwidgets/gapfreewidget.cpp \
     src/view/centralwidgets/episodicwidget.cpp \
@@ -163,7 +160,6 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
-    src/controller/bigplotviewcontroller.h \
     src/controller/debugcontroller.h \
     src/controller/device/consumer/analysisconsumer.h \
     src/controller/device/consumer/ccresistanceestimationconsumer.h \
@@ -172,7 +168,6 @@ HEADERS += \
     src/controller/device/consumer/resistanceestimationconsumer.h \
     src/controller/device/consumer/squarecurrentbasedanalysisconsumer.h \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
-    src/controller/durationbasedbigplotviewcontroller.h \
     src/controller/plotcontroller.h \
     src/controller/plotdetailcontroller.h \
     src/controller/temperaturecontroller.h \
@@ -277,7 +272,6 @@ HEADERS += \
     src/view/nowheelspinbox.h \
     src/view/plotdetail.h \
     src/view/plotpreferencesdialog.h \
-    src/view/centralwidgets/bigplot.h \
     src/view/centralwidgets/bigplotwidget.h \
     src/view/centralwidgets/gapfreewidget.h \
     src/view/centralwidgets/episodicwidget.h \
