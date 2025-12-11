@@ -23,6 +23,10 @@ AboutDialog::AboutDialog(QWidget* parent) :
     websiteLbl->setAlignment(Qt::AlignCenter);
     mainVl->addWidget(websiteLbl);
 
+    QLabel * poweredLbl = new QLabel("Powered by Qt www.qt.io");
+    poweredLbl->setAlignment(Qt::AlignCenter);
+    mainVl->addWidget(poweredLbl);
+
     this->addDefaultButtonBox();
 
     this->centerOnParent(parent);
