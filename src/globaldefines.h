@@ -48,7 +48,9 @@
 #define DEBUG_FILE_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "_debug.pls")
 
 /*! Utility to debug by printf */
+#ifndef GLB_HERE
 #define GLB_HERE { qDebug()<<__FILE__<<__LINE__; }
+#endif
 
 inline bool debugControlsEnabled() {
     static std::optional <bool> cachedResult;

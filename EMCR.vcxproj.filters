@@ -421,6 +421,12 @@
     <ClCompile Include="src\model\channelstate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\ccresistanceestimationconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\device\consumer\squarecurrentbasedanalysisconsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\controller\device\consumer\abfdatawriterconsumer.h">
@@ -1099,6 +1105,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\model\channelstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\controller\device\consumer\ccresistanceestimationconsumer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\controller\device\consumer\squarecurrentbasedanalysisconsumer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
