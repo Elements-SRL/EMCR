@@ -26,8 +26,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
 
     std::vector <RangedMeasurement_t> vcCurrentRanges;
-    uint16_t vcCurrentRangeDefaultIdx;
-    msgDisp->getVCCurrentRanges(vcCurrentRanges, vcCurrentRangeDefaultIdx);
+    std::vector <uint16_t> vcCurrentRangeDefaultIdxs;
+    msgDisp->getVCCurrentRanges(vcCurrentRanges, vcCurrentRangeDefaultIdxs);
     bool independentVcCurrentRanges = (msgDisp->hasIndependentVCCurrentRanges() == Success ? true : false);
 
     std::vector <RangedMeasurement_t> vcVoltageRanges;
@@ -79,7 +79,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     vcCurrentRangesSections.clear();
     if (independentVcCurrentRanges) {
         for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
-            vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE + QString(" ch %1").arg(chIdx+1).toStdString(), vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdx));
+            vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE + QString(" ch %1").arg(chIdx+1).toStdString(), vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdxs[chIdx]));
             for (int i = 0; i < vcCurrentRangesRadioButtons[chIdx].size(); i++) {
                 connect(vcCurrentRangesRadioButtons[chIdx][i], &QRadioButton::clicked, this, [=] (bool flag) {
                     if (flag) {
@@ -90,7 +90,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         }
     }
     else {
-        vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdx));
+        vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdxs[0]));
         for (int i = 0; i < vcCurrentRangesRadioButtons[0].size(); i++) {
             connect(vcCurrentRangesRadioButtons[0][i], &QRadioButton::clicked, this, [=] (bool flag) {
                 if (flag) {
