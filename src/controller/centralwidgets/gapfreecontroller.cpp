@@ -187,7 +187,6 @@ std::vector <DeviceDataConsumer*> GapFreeController::getConsumers() {
 
 void GapFreeController::onRecordingRequest(bool flag) {
     if (flag) {
-        auto msgDisp = appStatus->getMessageDispatcher();
         auto selectedChannels = appStatus->getSelectedChannelsIndexes();
 
         if (!(selectedChannels.empty())) {

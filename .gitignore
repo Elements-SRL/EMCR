@@ -50,3 +50,4 @@ mocinclude.opt
 
 *.h5
 build/
+.qtcreator/
