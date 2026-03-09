@@ -274,7 +274,8 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
         break;
 
     case ErrorDeviceTypeNotRecognized:
-        info = "Check the device info in \"?\" menu and\n"
+        info = "Try to connect again. If the problem persists\n"
+               "check the device info in \"?\" menu and\n"
                "contact support@elements-ic.com to know\n"
                "which software you should use with your device.";
         break;
