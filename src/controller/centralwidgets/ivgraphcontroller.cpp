@@ -16,7 +16,10 @@ IvGraphController::IvGraphController(ApplicationStatus* appStatus, DeviceDataPro
     // creating curves for iv
     for (int i = 0; i < currentChannelsNum; i++) {
         currentCurves.push_back(new Curve(CurveType_t::CurveTypeScatterPlot));
+        fitCurves.push_back(new Curve(CurveType_t::CurveTypePlotSolid));
     }
+    fitCurrentValues.resize(currentChannelsNum);
+    fitVoltageValues.resize(currentChannelsNum);
 
     // is this really necessary?
     // connect(bigPlotController, &BigPlotController::durationChanged, consumer, &PlotConsumer::onDurationChanged);
@@ -44,6 +47,7 @@ IvGraphController::~IvGraphController() {
         ivGraphWidget = nullptr;
     }
     currentCurves.clear();
+    fitCurves.clear();
 }
 
 void IvGraphController::onExportIvGraph() {
@@ -104,7 +108,7 @@ void IvGraphController::saveToCSV(const QString& originalFilePath, const IvMessa
 }
 
 void IvGraphController::onCalcMeanSquared() {
-    std::map<std::uint32_t, std::vector<Measurement>> myMap;
+    std::map <std::uint32_t, std::vector <Measurement>> myMap;
     RangedMeasurement vRange;
     RangedMeasurement iRange;
     appStatus->getMessageDispatcher()->getVoltageRange(vRange);
@@ -112,15 +116,25 @@ void IvGraphController::onCalcMeanSquared() {
     auto vUnitPfx = vRange.prefix;
     auto iUnitPfx = iRange.prefix;
 
-    auto selectedChannels = appStatus->getSelectedChannels();
-    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+    auto selectedChannels = appStatus->getSelectedChannelsIndexes();
+
+    auto rect = bpvc->getPlot()->getRect();
+    double xm = rect[QwtPlot::xBottom].minValue();
+    double xM = rect[QwtPlot::xBottom].maxValue();
+    double ym = rect[QwtPlot::yLeft].minValue();
+    double yM = rect[QwtPlot::yLeft].maxValue();
+    double quadBisec = (yM-ym)/(xM-xm);
+
+    for (auto chIdx : selectedChannels) {
         const auto nItems = message.dataSize[chIdx];
-        const auto currentData = message.currentValues[chIdx];
-        const auto voltageData = message.voltageValues[chIdx];
-        // calc regression only for active channels
-        if (!selectedChannels[chIdx] || nItems == 0) {
+        if (nItems == 0) {
             continue;
         }
+        const auto currentData = message.currentValues[chIdx];
+        const auto voltageData = message.voltageValues[chIdx];
+        fitVoltageValues[chIdx].resize(2);
+        fitCurrentValues[chIdx].resize(2);
+
         double xSum = 0.0;
         double ySum = 0.0;
 
@@ -144,11 +158,25 @@ void IvGraphController::onCalcMeanSquared() {
         const auto a = meanY - (b * meanX);
 
         const Measurement conductance = { b, iUnitPfx / vUnitPfx, "S" };
-        const Measurement resistance = { ((double)1) / conductance.value, UnitPfx::UnitPfxNone / conductance.prefix, "Ohm" };
-        const Measurement invPot = { ((0.0 - a) / b), vUnitPfx, "V" };
+        const Measurement resistance = { 1.0 / conductance.value, UnitPfx::UnitPfxNone / conductance.prefix, "Ohm" };
+        const Measurement invPot = { (-a / b), vUnitPfx, "V" };
         const Measurement iOffset = { a, iUnitPfx, "A" };
 
-        std::vector<Measurement> vals = { conductance, resistance, invPot, iOffset };
+        if (conductance.value > quadBisec) {
+            fitCurrentValues[chIdx][0] = ym;
+            fitCurrentValues[chIdx][1] = yM;
+            fitVoltageValues[chIdx][0] = invPot.value+resistance.value*ym;
+            fitVoltageValues[chIdx][1] = invPot.value+resistance.value*yM;
+        }
+        else {
+            fitVoltageValues[chIdx][0] = xm;
+            fitVoltageValues[chIdx][1] = xM;
+            fitCurrentValues[chIdx][0] = iOffset.value+conductance.value*xm;
+            fitCurrentValues[chIdx][1] = iOffset.value+conductance.value*xM;
+        }
+        fitCurves[chIdx]->setSamples(fitVoltageValues[chIdx], fitCurrentValues[chIdx]);
+
+        std::vector <Measurement> vals = { conductance, resistance, invPot, iOffset };
         myMap.insert(std::make_pair(chIdx, vals));
     }
     ivGraphWidget->setParams(myMap);
@@ -187,6 +215,7 @@ void IvGraphController::detachCurves(const std::vector <uint16_t>& channelIndexe
     auto plot = bpvc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->detach();
+        fitCurves[ch]->detach();
     }
     plot->replot();
 }
@@ -195,6 +224,7 @@ void IvGraphController::attachCurves(const std::vector <uint16_t>& channelIndexe
     auto plot = bpvc->getPlot();
     for (auto ch : channelIndexes) {
         currentCurves[ch]->attach(plot);
+        fitCurves[ch]->attach(plot);
     }
     plot->replot();
 }
@@ -206,11 +236,13 @@ IvGraphWidget* IvGraphController::getIvGraphWidget() {
 void IvGraphController::onCurrentColorsChanged(QVector <QColor> colors) {
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentCurves[idx]->setColor(colors[idx]);
+        fitCurves[idx]->setColor(colors[idx]);
     }
 }
 
 void IvGraphController::onCurrentColorChanged(int channelIdx, QColor color) {
     currentCurves[channelIdx]->setColor(color);
+    fitCurves[channelIdx]->setColor(color);
 }
 
 void IvGraphController::onBackgroundColorChanged(QColor color) {
@@ -241,6 +273,9 @@ void IvGraphController::onRangeUpdated(commlib::RangedMeasurement_t newRange) {
     else if (newRange.unit == "A") {
         axisIdx = QwtPlot::yLeft;
     }
+    else {
+        return;
+    }
     model->setCurrentRange(axisIdx, newRange);
     plot->setRect(model->getZoom(BigPlotModel::Zoom::Current));
     plot->setLabel(QString::fromStdString(model->getCurrentRange(axisIdx).getFullUnit()), axisIdx);
@@ -268,7 +303,7 @@ void IvGraphController::onSetPlotData(PlotMessage plotmessage) {
     appStatus->getMessageDispatcher()->getVCVoltageRange(v);
     appStatus->getMessageDispatcher()->getVCCurrentRange(i);
     plot->setRect(model->initRect(v.min, v.max, i.min, i.max));
-    message = std::get<BigPlot::BigPlotStatus::Iv>(plotmessage);
+    message = std::get <BigPlot::BigPlotStatus::Iv>(plotmessage);
     if (message.currentValues.size() == 0 || message.voltageValues.size() == 0 || message.dataSize.size() == 0) {
         return;
     }

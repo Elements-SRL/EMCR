@@ -13,6 +13,8 @@
 #include "bigplotviewcontroller.h"
 #include <memory>
 
+namespace e384cl = e384CommLib;
+
 class IvGraphController : public CentralWidgetController {
     Q_OBJECT
 
@@ -32,19 +34,22 @@ private:
     IvGraphConsumer * consumer = nullptr;
     // BigPlot * plot = nullptr;
     std::vector <Curve *> currentCurves;
+    std::vector <Curve *> fitCurves;
     IvGraphWidget * ivGraphWidget = nullptr;
     MainWindow * mainWindow = nullptr;
     IvMessage message;
+    std::vector <QVector <double>> fitVoltageValues;
+    std::vector <QVector <double>> fitCurrentValues;
     void saveToCSV(const QString& filePath, const IvMessage& data);
 
     void detachCurves(const std::vector <uint16_t>& channelIndexes) override;
     void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
 
 signals:
-    void durationChanged(Measurement_t duration);
+    void durationChanged(e384cl::Measurement_t duration);
 
 public slots:
-    void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
+    void onRangeUpdated(e384cl::RangedMeasurement_t newRange) override;
     void onCurrentColorsChanged(QVector <QColor> colors) override;
     void onCurrentColorChanged(int channelIdx, QColor color) override;
     void onBackgroundColorChanged(QColor color) override;

@@ -8,9 +8,18 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.major = VERSION_MAJOR;
         version.minor = VERSION_MINOR;
         version.patch = VERSION_PATCH;
+        version.sections[NewFeatures] << "Linear fit lines drawn on top of I/V graphs";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
+        version.minor = 24;
+        version.patch = 16;
         version.sections[NewFeatures] << "Compatibility with new devices";
         version.sections[NewFeatures] << "Current tracking";
         version.sections[Gui] << "UI theme changed";
+        version.sections[BugFixes] << "Made offset recalibration more robust in presence of high noise";
         version.sections[BugFixes] << "Fixed sinusoidal protocol in e192";
         version.sections[BugFixes] << "Fixed zap not being applied";
         version.sections[BugFixes] << "Fixed crash when a corrupted protocol file is loaded on startup";
