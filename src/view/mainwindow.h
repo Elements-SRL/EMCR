@@ -73,6 +73,7 @@ public slots:
     void onNeedToChangeModelCellMsg(QString msg);
     void onBoardMappingPressed();
     void onBitRateComputed(double bitRate);
+    void onOnTimeRead(Measurement_t onTime);
 
 private:
     typedef enum {
@@ -112,6 +113,7 @@ private:
     QAction * actionReleaseNotes = nullptr;
 
     QLabel * SRLbl = nullptr;
+    QLabel * onTimeLbl = nullptr;
 
     BigPlotWidget * bigPlotW = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;

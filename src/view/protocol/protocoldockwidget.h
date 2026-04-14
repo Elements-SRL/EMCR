@@ -60,6 +60,7 @@ signals:
     void startProtocol();
     void restartProtocol();
     void stopProtocol();
+    void sigRecordRequest();
 };
 
 #endif // PROTOCOLDOCKWIDGET_H

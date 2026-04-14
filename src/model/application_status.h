@@ -31,6 +31,7 @@ public:
     int getCurrentChannelsNum();
     int getBoardsNum();
     int getTemperatureChannelsNum();
+    RangedMeasurement_t getOnTimeRange();
 
     std::vector <ChannelModel *> getChannels();
     void setSelectedChannels(std::map<int, bool>);

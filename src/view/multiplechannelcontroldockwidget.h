@@ -51,10 +51,6 @@ private:
     QPushButton * reduceTraceBtn = nullptr;
     QPushButton * expandTraceAutoBtn = nullptr;
     QPushButton * plotDetailAutoBtn = nullptr;
-    QPushButton * recordingStartBtn = nullptr;
-    QPushButton * recordingStopBtn = nullptr;
-    QLineEdit * fileNameLineEdit = nullptr;
-    QLineEdit * recordPathLineEdit = nullptr;
     QGroupBox * zapGb = nullptr;
 
 signals:

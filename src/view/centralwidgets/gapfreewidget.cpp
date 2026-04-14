@@ -50,7 +50,6 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
         emitFileName();
         emitFilePath();
         emit sigStartRecording();
-        //     &MultipleChannelControlDockWidget::sigStartRecording
     });
     qhBoxLayout->addWidget(recordingStartBtn);
     recordingStopBtn = new QPushButton("STOP");

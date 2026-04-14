@@ -273,6 +273,7 @@ void MainController::onMainWindowCreated() {
             protocolDw->getCurrentProtocolList()->onStopProtocol();
             deviceController->handleProtocolStatusChanged(false);
         });
+        connect(protocolDw, &ProtocolDockWidget::sigRecordRequest, bigPlotController, &BigPlotController::onRecordRequest);
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
         connect(protocolDw->getVoltageProtocolList(), &ProtocolList::increaseProtocolId,   currentProtocolManager, &ProtocolManager::onIncreaseProtocolId);
         connect(protocolDw->getAnalysisVoltageProtocolList(), &ProtocolList::startProtocolRequest, voltageProtocolManager, &ProtocolManager::onStartProtocolRequest);
@@ -293,6 +294,7 @@ void MainController::onMainWindowCreated() {
         connect(deviceDataProducer, &DeviceDataProducer::sigTemperatureRead, temperatureController, &TemperatureController::onTemperatureRead);
     }
     connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, mainWindow, &MainWindow::onBitRateComputed);
+    connect(deviceDataProducer, &DeviceDataProducer::sigOnTimeRead, mainWindow, &MainWindow::onOnTimeRead);
 
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};

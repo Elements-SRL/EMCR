@@ -290,7 +290,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
 
     QShortcut * sh;
     QKeyCombination startKeyOffset = Qt::ControlModifier | Qt::Key_0;
-//    int recordKeyOffset = Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_0;
+    QKeyCombination recordKeyOffset = Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_0;
     for (int keyIdx = 0; keyIdx < 10; keyIdx++) {
         sh = new QShortcut(QKeySequence(startKeyOffset | keyIdx), parent);
         connect(sh, &QShortcut::activated, this, [=] () {
@@ -301,12 +301,15 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
         });
         shortcuts.append(sh);
 
-//        sh = new QShortcut(QKeySequence(recordKeyOffset+keyIdx), this);
-//        connect(sh, &QShortcut::activated, this, [=] () {
-//            voltageProtocolList->recordProtocol(keyIdx);
-//            currentProtocolList->recordProtocol(keyIdx);
-//        });
-//        shortcuts.append(sh);
+        sh = new QShortcut(QKeySequence(recordKeyOffset+keyIdx), this);
+        connect(sh, &QShortcut::activated, this, [=] () {
+            voltageProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            analysisVoltageProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            currentProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            analysisCurrentProtocolList->startProtocolFromShortCutIndex(keyIdx);
+            emit sigRecordRequest();
+        });
+        shortcuts.append(sh);
     }
 }
 

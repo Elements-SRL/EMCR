@@ -59,6 +59,15 @@ int ApplicationStatus::getTemperatureChannelsNum(){
     return names.size();
 };
 
+RangedMeasurement_t ApplicationStatus::getOnTimeRange() {
+    RangedMeasurement_t range;
+
+    if (msgDisp->getOnTimeFeatures(range) != Success) {
+        return {0.0, 0.0, 1.0, UnitPfxNone, ""};
+    }
+    return range;
+}
+
 std::vector <ChannelModel *> ApplicationStatus::getChannels(){
     std::vector <ChannelModel *> channels;
     msgDisp->getChannels(channels);

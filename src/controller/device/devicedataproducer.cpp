@@ -48,6 +48,8 @@ DeviceDataProducer::DeviceDataProducer(ApplicationStatus * appStatus, QObject * 
         std::fill(temperatureValues.begin(), temperatureValues.end(), zeroDegrees);
     }
 
+    onTimeValue = appStatus->getOnTimeRange().getMin();
+
     dataPacketsBufferLen = 1U << (unsigned int)qFloor(log2((double)DDP_MAX_SAMPLES_FOR_BUFFER/(double)totalChannelsNum));
     dataPacketsBufferMask = dataPacketsBufferLen-1U;
 
@@ -194,7 +196,7 @@ void DeviceDataProducer::run() {
                 dataLock.unlock();
                 break;
 
-            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature:
+            case MsgDirectionDeviceToPc+MsgTypeIdTemperature:
                 for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
                     msgDisp->convertTemperatureValues(datain+wordsIdx, temperatureValuesDbl);
                     for (chIdx = 0; chIdx < temperatureChannelsNum; chIdx++) {
@@ -203,6 +205,13 @@ void DeviceDataProducer::run() {
                 }
 
                 emit sigTemperatureRead(temperatureValues);
+                break;
+
+            case MsgDirectionDeviceToPc+MsgTypeIdOnTime:
+                msgDisp->convertOnTimeValue(datain, onTimeValueDbl);
+                onTimeValue.value = onTimeValueDbl[0];
+
+                emit sigOnTimeRead(onTimeValue);
                 break;
             }
         }

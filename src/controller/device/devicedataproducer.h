@@ -124,6 +124,9 @@ private:
     double * temperatureValuesDbl;
     std::vector <Measurement_t> temperatureValues;
 
+    double onTimeValueDbl[1];
+    Measurement_t onTimeValue;
+
     unsigned int currentProtIdx = 0;
     unsigned int nextItemIdx = 0;
 
@@ -151,6 +154,7 @@ signals:
     void disconnectDevice();
     void resetDevice();
     void sigTemperatureRead(std::vector <Measurement_t> temperatureValues);
+    void sigOnTimeRead(Measurement_t onTimeValue);
 };
 
 #endif // DEVICEDATAPRODUCER_H

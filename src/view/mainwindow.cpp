@@ -160,8 +160,14 @@ MainWindow::MainWindow(QWidget * parent) :
     connectionInfoLbl = new QLabel("");
     deviceDetectorHl->addWidget(connectionInfoLbl);
 
+    QVBoxLayout * rareVl = new QVBoxLayout;
+    deviceDetectorHl->addLayout(rareVl);
+
     SRLbl = new QLabel;
-    deviceDetectorHl->addWidget(SRLbl);
+    rareVl->addWidget(SRLbl);
+
+    onTimeLbl = new QLabel;
+    rareVl->addWidget(onTimeLbl);
 
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -359,6 +365,7 @@ void MainWindow::destroyGuiControls() {
     this->takeCentralWidget();
 
     SRLbl->setText("");
+    onTimeLbl->setText("");
 
 //    for (int shortcutIdx = 0; shortcutIdx < shortcuts.size(); shortcutIdx++) {
 //        if (shortcuts[shortcutIdx] != nullptr) {
@@ -451,6 +458,10 @@ void MainWindow::onBitRateComputed(double value) {
     else {
         SRLbl->setText(QString("%1 ksps").arg(value/1.0e3));
     }
+}
+
+void MainWindow::onOnTimeRead(Measurement_t onTime) {
+    onTimeLbl->setText(QString::fromStdString(onTime.label(15)));
 }
 
 void MainWindow::onOpenDialog(Dialogs_t type) {

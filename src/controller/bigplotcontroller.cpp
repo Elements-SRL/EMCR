@@ -113,6 +113,10 @@ void BigPlotController::onExpandTrace(bool flag) {
     }
 }
 
+void BigPlotController::onRecordRequest() {
+    static_cast <GapFreeController *> (controllers[BigPlot::GapFree])->onRecordingRequest(true);
+}
+
 std::vector <PlotConsumer*> BigPlotController::getConsumers() {
     std::vector <PlotConsumer*> consumers;
     for (const auto& [k, v] : controllers) {

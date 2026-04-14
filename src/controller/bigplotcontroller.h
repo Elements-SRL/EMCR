@@ -28,6 +28,7 @@ public slots:
     void onExpandTrace(bool);
     void onRangeUpdated(RangedMeasurement_t newRange);
     void onProtocolStarted(unsigned int protId, ProtocolWidget * protocol);
+    void onRecordRequest();
 
 private:
     BigPlot::BigPlotStatus bps;
