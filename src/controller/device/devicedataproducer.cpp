@@ -40,6 +40,8 @@ DeviceDataProducer::DeviceDataProducer(ApplicationStatus * appStatus, QObject * 
     currentChannelsNum = appStatus->getCurrentChannelsNum();
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
+    appStatus->getMessageDispatcher()->enableRxMessageType(MsgTypeIdOnTime, true);
+
     temperatureChannelsNum = appStatus->getTemperatureChannelsNum();
     if (temperatureChannelsNum > 0) {
         temperatureValuesDbl = new double[temperatureChannelsNum];
