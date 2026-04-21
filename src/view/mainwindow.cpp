@@ -168,6 +168,7 @@ MainWindow::MainWindow(QWidget * parent) :
 
     onTimeLbl = new QLabel;
     rareVl->addWidget(onTimeLbl);
+    onTimeLbl->setVisible(false);
 
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -256,8 +257,14 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
     }
 }
 
-void MainWindow::setConnectionLabel(QString text) {
+void MainWindow::setConnectionLabel(QString text, bool errorFlag) {
     connectionInfoLbl->setText(text);
+    if (errorFlag) {
+        connectionInfoLbl->setStyleSheet("color: red; background-color: yellow; font-weight: bold");
+    }
+    else {
+        connectionInfoLbl->setStyleSheet("");
+    }
 }
 
 /********************\
@@ -366,6 +373,7 @@ void MainWindow::destroyGuiControls() {
 
     SRLbl->setText("");
     onTimeLbl->setText("");
+    onTimeLbl->setVisible(false);
 
 //    for (int shortcutIdx = 0; shortcutIdx < shortcuts.size(); shortcutIdx++) {
 //        if (shortcuts[shortcutIdx] != nullptr) {
@@ -461,6 +469,7 @@ void MainWindow::onBitRateComputed(double value) {
 }
 
 void MainWindow::onOnTimeRead(Measurement_t onTime) {
+    onTimeLbl->setVisible(true);
     onTimeLbl->setText(QString::fromStdString(onTime.label(15)));
 }
 

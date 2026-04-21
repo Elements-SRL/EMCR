@@ -59,7 +59,7 @@ public:
     void setDevicesList(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
-    void setConnectionLabel(QString text);
+    void setConnectionLabel(QString text, bool errorFlag = false);
 
     void setBigPlotWidget(BigPlotWidget * widget);
     void setDockWidget(DockWidgets_t type, QDockWidget * widget, bool floatingFlag = true, Qt::DockWidgetArea area = Qt::RightDockWidgetArea);

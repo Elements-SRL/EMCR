@@ -96,8 +96,8 @@ void MainController::onConnect(bool flag) {
         mainWindow->setConnectionLabel("Connecting, please wait...");
         deviceConnector->setDeviceId(serial);
         deviceConnector->start();
-
-    } else {
+    }
+    else {
         previousVoltageRange.reset();
         previousCurrentRange.reset();
 
@@ -136,6 +136,9 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     if (connectionSuccessful) {
         mainWindow->setConnectionLabel("");
         msgDisp = deviceConnector->getMessageDispatcher();
+        if (msgDisp->getCalibrationStatus() != Success) {
+            mainWindow->setConnectionLabel("Default calibration\nloaded", true);
+        }
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
         msgDisp->getBoardsNumberFeatures(boardsNumber);
         mainWindow->setMessageDispatcher(msgDisp);
@@ -145,9 +148,9 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     if (connectionSuccessful) {
         this->onMainWindowCreated();
         mainWindow->restoreUISettings();
-
-    } else {
-        mainWindow->setConnectionLabel("Connection failed");
+    }
+    else {
+        mainWindow->setConnectionLabel("Connection failed", true);
         emit startDetecting();
     }
 }
