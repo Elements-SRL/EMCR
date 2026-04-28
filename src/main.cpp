@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QStyleFactory>
+#include <QFontDatabase>
 
 #include "maincontroller.h"
 #include "globaldefines.h"
@@ -7,6 +8,23 @@
 #include "plotmessage.h"
 #include "resultwrapper.h"
 #include "eventsdirection.h"
+
+// Custom fonts loader
+void loadFonts() {
+    QFontDatabase::addApplicationFont(":/fonts/Inter.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/InriaSans-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/InriaSans-Bold.ttf");
+}
+
+// Applies a custom QSS style file to the whole app
+void applyCustomStyle(QApplication &app) {
+    QFile file(":/styles/emcr_dark.qss");
+    if(file.open(QFile::ReadOnly)) {
+        QString styleSheet = QLatin1String(file.readAll());
+        app.setStyleSheet(styleSheet);
+        file.close();
+    }
+}
 
 int main(int argc, char *argv[]) {
     QApplication::setDesktopSettingsAware(false);
@@ -34,7 +52,15 @@ int main(int argc, char *argv[]) {
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
     QDir().mkpath(YAML_DEFAULT_FOLDER);
 
-    a.setStyle(QStyleFactory::create("Fusion"));
+    loadFonts();
+
+    QFont defaultFont("Inter");
+    defaultFont.setPixelSize(12);
+    a.setFont(defaultFont);
+
+    // QSS Custom style
+    // TODO - Read preference and load dark/light based on that
+    applyCustomStyle(a);
 
     MainController c;
     return a.exec();

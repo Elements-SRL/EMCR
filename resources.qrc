@@ -52,5 +52,7 @@
         <file>imgs/activation button off.png</file>
         <file>imgs/activation button on.png</file>
         <file>imgs/data monitor.png</file>
+        <file>fonts/Inter.ttc</file>
+        <file>styles/emcr_dark.qss</file>
     </qresource>
 </RCC>
