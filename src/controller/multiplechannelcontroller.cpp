@@ -78,8 +78,8 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
                 multipleChannelControlsDw->enableExpertMode(true);
                 break;
             }
-
-        } else {
+        }
+        else {
             switch (step) {
             case OffsetCorrectionController::CheckingNone:
                 /*! shouldn't happen*/
@@ -301,8 +301,8 @@ void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) 
     if (flag) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
         offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingOffsetRecalibration);
-
-    } else {
+    }
+    else {
         QApplication::restoreOverrideCursor();
     }
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
@@ -310,8 +310,8 @@ void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) 
     ErrorCodes_t err = msgDisp->readoutOffsetRecalibration(selectedChannels, values, true);
     if (err == Success) {
         emit sigOffsetRecalibrationTurnedOnOff(flag);
-
-    } else {
+    }
+    else {
         ErrorManager e(err);
     }
 }

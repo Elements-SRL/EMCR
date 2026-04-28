@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget * parent) :
 
     this->setObjectName("mainWindow");
 
-    this->setWindowTitle(QString(GLB_SOFTWARE_NAME) + " " + GLB_SOFTWARE_VERSION_NUMBER);
+    this->setWindowTitle(GLB_SOFTWARE_NAME + " " + GLB_SOFTWARE_VERSION_NUMBER + " (" + GLB_COMMLIB_NAME + " " + GLB_COMMLIB_VERSION_NUMBER + ")");
 
     this->setCentralWidget(new ElementsLogoWidget);
 

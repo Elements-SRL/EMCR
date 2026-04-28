@@ -18,6 +18,8 @@
 /*! Sw info */
 #define GLB_SOFTWARE_NAME QString("EMCR")
 #define GLB_SOFTWARE_VERSION_NUMBER (QString("%1.%2.%3").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH))
+#define GLB_COMMLIB_NAME QString("e384commlib")
+#define GLB_COMMLIB_VERSION_NUMBER (QString("%1.%2.%3").arg(COMMLIB_MAJOR).arg(COMMLIB_MINOR).arg(COMMLIB_PATCH))
 
 /*! Settings tags */
 #define GLB_PROTOCOL_RECORD_PATH_TAG "Protocol/Settings/recordPath"

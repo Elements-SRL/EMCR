@@ -19,12 +19,18 @@ DEFINES += _MATH_DEFINES_DEFINED
 CONFIG += c++17
 
 include(version.pri)
-
 DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
     "VERSION_MINOR=$$VERSION_MINOR"\
     "VERSION_PATCH=$$VERSION_PATCH"
 
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
+
+include($$(E384COMMLIB_PATH)includecommlib.pri)
+DEFINES += "COMMLIB_MAJOR=$$COMMLIB_MAJOR"\
+    "COMMLIB_MINOR=$$COMMLIB_MINOR"\
+    "COMMLIB_PATCH=$$COMMLIB_PATCH"
+
+COMMLIB_FULL = $${COMMLIB_MAJOR}.$${COMMLIB_MINOR}.$${COMMLIB_PATCH}
 
 SOURCES += \
     src/controller/bigplotviewcontroller.cpp \
@@ -352,7 +358,6 @@ DEPENDPATH += \
 RC_ICONS = imgs/Elements.ico
 ICON = imgs/Elements.ico.icns
 
-include($$(E384COMMLIB_PATH)includecommlib.pri)
 include($$(QWT_PATH)includeqwt.pri)
 include($$(PROTOCOL_SERIALIZER_PATH)includeprotocolserializer.pri)
 include($$(HDF5_PATH)includehdf5.pri)
