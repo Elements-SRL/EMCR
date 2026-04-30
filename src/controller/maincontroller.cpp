@@ -298,6 +298,7 @@ void MainController::onMainWindowCreated() {
     }
     connect(deviceDataProducer, &DeviceDataProducer::bitRateComputed, mainWindow, &MainWindow::onBitRateComputed);
     connect(deviceDataProducer, &DeviceDataProducer::sigOnTimeRead, mainWindow, &MainWindow::onOnTimeRead);
+    connect(deviceDataProducer, &DeviceDataProducer::sigSyncFaults, mainWindow, &MainWindow::onSyncFaults);
 
     chessboardController->onDurationUpdated(defaultPlotDuration);
     RangedMeasurement plotRange = {0, defaultPlotDuration.value, 1, defaultPlotDuration.prefix, defaultPlotDuration.unit};

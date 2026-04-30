@@ -215,6 +215,28 @@ void DeviceDataProducer::run() {
 
                 emit sigOnTimeRead(onTimeValue);
                 break;
+
+            case MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSyncStatus: {
+                int boardsNum = appStatus->getBoardsNum();
+                std::vector <bool> syncFaults(boardsNum, false);
+                int wordIdx = 0;
+                uint16_t word;
+                uint16_t boardRem16;
+                uint16_t mask;
+                for (int boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
+                    boardRem16 = boardIdx % 16;
+                    if (boardRem16 == 0) {
+                        word = (uint16_t)datain[wordIdx++];
+                    }
+                    mask = ((uint16_t)1) << boardRem16;
+                    if ((word & mask) > 0) {
+                        syncFaults[boardIdx] = true;
+                    }
+                }
+
+                emit sigSyncFaults(syncFaults);
+                break;
+            }
             }
         }
         else {

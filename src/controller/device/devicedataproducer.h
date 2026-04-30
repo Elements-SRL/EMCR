@@ -155,6 +155,7 @@ signals:
     void resetDevice();
     void sigTemperatureRead(std::vector <Measurement_t> temperatureValues);
     void sigOnTimeRead(Measurement_t onTimeValue);
+    void sigSyncFaults(std::vector <bool> syncFaults);
 };
 
 #endif // DEVICEDATAPRODUCER_H
