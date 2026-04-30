@@ -61,6 +61,10 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
     emit startDetecting();
 }
 
+void MainController::setSplash(SplashView *s){
+    this->splash = s;
+}
+
 void MainController::onDevicesListChanged(std::vector <std::string> devicesList) {
     this->mainWindow->setDevicesList(devicesList);
     if (devicesList.size() > 0) {

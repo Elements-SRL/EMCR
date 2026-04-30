@@ -54,5 +54,7 @@
         <file>imgs/data monitor.png</file>
         <file>fonts/Inter.ttc</file>
         <file>styles/emcr_dark.qss</file>
+        <file>imgs/EMCR splash background.png</file>
+        <file>imgs/svg/3_dots_bounce.svg</file>
     </qresource>
 </RCC>

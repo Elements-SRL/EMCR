@@ -28,6 +28,7 @@
 #include "temperaturecontroller.h"
 #include "debugcontroller.h"
 #include "plotdetailcontroller.h"
+#include "splashscreen/splashview.h"
 
 class MainController : public QObject {
     Q_OBJECT
@@ -37,6 +38,7 @@ public:
     ~MainController();
 
     void setMainWindow(MainWindow * mainWindow);
+    void setSplash(SplashView *s);
 
 public slots:
     void onDevicesListChanged(std::vector <std::string> devicesList);
@@ -63,6 +65,7 @@ private:
     MessageDispatcher * msgDisp = nullptr;
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
+    SplashView *splash = nullptr;
 
     DeviceDetector * deviceDetector = nullptr;
     QThread deviceDetectorThread;

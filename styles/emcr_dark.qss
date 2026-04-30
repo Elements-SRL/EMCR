@@ -9,12 +9,13 @@ QWidget {
 }
 
 QMainWindow, QDialog {
-    background-color: #29282E; /* Sfondo più scuro per le finestre principali */
+    background-color: #29282E; 
 }
 
 /* --- TEXT DENSITY & FONTS --- */
 
 /* TODO test titoli pannelli */
+
 QLabel#multipleChannelControlsDw {
     color: #888888;
     font-size: 10px;
@@ -291,4 +292,89 @@ QMenuBar:disabled {
 QMenu::item:disabled {
     color: rgba(150, 150, 150);
     background-color: transparent;
+}
+
+
+/* --- SPLASH SCREEN CUSTOMIZATION --- */
+
+
+QWidget#loadingPage,
+QWidget#selectionPage,
+QFrame#SplashContainer > * {
+    background: none;
+}
+
+QLabel#logoLabel{
+    background: none;
+}
+
+QLabel#appNameLbl{
+    background: none;
+    color: white; 
+    font-size: 48px; 
+    font-weight: bold; 
+    font-family: "Inter", sans-serif;
+}
+
+QLabel#appVersionLbl{
+    background: none;
+    color: #717D96; 
+    font-weight: light; 
+    font-size: 12px; 
+    font-family: "Inter", sans-serif;
+}
+
+QLabel#statusLbl{
+    background: none;
+    color: #CBD2E0; 
+    font-size: 12px; 
+    font-weight: semi-bold;
+    font-family: "Inter", sans-serif;
+}
+
+QLabel#copyrightLbl{
+    background: none;
+    color: #717D96; 
+    font-weight: light; 
+    font-size: 11px; 
+    line-height: 15px; 
+    font-family: "Inter", sans-serif;
+}
+
+
+QFrame#SplashContainer {
+    border-image: url(:/imgs/EMCR splash background.png) 0 0 0 0 stretch stretch;
+    border-radius: 15px;       
+}
+
+QComboBox#deviceCombo {
+    background-color: rgba(45, 55, 72, 0.5); 
+    border: 1px solid #3f4e66;
+    border-radius: 6px;
+    padding: 10px 15px;
+    color: #e2e8f0;
+    font-size: 13px;
+    font-style: italic; 
+
+QComboBox#deviceCombo::drop-down {
+    border: none;
+    width: 30px;
+    color: #FFFFFF;
+}
+
+/* Pulsante CONNECT */
+QPushButton#connectBtn {
+    background-color: #2d3748; 
+    color: #cbd5e0;
+    border: 1px solid #4a5568;
+    border-radius: 6px;
+    padding: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+QPushButton#connectBtn:hover {
+    background-color: #4a5568;
+    color: white;
 }

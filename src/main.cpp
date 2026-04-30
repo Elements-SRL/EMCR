@@ -4,6 +4,8 @@
 
 #include "maincontroller.h"
 #include "globaldefines.h"
+#include "qgraphicseffect.h"
+#include "splashscreen/splashview.h"
 #include "statisticsresult.h"
 #include "plotmessage.h"
 #include "resultwrapper.h"
@@ -62,6 +64,12 @@ int main(int argc, char *argv[]) {
     // TODO - Read preference and load dark/light based on that
     applyCustomStyle(a);
 
+    // Splashscreen
+    SplashView *splash = new SplashView();
+    splash->show();
+
     MainController c;
+    c.setSplash(splash);
+
     return a.exec();
 }

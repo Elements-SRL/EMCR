@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui svgwidgets
 TARGET = EMCR
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -145,6 +145,7 @@ SOURCES += \
     src/view/recordsettingsdialog.cpp \
     src/view/rect4.cpp \
     src/view/singlechannelcontroldockwidget.cpp \
+    src/view/splashscreen/splashview.cpp \
     src/view/stampplot.cpp \
     src/view/boardcontroldockwidget.cpp \
     src/view/devicecontroldockwidget.cpp \
@@ -294,6 +295,7 @@ HEADERS += \
     src/view/recordsettingsdialog.h \
     src/view/rect4.h \
     src/view/singlechannelcontroldockwidget.h \
+    src/view/splashscreen/splashview.h \
     src/view/stampplot.h \
     src/view/boardcontroldockwidget.h \
     src/view/devicecontroldockwidget.h \
