@@ -9,6 +9,7 @@
 #include <QGroupBox>
 
 #include "messagedispatcher.h"
+#include "autotoggle.h"
 
 class MultipleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
@@ -31,12 +32,12 @@ private:
 
     QPushButton * switchChannelsOnBtn = nullptr;
     QPushButton * switchChannelsOffBtn = nullptr;
-    QPushButton * switchChannelsAutoBtn = nullptr;
+    AutoToggle * switchChannelsAutoBtn = nullptr;
     QPushButton * calibrationResistorsOnBtn = nullptr;
     QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
-    QPushButton * turnStimulusAutoBtn = nullptr;
+    AutoToggle * turnStimulusAutoBtn = nullptr;
     QPushButton * zapBtn = nullptr;
     QPushButton * offsetCorrectionStartBtn = nullptr;
     QPushButton * offsetCorrectionStopBtn = nullptr;
@@ -49,8 +50,10 @@ private:
     QPushButton * liquidJunctionCompensationResetBtn = nullptr;
     QPushButton * expandTraceBtn = nullptr;
     QPushButton * reduceTraceBtn = nullptr;
-    QPushButton * expandTraceAutoBtn = nullptr;
-    QPushButton * plotDetailAutoBtn = nullptr;
+    AutoToggle * expandTraceAutoBtn = nullptr;
+    AutoToggle * plotDetailAutoBtn = nullptr;
+    QPushButton * expandChannelDetailBtn = nullptr;
+    QPushButton * reduceChannelDetailBtn = nullptr;
     QPushButton * recordingStartBtn = nullptr;
     QPushButton * recordingStopBtn = nullptr;
     QLineEdit * fileNameLineEdit = nullptr;
