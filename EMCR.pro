@@ -96,6 +96,7 @@ SOURCES += \
     src/model/filters/firstorderiirfilter.cpp \
     src/model/events/eventdetector.cpp \
     src/view/activationbutton.cpp \
+    src/view/autotoggle.cpp \
     src/view/collapsiblesection.cpp \
     src/view/chessboarddockwidget.cpp \
     src/view/colorselectionbutton.cpp \
@@ -246,6 +247,7 @@ HEADERS += \
     src/model/events/eventsandbaseline.h \
     src/model/autodeclogger/autodecloggermodel.h \
     src/view/activationbutton.h \
+    src/view/autotoggle.h \
     src/view/collapsiblesection.h \
     src/view/chessboarddockwidget.h \
     src/view/colorselectionbutton.h \

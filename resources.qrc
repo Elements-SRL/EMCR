@@ -56,5 +56,7 @@
         <file>styles/emcr_dark.qss</file>
         <file>imgs/EMCR splash background.png</file>
         <file>imgs/svg/3_dots_bounce.svg</file>
+        <file>imgs/svg/toggle_off.svg</file>
+        <file>imgs/svg/toggle_on.svg</file>
     </qresource>
 </RCC>
