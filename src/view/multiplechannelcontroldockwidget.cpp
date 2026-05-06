@@ -11,26 +11,76 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     QDockWidget(parent),
     msgDisp(msgDisp) {
 
-    QWidget * mainWg = new QWidget();
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setAttribute(Qt::WA_TranslucentBackground);
+    this->setObjectName("MultipleChannelControlDockWidget");
+
+    // Custom TitleBar widget
+    QWidget* customTitleBar = new QWidget();
+    customTitleBar->setObjectName("customTitleBar");
+    QHBoxLayout* titleLayout = new QHBoxLayout(customTitleBar);
+    titleLayout->setContentsMargins(10, 5, 10, 5);
+
+    QLabel* titleLabel = new QLabel("MULTIPLE CHANNEL CONTROLS");
+    titleLabel->setObjectName("titleLabel");
+
+    // Custom Window buttons - expand & close
+    // TODO Fix hover
+    QPushButton* expandBtn = new QPushButton();
+    expandBtn->setObjectName("windowExpand");
+    QPushButton* closeBtn = new QPushButton();
+    closeBtn->setObjectName("windowClose");
+
+    // Custom buttons actions
+    connect(closeBtn, &QPushButton::clicked, this, &QDockWidget::hide);
+    connect(expandBtn, &QPushButton::clicked, this, [=]() {
+        this->setFloating(!this->isFloating());
+    });
+
+    titleLayout->addWidget(titleLabel);
+    titleLayout->addStretch();
+    titleLayout->addWidget(expandBtn);
+    titleLayout->addWidget(closeBtn);
+    this->setTitleBarWidget(customTitleBar);
+
+
+    QWidget* centralWidget = new QWidget();
+    this->setWidget(centralWidget);
+
+    // Main Frame Layout
+    QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
+    externalLayout->setContentsMargins(0, 0, 0, 0);
+    externalLayout->setSpacing(0);
+
+    // Main Frame
+    QFrame* mainWrapper = new QFrame();
+    mainWrapper->setObjectName("mainWrapper");
+    mainWrapper->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    QVBoxLayout* mainLayout = new QVBoxLayout(mainWrapper);
+
     setWindowTitle("Multiple channel controls");
-    setObjectName("multipleChannelControlsDw");
-    this->setWidget(mainWg);
+    this->setObjectName("multipleChannelControlsDw");
+    mainWrapper->setLayout(mainLayout);
 
-    QVBoxLayout * mainLayout = new QVBoxLayout;
-    mainWg->setLayout(mainLayout);
+    m_selectionCounterLabel = new QLabel();
+    m_selectionCounterLabel->setObjectName("selectionCounter");
+    m_selectionCounterLabel->setAlignment(Qt::AlignLeft);
+    mainLayout->addWidget(m_selectionCounterLabel);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Helper lambda for panel property creation
+    // Helper lambda for panel sub-property creation
     auto addPropertyRow = [&](QString title, AutoToggle* &autoTgl, QLabel* &badge,
                               QPushButton* &onBtn, QPushButton* &offBtn, QVBoxLayout* layout) {
-        auto rowContainer = new QWidget();
+        QFrame* rowContainer = new QFrame();
+        rowContainer->setObjectName("propertyContainer");
         auto vbl = new QVBoxLayout(rowContainer);
         vbl->setContentsMargins(0, 5, 0, 10);
         vbl->setSpacing(4);
 
         // Row 1 - Title + AutoToggle
         auto r1 = new QHBoxLayout();
-        r1->addWidget(new QLabel(title));
+        QLabel * titleLbl = new QLabel(title);
+        titleLbl->setObjectName("propertyName");
+        r1->addWidget(titleLbl);
         r1->addStretch();
         autoTgl = new AutoToggle();
         r1->addWidget(autoTgl);
@@ -47,8 +97,8 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
         onBtn = new QPushButton("ON");
         offBtn = new QPushButton("OFF");
-        onBtn->setFixedWidth(45);
-        offBtn->setFixedWidth(45);
+        onBtn->setFixedWidth(48);
+        offBtn->setFixedWidth(48);
 
         r2->addWidget(badge);
         r2->addStretch();
@@ -61,7 +111,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     // TODO capise se nascondere sezioni quando
     // non ci sono proprietà attive
-    // TODO riga divisione proprietà
     // TODO connessione stati nel summary
 
     // First section - VISIBILITY
@@ -126,19 +175,36 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     RangedMeasurement_t zapDurationRange;
     if (msgDisp->getZapFeatures(zapDurationRange) == Success) {
-        zapGb = new QGroupBox(QString::fromStdString("Zap pulse"));
-        auto qhbl = new QHBoxLayout();
-        zapGb->setLayout(qhbl);
-        mainLayout->addWidget(zapGb);
+
+        // Zap Pulse
+        auto zapRow = new QFrame();
+        zapRow->setObjectName("propertyContainer");
+        auto zapVbl = new QVBoxLayout(zapRow);
+        zapVbl->setContentsMargins(0, 5, 0, 10);
+        zapVbl->setSpacing(4);
+
+        auto hblZap = new QHBoxLayout(zapRow);
+        QLabel * zaptitleLbl = new QLabel("Zap pulse");
+        zaptitleLbl->setObjectName("propertyName");
+        hblZap->addWidget(zaptitleLbl);
+        hblZap->addStretch();
+        zapVbl->addLayout(hblZap);
+
+        auto zapDurationRow = new QHBoxLayout();
+        zapDurationRow->addWidget(new QLabel("Duration"));
+        zapDurationRow->addStretch();
         zapBtn = new QPushButton("ZAP");
-        zapBtn->setCheckable(false);
-        qhbl->addWidget(zapBtn);
-        QDoubleSpinBox * zapSbx = new QDoubleSpinBox;
+        zapDurationRow->addWidget(zapBtn);
+        auto zapSbx = new QDoubleSpinBox();
         zapDurationRange.convertValues(UnitPfxMilli);
         zapSbx->setRange(zapDurationRange.min, zapDurationRange.max);
         zapSbx->setValue(100.0);
-        qhbl->addWidget(zapSbx);
-        qhbl->addWidget(new QLabel("ms"));
+        zapSbx->setProperty("technical", true);
+        zapDurationRow->addWidget(zapSbx);
+        zapDurationRow->addWidget(new QLabel("ms"));
+        zapVbl->addLayout(zapDurationRow);
+        mainLayout->addWidget(zapRow);
+
         connect(zapBtn, &QPushButton::clicked, this, [=] () {
             emit sigZap({zapSbx->value(), UnitPfxMilli, "s"});
         });
@@ -210,11 +276,13 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     QGridLayout *summaryLayout = new QGridLayout(summaryWg);
     summaryLayout->setSpacing(0); // Per far toccare i bordi delle celle
     summaryLayout->setContentsMargins(0, 0, 0, 0);
+    summaryWg->setAttribute(Qt::WA_TranslucentBackground);
 
     // Helper for summary creation
     auto addSummaryItem = [&](QString label, QString value, QString status, int row, int col) {
         QWidget *cell = new QWidget();
-        cell->setObjectName("summaryCell");
+        cell->setObjectName(("summaryCell" + label).remove(" "));
+
         QHBoxLayout *l = new QHBoxLayout(cell);
         l->setContentsMargins(8, 6, 8, 6);
 
@@ -228,18 +296,39 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         l->addWidget(nameLbl);
         l->addStretch();
         l->addWidget(valLbl);
-
+        m_summaryLabels[label] = valLbl;
         summaryLayout->addWidget(cell, row, col);
     };
 
     // Grid layout column based
-    // TODO dummy values for now
-    addSummaryItem("EXPAND", "3 ON", "on", 0, 0);
-    addSummaryItem("PLOT DETAIL", "1 ON", "on", 0, 1);
-    addSummaryItem("CH INPUT", "3 ON", "on", 1, 0);
-    addSummaryItem("STIMULUS", "AUTO", "auto", 1, 1);
+    // TODO use enum for IDS
+    addSummaryItem("EXPAND", "FAKE", "on", 0, 0);
+    addSummaryItem("PLOT DETAIL", "FAKE", "on", 0, 1);
+    addSummaryItem("CH INPUT", "FAKE", "on", 1, 0);
+    addSummaryItem("STIMULUS", "FAKE", "auto", 1, 1);
 
     mainLayout->addWidget(summaryWg);
+    externalLayout->addWidget(mainWrapper);
+}
+
+void MultipleChannelControlDockWidget::updateSummary(const QString &id, const QString &text, const QString &status) {
+    if (m_summaryLabels.count(id)) {
+        m_summaryLabels[id]->setText(text);
+        m_summaryLabels[id]->setProperty("status", status);
+        m_summaryLabels[id]->style()->unpolish(m_summaryLabels[id]);
+        m_summaryLabels[id]->style()->polish(m_summaryLabels[id]);
+    }
+}
+
+void MultipleChannelControlDockWidget::setSelectionCount(int count) {
+    m_selectionCounterLabel->setText(QString(
+        "<span style='color:#0078d4;'>●</span> %1 Selected "
+        "<span style='color:#666666;'> ●</span> %2 Total"
+        ).arg(count).arg("-"));
+
+    m_selectionCounterLabel->setProperty("empty", count == 0);
+    m_selectionCounterLabel->style()->unpolish(m_selectionCounterLabel);
+    m_selectionCounterLabel->style()->polish(m_selectionCounterLabel);
 }
 
 void MultipleChannelControlDockWidget::setChannelsAuto(bool flag) {

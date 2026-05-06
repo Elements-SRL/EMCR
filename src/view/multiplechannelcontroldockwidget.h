@@ -23,6 +23,8 @@ public:
     void setPlotDetailAuto(bool flag);
     bool getExpertMode();
     void enableExpertMode(bool flag);
+    void setSelectionCount(int count);
+    void updateSummary(const QString &id, const QString &text, const QString &status);
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
@@ -59,6 +61,8 @@ private:
     QLineEdit * fileNameLineEdit = nullptr;
     QLineEdit * recordPathLineEdit = nullptr;
     QGroupBox * zapGb = nullptr;
+    QLabel * m_selectionCounterLabel = nullptr;
+    std::map<QString, QLabel*> m_summaryLabels;
 
 signals:
     void sigTurnChannelOn();

@@ -1,29 +1,19 @@
 /* TODO importare Palette colori da Figma */
 
 QWidget {
-    background-color: #222222;
     color: #D0D0D0;
     font-family: "Inter", sans-serif;
     font-size: 10px; 
     outline: none;
 }
 
+
+
 QMainWindow, QDialog {
     background-color: #29282E; 
 }
 
 /* --- TEXT DENSITY & FONTS --- */
-
-/* TODO test titoli pannelli */
-QLabel#multipleChannelControlsDw {
-    color: #888888;
-    font-size: 10px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin-bottom: 4px;
-}
-
 QLabel:disabled {
     color: #606060;
 }
@@ -209,8 +199,8 @@ QScrollBar::sub-page {
   border-radius: 0;
   border: 0;
 }
-
  
+
 /* --- MENUS --- */
 
 QStatusBar QLabel {
@@ -218,7 +208,6 @@ QStatusBar QLabel {
     color: #b0b0b0;
 }
 
-/*MENU*/
 QMenuBar {
     background-color: transparent;
     color: #ffffff;
@@ -277,7 +266,6 @@ QMenu::item:pressed {
     background-color: rgba(255, 255, 255, 10);
 }
 
-
 /* TODO impostare immagine svg appropriata */
 QMenu::right-arrow {
     image: url(:/uitheme/controls/dark/TreeViewClose.svg);
@@ -296,7 +284,6 @@ QMenu::item:disabled {
 
 
 /* --- SPLASH SCREEN CUSTOMIZATION --- */
-
 
 QWidget#loadingPage,
 QWidget#selectionPage,
@@ -341,7 +328,6 @@ QLabel#copyrightLbl{
     font-family: "Inter", sans-serif;
 }
 
-
 QFrame#SplashContainer {
     border-image: url(:/imgs/EMCR splash background.png) 0 0 0 0 stretch stretch;
     border-radius: 15px;       
@@ -357,16 +343,17 @@ QComboBox#deviceCombo {
     font-style: italic; 
 }
 
+
 /* --- MULTIPLE CHANNEL CONTROLS --- */
 
 /* Header di sezione (es. VISIBILITY & PLOTTING) */
 QLabel#sectionHeader {
-    background-color: #343e4d;
-    color: #a0aab4;
+    background-color: #4A5468;
+    color: #A0ABC0;
     padding: 4px 8px;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 1px;
 }
 
@@ -415,7 +402,6 @@ QLabel[status="on"] {
     border: 1px solid #2d5a27;
 }
 
-/* TODO verificare meglio se vanno bene qproperty */
 QLabel#activationSwitch {
     qproperty-alignment: 'AlignCenter';
 }
@@ -430,6 +416,119 @@ QLabel#activationSwitch[checked="true"] {
     qproperty-pixmap: url(":/imgs/svg/toggle_on.svg");
 }
 
+/* Label AUTO spenta (default) */
+QLabel#autoLabel {
+    color: #666666; 
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Label AUTO accesa */
+QLabel#autoLabel[active="true"] {
+    color: #B0DCFF; /* Blu */
+}
+
+/* Contatore canali selezionati in alto */
+/* Il contatore canali ora segue lo stesso stile senza stacchi */
+QLabel#selectionCounter {
+    background-color: #2D3648; 
+    color: #B0DCFF;
+    padding: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #2d323e;
+    border-top: 1px solid #3d4655;
+}
+
+/* empty - quando nessun canale è selezionato */
+QLabel#selectionCounter[empty="true"] {
+    color: #666666; /* Grigio spento */
+}
+
+QFrame#propertyContainer {
+    border: 1px solid #3d4655;
+    border-right: none;
+    border-left: none;
+    margin: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+QLabel#propertyName{
+    color: #888888;
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+QWidget#customTitleBar {
+    background-color: #CBD2E0;
+}
+
+QLabel#titleLabel {
+    color: #CBD2E0;
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+QWidget#multipleChannelControlsDw{
+    border: 1px solid #343e4d;
+    border-radius: 10px;
+}
+
+
+/* Rimuove il bordo nativo del DockWidget */
+QDockWidget#MultipleChannelControlDockWidget {
+    border: none;
+    titlebar-close-icon: none;
+    titlebar-normal-icon: none;
+}
+
+/* Wrapper per i contenuti */
+QFrame#mainWrapper {
+    background-color: #1e1e1e;
+    border: 1px solid #3d4655; /* Bordo bluastro */
+    border-top: none;        
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+QWidget#customTitleBar {
+    background-color: #2D3648;
+    border: 1px solid #3d4655;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+/* Custom Window - Pulsanti Close (X) ed Espandi */
+QPushButton#windowClose,
+QPushButton#windowExpand {
+    background: transparent;
+    color: #a0aab4;
+    border: none;
+    width: 8px;
+    padding: 2px;
+    margin: 0px; 
+}
+
+QPushButton#windowExpand {
+    image: url(:/imgs/svg/window-restore-regular.svg);
+}
+
+QPushButton#windowClose{
+    image: url(:/imgs/svg/x-solid.svg);
+}
+
+QPushButton#windowClose:hover,
+QPushButton#windowExpand:hover {
+    background-color: #4a5568;
+    color: white;
+}
+
+
+/* --- MULTIPLE CHANNEL CONTROLS / SUMMARY --- */
 
 /* Contenitore generale con bordo superiore */
 QWidget#summaryContainer {
@@ -442,6 +541,24 @@ QWidget#summaryCell {
     border: 0.5px solid #343e4d;
 }
 
+QWidget#summaryCellSTIMULUS{
+    border-top: 1px solid #343e4d;
+    border-left: 1px solid #343e4d;
+}
+
+QWidget#summaryCellPLOTDETAIL{
+    border-top: 1px solid #343e4d;
+    border-left: 1px solid #343e4d;
+}
+
+QWidget#summaryCellEXPAND{
+    border-top: 1px solid #343e4d;
+}
+
+QWidget#summaryCellCHINPUT{
+    border-top: 1px solid #343e4d;
+}
+
 /* Etichetta grigia (es. EXPAND) */
 QLabel#summaryName {
     color: #888888;
@@ -450,24 +567,11 @@ QLabel#summaryName {
     font-weight: bold;
 }
 
-/* Valore colorato (es. 3 ON) */
+/* Valore del Summary */
 QLabel#summaryValue {
     font-size: 10px;
     font-weight: bold;
 }
 
 QLabel#summaryValue[status="on"] { color: #4ade80; }   /* Verde */
-QLabel#summaryValue[status="auto"] { color: #0078d4; } /* Blu */
-
-/* Label AUTO spenta (default) */
-QLabel#autoLabel {
-    color: #666666; 
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}
-
-/* Label AUTO accesa */
-QLabel#autoLabel[active="true"] {
-    color: #0078d4; /* Blu luminoso */
-}
+QLabel#summaryValue[status="auto"] { color: #B0DCFF; } /* Blu */

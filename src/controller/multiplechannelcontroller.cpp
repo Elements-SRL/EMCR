@@ -162,6 +162,7 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
     }
     appStatus->setExpandedTraces(flags);
     emit sigAddRemoveFromBigPlot(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::addRemovePlotDetail(bool flag) {
@@ -172,6 +173,7 @@ void MultipleChannelController::addRemovePlotDetail(bool flag) {
     }
     appStatus->setDetailedPlots(flags);
     emit sigAddRemovePlotDetail(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
@@ -183,6 +185,7 @@ void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
     }
     appStatus->setExpandedTraces(expandedChannels);
     emit sigAddRemoveFromBigPlotEx(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::onChannelsSelected() {
@@ -195,6 +198,9 @@ void MultipleChannelController::onChannelsSelected() {
     if (appStatus->isExpandAuto()) {
         addRemoveFromBigPlotEx(true);
     }
+    int numSelected = appStatus->getSelectedChannelsIndexes().size();
+    multipleChannelControlsDw->setSelectionCount(numSelected);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
@@ -219,6 +225,7 @@ void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag)
     msgDisp->turnCalSwOn(selectedChannels, values, true);
 
     emit sigCalibrationResistorsTurnedOnOff(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
@@ -227,6 +234,7 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     msgDisp->enableStimulus(selectedChannels, values, true);
 
     emit sigStimuliTurnedOnOff(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
@@ -237,6 +245,7 @@ void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
     msgDisp->enableStimulus(allChannels, selectedChannels, true);
 
     emit sigStimuliTurnedOnOffEx(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::zap(Measurement_t duration) {
@@ -347,6 +356,58 @@ void MultipleChannelController::resetLj() {
     msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
 
     emit sigLjResetted();
+}
+
+// Function used to update the Summary status widget
+void MultipleChannelController::refreshSummary() {
+    auto selectedIdx = appStatus->getSelectedChannelsIndexes();
+    int totalChannels = allChannels.size();
+
+    // Helper lambda to calculate the status for specific properties (es. Trace Expanded)
+    auto getStatus = [&](const std::map<uint16_t, bool>& stateMap, bool isAuto) {
+        if (isAuto) return std::make_pair(QString("AUTO"), QString("auto"));
+        if (selectedIdx.empty()) return std::make_pair(QString("-"), QString("off"));
+
+        int onInSelection = 0;
+        for (uint16_t idx : selectedIdx) {
+            if (stateMap.count(idx) && stateMap.at(idx)) onInSelection++;
+        }
+
+        // Calculation of how much HW devices are On in the chessboard
+        int totalOn = 0;
+        for (auto const& [id, isOn] : stateMap) { if (isOn) totalOn++; }
+
+        QString text;
+        QString status;
+
+        if (onInSelection == 0) {
+            text = "OFF";
+            status = "off";
+        } else if (onInSelection == (int)selectedIdx.size()) {
+            text = QString("%1 ON").arg(onInSelection);
+            status = "on";
+        } else {
+            text = "~ MIXED";
+            status = "mixed";
+        }
+
+        // Global info about channels in case mode is not AUTO
+        // e.g How many ON - Total channels
+        // IN AUTO we do not need this, all channels behave the same
+        text += QString(" (%1/%2)").arg(totalOn).arg(totalChannels);
+        return std::make_pair(text, status);
+    };
+
+    // Update the Multiple Channel contol Summary widget with computed info
+    // per each section
+    auto resExpand = getStatus(appStatus->getExpandedTraces(), appStatus->isExpandAuto());
+    multipleChannelControlsDw->updateSummary("EXPAND", resExpand.first, resExpand.second);
+
+    // TODO create/find getStimulusStatusMap
+    // auto resStim = getStatus(appStatus->getStimulusStatusMap(), appStatus->isStimulusAuto());
+    // multipleChannelControlsDw->updateSummary("stimulus", resStim.first, resStim.second);
+
+    // TODO finish to update the summary
 }
 
 void MultipleChannelController::connectBigPlotController(BigPlotController* bpc) {

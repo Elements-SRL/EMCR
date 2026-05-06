@@ -31,6 +31,7 @@ public:
     void connectPlotDetailController(PlotDetailController*);
     void connectMeasurementOverviewController(MeasurementOverviewController*);
     void connectSingleChannelController(SingleChannelController*);
+    void refreshSummary();
 
 public slots:
     void onChannelsSelected();
@@ -55,6 +56,7 @@ private:
     MultipleChannelModel * model = nullptr;
     OffsetCorrectionController * offsetCorrectionController = nullptr;
     std::vector <uint16_t> allChannels;
+
 private slots:
     void addRemovePlotDetail(bool flag);
 
