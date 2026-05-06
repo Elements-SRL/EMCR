@@ -1,0 +1,110 @@
+This product includes software developed by Elements s.r.l.
+
+Copyright (c) 2023-2026 Elements s.r.l.
+
+--------------------------------------------------------------------------------------------------------------------------
+THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+
+This product includes third-party software components licensed under various open source licenses. The original copyright
+notices and license texts are reproduced below as required.
+
+--------------------------------------------------------------------------------------------------------------------------
+MIT LICENSED COMPONENTS
+
+The following components are licensed under the MIT License:
+
+e384commlib (v0.34.1)
+Copyright (c) 2023-2026 Elements s.r.l.
+
+ftdi_utils (v1.3.1)
+Copyright (c) 2025-2026 Elements s.r.l.
+
+protocol-serializer (v1.0.0)
+Copyright (c) 2023 Elements s.r.l.
+
+yaml-cpp (v0.9.0)
+Copyright (c) 2008-2015 Jesse Beder
+
+toml++ (v3.4.0)
+Copyright (c) Mark Gillard
+
+A copy of the full licenses is provided in the THIRD_PARTY_LICENSES directory.
+
+--------------------------------------------------------------------------------------------------------------------------
+BSD 3-CLAUSE LICENSED COMPONENTS
+
+The following components are licensed under the BSD 3-clause "New" or "Revised" License:
+
+HDF5 Software Library and Utilities (v1.14.4)
+Copyright (c) 2006 The HDF Group
+
+pocketfft
+Copyright (c) 2010-2018 Max-Planck-Society All rights reserved.
+
+A copy of the full licenses is provided in the THIRD_PARTY_LICENSES directory.
+
+--------------------------------------------------------------------------------------------------------------------------
+QWT LIBRARY
+
+The Qwt library is licensed under the Qwt License 1.0 (LGPLv2.1 with exceptions).
+
+Qwt (v6.3.0)
+Copyright (c) 1997 Josef Wilgen
+Copyright (c) 2002 Uwe Rathmann
+
+This product uses the Qwt library with minor changes. Changes to the Qwt library are available upon request by writing at
+support@elements-ic.com
+
+A copy of the full license is provided in the THIRD_PARTY_LICENSES directory.
+
+--------------------------------------------------------------------------------------------------------------------------
+QT GUI TOOLKIT
+
+The Qt GUI Toolkit is licensed under the GNU Lesser General Public License v3 (LGPLv3).
+
+Qt GUI Toolkit (v6.7.3)
+Copyright (c) 2018 The Qt Company Ltd. and other contributors
+
+This product uses the Qt GUI Toolkit under the terms of the LGPLv3:
+- Qt libraries are dynamically linked
+- No modifications to the Qt GUI Toolkit have been made
+- The complete corresponding source code for the Qt GUI Toolkit v6.7.3 is available upon request by writing at
+support@elements-ic.com
+
+A copy of the LGPLv3 license is provided in the THIRD_PARTY_LICENSES directory.
+
+--------------------------------------------------------------------------------------------------------------------------
+PROPRIETARY THIRD-PARTY COMPONENTS
+
+The following components are proprietary and subject to their respective license agreements:
+
+EZ-USB FX3 SDK (v1.3.4)
+Copyright (C) Cypress Semiconductor Corporation (now part of Infineon Technologies).
+Notice: This software includes portions of the EZ-USB FX3 SDK provided by Cypress.
+Disclaimer: These drivers are provided "as-is" without any express or implied warranty of any kind.
+
+FrontPanel SDK (v5.3.6)
+Copyright(C) Opal Kelly Incorporated.
+Notice: This software includes portions of the FrontPanel SDK.
+Disclaimer: The software is provided "as-is" without any express or implied warranty of any kind.
+
+FTDI D2XX Drivers (v2.12.36.20)
+Copyright (C) Future Technology Devices International Limited.
+Notice: This software is distributed with driver D2XX provided by FTDI. This driver may only be used with genuine FTDI
+components.
+Disclaimer: These drivers are provided "as-is" without any express or implied warranty of any kind.
+
+libMPSSE-SPI (v1.0.5)
+Copyright (C) Future Technology Devices International Limited.
+Notice: This software includes the libMPSSE-SPI library provided by FTDI to facilitate SPI communication. This library
+may only be used with genuine FTDI components.
+Disclaimer: The software is provided "as-is" without any express or implied warranty of any kind.
+
+These components are redistributed in accordance with the terms provided by their respective vendors.
+Refer to the DRIVER_LICENSES directory for full license agreements.
+
+--------------------------------------------------------------------------------------------------------------------------
+DISCLAIMER
+
+This software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose, and noninfringement.

@@ -32,6 +32,15 @@ DEFINES += "COMMLIB_MAJOR=$$COMMLIB_MAJOR"\
 
 COMMLIB_FULL = $${COMMLIB_MAJOR}.$${COMMLIB_MINOR}.$${COMMLIB_PATCH}
 
+DEFINES += "FTDIUTILS_VER_MAJOR=$$FTDIUTILS_VER_MAJOR"\
+    "FTDIUTILS_VER_MINOR=$$FTDIUTILS_VER_MINOR"\
+    "FTDIUTILS_VER_PATCH=$$FTDIUTILS_VER_PATCH"
+
+include($$(PROTOCOL_SERIALIZER_PATH)includeprotocolserializer.pri)
+DEFINES += "PROTSER_VER_MAJOR=$$PROTSER_VER_MAJOR"\
+    "PROTSER_VER_MINOR=$$PROTSER_VER_MINOR"\
+    "PROTSER_VER_PATCH=$$PROTSER_VER_PATCH"
+
 SOURCES += \
     src/controller/bigplotviewcontroller.cpp \
     src/controller/debugcontroller.cpp \
@@ -359,9 +368,8 @@ RC_ICONS = imgs/Elements.ico
 ICON = imgs/Elements.ico.icns
 
 include($$(QWT_PATH)includeqwt.pri)
-include($$(PROTOCOL_SERIALIZER_PATH)includeprotocolserializer.pri)
 include($$(HDF5_PATH)includehdf5.pri)
-include($$(FFTW_3_3_PATH)includefftw3.3.pri)
+include($$(POCKETFFT_PATH)includepocketfft.pri)
 
 RESOURCES += \
     resources.qrc

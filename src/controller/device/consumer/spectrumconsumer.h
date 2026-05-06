@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-#include <fftw3.h>
+#include "pocketfft_hdronly.h"
 
 #include "plotconsumer.h"
 #include "plotmessage.h"
@@ -49,9 +49,12 @@ private:
     int n2Bins = 0;
     double df = 1.0;
     double * frequencyValues = nullptr;
+    pocketfft::shape_t shape{static_cast<size_t>(nBins)};
+    pocketfft::stride_t stride_in{sizeof(double)};
+    pocketfft::stride_t stride_out{sizeof(std::complex<double>)};
+    pocketfft::shape_t axes{0};
     std::vector <double *> fftIn;
     std::vector <std::complex <double> *> fftOut;
-    std::vector <fftw_plan> fftwPlans;
     std::vector <double *> currentSpectrumValues;
     std::vector <double *> irmsValues;
 

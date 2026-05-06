@@ -828,6 +828,12 @@
     <QtMoc Include="src\view\temperaturedockwidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\ccresistanceestimationconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\controller\device\consumer\squarecurrentbasedanalysisconsumer.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -1105,12 +1111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\model\channelstate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\controller\device\consumer\ccresistanceestimationconsumer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\controller\device\consumer\squarecurrentbasedanalysisconsumer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,7 +3,7 @@
 SpectrumConsumer::SpectrumConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     PlotConsumer(appStatus, producer) {
 
-    maxSamples = SPC_MAX_SAMPLES;
+    maxSamples = 2048;
     this->allocateData();
     this->updateFrequencyAxis();
 }
@@ -54,7 +54,7 @@ void SpectrumConsumer::computeFrequencyAxis() {
     nBins = qRound(integrationWindowS*samplingRateHz);
     integrationRounds = (nBins-1)/maxSamples+1;
     nBins /= integrationRounds;
-    n2Bins = nBins/2; // floor rounding: if nBins is even the DC frequeny is removed, but SR/2 is included, if nBins is odd DC included, SR/2 does not exist
+    n2Bins = nBins/2+1; // floor rounding: if nBins is even the DC frequency is removed, but SR/2 is included, if nBins is odd DC included, SR/2 does not exist
     if (n2Bins == 0) {
         return;
     }
@@ -67,10 +67,7 @@ void SpectrumConsumer::computeFrequencyAxis() {
         frequencyValues[binIdx] = df*(double)(binIdx+1);
     }
 
-    for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        fftwPlans[channelIdx] = fftw_plan_dft_r2c_1d(nBins, fftIn[channelIdx], reinterpret_cast <fftw_complex *> (fftOut[channelIdx]), FFTW_ESTIMATE);
-        // va fatto anche il destroy dei plan? ha impatto? dove andrebbe fatto e come si verifica se il piano esiste?
-    }
+    shape = {static_cast <size_t> (nBins)};
     /*! This ensures that integrating the power spectrum (int{S*dF}) returns the signal variance
      *  2 because the spectrum is mono lateral
      *  samplingRateHz to give information about the x axis (it will cancel out with dF = Fs/nBins in the integral)
@@ -116,7 +113,6 @@ void SpectrumConsumer::run() {
     emitPlotData();
     int bufferIdx;
     int bufferLen = 0;
-    int channelIdx;
     bool emitFlag = false;
 
     QMutexLocker consumptionLock(&consumptionMtx);
@@ -148,7 +144,7 @@ void SpectrumConsumer::run() {
                 if (binIndex == nBins) {
                     if (integrationRoundIdx == 0) {
                         for (auto channelIdx : channels) {
-                            fftw_execute(fftwPlans[channelIdx]);
+                            pocketfft::r2c(shape, stride_in, stride_out, axes, pocketfft::FORWARD, fftIn[channelIdx], fftOut[channelIdx], 1.0);
                             for (binIndex = 0; binIndex < n2Bins; binIndex++) {
                                 currentValues[channelIdx][binIndex] = std::norm(fftOut[channelIdx][binIndex+1]);
                             }
@@ -156,7 +152,7 @@ void SpectrumConsumer::run() {
 
                     } else {
                         for (auto channelIdx : channels) {
-                            fftw_execute(fftwPlans[channelIdx]);
+                            pocketfft::r2c(shape, stride_in, stride_out, axes, pocketfft::FORWARD, fftIn[channelIdx], fftOut[channelIdx], 1.0);
                             for (binIndex = 0; binIndex < n2Bins; binIndex++) {
                                 currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
                             }
@@ -199,16 +195,15 @@ void SpectrumConsumer::run() {
 }
 
 void SpectrumConsumer::allocateData() {
-    frequencyValues = new double[maxSamples/2];
+    frequencyValues = new double[maxSamples/2+1];
 
     for (int idx = 0; idx < currentChannelsNum; idx++) {
         currentValues.push_back(new double[maxSamples]);
         currentSpectrumValues.push_back(new double[maxSamples]);
         irmsValues.push_back(new double[maxSamples]);
         fftIn.push_back(new double[maxSamples]);
-        fftOut.push_back(new std::complex <double> [maxSamples]);
+        fftOut.push_back(new std::complex <double> [maxSamples/2+1]);
     }
-    fftwPlans.resize(currentChannelsNum);
 }
 
 void SpectrumConsumer::clearData() {
