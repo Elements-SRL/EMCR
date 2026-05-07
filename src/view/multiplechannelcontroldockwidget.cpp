@@ -301,54 +301,84 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     };
 
     // Grid layout column based
-    // TODO use enum for IDS
-    addSummaryItem("EXPAND", "FAKE", "on", 0, 0);
-    addSummaryItem("PLOT DETAIL", "FAKE", "on", 0, 1);
-    addSummaryItem("CH INPUT", "FAKE", "on", 1, 0);
-    addSummaryItem("STIMULUS", "FAKE", "auto", 1, 1);
+    addSummaryItem(channelPropertyToString[EXPAND], "FAKE", "on", 0, 0);
+    addSummaryItem(channelPropertyToString[PLOT_DETAIL], "FAKE", "on", 0, 1);
+    addSummaryItem(channelPropertyToString[CH_INPUT], "FAKE", "on", 1, 0);
+    addSummaryItem(channelPropertyToString[STIMULUS], "FAKE", "auto", 1, 1);
 
     mainLayout->addWidget(summaryWg);
     externalLayout->addWidget(mainWrapper);
 }
 
-void MultipleChannelControlDockWidget::updateSummary(const QString &id, const QString &text, const QString &status) {
-    if (m_summaryLabels.count(id)) {
-        m_summaryLabels[id]->setText(text);
-        m_summaryLabels[id]->setProperty("status", status);
-        m_summaryLabels[id]->style()->unpolish(m_summaryLabels[id]);
-        m_summaryLabels[id]->style()->polish(m_summaryLabels[id]);
+void MultipleChannelControlDockWidget::updateSummary(const ChannelProperty &propertyType, const QString &text, const QString &status) {
+    QString propertyId = channelPropertyToString[propertyType];
+    if (m_summaryLabels.count(propertyId)) {
+        m_summaryLabels[propertyId]->setText(text);
+        m_summaryLabels[propertyId]->setProperty("status", status);
+        m_summaryLabels[propertyId]->style()->unpolish(m_summaryLabels[propertyId]);
+        m_summaryLabels[propertyId]->style()->polish(m_summaryLabels[propertyId]);
     }
 }
 
-void MultipleChannelControlDockWidget::setSelectionCount(int count) {
+void MultipleChannelControlDockWidget::setSelectionCount(int count, int totalChannels) {
+    // TODO update colors via QSS
     m_selectionCounterLabel->setText(QString(
         "<span style='color:#0078d4;'>●</span> %1 Selected "
         "<span style='color:#666666;'> ●</span> %2 Total"
-        ).arg(count).arg("-"));
+        ).arg(count).arg(totalChannels));
 
     m_selectionCounterLabel->setProperty("empty", count == 0);
     m_selectionCounterLabel->style()->unpolish(m_selectionCounterLabel);
     m_selectionCounterLabel->style()->polish(m_selectionCounterLabel);
 }
 
+
+void MultipleChannelControlDockWidget::enableDisableControls(ChannelProperty propertyType, bool flag){
+    QString propertyName = channelPropertyToString[propertyType];
+
+    switch (propertyType)
+    {
+    case EXPAND:
+        expandTraceBtn->setDisabled(flag);
+        reduceTraceBtn->setDisabled(flag);
+        break;
+    case CH_INPUT:
+        switchChannelsOnBtn->setDisabled(flag);
+        switchChannelsOffBtn->setDisabled(flag);
+        break;
+    case PLOT_DETAIL:
+        expandChannelDetailBtn->setDisabled(flag);
+        reduceChannelDetailBtn->setDisabled(flag);
+        break;
+    case STIMULUS:
+        turnStimulusOnBtn->setDisabled(flag);
+        turnStimulusOffBtn->setDisabled(flag);
+        break;
+    }
+}
+
 void MultipleChannelControlDockWidget::setChannelsAuto(bool flag) {
     if (switchChannelsAutoBtn != nullptr) {
         switchChannelsAutoBtn->setChecked(flag);
+        enableDisableControls(CH_INPUT, flag);
     }
 }
 
 void MultipleChannelControlDockWidget::setStimulusAuto(bool flag) {
     if (turnStimulusAutoBtn != nullptr) {
         turnStimulusAutoBtn->setChecked(flag);
+        enableDisableControls(STIMULUS, flag);
     }
 }
 
 void MultipleChannelControlDockWidget::setExpandAuto(bool flag) {
     expandTraceAutoBtn->setChecked(flag);
+    enableDisableControls(EXPAND, flag);
 }
 
 void MultipleChannelControlDockWidget::setPlotDetailAuto(bool flag) {
     plotDetailAutoBtn->setChecked(flag);
+    enableDisableControls(PLOT_DETAIL, flag);
 }
 
 bool MultipleChannelControlDockWidget::getExpertMode() {

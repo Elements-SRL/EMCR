@@ -34,6 +34,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelAuto, this, [=](bool flag) {
         appStatus->setChannelsAuto(flag);
         this->onChannelsSelected();
+        multipleChannelControlsDw->enableDisableControls(CH_INPUT, flag);
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn, this, [=]() {
@@ -52,6 +53,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulusAuto, this, [=](bool flag) {
         appStatus->setStimulusAuto(flag);
         this->onChannelsSelected();
+        multipleChannelControlsDw->enableDisableControls(STIMULUS, flag);
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigZap, this, [=](Measurement_t duration) {
@@ -133,11 +135,13 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto,     this, [=] (bool flag) {
         appStatus->setExpandAuto(flag);
+        multipleChannelControlsDw->enableDisableControls(EXPAND, flag);
         this->onChannelsSelected();
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddRemovePlotDetail,   this, &MultipleChannelController::addRemovePlotDetail);
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto,     this, [=] (bool flag) {
         appStatus->setPlotDetailAuto(flag);
+        multipleChannelControlsDw->enableDisableControls(PLOT_DETAIL, flag);
     });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
@@ -199,7 +203,8 @@ void MultipleChannelController::onChannelsSelected() {
         addRemoveFromBigPlotEx(true);
     }
     int numSelected = appStatus->getSelectedChannelsIndexes().size();
-    multipleChannelControlsDw->setSelectionCount(numSelected);
+    int totalChannels = appStatus->getChannels().size();
+    multipleChannelControlsDw->setSelectionCount(numSelected, totalChannels);
     this->refreshSummary();
 }
 
@@ -401,7 +406,7 @@ void MultipleChannelController::refreshSummary() {
     // Update the Multiple Channel contol Summary widget with computed info
     // per each section
     auto resExpand = getStatus(appStatus->getExpandedTraces(), appStatus->isExpandAuto());
-    multipleChannelControlsDw->updateSummary("EXPAND", resExpand.first, resExpand.second);
+    multipleChannelControlsDw->updateSummary(EXPAND, resExpand.first, resExpand.second);
 
     // TODO create/find getStimulusStatusMap
     // auto resStim = getStatus(appStatus->getStimulusStatusMap(), appStatus->isStimulusAuto());

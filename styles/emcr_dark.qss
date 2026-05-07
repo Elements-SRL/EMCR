@@ -541,21 +541,21 @@ QWidget#summaryCell {
     border: 0.5px solid #343e4d;
 }
 
-QWidget#summaryCellSTIMULUS{
+QWidget#summaryCellStimulus{
     border-top: 1px solid #343e4d;
     border-left: 1px solid #343e4d;
 }
 
-QWidget#summaryCellPLOTDETAIL{
+QWidget#summaryCellPlotDetail{
     border-top: 1px solid #343e4d;
     border-left: 1px solid #343e4d;
 }
 
-QWidget#summaryCellEXPAND{
+QWidget#summaryCellExpand{
     border-top: 1px solid #343e4d;
 }
 
-QWidget#summaryCellCHINPUT{
+QWidget#summaryCellChInput{
     border-top: 1px solid #343e4d;
 }
 

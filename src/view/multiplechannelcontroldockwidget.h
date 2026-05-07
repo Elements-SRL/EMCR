@@ -7,9 +7,27 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QMap>
+#include <QString>
 
 #include "messagedispatcher.h"
 #include "autotoggle.h"
+
+
+enum ChannelProperty {
+    EXPAND,
+    PLOT_DETAIL,
+    CH_INPUT,
+    STIMULUS,
+
+};
+
+static QMap<ChannelProperty, QString> channelPropertyToString = {
+    {EXPAND, "Expand"},
+    {PLOT_DETAIL, "PlotDetail"},
+    {CH_INPUT, "ChInput"},
+    {STIMULUS, "Stimulus"}
+};
 
 class MultipleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
@@ -23,8 +41,9 @@ public:
     void setPlotDetailAuto(bool flag);
     bool getExpertMode();
     void enableExpertMode(bool flag);
-    void setSelectionCount(int count);
-    void updateSummary(const QString &id, const QString &text, const QString &status);
+    void setSelectionCount(int count, int totalChannels);
+    void updateSummary(const ChannelProperty &propertyType, const QString &text, const QString &status);
+    void enableDisableControls(ChannelProperty propertyType, bool flag);
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);

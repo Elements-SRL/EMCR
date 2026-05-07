@@ -4,7 +4,6 @@
 
 #include "maincontroller.h"
 #include "globaldefines.h"
-#include "qgraphicseffect.h"
 #include "splashscreen/splashview.h"
 #include "statisticsresult.h"
 #include "plotmessage.h"
