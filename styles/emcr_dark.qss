@@ -91,14 +91,6 @@ QPushButton:disabled {
     border-color: #444444;
 }
 
-/* --- TODO define pillows/badges for channel overview --- */
-QPushButton#badge {
-    font-size: 9px;
-    font-weight: bold;
-    padding: 2px 4px;
-    min-width: 25px;
-    border: none;
-}
 
 /* --- TAB BAR/NAVIGATION --- */
 
@@ -347,6 +339,10 @@ QComboBox#deviceCombo {
 /* --- MULTIPLE CHANNEL CONTROLS --- */
 
 /* Header di sezione (es. VISIBILITY & PLOTTING) */
+QFrame#sectionHeaderContainer{
+    background-color: #4A5468;
+}
+
 QLabel#sectionHeader {
     background-color: #4A5468;
     color: #A0ABC0;
@@ -378,6 +374,64 @@ QPushButton#connectBtn {
 QPushButton#connectBtn:hover {
     background-color: #4a5568;
     color: white;
+}
+
+/* 
+--- Reference property mapping ---
+
+{EXPAND, "Expand"},
+{PLOT_DETAIL, "PlotDetail"},
+{CH_INPUT, "ChInput"},
+{STIMULUS, "Stimulus"} 
+----------------------------------
+*/
+
+
+QLabel#propertyBadge {
+    background-color: #0078d4;
+    color: white;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 10px;
+}
+/* Badge per property EXPAND*/
+QLabel#propertyBadge[propertyValue="E"] {
+    background-color: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+/* Badge per property PLOT_DETAIL*/
+QLabel#propertyBadge[propertyValue="P"] {
+    background-color: rgba(241, 52, 247, 0.2);
+    color: #F134F7;
+}
+
+/* Badge per property CH_INPUT*/
+QLabel#propertyBadge[propertyValue="O"] {
+    background-color: rgba(74, 84, 104, 0.2);
+    color: #4A5468;
+}
+
+/* Badge per property STIMULUS*/
+QLabel#propertyBadge[propertyValue="X"] {
+    background-color: rgba(255, 82, 82, 0.2);
+    color: #FF5252;
+}
+
+QLabel#propertyBadge[propertyValue="C"]{
+    background-color: rgba(0, 120, 212, 0.2);
+    color: white;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+QLabel#propertyBadge[propertyValue="J"]{
+    background-color: rgba(0, 120, 212, 0.2);
+    color: white;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 10px;
 }
 
 /* Stile per i Badges */
@@ -536,42 +590,86 @@ QWidget#summaryContainer {
     background-color: #1e2430;
 }
 
-/* Cella singola con bordi per creare la griglia */
-QWidget#summaryCell {
-    border: 0.5px solid #343e4d;
-}
+/* Cella singola del Summary*/
 
-QWidget#summaryCellStimulus{
+/* Celle custom per ogni Property (E, X, P, etc.) */
+QWidget#summaryCell[value="P"]{
     border-top: 1px solid #343e4d;
     border-left: 1px solid #343e4d;
 }
 
-QWidget#summaryCellPlotDetail{
+QWidget#summaryCell[value="X"]{
     border-top: 1px solid #343e4d;
     border-left: 1px solid #343e4d;
 }
 
-QWidget#summaryCellExpand{
+QWidget#summaryCell[value="E"]{
     border-top: 1px solid #343e4d;
 }
 
-QWidget#summaryCellChInput{
+QWidget#summaryCell[value="O"]{
     border-top: 1px solid #343e4d;
 }
 
-/* Etichetta grigia (es. EXPAND) */
-QLabel#summaryName {
+/* Label cella del Summary */
+QLabel#summaryCellName {
     color: #888888;
     text-transform: uppercase;
     font-size: 9px;
     font-weight: bold;
 }
 
-/* Valore del Summary */
-QLabel#summaryValue {
+/* Valore cella del Summary */
+QLabel#summaryCellValue {
     font-size: 10px;
     font-weight: bold;
 }
 
-QLabel#summaryValue[status="on"] { color: #4ade80; }   /* Verde */
-QLabel#summaryValue[status="auto"] { color: #B0DCFF; } /* Blu */
+QLabel#summaryCellValue[status="on"] { color: #4ade80; }   /* Verde */
+QLabel#summaryCellValue[status="auto"] { color: #B0DCFF; } /* Blu */
+
+/* TODO capire se conviene usare solo # */
+
+/* Pulsante di Toggle Modalità */
+#modeToggleBtn {
+    background: transparent;
+    color: #A0ABC0;
+    border: none;
+    font-size: 10px;
+    padding: 0px 5px;
+}
+
+#modeToggleBtn:hover {
+    color: #B0DCFF;
+}
+
+/* Label delle righe Expert */
+#offsetRowLabel {
+    color: #D0D0D0;
+    font-size: 10px;
+    margin-left: 4px;
+}
+
+#modeContainer {
+    background-color: transparent;
+    border: none;
+}
+
+/* Pulsanti START/STOP nella modalità Basic */
+#modeContainer QPushButton {
+    background-color: #333333;
+    border: 1px solid #454545;
+    border-radius: 3px;
+    color: #D0D0D0;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+#modeContainer QPushButton:hover {
+    background-color: #3D3D3D;
+}
+
+#modeContainer QPushButton:pressed {
+    background-color: #1A1A1A;
+    border-color: #B0DCFF;
+}

@@ -5,6 +5,7 @@
 #include <QDesktopServices>
 #include <QDoubleSpinBox>
 #include <QStyle>
+#include <QSizePolicy>
 #include "globaldefines.h"
 
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
@@ -13,6 +14,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     setAttribute(Qt::WA_TranslucentBackground);
     this->setObjectName("MultipleChannelControlDockWidget");
+    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 
     // Custom TitleBar widget
     QWidget* customTitleBar = new QWidget();
@@ -24,7 +26,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     titleLabel->setObjectName("titleLabel");
 
     // Custom Window buttons - expand & close
-    // TODO Fix hover
     QPushButton* expandBtn = new QPushButton();
     expandBtn->setObjectName("windowExpand");
     QPushButton* closeBtn = new QPushButton();
@@ -68,7 +69,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
     // Helper lambda for panel sub-property creation
-    auto addPropertyRow = [&](QString title, AutoToggle* &autoTgl, QLabel* &badge,
+    auto addPropertyRow = [&](ChannelProperty property, AutoToggle* &autoTgl, QLabel* &badge,
                               QPushButton* &onBtn, QPushButton* &offBtn, QVBoxLayout* layout) {
         QFrame* rowContainer = new QFrame();
         rowContainer->setObjectName("propertyContainer");
@@ -78,7 +79,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
         // Row 1 - Title + AutoToggle
         auto r1 = new QHBoxLayout();
-        QLabel * titleLbl = new QLabel(title);
+        QLabel * titleLbl = new QLabel(channelPropertyName[property]);
         titleLbl->setObjectName("propertyName");
         r1->addWidget(titleLbl);
         r1->addStretch();
@@ -89,10 +90,11 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         // Row 2 - Badge + ON/OFF
         auto r2 = new QHBoxLayout();
 
-        // TODO show proper badge
-        badge = new QLabel("Mixed");
-        badge->setObjectName("badge");
-        badge->setProperty("status", "mixed");
+        // Custom Badge (E, X, P, O, etc.)
+        badge = new QLabel(channelPropertyBadge[property]);
+        badge->setObjectName("propertyBadge");
+        badge->setProperty("propertyValue", channelPropertyBadge[property]);
+        badge->setFixedSize(18, 18);
         badge->setAlignment(Qt::AlignCenter);
 
         onBtn = new QPushButton("ON");
@@ -109,25 +111,23 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         layout->addWidget(rowContainer);
     };
 
-    // TODO capise se nascondere sezioni quando
-    // non ci sono proprietà attive
     // TODO connessione stati nel summary
 
-    // First section - VISIBILITY
+    // SECTION - VISIBILITY
     QLabel *header = new QLabel("VISIBILITY & PLOTTING");
     header->setObjectName("sectionHeader");
     mainLayout->addWidget(header);
 
     // Property - Expand Trace
     QLabel *expandTraceBadge;
-    addPropertyRow("Expand trace", expandTraceAutoBtn, expandTraceBadge, expandTraceBtn, reduceTraceBtn, mainLayout);
+    addPropertyRow(EXPAND, expandTraceAutoBtn, expandTraceBadge, expandTraceBtn, reduceTraceBtn, mainLayout);
     connect(expandTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigAddToBigPlot);
     connect(reduceTraceBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigRemoveFromBigPlot);
     connect(expandTraceAutoBtn, &AutoToggle::toggled, this, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto);
 
     // Property - Plot detail
     QLabel *plotDetailBadge;
-    addPropertyRow("Plot detail", plotDetailAutoBtn, plotDetailBadge, expandChannelDetailBtn, reduceChannelDetailBtn, mainLayout);
+    addPropertyRow(PLOT_DETAIL, plotDetailAutoBtn, plotDetailBadge, expandChannelDetailBtn, reduceChannelDetailBtn, mainLayout);
     connect(expandChannelDetailBtn, &QPushButton::clicked, this, [=]() {
         emit sigAddRemovePlotDetail(true);
     });
@@ -136,15 +136,14 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     });
     connect(plotDetailAutoBtn, &AutoToggle::toggled, this, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto);
 
-    // Second section - SIGNAL
+    // SECTION - SIGNAL
     QLabel *signalHeader = new QLabel("SIGNAL");
     signalHeader->setObjectName("sectionHeader");
     mainLayout->addWidget(signalHeader);
 
     if (msgDisp->hasChannelSwitches() == Success) {
-
         QLabel *chInputBadge;
-        addPropertyRow("Channel input", switchChannelsAutoBtn, chInputBadge, switchChannelsOnBtn, switchChannelsOffBtn, mainLayout);
+        addPropertyRow(CH_INPUT, switchChannelsAutoBtn, chInputBadge, switchChannelsOnBtn, switchChannelsOffBtn, mainLayout);
         connect(switchChannelsOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOn);
         connect(switchChannelsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnChannelOff);
         connect(switchChannelsAutoBtn, &AutoToggle::toggled, this, &MultipleChannelControlDockWidget::sigTurnChannelAuto);
@@ -166,11 +165,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     if (msgDisp->hasStimulusSwitches() == Success) {
         QLabel *stimulusBadge;
-        addPropertyRow("Stimulus", turnStimulusAutoBtn, stimulusBadge, turnStimulusOnBtn, turnStimulusOffBtn, mainLayout);
+        addPropertyRow(STIMULUS, turnStimulusAutoBtn, stimulusBadge, turnStimulusOnBtn, turnStimulusOffBtn, mainLayout);
         connect(turnStimulusOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOn);
         connect(turnStimulusOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnStimulsOff);
         connect(turnStimulusAutoBtn, &AutoToggle::toggled, this, &MultipleChannelControlDockWidget::sigTurnStimulusAuto);
-
     }
 
     RangedMeasurement_t zapDurationRange;
@@ -211,63 +209,116 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     }
 
     if (msgDisp->hasOffsetCompensation() == Success) {
-        auto gb = new QGroupBox("Offset correction");
-        mainLayout->addWidget(gb);
-        auto qvbl = new QVBoxLayout();
-        gb->setLayout(qvbl);
-        offsetCorrectionExpertChb = new QCheckBox("Expert");
-        qvbl->addWidget(offsetCorrectionExpertChb);
+        // SECTION HEADER - OFFSET CORRECTION
+        QFrame* offsetHeaderContainer = new QFrame();
+        offsetHeaderContainer->setObjectName("sectionHeaderContainer");
+        QHBoxLayout* offsetHeaderLayout = new QHBoxLayout(offsetHeaderContainer);
+        offsetHeaderLayout->setContentsMargins(0, 0, 0, 0);
 
-        auto ww = new QWidget;
-        auto qhblw = new QHBoxLayout();
-        ww->setLayout(qhblw);
-        qvbl->addWidget(ww);
-        offsetCorrectionStartBtn = new QPushButton("Start");
+        QLabel *offsetHeader = new QLabel("OFFSET CORRECTION");
+        offsetHeader->setObjectName("sectionHeader");
+
+        // Pulsante per cambiare modalità (Expert/Basic)
+        offsetCorrectionMode = new QPushButton("Expert mode ▼");
+        offsetCorrectionMode->setObjectName("modeToggleBtn");
+        offsetCorrectionMode->setCheckable(true);
+
+        offsetHeaderLayout->addWidget(offsetHeader);
+        offsetHeaderLayout->addStretch();
+        offsetHeaderLayout->addWidget(offsetCorrectionMode);
+        mainLayout->addWidget(offsetHeaderContainer);
+
+        //  CONTAINER: BASIC MODE (START / STOP)
+        QFrame* basicContentFrame = new QFrame();
+        basicContentFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        basicContentFrame->setMaximumHeight(30);
+        basicContentFrame->setObjectName("modeContainer");
+        QHBoxLayout* basicRow = new QHBoxLayout();
+        basicRow->setContentsMargins(10, 5, 10, 10);
+        basicRow->setSpacing(8);
+
+        offsetCorrectionStartBtn = new QPushButton("START");
+        offsetCorrectionStopBtn = new QPushButton("STOP");
+        offsetCorrectionStartBtn->setFixedHeight(24);
+        offsetCorrectionStopBtn->setFixedHeight(24);
+
+        basicRow->addWidget(offsetCorrectionStartBtn);
+        basicRow->addWidget(offsetCorrectionStopBtn);
+        basicContentFrame->setLayout(basicRow);
+
         connect(offsetCorrectionStartBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStartOffsetCorrection);
-        qhblw->addWidget(offsetCorrectionStartBtn);
-        offsetCorrectionStopBtn = new QPushButton("Stop");
         connect(offsetCorrectionStopBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStopOffsetCorrection);
-        qhblw->addWidget(offsetCorrectionStopBtn);
+        mainLayout->addWidget(basicContentFrame);
 
-        auto gbr = new QGroupBox("Offset recalibration");
-        gbr->setVisible(false);
-        auto qhblr = new QHBoxLayout();
-        gbr->setLayout(qhblr);
-        qvbl->addWidget(gbr);
-        offsetRecalibrationOnBtn = new QPushButton("ON (C)");
-        connect(offsetRecalibrationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn);
-        qhblr->addWidget(offsetRecalibrationOnBtn);
-        offsetRecalibrationOffBtn = new QPushButton("OFF");
-        connect(offsetRecalibrationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOff);
-        qhblr->addWidget(offsetRecalibrationOffBtn);
-        offsetRecalibrationResetBtn = new QPushButton("RESET");
-        connect(offsetRecalibrationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetOffsetRecalibration);
-        qhblr->addWidget(offsetRecalibrationResetBtn);
+        // CONTAINER: EXPERT MODE (C / J)
+        QFrame* expertContentFrame = new QFrame();
+        expertContentFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        expertContentFrame->setObjectName("modeContainer");
+        QVBoxLayout* expertVLayout = new QVBoxLayout(expertContentFrame);
+        expertVLayout->setContentsMargins(10, 5, 10, 10);
+        expertVLayout->setSpacing(8);
 
-        auto gbl = new QGroupBox("Liquid junction compensation");
-        gbl->setVisible(false);
-        auto qhbll = new QHBoxLayout();
-        gbl->setLayout(qhbll);
-        qvbl->addWidget(gbl);
-        liquidJunctionCompensationOnBtn = new QPushButton("ON (J)");
+        // Helper (Recalibration e Liquid Junction)
+        auto addExpertRow = [&](ChannelProperty property, QPushButton* on, QPushButton* off, QPushButton* reset) {
+            QHBoxLayout* row = new QHBoxLayout();
+            QLabel* iconLbl = new QLabel(channelPropertyBadge[property]);
+            iconLbl->setObjectName("propertyBadge");
+            iconLbl->setProperty("propertyValue", channelPropertyBadge[property]);
+            iconLbl->setFixedSize(18, 18);
+            iconLbl->setAlignment(Qt::AlignCenter);
+
+            QLabel* nameLbl = new QLabel(channelPropertyName[property]);
+            nameLbl->setObjectName("offsetRowLabel");
+
+            on->setFixedWidth(60);
+            off->setFixedWidth(60);
+            reset->setFixedWidth(60);
+
+            row->addWidget(iconLbl);
+            row->addWidget(nameLbl);
+            row->addStretch();
+            row->addWidget(on);
+            row->addWidget(off);
+            row->addWidget(reset);
+            expertVLayout->addLayout(row);
+        };
+
+        liquidJunctionCompensationOnBtn = new QPushButton("ON");
         connect(liquidJunctionCompensationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnLjcOn);
-        qhbll->addWidget(liquidJunctionCompensationOnBtn);
         liquidJunctionCompensationOffBtn = new QPushButton("OFF");
         connect(liquidJunctionCompensationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnLjcOff);
-        qhbll->addWidget(liquidJunctionCompensationOffBtn);
         liquidJunctionCompensationResetBtn = new QPushButton("RESET");
         connect(liquidJunctionCompensationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetLj);
-        qhbll->addWidget(liquidJunctionCompensationResetBtn);
 
-        connect(offsetCorrectionExpertChb, &QPushButton::clicked, this, [=](bool checked) {
-            ww->setVisible(!checked);
-            gbr->setVisible(checked);
-            gbl->setVisible(checked);
+        offsetRecalibrationOnBtn = new QPushButton("ON");
+        connect(offsetRecalibrationOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOn);
+        offsetRecalibrationOffBtn = new QPushButton("OFF");
+        connect(offsetRecalibrationOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnOffsetRecalibrationOff);
+        offsetRecalibrationResetBtn = new QPushButton("RESET");
+        connect(offsetRecalibrationResetBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigResetOffsetRecalibration);
+
+        addExpertRow(RECALIBRATION, offsetRecalibrationOnBtn, offsetRecalibrationOffBtn, offsetRecalibrationResetBtn);
+        addExpertRow(LIQUID_JUNCTION, liquidJunctionCompensationOnBtn, liquidJunctionCompensationOffBtn, liquidJunctionCompensationResetBtn);
+
+        mainLayout->addWidget(expertContentFrame);
+        expertContentFrame->setVisible(false);
+
+        // --- MODE SWITCH BUTTON - EXPERT/BASIC ---
+        connect(offsetCorrectionMode, &QPushButton::toggled, this, [=](bool checked) {
+            basicContentFrame->setVisible(!checked);
+            expertContentFrame->setVisible(checked);
+            offsetCorrectionMode->setText(checked ? "Basic mode ▲" : "Expert mode ▼");
+
+            // TODO check ridimensionamento
+            this->updateGeometry();
+            this->adjustSize();
+
         });
+
     }
 
     QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     mainLayout->addWidget(spacer);
 
     // Summary
@@ -279,39 +330,40 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     summaryWg->setAttribute(Qt::WA_TranslucentBackground);
 
     // Helper for summary creation
-    auto addSummaryItem = [&](QString label, QString value, QString status, int row, int col) {
+    auto addSummaryItem = [&](ChannelProperty property, QString value, QString status, int row, int col) {
         QWidget *cell = new QWidget();
-        cell->setObjectName(("summaryCell" + label).remove(" "));
+        cell->setObjectName("summaryCell");
+        cell->setProperty("value", channelPropertyBadge[property]);
 
         QHBoxLayout *l = new QHBoxLayout(cell);
         l->setContentsMargins(8, 6, 8, 6);
 
-        QLabel *nameLbl = new QLabel(label);
-        nameLbl->setObjectName("summaryName");
+        QLabel *nameLbl = new QLabel(channelPropertyName[property]);
+        nameLbl->setObjectName("summaryCellName");
 
         QLabel *valLbl = new QLabel(value);
-        valLbl->setObjectName("summaryValue");
+        valLbl->setObjectName("summaryCellValue");
         valLbl->setProperty("status", status);
 
         l->addWidget(nameLbl);
         l->addStretch();
         l->addWidget(valLbl);
-        m_summaryLabels[label] = valLbl;
+        m_summaryLabels[channelPropertyId[property]] = valLbl;
         summaryLayout->addWidget(cell, row, col);
     };
 
     // Grid layout column based
-    addSummaryItem(channelPropertyToString[EXPAND], "FAKE", "on", 0, 0);
-    addSummaryItem(channelPropertyToString[PLOT_DETAIL], "FAKE", "on", 0, 1);
-    addSummaryItem(channelPropertyToString[CH_INPUT], "FAKE", "on", 1, 0);
-    addSummaryItem(channelPropertyToString[STIMULUS], "FAKE", "auto", 1, 1);
+    addSummaryItem(EXPAND, "-", "-", 0, 0);
+    addSummaryItem(PLOT_DETAIL, "-", "-", 0, 1);
+    addSummaryItem(CH_INPUT, "-", "-", 1, 0);
+    addSummaryItem(STIMULUS, "-", "-", 1, 1);
 
     mainLayout->addWidget(summaryWg);
     externalLayout->addWidget(mainWrapper);
 }
 
 void MultipleChannelControlDockWidget::updateSummary(const ChannelProperty &propertyType, const QString &text, const QString &status) {
-    QString propertyId = channelPropertyToString[propertyType];
+    QString propertyId = channelPropertyId[propertyType];
     if (m_summaryLabels.count(propertyId)) {
         m_summaryLabels[propertyId]->setText(text);
         m_summaryLabels[propertyId]->setProperty("status", status);
@@ -334,8 +386,6 @@ void MultipleChannelControlDockWidget::setSelectionCount(int count, int totalCha
 
 
 void MultipleChannelControlDockWidget::enableDisableControls(ChannelProperty propertyType, bool flag){
-    QString propertyName = channelPropertyToString[propertyType];
-
     switch (propertyType)
     {
     case EXPAND:
@@ -354,7 +404,12 @@ void MultipleChannelControlDockWidget::enableDisableControls(ChannelProperty pro
         turnStimulusOnBtn->setDisabled(flag);
         turnStimulusOffBtn->setDisabled(flag);
         break;
+    case RECALIBRATION:
+        break;
+    case LIQUID_JUNCTION:
+        break;
     }
+
 }
 
 void MultipleChannelControlDockWidget::setChannelsAuto(bool flag) {
@@ -382,11 +437,11 @@ void MultipleChannelControlDockWidget::setPlotDetailAuto(bool flag) {
 }
 
 bool MultipleChannelControlDockWidget::getExpertMode() {
-    return offsetCorrectionExpertChb->isChecked();
+    return offsetCorrectionMode->isChecked();
 }
 
 void MultipleChannelControlDockWidget::enableExpertMode(bool flag) {
-    offsetCorrectionExpertChb->setEnabled(flag);
+    offsetCorrectionMode->setEnabled(flag);
 }
 
 void MultipleChannelControlDockWidget::onSetClampingModality(ClampingModality_t clampingModality) {

@@ -19,14 +19,36 @@ enum ChannelProperty {
     PLOT_DETAIL,
     CH_INPUT,
     STIMULUS,
+    RECALIBRATION,
+    LIQUID_JUNCTION
 
 };
 
-static QMap<ChannelProperty, QString> channelPropertyToString = {
-    {EXPAND, "Expand"},
-    {PLOT_DETAIL, "PlotDetail"},
-    {CH_INPUT, "ChInput"},
-    {STIMULUS, "Stimulus"}
+static QMap<ChannelProperty, QString> channelPropertyId = {
+    {EXPAND, "EXP"},
+    {PLOT_DETAIL, "PLT"},
+    {CH_INPUT, "CHI"},
+    {STIMULUS, "STI"},
+    {RECALIBRATION, "REC"},
+    {LIQUID_JUNCTION, "LQJ"}
+};
+
+static QMap<ChannelProperty, QString> channelPropertyBadge = {
+    {EXPAND, "E"},
+    {PLOT_DETAIL, "P"},
+    {CH_INPUT, "O"},
+    {STIMULUS, "X"},
+    {RECALIBRATION, "C"},
+    {LIQUID_JUNCTION, "J"}
+};
+
+static QMap<ChannelProperty, QString> channelPropertyName = {
+    {EXPAND, "Expand Trace"},
+    {PLOT_DETAIL, "Plot Detail"},
+    {CH_INPUT, "Channel Input"},
+    {STIMULUS, "Stimulus"},
+    {RECALIBRATION, "Recalibration"},
+    {LIQUID_JUNCTION, "Liquid Junction"}
 };
 
 class MultipleChannelControlDockWidget : public QDockWidget {
@@ -62,7 +84,7 @@ private:
     QPushButton * zapBtn = nullptr;
     QPushButton * offsetCorrectionStartBtn = nullptr;
     QPushButton * offsetCorrectionStopBtn = nullptr;
-    QCheckBox * offsetCorrectionExpertChb = nullptr;
+    QPushButton * offsetCorrectionMode = nullptr;
     QPushButton * offsetRecalibrationOnBtn = nullptr;
     QPushButton * offsetRecalibrationOffBtn = nullptr;
     QPushButton * offsetRecalibrationResetBtn = nullptr;
