@@ -57,7 +57,7 @@ AboutDialog::AboutDialog(QWidget* parent) :
     librariesText += addLibrary("Qt Framework",
                                 "https://qt.io",
                                 QT_VERSION_STR,
-                                "LGPL 3",
+                                "LGPLv3",
                                 "https://doc.qt.io/qt-6/lgpl.html");
     librariesText += addLibrary("Qwt",
                                 "https://qwt.sourceforge.io",
@@ -80,6 +80,13 @@ AboutDialog::AboutDialog(QWidget* parent) :
                                 H5_VER_PATCH,
                                 "3-clause BSD",
                                 "https://github.com/HDFGroup/hdf5/?tab=License-1-ov-file");
+    librariesText += addLibrary("Axon Library",
+                                "https://sourceforge.net/projects/libaxon/",
+                                AXONLIB_VER_MAJOR,
+                                AXONLIB_VER_MINOR,
+                                AXONLIB_VER_PATCH,
+                                "LGPLv3",
+                                "https://www.gnu.org/licenses/lgpl-3.0.txt");
     librariesText += addLibrary("yaml-cpp",
                                 "https://github.com/jbeder/yaml-cpp",
                                 YAML_VER_MAJOR,

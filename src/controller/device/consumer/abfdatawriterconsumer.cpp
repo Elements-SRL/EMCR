@@ -777,7 +777,7 @@ bool AbfDataWriterConsumer::openFile() {
             abfs[channelIdx] = new ABF();
             abf = abfs[channelIdx];
 
-            openOk = abf->Open(const_cast <char *> (validFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString().c_str()), QFile::WriteOnly | QFile::Truncate);
+            openOk = abf->Open(validFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString(), std::ios::out | std::ios::trunc | std::ios::binary);
 
             if (openOk != AXON_INFO_OK) {
                 delete abf;
@@ -791,7 +791,7 @@ bool AbfDataWriterConsumer::openFile() {
             abfs[channelIdx] = new ABF();
             abf = abfs[channelIdx];
 
-            openOk = abf->Open(const_cast <char *> (validFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString().c_str()), QFile::WriteOnly | QFile::Truncate);
+            openOk = abf->Open(validFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString(), std::ios::out | std::ios::trunc | std::ios::binary);
 
             if (openOk != AXON_INFO_OK) {
                 delete abf;
@@ -801,7 +801,7 @@ bool AbfDataWriterConsumer::openFile() {
             abfsV[channelIdx] = new ABF();
             abf = abfsV[channelIdx];
 
-            openOk = abf->Open(const_cast <char *> (validVoltageFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString().c_str()), QFile::WriteOnly | QFile::Truncate);
+            openOk = abf->Open(validVoltageFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString(), std::ios::out | std::ios::trunc | std::ios::binary);
 
             if (openOk != AXON_INFO_OK) {
                 delete abf;
@@ -815,7 +815,7 @@ bool AbfDataWriterConsumer::openFile() {
             abfs[channelIdx] = new ABF();
             abf = abfs[channelIdx];
 
-            openOk = abf->Open(const_cast <char *> (validFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString().c_str()), QFile::WriteOnly | QFile::Truncate);
+            openOk = abf->Open(validFullFileName.arg(channelIdx+1, 3, 10, QLatin1Char('0')).toStdString(), std::ios::out | std::ios::trunc | std::ios::binary);
 
             if (openOk != AXON_INFO_OK) {
                 delete abf;

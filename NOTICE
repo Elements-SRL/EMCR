@@ -44,34 +44,33 @@ Copyright (c) 2010-2018 Max-Planck-Society All rights reserved.
 A copy of the full licenses is provided in the THIRD_PARTY_LICENSES directory.
 
 --------------------------------------------------------------------------------------------------------------------------
-QWT LIBRARY
-
-The Qwt library is licensed under the Qwt License 1.0 (LGPLv2.1 with exceptions).
-
-Qwt (v6.3.0)
-Copyright (c) 1997 Josef Wilgen
-Copyright (c) 2002 Uwe Rathmann
-
-This product uses the Qwt library with minor changes. Changes to the Qwt library are available upon request by writing at
-support@elements-ic.com
-
-A copy of the full license is provided in the THIRD_PARTY_LICENSES directory.
-
---------------------------------------------------------------------------------------------------------------------------
-QT GUI TOOLKIT
-
-The Qt GUI Toolkit is licensed under the GNU Lesser General Public License v3 (LGPLv3).
+LGPL LICENSED COMPONENTS
 
 Qt GUI Toolkit (v6.7.3)
 Copyright (c) 2018 The Qt Company Ltd. and other contributors
 
-This product uses the Qt GUI Toolkit under the terms of the LGPLv3:
+This product uses the Qt GUI Toolkit under the terms of the GNU Lesser General Public License v3 (LGPLv3):
 - Qt libraries are dynamically linked
 - No modifications to the Qt GUI Toolkit have been made
 - The complete corresponding source code for the Qt GUI Toolkit v6.7.3 is available upon request by writing at
 support@elements-ic.com
 
-A copy of the LGPLv3 license is provided in the THIRD_PARTY_LICENSES directory.
+Qwt (v6.3.0)
+Copyright (c) 1997 Josef Wilgen
+Copyright (c) 2002 Uwe Rathmann
+
+This product uses the Qwt library with minor changes.
+The Qwt library is licensed under the Qwt License 1.0 (LGPLv2.1 with exceptions).
+Changes to the Qwt library are available upon request by writing at support@elements-ic.com
+
+Axon Library (v0.2)
+Copyright (c) 2008-2009 Jakub Nowacki
+
+This product uses the Axon Library with minor changes.
+The Axon Library library is licensed under the terms of the GNU Lesser General Public License v3 (LGPLv3):
+Changes to the Axon Library are available upon request by writing at support@elements-ic.com
+
+A copy of the full licenses is provided in the THIRD_PARTY_LICENSES directory.
 
 --------------------------------------------------------------------------------------------------------------------------
 PROPRIETARY THIRD-PARTY COMPONENTS

@@ -56,13 +56,13 @@ ABF::ABF() {
 
 /*! ABF class destructor. */
 ABF::~ABF(void) {
-    if (handle.isOpen()) {
+    if (handle.is_open()) {
         handle.close();
     }
 }
 
 /*! Opens a file. */
-int ABF::Open(QString fname, QIODevice::OpenMode mode) {
+int ABF::Open(std::string fname, int mode) {
     /*! If a name have been specified, save it. */
     char data[8*16*16];
     for (int i = 0; i < 8*16*16; i++) {
@@ -78,15 +78,14 @@ int ABF::Open(QString fname, QIODevice::OpenMode mode) {
     }
 
     /*! Open the file, in case of failure delete the name. */
-    handle.setFileName(name);
-    handle.open(mode);
-    if (!handle.isOpen()) {
+    handle.open(name, mode);
+    if (!handle.is_open()) {
         name = "";
         return AXON_ERROR_NO_HANDLE;
     }
 
     /*! File Info section */
-    handle.seek(0);
+    handle.seekp(0);
     handle.write(data, 8*16*16);
 
     return AXON_INFO_OK;
@@ -95,7 +94,7 @@ int ABF::Open(QString fname, QIODevice::OpenMode mode) {
 /*! Closes a file. */
 int ABF::Close(void) {
     /*! If there's no handle (no file was opened) exit. */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
     /*! Otherwise close file and reset the handle. */
@@ -106,12 +105,12 @@ int ABF::Close(void) {
 /*! Reads File Info from the ABF file */
 int ABF::ReadFileInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
     /*! File Info section */
-    handle.seek(0);
+    handle.seekp(0);
     handle.read((char *)&FileInfo, sizeof (FileInfo));
     return AXON_INFO_OK;
 }
@@ -119,12 +118,12 @@ int ABF::ReadFileInfo() {
 /*! Writes File Info from the ABF file */
 int ABF::WriteFileInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
     /*! File Info section */
-    handle.seek(0);
+    handle.seekp(0);
     handle.write((char *)&FileInfo, sizeof (FileInfo));
     return AXON_INFO_OK;
 }
@@ -216,7 +215,7 @@ int ABF::InitFileInfo() {
 /*! Reads Protocol Info from the ABF file */
 int ABF::ReadProtocolInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -226,7 +225,7 @@ int ABF::ReadProtocolInfo() {
     }
 
     /*! Protocol Info section */
-    handle.seek(FileInfo.ProtocolSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.ProtocolSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read((char *)&ProtocolInfo, sizeof(ProtocolInfo));
     return AXON_INFO_OK;
 }
@@ -234,7 +233,7 @@ int ABF::ReadProtocolInfo() {
 /*! Writes Protocol Info to the ABF file */
 int ABF::WriteProtocolInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -244,7 +243,7 @@ int ABF::WriteProtocolInfo() {
     }
 
     /*! Protocol Info section */
-    handle.seek(FileInfo.ProtocolSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.ProtocolSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write((char *)&ProtocolInfo, sizeof(ProtocolInfo));
     return AXON_INFO_OK;
 }
@@ -336,7 +335,7 @@ int ABF::InitProtocolSection() {
 /*! Reads ADC Info from the ABF file */
 int ABF::ReadADCInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -345,7 +344,7 @@ int ABF::ReadADCInfo() {
         return AXON_INFO_NO_SECTION;
 
     /*! ADC Info section */
-    handle.seek(FileInfo.ADCSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.ADCSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read((char *)ADCInfo, FileInfo.ADCSection.uBytes*FileInfo.ADCSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -354,7 +353,7 @@ int ABF::ReadADCInfo() {
 /*! Writes ADC Info to the ABF file */
 int ABF::WriteADCInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -364,7 +363,7 @@ int ABF::WriteADCInfo() {
     }
 
     /*! ADC Info section */
-    handle.seek(FileInfo.ADCSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.ADCSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write((char *)ADCInfo, FileInfo.ADCSection.uBytes*FileInfo.ADCSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -411,7 +410,7 @@ int ABF::InitADCSection(int index) {
 /*! Reads DAC Info from the ABF file */
 int ABF::ReadDACInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -421,7 +420,7 @@ int ABF::ReadDACInfo() {
     }
 
     /*! DAC Info section */
-    handle.seek(FileInfo.DACSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.DACSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read((char *)DACInfo, FileInfo.DACSection.uBytes*FileInfo.DACSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -430,7 +429,7 @@ int ABF::ReadDACInfo() {
 /*! Writes DAC Info to the ABF file */
 int ABF::WriteDACInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -440,7 +439,7 @@ int ABF::WriteDACInfo() {
     }
 
     /*! DAC Info section */
-    handle.seek(FileInfo.DACSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.DACSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write((char *)DACInfo, FileInfo.DACSection.uBytes*FileInfo.DACSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -501,7 +500,7 @@ int ABF::InitDACSection(int index) {
 /*! Reads Epoch Info from the ABF file */
 int ABF::ReadEpochInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -511,7 +510,7 @@ int ABF::ReadEpochInfo() {
     }
 
     /*! Epoch Info section */
-    handle.seek(FileInfo.EpochSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.EpochSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read((char *)EpochInfo, FileInfo.EpochSection.uBytes*FileInfo.EpochSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -520,7 +519,7 @@ int ABF::ReadEpochInfo() {
 /*! Reads Stats Region Info to the ABF file */
 int ABF::ReadStatsRegion() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -530,7 +529,7 @@ int ABF::ReadStatsRegion() {
     }
 
     /*! StatsRegion Info section */
-    handle.seek(FileInfo.StatsRegionSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.StatsRegionSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read((char *)&StatsRegionSection, FileInfo.StatsRegionSection.uBytes*FileInfo.StatsRegionSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -539,7 +538,7 @@ int ABF::ReadStatsRegion() {
 /*! Writes Stats Region Info to the ABF file */
 int ABF::WriteStatsRegion() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -549,7 +548,7 @@ int ABF::WriteStatsRegion() {
     }
 
     /*! StatsRegion Info section */
-    handle.seek(FileInfo.StatsRegionSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.StatsRegionSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write((char *)&StatsRegionSection, FileInfo.StatsRegionSection.uBytes*FileInfo.StatsRegionSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -589,7 +588,7 @@ int ABF::InitStatsRegionSection() {
 /*! Writes Scope Info to the ABF file */
 int ABF::WriteScopeInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -599,7 +598,7 @@ int ABF::WriteScopeInfo() {
     }
 
     /*! StatsRegion Info section */
-    handle.seek(FileInfo.ScopeSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.ScopeSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write((char *)&ScopeInfo, FileInfo.ScopeSection.uBytes*FileInfo.ScopeSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -674,7 +673,7 @@ int ABF::ReadEpochInfoPerDAC() {
     ABF_EpochInfoPerDAC tmp;
 
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -684,7 +683,7 @@ int ABF::ReadEpochInfoPerDAC() {
     }
 
     /*! Epoch per DAC Info section */
-    handle.seek(FileInfo.EpochPerDACSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.EpochPerDACSection.uBlockIndex*ABF_BLOCKSIZE);
     for (long long i = 0; i < FileInfo.EpochPerDACSection.llNumEntries; i++) {
         handle.read((char *)&tmp, FileInfo.EpochPerDACSection.uBytes);
         EpochInfoPerDAC[tmp.nDACNum][tmp.nEpochNum] = tmp;
@@ -696,7 +695,7 @@ int ABF::ReadEpochInfoPerDAC() {
 /*! Reads string section from the ABF file */
 int ABF::ReadStrings() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -706,7 +705,7 @@ int ABF::ReadStrings() {
     }
 
     /*! Strings section */
-    handle.seek(FileInfo.StringsSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.StringsSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read(Strings, ABF_BLOCKSIZE);
 
     return AXON_INFO_OK;
@@ -715,7 +714,7 @@ int ABF::ReadStrings() {
 /*! Writes Strings from to ABF file */
 int ABF::WriteStrings() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -728,7 +727,7 @@ int ABF::WriteStrings() {
     Strings[8] = (char)StringIndex;
     Strings[12] = (char)stringsMaxLen;
     Strings[16] = (char)StringAddress-44;
-    handle.seek(FileInfo.StringsSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.StringsSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write(Strings, ABF_BLOCKSIZE);
 
     return AXON_INFO_OK;
@@ -742,7 +741,7 @@ int ABF::GetString(char * str, int index) {
     int n;
 
     /*!  The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -788,16 +787,16 @@ int ABF::InitStrings(void) {
     Strings[2] = 0x43;
     Strings[3] = 0x48;
     Strings[4] = 1;
-//    Strings[8] = 12; number of strings
-//    Strings[12] = 10; length of longest string, last null char excluded
-//    Strings[16] = 51; total length of strings, including last null char
+    //    Strings[8] = 12; number of strings
+    //    Strings[12] = 10; length of longest string, last null char excluded
+    //    Strings[16] = 51; total length of strings, including last null char
     return AXON_INFO_OK;
 }
 
 /*! Reads Synch Array from the ABF file */
 int ABF::ReadSynchArray() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -807,7 +806,7 @@ int ABF::ReadSynchArray() {
     }
 
     /*! Synch Array section */
-    handle.seek(FileInfo.SynchArraySection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.SynchArraySection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read((char *)SynchArray, FileInfo.SynchArraySection.uBytes*FileInfo.SynchArraySection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -858,7 +857,7 @@ int ABF::ReadAllSections() {
 /*! Reads Data from the ABF file */
 int ABF::ReadData(void * data) {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -868,7 +867,7 @@ int ABF::ReadData(void * data) {
     }
 
     /*! Data section */
-    handle.seek(FileInfo.DataSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.DataSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.read((char *)data, FileInfo.DataSection.uBytes*FileInfo.DataSection.llNumEntries);
 
     return AXON_INFO_OK;
@@ -877,7 +876,7 @@ int ABF::ReadData(void * data) {
 /*! Reads float data from the ABF file */
 float * ABF::ReadFloatData(void) {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return nullptr;
     }
 
@@ -897,7 +896,7 @@ float * ABF::ReadFloatData(void) {
 /*! Method reads integer data from the ABF file */
 short * ABF::ReadIntData(void) {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return nullptr;
     }
 
@@ -940,7 +939,7 @@ int ABF::GetStringsTotLen(void) {
 /*! Method append Data to the ABF file */
 int ABF::WriteRawData(void * data, int size, int num) {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -951,8 +950,8 @@ int ABF::WriteRawData(void * data, int size, int num) {
 
     /*! Data section */
     long offset = (long)(FileInfo.DataSection.uBlockIndex*ABF_BLOCKSIZE)+
-            ((long)(FileInfo.DataSection.llNumEntries))*(long)size;
-    handle.seek(offset);
+                  ((long)(FileInfo.DataSection.llNumEntries))*(long)size;
+    handle.seekp(offset);
     handle.write((char *)data, size*num);
     FileInfo.DataSection.llNumEntries += num;
 
@@ -962,7 +961,7 @@ int ABF::WriteRawData(void * data, int size, int num) {
 /*! Write synch Data to the ABF file */
 int ABF::WriteSynchData() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -975,7 +974,7 @@ int ABF::WriteSynchData() {
     int num = FileInfo.SynchArraySection.llNumEntries*2;
 
     /*! Synch section */
-    handle.seek(FileInfo.SynchArraySection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.SynchArraySection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write((char *)SynchArray, size*num);
 
     return AXON_INFO_OK;
@@ -984,7 +983,7 @@ int ABF::WriteSynchData() {
 /*! Writes Tags Info to the ABF file */
 int ABF::WriteTagsInfo() {
     /*! The file have to be opened first - use Open() */
-    if (!handle.isOpen()) {
+    if (!handle.is_open()) {
         return AXON_ERROR_NO_HANDLE;
     }
 
@@ -994,7 +993,7 @@ int ABF::WriteTagsInfo() {
     }
 
     /*! Tags Info section */
-    handle.seek(FileInfo.TagSection.uBlockIndex*ABF_BLOCKSIZE);
+    handle.seekp(FileInfo.TagSection.uBlockIndex*ABF_BLOCKSIZE);
     handle.write((char *)TagsInfo, sizeof(ABF_TagsInfo)*FileInfo.TagSection.llNumEntries);
     return AXON_INFO_OK;
 }

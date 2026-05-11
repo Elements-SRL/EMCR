@@ -31,9 +31,7 @@
 #include "axon_defs.h"
 #include "axon_structs.h"
 
-#include <QString>
-#include <QFile>
-#include <QDataStream>
+#include <fstream>
 
 /*! Definitions of the error and info values */
 #define AXON_ERROR_NO_NAME 		-1 		/*!< the name has not been defined */
@@ -48,8 +46,8 @@
  */
 class ABF {
     private:
-        QFile handle;
-        QString name;
+        std::fstream handle;
+        std::string name;
         int StringAddress = 44;
         int stringsMaxLen = 0;
         int StringIndex = 0;
@@ -73,7 +71,7 @@ class ABF {
 
     ABF(void);
     ~ABF(void);
-    int Open(QString fname, QIODevice::OpenMode mode);
+    int Open(std::string fname, int mode);
     int Close(void);
     int ReadFileInfo(void);
     int WriteFileInfo(void);

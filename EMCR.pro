@@ -55,7 +55,6 @@ SOURCES += \
     src/controller/plotdetailcontroller.cpp \
     src/controller/temperaturecontroller.cpp \
     src/main.cpp \
-    src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/device/consumer/eventdetectionconsumer.cpp \
@@ -192,9 +191,6 @@ HEADERS += \
     src/model/plotdetailmodel.h \
     src/model/singlemeasresult.h \
     src/protocoldefs.h \
-    src/abf/axon.h \
-    src/abf/axon_defs.h \
-    src/abf/axon_structs.h \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/device/consumer/eventdetectionconsumer.h \
@@ -340,8 +336,7 @@ INCLUDEPATH += \
     ./src/view/protocol \
     ./src/view/autodeclogger \
     ./src/view/questionmarkmenu \
-    ./src/view/advancedmenu \
-    ./src/abf
+    ./src/view/advancedmenu
 
 DEPENDPATH += \
     ./src \
@@ -361,14 +356,14 @@ DEPENDPATH += \
     ./src/view/protocol \
     ./src/view/autodeclogger \
     ./src/view/questionmarkmenu \
-    ./src/view/advancedmenu \
-    ./src/abf
+    ./src/view/advancedmenu
 
 RC_ICONS = imgs/Elements.ico
 ICON = imgs/Elements.ico.icns
 
 include($$(QWT_PATH)includeqwt.pri)
 include($$(HDF5_PATH)includehdf5.pri)
+include($$(AXONLIB_PATH)includeaxonlib.pri)
 include($$(POCKETFFT_PATH)includepocketfft.pri)
 
 RESOURCES += \
