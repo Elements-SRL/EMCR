@@ -7,8 +7,6 @@ QWidget {
     outline: none;
 }
 
-
-
 QMainWindow, QDialog {
     background-color: #29282E; 
 }
@@ -339,18 +337,18 @@ QComboBox#deviceCombo {
 /* --- MULTIPLE CHANNEL CONTROLS --- */
 
 /* Header di sezione (es. VISIBILITY & PLOTTING) */
-QFrame#sectionHeaderContainer{
-    background-color: #4A5468;
-}
-
 QLabel#sectionHeader {
-    background-color: #4A5468;
-    color: #A0ABC0;
-    padding: 4px 8px;
+    background-color: #333333;
+    color: #888888;
+    padding: 8px 8px;
     font-weight: bold;
     text-transform: uppercase;
     font-size: 10px;
     letter-spacing: 1px;
+}
+
+QFrame#sectionHeaderContainer{
+    background-color: #333333;
 }
 
 QComboBox#deviceCombo::drop-down {
@@ -484,15 +482,13 @@ QLabel#autoLabel[active="true"] {
 }
 
 /* Contatore canali selezionati in alto */
-/* Il contatore canali ora segue lo stesso stile senza stacchi */
 QLabel#selectionCounter {
-    background-color: #2D3648; 
+    background-color: #1e1e1e; 
     color: #B0DCFF;
     padding: 5px;
     font-size: 10px;
     font-weight: bold;
     border-bottom: 1px solid #2d323e;
-    border-top: 1px solid #3d4655;
 }
 
 /* empty - quando nessun canale è selezionato */
@@ -510,14 +506,10 @@ QFrame#propertyContainer {
 }
 
 QLabel#propertyName{
-    color: #888888;
+    color: #CBD2E0;
     text-transform: uppercase;
     font-size: 10px;
-    font-weight: bold;
-}
-
-QWidget#customTitleBar {
-    background-color: #CBD2E0;
+    font-weight: regular;
 }
 
 QLabel#titleLabel {
@@ -528,7 +520,7 @@ QLabel#titleLabel {
 }
 
 QWidget#multipleChannelControlsDw{
-    border: 1px solid #343e4d;
+    border: 1px solid #1e2430;
     border-radius: 10px;
 }
 
@@ -550,7 +542,7 @@ QFrame#mainWrapper {
 }
 
 QWidget#customTitleBar {
-    background-color: #2D3648;
+    background-color: #333333;
     border: 1px solid #3d4655;
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
@@ -587,7 +579,6 @@ QPushButton#windowExpand:hover {
 /* Contenitore generale con bordo superiore */
 QWidget#summaryContainer {
     border-top: 1px solid #343e4d;
-    background-color: #1e2430;
 }
 
 /* Cella singola del Summary*/
@@ -650,26 +641,25 @@ QLabel#summaryCellValue[status="auto"] { color: #B0DCFF; } /* Blu */
     margin-left: 4px;
 }
 
-#modeContainer {
+QFrame#modeContainer {
     background-color: transparent;
     border: none;
 }
 
 /* Pulsanti START/STOP nella modalità Basic */
-#modeContainer QPushButton {
+QFrame#modeContainer QPushButton {
     background-color: #333333;
     border: 1px solid #454545;
     border-radius: 3px;
     color: #D0D0D0;
-    font-weight: bold;
     font-size: 10px;
 }
 
-#modeContainer QPushButton:hover {
+QFrame#modeContainer QPushButton:hover {
     background-color: #3D3D3D;
 }
 
-#modeContainer QPushButton:pressed {
+QFrame#modeContainer QPushButton:pressed {
     background-color: #1A1A1A;
     border-color: #B0DCFF;
 }
