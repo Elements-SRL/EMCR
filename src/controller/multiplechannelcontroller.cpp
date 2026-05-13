@@ -142,6 +142,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto,     this, [=] (bool flag) {
         appStatus->setPlotDetailAuto(flag);
         multipleChannelControlsDw->enableDisableControls(PLOT_DETAIL, flag);
+        refreshSummary();
     });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
@@ -408,11 +409,15 @@ void MultipleChannelController::refreshSummary() {
     auto resExpand = getStatus(appStatus->getExpandedTraces(), appStatus->isExpandAuto());
     multipleChannelControlsDw->updateSummary(EXPAND, resExpand.first, resExpand.second);
 
-    // TODO create/find getStimulusStatusMap
-    // auto resStim = getStatus(appStatus->getStimulusStatusMap(), appStatus->isStimulusAuto());
-    // multipleChannelControlsDw->updateSummary("stimulus", resStim.first, resStim.second);
+    auto resStim = getStatus(appStatus->getStimActiveChannelsMap(), appStatus->isStimulusAuto());
+    multipleChannelControlsDw->updateSummary(STIMULUS, resStim.first, resStim.second);
 
-    // TODO finish to update the summary
+    auto resDetailed = getStatus(appStatus->getDetailedPlotMap(), appStatus->isPlotDetailAuto());
+    multipleChannelControlsDw->updateSummary(PLOT_DETAIL, resDetailed.first, resDetailed.second);
+
+    auto resInput = getStatus(appStatus->getActiveChannelsMap(), appStatus->isChannelsAuto());
+    multipleChannelControlsDw->updateSummary(CH_INPUT, resInput.first, resInput.second);
+
 }
 
 void MultipleChannelController::connectBigPlotController(BigPlotController* bpc) {
