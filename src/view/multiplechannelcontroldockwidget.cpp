@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QEasingCurve>
 #include <QPropertyAnimation>
+#include <QScrollArea>
 #include "globaldefines.h"
 
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
@@ -17,7 +18,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     setAttribute(Qt::WA_TranslucentBackground);
     this->setObjectName("MultipleChannelControlDockWidget");
-    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
 
     // Custom TitleBar widget
     QWidget* customTitleBar = new QWidget();
@@ -46,34 +47,48 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     titleLayout->addWidget(closeBtn);
     this->setTitleBarWidget(customTitleBar);
 
-
     QWidget* centralWidget = new QWidget();
     this->setWidget(centralWidget);
 
-    // Main Frame Layout
+    // External Panel Layout (3 sections)
+    // TOP - Custom title bar
+    // CENTRAL - Scroll area section
+    // BOTTOM - Summary section
     QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
     externalLayout->setContentsMargins(0, 0, 0, 0);
     externalLayout->setSpacing(0);
 
-    // Main Frame
-    QFrame* mainWrapper = new QFrame();
-    mainWrapper->setObjectName("mainWrapper");
-    mainWrapper->setFrameStyle(QFrame::Panel | QFrame::Raised);
-    QVBoxLayout* mainLayout = new QVBoxLayout(mainWrapper);
-    mainLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
     setWindowTitle("Multiple channel controls");
     this->setObjectName("multipleChannelControlsDw");
-    mainWrapper->setLayout(mainLayout);
 
     m_selectionCounterLabel = new QLabel();
     m_selectionCounterLabel->setObjectName("selectionCounter");
     m_selectionCounterLabel->setAlignment(Qt::AlignCenter);
-    mainLayout->addWidget(m_selectionCounterLabel);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
+    externalLayout->addWidget(m_selectionCounterLabel);
 
-    // Helper lambda for panel sub-property creation
+    // CENTRAL scroll area
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    scrollArea->setMinimumHeight(0);
+    scrollArea->setObjectName("centralScrollArea");
+
+    // Scroll area main frame
+    QFrame* mainWrapper = new QFrame();
+    mainWrapper->setObjectName("mainWrapper");
+    mainWrapper->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    QVBoxLayout* mainLayout = new QVBoxLayout(mainWrapper);
+    mainLayout->setContentsMargins(0, 0, 0, 0); // Regola i margini interni
+    mainLayout->setSpacing(0);
+    mainLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    scrollArea->setWidget(mainWrapper);
+
+    // External layout embeds scroll area
+    externalLayout->addWidget(scrollArea);
+
+    // Helper lambda for panel sub-property creation in central area
     auto addPropertyRow = [&](ChannelProperty property, AutoToggle* &autoTgl, QLabel* &badge,
                               QPushButton* &onBtn, QPushButton* &offBtn, QVBoxLayout* layout) {
         QFrame* rowContainer = new QFrame();
@@ -87,6 +102,15 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         QLabel * titleLbl = new QLabel(channelPropertyName[property]);
         titleLbl->setObjectName("propertyName");
         r1->addWidget(titleLbl);
+
+        if ((property == STIMULUS) | (property == CH_INPUT)){
+            QLabel * infoBox = new QLabel();
+            infoBox->setObjectName("infoBox");
+            infoBox->setToolTip(QString("Status badge is showed when feature is OFF."));
+            infoBox->setFixedSize(14, 14);
+            r1->addWidget(infoBox);
+        }
+
         r1->addStretch();
         autoTgl = new AutoToggle();
         r1->addWidget(autoTgl);
@@ -116,7 +140,8 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         layout->addWidget(rowContainer);
     };
 
-    // SECTION - VISIBILITY
+    // -- SCROLL AREA SECTIONS --
+    // Section - VISIBILITY
     QLabel *header = new QLabel("VISIBILITY & PLOTTING");
     header->setObjectName("sectionHeader");
     mainLayout->addWidget(header);
@@ -139,7 +164,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     });
     connect(plotDetailAutoBtn, &AutoToggle::toggled, this, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto);
 
-    // SECTION - SIGNAL
+    // Section - SIGNAL (3 properties available)
     RangedMeasurement_t zapDurationRange;
     bool activeChInput = msgDisp->hasChannelSwitches() == Success;
     bool activeStimulus = msgDisp->hasStimulusSwitches() == Success;
@@ -159,20 +184,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         connect(switchChannelsAutoBtn, &AutoToggle::toggled, this, &MultipleChannelControlDockWidget::sigTurnChannelAuto);
     }
 
-    // TODO check this one below
-    if (msgDisp->hasCalSw() == Success && debugControlsEnabled()) {
-        auto calib_gb = new QGroupBox(QString::fromStdString("Calibration resistors"));
-        auto qhbl = new QHBoxLayout();
-        calib_gb->setLayout(qhbl);
-        mainLayout->addWidget(calib_gb);
-        calibrationResistorsOnBtn = new QPushButton("ON (R)");
-        connect(calibrationResistorsOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn);
-        qhbl->addWidget(calibrationResistorsOnBtn);
-        calibrationResistorsOffBtn = new QPushButton("OFF");
-        connect(calibrationResistorsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOff);
-        qhbl->addWidget(calibrationResistorsOffBtn);
-    }
-
+    // Property - Stimulus
     if (activeStimulus) {
         QLabel *stimulusBadge;
         addPropertyRow(STIMULUS, turnStimulusAutoBtn, stimulusBadge, turnStimulusOnBtn, turnStimulusOffBtn, mainLayout);
@@ -181,12 +193,12 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         connect(turnStimulusAutoBtn, &AutoToggle::toggled, this, &MultipleChannelControlDockWidget::sigTurnStimulusAuto);
     }
 
+    // Property - Zap pulse
     if (hasZap) {
-        // Zap Pulse
         auto zapRow = new QFrame();
         zapRow->setObjectName("propertyContainer");
         auto zapVbl = new QVBoxLayout(zapRow);
-        zapVbl->setContentsMargins(0, 5, 0, 10);
+        zapVbl->setContentsMargins(0, 10, 0, 10);
         zapVbl->setSpacing(4);
 
         auto hblZap = new QHBoxLayout(zapRow);
@@ -199,15 +211,16 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         auto zapDurationRow = new QHBoxLayout();
         zapDurationRow->addWidget(new QLabel("Duration"));
         zapDurationRow->addStretch();
-        zapBtn = new QPushButton("ZAP");
-        zapDurationRow->addWidget(zapBtn);
         auto zapSbx = new QDoubleSpinBox();
         zapDurationRange.convertValues(UnitPfxMilli);
         zapSbx->setRange(zapDurationRange.min, zapDurationRange.max);
         zapSbx->setValue(100.0);
         zapSbx->setProperty("technical", true);
+        zapSbx->setMinimumWidth(80);
         zapDurationRow->addWidget(zapSbx);
         zapDurationRow->addWidget(new QLabel("ms"));
+        zapBtn = new QPushButton("ZAP");
+        zapDurationRow->addWidget(zapBtn);
         zapVbl->addLayout(zapDurationRow);
         mainLayout->addWidget(zapRow);
 
@@ -216,8 +229,48 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         });
     }
 
+    // Section - CALIBRATION RESISTORS
+    if (msgDisp->hasCalSw() == Success && debugControlsEnabled()) {
+
+        QLabel *header = new QLabel("CALIBRATION RESISTORS");
+        header->setObjectName("sectionHeader");
+        mainLayout->addWidget(header);
+
+        QFrame* rowContainer = new QFrame();
+        rowContainer->setObjectName("propertyContainer");
+        auto vbl = new QVBoxLayout(rowContainer);
+        vbl->setContentsMargins(0, 10, 0, 10);
+        vbl->setSpacing(4);
+
+        // Row 2 - Badge + ON/OFF
+        auto calibRow = new QHBoxLayout();
+
+        // Custom Badge (R)
+        QLabel *calibResistorsBadge;
+        calibResistorsBadge = new QLabel(channelPropertyBadge[CALIB_RESISTORS]);
+        calibResistorsBadge->setObjectName("propertyBadge");
+        calibResistorsBadge->setProperty("propertyValue", channelPropertyBadge[CALIB_RESISTORS]);
+        calibResistorsBadge->setFixedSize(18, 18);
+        calibResistorsBadge->setAlignment(Qt::AlignCenter);
+
+        calibrationResistorsOnBtn = new QPushButton("ON");
+        connect(calibrationResistorsOnBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn);
+        calibrationResistorsOffBtn = new QPushButton("OFF");
+        connect(calibrationResistorsOffBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOff);
+        calibrationResistorsOnBtn->setFixedWidth(48);
+        calibrationResistorsOffBtn->setFixedWidth(48);
+
+        calibRow->addWidget(calibResistorsBadge);
+        calibRow->addStretch();
+        calibRow->addWidget(calibrationResistorsOnBtn);
+        calibRow->addWidget(calibrationResistorsOffBtn);
+        vbl->addLayout(calibRow);
+
+        mainLayout->addWidget(rowContainer);
+    }
+
+    // Section - OFFSET CORRECTION
     if (msgDisp->hasOffsetCompensation() == Success) {
-        // SECTION HEADER - OFFSET CORRECTION
         QFrame* offsetHeaderContainer = new QFrame();
         offsetHeaderContainer->setObjectName("sectionHeaderContainer");
         QHBoxLayout* offsetHeaderLayout = new QHBoxLayout(offsetHeaderContainer);
@@ -226,7 +279,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         QLabel *offsetHeader = new QLabel("OFFSET CORRECTION");
         offsetHeader->setObjectName("sectionHeader");
 
-        // Pulsante per cambiare modalità (Expert/Basic)
         offsetCorrectionMode = new QPushButton("Expert mode ▼");
         offsetCorrectionMode->setObjectName("modeToggleBtn");
         offsetCorrectionMode->setCheckable(true);
@@ -236,7 +288,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         offsetHeaderLayout->addWidget(offsetCorrectionMode);
         mainLayout->addWidget(offsetHeaderContainer);
 
-        //  CONTAINER: BASIC MODE (START / STOP)
+        //  Container for: BASIC MODE
         QFrame* basicContentFrame = new QFrame();
         basicContentFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         basicContentFrame->setObjectName("modeContainer");
@@ -258,7 +310,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         connect(offsetCorrectionStopBtn, &QPushButton::clicked, this, &MultipleChannelControlDockWidget::sigStopOffsetCorrection);
         mainLayout->addWidget(basicContentFrame);
 
-        // CONTAINER: EXPERT MODE (C / J)
+        // Container for: EXPERT MODE
         QFrame* expertContentFrame = new QFrame();
         expertContentFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         expertContentFrame->setObjectName("modeContainer");
@@ -267,7 +319,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         expertVLayout->setSpacing(8);
         expertVLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-        // Helper (Recalibration e Liquid Junction)
+        // Helper for creating expert mode - (Recalibration & Liquid Junction)
         auto addExpertRow = [&](ChannelProperty property, QPushButton* on, QPushButton* off, QPushButton* reset) {
             QHBoxLayout* row = new QHBoxLayout();
             QLabel* iconLbl = new QLabel(channelPropertyBadge[property]);
@@ -313,43 +365,29 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         expertContentFrame->setVisible(false);
         offsetCorrectionMode->setChecked(false);
 
-        // --- MODE SWITCH BUTTON - EXPERT/BASIC ---
+        // Mode switch button logic (Basic or Expert)
         connect(offsetCorrectionMode, &QPushButton::toggled, this, [=](bool checked) {
             basicContentFrame->setVisible(!checked);
             expertContentFrame->setVisible(checked);
             offsetCorrectionMode->setText(checked ? "Basic mode ▲" : "Expert mode ▼");
-
-            // Perform height adjustment on widget hide/show
-            QTimer::singleShot(0, this, [this]() {
-                int targetHeight = this->layout()->minimumSize().height();
-
-                // Animate the height update
-                QPropertyAnimation *anim = new QPropertyAnimation(this, "geometry");
-                anim->setDuration(200);
-                anim->setStartValue(this->geometry());
-                anim->setEndValue(QRect(this->x(), this->y(), this->width(), targetHeight));
-                anim->setEasingCurve(QEasingCurve::InOutQuad);
-                anim->start(QAbstractAnimation::DeleteWhenStopped);
-            });
-
+            this->setMinimumWidth(mainWrapper->sizeHint().width() + 8);
         });
     }
 
     mainLayout->addStretch();
-    // TODO connessione stati nel summary
 
-    // Summary
+    // BOTTOM - Status summary
     QWidget *summaryWg = new QWidget();
     summaryWg->setObjectName("summaryContainer");
     QGridLayout *summaryLayout = new QGridLayout(summaryWg);
-    summaryLayout->setSpacing(0); // Per far toccare i bordi delle celle
+    summaryLayout->setSpacing(0);
     summaryLayout->setContentsMargins(0, 0, 0, 0);
-    summaryWg->setAttribute(Qt::WA_TranslucentBackground);
 
     // Helper for summary creation
     auto addSummaryItem = [&](ChannelProperty property, QString value, QString status, int row, int col) {
         QWidget *cell = new QWidget();
         cell->setObjectName("summaryCell");
+        // E, X, P, O, etc.
         cell->setProperty("value", channelPropertyBadge[property]);
 
         QHBoxLayout *l = new QHBoxLayout(cell);
@@ -357,14 +395,23 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
         QLabel *nameLbl = new QLabel(channelPropertyName[property]);
         nameLbl->setObjectName("summaryCellName");
+        l->addWidget(nameLbl);
+        l->addStretch();
 
         QLabel *valLbl = new QLabel(value);
         valLbl->setObjectName("summaryCellValue");
         valLbl->setProperty("status", status);
-
-        l->addWidget(nameLbl);
-        l->addStretch();
         l->addWidget(valLbl);
+
+        if (((property == CH_INPUT) & !(activeChInput)) | ((property == STIMULUS) & !(activeStimulus))){
+            QLabel *infoBox = new QLabel(value);
+            infoBox->setObjectName("infoBox");
+            infoBox->setToolTip(QString("Not available for connected device."));
+            infoBox->setFixedSize(14, 14);
+            l->addWidget(infoBox);
+            valLbl->setText("N/A");
+        }
+
         m_summaryLabels[channelPropertyId[property]] = valLbl;
         summaryLayout->addWidget(cell, row, col);
     };
@@ -374,13 +421,12 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     addSummaryItem(PLOT_DETAIL, "-", "-", 0, 1);
     addSummaryItem(CH_INPUT, "-", "-", 1, 0);
     addSummaryItem(STIMULUS, "-", "-", 1, 1);
-
-    mainLayout->addWidget(summaryWg);
-    externalLayout->addWidget(mainWrapper);
+    externalLayout->addWidget(summaryWg);
+    scrollArea->setMinimumWidth(mainWrapper->sizeHint().width());
 }
 
 void MultipleChannelControlDockWidget::updateSummary(const ChannelProperty &propertyType, const QString &text, const QString &status) {
-    QString propertyId = channelPropertyId[propertyType];
+    QString propertyId = channelPropertyId[propertyType];    
     if (m_summaryLabels.count(propertyId)) {
         m_summaryLabels[propertyId]->setText(text);
         m_summaryLabels[propertyId]->setProperty("status", status);
@@ -390,7 +436,6 @@ void MultipleChannelControlDockWidget::updateSummary(const ChannelProperty &prop
 }
 
 void MultipleChannelControlDockWidget::setSelectionCount(int count, int totalChannels) {
-    // TODO update colors via QSS
     m_selectionCounterLabel->setText(QString(
         "<span style='color:#0078d4;'>●</span> %1 Selected "
         "<span style='color:#666666;'> ●</span> %2 Total"
@@ -401,8 +446,12 @@ void MultipleChannelControlDockWidget::setSelectionCount(int count, int totalCha
     m_selectionCounterLabel->style()->polish(m_selectionCounterLabel);
 }
 
-
+/*!
+  Disables or enables controls (buttons) based on flag. If flag is TRUE -> controls
+  are disabled.
+*/
 void MultipleChannelControlDockWidget::enableDisableControls(ChannelProperty propertyType, bool flag){
+
     switch (propertyType)
     {
     case EXPAND:
@@ -422,8 +471,13 @@ void MultipleChannelControlDockWidget::enableDisableControls(ChannelProperty pro
         turnStimulusOffBtn->setDisabled(flag);
         break;
     case RECALIBRATION:
+        offsetRecalibrationOnBtn->setDisabled(flag);
         break;
     case LIQUID_JUNCTION:
+        liquidJunctionCompensationOnBtn->setDisabled(flag);
+        break;
+    case CALIB_RESISTORS:
+        // Nothing to do
         break;
     }
 

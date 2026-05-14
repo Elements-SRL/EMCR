@@ -20,7 +20,8 @@ enum ChannelProperty {
     CH_INPUT,
     STIMULUS,
     RECALIBRATION,
-    LIQUID_JUNCTION
+    LIQUID_JUNCTION,
+    CALIB_RESISTORS
 
 };
 
@@ -30,7 +31,8 @@ static QMap<ChannelProperty, QString> channelPropertyId = {
     {CH_INPUT, "CHI"},
     {STIMULUS, "STI"},
     {RECALIBRATION, "REC"},
-    {LIQUID_JUNCTION, "LQJ"}
+    {LIQUID_JUNCTION, "LQJ"},
+    {CALIB_RESISTORS, "CLR"}
 };
 
 static QMap<ChannelProperty, QString> channelPropertyBadge = {
@@ -39,7 +41,8 @@ static QMap<ChannelProperty, QString> channelPropertyBadge = {
     {CH_INPUT, "O"},
     {STIMULUS, "X"},
     {RECALIBRATION, "C"},
-    {LIQUID_JUNCTION, "J"}
+    {LIQUID_JUNCTION, "J"},
+    {CALIB_RESISTORS, "R"}
 };
 
 static QMap<ChannelProperty, QString> channelPropertyName = {
@@ -48,7 +51,9 @@ static QMap<ChannelProperty, QString> channelPropertyName = {
     {CH_INPUT, "Channel Input"},
     {STIMULUS, "Stimulus"},
     {RECALIBRATION, "Recalibration"},
-    {LIQUID_JUNCTION, "Liquid Junction"}
+    {LIQUID_JUNCTION, "Liquid Junction"},
+    {CALIB_RESISTORS, "Calibration Resistors"}
+
 };
 
 class MultipleChannelControlDockWidget : public QDockWidget {

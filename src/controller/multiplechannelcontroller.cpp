@@ -214,6 +214,7 @@ void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->turnChannelsOn(selectedChannels, values, true);
     emit sigChannelsTurnedOnOff(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedChannelsOnOffEx(bool flag) {
@@ -223,6 +224,7 @@ void MultipleChannelController::turnSelectedChannelsOnOffEx(bool flag) {
     }
     msgDisp->turnChannelsOn(allChannels, selectedChannels, true);
     emit sigChannelsTurnedOnOffEx(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag) {
@@ -286,6 +288,9 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
         if (ret == QMessageBox::Ok) {
             this->turnSelectedOffsetRecalibrationOnOff(true);
         }
+        if (ret == QMessageBox::Cancel){
+            multipleChannelControlsDw->enableExpertMode(true);
+        }
         break;
     }
 
@@ -315,9 +320,11 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
 void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) {
     if (flag) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
+        multipleChannelControlsDw->enableDisableControls(RECALIBRATION, true);
         offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingOffsetRecalibration);
 
     } else {
+        multipleChannelControlsDw->enableDisableControls(RECALIBRATION, false);
         QApplication::restoreOverrideCursor();
     }
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
@@ -334,6 +341,7 @@ void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) 
 void MultipleChannelController::resetOffsetRecalibration() {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     msgDisp->resetOffsetRecalibration(selectedChannels, true);
+    multipleChannelControlsDw->enableDisableControls(RECALIBRATION, false);
 
     emit sigOffsetRecalibrationResetted();
 }
@@ -341,9 +349,11 @@ void MultipleChannelController::resetOffsetRecalibration() {
 void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
     if (flag) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
+        multipleChannelControlsDw->enableDisableControls(LIQUID_JUNCTION, true);
         offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingLiquidJunctionCorrection);
 
     } else {
+        multipleChannelControlsDw->enableDisableControls(LIQUID_JUNCTION, false);
         QApplication::restoreOverrideCursor();
     }
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
@@ -360,6 +370,7 @@ void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
 void MultipleChannelController::resetLj() {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
+    multipleChannelControlsDw->enableDisableControls(LIQUID_JUNCTION, false);
 
     emit sigLjResetted();
 }
@@ -409,14 +420,18 @@ void MultipleChannelController::refreshSummary() {
     auto resExpand = getStatus(appStatus->getExpandedTraces(), appStatus->isExpandAuto());
     multipleChannelControlsDw->updateSummary(EXPAND, resExpand.first, resExpand.second);
 
-    auto resStim = getStatus(appStatus->getStimActiveChannelsMap(), appStatus->isStimulusAuto());
-    multipleChannelControlsDw->updateSummary(STIMULUS, resStim.first, resStim.second);
+    if (msgDisp->hasStimulusSwitches() == Success){
+        auto resStim = getStatus(appStatus->getStimActiveChannelsMap(), appStatus->isStimulusAuto());
+        multipleChannelControlsDw->updateSummary(STIMULUS, resStim.first, resStim.second);
+    }
 
     auto resDetailed = getStatus(appStatus->getDetailedPlotMap(), appStatus->isPlotDetailAuto());
     multipleChannelControlsDw->updateSummary(PLOT_DETAIL, resDetailed.first, resDetailed.second);
 
-    auto resInput = getStatus(appStatus->getActiveChannelsMap(), appStatus->isChannelsAuto());
-    multipleChannelControlsDw->updateSummary(CH_INPUT, resInput.first, resInput.second);
+    if (msgDisp->hasChannelSwitches() == Success){
+        auto resInput = getStatus(appStatus->getActiveChannelsMap(), appStatus->isChannelsAuto());
+        multipleChannelControlsDw->updateSummary(CH_INPUT, resInput.first, resInput.second);
+    }
 
 }
 

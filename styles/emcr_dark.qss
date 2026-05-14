@@ -44,7 +44,7 @@ QGroupBox::title {
 
 /* --- INPUTS & WIDGETS --- */
 
-QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox {
     background-color: #121212;
     border: 1px solid #383838;
     border-radius: 2px;
@@ -56,6 +56,44 @@ QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
 
 QLineEdit:focus, QSpinBox:focus {
     border-color: #555555;
+}
+
+QDoubleSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: right;
+    right: 16px;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+}
+
+QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: right;
+    right: 0px; 
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+}
+
+QSpinBox::up-arrow,
+QDoubleSpinBox::up-arrow {
+    image: url(:/imgs/svg/arrow_up.svg);
+    width: 16px;
+    height: 16px;
+}
+QSpinBox::up-arrow,
+QDoubleSpinBox::down-arrow {
+    image: url(:/imgs/svg/arrow_down.svg);
+    width: 16px;
+    height: 16px;
+}
+
+QDoubleSpinBox::up-button:hover, 
+QDoubleSpinBox::down-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* --- BUTTONS --- */
@@ -377,10 +415,13 @@ QPushButton#connectBtn:hover {
 /* 
 --- Reference property mapping ---
 
-{EXPAND, "Expand"},
-{PLOT_DETAIL, "PlotDetail"},
-{CH_INPUT, "ChInput"},
-{STIMULUS, "Stimulus"} 
+{EXPAND, "EXP"},
+{PLOT_DETAIL, "PLT"},
+{CH_INPUT, "CHI"},
+{STIMULUS, "STI"},
+{RECALIBRATION, "REC"},
+{LIQUID_JUNCTION, "LQJ"},
+{CALIB_RESISTORS, "CLR"}
 ----------------------------------
 */
 
@@ -416,6 +457,7 @@ QLabel#propertyBadge[propertyValue="X"] {
     color: #FF5252;
 }
 
+/* Badge per property RECALIBRATION*/
 QLabel#propertyBadge[propertyValue="C"]{
     background-color: rgba(0, 120, 212, 0.2);
     color: white;
@@ -424,9 +466,19 @@ QLabel#propertyBadge[propertyValue="C"]{
     font-size: 10px;
 }
 
+/* Badge per property LIQUID_JUNCTION*/
 QLabel#propertyBadge[propertyValue="J"]{
     background-color: rgba(0, 120, 212, 0.2);
     color: white;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+/* Badge per property/feature CALIB_RESISTORS*/
+QLabel#propertyBadge[propertyValue="R"]{
+    background-color: rgba(255, 212, 58, 0.2);
+    color: #FFD43A;
     border-radius: 2px;
     font-weight: bold;
     font-size: 10px;
@@ -468,6 +520,7 @@ QLabel#activationSwitch[checked="true"] {
     qproperty-pixmap: url(":/imgs/svg/toggle_on.svg");
 }
 
+/* AUTOTOGGLE autotoggle.h */
 /* Label AUTO spenta (default) */
 QLabel#autoLabel {
     color: #666666; 
@@ -536,9 +589,8 @@ QDockWidget#MultipleChannelControlDockWidget {
 QFrame#mainWrapper {
     background-color: #1e1e1e;
     border: 1px solid #3d4655; /* Bordo bluastro */
-    border-top: none;        
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
+    border-top: none;
+    border-bottom: none;        
 }
 
 QWidget#customTitleBar {
@@ -578,7 +630,10 @@ QPushButton#windowExpand:hover {
 
 /* Contenitore generale con bordo superiore */
 QWidget#summaryContainer {
-    border-top: 1px solid #343e4d;
+    background-color: #1e1e1e;
+    border: 1px solid #3d4655; /* Bordo bluastro */
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
 /* Cella singola del Summary*/
@@ -618,6 +673,7 @@ QLabel#summaryCellValue {
 
 QLabel#summaryCellValue[status="on"] { color: #4ade80; }   /* Verde */
 QLabel#summaryCellValue[status="auto"] { color: #B0DCFF; } /* Blu */
+QLabel#summaryCellValue[status="offline"] { background: transparent; }
 
 /* TODO capire se conviene usare solo # */
 
@@ -662,4 +718,13 @@ QFrame#modeContainer QPushButton:hover {
 QFrame#modeContainer QPushButton:pressed {
     background-color: #1A1A1A;
     border-color: #B0DCFF;
+}
+
+QLabel#infoBox{
+    qproperty-pixmap: url(:/imgs/svg/circle-info-solid.svg);
+}
+
+// TODO update with light svg
+QLabel#infoBox::hover{
+    qproperty-pixmap: url(:/imgs/svg/circle-info-solid.svg);
 }
