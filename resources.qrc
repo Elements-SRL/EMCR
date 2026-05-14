@@ -60,5 +60,8 @@
         <file>imgs/svg/toggle_on.svg</file>
         <file>imgs/svg/x-solid.svg</file>
         <file>imgs/svg/window-restore-regular.svg</file>
+        <file>imgs/svg/circle-info-solid.svg</file>
+        <file>imgs/svg/arrow_down.svg</file>
+        <file>imgs/svg/arrow_up.svg</file>
     </qresource>
 </RCC>
