@@ -277,10 +277,10 @@ std::string ApplicationStatus::getSerialNumber() {
 }
 
 std::string ApplicationStatus::getDeviceInfoString() {
-    unsigned int version, subversion, fw;
+    unsigned int version, subversion, fwMajor, fwMinor, fwPatch;
     auto serial = getSerialNumber();
-    msgDisp->getDeviceInfo(serial, version, subversion, fw);
-    return "version: " + std::to_string(version) + ", subversion: " + std::to_string(subversion) + ", firmware: " + std::to_string(fw);
+    msgDisp->getDeviceInfo(serial, version, subversion, fwMajor, fwMinor, fwPatch);
+    return "version: " + std::to_string(version) + ", subversion: " + std::to_string(subversion) + ", firmware: " + std::to_string(fwMajor) + "." + std::to_string(fwMinor) + "." + std::to_string(fwPatch);
 }
 
 ClampingModality_t ApplicationStatus::getClampingModality() {

@@ -44,17 +44,19 @@ DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWi
 
     uint32_t deviceVer;
     uint32_t deviceSubver;
-    uint32_t fwVer;
+    uint32_t fwMajor;
+    uint32_t fwMinor;
+    uint32_t fwPatch;
     bool connected;
     ErrorCodes_t ret;
 
     if (md == nullptr) {
         connected = false;
-        ret = MessageDispatcher::getDeviceInfo(deviceId.toStdString(), deviceVer, deviceSubver, fwVer);
+        ret = MessageDispatcher::getDeviceInfo(deviceId.toStdString(), deviceVer, deviceSubver, fwMajor, fwMinor, fwPatch);
     }
     else {
         connected = true;
-        ret = md->getDeviceInfo(deviceVer, deviceSubver, fwVer);
+        ret = md->getDeviceInfo(deviceVer, deviceSubver, fwMajor, fwMinor, fwPatch);
     }
 
     deviceIdLbl->setText("Device ID: " + deviceId + (connected ? " (connected)" : " (not connected)"));
@@ -64,7 +66,7 @@ DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWi
         deviceVerLbl->setVisible(true);
         deviceSubverLbl->setText("Device subversion: " + QString::number(deviceSubver));
         deviceVerLbl->setVisible(true);
-        fwVerLbl->setText("Firmware version: " + QString::number(fwVer));
+        fwVerLbl->setText("Firmware version: " + QString("%1.%2.%3").arg(fwMajor).arg(fwMinor).arg(fwPatch));
         deviceVerLbl->setVisible(true);
         copyToClipboardBtn->setVisible(true);
         break;
