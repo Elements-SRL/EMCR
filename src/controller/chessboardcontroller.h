@@ -63,6 +63,8 @@ public slots:
     void onCurrentColorChanged(int channelIdx, QColor color);
 //    void onBackgroundColorChanged(QColor color);
 
+    void onSyncFaults(std::vector <bool> syncFaultFlags);
+
 private:
     MainWindow * mainWindow = nullptr;
     ChessboardDockWidget * chessboard = nullptr;

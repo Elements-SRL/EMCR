@@ -11,8 +11,8 @@
 #include "stampplot.h"
 #include "curve.h"
 #include "leftrightmousepushbutton.h"
-#include "channeloverviewwidget.h"
 #include "messagedispatcher.h"
+#include <QBoxLayout>
 #include <QMouseEvent>
 #include "application_status.h"
 
@@ -26,6 +26,7 @@ public:
     int getIdealPlotWidth();
     int getIdealPlotHeight();
     void updateBoardMappings(std::set <int> visibleBoards);
+    void setFaultyBoard(int boardIdx, bool faultyFlag);
 
 private:
     QGridLayout * mainGl = nullptr;

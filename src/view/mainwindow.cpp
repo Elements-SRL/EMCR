@@ -170,10 +170,6 @@ MainWindow::MainWindow(QWidget * parent) :
     rareVl->addWidget(onTimeLbl);
     onTimeLbl->setVisible(false);
 
-    syncFaultsLbl = new QLabel;
-    rareVl->addWidget(syncFaultsLbl);
-    syncFaultsLbl->setVisible(false);
-
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     deviceDetectorHl->addWidget(spacer);
@@ -475,32 +471,6 @@ void MainWindow::onBitRateComputed(double value) {
 void MainWindow::onOnTimeRead(Measurement_t onTime) {
     onTimeLbl->setVisible(true);
     onTimeLbl->setText(QString::fromStdString(onTime.label(15)));
-}
-
-void MainWindow::onSyncFaults(std::vector <bool> syncFlags) {
-    std::vector <int> syncFaultIdx;
-    int c = 0;
-    for (auto f : syncFlags) {
-        c++;
-        if (f) {
-            syncFaultIdx.push_back(c);
-        }
-    }
-    if (syncFaultIdx.empty()) {
-        syncFaultsLbl->setVisible(false);
-        return;
-    }
-
-    syncFaultsLbl->setVisible(true);
-
-    QString faults = "";
-    for (auto f : syncFaultIdx) {
-        if (faults.length() > 0) {
-            faults += ",";
-        }
-        faults += QString("%1").arg(f);
-    }
-    syncFaultsLbl->setText(faults);
 }
 
 void MainWindow::onOpenDialog(Dialogs_t type) {

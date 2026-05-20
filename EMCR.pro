@@ -124,7 +124,6 @@ SOURCES += \
     src/view/mainwindow.cpp \
     src/view/errormanager.cpp \
     src/view/elementslogowidget.cpp \
-    src/view/channeloverviewwidget.cpp \
     src/view/baseplot.cpp \
     src/view/curve.cpp \
     src/view/measurementsoverviewdockwidget.cpp \
@@ -270,7 +269,6 @@ HEADERS += \
     src/view/mainwindow.h \
     src/view/errormanager.h \
     src/view/elementslogowidget.h \
-    src/view/channeloverviewwidget.h \
     src/view/baseplot.h \
     src/view/curve.h \
     src/view/measurementsoverviewdockwidget.h \

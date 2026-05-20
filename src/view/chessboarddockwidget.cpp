@@ -120,3 +120,12 @@ void ChessboardDockWidget::updateBoardMappings(std::set <int> visibleBoards){
     }
     emit sigAllChannelsClicked(false);
 }
+
+void ChessboardDockWidget::setFaultyBoard(int boardIdx, bool faultyFlag) {
+    if (faultyFlag) {
+        boardSelectors[boardIdx]->setText("ERR");
+    }
+    else {
+        boardSelectors[boardIdx]->setText(QString("%1").arg(boardIdx+1));
+    }
+}

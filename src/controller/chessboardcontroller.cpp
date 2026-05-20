@@ -356,6 +356,13 @@ void ChessboardController::onCurrentColorChanged(int channelIdx, QColor color) {
 //    }
 //}
 
+void ChessboardController::onSyncFaults(std::vector <bool> syncFaultFlags) {
+    int boardIdx = 0;
+    for (auto f : syncFaultFlags) {
+        chessboard->setFaultyBoard(boardIdx++, f);
+    }
+}
+
 void ChessboardController::onBoardMappingLoaded() {
     updateChessboard();
     appStatus->setAllChannelsSelected(false);

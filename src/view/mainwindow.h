@@ -74,7 +74,6 @@ public slots:
     void onBoardMappingPressed();
     void onBitRateComputed(double bitRate);
     void onOnTimeRead(Measurement_t onTime);
-    void onSyncFaults(std::vector <bool> syncFaultFlags);
 
 private:
     typedef enum {
@@ -115,7 +114,6 @@ private:
 
     QLabel * SRLbl = nullptr;
     QLabel * onTimeLbl = nullptr;
-    QLabel * syncFaultsLbl = nullptr;
 
     BigPlotWidget * bigPlotW = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
