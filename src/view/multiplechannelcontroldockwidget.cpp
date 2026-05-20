@@ -142,9 +142,15 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     // -- SCROLL AREA SECTIONS --
     // Section - VISIBILITY
-    QLabel *header = new QLabel("VISIBILITY & PLOTTING");
-    header->setObjectName("sectionHeader");
-    mainLayout->addWidget(header);
+    QFrame* visibilityHeader = new QFrame();
+    visibilityHeader->setObjectName("sectionHeaderContainer");
+    QHBoxLayout* visibilityHeaderLayout = new QHBoxLayout(visibilityHeader);
+    visibilityHeaderLayout->setContentsMargins(0, 0, 0, 0);
+
+    QLabel *visibilityLbl = new QLabel("VISIBILITY & PLOTTING");
+    visibilityLbl->setObjectName("sectionHeader");
+    visibilityHeaderLayout->addWidget(visibilityLbl);
+    mainLayout->addWidget(visibilityHeader);
 
     // Property - Expand Trace
     QLabel *expandTraceBadge;
@@ -171,8 +177,14 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     bool hasZap = msgDisp->getZapFeatures(zapDurationRange) == Success;
 
     if (activeChInput | activeStimulus | hasZap){
-        QLabel *signalHeader = new QLabel("SIGNAL");
-        signalHeader->setObjectName("sectionHeader");
+        QFrame* signalHeader = new QFrame();
+        signalHeader->setObjectName("sectionHeaderContainer");
+        QHBoxLayout* signalHeaderLayout = new QHBoxLayout(signalHeader);
+        signalHeaderLayout->setContentsMargins(0, 0, 0, 0);
+
+        QLabel *signalLbl = new QLabel("SIGNAL");
+        signalLbl->setObjectName("sectionHeader");
+        signalHeaderLayout->addWidget(signalLbl);
         mainLayout->addWidget(signalHeader);
     }
 
@@ -232,9 +244,15 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     // Section - CALIBRATION RESISTORS
     if (msgDisp->hasCalSw() == Success && debugControlsEnabled()) {
 
-        QLabel *header = new QLabel("CALIBRATION RESISTORS");
-        header->setObjectName("sectionHeader");
-        mainLayout->addWidget(header);
+        QFrame* calibHeader = new QFrame();
+        calibHeader->setObjectName("sectionHeaderContainer");
+        QHBoxLayout* calibHeaderLayout = new QHBoxLayout(calibHeader);
+        calibHeaderLayout->setContentsMargins(0, 0, 0, 0);
+
+        QLabel *calibHeaderLbl = new QLabel("CALIBRATION RESISTORS");
+        calibHeaderLbl->setObjectName("sectionHeader");
+        calibHeaderLayout->addWidget(calibHeaderLbl);
+        mainLayout->addWidget(calibHeader);
 
         QFrame* rowContainer = new QFrame();
         rowContainer->setObjectName("propertyContainer");

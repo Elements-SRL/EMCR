@@ -39,6 +39,7 @@ SOURCES += \
     src/controller/durationbasedbigplotviewcontroller.cpp \
     src/controller/plotdetailcontroller.cpp \
     src/controller/temperaturecontroller.cpp \
+    src/controller/themecontroller.cpp \
     src/main.cpp \
     src/abf/axon.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
@@ -173,6 +174,7 @@ HEADERS += \
     src/controller/durationbasedbigplotviewcontroller.h \
     src/controller/plotdetailcontroller.h \
     src/controller/temperaturecontroller.h \
+    src/controller/themecontroller.h \
     src/globaldefines.h \
     src/model/channelstate.h \
     src/model/membraneresult.h \

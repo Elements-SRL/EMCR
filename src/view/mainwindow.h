@@ -90,6 +90,7 @@ private:
     QMenu * menuView = nullptr;
     QMenu * menuRecordings = nullptr;
     QMenu * menuPreferences = nullptr;
+    QMenu * menuTheme = nullptr;
     QMenu * menuAdvanced = nullptr;
     QMenu * menuHwReset = nullptr;
     QMenu * menuQuestionMark = nullptr;
@@ -101,6 +102,9 @@ private:
 
     QAction * actionPlotPreferences = nullptr;
     QAction * actionBoardMapping = nullptr;
+    QAction * actionDarkTheme = nullptr;
+    QAction * actionLightTheme = nullptr;
+    QActionGroup * themeActionGroup = nullptr;
 
     QAction * actionUpgradeFw = nullptr;
     QAction * actionHwReset = nullptr;
@@ -131,6 +135,7 @@ private:
 private slots:
     void onOpenDialog(Dialogs_t type);
     void onRearrangeView();
+    void onThemeSelected();
 
 signals:
     void sigModelCellChanged(bool modelCellChanged);

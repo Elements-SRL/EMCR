@@ -26,6 +26,7 @@ BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, 
     canvas->setFrameStyle(QFrame::NoFrame);
     this->setCanvas(canvas);
     this->setCanvasBackground(Qt::white);
+    this->setObjectName("BigPlotChartCanvas");
 
     QwtPlotGrid * grid = new QwtPlotGrid();
     grid->setPen(Qt::lightGray, 0.5);

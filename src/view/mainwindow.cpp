@@ -10,11 +10,13 @@
 #include "elementslogowidget.h"
 #include "errormanager.h"
 #include "globaldefines.h"
+#include "qactiongroup.h"
 #include "resethwhelpdialog.h"
 #include "aboutdialog.h"
 #include "supportdialog.h"
 #include "deviceinfodialog.h"
 #include "releasenotesdialog.h"
+#include "themecontroller.h"
 
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
@@ -33,7 +35,7 @@ MainWindow::MainWindow(QWidget * parent) :
     /************\
      * menu bar *
     \************/
-
+    QSettings settings;
     QMenuBar * menuBar = this->menuBar();
 
     /*! View menu */
@@ -64,8 +66,37 @@ MainWindow::MainWindow(QWidget * parent) :
     actionBoardMapping = new QAction("Board mappings");
     menuPreferences->addAction(actionBoardMapping);
     actionBoardMapping->setEnabled(false);
-
     connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
+
+    // Theme menu within Preferencies
+    menuTheme = new QMenu("Theme", this);
+    menuPreferences->addMenu(menuTheme);
+
+    actionDarkTheme = new QAction("Dark", this);
+    actionDarkTheme->setCheckable(true);
+    actionDarkTheme->setData(ThemeController::Dark);
+
+    actionLightTheme = new QAction("Light", this);
+    actionLightTheme->setCheckable(true);
+    actionLightTheme->setData(ThemeController::Light);
+
+    themeActionGroup = new QActionGroup(this);
+    themeActionGroup->addAction(actionDarkTheme);
+    themeActionGroup->addAction(actionLightTheme);
+    themeActionGroup->setExclusive(true);
+
+    menuTheme->addAction(actionDarkTheme);
+    menuTheme->addAction(actionLightTheme);
+
+    // Restore user selected Theme
+    // Dark Mode is enabled in case there is no saved value
+    int savedTheme = settings.value("Preferences/UI/theme").toInt();
+    if (savedTheme == ThemeController::Light) {
+        actionLightTheme->setChecked(true);
+    } else {
+        actionDarkTheme->setChecked(true);
+    }
+    connect(themeActionGroup, &QActionGroup::triggered, this, &MainWindow::onThemeSelected);
 
     menuAdvanced = new QMenu("Advanced");
     menuBar->addMenu(menuAdvanced);
@@ -400,7 +431,6 @@ void MainWindow::restoreUISettings() {
 
         tag = settingsRoot + this->objectName() + "/state";
         this->restoreState(settings.value(tag).toByteArray());
-
     }, Qt::QueuedConnection);
 
     timer->start();
@@ -423,6 +453,10 @@ void MainWindow::saveUISettings() {
 
     tag = settingsRoot + this->objectName() + "/state";
     settings.setValue(tag, this->saveState());
+
+    // Save current app theme
+    int themeEnum = this->themeActionGroup->checkedAction()->data().toInt();
+    settings.setValue(settingsRoot + "theme", themeEnum);
 }
 
 void MainWindow::onNeedToChangeModelCellMsg(QString msg){
@@ -499,5 +533,15 @@ void MainWindow::onRearrangeView() {
                 c++;
             }
         }
+    }
+}
+
+void MainWindow::onThemeSelected() {
+    QAction* activeAction = themeActionGroup->checkedAction();
+    if (activeAction != nullptr) {
+        int themeEnum = activeAction->data().toInt();
+        QSettings settings;
+        settings.setValue("Preferences/UI/theme", themeEnum);
+        ThemeController::getInstance().applyTheme(static_cast<ThemeController::Theme>(themeEnum));
     }
 }

@@ -4,27 +4,19 @@
 
 #include "maincontroller.h"
 #include "globaldefines.h"
+#include "qsettings.h"
 #include "splashscreen/splashview.h"
 #include "statisticsresult.h"
 #include "plotmessage.h"
 #include "resultwrapper.h"
 #include "eventsdirection.h"
+#include "themecontroller.h"
 
 // Custom fonts loader
 void loadFonts() {
     QFontDatabase::addApplicationFont(":/fonts/Inter.ttf");
     QFontDatabase::addApplicationFont(":/fonts/InriaSans-Regular.ttf");
     QFontDatabase::addApplicationFont(":/fonts/InriaSans-Bold.ttf");
-}
-
-// Applies a custom QSS style file to the whole app
-void applyCustomStyle(QApplication &app) {
-    QFile file(":/styles/emcr_dark.qss");
-    if(file.open(QFile::ReadOnly)) {
-        QString styleSheet = QLatin1String(file.readAll());
-        app.setStyleSheet(styleSheet);
-        file.close();
-    }
 }
 
 int main(int argc, char *argv[]) {
@@ -59,13 +51,19 @@ int main(int argc, char *argv[]) {
     defaultFont.setPixelSize(12);
     a.setFont(defaultFont);
 
-    // QSS Custom style
-    // TODO - Read preference and load dark/light based on that
-    applyCustomStyle(a);
-
     // Splashscreen
     SplashView *splash = new SplashView();
     splash->show();
+
+    ThemeController &t = ThemeController::getInstance();
+    QSettings settings;
+    int savedTheme = settings.value("Preferences/UI/theme").toInt();
+
+    if (savedTheme == ThemeController::Light) {
+        t.applyTheme(ThemeController::Light);
+    } else {
+        t.applyTheme(ThemeController::Dark);
+    }
 
     MainController c;
     c.setSplash(splash);

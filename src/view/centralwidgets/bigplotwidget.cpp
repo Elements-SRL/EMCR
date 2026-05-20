@@ -9,6 +9,7 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     mainVl->setSpacing(1);
     this->setLayout(mainVl);
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setObjectName("BigPlotCanvas");
 }
 
 void BigPlotWidget::setGapFreePlot(QWidget* wid) {

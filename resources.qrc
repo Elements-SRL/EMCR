@@ -53,7 +53,6 @@
         <file>imgs/activation button on.png</file>
         <file>imgs/data monitor.png</file>
         <file>fonts/Inter.ttc</file>
-        <file>styles/emcr_dark.qss</file>
         <file>imgs/EMCR splash background.png</file>
         <file>imgs/svg/3_dots_bounce.svg</file>
         <file>imgs/svg/toggle_off.svg</file>
@@ -63,5 +62,23 @@
         <file>imgs/svg/circle-info-solid.svg</file>
         <file>imgs/svg/arrow_down.svg</file>
         <file>imgs/svg/arrow_up.svg</file>
+        <file>styles/emcr_base.qss</file>
+        <file>styles/emcr_base_test.qss</file>
+        <file>icons/light/3_dots_bounce.svg</file>
+        <file>icons/light/arrow_down.svg</file>
+        <file>icons/light/arrow_up.svg</file>
+        <file>icons/light/circle-info-solid.svg</file>
+        <file>icons/light/toggle_off.svg</file>
+        <file>icons/light/toggle_on.svg</file>
+        <file>icons/light/window-restore-regular.svg</file>
+        <file>icons/light/x-solid.svg</file>
+        <file>icons/dark/3_dots_bounce.svg</file>
+        <file>icons/dark/arrow_down.svg</file>
+        <file>icons/dark/arrow_up.svg</file>
+        <file>icons/dark/circle-info-solid.svg</file>
+        <file>icons/dark/toggle_off.svg</file>
+        <file>icons/dark/toggle_on.svg</file>
+        <file>icons/dark/window-restore-regular.svg</file>
+        <file>icons/dark/x-solid.svg</file>
     </qresource>
 </RCC>
