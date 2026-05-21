@@ -85,6 +85,7 @@ private:
 
     void createGuiControls();
     void destroyGuiControls();
+    void setupDeviceConnectionGui(QFrame * container);
 
     MessageDispatcher * msgDisp = nullptr;
     QMenu * menuView = nullptr;

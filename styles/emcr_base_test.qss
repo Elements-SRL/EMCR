@@ -497,19 +497,26 @@ QLabel#infoBox { qproperty-pixmap: url(@ICON_PREFIX/circle-info-solid.svg); }
 /* --- SPLASH SCREEN ---                     */
 /* ========================================= */
 
-QSplashScreen, QWidget#splashScreen {
+QWidget#splashScreen {
     background-color: @BG_APP;
     color: @TEXT_LIGHT;
 }
 
-QWidget#splashScreen QLabel#splashTitle {
+QLabel#splashTitle {
     font-size: 16px;
     font-weight: bold;
     color: @TEXT_LIGHT;
     letter-spacing: 2px;
 }
 
-QWidget#splashScreen QLabel#splashSubtitle {
+QLabel#selectionTitle {
+    font-size: 14px;
+    font-weight: bold;
+    color: @TEXT_LIGHT;
+    letter-spacing: 2px;
+}
+
+QLabel#splashSubtitle {
     font-size: 11px;
     color: @TEXT_SECONDARY;
 }
@@ -529,11 +536,6 @@ QWidget#splashScreen QProgressBar::chunk {
     border-radius: 2px;
 }
 
-QWidget#loadingPage,
-QWidget#selectionPage,
-QFrame#SplashContainer > * {
-    background: none;
-}
 
 QLabel#logoLabel{
     background: none;
@@ -572,9 +574,10 @@ QLabel#copyrightLbl{
     font-family: "Inter", sans-serif;
 }
 
+
 QFrame#SplashContainer {
-    border-image: url(:/imgs/EMCR splash background.png) 0 0 0 0 stretch stretch;
-    border-radius: 15px;       
+    border-image: url(:/imgs/splash01.png) 0 0 0 0 stretch stretch;
+    border-radius: 15px;     
 }
 
 QComboBox {
@@ -587,19 +590,17 @@ QComboBox {
 }
 
 QComboBox QAbstractItemView {
-    background: @BG_PANEL;
-    padding: 5px 5px;
-}
-
-QComboBox::item:selected,
-QComboBox::item:hover {
-    background: @BG_BTN_HOVER;
-    color: @TEXT_LIGHT;
-    border-color: @BORDER_FOCUS;
+    background-color: @BG_PANEL;
+    border-radius: 0px;
+    border: 1px solid rgba(255, 255, 255, 8);
+    selection-color: @TEXT_LIGHT;
+    selection-background-color: @BG_BTN_HOVER;
+    padding: 8px 8px;
+    font-size: 11px;
 }
 
 /* ========================================= */
-/* --- CENTRAL PLOTS SCREEN ---                     */
+/* --- CENTRAL PLOTS SCREEN ---              */
 /* ========================================= */
 
 

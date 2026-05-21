@@ -27,7 +27,7 @@ void SplashView::setupUi()
     QHBoxLayout *topLayout = new QHBoxLayout();
     topLayout->addStretch();
     QLabel *logoLabel = new QLabel();
-    logoLabel->setPixmap(QPixmap(":/imgs/logo_with_name.png").scaled(200, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setPixmap(QPixmap(":/imgs/logo_with_name_white.png").scaled(200, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     topLayout->addWidget(logoLabel);
     splashLayout->addLayout(topLayout);
 

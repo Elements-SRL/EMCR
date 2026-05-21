@@ -11,6 +11,7 @@
 #include "errormanager.h"
 #include "globaldefines.h"
 #include "qactiongroup.h"
+#include "qwindow.h"
 #include "resethwhelpdialog.h"
 #include "aboutdialog.h"
 #include "supportdialog.h"
@@ -18,187 +19,247 @@
 #include "releasenotesdialog.h"
 #include "themecontroller.h"
 
+void MainWindow::setupDeviceConnectionGui(QFrame * container){
+
+    QGridLayout *mainGrid = new QGridLayout(container);
+    mainGrid->setContentsMargins(40, 40, 40, 40);
+
+    // Logo on top right
+    QLabel *logoLabel = new QLabel();
+    logoLabel->setPixmap(QPixmap(":/imgs/logo_with_name_white.png").scaled(200, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    mainGrid->addWidget(logoLabel, 0, 1, Qt::AlignTop | Qt::AlignRight);
+
+    // Left column
+    QVBoxLayout *widgetsColumn = new QVBoxLayout();
+    widgetsColumn->setSpacing(10);
+    widgetsColumn->setContentsMargins(0, 0, 0, 0);
+
+    QLabel *titleLbl = new QLabel("DEVICES");
+    titleLbl->setObjectName("selectionTitle");
+    QLabel *hintLbl = new QLabel("Available hardware");
+    hintLbl->setObjectName("splashSubtitle");
+
+    widgetsColumn->addWidget(titleLbl);
+    widgetsColumn->addWidget(hintLbl);
+    widgetsColumn->addSpacing(10);
+
+    devicesComboBox = new QComboBox();
+    devicesComboBox->setObjectName("deviceCombo");
+    devicesComboBox->setFixedWidth(220);
+
+    connectBtn = new QPushButton("CONNECT");
+    connectBtn->setObjectName("connectBtn");
+    connectBtn->setFixedWidth(220);
+    connectBtn->setCursor(Qt::PointingHandCursor);
+
+    widgetsColumn->addWidget(devicesComboBox);
+    widgetsColumn->addWidget(connectBtn);
+
+    // Left column is also vertically aligned
+    mainGrid->addLayout(widgetsColumn, 0, 0, Qt::AlignVCenter | Qt::AlignLeft);
+    mainGrid->setColumnStretch(0, 1);
+    mainGrid->setColumnStretch(1, 0);
+    mainGrid->setRowStretch(0, 1);
+}
+
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
 
-    this->setObjectName("mainWindow");
+    setAttribute(Qt::WA_TranslucentBackground);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+    setFixedSize(1000, 450);
 
     this->setWindowTitle(QString(GLB_SOFTWARE_NAME) + " " + GLB_SOFTWARE_VERSION_NUMBER);
 
-    this->setCentralWidget(new ElementsLogoWidget);
+    //this->setCentralWidget(new ElementsLogoWidget);
 
-    this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    //this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
 
     dockWidgets.resize(DockWidgetsNum);
     dockWidgets.fill(nullptr);
 
+    auto deviceDetectorDw = new QDockWidget;
+    deviceDetectorDw->setWindowTitle("Connection");
+    deviceDetectorDw->setObjectName("deviceDetectorDw");
+    deviceDetectorDw->setFloating(false);
+    deviceDetectorDw->setTitleBarWidget(new QWidget()); // Hide connection widget titlebar
+
+    this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::LeftDockWidgetArea);
+
+    QFrame * deviceDetectorWid = new QFrame();
+    deviceDetectorWid->setObjectName("SplashContainer");
+    deviceDetectorWid->setFixedSize(1000, 450);
+    setupDeviceConnectionGui(deviceDetectorWid);
+    deviceDetectorDw->setWidget(deviceDetectorWid);
+
     /************\
      * menu bar *
     \************/
-    QSettings settings;
-    QMenuBar * menuBar = this->menuBar();
+    // QSettings settings;
+    // QMenuBar * menuBar = this->menuBar();
 
-    /*! View menu */
-    menuView = new QMenu("View");
-    menuBar->addMenu(menuView);
+    // /*! View menu */
+    // menuView = new QMenu("View");
+    // menuBar->addMenu(menuView);
 
-    actionRearrangeView = new QAction("Rearrange floating widgets");
-    actionRearrangeView->setEnabled(false);
-    connect(actionRearrangeView, &QAction::triggered, this, &MainWindow::onRearrangeView);
-    menuView->addAction(actionRearrangeView);
+    // actionRearrangeView = new QAction("Rearrange floating widgets");
+    // actionRearrangeView->setEnabled(false);
+    // connect(actionRearrangeView, &QAction::triggered, this, &MainWindow::onRearrangeView);
+    // menuView->addAction(actionRearrangeView);
 
-    menuView->addSeparator();
+    // menuView->addSeparator();
 
-    menuRecordings = new QMenu("Recordings");
-    menuBar->addMenu(menuRecordings);
+    // menuRecordings = new QMenu("Recordings");
+    // menuBar->addMenu(menuRecordings);
 
-    actionRecordingSettings = new QAction("Gap free settings");
-    menuRecordings->addAction(actionRecordingSettings);
-    actionRecordingSettings->setEnabled(false);
+    // actionRecordingSettings = new QAction("Gap free settings");
+    // menuRecordings->addAction(actionRecordingSettings);
+    // actionRecordingSettings->setEnabled(false);
 
-    menuPreferences = new QMenu("Preferences");
-    menuBar->addMenu(menuPreferences);
+    // menuPreferences = new QMenu("Preferences");
+    // menuBar->addMenu(menuPreferences);
 
-    actionPlotPreferences = new QAction("Plots");
-    menuPreferences->addAction(actionPlotPreferences);
-    actionPlotPreferences->setEnabled(false);
+    // actionPlotPreferences = new QAction("Plots");
+    // menuPreferences->addAction(actionPlotPreferences);
+    // actionPlotPreferences->setEnabled(false);
 
-    actionBoardMapping = new QAction("Board mappings");
-    menuPreferences->addAction(actionBoardMapping);
-    actionBoardMapping->setEnabled(false);
-    connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
+    // actionBoardMapping = new QAction("Board mappings");
+    // menuPreferences->addAction(actionBoardMapping);
+    // actionBoardMapping->setEnabled(false);
+    // connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
 
-    // Theme menu within Preferencies
-    menuTheme = new QMenu("Theme", this);
-    menuPreferences->addMenu(menuTheme);
+    // // Theme menu within Preferencies
+    // menuTheme = new QMenu("Theme", this);
+    // menuPreferences->addMenu(menuTheme);
 
-    actionDarkTheme = new QAction("Dark", this);
-    actionDarkTheme->setCheckable(true);
-    actionDarkTheme->setData(ThemeController::Dark);
+    // actionDarkTheme = new QAction("Dark", this);
+    // actionDarkTheme->setCheckable(true);
+    // actionDarkTheme->setData(ThemeController::Dark);
 
-    actionLightTheme = new QAction("Light", this);
-    actionLightTheme->setCheckable(true);
-    actionLightTheme->setData(ThemeController::Light);
+    // actionLightTheme = new QAction("Light", this);
+    // actionLightTheme->setCheckable(true);
+    // actionLightTheme->setData(ThemeController::Light);
 
-    themeActionGroup = new QActionGroup(this);
-    themeActionGroup->addAction(actionDarkTheme);
-    themeActionGroup->addAction(actionLightTheme);
-    themeActionGroup->setExclusive(true);
+    // themeActionGroup = new QActionGroup(this);
+    // themeActionGroup->addAction(actionDarkTheme);
+    // themeActionGroup->addAction(actionLightTheme);
+    // themeActionGroup->setExclusive(true);
 
-    menuTheme->addAction(actionDarkTheme);
-    menuTheme->addAction(actionLightTheme);
+    // menuTheme->addAction(actionDarkTheme);
+    // menuTheme->addAction(actionLightTheme);
 
-    // Restore user selected Theme
-    // Dark Mode is enabled in case there is no saved value
-    int savedTheme = settings.value("Preferences/UI/theme").toInt();
-    if (savedTheme == ThemeController::Light) {
-        actionLightTheme->setChecked(true);
-    } else {
-        actionDarkTheme->setChecked(true);
-    }
-    connect(themeActionGroup, &QActionGroup::triggered, this, &MainWindow::onThemeSelected);
+    // // Restore user selected Theme
+    // // Dark Mode is enabled in case there is no saved value
+    // int savedTheme = settings.value("Preferences/UI/theme").toInt();
+    // if (savedTheme == ThemeController::Light) {
+    //     actionLightTheme->setChecked(true);
+    // } else {
+    //     actionDarkTheme->setChecked(true);
+    // }
+    // connect(themeActionGroup, &QActionGroup::triggered, this, &MainWindow::onThemeSelected);
 
-    menuAdvanced = new QMenu("Advanced");
-    menuBar->addMenu(menuAdvanced);
+    // menuAdvanced = new QMenu("Advanced");
+    // menuBar->addMenu(menuAdvanced);
 
-    actionUpgradeFw = new QAction("Upgrade FW");
-    menuAdvanced->addAction(actionUpgradeFw);
+    // actionUpgradeFw = new QAction("Upgrade FW");
+    // menuAdvanced->addAction(actionUpgradeFw);
 
-    menuHwReset = new QMenu("HW reset");
-    menuAdvanced->addMenu(menuHwReset);
+    // menuHwReset = new QMenu("HW reset");
+    // menuAdvanced->addMenu(menuHwReset);
 
-    actionHwReset = new QAction("Apply");
-    connect(actionHwReset, &QAction::triggered, this, &MainWindow::sigResetHw);
-    menuHwReset->addAction(actionHwReset);
+    // actionHwReset = new QAction("Apply");
+    // connect(actionHwReset, &QAction::triggered, this, &MainWindow::sigResetHw);
+    // menuHwReset->addAction(actionHwReset);
 
-    actionHwResetHelp = new QAction("Help");
-    connect(actionHwResetHelp, &QAction::triggered, this, [=]() {
-        this->onOpenDialog(ResetHwHelpDlg);
-    });
-    menuHwReset->addAction(actionHwResetHelp);
+    // actionHwResetHelp = new QAction("Help");
+    // connect(actionHwResetHelp, &QAction::triggered, this, [=]() {
+    //     this->onOpenDialog(ResetHwHelpDlg);
+    // });
+    // menuHwReset->addAction(actionHwResetHelp);
 
-    /*! ? menu */
-    menuQuestionMark = new QMenu("?");
-    menuBar->addMenu(menuQuestionMark);
+    // /*! ? menu */
+    // menuQuestionMark = new QMenu("?");
+    // menuBar->addMenu(menuQuestionMark);
 
-    actionAbout = new QAction("About");
-    connect(actionAbout, &QAction::triggered, this, [=]() {
-        this->onOpenDialog(AboutDlg);
-    });
-    menuQuestionMark->addAction(actionAbout);
+    // actionAbout = new QAction("About");
+    // connect(actionAbout, &QAction::triggered, this, [=]() {
+    //     this->onOpenDialog(AboutDlg);
+    // });
+    // menuQuestionMark->addAction(actionAbout);
 
-    actionDeviceInfo = new QAction("Device Info");
-    connect(actionDeviceInfo, &QAction::triggered, this, [=]() {
-        this->onOpenDialog(DeviceInfoDlg);
-    });
-    menuQuestionMark->addAction(actionDeviceInfo);
+    // actionDeviceInfo = new QAction("Device Info");
+    // connect(actionDeviceInfo, &QAction::triggered, this, [=]() {
+    //     this->onOpenDialog(DeviceInfoDlg);
+    // });
+    // menuQuestionMark->addAction(actionDeviceInfo);
 
-    actionSupport = new QAction("Support");
-    connect(actionSupport, &QAction::triggered, this, [=]() {
-        this->onOpenDialog(SupportDlg);
-    });
-    menuQuestionMark->addAction(actionSupport);
+    // actionSupport = new QAction("Support");
+    // connect(actionSupport, &QAction::triggered, this, [=]() {
+    //     this->onOpenDialog(SupportDlg);
+    // });
+    // menuQuestionMark->addAction(actionSupport);
 
-    actionReleaseNotes = new QAction("Release Notes");
-    connect(actionReleaseNotes, &QAction::triggered, this, [=]() {
-        this->onOpenDialog(ReleaseNotesDlg);
-    });
-    menuQuestionMark->addAction(actionReleaseNotes);
+    // actionReleaseNotes = new QAction("Release Notes");
+    // connect(actionReleaseNotes, &QAction::triggered, this, [=]() {
+    //     this->onOpenDialog(ReleaseNotesDlg);
+    // });
+    // menuQuestionMark->addAction(actionReleaseNotes);
 
-    connect(actionUpgradeFw, &QAction::triggered, this, &MainWindow::sigUpgradeFw);
+    // connect(actionUpgradeFw, &QAction::triggered, this, &MainWindow::sigUpgradeFw);
 
-    /************\
-     * settings *
-    \************/
+    // /************\
+    //  * settings *
+    // \************/
 
-    recordSettingsDialog = new RecordSettingsDialog;
+    // recordSettingsDialog = new RecordSettingsDialog;
 
-    connect(actionRecordingSettings, &QAction::triggered, recordSettingsDialog, &RecordSettingsDialog::exec);
+    // connect(actionRecordingSettings, &QAction::triggered, recordSettingsDialog, &RecordSettingsDialog::exec);
 
     /************************\
      * device detector dock *
     \************************/
 
-    auto deviceDetectorDw = new QDockWidget;
-    deviceDetectorDw->setWindowTitle("Connection");
-    deviceDetectorDw->setObjectName("deviceDetectorDw");
-    menuView->addAction(deviceDetectorDw->toggleViewAction());
-    deviceDetectorDw->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::TopDockWidgetArea);
+    // auto deviceDetectorDw = new QDockWidget;
+    // deviceDetectorDw->setWindowTitle("Connection");
+    // deviceDetectorDw->setObjectName("deviceDetectorDw");
+    // menuView->addAction(deviceDetectorDw->toggleViewAction());
+    // deviceDetectorDw->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    // this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::TopDockWidgetArea);
 
-    QWidget * deviceDetectorWid = new QWidget;
-    deviceDetectorWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    deviceDetectorDw->setWidget(deviceDetectorWid);
+    // QWidget * deviceDetectorWid = new QWidget;
+    // deviceDetectorWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    // deviceDetectorDw->setWidget(deviceDetectorWid);
 
-    QHBoxLayout * deviceDetectorHl = new QHBoxLayout;
-    deviceDetectorHl->setContentsMargins(1, 1, 1, 1);
-    deviceDetectorHl->setSpacing(3);
-    deviceDetectorWid->setLayout(deviceDetectorHl);
+    // QHBoxLayout * deviceDetectorHl = new QHBoxLayout;
+    // deviceDetectorHl->setContentsMargins(1, 1, 1, 1);
+    // deviceDetectorHl->setSpacing(3);
+    // deviceDetectorWid->setLayout(deviceDetectorHl);
 
-    devicesComboBox = new QComboBox;
-    devicesComboBox->setEnabled(false);
-    devicesComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    QFontMetrics fm((QFont()));
-    devicesComboBox->setFixedWidth(fm.horizontalAdvance("device device device"));
-    deviceDetectorHl->addWidget(devicesComboBox);
+    // devicesComboBox = new QComboBox;
+    // devicesComboBox->setEnabled(false);
+    // devicesComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    // QFontMetrics fm((QFont()));
+    // devicesComboBox->setFixedWidth(fm.horizontalAdvance("device device device"));
+    // deviceDetectorHl->addWidget(devicesComboBox);
 
-    connectBtn = new QPushButton("Connect");
-    connectBtn->setEnabled(false);
-    connectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    connectBtn->setCheckable(true);
-    deviceDetectorHl->addWidget(connectBtn);
+    // connectBtn = new QPushButton("Connect");
+    // connectBtn->setEnabled(false);
+    // connectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    // connectBtn->setCheckable(true);
+    // deviceDetectorHl->addWidget(connectBtn);
 
-    connectionInfoLbl = new QLabel("");
-    deviceDetectorHl->addWidget(connectionInfoLbl);
+    // connectionInfoLbl = new QLabel("");
+    // deviceDetectorHl->addWidget(connectionInfoLbl);
 
-    SRLbl = new QLabel;
-    deviceDetectorHl->addWidget(SRLbl);
+    // SRLbl = new QLabel;
+    // deviceDetectorHl->addWidget(SRLbl);
 
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    deviceDetectorHl->addWidget(spacer);
+    // QWidget * spacer = new QWidget;
+    // spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    // deviceDetectorHl->addWidget(spacer);
 
-    QTimer::singleShot(0, this, SLOT(showMaximized()));
+    //QTimer::singleShot(2000, this, SLOT(showMaximized()));
+    this->move(QGuiApplication::primaryScreen()->geometry().center() - rect().center());
 }
 
 MainWindow::~MainWindow() {

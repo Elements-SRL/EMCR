@@ -80,5 +80,7 @@
         <file>icons/dark/toggle_on.svg</file>
         <file>icons/dark/window-restore-regular.svg</file>
         <file>icons/dark/x-solid.svg</file>
+        <file>imgs/splash01.png</file>
+        <file>imgs/logo_with_name_white.png</file>
     </qresource>
 </RCC>
