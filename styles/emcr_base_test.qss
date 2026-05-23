@@ -574,7 +574,6 @@ QLabel#copyrightLbl{
     font-family: "Inter", sans-serif;
 }
 
-
 QFrame#SplashContainer {
     border-image: url(:/imgs/splash01.png) 0 0 0 0 stretch stretch;
     border-radius: 15px;     
@@ -610,4 +609,40 @@ QComboBox QAbstractItemView {
 
 #BigPlotChartCanvas QFrame{
     background: @BG_APP;
+}
+
+
+QLabel#deviceConnectedLbl {
+    background-color: @BG_PANEL;
+    padding: 4px 4px;
+    border-radius: 4px;
+    max-height: 16px;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+}
+
+
+/* CONNECTING Page of device detector */
+QFrame#deviceDetectorWid[state="disconnected"] {
+    border-image: url(:/imgs/splash01.png) 0 0 0 0 stretch stretch;
+    border-radius: 15px;
+}
+
+/* CONNECTED Page of device detector */
+QFrame#deviceDetectorWid[state="connected"] {
+    border-image: none;
+    background: transparent;
+}
+
+QPushButton#connectBtn[state="disconnected"] {
+    background-color: transparent;
+    border: 1px solid @BORDER_INPUT;
+    text-align: left;
+    padding-left: 10px;
+    qproperty-icon: url(@ICON_PREFIX/disconnect_plug.svg); 
+}
+
+QPushButton#connectBtn[state="disconnected"]:hover {
+    background-color: @ACCENT_RED;
+    border-color: @BORDER_FOCUS;
 }

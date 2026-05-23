@@ -11,6 +11,7 @@
 #include "messagedispatcher.h"
 #include "chessboarddockwidget.h"
 #include "devicecontroldockwidget.h"
+#include "qstackedwidget.h"
 #include "singlechannelcontroldockwidget.h"
 #include "multiplechannelcontroldockwidget.h"
 #include "boardcontroldockwidget.h"
@@ -60,6 +61,7 @@ public:
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
     void setConnectionLabel(QString text);
+    void showHideConnectedDevice(bool flag);
 
     void setBigPlotWidget(BigPlotWidget * widget);
     void setDockWidget(DockWidgets_t type, QDockWidget * widget, bool floatingFlag = true, Qt::DockWidgetArea area = Qt::RightDockWidgetArea);
@@ -116,6 +118,7 @@ private:
     QAction * actionSupport = nullptr;
     QAction * actionReleaseNotes = nullptr;
 
+    QLabel * deviceConnectedLbl = nullptr;
     QLabel * SRLbl = nullptr;
 
     BigPlotWidget * bigPlotW = nullptr;
@@ -123,8 +126,13 @@ private:
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
     SpectrumWidget * spectrumWidget = nullptr;
 
+    QStackedWidget * connectionDeviceStack = nullptr;
+    QFrame * deviceViewer = nullptr;
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
+    QPushButton * disconnectBtn = nullptr;
+
+    // TODO REMOVE
     QLabel * connectionInfoLbl;
 
     int voltageChannelsNum = 1;

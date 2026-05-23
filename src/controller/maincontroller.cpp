@@ -94,10 +94,13 @@ void MainController::onDevicesListChanged(std::vector <std::string> devicesList)
 
 void MainController::onConnect(bool flag) {
     emit stopDetecting();
+    QPushButton * connectBtn = mainWindow->getConnectButton();
     QString serial = mainWindow->getSelectedSerialNumber();
 
+
     if (flag) {
-        mainWindow->setConnectionLabel("Connecting, please wait...");
+        connectBtn->setIcon(QIcon(":/icons/dark/3_dots_bounce.svg"));
+        connectBtn->setText("CONNECTING");
         deviceConnector->setDeviceId(serial);
         deviceConnector->start();
 
@@ -105,7 +108,6 @@ void MainController::onConnect(bool flag) {
         previousVoltageRange.reset();
         previousCurrentRange.reset();
 
-        mainWindow->setConnectionLabel("");
         mainWindow->connectDevice(false, Success);
         this->stopAndDestroyProducerConsumers();
 
@@ -138,7 +140,7 @@ void MainController::onResetHw() {
 void MainController::onDeviceConnected(ErrorCodes_t ret) {
     bool connectionSuccessful = ret == Success;
     if (connectionSuccessful) {
-        mainWindow->setConnectionLabel("");
+        mainWindow->showHideConnectedDevice(true);
         msgDisp = deviceConnector->getMessageDispatcher();
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
         msgDisp->getBoardsNumberFeatures(boardsNumber);
@@ -151,6 +153,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
         mainWindow->restoreUISettings();
 
     } else {
+        mainWindow->showHideConnectedDevice(false);
         mainWindow->setConnectionLabel("Connection failed");
         emit startDetecting();
     }

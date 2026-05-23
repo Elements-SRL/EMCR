@@ -171,9 +171,10 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         // --- Items ---
         {"@ITEM_SELECTED",  accents["White 20"]},
         {"@ITEM_PRESS",     accents["White 10"]},
-        {"@ITEM_DISABLED",  accents["White 20"]},
+        {"@ITEM_DISABLED",  accents["White 20"]},  
 
         // --- Accents ---
+        {"@ACCENT_RED",       accents["Red"]},
         {"@ACCENT_ORANGE",    accents["Orange"]},
         {"@ACCENT_BLUE",      accents["Blue"]},
         {"@ACCENT_LBLUE",     accents["Blue Light"]},
