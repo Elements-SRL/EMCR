@@ -45,6 +45,7 @@ private:
     double normalizationFactor = 1.0;
     int channelsOffset = 0;
 
+    int maxSamples2 = 2048;
     int nBins = 0;
     int n2Bins = 0;
     double df = 1.0;

@@ -4,6 +4,7 @@ SpectrumConsumer::SpectrumConsumer(ApplicationStatus * appStatus, DeviceDataProd
     PlotConsumer(appStatus, producer) {
 
     maxSamples = 2048;
+    maxSamples2 = maxSamples/2+1;
     this->allocateData();
     this->updateFrequencyAxis();
 }
@@ -54,7 +55,7 @@ void SpectrumConsumer::computeFrequencyAxis() {
     nBins = qRound(integrationWindowS*samplingRateHz);
     integrationRounds = (nBins-1)/maxSamples+1;
     nBins /= integrationRounds;
-    n2Bins = nBins/2+1; // floor rounding: if nBins is even the DC frequency is removed, but SR/2 is included, if nBins is odd DC included, SR/2 does not exist
+    n2Bins = nBins/2; // floor rounding: if nBins is even the DC frequency is removed, but SR/2 is included, if nBins is odd DC included, SR/2 does not exist
     if (n2Bins == 0) {
         return;
     }
@@ -63,8 +64,9 @@ void SpectrumConsumer::computeFrequencyAxis() {
     binIndex = 0;
 
     df = samplingRateHz/(double)nBins;
-    for (int binIdx = 0; binIdx < n2Bins; binIdx++) {
-        frequencyValues[binIdx] = df*(double)(binIdx+1);
+    // avoid DC component
+    for (int binIdx = 1; binIdx < n2Bins+1; binIdx++) {
+        frequencyValues[binIdx-1] = df*(double)binIdx;
     }
 
     shape = {static_cast <size_t> (nBins)};
@@ -145,16 +147,16 @@ void SpectrumConsumer::run() {
                     if (integrationRoundIdx == 0) {
                         for (auto channelIdx : channels) {
                             pocketfft::r2c(shape, stride_in, stride_out, axes, pocketfft::FORWARD, fftIn[channelIdx], fftOut[channelIdx], 1.0);
-                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                currentValues[channelIdx][binIndex] = std::norm(fftOut[channelIdx][binIndex+1]);
+                            for (binIndex = 1; binIndex < n2Bins+1; binIndex++) {
+                                currentValues[channelIdx][binIndex-1] = std::norm(fftOut[channelIdx][binIndex]);
                             }
                         }
-
-                    } else {
+                    }
+                    else {
                         for (auto channelIdx : channels) {
                             pocketfft::r2c(shape, stride_in, stride_out, axes, pocketfft::FORWARD, fftIn[channelIdx], fftOut[channelIdx], 1.0);
-                            for (binIndex = 0; binIndex < n2Bins; binIndex++) {
-                                currentValues[channelIdx][binIndex] += std::norm(fftOut[channelIdx][binIndex+1]);
+                            for (binIndex = 1; binIndex < n2Bins+1; binIndex++) {
+                                currentValues[channelIdx][binIndex-1] += std::norm(fftOut[channelIdx][binIndex]);
                             }
                         }
                     }
@@ -166,8 +168,8 @@ void SpectrumConsumer::run() {
                                 currentSpectrumValues[channelIdx][binIndex] = currentValues[channelIdx][binIndex]*normalizationFactor;
                                 if (binIndex == 0) {
                                     irmsValues[channelIdx][binIndex] = currentSpectrumValues[channelIdx][binIndex]*df;
-
-                                } else {
+                                }
+                                else {
                                     irmsValues[channelIdx][binIndex] = irmsValues[channelIdx][binIndex-1]+currentSpectrumValues[channelIdx][binIndex]*df;
                                 }
                             }
@@ -195,14 +197,14 @@ void SpectrumConsumer::run() {
 }
 
 void SpectrumConsumer::allocateData() {
-    frequencyValues = new double[maxSamples/2+1];
+    frequencyValues = new double[maxSamples2];
 
     for (int idx = 0; idx < currentChannelsNum; idx++) {
-        currentValues.push_back(new double[maxSamples]);
-        currentSpectrumValues.push_back(new double[maxSamples]);
-        irmsValues.push_back(new double[maxSamples]);
+        currentValues.push_back(new double[maxSamples2]);
+        currentSpectrumValues.push_back(new double[maxSamples2]);
+        irmsValues.push_back(new double[maxSamples2]);
         fftIn.push_back(new double[maxSamples]);
-        fftOut.push_back(new std::complex <double> [maxSamples/2+1]);
+        fftOut.push_back(new std::complex <double> [maxSamples2]);
     }
 }
 

@@ -42,8 +42,7 @@ DEFINES += "PROTSER_VER_MAJOR=$$PROTSER_VER_MAJOR"\
     "PROTSER_VER_PATCH=$$PROTSER_VER_PATCH"
 
 SOURCES += \
-    src/controller/bigplotviewcontroller.cpp \
-    src/controller/debugcontroller.cpp \
+    src/main.cpp \
     src/controller/device/consumer/analysisconsumer.cpp \
     src/controller/device/consumer/ccresistanceestimationconsumer.cpp \
     src/controller/device/consumer/membraneestimationconsumer.cpp \
@@ -51,16 +50,17 @@ SOURCES += \
     src/controller/device/consumer/resistanceestimationconsumer.cpp \
     src/controller/device/consumer/squarecurrentbasedanalysisconsumer.cpp \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.cpp \
-    src/controller/durationbasedbigplotviewcontroller.cpp \
-    src/controller/plotdetailcontroller.cpp \
-    src/controller/temperaturecontroller.cpp \
-    src/main.cpp \
     src/controller/device/consumer/ivgraphconsumer.cpp \
     src/controller/device/consumer/livestatisticsconsumer.cpp \
     src/controller/device/consumer/eventdetectionconsumer.cpp \
     src/controller/device/consumer/spectrumconsumer.cpp \
     src/controller/device/deviceconnector.cpp \
     src/controller/controllerwithconsumer.cpp \
+    src/controller/bigplotviewcontroller.cpp \
+    src/controller/debugcontroller.cpp \
+    src/controller/durationbasedbigplotviewcontroller.cpp \
+    src/controller/plotdetailcontroller.cpp \
+    src/controller/temperaturecontroller.cpp \
     src/controller/measurementoverviewcontroller.cpp \
     src/controller/multiplechannelcontroller.cpp \
     src/controller/plotpreferencescontroller.cpp \
@@ -172,8 +172,12 @@ SOURCES += \
     src/view/upgradefwview.cpp
 
 HEADERS += \
-    src/controller/bigplotviewcontroller.h \
-    src/controller/debugcontroller.h \
+    src/globaldefines.h \
+    src/model/channelstate.h \
+    src/model/membraneresult.h \
+    src/model/plotdetailmodel.h \
+    src/model/singlemeasresult.h \
+    src/protocoldefs.h \
     src/controller/device/consumer/analysisconsumer.h \
     src/controller/device/consumer/ccresistanceestimationconsumer.h \
     src/controller/device/consumer/membraneestimationconsumer.h \
@@ -181,21 +185,17 @@ HEADERS += \
     src/controller/device/consumer/resistanceestimationconsumer.h \
     src/controller/device/consumer/squarecurrentbasedanalysisconsumer.h \
     src/controller/device/consumer/squarevoltagebasedanalysisconsumer.h \
-    src/controller/durationbasedbigplotviewcontroller.h \
-    src/controller/plotdetailcontroller.h \
-    src/controller/temperaturecontroller.h \
-    src/globaldefines.h \
-    src/model/channelstate.h \
-    src/model/membraneresult.h \
-    src/model/plotdetailmodel.h \
-    src/model/singlemeasresult.h \
-    src/protocoldefs.h \
     src/controller/device/consumer/ivgraphconsumer.h \
     src/controller/device/consumer/livestatisticsconsumer.h \
     src/controller/device/consumer/eventdetectionconsumer.h \
     src/controller/device/consumer/spectrumconsumer.h \
     src/controller/device/deviceconnector.h \
     src/controller/controllerwithconsumer.h \
+    src/controller/bigplotviewcontroller.h \
+    src/controller/debugcontroller.h \
+    src/controller/durationbasedbigplotviewcontroller.h \
+    src/controller/plotdetailcontroller.h \
+    src/controller/temperaturecontroller.h \
     src/controller/measurementoverviewcontroller.h \
     src/controller/multiplechannelcontroller.h \
     src/controller/plotpreferencescontroller.h \
