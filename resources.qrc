@@ -54,35 +54,29 @@
         <file>imgs/data monitor.png</file>
         <file>fonts/Inter.ttc</file>
         <file>imgs/EMCR splash background.png</file>
-        <file>imgs/svg/3_dots_bounce.svg</file>
-        <file>imgs/svg/toggle_off.svg</file>
-        <file>imgs/svg/toggle_on.svg</file>
-        <file>imgs/svg/x-solid.svg</file>
-        <file>imgs/svg/window-restore-regular.svg</file>
-        <file>imgs/svg/circle-info-solid.svg</file>
-        <file>imgs/svg/arrow_down.svg</file>
-        <file>imgs/svg/arrow_up.svg</file>
         <file>styles/emcr_base.qss</file>
         <file>styles/emcr_base_test.qss</file>
-        <file>icons/light/3_dots_bounce.svg</file>
-        <file>icons/light/arrow_down.svg</file>
-        <file>icons/light/arrow_up.svg</file>
-        <file>icons/light/circle-info-solid.svg</file>
-        <file>icons/light/toggle_off.svg</file>
-        <file>icons/light/toggle_on.svg</file>
-        <file>icons/light/window-restore-regular.svg</file>
-        <file>icons/light/x-solid.svg</file>
-        <file>icons/dark/3_dots_bounce.svg</file>
-        <file>icons/dark/arrow_down.svg</file>
-        <file>icons/dark/arrow_up.svg</file>
-        <file>icons/dark/circle-info-solid.svg</file>
-        <file>icons/dark/toggle_off.svg</file>
-        <file>icons/dark/toggle_on.svg</file>
-        <file>icons/dark/window-restore-regular.svg</file>
-        <file>icons/dark/x-solid.svg</file>
         <file>imgs/splash01.png</file>
         <file>imgs/logo_with_name_white.png</file>
-        <file>icons/dark/disconnect_plug.svg</file>
-        <file>icons/light/disconnect_plug.svg</file>
+        <file>theme/dark/icons/3_dots_bounce.svg</file>
+        <file>theme/dark/icons/arrow_down.svg</file>
+        <file>theme/dark/icons/arrow_up.svg</file>
+        <file>theme/dark/icons/circle-info-solid.svg</file>
+        <file>theme/dark/icons/disconnect_plug.svg</file>
+        <file>theme/dark/icons/toggle_off.svg</file>
+        <file>theme/dark/icons/toggle_on.svg</file>
+        <file>theme/dark/icons/window-restore-regular.svg</file>
+        <file>theme/dark/icons/x-solid.svg</file>
+        <file>theme/light/icons/3_dots_bounce.svg</file>
+        <file>theme/light/icons/arrow_down.svg</file>
+        <file>theme/light/icons/arrow_up.svg</file>
+        <file>theme/light/icons/circle-info-solid.svg</file>
+        <file>theme/light/icons/disconnect_plug.svg</file>
+        <file>theme/light/icons/toggle_off.svg</file>
+        <file>theme/light/icons/toggle_on.svg</file>
+        <file>theme/light/icons/window-restore-regular.svg</file>
+        <file>theme/light/icons/x-solid.svg</file>
+        <file>theme/dark/imgs/logo_with_name.png</file>
+        <file>theme/light/imgs/logo_with_name.png</file>
     </qresource>
 </RCC>

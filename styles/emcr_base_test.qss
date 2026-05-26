@@ -9,8 +9,14 @@ QWidget {
     outline: none;
 }
 
-QMainWindow, QDialog {
-    background-color: @BG_APP; 
+QFrame{
+    background: none;
+}
+
+QMainWindow,
+QDockWidget, 
+QDialog {
+    background: @BG_APP; 
 }
 
 /* --- TEXT DENSITY & FONTS --- */
@@ -268,6 +274,17 @@ QScrollBar::add-page, QScrollBar::sub-page {
 }
 
 /* --- TAB BAR/NAVIGATION --- */
+QTabWidget::tab-bar {
+    margin-top: 10px;
+    background-color: @BG_APP;
+}
+
+QTabWidget::pane {
+    background-color: @BG_APP;
+    background: @BG_APP;
+}
+
+
 QTabBar::tab {
     background-color: @BG_HEADER;
     color: @TEXT_MUTED;
@@ -537,8 +554,9 @@ QWidget#splashScreen QProgressBar::chunk {
 }
 
 
-QLabel#logoLabel{
-    background: none;
+QLabel#elementsLogo{
+   background: none;
+   image: url("@IMGS_PREFIX/logo_with_name.png");
 }
 
 QLabel#appNameLbl{
@@ -623,26 +641,48 @@ QLabel#deviceConnectedLbl {
 
 
 /* CONNECTING Page of device detector */
-QFrame#deviceDetectorWid[state="disconnected"] {
+QFrame#deviceDetectorWid[page="connecting"] {
     border-image: url(:/imgs/splash01.png) 0 0 0 0 stretch stretch;
     border-radius: 15px;
 }
 
 /* CONNECTED Page of device detector */
-QFrame#deviceDetectorWid[state="connected"] {
+QFrame#deviceDetectorWid[page="connected"] {
     border-image: none;
-    background: transparent;
+    background: @BG_APP;
 }
 
-QPushButton#connectBtn[state="disconnected"] {
-    background-color: transparent;
+QPushButton#disconnectBtn {
+    background-color: @BG_BTN;
     border: 1px solid @BORDER_INPUT;
     text-align: left;
     padding-left: 10px;
     qproperty-icon: url(@ICON_PREFIX/disconnect_plug.svg); 
 }
 
-QPushButton#connectBtn[state="disconnected"]:hover {
+QPushButton#disconnectBtn:hover {
     background-color: @ACCENT_RED;
     border-color: @BORDER_FOCUS;
+    color: @TEXT_LIGHT;
 }
+
+QTableWidget {
+    gridline-color: @BORDER_PANEL;
+    background-color: @BG_APP;
+    alternate-background-color: @BG_PANEL;
+    selection-background-color: @BORDER_PANEL;
+    border: 1px solid @BORDER_PANEL;
+}
+
+QTabBar {
+    background-color: @BG_APP;
+    background: @BG_APP;
+}
+
+/* Rimuove la linea nera o lo sfondo che Qt inserisce nativamente nell'angolo destro */
+QTabWidget::left-corner,
+QTabWidget::right-corner {
+    background-color: @BG_APP;
+    background: @BG_APP;
+}
+

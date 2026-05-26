@@ -11,6 +11,7 @@
 #include "errormanager.h"
 #include "globaldefines.h"
 #include "qactiongroup.h"
+#include "qmovie.h"
 #include "qwindow.h"
 #include "resethwhelpdialog.h"
 #include "aboutdialog.h"
@@ -18,7 +19,7 @@
 #include "deviceinfodialog.h"
 #include "releasenotesdialog.h"
 #include "themecontroller.h"
-
+#include <QDebug>
 void MainWindow::setupDeviceConnectionGui(QFrame * container){
 
     QVBoxLayout *mainLayout = new QVBoxLayout(container);
@@ -27,13 +28,13 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
 
     QLabel *logoLabel = new QLabel();
     logoLabel->setObjectName("elementsLogo");
-    logoLabel->setPixmap(QPixmap(":/imgs/logo_with_name_white.png").scaled(200, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setPixmap(QPixmap(ThemeController::imgsPath() + "/logo_with_name.png").scaled(200, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     mainLayout->addWidget(logoLabel, 0, Qt::AlignTop | Qt::AlignRight);
 
     // --- STACKED WIDGET ---
     connectionDeviceStack = new QStackedWidget();
 
-    // PAGE 0 - CONNECTION PAGE
+    // PAGE 0 - CONNECTING PAGE
     QFrame *connectionPage = new QFrame();
     connectionPage->setObjectName("ConnectionPage");
     QVBoxLayout *connectionLayout = new QVBoxLayout(connectionPage);
@@ -51,39 +52,49 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
 
     connectionLayout->addWidget(titleLbl);
     connectionLayout->addWidget(hintLbl);
-    connectionLayout->addSpacing(10);
     connectionLayout->addWidget(devicesComboBox);
+
+    connectBtn = new QPushButton("CONNECT");
+    connectBtn->setObjectName("connectBtn");
+    connectBtn->setFixedWidth(220);
+    connectBtn->setCheckable(true);
+    connectBtn->setCursor(Qt::PointingHandCursor);
+    connectionLayout->addWidget(connectBtn, 0, Qt::AlignLeft);
     connectionLayout->addStretch();
 
-    // PAGINA 1: CONNECTED PAGE (Minimized widget)
+    // PAGE 1: CONNECTED PAGE (Minimized widget)
     QFrame *connectedPage = new QFrame();
     connectedPage->setObjectName("connectedPage");
-    QHBoxLayout *connectedRowLayout = new QHBoxLayout(connectedPage);
+    QVBoxLayout *connectedPageLayout = new QVBoxLayout(connectedPage);
+    QHBoxLayout *connectedRowLayout = new QHBoxLayout();
     connectedRowLayout->setContentsMargins(0, 0, 0, 0);
+    connectedPageLayout->setContentsMargins(0, 0, 0, 0);
+    connectedPageLayout->addLayout(connectedRowLayout);
+    connectedPageLayout->setSpacing(10);
 
     deviceConnectedLbl = new QLabel("");
     deviceConnectedLbl->setObjectName("deviceConnectedLbl");
     SRLbl = new QLabel("");
 
+    disconnectBtn = new QPushButton("DISCONNECT");
+    disconnectBtn->setObjectName("disconnectBtn");
+    disconnectBtn->setMaximumWidth(220);
+    disconnectBtn->setCheckable(true);
+    disconnectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    disconnectBtn->setCursor(Qt::PointingHandCursor);
+
+
     connectedRowLayout->addWidget(deviceConnectedLbl);
     connectedRowLayout->addWidget(SRLbl);
     connectedRowLayout->addStretch();
+    connectedPageLayout->addWidget(disconnectBtn, 0, Qt::AlignLeft);
+    connectedPageLayout->addStretch();
 
     connectionDeviceStack->addWidget(connectionPage);
     connectionDeviceStack->addWidget(connectedPage);
     connectionDeviceStack->setCurrentIndex(0);
-
+    connectionDeviceStack->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     mainLayout->addWidget(connectionDeviceStack);
-
-    // Button out outside layers
-    connectBtn = new QPushButton("CONNECT");
-    connectBtn->setObjectName("connectBtn");
-    connectBtn->setMaximumWidth(220);
-    connectBtn->setCheckable(true);
-    connectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-    connectBtn->setCursor(Qt::PointingHandCursor);
-
-    mainLayout->addWidget(connectBtn, 0, Qt::AlignLeft);
     mainLayout->addStretch();
 }
 
@@ -92,9 +103,15 @@ MainWindow::MainWindow(QWidget * parent) :
 
     setAttribute(Qt::WA_TranslucentBackground);
     this->setWindowTitle(QString(GLB_SOFTWARE_NAME) + " " + GLB_SOFTWARE_VERSION_NUMBER);
+    this->setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+
 
     dockWidgets.resize(DockWidgetsNum);
     dockWidgets.fill(nullptr);
+
+    /************************\
+     * device detector dock *
+    \************************/
 
     auto deviceDetectorDw = new QDockWidget;
     deviceDetectorDw->setWindowTitle("Connection");
@@ -102,12 +119,13 @@ MainWindow::MainWindow(QWidget * parent) :
     deviceDetectorDw->setFloating(false);
     deviceDetectorDw->setTitleBarWidget(new QWidget()); // Hide connection widget titlebar
 
-
     this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::LeftDockWidgetArea);
     QFrame * deviceDetectorWid = new QFrame();
     deviceDetectorWid->setObjectName("deviceDetectorWid");
     deviceDetectorWid->setMinimumSize(1000, 385);
-    deviceDetectorWid->setProperty("state", "disconnected");
+
+    // QSS property for the Connecting Page
+    deviceDetectorWid->setProperty("page", "connecting");
     setupDeviceConnectionGui(deviceDetectorWid);
     deviceDetectorDw->setWidget(deviceDetectorWid);
 
@@ -153,11 +171,11 @@ MainWindow::MainWindow(QWidget * parent) :
 
     actionDarkTheme = new QAction("Dark", this);
     actionDarkTheme->setCheckable(true);
-    actionDarkTheme->setData(ThemeController::Dark);
+    actionDarkTheme->setData(Dark);
 
     actionLightTheme = new QAction("Light", this);
     actionLightTheme->setCheckable(true);
-    actionLightTheme->setData(ThemeController::Light);
+    actionLightTheme->setData(Light);
 
     themeActionGroup = new QActionGroup(this);
     themeActionGroup->addAction(actionDarkTheme);
@@ -170,7 +188,7 @@ MainWindow::MainWindow(QWidget * parent) :
     // Restore user selected Theme
     // Dark Mode is enabled in case there is no saved value
     int savedTheme = settings.value("Preferences/UI/theme").toInt();
-    if (savedTheme == ThemeController::Light) {
+    if (savedTheme == Light) {
         actionLightTheme->setChecked(true);
     } else {
         actionDarkTheme->setChecked(true);
@@ -234,51 +252,7 @@ MainWindow::MainWindow(QWidget * parent) :
 
     connect(actionRecordingSettings, &QAction::triggered, recordSettingsDialog, &RecordSettingsDialog::exec);
 
-    /************************\
-     * device detector dock *
-    \************************/
-
-    // auto deviceDetectorDw = new QDockWidget;
-    // deviceDetectorDw->setWindowTitle("Connection");
-    // deviceDetectorDw->setObjectName("deviceDetectorDw");
-    // menuView->addAction(deviceDetectorDw->toggleViewAction());
-    // deviceDetectorDw->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    // this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::TopDockWidgetArea);
-
-    // QWidget * deviceDetectorWid = new QWidget;
-    // deviceDetectorWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    // deviceDetectorDw->setWidget(deviceDetectorWid);
-
-    // QHBoxLayout * deviceDetectorHl = new QHBoxLayout;
-    // deviceDetectorHl->setContentsMargins(1, 1, 1, 1);
-    // deviceDetectorHl->setSpacing(3);
-    // deviceDetectorWid->setLayout(deviceDetectorHl);
-
-    // devicesComboBox = new QComboBox;
-    // devicesComboBox->setEnabled(false);
-    // devicesComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    // QFontMetrics fm((QFont()));
-    // devicesComboBox->setFixedWidth(fm.horizontalAdvance("device device device"));
-    // deviceDetectorHl->addWidget(devicesComboBox);
-
-    // connectBtn = new QPushButton("Connect");
-    // connectBtn->setEnabled(false);
-    // connectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    // connectBtn->setCheckable(true);
-    // deviceDetectorHl->addWidget(connectBtn);
-
-    // connectionInfoLbl = new QLabel("");
-    // deviceDetectorHl->addWidget(connectionInfoLbl);
-
-    // SRLbl = new QLabel;
-    // deviceDetectorHl->addWidget(SRLbl);
-
-    // QWidget * spacer = new QWidget;
-    // spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    // deviceDetectorHl->addWidget(spacer);
-
-    //QTimer::singleShot(2000, this, SLOT(showMaximized()));
-    this->move(QGuiApplication::primaryScreen()->geometry().center() - rect().center());
+    //this->move(QGuiApplication::primaryScreen()->geometry().center() - rect().center());
 }
 
 MainWindow::~MainWindow() {
@@ -291,6 +265,10 @@ void MainWindow::setMessageDispatcher(MessageDispatcher * msgDisp) {
 
 QPushButton * MainWindow::getConnectButton() {
     return connectBtn;
+}
+
+QPushButton * MainWindow::getDisconnectButton() {
+    return disconnectBtn;
 }
 
 QString MainWindow::getSelectedSerialNumber() {
@@ -341,8 +319,6 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
 
     if (flag) {
         if (err == Success) {
-            connectBtn->setText("Disconnect");
-
             devicesComboBox->setEnabled(false);
             this->createGuiControls();
             connectBtn->setChecked(true);
@@ -350,12 +326,12 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
         } else {
             ErrorManager e(err);
             connectBtn->setChecked(false);
+            connectBtn->setText("CONNECT");
         }
 
     } else {
-        connectBtn->setText(QString::fromStdString("Connect"));
+        connectBtn->setText("CONNECT");
         connectBtn->setChecked(false);
-
         this->destroyGuiControls();
         devicesComboBox->setEnabled(true);
     }
@@ -436,7 +412,7 @@ void MainWindow::createGuiControls() {
     this->addViewActions();
 
     interfaceCreated = true;
-    this->adjustSize();
+
 }
 
 void MainWindow::destroyGuiControls() {
@@ -479,12 +455,13 @@ void MainWindow::destroyGuiControls() {
 //    }
 //    shortcuts.clear();
 
-    //this->setCentralWidget(new ElementsLogoWidget);
     this->removeDockWidget(dockWidgets[DWDeviceDetector]);
     this->setDockWidget(DWDeviceDetector, dockWidgets[DWDeviceDetector], false, Qt::TopDockWidgetArea);
     dockWidgets[DWDeviceDetector]->setVisible(true);
     this->showHideConnectedDevice(false);
     interfaceCreated = false;
+    this->adjustSize();
+    this->move(QGuiApplication::primaryScreen()->geometry().center() - rect().center());
 }
 
 void MainWindow::restoreUISettings() {
@@ -624,7 +601,7 @@ void MainWindow::onThemeSelected() {
         int themeEnum = activeAction->data().toInt();
         QSettings settings;
         settings.setValue("Preferences/UI/theme", themeEnum);
-        ThemeController::getInstance().applyTheme(static_cast<ThemeController::Theme>(themeEnum));
+        ThemeController::getInstance().applyTheme(static_cast<Theme>(themeEnum));
     }
 }
 
@@ -649,9 +626,11 @@ void MainWindow::showHideConnectedDevice(bool flag){
         // --- STATUS: DEVICE CONNECTED ---
 
         // Minimizing the widget
-        if (mainGrid) mainGrid->setContentsMargins(15, 15, 15, 10);
-        deviceDetectorWid->setMinimumSize(250, 100);
-        this->getDockWidget(DWDeviceDetector)->setMinimumSize(250, 100);
+        if (mainGrid) mainGrid->setContentsMargins(15, 15, 15, 15);
+        deviceDetectorWid->setMinimumWidth(250);
+        deviceDetectorWid->setMinimumHeight(100);
+        deviceDetectorWid->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+        deviceDetectorWid->setProperty("page", "connected");
 
         // Making sure the mainframe is big enough
         this->setMaximumSize(this->screen()->availableSize());
@@ -663,30 +642,24 @@ void MainWindow::showHideConnectedDevice(bool flag){
         QString connected = QString("%1 <span style='color:#4CAF50;'>●</span>").arg(getSelectedSerialNumber());
         this->deviceConnectedLbl->setText(connected);
 
-        this->connectBtn->setText("DISCONNECT");
-
-        // QSS status properties
-        this->connectBtn->setProperty("state", "disconnected");
-        deviceDetectorWid->setProperty("state", "connected");
-
     } else {
         // --- STATUS: DEVICE NOT CONNECTED ---
 
         if (mainGrid) mainGrid->setContentsMargins(40, 40, 40, 40);
         if (logoLabel) logoLabel->setVisible(true);
 
-        // Show the splash screen with device selection
+        // Show the CONNECTING page - device selection
         this->connectionDeviceStack->setCurrentIndex(0);
+        deviceDetectorWid->setProperty("page", "connecting");
 
-        QSize size = QSize(1000, 450);
+        QSize size = QSize(1000, 380);
         deviceDetectorWid->setMinimumSize(size);
-        this->getDockWidget(DWDeviceDetector)->setMinimumSize(size);
-
-
-        this->connectBtn->setProperty("state", "connected");
-        deviceDetectorWid->setProperty("state", "disconnected");
-
         this->setMaximumSize(size);
-        this->showMaximized();
+
+        // QSS re-apply
+        deviceDetectorWid->style()->unpolish(deviceDetectorWid);
+        deviceDetectorWid->style()->polish(deviceDetectorWid);
+        deviceDetectorWid->update();
+
     }
 }

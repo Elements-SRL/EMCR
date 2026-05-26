@@ -52,6 +52,7 @@ public:
 
     void setMessageDispatcher(MessageDispatcher * msgDisp);
     QPushButton * getConnectButton();
+    QPushButton * getDisconnectButton();
     QString getSelectedSerialNumber();
     BigPlotWidget * getBigPlotWidget();
     QDockWidget * getDockWidget(DockWidgets_t type);

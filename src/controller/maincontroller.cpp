@@ -54,19 +54,37 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
 
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
+    connect(mainWindow->getDisconnectButton(), &QPushButton::clicked, this, &MainController::onDisconnect);
     connect(mainWindow, &MainWindow::sigUpgradeFw, this, &MainController::onUpgradeFw);
     connect(mainWindow, &MainWindow::sigResetHw, this, &MainController::onResetHw);
 
-    mainWindow->show();
+    if (this->splash != nullptr) {
+        this->splash->show();
+    }
+
+    introMinDurationPassed = false;
+
+    QTimer::singleShot(2000, this, [this]() {
+        introMinDurationPassed = true;
+        checkReadyToSwitchFromSplash();
+    });
+
     emit startDetecting();
 }
 
 void MainController::setSplash(SplashView *s){
     this->splash = s;
+    splash->show();
 }
 
 void MainController::onDevicesListChanged(std::vector <std::string> devicesList) {
     this->mainWindow->setDevicesList(devicesList);
+
+    // At least one scan done
+    firstDeviceScanDone = true;
+
+    checkReadyToSwitchFromSplash();
+
     if (devicesList.size() > 0) {
         if (msgDisp != nullptr) {
             std::string sn;
@@ -97,9 +115,7 @@ void MainController::onConnect(bool flag) {
     QPushButton * connectBtn = mainWindow->getConnectButton();
     QString serial = mainWindow->getSelectedSerialNumber();
 
-
     if (flag) {
-        connectBtn->setIcon(QIcon(":/icons/dark/3_dots_bounce.svg"));
         connectBtn->setText("CONNECTING");
         deviceConnector->setDeviceId(serial);
         deviceConnector->start();
@@ -127,6 +143,35 @@ void MainController::onConnect(bool flag) {
     }
 }
 
+void MainController::onDisconnect() {
+    previousVoltageRange.reset();
+    previousCurrentRange.reset();
+
+    mainWindow->connectDevice(false, Success);
+    this->stopAndDestroyProducerConsumers();
+
+    if (appStatus != nullptr) {
+        delete appStatus;
+        appStatus = nullptr;
+    }
+
+    if (msgDisp != nullptr) {
+        msgDisp->disconnectDevice();
+        deviceConnector->destroyMessageDispatcher();
+        msgDisp = nullptr;
+        mainWindow->setMessageDispatcher(msgDisp);
+    }
+
+    emit startDetecting();
+
+    // Centering the main window
+    QCoreApplication::processEvents();
+    mainWindow->adjustSize();
+    auto screenGeometry = mainWindow->screen()->geometry();
+    mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
+}
+
+
 void MainController::onUpgradeFw() {
     upgradeFwController->openView(mainWindow->getSelectedSerialNumber());
 }
@@ -151,6 +196,12 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     if (connectionSuccessful) {
         this->onMainWindowCreated();
         mainWindow->restoreUISettings();
+
+        // Centering the main window
+        QCoreApplication::processEvents();
+        mainWindow->adjustSize();
+        auto screenGeometry = mainWindow->screen()->geometry();
+        mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
 
     } else {
         mainWindow->showHideConnectedDevice(false);
@@ -553,4 +604,33 @@ void MainController::stopAndDestroyProducerConsumers() {
         deviceDataProducer = nullptr;
     }
     controllersWithConsumer.clear();
+}
+
+
+/*
+ * Checks if its time to swith from SplashScreen to
+ * Device selection screen
+ */
+void MainController::checkReadyToSwitchFromSplash() {
+
+    if (mainWindow->isVisible()) {
+        return;
+    }
+
+    if (introMinDurationPassed && firstDeviceScanDone) {
+
+        if (this->splash != nullptr) {
+            this->splash->hide();
+        }
+
+        mainWindow->show();
+
+        // Window adjustment
+        QCoreApplication::processEvents();
+        mainWindow->adjustSize();
+
+        // Screen center
+        auto screenGeometry = mainWindow->screen()->geometry();
+        mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
+    }
 }

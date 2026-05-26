@@ -14,9 +14,9 @@ ThemeController& ThemeController::getInstance() {
 
 void ThemeController::applyTheme(Theme theme) {
     // TODO Work in progress QSS
+    this->currentTheme = theme;
     QString qssPath = ":/styles/emcr_base_test.qss";
     QString processedQss = loadAndProcessQss(qssPath, theme);
-
     qApp->setStyleSheet(processedQss);
 }
 
@@ -126,18 +126,18 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
 
     const QMap<QString, QString>* selectedPalette = nullptr;
     const QMap<QString, QString>* selectedAccents = nullptr;
-    QString iconPrefix = ":/icons/";
+    QString iconPrefix = ":/theme/";
 
     switch (theme){
     case Dark:
         selectedPalette = &darkPalette;
         selectedAccents = & darkAccentsPalette;
-        iconPrefix += "dark";
+        iconPrefix += "dark/icons";
         break;
     case Light:
         selectedPalette = &lightPalette;
         selectedAccents = &lightAccentsPalette;
-        iconPrefix += "light";
+        iconPrefix += "light/icons";
         break;
     }
 
@@ -188,6 +188,8 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         {"@BDG_R_FG", "#fbbf24"}, {"@BDG_R_BG", "rgba(251, 191, 36, 0.15)"},
         {"@BDG_C_FG", "#fafafa"}, {"@BDG_C_BG", "rgba(124, 58, 237, 0.2)"},
 
-        {"@ICON_PREFIX", iconPrefix }
+        {"@ICON_PREFIX", ThemeController::iconPath()},
+        {"@IMGS_PREFIX", ThemeController::imgsPath()}
     };
 }
+

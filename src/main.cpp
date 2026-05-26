@@ -51,21 +51,20 @@ int main(int argc, char *argv[]) {
     defaultFont.setPixelSize(12);
     a.setFont(defaultFont);
 
-    // Splashscreen
-    SplashView *splash = new SplashView();
-    splash->show();
-
     ThemeController &t = ThemeController::getInstance();
     QSettings settings;
     int savedTheme = settings.value("Preferences/UI/theme").toInt();
 
-    if (savedTheme == ThemeController::Light) {
-        t.applyTheme(ThemeController::Light);
+    if (savedTheme == Light) {
+        t.applyTheme(Light);
     } else {
-        t.applyTheme(ThemeController::Dark);
+        t.applyTheme(Dark);
     }
 
     MainController c;
+
+    // Splashscreen
+    SplashView *splash = new SplashView();
     c.setSplash(splash);
 
     return a.exec();
