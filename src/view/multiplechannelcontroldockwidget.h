@@ -70,6 +70,7 @@ public:
     void enableExpertMode(bool flag);
     void setSelectionCount(int count, int totalChannels);
     void updateSummary(const ChannelProperty &propertyType, const QString &text, const QString &status);
+    void updateFeatureDetail(const ChannelProperty &propertyType, int onCount, int offCount, bool isAuto, bool isEmpty);
     void enableDisableControls(ChannelProperty propertyType, bool flag);
 
 public slots:
@@ -109,6 +110,8 @@ private:
     QGroupBox * zapGb = nullptr;
     QLabel * m_selectionCounterLabel = nullptr;
     std::map<QString, QLabel*> m_summaryLabels;
+    std::map<QString, QLabel*> m_featureOnLabels;
+    std::map<QString, QLabel*> m_featureOffLabels;
 
 signals:
     void sigTurnChannelOn();

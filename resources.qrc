@@ -78,5 +78,7 @@
         <file>theme/light/icons/x-solid.svg</file>
         <file>theme/dark/imgs/logo_with_name.png</file>
         <file>theme/light/imgs/logo_with_name.png</file>
+        <file>theme/dark/icons/device_ico.svg</file>
+        <file>theme/light/icons/device_ico.svg</file>
     </qresource>
 </RCC>

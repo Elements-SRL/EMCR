@@ -67,18 +67,28 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     connectedPage->setObjectName("connectedPage");
     QVBoxLayout *connectedPageLayout = new QVBoxLayout(connectedPage);
     QHBoxLayout *connectedRowLayout = new QHBoxLayout();
+    QHBoxLayout *connectedTitleLayout = new QHBoxLayout();
     connectedRowLayout->setContentsMargins(0, 0, 0, 0);
     connectedPageLayout->setContentsMargins(0, 0, 0, 0);
+    connectedPageLayout->addLayout(connectedTitleLayout);
     connectedPageLayout->addLayout(connectedRowLayout);
-    connectedPageLayout->setSpacing(10);
+    connectedPageLayout->setSpacing(12);
+
+    QLabel * deviceIco = new QLabel("");
+    deviceIco->setObjectName("deviceIco");
+    QLabel *devicesTitle = new QLabel("DEVICE");
+    devicesTitle->setObjectName("sectionHeader");
+    connectedTitleLayout->addWidget(deviceIco);
+    connectedTitleLayout->addWidget(devicesTitle);
+    connectedTitleLayout->addStretch();
 
     deviceConnectedLbl = new QLabel("");
     deviceConnectedLbl->setObjectName("deviceConnectedLbl");
     SRLbl = new QLabel("");
+    SRLbl->setObjectName("connectionSpeed");
 
     disconnectBtn = new QPushButton("DISCONNECT");
     disconnectBtn->setObjectName("disconnectBtn");
-    disconnectBtn->setMaximumWidth(220);
     disconnectBtn->setCheckable(true);
     disconnectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     disconnectBtn->setCursor(Qt::PointingHandCursor);
@@ -88,6 +98,7 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     connectedRowLayout->addWidget(SRLbl);
     connectedRowLayout->addStretch();
     connectedPageLayout->addWidget(disconnectBtn, 0, Qt::AlignLeft);
+
     connectedPageLayout->addStretch();
 
     connectionDeviceStack->addWidget(connectionPage);
@@ -101,10 +112,8 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent) {
 
-    setAttribute(Qt::WA_TranslucentBackground);
     this->setWindowTitle(QString(GLB_SOFTWARE_NAME) + " " + GLB_SOFTWARE_VERSION_NUMBER);
     this->setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-
 
     dockWidgets.resize(DockWidgetsNum);
     dockWidgets.fill(nullptr);
@@ -252,7 +261,6 @@ MainWindow::MainWindow(QWidget * parent) :
 
     connect(actionRecordingSettings, &QAction::triggered, recordSettingsDialog, &RecordSettingsDialog::exec);
 
-    //this->move(QGuiApplication::primaryScreen()->geometry().center() - rect().center());
 }
 
 MainWindow::~MainWindow() {
@@ -388,8 +396,6 @@ void MainWindow::removeViewActions() {
 void MainWindow::createGuiControls() {
     QSettings settings;
 
-    this->setStyleSheet("QSplitter::handle{image: url(:/imgs/splitter handle.png)}");
-
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
 
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
@@ -412,6 +418,7 @@ void MainWindow::createGuiControls() {
     this->addViewActions();
 
     interfaceCreated = true;
+    this->setContentsMargins(10,10,10,10);
 
 }
 
@@ -459,9 +466,8 @@ void MainWindow::destroyGuiControls() {
     this->setDockWidget(DWDeviceDetector, dockWidgets[DWDeviceDetector], false, Qt::TopDockWidgetArea);
     dockWidgets[DWDeviceDetector]->setVisible(true);
     this->showHideConnectedDevice(false);
+    this->setContentsMargins(0,0,0,0);
     interfaceCreated = false;
-    this->adjustSize();
-    this->move(QGuiApplication::primaryScreen()->geometry().center() - rect().center());
 }
 
 void MainWindow::restoreUISettings() {
@@ -628,7 +634,7 @@ void MainWindow::showHideConnectedDevice(bool flag){
         // Minimizing the widget
         if (mainGrid) mainGrid->setContentsMargins(15, 15, 15, 15);
         deviceDetectorWid->setMinimumWidth(250);
-        deviceDetectorWid->setMinimumHeight(100);
+        deviceDetectorWid->setMinimumHeight(120);
         deviceDetectorWid->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
         deviceDetectorWid->setProperty("page", "connected");
 

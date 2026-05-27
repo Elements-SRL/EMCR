@@ -375,64 +375,73 @@ void MultipleChannelController::resetLj() {
     emit sigLjResetted();
 }
 
-// Function used to update the Summary status widget
+/*
+ * Function used to update the Summary status widget and individual feature badges
+ */
 void MultipleChannelController::refreshSummary() {
     auto selectedIdx = appStatus->getSelectedChannelsIndexes();
     int totalChannels = allChannels.size();
 
-    // Helper lambda to calculate the status for specific properties (es. Trace Expanded)
-    auto getStatus = [&](const std::map<uint16_t, bool>& stateMap, bool isAuto) {
-        if (isAuto) return std::make_pair(QString("AUTO"), QString("auto"));
-        if (selectedIdx.empty()) return std::make_pair(QString("-"), QString("off"));
-
+    auto updatePropertyStatus = [&](ChannelProperty property, const std::map<uint16_t, bool>& stateMap, bool isAuto) {
         int onInSelection = 0;
-        for (uint16_t idx : selectedIdx) {
-            if (stateMap.count(idx) && stateMap.at(idx)) onInSelection++;
+        int offInSelection = 0;
+
+        // Status calculation only for selected channels
+        if (!selectedIdx.empty()) {
+            for (uint16_t idx : selectedIdx) {
+                if (stateMap.count(idx) && stateMap.at(idx)) {
+                    onInSelection++;
+                } else {
+                    offInSelection++;
+                }
+            }
         }
 
-        // Calculation of how much HW devices are On in the chessboard
+        // Caclucation of the total on for all channels
         int totalOn = 0;
-        for (auto const& [id, isOn] : stateMap) { if (isOn) totalOn++; }
-
-        QString text;
-        QString status;
-
-        if (onInSelection == 0) {
-            text = "OFF";
-            status = "off";
-        } else if (onInSelection == (int)selectedIdx.size()) {
-            text = QString("%1 ON").arg(onInSelection);
-            status = "on";
-        } else {
-            text = "~ MIXED";
-            status = "mixed";
+        for (auto const& [id, isOn] : stateMap) {
+            if (isOn) totalOn++;
         }
 
-        // Global info about channels in case mode is not AUTO
-        // e.g How many ON - Total channels
-        // IN AUTO we do not need this, all channels behave the same
-        text += QString(" (%1/%2)").arg(totalOn).arg(totalChannels);
-        return std::make_pair(text, status);
+        // Updating single feature badges in dock widget
+        multipleChannelControlsDw->updateFeatureDetail(property, onInSelection, offInSelection, isAuto, selectedIdx.empty());
+
+        QString summaryText;
+        QString summaryStatus;
+
+        if (isAuto) {
+            summaryText = "AUTO";
+            summaryStatus = "auto";
+        } else if (selectedIdx.empty()) {
+            summaryText = QString("0/%1").arg(totalChannels);
+            summaryStatus = "off";
+        } else {
+            // Active channels over the total ones
+            summaryText = QString("%1/%2").arg(totalOn).arg(totalChannels);
+
+            if (totalOn == 0) {
+                summaryStatus = "off";
+            } else if (totalOn == totalChannels) {
+                summaryStatus = "on";
+            } else {
+                summaryStatus = "mixed";
+            }
+        }
+
+        multipleChannelControlsDw->updateSummary(property, summaryText, summaryStatus);
     };
 
-    // Update the Multiple Channel contol Summary widget with computed info
-    // per each section
-    auto resExpand = getStatus(appStatus->getExpandedTraces(), appStatus->isExpandAuto());
-    multipleChannelControlsDw->updateSummary(EXPAND, resExpand.first, resExpand.second);
+    updatePropertyStatus(EXPAND, appStatus->getExpandedTraces(), appStatus->isExpandAuto());
 
     if (msgDisp->hasStimulusSwitches() == Success){
-        auto resStim = getStatus(appStatus->getStimActiveChannelsMap(), appStatus->isStimulusAuto());
-        multipleChannelControlsDw->updateSummary(STIMULUS, resStim.first, resStim.second);
+        updatePropertyStatus(STIMULUS, appStatus->getStimActiveChannelsMap(), appStatus->isStimulusAuto());
     }
 
-    auto resDetailed = getStatus(appStatus->getDetailedPlotMap(), appStatus->isPlotDetailAuto());
-    multipleChannelControlsDw->updateSummary(PLOT_DETAIL, resDetailed.first, resDetailed.second);
+    updatePropertyStatus(PLOT_DETAIL, appStatus->getDetailedPlotMap(), appStatus->isPlotDetailAuto());
 
     if (msgDisp->hasChannelSwitches() == Success){
-        auto resInput = getStatus(appStatus->getActiveChannelsMap(), appStatus->isChannelsAuto());
-        multipleChannelControlsDw->updateSummary(CH_INPUT, resInput.first, resInput.second);
+        updatePropertyStatus(CH_INPUT, appStatus->getActiveChannelsMap(), appStatus->isChannelsAuto());
     }
-
 }
 
 void MultipleChannelController::connectBigPlotController(BigPlotController* bpc) {

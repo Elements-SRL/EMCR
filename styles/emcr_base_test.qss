@@ -9,10 +9,6 @@ QWidget {
     outline: none;
 }
 
-QFrame{
-    background: none;
-}
-
 QMainWindow,
 QDockWidget, 
 QDialog {
@@ -112,6 +108,11 @@ QPushButton:disabled {
     background-color: @BG_APP;
     color: @TEXT_MUTED;
     border-color: @BORDER_STD;
+}
+
+QTabBar::base {
+    background-color: @BG_APP;
+    border: none;
 }
 
 /* --- MENUS & TOOLTIPS --- */
@@ -400,6 +401,26 @@ QLabel[status="on"] {
     border: 1px solid @BDG_E_FG;
 }
 
+QLabel#featureOnCounter{
+    background-color: @BDG_E_BG; 
+    color: @BDG_E_FG;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 9px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+QLabel#featureOffCounter{
+    background-color: @BG_BTN; 
+    color: @TEXT_MUTED;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 9px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
 /* Switches ed elementi Toggle */
 QLabel#activationSwitch { qproperty-alignment: 'AlignCenter'; }
 QLabel#activationSwitch[checked="false"] { qproperty-pixmap: url("@ICON_PREFIX/toggle_off.svg"); }
@@ -594,7 +615,7 @@ QLabel#copyrightLbl{
 
 QFrame#SplashContainer {
     border-image: url(:/imgs/splash01.png) 0 0 0 0 stretch stretch;
-    border-radius: 15px;     
+    background-color: @BG_APP;     
 }
 
 QComboBox {
@@ -632,7 +653,7 @@ QComboBox QAbstractItemView {
 
 QLabel#deviceConnectedLbl {
     background-color: @BG_PANEL;
-    padding: 4px 4px;
+    padding: 6px 7px;
     border-radius: 4px;
     max-height: 16px;
     font-family: "Inter", sans-serif;
@@ -653,10 +674,11 @@ QFrame#deviceDetectorWid[page="connected"] {
 }
 
 QPushButton#disconnectBtn {
-    background-color: @BG_BTN;
+    background-color: @BG_PANEL;
     border: 1px solid @BORDER_INPUT;
     text-align: left;
     padding-left: 10px;
+    margin: 0px;
     qproperty-icon: url(@ICON_PREFIX/disconnect_plug.svg); 
 }
 
@@ -666,6 +688,15 @@ QPushButton#disconnectBtn:hover {
     color: @TEXT_LIGHT;
 }
 
+QLabel#connectionSpeed {
+    font-family: "Inria Sans";
+    font-size: 11px;
+    color: @TEXT_TERTIARY; 
+}
+
+QLabel#deviceIco { qproperty-pixmap: url("@ICON_PREFIX/device_ico.svg"); }
+
+/* Tables */
 QTableWidget {
     gridline-color: @BORDER_PANEL;
     background-color: @BG_APP;
@@ -679,10 +710,15 @@ QTabBar {
     background: @BG_APP;
 }
 
-/* Rimuove la linea nera o lo sfondo che Qt inserisce nativamente nell'angolo destro */
-QTabWidget::left-corner,
-QTabWidget::right-corner {
-    background-color: @BG_APP;
-    background: @BG_APP;
+/* Separator */
+QMainWindow::separator {
+    background-color: @BG_APP; /* Sfondo uguale al resto dell'app */
+    width: 3px;  /* Spessore del divisore verticale */
+    height: 3px; /* Spessore del divisore orizzontale */
+    border: none;
+}
+
+QMainWindow::separator:hover {
+    background-color: @BG_BTN_HOVER; 
 }
 

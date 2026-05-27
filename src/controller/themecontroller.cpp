@@ -167,6 +167,7 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         {"@TEXT_SECONDARY",  palette["400"]},
         {"@TEXT_LIGHT",      palette["100"]},
         {"@TEXT_MUTED",      palette["500"]},
+        {"@TEXT_TERTIARY",  palette["600"]},
 
         // --- Items ---
         {"@ITEM_SELECTED",  accents["White 20"]},

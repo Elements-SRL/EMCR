@@ -97,8 +97,17 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         vbl->setContentsMargins(0, 5, 0, 10);
         vbl->setSpacing(4);
 
-        // Row 1 - Title + AutoToggle
+        // Row 1 - Badge + Title + AutoToggle
         auto r1 = new QHBoxLayout();
+
+        // Custom Badge (E, X, P, O, etc.)
+        badge = new QLabel(channelPropertyBadge[property]);
+        badge->setObjectName("propertyBadge");
+        badge->setProperty("propertyValue", channelPropertyBadge[property]);
+        badge->setFixedSize(18, 18);
+        badge->setAlignment(Qt::AlignCenter);
+        r1->addWidget(badge);
+
         QLabel * titleLbl = new QLabel(channelPropertyName[property]);
         titleLbl->setObjectName("propertyName");
         r1->addWidget(titleLbl);
@@ -116,22 +125,31 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
         r1->addWidget(autoTgl);
         vbl->addLayout(r1);
 
-        // Row 2 - Badge + ON/OFF
+        // Row 2 - Status counters + ON/OFF
         auto r2 = new QHBoxLayout();
 
-        // Custom Badge (E, X, P, O, etc.)
-        badge = new QLabel(channelPropertyBadge[property]);
-        badge->setObjectName("propertyBadge");
-        badge->setProperty("propertyValue", channelPropertyBadge[property]);
-        badge->setFixedSize(18, 18);
-        badge->setAlignment(Qt::AlignCenter);
+        QLabel* onCounterLbl = new QLabel();
+        onCounterLbl->setObjectName("featureOnCounter");
+        onCounterLbl->setFixedHeight(18);
+        onCounterLbl->setAlignment(Qt::AlignCenter);
+        onCounterLbl->setVisible(false);
+
+        QLabel* offCounterLbl = new QLabel();
+        offCounterLbl->setObjectName("featureOffCounter");
+        offCounterLbl->setFixedHeight(18);
+        offCounterLbl->setAlignment(Qt::AlignCenter);
+        offCounterLbl->setVisible(false);
+
+        m_featureOnLabels[channelPropertyId[property]] = onCounterLbl;
+        m_featureOffLabels[channelPropertyId[property]] = offCounterLbl;
 
         onBtn = new QPushButton("ON");
         offBtn = new QPushButton("OFF");
         onBtn->setFixedWidth(48);
         offBtn->setFixedWidth(48);
 
-        r2->addWidget(badge);
+        r2->addWidget(onCounterLbl);
+        r2->addWidget(offCounterLbl);
         r2->addStretch();
         r2->addWidget(onBtn);
         r2->addWidget(offBtn);
@@ -450,6 +468,24 @@ void MultipleChannelControlDockWidget::updateSummary(const ChannelProperty &prop
         m_summaryLabels[propertyId]->setProperty("status", status);
         m_summaryLabels[propertyId]->style()->unpolish(m_summaryLabels[propertyId]);
         m_summaryLabels[propertyId]->style()->polish(m_summaryLabels[propertyId]);
+    }
+}
+
+void MultipleChannelControlDockWidget::updateFeatureDetail(const ChannelProperty &propertyType, int onCount, int offCount, bool isAuto, bool isEmpty) {
+    QString propertyId = channelPropertyId[propertyType];
+    if (m_featureOnLabels.count(propertyId) && m_featureOffLabels.count(propertyId)) {
+        QLabel* onLabel = m_featureOnLabels[propertyId];
+        QLabel* offLabel = m_featureOffLabels[propertyId];
+
+        if (isAuto || isEmpty) {
+            onLabel->setVisible(false);
+            offLabel->setVisible(false);
+        } else {
+            onLabel->setText(QString("%1 ON").arg(onCount));
+            offLabel->setText(QString("%1 OFF").arg(offCount));
+            onLabel->setVisible(onCount > 0);
+            offLabel->setVisible(offCount > 0);
+        }
     }
 }
 

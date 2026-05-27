@@ -620,6 +620,7 @@ void MainController::checkReadyToSwitchFromSplash() {
     if (introMinDurationPassed && firstDeviceScanDone) {
 
         if (this->splash != nullptr) {
+            this->splash->setMessage("DONE.");
             this->splash->hide();
         }
 
