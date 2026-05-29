@@ -66,6 +66,23 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, Device
         emit sigSingleChannelClicked(changedChannelIndex, event);
     });
 
+    connect(chessboard, &ChessboardDockWidget::sigInvertSelectionClicked, this, [=]() {
+        std::map<int, bool> newStatus;
+
+        for (int i = 0; i < plots.size(); ++i) {
+            StampPlot* plot = plots[i];
+            if (plot) {
+                // Status inversion
+                bool nextState = !plot->isSelected();
+                plot->setSelected(nextState);
+                newStatus[i] = nextState;
+            }
+        }
+        //TODO check logic - multiple channenl controller not updating
+        appStatus->setSelectedChannels(newStatus);
+        onSelectedPlotsUpdated();
+    });
+
     connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::onSelectedPlotsUpdated);
     connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);

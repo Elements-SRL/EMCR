@@ -337,6 +337,14 @@ QWidget#customTitleBar {
     border-top-left-radius: 4px;
 }
 
+QWidget#customFooter {
+    background-color: @BG_HEADER;
+    border: 1px solid @BORDER_PANEL;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+
 /* Window Buttons */
 QPushButton#windowClose, QPushButton#windowExpand {
     background: transparent;
@@ -372,7 +380,7 @@ QFrame#sectionHeaderContainer {
 }
 
 /* Badge delle proprietà (E, X, P, etc.) */
-QLabel#propertyBadge {
+QLabel#propertyBadge{
     background-color: @ACCENT_BLUE;
     color: @BG_PANEL;
     border-radius: 2px;
@@ -722,3 +730,78 @@ QMainWindow::separator:hover {
     background-color: @BG_BTN_HOVER; 
 }
 
+/* ========================================= */
+/* --- CHESSBOARD  ---                       */
+/* ========================================= */
+
+
+QWidget#gridContainer{
+    background: @BG_APP;
+    border: 1px solid @BORDER_PANEL;
+    border-top: none;
+    border-bottom: none;
+}
+
+QScrollArea#chessboardScrollArea{
+    background: none;
+}
+
+QLabel#propertyBadgeChess{
+    color: @BG_PANEL;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+QLabel#propertyBadgeChess[propertyValue="E"] { background-color: @BDG_E_BG_CH; color: @BDG_E_FG_CH; }
+QLabel#propertyBadgeChess[propertyValue="P"] { background-color: @BDG_P_BG_CH; color: @BDG_P_FG_CH; }
+QLabel#propertyBadgeChess[propertyValue="O"] { background-color: @BDG_O_BG_CH; color: @BDG_O_FG_CH; }
+QLabel#propertyBadgeChess[propertyValue="X"] { background-color: @BDG_X_BG_CH; color: @BDG_X_FG_CH; }
+QLabel#propertyBadgeChess[propertyValue="C"] { background-color: @BDG_C_BG_CH; color: @BDG_C_FG_CH; }
+QLabel#propertyBadgeChess[propertyValue="J"] { background-color: @BDG_C_BG_CH; color: @BDG_C_FG_CH; }
+QLabel#propertyBadgeChess[propertyValue="R"] { background-color: @BDG_R_BG_CH; color: @BDG_R_FG_CH; }
+
+QWidget#badgeContainer{
+    background: transparent;
+}
+
+QWidget#badgeContainer QLabel{
+    background: @BG_BTN;
+}
+
+QFrame#stampChannelIdx{
+    border: 1px solid @BORDER_PANEL;
+    border-radius: 2px;
+    background: @BG_BTN;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+QFrame#stampChannelIdx[status="default"] {
+    color: @TEXT_LIGHT;
+}
+
+QFrame#stampChannelIdx[status="selected"] {
+    color: @SELECTION_BLUE;
+}
+
+QWidget#stampPlotCard[status="default"] {
+    background-color: @BG_APP; 
+    border-radius: 6px;
+    border: 1px solid @BORDER_PANEL;
+}
+
+QWidget#stampPlotCard[status="selected"] {
+    background-color: @BG_BTN_HOVER;
+    border: 2px solid @ACCENT_LBLUE;
+    border-radius: 6px;
+}
+
+QWidget#stampPlotCanvas {
+    background-color: transparent;
+}
+
+QFrame#colorChannel{
+    border-radius: 4px;
+    border: 0.5px solid @BORDER_PANEL;
+}

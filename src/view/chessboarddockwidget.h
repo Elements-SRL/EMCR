@@ -47,6 +47,7 @@ signals:
     void sigOneRowClicked(uint16_t changedRowIndex, bool newChannelState);
     void sigSingleChannelClicked(uint16_t changedChannelIndex, QMouseEvent * event);
     void sigUpdateConsumer(bool consume);
+    void sigInvertSelectionClicked();
 };
 
 #endif // CHESSBOARDDOCKWIDGET_H

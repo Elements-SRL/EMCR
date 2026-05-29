@@ -1,10 +1,14 @@
 #include "stampplot.h"
 
+#include "qboxlayout.h"
+#include "qlabel.h"
+#include "qstyle.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_canvas.h"
 #include <QApplication>
 #include "globaldefines.h"
 #include <qwt_symbol.h>
+#include <qwt_text.h>
 #include <QFrame>
 
 using namespace e384CommLib;
@@ -24,39 +28,56 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
 
     QwtPlotCanvas * canvas = new QwtPlotCanvas();
     canvas->setFrameStyle(QFrame::NoFrame);
+    canvas->setObjectName("stampPlotCanvas");
     this->setCanvas(canvas);
-    this->setCanvasBackground(Qt::lightGray);
-
-    QFont font;
-    font.setPointSize(7);
+    this->setObjectName("stampPlotCard");
+    this->setProperty("status", "default");
 
     QwtText text;
-    text.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
-    text.setColor(Qt::white);
+    text.setRenderFlags(Qt::TextDontClip | Qt::TextSingleLine | Qt::AlignCenter);
+    text.setPaintAttribute(QwtText::PaintUsingTextColor, true);
 
     channelIdxLbl = new QwtTextLabel(this);
+    channelIdxLbl->setObjectName("stampChannelIdx");
     text.setText(QString("%1").fromStdString(channelname));
     channelIdxLbl->setText(text);
-    channelIdxLbl->setFont(font);
-    channelIdxLbl->setMargin(0);
-    channelIdxLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    channelIdxLbl->setMinimumSize(10, 10);
 
-    stateLbl = new QwtTextLabel(this);
-    text.setText("");
-    stateLbl->setText(text);
-    stateLbl->setFont(font);
-    stateLbl->setMargin(0);
-    stateLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    badgeContainer = new QWidget(this->canvas());
+    badgeContainer->setObjectName("badgeContainer");
+
+    QHBoxLayout *badgeLayout = new QHBoxLayout(badgeContainer);
+    badgeLayout->setContentsMargins(0, 0, 0, 0);
+    badgeLayout->setSpacing(4);
+    badgeLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    // TODO define a central status manager for badges
+    std::vector<QString> statuses = {"O", "R", "X", "C", "J", "E", "P"};
+    for (const auto& key : statuses) {
+        QLabel* badge = new QLabel(key, this);
+        badge->setAlignment(Qt::AlignCenter);
+        badge->setObjectName("propertyBadgeChess");
+        badge->setAutoFillBackground(true);
+        badge->setMinimumSize(10, 10);
+        badge->setMaximumSize(12, 12);
+        badge->setProperty("propertyValue", key);
+        badge->setVisible(false);
+        badgeLayout->addWidget(badge);
+        m_badgeMap[key] = badge;
+    }
+    badgeContainer->raise();
 
     xAxisMaxMajor = this->axisMaxMajor(xBottom);
     yAxisMaxMajor = this->axisMaxMajor(yLeft);
 
     selected = false;
-    this->setStyleSheet("StampPlot { border: 1px solid black; }");
     colorLabel = new QFrame(this);
+    colorLabel->setObjectName("colorChannel");
     colorLabel->setGeometry(this->canvas()->x()+this->canvas()->width()-SMP_LEGEND_SIZE, this->canvas()->y(), SMP_LEGEND_SIZE, SMP_LEGEND_SIZE);
-    colorLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    colorLabel->setFrameShape(Box);
+    colorLabel->setMinimumSize(10, 10);
+    colorLabel->setMaximumSize(12, 12);
+
+    // TODO move in qss
     colorLabel->setStyleSheet("background-color: rgb(255, 255, 255);");
     colorLabel->raise();
 }
@@ -72,12 +93,16 @@ QSize StampPlot::minimumSizeHint() const {
 void StampPlot::setSelected(bool flag) {
     if (flag != selected) {
         selected = flag;
-        if (selected) {
-            this->setCanvasBackground(Qt::black);
 
-        } else {
-            this->setCanvasBackground(Qt::lightGray);
-        }
+        // Aggiorna la proprietà usata dal QSS
+        this->setProperty("status", selected ? "selected" : "default");
+        // Posiziona i widget e ridisegna il grafico Qwt
+        this->handleLabelsPosition();
+
+        this->style()->unpolish(this);
+        this->style()->polish(this);
+
+        this->replot();
     }
 }
 
@@ -88,65 +113,19 @@ void StampPlot::mousePressEvent(QMouseEvent *event){
 
 void StampPlot::setState(States_t newState) {
     state = newState;
-    QString stateText = "";
-    bool anyLabelAssigned = false;
-    if (state & StateSwitchedOff) {
-        if (anyLabelAssigned) {
-            stateText += ",";
-        }
-        stateText += "O";
-        anyLabelAssigned = true;
-    }
 
-    if (state & StateCalibrationResistorsOn) {
-        if (anyLabelAssigned) {
-            stateText += ",";
-        }
-        stateText += "R";
-        anyLabelAssigned = true;
-    }
+    m_badgeMap["O"]->setVisible(state & StateSwitchedOff);
+    m_badgeMap["R"]->setVisible(state & StateCalibrationResistorsOn);
+    m_badgeMap["X"]->setVisible(state & StateStimuliDisabled);
+    m_badgeMap["C"]->setVisible(state & StateOffsetRecalibrationOn);
+    m_badgeMap["J"]->setVisible(state & StateLiquidJunctionCompensation);
+    m_badgeMap["E"]->setVisible(state & StateTraceExpanded);
+    m_badgeMap["P"]->setVisible(state & StatePlotDetailOn);
 
-    if (state & StateStimuliDisabled) {
-        if (anyLabelAssigned) {
-            stateText += ",";
-        }
-        stateText += "X";
-        anyLabelAssigned = true;
-    }
-
-    if (state & StateOffsetRecalibrationOn) {
-        if (anyLabelAssigned) {
-            stateText += ",";
-        }
-        stateText += "C";
-        anyLabelAssigned = true;
-    }
-
-    if (state & StateLiquidJunctionCompensation) {
-        if (anyLabelAssigned) {
-            stateText += ",";
-        }
-        stateText += "J";
-        anyLabelAssigned = true;
-    }
-
-    if (state & StateTraceExpanded) {
-        if (anyLabelAssigned) {
-            stateText += ",";
-        }
-        stateText += "E";
-        anyLabelAssigned = true;
-    }
-
-    if (state & StatePlotDetailOn) {
-        if (anyLabelAssigned) {
-            stateText += ",";
-        }
-        stateText += "P";
-        anyLabelAssigned = true;
-    }
-    stateLbl->setText(stateText);
+    badgeContainer->adjustSize();
     this->resizeEvent(nullptr);
+    this->style()->unpolish(badgeContainer);
+    this->style()->polish(badgeContainer);
 }
 
 void StampPlot::addState(States_t newState) {
@@ -186,13 +165,9 @@ void StampPlot::setLegendColor(QColor color) {
 
 void StampPlot::setName(std::string name){
     QwtText text;
-    text.setRenderFlags(Qt::AlignLeft | Qt::AlignTop | Qt::TextDontClip | Qt::TextSingleLine);
-    text.setColor(Qt::white);
-    QFont font;
-    font.setPointSize(7);
+    text.setRenderFlags(Qt::AlignCenter | Qt::TextDontClip | Qt::TextSingleLine);
     text.setText(QString("%1").fromStdString(name));
     channelIdxLbl->setText(text);
-    channelIdxLbl->setFont(font);
     channelIdxLbl->setMargin(0);
     channelIdxLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 }
@@ -202,17 +177,30 @@ void StampPlot::drawCanvas(QPainter * p) {
     this->handleLabelsPosition();
 }
 
+bool StampPlot::isSelected(){
+    return this->selected;
+}
+
 void StampPlot::handleLabelsPosition() {
-    auto cx = this->canvas()->x();
-    auto cy = this->canvas()->y();
     auto cw = this->canvas()->width();
     auto ch = this->canvas()->height();
 
-    QSize siz = channelIdxLbl->minimumSizeHint();
-    channelIdxLbl->setGeometry(cx, cy, siz.width(), siz.height());
+    int margin = 4;
 
-    siz = stateLbl->minimumSizeHint();
-    stateLbl->setGeometry(cx, cy+ch-siz.height(), siz.width(), siz.height());
+    // TOP LEFT - channel name
+    QSize channelSize = channelIdxLbl->minimumSizeHint();
+    channelIdxLbl->setGeometry(margin, margin, channelSize.width(), channelSize.height());
 
-    colorLabel->setGeometry(cx+cw-SMP_LEGEND_SIZE, cy, SMP_LEGEND_SIZE, SMP_LEGEND_SIZE);
+    // TOP RIGHT - channel color icon
+    colorLabel->setGeometry(cw - SMP_LEGEND_SIZE - margin, margin, SMP_LEGEND_SIZE, SMP_LEGEND_SIZE);
+
+    if (badgeContainer->layout()) {
+        badgeContainer->layout()->invalidate();
+        badgeContainer->layout()->activate();
+    }
+
+    // BOTTOM LEFT: Badge bar with statuses (E, X, P etc)
+    QSize containerSize = badgeContainer->sizeHint();
+    badgeContainer->setGeometry(margin, ch - containerSize.height() - margin, containerSize.width(), containerSize.height());
 }
+

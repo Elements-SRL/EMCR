@@ -148,7 +148,7 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         // --- Panel layers ---
         {"@BG_APP",        palette["900"]},
         {"@BG_PANEL",      palette["800"]},
-        {"@BG_HEADER",     palette["700"]},
+        {"@BG_HEADER",     palette["800"]},
         {"@BG_INPUT",      palette["900"]},
         {"@BG_BTN",        palette["700"]},
         {"@BG_BTN_HOVER",  palette["600"]},
@@ -181,13 +181,21 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         {"@ACCENT_LBLUE",     accents["Blue Light"]},
         {"@SELECTION_BLUE",   accents["Selection Blue"]},
 
-        // --- Badge  ---
+        // --- Badges ---
         {"@BDG_E_FG", "#4ade80"}, {"@BDG_E_BG", "rgba(74, 222, 128, 0.15)"},
         {"@BDG_P_FG", "#a78bfa"}, {"@BDG_P_BG", "rgba(167, 139, 250, 0.15)"},
         {"@BDG_O_FG", "#a1a1aa"}, {"@BDG_O_BG", "rgba(161, 161, 170, 0.15)"},
         {"@BDG_X_FG", "#f87171"}, {"@BDG_X_BG", "rgba(248, 113, 113, 0.15)"},
         {"@BDG_R_FG", "#fbbf24"}, {"@BDG_R_BG", "rgba(251, 191, 36, 0.15)"},
         {"@BDG_C_FG", "#fafafa"}, {"@BDG_C_BG", "rgba(124, 58, 237, 0.2)"},
+
+        // --- Badges - chessboard solid colors ---
+        {"@BDG_E_FG_CH", "#FFFFFF"}, {"@BDG_E_BG_CH", "#16a34a"},
+        {"@BDG_P_FG_CH", "#FFFFFF"}, {"@BDG_P_BG_CH", "#7c3aed"},
+        {"@BDG_O_FG_CH", "#FFFFFF"}, {"@BDG_O_BG_CH", "#4b5563"},
+        {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", "#dc2626"},
+        {"@BDG_R_FG_CH", "#1e293b"}, {"@BDG_R_BG_CH", "#eab308"},
+        {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", "#2563eb"},
 
         {"@ICON_PREFIX", ThemeController::iconPath()},
         {"@IMGS_PREFIX", ThemeController::imgsPath()}
