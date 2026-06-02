@@ -80,5 +80,7 @@
         <file>theme/light/imgs/logo_with_name.png</file>
         <file>theme/dark/icons/device_ico.svg</file>
         <file>theme/light/icons/device_ico.svg</file>
+        <file>theme/dark/imgs/splash/splash01.png</file>
+        <file>theme/light/imgs/splash/splash01.png</file>
     </qresource>
 </RCC>

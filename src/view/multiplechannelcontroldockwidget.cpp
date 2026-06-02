@@ -20,33 +20,6 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     this->setObjectName("MultipleChannelControlDockWidget");
     this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
 
-    // Custom TitleBar widget
-    QWidget* customTitleBar = new QWidget();
-    customTitleBar->setObjectName("customTitleBar");
-    QHBoxLayout* titleLayout = new QHBoxLayout(customTitleBar);
-    titleLayout->setContentsMargins(10, 5, 10, 5);
-
-    QLabel* titleLabel = new QLabel("MULTIPLE CHANNEL CONTROLS");
-    titleLabel->setObjectName("titleLabel");
-
-    // Custom Window buttons - expand & close
-    QPushButton* expandBtn = new QPushButton();
-    expandBtn->setObjectName("windowExpand");
-    QPushButton* closeBtn = new QPushButton();
-    closeBtn->setObjectName("windowClose");
-
-    // Custom buttons actions
-    connect(closeBtn, &QPushButton::clicked, this, &QDockWidget::hide);
-    connect(expandBtn, &QPushButton::clicked, this, [=]() {
-        this->setFloating(!this->isFloating());
-    });
-
-    titleLayout->addWidget(titleLabel);
-    titleLayout->addStretch();
-    titleLayout->addWidget(expandBtn);
-    titleLayout->addWidget(closeBtn);
-    this->setTitleBarWidget(customTitleBar);
-
     QWidget* centralWidget = new QWidget();
     this->setWidget(centralWidget);
 
@@ -55,7 +28,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     // CENTRAL - Scroll area section
     // BOTTOM - Summary section
     QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
-    externalLayout->setContentsMargins(0, 0, 0, 0);
+    externalLayout->setContentsMargins(10, 0, 10, 10);
     externalLayout->setSpacing(0);
 
     setWindowTitle("Multiple channel controls");

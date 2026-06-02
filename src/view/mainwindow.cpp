@@ -20,6 +20,7 @@
 #include "releasenotesdialog.h"
 #include "themecontroller.h"
 #include <QDebug>
+
 void MainWindow::setupDeviceConnectionGui(QFrame * container){
 
     QVBoxLayout *mainLayout = new QVBoxLayout(container);
@@ -87,18 +88,16 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     SRLbl = new QLabel("");
     SRLbl->setObjectName("connectionSpeed");
 
-    disconnectBtn = new QPushButton("DISCONNECT");
+    disconnectBtn = new QPushButton("   DISCONNECT");
     disconnectBtn->setObjectName("disconnectBtn");
     disconnectBtn->setCheckable(true);
-    disconnectBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    disconnectBtn->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     disconnectBtn->setCursor(Qt::PointingHandCursor);
-
 
     connectedRowLayout->addWidget(deviceConnectedLbl);
     connectedRowLayout->addWidget(SRLbl);
     connectedRowLayout->addStretch();
-    connectedPageLayout->addWidget(disconnectBtn, 0, Qt::AlignLeft);
-
+    connectedPageLayout->addWidget(disconnectBtn);
     connectedPageLayout->addStretch();
 
     connectionDeviceStack->addWidget(connectionPage);
@@ -362,11 +361,51 @@ void MainWindow::setBigPlotWidget(BigPlotWidget * widget) {
     }
 }
 
+/*
+ * Adds dock wigets to DockArea. Manages floating widget status
+ * margin to create a card effect.
+ */
 void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool floatingFlag, Qt::DockWidgetArea area) {
     dockWidgets[type] = widget;
     if (widget != nullptr) {
         addDockWidget(area, dockWidgets[type]);
         dockWidgets[type]->setFloating(floatingFlag);
+
+        QWidget *innerWidget = widget->widget();
+
+        if (innerWidget) {
+            // Widget default docked margins
+            if (innerWidget->layout()) {
+                innerWidget->layout()->setContentsMargins(10, 0, 10, 10);
+            } else {
+                innerWidget->setContentsMargins(10, 0, 10, 10);
+            }
+
+            // Real-time floating management for margins.
+            // Margins changes or restores based on floating status.
+            connect(widget, &QDockWidget::topLevelChanged, this, [innerWidget, widget](bool isFloating) {
+                if (isFloating) {
+
+                    if (innerWidget->layout()) {
+                        innerWidget->layout()->setContentsMargins(0, 0, 0, 0);
+                    } else {
+                        innerWidget->setContentsMargins(0, 0, 0, 0);
+                    }
+
+                } else {
+
+                    // Widget is docked again
+                    if (innerWidget->layout()) {
+                        innerWidget->layout()->setContentsMargins(10, 0, 10, 10);
+                    } else {
+                        innerWidget->setContentsMargins(10, 0, 10, 10);
+                    }
+
+                    // Trigger for qss reload
+                    widget->setStyleSheet("");
+                }
+            });
+        }
     }
 }
 
@@ -416,9 +455,7 @@ void MainWindow::createGuiControls() {
     actionBoardMapping->setEnabled(true);
     actionUpgradeFw->setEnabled(false);
     this->addViewActions();
-
     interfaceCreated = true;
-    this->setContentsMargins(10,10,10,10);
 
 }
 

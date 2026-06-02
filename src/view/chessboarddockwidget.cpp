@@ -19,20 +19,16 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     channelsPerBoard = currentChannelsNum/boardsNum;
 
     QWidget * mainWg = new QWidget(parent);
+    mainWg->setObjectName("chessboardWg");
     this->setWidget(mainWg);
     QVBoxLayout * topLevelLayout = new QVBoxLayout(mainWg);
-    topLevelLayout->setContentsMargins(0, 0, 0, 0);
+    topLevelLayout->setContentsMargins(10, 0, 10, 10);
     topLevelLayout->setSpacing(0);
 
     // TOP BAR
     QWidget* customTitleBar = new QWidget();
     customTitleBar->setObjectName("customTitleBar");
     QHBoxLayout* topBarLayout = new QHBoxLayout(customTitleBar);
-
-    QLabel * titleLabel = new QLabel("CHANNELS\nOVERVIEW");
-    titleLabel->setObjectName("titleLabel");
-    topBarLayout->addWidget(titleLabel);
-    topBarLayout->addStretch();
 
     // Button ALL
     allChannelsSelector = new LeftRightMousePushButton(this);

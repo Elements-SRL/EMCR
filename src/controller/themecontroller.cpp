@@ -84,18 +84,19 @@ static QMap<QString, QString> darkAccentsPalette = {
 
 };
 
+
 // LIGHT PALETTE
 static QMap<QString, QString> lightPalette = {
-    {"900", "#E2E8F0"},
-    {"800", "#F8FAFC"},
-    {"700", "#F1F5F9"},
-    {"600", "#CBD5E1"},
-    {"500", "#94A3B8"},
-    {"400", "#64748B"},
-    {"300", "#334155"},
-    {"200", "#1E293B"},
-    {"100", "#0F172A"},
-    {"White", "#0F172A"}
+    {"900", "#E2E5E6"},
+    {"800", "#F3F3F5"},
+    {"700", "#F8F8F8"},
+    {"600", "#DADEE3"},
+    {"500", "#C9CDD0"},
+    {"400", "#9EA0A2"},
+    {"300", "#797B7A"},
+    {"200", "#585858"},
+    {"100", "#3E3E3E"},
+    {"White", "#0A0A0A"}
 };
 
 static QMap<QString, QString> lightAccentsPalette = {
@@ -158,7 +159,7 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         // --- Borders ---
         {"@BORDER_STD",    palette["800"]},
         {"@BORDER_PANEL",  palette["700"]},
-        {"@BORDER_INPUT",  palette["800"]},
+        {"@BORDER_INPUT",  palette["700"]},
         {"@BORDER_FOCUS",  palette["600"]},
         {"@BORDER_LIGHT",  accents["White 8"]},
 
@@ -167,7 +168,7 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         {"@TEXT_SECONDARY",  palette["400"]},
         {"@TEXT_LIGHT",      palette["100"]},
         {"@TEXT_MUTED",      palette["500"]},
-        {"@TEXT_TERTIARY",  palette["600"]},
+        {"@TEXT_TERTIARY",   palette["600"]},
 
         // --- Items ---
         {"@ITEM_SELECTED",  accents["White 20"]},

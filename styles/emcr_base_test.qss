@@ -131,7 +131,7 @@ QStatusBar QLabel {
 
 QMenuBar {
     background-color: @BG_PANEL;
-    color: @TEXT_LIGHT;
+    color: @TEXT_MAIN;
     padding: 5px;
 }
 
@@ -219,7 +219,7 @@ QCheckBox::indicator:hover, QRadioButton::indicator:hover {
 QCheckBox::indicator:checked, QRadioButton::indicator:checked {
     background-color: @ACCENT_BLUE;
     border-color: @ACCENT_LBLUE;
-    image: url(@ICON_PREFIX/check.svg); /* Se presente nei tuoi asset */
+    image: url(@ICON_PREFIX/check.svg);
 }
 
 /* --- SLIDERS --- */
@@ -285,7 +285,6 @@ QTabWidget::pane {
     background: @BG_APP;
 }
 
-
 QTabBar::tab {
     background-color: @BG_HEADER;
     color: @TEXT_MUTED;
@@ -317,12 +316,6 @@ QTabBar::tab:!enabled {
 /* --- MULTIPLE CHANNEL CONTROLS ---                                         */
 /* ========================================================================= */
 
-QDockWidget#MultipleChannelControlDockWidget {
-    border: none;
-    titlebar-close-icon: none;
-    titlebar-normal-icon: none;
-}
-
 QFrame#mainWrapper {
     background-color: @BG_PANEL;
     border: 1px solid @BORDER_PANEL;
@@ -333,8 +326,7 @@ QFrame#mainWrapper {
 QWidget#customTitleBar {
     background-color: @BG_HEADER;
     border: 1px solid @BORDER_PANEL;
-    border-top-right-radius: 4px;
-    border-top-left-radius: 4px;
+
 }
 
 QWidget#customFooter {
@@ -464,7 +456,7 @@ QFrame#propertyContainer {
 }
 
 QLabel#propertyName, QLabel#titleLabel {
-    color: @TEXT_LIGHT;
+    color: @TEXT_SECONDARY;
     text-transform: uppercase;
 }
 QLabel#propertyName { font-size: 10px; }
@@ -623,7 +615,7 @@ QLabel#copyrightLbl{
 
 QFrame#SplashContainer {
     border-image: url(:/imgs/splash01.png) 0 0 0 0 stretch stretch;
-    background-color: @BG_APP;     
+    background-color: @BG_APP;
 }
 
 QComboBox {
@@ -666,13 +658,13 @@ QLabel#deviceConnectedLbl {
     max-height: 16px;
     font-family: "Inter", sans-serif;
     font-size: 10px;
+    color: @TEXT_SECONDARY;
 }
 
 
 /* CONNECTING Page of device detector */
 QFrame#deviceDetectorWid[page="connecting"] {
-    border-image: url(:/imgs/splash01.png) 0 0 0 0 stretch stretch;
-    border-radius: 15px;
+    border-image: url(@IMGS_PREFIX/splash/splash01.png) 0 0 0 0 stretch stretch;
 }
 
 /* CONNECTED Page of device detector */
@@ -684,12 +676,8 @@ QFrame#deviceDetectorWid[page="connected"] {
 QPushButton#disconnectBtn {
     background-color: @BG_PANEL;
     border: 1px solid @BORDER_INPUT;
-    text-align: left;
-    padding-left: 10px;
-    margin: 0px;
     qproperty-icon: url(@ICON_PREFIX/disconnect_plug.svg); 
 }
-
 QPushButton#disconnectBtn:hover {
     background-color: @ACCENT_RED;
     border-color: @BORDER_FOCUS;
@@ -804,4 +792,50 @@ QWidget#stampPlotCanvas {
 QFrame#colorChannel{
     border-radius: 4px;
     border: 0.5px solid @BORDER_PANEL;
+}
+
+
+/* ========================================= */
+/* --- APP DOCK WIDGETS WINDOW BAR ---       */
+/* ========================================= */
+
+/* Custom dockwidget title label */
+QDockWidget{
+    font-family: "Inter", sans-serif;
+    font-size: 10px; 
+    color: @TEXT_SECONDARY;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0px;
+    border: none;
+}
+
+/* Custom dockwidget title bar */
+QDockWidget::title {
+    background-color: @BG_PANEL;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-right: 10px;
+    padding-left: 4px;
+    padding-top: 4px;
+    subcontrol-origin: margin;
+    subcontrol-position: bottom left;
+    border: 0.5px solid @BORDER_PANEL;
+    border-bottom: none;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+QDockWidget::close-button {
+    subcontrol-origin: margin;
+    subcontrol-position: bottom right;
+    top: -2px;
+    right: 18px;
+}
+
+QDockWidget::float-button {
+    subcontrol-origin: margin;
+    subcontrol-position: bottom right;
+    top: -2px;
+    right: 35px;
 }
