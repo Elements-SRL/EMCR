@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QPushButton>
 
+#include "confirmdialog/confirmationdialog.h"
 #include "messagedispatcher.h"
 #include "elementslogowidget.h"
 #include "errormanager.h"
@@ -93,6 +94,10 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     disconnectBtn->setCheckable(true);
     disconnectBtn->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     disconnectBtn->setCursor(Qt::PointingHandCursor);
+
+    connect(disconnectBtn, &QPushButton::clicked, this, [=]() {
+        this->onOpenDialog(ConfirmExitDlg);
+    });
 
     connectedRowLayout->addWidget(deviceConnectedLbl);
     connectedRowLayout->addWidget(SRLbl);
@@ -616,6 +621,13 @@ void MainWindow::onOpenDialog(Dialogs_t type) {
         a.exec();
         break;
     }
+    case ConfirmExitDlg: {
+        ConfirmationDialog a(this);
+        if (a.exec() == QDialog::Accepted) {
+            emit confirmDisconnectDevice();
+        }
+        break;
+    }
     }
 }
 
@@ -646,6 +658,10 @@ void MainWindow::onThemeSelected() {
         settings.setValue("Preferences/UI/theme", themeEnum);
         ThemeController::getInstance().applyTheme(static_cast<Theme>(themeEnum));
     }
+}
+
+void MainWindow::disconnectDevice(){
+    emit confirmDisconnectDevice();
 }
 
 /*

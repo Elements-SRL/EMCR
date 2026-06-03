@@ -70,8 +70,10 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     msgDisp->getCustomDoubles(customDoubles, customDoublesRanges, customDoublesDefault);
 
     QVBoxLayout * vLayout = new QVBoxLayout(window);
-    vLayout->setContentsMargins(0, 0, 0, 1);
-    vLayout->setSpacing(1);
+
+    //TODO CHECK layout
+    // vLayout->setContentsMargins(0, 0, 0, 1);
+    // vLayout->setSpacing(1);
 
     this->setWindowTitle(TITLE);
 

@@ -65,13 +65,13 @@ static QMap<QString, QString> darkAccentsPalette = {
     {"Green", "#2CD949"},
     {"Blue", "#00A2FF"},
     {"Purple", "#F134F7"},
-    {"Red", "#FF5252"},
+    {"Red", "rgb(255, 82, 82)"},
 
     {"Yellow Light", "#FFEDAD"},
     {"Orange Light", "#FED7AD"},
     {"Blue Light", "#B0DCFF"},
     {"Purple Light", "#F6D1FF"},
-    {"Red Light", "#FFB8B8"},
+    {"Red Light", "rgba(255, 82, 82, 90)"},
 
     {"Selection Blue", "#3a6a9a"},
     {"Selection Green", "#68FF83"},
@@ -177,6 +177,7 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
 
         // --- Accents ---
         {"@ACCENT_RED",       accents["Red"]},
+        {"@ACCENT_LRED",      accents["Red Light"]},
         {"@ACCENT_ORANGE",    accents["Orange"]},
         {"@ACCENT_BLUE",      accents["Blue"]},
         {"@ACCENT_LBLUE",     accents["Blue Light"]},

@@ -103,6 +103,7 @@ SOURCES += \
     src/view/colorselectionbutton.cpp \
     src/view/compensationcontroldockwidget.cpp \
     src/view/addtagdialog.cpp \
+    src/view/confirmdialog/confirmationdialog.cpp \
     src/view/conversionscaledraw.cpp \
     src/view/copyabletable.cpp \
     src/view/debugdockwidget.cpp \
@@ -255,6 +256,7 @@ HEADERS += \
     src/view/colorselectionbutton.h \
     src/view/compensationcontroldockwidget.h \
     src/view/addtagdialog.h \
+    src/view/confirmdialog/confirmationdialog.h \
     src/view/conversionscaledraw.h \
     src/view/copyabletable.h \
     src/view/debugdockwidget.h \

@@ -71,6 +71,7 @@ public:
     void removeViewActions();
     void restoreUISettings();
     void saveUISettings();
+    void disconnectDevice();
 
 public slots:
     void onNeedToChangeModelCellMsg(QString msg);
@@ -83,7 +84,8 @@ private:
         AboutDlg,
         DeviceInfoDlg,
         SupportDlg,
-        ReleaseNotesDlg
+        ReleaseNotesDlg,
+        ConfirmExitDlg
     } Dialogs_t;
 
     void createGuiControls();
@@ -152,5 +154,6 @@ signals:
     void sigBoardMappingFileChoosen(QString filename);
     void sigUpgradeFw();
     void sigResetHw();
+    void confirmDisconnectDevice();
 };
 #endif // MAINWINDOW_H

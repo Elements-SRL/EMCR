@@ -2,6 +2,7 @@
 #include "statearraycontroller.h"
 #include "mainwindow.h"
 #include "application_status.h"
+#include "confirmdialog/confirmationdialog.h"
 
 MainController::MainController() {
     /*! Set up device detector */
@@ -54,7 +55,7 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
 
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
-    connect(mainWindow->getDisconnectButton(), &QPushButton::clicked, this, &MainController::onDisconnect);
+    connect(mainWindow, &MainWindow::confirmDisconnectDevice, this, &MainController::onDisconnect);
     connect(mainWindow, &MainWindow::sigUpgradeFw, this, &MainController::onUpgradeFw);
     connect(mainWindow, &MainWindow::sigResetHw, this, &MainController::onResetHw);
 
