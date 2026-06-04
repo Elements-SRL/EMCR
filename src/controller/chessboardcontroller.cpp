@@ -78,15 +78,15 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, Device
                 newStatus[i] = nextState;
             }
         }
-        //TODO check logic - multiple channenl controller not updating
         appStatus->setSelectedChannels(newStatus);
-        onSelectedPlotsUpdated();
+        emit sigInvertSelectionClicked();
     });
 
-    connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::onSelectedPlotsUpdated);
-    connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::onSelectedPlotsUpdated);
-    connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);
-    connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked, this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,     this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,          this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked,   this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigInvertSelectionClicked, this,       &ChessboardController::onSelectedPlotsUpdated);
 
     connect(stampPlotConsumer, &PlotConsumer::setPlotData,              this,       &ChessboardController::onSetPlotData);
     connect(stampPlotConsumer, &PlotConsumer::plotDataUpdated,          this,       &ChessboardController::onReplot);
@@ -452,6 +452,7 @@ void ChessboardController::connectSingleChannelController(SingleChannelControlle
     connect(this, &ChessboardController::sigOneBoardClicked, scc, &SingleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigOneRowClicked, scc, &SingleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigSingleChannelClicked, scc, &SingleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigInvertSelectionClicked, scc, &SingleChannelController::onChannelsSelected);
 }
 
 void ChessboardController::connectMultipleChannelController(MultipleChannelController* mcc) {
@@ -459,6 +460,7 @@ void ChessboardController::connectMultipleChannelController(MultipleChannelContr
     connect(this, &ChessboardController::sigOneBoardClicked, mcc, &MultipleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigOneRowClicked, mcc, &MultipleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigSingleChannelClicked, mcc, &MultipleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigInvertSelectionClicked, mcc, &MultipleChannelController::onChannelsSelected);
 }
 
 void ChessboardController::connectMeasurementOverviewController(MeasurementOverviewController* moc) {
@@ -466,4 +468,5 @@ void ChessboardController::connectMeasurementOverviewController(MeasurementOverv
     connect(this, &ChessboardController::sigOneBoardClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
     connect(this, &ChessboardController::sigOneRowClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
     connect(this, &ChessboardController::sigSingleChannelClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
+    connect(this, &ChessboardController::sigInvertSelectionClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
 }
