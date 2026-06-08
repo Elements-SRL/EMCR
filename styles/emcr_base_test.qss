@@ -98,14 +98,15 @@ QSpinBox::up-button, QSpinBox::down-button {
 }
 
 QDoubleSpinBox::up-button, QSpinBox::up-button { subcontrol-position: right; right: 16px; }
-QDoubleSpinBox::down-button, QSpinBox::down-button { subcontrol-position: right; right: 0px; }
+QDoubleSpinBox::down-button, QSpinBox::down-button { subcontrol-position: right; right: 4px; }
 
-QSpinBox::up-arrow, QDoubleSpinBox::up-arrow { image: url(@ICON_PREFIX/arrow_up.svg); width: 16px; height: 16px; }
-QSpinBox::down-arrow, QDoubleSpinBox::down-arrow { image: url(@ICON_PREFIX/arrow_down.svg); width: 16px; height: 16px; }
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow { image: url(@ICON_PREFIX/arrow_up.svg); width: 10px; height: 10px; padding-top: 1px; }
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow { image: url(@ICON_PREFIX/arrow_down.svg); width: 10px; height: 10px; padding-bottom: 1px; }
 
 QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover,
 QSpinBox::up-button:hover, QSpinBox::down-button:hover {
     background-color: @BG_BTN_HOVER;
+    border-radius: 2px;
 }
 
 /* --- BUTTONS --- */
@@ -180,7 +181,7 @@ QMenuBar::item:pressed {
 }
 
 QMenu {
-    background-color: @BG_HEADER;
+    background-color: @BG_PANEL;
     padding-left: 3px;
     padding-right: 3px;
     padding-top: 1px;
@@ -215,11 +216,10 @@ QMenu::item:pressed {
     background-color: @ITEM_PRESS;
 }
 
-/* TODO impostare immagine svg appropriata */
 QMenu::right-arrow {
-    image: url(:/uitheme/controls/dark/TreeViewClose.svg);
-    min-width: 40px;
-    min-height: 18px;
+    image: url(@ICON_PREFIX/arrow_right.svg);
+    width: 10px;
+    height: 10px;
 }
 
 QMenuBar:disabled {
@@ -247,7 +247,7 @@ QCheckBox::indicator:hover, QRadioButton::indicator:hover {
 QCheckBox::indicator:checked, QRadioButton::indicator:checked {
     background-color: @ACCENT_BLUE;
     border-color: @ACCENT_LBLUE;
-    image: url(@ICON_PREFIX/check.svg);
+    image: url(@ICON_PREFIX/check-solid.svg);
 }
 
 /* --- SLIDERS --- */
@@ -363,17 +363,17 @@ QFrame#mainWrapper {
     background-color: @BG_PANEL;
     border: 1px solid @BORDER_PANEL;
     border-top: none;
-    border-bottom: none;        
+    border-bottom: none; 
 }
 
 QWidget#customTitleBar {
-    background-color: @BG_HEADER;
+    background-color: @BG_PANEL;
     border: 1px solid @BORDER_PANEL;
 
 }
 
 QWidget#customFooter {
-    background-color: @BG_HEADER;
+    background-color: @BG_PANEL;
     border: 1px solid @BORDER_PANEL;
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
@@ -409,7 +409,7 @@ QLabel#sectionHeader {
 
 QFrame#sectionHeaderContainer {
     background-color: @BG_HEADER;
-    height: 18px;
+    height: 14px;
     padding: 8px 8px;
     spacing: 10
 }
@@ -866,7 +866,6 @@ QDockWidget::title {
     subcontrol-origin: margin;
     subcontrol-position: bottom left;
     border: 0.5px solid @BORDER_PANEL;
-    border-bottom: none;
     border-top-right-radius: 4px;
     border-top-left-radius: 4px;
 }
@@ -893,4 +892,97 @@ QDockWidget::float-button {
 
 QDockWidget::close-button:hover, QDockWidget::float-button:hover {
     background: @BG_BTN_HOVER;
+}
+
+/* ========================================================================= */
+/* --- DEVICE CONTROLS  ---                                                  */
+/* ========================================================================= */
+
+QWidget#deviceControlsCentralWidget{
+    margin: 10px;
+    background: @BG_PANEL;
+    border: 1px solid @BORDER_PANEL;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+QFrame#deviceControlsScrollContainer {
+    background: @BG_PANEL;
+}
+
+QToolButton {
+    border: none;
+    width: 10px;
+    height: 10px;
+}
+
+QToolButton {
+    image: url(@ICON_PREFIX/arrow_right.svg);
+}
+
+QToolButton:open {
+    image: url(@ICON_PREFIX/arrow_down.svg);
+    padding-top: 3px;
+}
+
+
+/* ---  COLLAPSIBLE SECTION --- */
+
+QRadioButton#collapsibleRowButton {
+    background-color: @BG_PANEL;
+    border: 1px solid @BORDER_INPUT;
+    border-radius: 4px;
+    padding: 0px;
+    margin-bottom: 4px;
+    min-height: 26px;
+}
+
+
+QRadioButton#collapsibleRowButton::indicator {
+    width: 0px;
+    height: 0px;
+    border: none;
+    background: transparent;
+    image: none;
+}
+
+QRadioButton#collapsibleRowButton:hover {
+    background-color: @BG_BTN_HOVER;
+    border-color: @BORDER_FOCUS;
+}
+
+QRadioButton#collapsibleRowButton:checked {
+    background-color: @BG_BTN_PRESS;
+    border: 1px solid @ACCENT_LBLUE;
+}
+
+
+QRadioButton#collapsibleRowButton QLabel#rowLabelText {
+    color: @TEXT_MAIN;
+    font-size: 11px;
+    font-weight: normal;
+    background: transparent;
+}
+
+QRadioButton#collapsibleRowButton:checked QLabel#rowLabelText {
+    color: @TEXT_LIGHT;
+    font-weight: bold;
+}
+
+QRadioButton#collapsibleRowButton QLabel#rowLabelValue {
+    color: @TEXT_SECONDARY;
+    font-size: 11px;
+    font-weight: bold;
+    background: transparent;
+}
+
+QRadioButton#collapsibleRowButton:checked QLabel#rowLabelValue {
+    color: @ACCENT_LBLUE; 
+}
+
+QLabel#collapsibleTitleValue {
+    color: @TEXT_MAIN;        
+    font-size: 10px;
+    font-weight: bold;
+    margin-right: 6px;      
 }

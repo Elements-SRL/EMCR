@@ -27,8 +27,8 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     scrollArea->setWidget(scrollWidget);
 
     mainVl = new QVBoxLayout(scrollWidget);
-    mainVl->setContentsMargins(0, 0, 0, 0);
-    mainVl->setSpacing(1);
+    mainVl->setContentsMargins(10, 0, 10, 10);
+    mainVl->setSpacing(0);
 
     auto exportButton = new QPushButton(this);
     exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));

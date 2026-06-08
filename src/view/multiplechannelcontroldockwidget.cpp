@@ -23,12 +23,11 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     QWidget* centralWidget = new QWidget();
     this->setWidget(centralWidget);
 
-    // External Panel Layout (3 sections)
-    // TOP - Custom title bar
-    // CENTRAL - Scroll area section
+    // External Panel Layout (2 sections)
+    // TOP - CENTRAL - Scroll area section
     // BOTTOM - Summary section
     QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
-    externalLayout->setContentsMargins(10, 0, 10, 10);
+    externalLayout->setContentsMargins(0, 0, 0, 0);
     externalLayout->setSpacing(0);
 
     setWindowTitle("Multiple channel controls");
@@ -46,14 +45,13 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     scrollArea->setMinimumHeight(0);
-    scrollArea->setObjectName("centralScrollArea");
 
     // Scroll area main frame
     QFrame* mainWrapper = new QFrame();
     mainWrapper->setObjectName("mainWrapper");
     mainWrapper->setFrameStyle(QFrame::Panel | QFrame::Raised);
     QVBoxLayout* mainLayout = new QVBoxLayout(mainWrapper);
-    mainLayout->setContentsMargins(0, 0, 0, 0); // Regola i margini interni
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     mainLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
     scrollArea->setWidget(mainWrapper);

@@ -10,17 +10,36 @@
 DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     QDockWidget(),
     msgDisp(msgDisp) {
-
     setObjectName("deviceControlsDw");
-
+    setAttribute(Qt::WA_TranslucentBackground);
     msgDisp->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum);
+    this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
 
-    QScrollArea *scrollArea = new QScrollArea(this);
+    QWidget* centralWidget = new QWidget();
+    centralWidget->setObjectName("deviceControlsCentralWidget");
+    this->setWidget(centralWidget);
+
+    QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
+    externalLayout->setContentsMargins(10, 0, 10, 10);
+    externalLayout->setSpacing(0);
+
+    QScrollArea* scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
-    QWidget * window = new QWidget;
-    scrollArea->setWidget(window);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    scrollArea->setMinimumHeight(0);
 
-    this->setWidget(scrollArea); // Set scroll area as the main widget
+    QFrame * scrollContainer = new QFrame();
+    scrollContainer->setObjectName("deviceControlsScrollContainer");
+
+    QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContainer);
+    scrollLayout->setContentsMargins(10, 10, 10, 10);
+    scrollLayout->setSpacing(8);
+
+    scrollArea->setWidget(scrollContainer);
+    externalLayout->addWidget(scrollArea);
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
@@ -69,19 +88,13 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     std::vector <double> customDoublesDefault;
     msgDisp->getCustomDoubles(customDoubles, customDoublesRanges, customDoublesDefault);
 
-    QVBoxLayout * vLayout = new QVBoxLayout(window);
-
-    //TODO CHECK layout
-    // vLayout->setContentsMargins(0, 0, 0, 1);
-    // vLayout->setSpacing(1);
-
     this->setWindowTitle(TITLE);
 
     /*! VC Current range */
     vcCurrentRangesSections.clear();
     if (independentVcCurrentRanges) {
         for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
-            vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE + QString(" ch %1").arg(chIdx+1).toStdString(), vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdxs[chIdx]));
+            vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE + QString(" ch %1").arg(chIdx+1).toStdString(), vcCurrentRanges, scrollLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdxs[chIdx]));
             for (int i = 0; i < vcCurrentRangesRadioButtons[chIdx].size(); i++) {
                 connect(vcCurrentRangesRadioButtons[chIdx][i], &QRadioButton::clicked, this, [=] (bool flag) {
                     if (flag) {
@@ -92,7 +105,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         }
     }
     else {
-        vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, vLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdxs[0]));
+        vcCurrentRangesSections.push_back(setupSection(DCW_CURRENT_RANGE_TITLE, vcCurrentRanges, scrollLayout, vcCurrentRangesRadioButtons, vcCurrentRangeDefaultIdxs[0]));
         for (int i = 0; i < vcCurrentRangesRadioButtons[0].size(); i++) {
             connect(vcCurrentRangesRadioButtons[0][i], &QRadioButton::clicked, this, [=] (bool flag) {
                 if (flag) {
@@ -103,7 +116,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! VC Voltage range */
-    this->vcVoltageRangesSection = setupSection(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, vLayout, vcVoltageRangesRadioButtons, vcVoltageRangeDefaultIdx);
+    this->vcVoltageRangesSection = setupSection(DCW_VOLTAGE_RANGE_TITLE, vcVoltageRanges, scrollLayout, vcVoltageRangesRadioButtons, vcVoltageRangeDefaultIdx);
     this->setWidgetEnabled(vcVoltageRangesSection, false);
     for (int i = 0; i < vcVoltageRangesRadioButtons.size(); i++) {
         connect(vcVoltageRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
@@ -114,7 +127,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! CC Current range */
-    this->ccCurrentRangesSection = setupSection(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, vLayout, ccCurrentRangesRadioButtons, ccCurrentRangeDefaultIdx);
+    this->ccCurrentRangesSection = setupSection(DCW_CC_CURRENT_RANGE_TITLE, ccCurrentRanges, scrollLayout, ccCurrentRangesRadioButtons, ccCurrentRangeDefaultIdx);
     this->setWidgetEnabled(ccCurrentRangesSection, false);
     for (int i = 0; i < ccCurrentRangesRadioButtons.size(); i++) {
         connect(ccCurrentRangesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
@@ -138,7 +151,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         }
     }
     else {
-        ccVoltageRangesSections.push_back(setupSection(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, vLayout, ccVoltageRangesRadioButtons, ccVoltageRangeDefaultIdx));
+        ccVoltageRangesSections.push_back(setupSection(DCW_CC_VOLTAGE_RANGE_TITLE, ccVoltageRanges, scrollLayout, ccVoltageRangesRadioButtons, ccVoltageRangeDefaultIdx));
         for (int i = 0; i < ccVoltageRangesRadioButtons[0].size(); i++) {
             connect(ccVoltageRangesRadioButtons[0][i], &QRadioButton::clicked, this, [=] (bool flag) {
                 if (flag) {
@@ -149,7 +162,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! VC Voltage filter */
-    this->vcVoltageFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, vcVoltageFilters, vLayout, vcVoltageFiltersRadioButtons, 0);
+    this->vcVoltageFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, vcVoltageFilters, scrollLayout, vcVoltageFiltersRadioButtons, 0);
     for (int i = 0; i < vcVoltageFiltersRadioButtons.size(); i++) {
         connect(vcVoltageFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -159,7 +172,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     }
 
     /*! CC Current filter */
-    this->ccCurrentFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, ccCurrentFilters, vLayout, ccCurrentFiltersRadioButtons, 0);
+    this->ccCurrentFiltersSection = setupSection(DCW_STIMULUS_FILTER_TITLE, ccCurrentFilters, scrollLayout, ccCurrentFiltersRadioButtons, 0);
     for (int i = 0; i < ccCurrentFiltersRadioButtons.size(); i++) {
         connect(ccCurrentFiltersRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -167,101 +180,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
             }
         });
     }
-
-    /*! Sampling rate */
-    this->samplingRatesSection = setupSection(DCW_SAMPLING_RATE_TITLE, samplingRates, vLayout, samplingRatesRadioButtons, 0);
-    for (int i = 0; i < samplingRatesRadioButtons.size(); i++) {
-        connect(samplingRatesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
-            if (flag) {
-                emit sigSamplingRateSelected(i);
-            }
-        });
-    }
-
-    /*! Downsampling ratio */
-    downsamplingRatiosGroupBox = new QGroupBox(DCW_DOWNSAMPLING_RATIO_TITLE);
-
-    /*! Digital filter */
-    digitalFilterGroupBox = new QGroupBox(DCW_DIGITAL_FILTER_TITLE);
-
-    /*! Custom flags */
-    for (unsigned int customFlagIdx = 0; customFlagIdx < customFlags.size(); customFlagIdx++) {
-        auto btn = setupActButton(customFlags[customFlagIdx], vLayout, customFlagDefault[customFlagIdx]);
-        customFlagsButtons.push_back(btn);
-        connect(btn, &ActivationButton::clicked, this, [=] (bool flag) {
-            emit sigCustomFlagSelected(customFlagIdx, flag);
-        });
-    }
-
-    /*! Custom options */
-    for (unsigned int customOptionIdx = 0; customOptionIdx < customOptions.size(); customOptionIdx++) {
-        std::vector <QRadioButton *> radioButtons;
-        this->customOptionsSections.push_back(setupSection(customOptions[customOptionIdx], customOptionDescriptions[customOptionIdx], vLayout, radioButtons, customOptionDefault[customOptionIdx]));
-        customOptionsRadioButtons.push_back(radioButtons);
-        for (int i = 0; i < radioButtons.size(); i++) {
-            connect(radioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
-                if (flag) {
-                    emit sigCustomOptionSelected(customOptionIdx, i);
-                }
-            });
-        }
-    }
-
-    /*! Custom doubles */
-    for (unsigned int customDoubleIdx = 0; customDoubleIdx < customDoubles.size(); customDoubleIdx++) {
-        QDoubleSpinBox * spinBox;
-        this->customDoublesGroupBoxes.push_back(setupGroupBox(customDoubles[customDoubleIdx], vLayout, customDoublesRanges[customDoubleIdx], customDoublesDefault[customDoubleIdx], spinBox));
-        customDoublesSpinBoxes.push_back(spinBox);
-        emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
-        connect(customDoublesSpinBoxes[customDoubleIdx], &QDoubleSpinBox::editingFinished, this, [=] () {
-            emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
-        });
-    }
-
-    QVBoxLayout * downSamplingRatioVl = new QVBoxLayout();
-    downSamplingRatioVl->setContentsMargins(2, 2, 2, 2);
-    downSamplingRatioVl->setSpacing(2);
-
-    vLayout->addWidget(this->downsamplingRatiosGroupBox);
-    downsamplingRatioSbx = new QSpinBox;
-    downsamplingRatioSbx->setRange(1, maxDownsamplingRatio);
-    downsamplingRatioSbx->setValue(1);
-    downSamplingRatioVl->addWidget(downsamplingRatioSbx);
-
-    finalSamplingRateLbl = new QLabel("");
-    downSamplingRatioVl->addWidget(finalSamplingRateLbl);
-
-    downsamplingRatiosGroupBox->setLayout(downSamplingRatioVl);
-    if (maxDownsamplingRatio <= 1) {
-        downsamplingRatiosGroupBox->setEnabled(false);
-    }
-
-    QVBoxLayout * digitalFilterVl = new QVBoxLayout();
-    digitalFilterVl->setContentsMargins(2, 2, 2, 2);
-    digitalFilterVl->setSpacing(2);
-
-    vLayout->addWidget(digitalFilterGroupBox);
-
-    QHBoxLayout * digFiltSettingsHl = new QHBoxLayout;
-    digitalFilterVl->addLayout(digFiltSettingsHl);
-    digFiltBtn = new ActivationButton;
-    digFiltSettingsHl->addWidget(digFiltBtn);
-    digFiltTypeCbx = new QComboBox;
-    digFiltTypeCbx->addItem("Low pass");
-    digFiltTypeCbx->addItem("High pass");
-    digFiltSettingsHl->addWidget(digFiltTypeCbx);
-
-    digitalFilterVl->addWidget(new QLabel("Cut-off frequency"));
-    digFiltCutoffFreqSbx = new QDoubleSpinBox;
-    digitalFilterVl->addWidget(digFiltCutoffFreqSbx);
-
-    QHBoxLayout * digFiltFinalBandiwdthHl = new QHBoxLayout;
-    digitalFilterVl->addLayout(digFiltFinalBandiwdthHl);
-    digFiltFinalBandiwdthHl->addWidget(new QLabel("Final Bandwidth"));
-    finalBandwidthLbl = new QLabel("");
-    digFiltFinalBandiwdthHl->addWidget(finalBandwidthLbl);
-
-    digitalFilterGroupBox->setLayout(digitalFilterVl);
 
     /*! Clamping modality */
     if (clampingModalities.size() > 0) {
@@ -281,7 +199,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
                 break;
             }
         }
-        this->clampingModalitiesSection = setupSection(DCW_CLMAPINGMODALITY_TITLE, modeStrs, vLayout, clampingModalitiesRadioButtons, 0);
+        this->clampingModalitiesSection = setupSection(DCW_CLMAPINGMODALITY_TITLE, modeStrs, scrollLayout, clampingModalitiesRadioButtons, 0);
         for (int i = 0; i < clampingModalitiesRadioButtons.size(); i++) {
             connect(clampingModalitiesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
                 if (flag) {
@@ -291,9 +209,186 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
         }
     }
 
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    vLayout->addWidget(spacer);
+    /*! Custom flags */
+    for (unsigned int customFlagIdx = 0; customFlagIdx < customFlags.size(); customFlagIdx++) {
+        auto btn = setupActButton(customFlags[customFlagIdx], scrollLayout, customFlagDefault[customFlagIdx]);
+        customFlagsButtons.push_back(btn);
+        connect(btn, &ActivationButton::clicked, this, [=] (bool flag) {
+            emit sigCustomFlagSelected(customFlagIdx, flag);
+        });
+    }
+
+    /*! Custom options */
+    for (unsigned int customOptionIdx = 0; customOptionIdx < customOptions.size(); customOptionIdx++) {
+        std::vector <QRadioButton *> radioButtons;
+        this->customOptionsSections.push_back(setupSection(customOptions[customOptionIdx], customOptionDescriptions[customOptionIdx], scrollLayout, radioButtons, customOptionDefault[customOptionIdx]));
+        customOptionsRadioButtons.push_back(radioButtons);
+        for (int i = 0; i < radioButtons.size(); i++) {
+            connect(radioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+                if (flag) {
+                    emit sigCustomOptionSelected(customOptionIdx, i);
+                }
+            });
+        }
+    }
+
+    /*! Custom doubles */
+    for (unsigned int customDoubleIdx = 0; customDoubleIdx < customDoubles.size(); customDoubleIdx++) {
+        QDoubleSpinBox * spinBox;
+        this->customDoublesGroupBoxes.push_back(setupGroupBox(customDoubles[customDoubleIdx], scrollLayout, customDoublesRanges[customDoubleIdx], customDoublesDefault[customDoubleIdx], spinBox));
+        customDoublesSpinBoxes.push_back(spinBox);
+        emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
+        connect(customDoublesSpinBoxes[customDoubleIdx], &QDoubleSpinBox::editingFinished, this, [=] () {
+            emit sigCustomDoubleChanged(customDoubleIdx, spinBox->value());
+        });
+    }
+
+    /* SAMPLING SECTION */
+    QFrame* samplingSectionContainer = new QFrame();
+
+    QVBoxLayout* samplingSectionLayout = new QVBoxLayout(samplingSectionContainer);
+    samplingSectionLayout->setContentsMargins(0, 0, 0, 0);
+    samplingSectionLayout->setSpacing(0);
+    samplingSectionLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+    QFrame* samplingHeader = new QFrame();
+    samplingHeader->setObjectName("sectionHeaderContainer");
+    QHBoxLayout* samplingHeaderLayout = new QHBoxLayout(samplingHeader);
+    samplingHeaderLayout->setContentsMargins(0, 0, 0, 0);
+
+    QLabel *samplingSectionLbl = new QLabel("SAMPLING");
+    samplingSectionLbl->setObjectName("sectionHeader");
+    samplingHeaderLayout->addWidget(samplingSectionLbl);
+    samplingSectionLayout->addWidget(samplingHeader);
+
+    QHBoxLayout* samplingRateLayout = new QHBoxLayout();
+    samplingRateLayout->setContentsMargins(0, 0, 0, 0);
+    samplingSectionLayout->addLayout(samplingRateLayout);
+
+    QHBoxLayout* downsamplingRateLayout = new QHBoxLayout();
+    downsamplingRateLayout->setContentsMargins(0, 0, 0, 0);
+    samplingSectionLayout->addLayout(downsamplingRateLayout);
+
+    samplingRateToggle = new ActivationButton();
+    samplingRateLayout->addWidget(samplingRateToggle);
+
+    QLabel * samplingLbl = new QLabel("Sampling Rate");
+    samplingRateLayout->addWidget(samplingLbl);
+    samplingRateLayout->addStretch();
+
+    /* Sampling rate collapsable */
+    this->samplingRatesSection = setupSection("", samplingRates, samplingRateLayout, samplingRatesRadioButtons, 0);
+    for (int i = 0; i < samplingRatesRadioButtons.size(); i++) {
+        connect(samplingRatesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
+            if (flag) {
+                emit sigSamplingRateSelected(i);
+            }
+        });
+    }
+
+
+    /* Downsampling */
+    downsamplingToggle = new ActivationButton();
+    downsamplingRateLayout->addWidget(downsamplingToggle);
+
+    QLabel * downsamplingLbl = new QLabel("Downsampling");
+    downsamplingRateLayout->addWidget(downsamplingLbl);
+    downsamplingRateLayout->addStretch();
+
+    downsamplingRatioSbx = new QSpinBox;
+    downsamplingRatioSbx->setRange(1, maxDownsamplingRatio);
+    downsamplingRatioSbx->setSpecialValueText(tr("Disabled"));
+    downsamplingRateLayout->addWidget(downsamplingRatioSbx);
+
+    // Connessioni dirette della View (inoltra i segnali puri):
+    connect(downsamplingToggle, &ActivationButton::clicked, this, &DeviceControlDockWidget::sigDownsamplingToggleClicked);
+
+    QFrame* samplingHeaderOutput = new QFrame();
+    samplingHeaderOutput->setObjectName("sectionHeaderContainer");
+    QHBoxLayout* samplingHeaderOutputLayout = new QHBoxLayout(samplingHeaderOutput);
+    samplingHeaderOutputLayout->setContentsMargins(0, 0, 0, 0);
+
+    QLabel * samplingTitle = new QLabel("FINAL SAMPLING RATE");
+    finalSamplingRateLbl = new QLabel("");
+
+    samplingHeaderOutputLayout->addWidget(samplingTitle);
+    samplingHeaderOutputLayout->addStretch();
+    samplingHeaderOutputLayout->addWidget(finalSamplingRateLbl);
+
+
+    samplingSectionLayout->addWidget(samplingHeaderOutput);
+    scrollLayout->addWidget(samplingSectionContainer);
+
+    if (maxDownsamplingRatio <= 1) {
+        downsamplingToggle->clicked(false);
+
+    }
+
+    /* DIGITAL FILTER */
+    QFrame* filterSectionContainer = new QFrame();
+
+    QVBoxLayout* filterSectionLayout = new QVBoxLayout(filterSectionContainer);
+    filterSectionLayout->setContentsMargins(0, 0, 0, 0);
+    filterSectionLayout->setSpacing(0);
+    filterSectionLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+    QFrame* filterHeader = new QFrame();
+    filterHeader->setObjectName("sectionHeaderContainer");
+    QHBoxLayout* filterHeaderLayout = new QHBoxLayout(filterHeader);
+    filterSectionLayout->setContentsMargins(0, 0, 0, 0);
+
+    QLabel *filterSectionLbl = new QLabel("FILTER");
+    filterSectionLbl->setObjectName("sectionHeader");
+    filterHeaderLayout->addWidget(filterSectionLbl);
+    filterSectionLayout->addWidget(filterHeader);
+
+    QHBoxLayout* filterLayout = new QHBoxLayout();
+    filterLayout->setContentsMargins(0, 0, 0, 0);
+    filterSectionLayout->addLayout(filterLayout);
+
+    digFiltBtn = new ActivationButton;
+    filterLayout->addWidget(digFiltBtn);
+
+    QLabel * digitalFilterLbl = new QLabel("Digital Filter");
+    filterLayout->addWidget(digitalFilterLbl);
+    filterLayout->addStretch();
+
+    digFiltTypeCbx = new QComboBox;
+    digFiltTypeCbx->addItem("Low pass");
+    digFiltTypeCbx->addItem("High pass");
+    filterLayout->addWidget(digFiltTypeCbx);
+
+    /* Cut off freq. */
+
+    QHBoxLayout* cutoffLayout = new QHBoxLayout();
+    cutoffLayout->setContentsMargins(0, 0, 0, 0);
+    filterSectionLayout->addLayout(cutoffLayout);
+
+
+    QLabel * cutoffLbl = new QLabel("Cut-Off Freq.");
+    cutoffLayout->addWidget(cutoffLbl);
+    cutoffLayout->addStretch();
+
+    digFiltCutoffFreqSbx = new QDoubleSpinBox;
+    cutoffLayout->addWidget(digFiltCutoffFreqSbx);
+
+
+    QFrame* filterHeaderOutput = new QFrame();
+    filterHeaderOutput->setObjectName("sectionHeaderContainer");
+    QHBoxLayout* filterHeaderOutputLayout = new QHBoxLayout(filterHeaderOutput);
+    filterHeaderOutputLayout->setContentsMargins(0, 0, 0, 0);
+
+    QLabel * filterTitle = new QLabel("FINAL BANDWIDTH");
+    finalBandwidthLbl = new QLabel("");
+
+    filterHeaderOutputLayout->addWidget(filterTitle);
+    filterHeaderOutputLayout->addStretch();
+    filterHeaderOutputLayout->addWidget(finalBandwidthLbl);
+
+    filterSectionLayout->addWidget(filterHeaderOutput);
+    scrollLayout->addWidget(filterSectionContainer);
+
+
 }
 
 void DeviceControlDockWidget::forceEmit() {
@@ -497,6 +592,12 @@ void DeviceControlDockWidget::updateParameters() {
         uint32_t ratio;
         msgDisp->getDownsamplingRatio(ratio);
         downsamplingRatioSbx->setValue(ratio);
+
+        if (ratio <= 1) {
+            this->setDownsamplingVisualState(false, 1, false);
+        } else {
+            this->setDownsamplingVisualState(true, ratio, true);
+        }
     }
 
     if (!clampingModalitiesRadioButtons.empty()) {
@@ -583,7 +684,7 @@ void DeviceControlDockWidget::setWidgetVisible(QWidget * widget, bool status) {
     }
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (rangedMeasurements.empty()) {
         return nullptr;
     }
@@ -594,14 +695,14 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <std::vector <QRadioButton *>> &radioButtons, int defaultIdx) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QBoxLayout * parentLayout, std::vector <std::vector <QRadioButton *>> &radioButtons, int defaultIdx) {
     std::vector <QRadioButton *> buttons;
     auto ret = setupSection(title, rangedMeasurements, parentLayout, buttons, defaultIdx);
     radioButtons.push_back(buttons);
     return ret;
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <Measurement> measurements, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (measurements.empty()) {
         return nullptr;
     }
@@ -612,7 +713,7 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <std::string> strings, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (strings.empty()) {
         return nullptr;
     }
@@ -623,7 +724,7 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     return setupSection(title, texts, parentLayout, radioButtons, defaultIdx);
 }
 
-CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
+CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, std::vector <QString> texts, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx) {
     if (texts.empty()) {
         return nullptr;
     }
@@ -647,7 +748,7 @@ CollapsibleSection * DeviceControlDockWidget::setupSection(std::string title, st
     return sec;
 }
 
-ActivationButton * DeviceControlDockWidget::setupActButton(std::string title, QVBoxLayout * parentLayout, bool defaultFlag) {
+ActivationButton * DeviceControlDockWidget::setupActButton(std::string title, QBoxLayout * parentLayout, bool defaultFlag) {
     QWidget * wid = new QWidget;
     parentLayout->addWidget(wid);
 
@@ -680,4 +781,11 @@ QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, QVBoxLayou
     layout->addWidget(new QLabel(QString::fromStdString(range.getFullUnit())));
     gb->setLayout(layout);
     return gb;
+}
+
+/* Manages downsapling widget visibility */
+void DeviceControlDockWidget::setDownsamplingVisualState(bool checked, int value, bool spinboxEnabled) {
+    downsamplingToggle->setChecked(checked);
+    downsamplingRatioSbx->setValue(value);
+    downsamplingRatioSbx->setEnabled(spinboxEnabled);
 }

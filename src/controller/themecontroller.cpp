@@ -149,7 +149,7 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         // --- Panel layers ---
         {"@BG_APP",        palette["900"]},
         {"@BG_PANEL",      palette["800"]},
-        {"@BG_HEADER",     palette["800"]},
+        {"@BG_HEADER",     palette["700"]},
         {"@BG_INPUT",      palette["900"]},
         {"@BG_BTN",        palette["700"]},
         {"@BG_BTN_HOVER",  palette["600"]},

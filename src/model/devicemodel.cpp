@@ -115,5 +115,5 @@ void DeviceModel::updateDownsamplingAndFilteringSettings() {
     else {
         view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + maxCutoffFrequency.niceLabel()));
     }
-    view->finalSamplingRateLbl->setText("Final sampling rate: " + QString::fromStdString(finalSamplingRate.niceLabel()));
+    view->finalSamplingRateLbl->setText(QString::fromStdString(finalSamplingRate.niceLabel()));
 }
