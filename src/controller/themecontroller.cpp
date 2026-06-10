@@ -51,7 +51,7 @@ static QMap<QString, QString> darkPalette = {
     {"800", "#2D3648"},
     {"700", "#4A5468"},
     {"600", "#717D96"},
-    {"500", "#A0ABC0"},
+    {"500", "rgba(160, 171, 192, 70%)"},
     {"400", "#CBD2E0"},
     {"300", "#E2E7F0"},
     {"200", "#D9D9D9"},
@@ -71,16 +71,16 @@ static QMap<QString, QString> darkAccentsPalette = {
     {"Orange Light", "#FED7AD"},
     {"Blue Light", "#B0DCFF"},
     {"Purple Light", "#F6D1FF"},
-    {"Red Light", "rgba(255, 82, 82, 90)"},
+    {"Red Light", "rgba(255, 82, 82, 70%)"},
 
     {"Selection Blue", "#3a6a9a"},
     {"Selection Green", "#68FF83"},
 
-    {"White 20", "rgba(255, 255, 255, 20)"},
-    {"White 16", "rgba(255, 255, 255, 16)"},
-    {"White 13", "rgba(255, 255, 255, 13)"},
-    {"White 10", "rgba(255, 255, 255, 10)"},
-    {"White 8", "rgba(255, 255, 255, 8)"}
+    {"White 20", "rgba(255, 255, 255, 20%)"},
+    {"White 16", "rgba(255, 255, 255, 16%)"},
+    {"White 13", "rgba(255, 255, 255, 13%)"},
+    {"White 10", "rgba(255, 255, 255, 10%)"},
+    {"White 8", "rgba(255, 255, 255, 8%)"}
 
 };
 
@@ -116,11 +116,11 @@ static QMap<QString, QString> lightAccentsPalette = {
     {"Selection Blue", "#B0DCFF"},
     {"Selection Green", "#BBF7D0"},
 
-    {"White 20", "rgba(0, 0, 0, 0.20)"},
-    {"White 16", "rgba(0, 0, 0, 0.16)"},
-    {"White 13", "rgba(0, 0, 0, 0.13)"},
-    {"White 10", "rgba(0, 0, 0, 0.10)"},
-    {"White 8", "rgba(0, 0, 0, 0.08)"}
+    {"White 20", "rgba(0, 0, 0, 20%)"},
+    {"White 16", "rgba(0, 0, 0, 16%)"},
+    {"White 13", "rgba(0, 0, 0, 13%)"},
+    {"White 10", "rgba(0, 0, 0, 10%)"},
+    {"White 8", "rgba(0, 0, 0, 8%)"}
 };
 
 QMap<QString, QString> ThemeController::getPalette(Theme theme) {
@@ -184,12 +184,12 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         {"@SELECTION_BLUE",   accents["Selection Blue"]},
 
         // --- Badges ---
-        {"@BDG_E_FG", "#4ade80"}, {"@BDG_E_BG", "rgba(74, 222, 128, 0.15)"},
-        {"@BDG_P_FG", "#a78bfa"}, {"@BDG_P_BG", "rgba(167, 139, 250, 0.15)"},
-        {"@BDG_O_FG", "#a1a1aa"}, {"@BDG_O_BG", "rgba(161, 161, 170, 0.15)"},
-        {"@BDG_X_FG", "#f87171"}, {"@BDG_X_BG", "rgba(248, 113, 113, 0.15)"},
-        {"@BDG_R_FG", "#fbbf24"}, {"@BDG_R_BG", "rgba(251, 191, 36, 0.15)"},
-        {"@BDG_C_FG", "#fafafa"}, {"@BDG_C_BG", "rgba(124, 58, 237, 0.2)"},
+        {"@BDG_E_FG", "#4ade80"}, {"@BDG_E_BG", "rgba(74, 222, 128, 15%)"},
+        {"@BDG_P_FG", "#a78bfa"}, {"@BDG_P_BG", "rgba(167, 139, 250, 15%)"},
+        {"@BDG_O_FG", "#a1a1aa"}, {"@BDG_O_BG", "rgba(161, 161, 170, 15%)"},
+        {"@BDG_X_FG", "#f87171"}, {"@BDG_X_BG", "rgba(248, 113, 113, 15%)"},
+        {"@BDG_R_FG", "#fbbf24"}, {"@BDG_R_BG", "rgba(251, 191, 36, 15%)"},
+        {"@BDG_C_FG", "#fafafa"}, {"@BDG_C_BG", "rgba(124, 58, 237, 20%)"},
 
         // --- Badges - chessboard solid colors ---
         {"@BDG_E_FG_CH", "#FFFFFF"}, {"@BDG_E_BG_CH", "#16a34a"},

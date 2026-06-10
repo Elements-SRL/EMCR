@@ -7,11 +7,12 @@ CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientatio
     orientation(orientation) {
 
     this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    this->setObjectName("CollapsibleWg");
 
     QVBoxLayout * mainLo = new QVBoxLayout();
     this->setLayout(mainLo);
-    mainLo->setContentsMargins(0, 0, 0, 0);
-    mainLo->setSpacing(0);
+    mainLo->setContentsMargins(8, 0, 8, 0);
+    mainLo->setSpacing(2);
 
     QHBoxLayout * titleLo = new QHBoxLayout();
     mainLo->addLayout(titleLo);
@@ -21,6 +22,7 @@ CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientatio
     hideShowBtn->setChecked(false);
 
     titleEdit = new QLabel(title);
+    titleEdit->setObjectName("collapsibleTitle");
     titleEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     QWidget * spacer = new QWidget();
@@ -37,7 +39,7 @@ CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientatio
     titleLo->addWidget(valueLabel);
 
     groupBox = new QGroupBox();
-    groupBox->setObjectName("Collapsable");
+    groupBox->setObjectName("collapsibleGb");
     mainLo->addWidget(groupBox);
     groupBox->setVisible(false);
 

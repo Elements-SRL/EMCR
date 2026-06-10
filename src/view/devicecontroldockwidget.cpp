@@ -19,6 +19,17 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     centralWidget->setObjectName("deviceControlsCentralWidget");
     this->setWidget(centralWidget);
 
+    // Window border management when floating
+    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
+        if (isFloating) {
+            centralWidget->setStyleSheet("#deviceControlsScrollContainer { border: none; } "
+                                         "#filterHeaderOutput { border-bottom: none; border-left: none; border-right: none; }"
+                                         "#samplingHeaderOutput { border-left: none; border-right: none; }");
+        } else {
+            centralWidget->setStyleSheet("");
+        }
+    });
+
     QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
     externalLayout->setContentsMargins(10, 0, 10, 10);
     externalLayout->setSpacing(0);
@@ -35,7 +46,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     scrollContainer->setObjectName("deviceControlsScrollContainer");
 
     QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContainer);
-    scrollLayout->setContentsMargins(10, 10, 10, 10);
+    scrollLayout->setContentsMargins(0, 8, 0, 0);
     scrollLayout->setSpacing(8);
 
     scrollArea->setWidget(scrollContainer);
@@ -197,6 +208,9 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
             case ClampingModality_t::CURRENT_CLAMP:
                 modeStrs.push_back("Current clamp");
                 break;
+            case e384CommLib::DYNAMIC_CLAMP:
+            case e384CommLib::UNDEFINED_CLAMP:
+                break;
             }
         }
         this->clampingModalitiesSection = setupSection(DCW_CLMAPINGMODALITY_TITLE, modeStrs, scrollLayout, clampingModalitiesRadioButtons, 0);
@@ -262,22 +276,17 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     samplingSectionLayout->addWidget(samplingHeader);
 
     QHBoxLayout* samplingRateLayout = new QHBoxLayout();
-    samplingRateLayout->setContentsMargins(0, 0, 0, 0);
+    samplingRateLayout->setContentsMargins(0, 10, 0, 8);
+    samplingRateLayout->setSpacing(4);
     samplingSectionLayout->addLayout(samplingRateLayout);
 
     QHBoxLayout* downsamplingRateLayout = new QHBoxLayout();
-    downsamplingRateLayout->setContentsMargins(0, 0, 0, 0);
+    downsamplingRateLayout->setContentsMargins(8, 2, 8, 4);
+    downsamplingRateLayout->setSpacing(4);
     samplingSectionLayout->addLayout(downsamplingRateLayout);
 
-    samplingRateToggle = new ActivationButton();
-    samplingRateLayout->addWidget(samplingRateToggle);
-
-    QLabel * samplingLbl = new QLabel("Sampling Rate");
-    samplingRateLayout->addWidget(samplingLbl);
-    samplingRateLayout->addStretch();
-
     /* Sampling rate collapsable */
-    this->samplingRatesSection = setupSection("", samplingRates, samplingRateLayout, samplingRatesRadioButtons, 0);
+    this->samplingRatesSection = setupSection(DCW_SAMPLING_RATE_TITLE, samplingRates, samplingRateLayout, samplingRatesRadioButtons, 0);
     for (int i = 0; i < samplingRatesRadioButtons.size(); i++) {
         connect(samplingRatesRadioButtons[i], &QRadioButton::clicked, this, [=] (bool flag) {
             if (flag) {
@@ -285,7 +294,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
             }
         });
     }
-
 
     /* Downsampling */
     downsamplingToggle = new ActivationButton();
@@ -300,21 +308,21 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     downsamplingRatioSbx->setSpecialValueText(tr("Disabled"));
     downsamplingRateLayout->addWidget(downsamplingRatioSbx);
 
-    // Connessioni dirette della View (inoltra i segnali puri):
     connect(downsamplingToggle, &ActivationButton::clicked, this, &DeviceControlDockWidget::sigDownsamplingToggleClicked);
 
     QFrame* samplingHeaderOutput = new QFrame();
-    samplingHeaderOutput->setObjectName("sectionHeaderContainer");
+    samplingHeaderOutput->setObjectName("samplingHeaderOutput");
     QHBoxLayout* samplingHeaderOutputLayout = new QHBoxLayout(samplingHeaderOutput);
     samplingHeaderOutputLayout->setContentsMargins(0, 0, 0, 0);
 
     QLabel * samplingTitle = new QLabel("FINAL SAMPLING RATE");
+    samplingTitle->setObjectName("deviceFinalOutputLbl");
     finalSamplingRateLbl = new QLabel("");
+    finalSamplingRateLbl->setObjectName("finalSamplingRateLbl");
 
     samplingHeaderOutputLayout->addWidget(samplingTitle);
     samplingHeaderOutputLayout->addStretch();
     samplingHeaderOutputLayout->addWidget(finalSamplingRateLbl);
-
 
     samplingSectionLayout->addWidget(samplingHeaderOutput);
     scrollLayout->addWidget(samplingSectionContainer);
@@ -327,23 +335,24 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     /* DIGITAL FILTER */
     QFrame* filterSectionContainer = new QFrame();
 
-    QVBoxLayout* filterSectionLayout = new QVBoxLayout(filterSectionContainer);
+    QVBoxLayout * filterSectionLayout = new QVBoxLayout(filterSectionContainer);
     filterSectionLayout->setContentsMargins(0, 0, 0, 0);
     filterSectionLayout->setSpacing(0);
     filterSectionLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
-    QFrame* filterHeader = new QFrame();
+    QFrame * filterHeader = new QFrame();
     filterHeader->setObjectName("sectionHeaderContainer");
     QHBoxLayout* filterHeaderLayout = new QHBoxLayout(filterHeader);
-    filterSectionLayout->setContentsMargins(0, 0, 0, 0);
+    filterHeaderLayout->setContentsMargins(0, 0, 0, 0);
 
-    QLabel *filterSectionLbl = new QLabel("FILTER");
+    QLabel * filterSectionLbl = new QLabel("FILTER");
     filterSectionLbl->setObjectName("sectionHeader");
     filterHeaderLayout->addWidget(filterSectionLbl);
     filterSectionLayout->addWidget(filterHeader);
 
-    QHBoxLayout* filterLayout = new QHBoxLayout();
-    filterLayout->setContentsMargins(0, 0, 0, 0);
+    QHBoxLayout * filterLayout = new QHBoxLayout();
+    filterLayout->setContentsMargins(8, 4, 8, 2);
+    filterLayout->setSpacing(4);
     filterSectionLayout->addLayout(filterLayout);
 
     digFiltBtn = new ActivationButton;
@@ -361,7 +370,8 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     /* Cut off freq. */
 
     QHBoxLayout* cutoffLayout = new QHBoxLayout();
-    cutoffLayout->setContentsMargins(0, 0, 0, 0);
+    cutoffLayout->setContentsMargins(11, 2, 8, 4);
+    cutoffLayout->setSpacing(4);
     filterSectionLayout->addLayout(cutoffLayout);
 
 
@@ -374,19 +384,25 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
 
     QFrame* filterHeaderOutput = new QFrame();
-    filterHeaderOutput->setObjectName("sectionHeaderContainer");
+    filterHeaderOutput->setObjectName("filterHeaderOutput");
     QHBoxLayout* filterHeaderOutputLayout = new QHBoxLayout(filterHeaderOutput);
     filterHeaderOutputLayout->setContentsMargins(0, 0, 0, 0);
 
     QLabel * filterTitle = new QLabel("FINAL BANDWIDTH");
+    filterTitle->setObjectName("deviceFinalOutputLbl");
     finalBandwidthLbl = new QLabel("");
+    finalBandwidthLbl->setObjectName("finalBandwidthLbl");
 
     filterHeaderOutputLayout->addWidget(filterTitle);
     filterHeaderOutputLayout->addStretch();
     filterHeaderOutputLayout->addWidget(finalBandwidthLbl);
 
-    filterSectionLayout->addWidget(filterHeaderOutput);
+    //filterSectionLayout->addWidget(filterHeaderOutput);
     scrollLayout->addWidget(filterSectionContainer);
+
+    // Stiky bottom footer
+    externalLayout->addWidget(samplingHeaderOutput);
+    externalLayout->addWidget(filterHeaderOutput);
 
 
 }
@@ -770,13 +786,15 @@ ActivationButton * DeviceControlDockWidget::setupActButton(std::string title, QB
 QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, QVBoxLayout * parentLayout, RangedMeasurement_t range, double valueDefault, QDoubleSpinBox * &spinbox) {
     auto gb = new QGroupBox(QString::fromStdString(title));
     QHBoxLayout * layout = new QHBoxLayout();
-    layout->setContentsMargins(2, 2, 2, 2);
-    layout->setSpacing(2);
+    layout->setContentsMargins(10, 4, 10, 4);
+    layout->setSpacing(6);
     parentLayout->addWidget(gb);
     spinbox = new QDoubleSpinBox;
     spinbox->setRange(range.min, range.max);
     spinbox->setDecimals(range.decimals());
     spinbox->setValue(valueDefault);
+    spinbox->setMinimumHeight(24);
+    spinbox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     layout->addWidget(spinbox);
     layout->addWidget(new QLabel(QString::fromStdString(range.getFullUnit())));
     gb->setLayout(layout);

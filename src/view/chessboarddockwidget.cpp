@@ -43,7 +43,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     });
     topBarLayout->addWidget(noneBtn);
 
-    // Botton INVERT
+    // Button INVERT
     QPushButton * invertBtn = new QPushButton("INVERT", this);
     connect(invertBtn, &QPushButton::clicked, this, [=]() {
         emit sigInvertSelectionClicked();
@@ -81,7 +81,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     // TODO move in QSS
     QLabel * selectedDot = new QLabel(this);
     selectedDot->setFixedSize(12, 12);
-    selectedDot->setStyleSheet("background-color: #3b82f6; border-radius: 3px;"); // Azzurro
+    selectedDot->setStyleSheet("background-color: #3b82f6; border-radius: 3px;");
     QLabel * selectedText = new QLabel("Selected", this);
     selectedText->setStyleSheet("color: #8a92a3;");
 
