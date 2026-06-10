@@ -23,6 +23,17 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     QWidget* centralWidget = new QWidget();
     this->setWidget(centralWidget);
 
+    // Window border management when floating
+    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
+        if (isFloating) {
+            centralWidget->setStyleSheet("#mainWrapper { border: none; } #customFooter {border: none; }"
+                                         "#summaryContainer { border: none; }"
+                                         "#selectionCounter { border: none; }");
+        } else {
+            centralWidget->setStyleSheet("");
+        }
+    });
+
     // External Panel Layout (2 sections)
     // TOP - CENTRAL - Scroll area section
     // BOTTOM - Summary section
@@ -460,6 +471,7 @@ void MultipleChannelControlDockWidget::updateFeatureDetail(const ChannelProperty
     }
 }
 
+//TODO QSS
 void MultipleChannelControlDockWidget::setSelectionCount(int count, int totalChannels) {
     m_selectionCounterLabel->setText(QString(
         "<span style='color:#0078d4;'>●</span> %1 Selected "

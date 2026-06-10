@@ -347,6 +347,7 @@ void ChessboardController::onSelectedPlotsUpdated() {
     for (int i = 0; i < currentChannelsNum; i++) {
         plots[i]->setSelected(selectedChannels[i]);
     }
+    chessboard->updateSelectedCounter(appStatus->getSelectedChannelsIndexes().size(), appStatus->getChannels().size());
 }
 
 PlotConsumer * ChessboardController::getPlotConsumer(){

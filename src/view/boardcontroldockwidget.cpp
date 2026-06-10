@@ -20,6 +20,7 @@ BoardControlDockWidget::BoardControlDockWidget(MessageDispatcher * msgDisp, QWid
     setObjectName("boardControlsDw");
 
     QWidget * mainWg = new QWidget();
+    mainWg->setObjectName("boardControlsMainWg");
 
     this->setWidget(bigMainWg);
     QVBoxLayout * mainVl = new QVBoxLayout(bigMainWg);
@@ -122,6 +123,7 @@ QGridLayout * BoardControlDockWidget::getLayoutWithScrollBar(QWidget * widget) {
     vl->addWidget(scrollArea);
 
     QWidget * scrollWg = new QWidget;
+    scrollWg->setObjectName("scrollWg");
     scrollArea->setWidget(scrollWg);
 
     QGridLayout * scrollHl = new QGridLayout;

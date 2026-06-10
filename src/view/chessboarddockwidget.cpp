@@ -22,8 +22,19 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     mainWg->setObjectName("chessboardWg");
     this->setWidget(mainWg);
     QVBoxLayout * topLevelLayout = new QVBoxLayout(mainWg);
-    topLevelLayout->setContentsMargins(10, 0, 10, 10);
+    topLevelLayout->setContentsMargins(0, 0, 0, 0);
     topLevelLayout->setSpacing(0);
+
+    // Window border management when floating
+    connect(this, &QDockWidget::topLevelChanged, this, [mainWg](bool isFloating) {
+        if (isFloating) {
+            mainWg->setStyleSheet("#gridContainer { border: none; }"
+                                  "#customTitleBar { border-left: none; border-right: none; }"
+                                  "#customFooter { border-left: none; border-right: none; border-bottom: none;}");
+        } else {
+            mainWg->setStyleSheet("");
+        }
+    });
 
     // TOP BAR
     QWidget* customTitleBar = new QWidget();
@@ -78,15 +89,18 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     QHBoxLayout * legendaLayout = new QHBoxLayout(legenda);
     legendaLayout->setContentsMargins(4, 4, 4, 4);
 
-    // TODO move in QSS
-    QLabel * selectedDot = new QLabel(this);
+    QLabel * selectedDot = new QLabel();
+    selectedDot->setObjectName("selectedChBox");
     selectedDot->setFixedSize(12, 12);
-    selectedDot->setStyleSheet("background-color: #3b82f6; border-radius: 3px;");
-    QLabel * selectedText = new QLabel("Selected", this);
-    selectedText->setStyleSheet("color: #8a92a3;");
+
+    selectedChannelsTxt = new QLabel("");
+    selectedChannelsTxt->setObjectName("selectedChLabel");
+    totalChannelsTxt = new QLabel("");
+    totalChannelsTxt->setObjectName("totalChannelsLabel");
 
     legendaLayout->addWidget(selectedDot);
-    legendaLayout->addWidget(selectedText);
+    legendaLayout->addWidget(selectedChannelsTxt);
+    legendaLayout->addWidget(totalChannelsTxt);
     legendaLayout->addSpacing(15);
 
     legendaLayout->addStretch();
@@ -165,4 +179,9 @@ void ChessboardDockWidget::updateBoardMappings(std::set <int> visibleBoards){
         boardSelectors[i]->setVisible(it != visibleBoards.end());
     }
     emit sigAllChannelsClicked(false);
+}
+
+void ChessboardDockWidget::updateSelectedCounter(int selected, int total){
+    this->selectedChannelsTxt->setText(QString("%1 Selected ").arg(selected));
+    this->totalChannelsTxt->setText(QString("%1 Total").arg(total));
 }

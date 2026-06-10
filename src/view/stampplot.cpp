@@ -33,25 +33,36 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     this->setObjectName("stampPlotCard");
     this->setProperty("status", "default");
 
+    QGridLayout *overlayLayout = new QGridLayout(canvas);
+    overlayLayout->setContentsMargins(5, 5, 5, 5);
+    overlayLayout->setSpacing(0);
+    canvas->setLayout(overlayLayout);
+
     QwtText text;
     text.setRenderFlags(Qt::TextDontClip | Qt::TextSingleLine | Qt::AlignCenter);
     text.setPaintAttribute(QwtText::PaintUsingTextColor, true);
 
     channelIdxLbl = new QwtTextLabel(this);
     channelIdxLbl->setObjectName("stampChannelIdx");
+    channelIdxLbl->setMinimumSize(10, 10);
+    channelIdxLbl->setMaximumSize(26, 15);
     text.setText(QString("%1").fromStdString(channelname));
     channelIdxLbl->setText(text);
-    channelIdxLbl->setMinimumSize(10, 10);
+
+    // TOP LEFT: Channel name
+    overlayLayout->addWidget(channelIdxLbl, 0, 0, Qt::AlignTop | Qt::AlignLeft);
 
     badgeContainer = new QWidget(this->canvas());
     badgeContainer->setObjectName("badgeContainer");
+
+    // BOTTOM LEFT: Badges (E,X,P etc)
+    overlayLayout->addWidget(badgeContainer, 1, 0, Qt::AlignBottom | Qt::AlignLeft);
 
     QHBoxLayout *badgeLayout = new QHBoxLayout(badgeContainer);
     badgeLayout->setContentsMargins(0, 0, 0, 0);
     badgeLayout->setSpacing(4);
     badgeLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    // TODO define a central status manager for badges
     std::vector<QString> statuses = {"O", "R", "X", "C", "J", "E", "P"};
     for (const auto& key : statuses) {
         QLabel* badge = new QLabel(key, this);
@@ -59,7 +70,7 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
         badge->setObjectName("propertyBadgeChess");
         badge->setAutoFillBackground(true);
         badge->setMinimumSize(10, 10);
-        badge->setMaximumSize(12, 12);
+        badge->setMaximumSize(15, 15);
         badge->setProperty("propertyValue", key);
         badge->setVisible(false);
         badgeLayout->addWidget(badge);
@@ -75,10 +86,10 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     colorLabel->setObjectName("colorChannel");
     colorLabel->setGeometry(this->canvas()->x()+this->canvas()->width()-SMP_LEGEND_SIZE, this->canvas()->y(), SMP_LEGEND_SIZE, SMP_LEGEND_SIZE);
     colorLabel->setMinimumSize(10, 10);
-    colorLabel->setMaximumSize(12, 12);
+    colorLabel->setMaximumSize(15, 15);
 
-    // TODO move in qss
-    colorLabel->setStyleSheet("background-color: rgb(255, 255, 255);");
+    // TOP RIGHT: Color badge
+    overlayLayout->addWidget(colorLabel, 0, 1, Qt::AlignTop | Qt::AlignRight);
     colorLabel->raise();
 }
 
@@ -94,9 +105,7 @@ void StampPlot::setSelected(bool flag) {
     if (flag != selected) {
         selected = flag;
 
-        // Aggiorna la proprietà usata dal QSS
         this->setProperty("status", selected ? "selected" : "default");
-        // Posiziona i widget e ridisegna il grafico Qwt
         this->handleLabelsPosition();
 
         this->style()->unpolish(this);
@@ -168,7 +177,6 @@ void StampPlot::setName(std::string name){
     text.setRenderFlags(Qt::AlignCenter | Qt::TextDontClip | Qt::TextSingleLine);
     text.setText(QString("%1").fromStdString(name));
     channelIdxLbl->setText(text);
-    channelIdxLbl->setMargin(0);
     channelIdxLbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 }
 
@@ -182,25 +190,8 @@ bool StampPlot::isSelected(){
 }
 
 void StampPlot::handleLabelsPosition() {
-    auto cw = this->canvas()->width();
-    auto ch = this->canvas()->height();
-
-    int margin = 4;
-
-    // TOP LEFT - channel name
-    QSize channelSize = channelIdxLbl->minimumSizeHint();
-    channelIdxLbl->setGeometry(margin, margin, channelSize.width(), channelSize.height());
-
-    // TOP RIGHT - channel color icon
-    colorLabel->setGeometry(cw - SMP_LEGEND_SIZE - margin, margin, SMP_LEGEND_SIZE, SMP_LEGEND_SIZE);
-
     if (badgeContainer->layout()) {
         badgeContainer->layout()->invalidate();
-        badgeContainer->layout()->activate();
     }
-
-    // BOTTOM LEFT: Badge bar with statuses (E, X, P etc)
-    QSize containerSize = badgeContainer->sizeHint();
-    badgeContainer->setGeometry(margin, ch - containerSize.height() - margin, containerSize.width(), containerSize.height());
 }
 

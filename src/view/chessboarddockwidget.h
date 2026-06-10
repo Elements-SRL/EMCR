@@ -26,6 +26,7 @@ public:
     int getIdealPlotWidth();
     int getIdealPlotHeight();
     void updateBoardMappings(std::set <int> visibleBoards);
+    void updateSelectedCounter(int selected, int total);
 
 private:
     QGridLayout * mainGl = nullptr;
@@ -33,13 +34,13 @@ private:
     LeftRightMousePushButton * allChannelsSelector = nullptr;
     QVector <LeftRightMousePushButton *> boardSelectors;
     QVector <LeftRightMousePushButton *> rowSelectors;
+    QLabel *selectedChannelsTxt = nullptr;
+    QLabel *totalChannelsTxt = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;
     int boardsNum;
     int channelsPerBoard;
-//    int idealPlotHeight;
-//    int idealPlotWidth;
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);

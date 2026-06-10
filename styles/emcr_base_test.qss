@@ -284,7 +284,7 @@ QSlider::handle:horizontal {
 
 /* --- SCROLLBAR --- */
 
-QScrollBar {
+/* QScrollBar {
   border-radius: 0;
   font-size: 13pt;
 }
@@ -331,6 +331,79 @@ QScrollBar::sub-page {
   width: 0;
   border-radius: 0;
   border: 0;
+} */
+
+/* ========================================================================= */
+/* --- SCROLLBAR ---                                                         */
+/* ========================================================================= */
+
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 6px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: @BORDER_INPUT;
+    min-height: 20px;
+    border-radius: 3px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: @ACCENT_LBLUE;
+}
+
+
+QScrollBar::add-page:vertical, 
+QScrollBar::sub-page:vertical,
+QScrollBar::groove:vertical {
+    background: transparent;
+    border: none;
+}
+
+QScrollBar::sub-line:vertical, 
+QScrollBar::add-line:vertical {
+    border: none;
+    background: transparent;
+    height: 0px;
+    subcontrol-origin: margin;
+}
+
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 6px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: @BORDER_INPUT;
+    min-width: 20px;
+    border-radius: 3px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: @ACCENT_LBLUE;
+}
+
+QScrollBar::add-page:horizontal, 
+QScrollBar::sub-page:horizontal,
+QScrollBar::groove:horizontal {
+    background: transparent;
+    border: none;
+}
+
+QScrollBar::sub-line:horizontal, 
+QScrollBar::add-line:horizontal {
+    border: none;
+    background: transparent;
+    width: 0px;
+    subcontrol-origin: margin;
+}
+
+QAbstractScrollArea {
+    background-color: transparent;
 }
  
 /* --- TAB BAR/NAVIGATION --- */
@@ -486,7 +559,7 @@ QLabel#activationSwitch { qproperty-alignment: 'AlignCenter'; }
 QLabel#activationSwitch[checked="false"] { qproperty-pixmap: url("@ICON_PREFIX/toggle_off.svg"); }
 QLabel#activationSwitch[checked="true"] { qproperty-pixmap: url("@ICON_PREFIX/toggle_on.svg"); }
 
-/* Auto Labels */
+/* AUTO toggle labels */
 QLabel#autoLabel { 
     color: @TEXT_SECONDARY; 
     font-size: 10px; 
@@ -697,10 +770,10 @@ QComboBox QAbstractItemView {
     font-size: 11px;
 }
 
+
 /* ========================================= */
 /* --- CENTRAL PLOTS SCREEN ---              */
 /* ========================================= */
-
 
 #BigPlotCanvas {
     background: @BG_PANEL;
@@ -766,11 +839,10 @@ QTabBar {
     background: @BG_APP;
 }
 
-/* Separator */
 QMainWindow::separator {
-    background-color: @BG_APP; /* Sfondo uguale al resto dell'app */
-    width: 3px;  /* Spessore del divisore verticale */
-    height: 3px; /* Spessore del divisore orizzontale */
+    background-color: @BG_APP;
+    width: 3px;
+    height: 3px; 
     border: none;
 }
 
@@ -778,20 +850,16 @@ QMainWindow::separator:hover {
     background-color: @BG_BTN_HOVER; 
 }
 
+
 /* ========================================= */
 /* --- CHESSBOARD / CHANNELS OVERVIEW ---    */
 /* ========================================= */
-
 
 QWidget#gridContainer{
     background: @BG_APP;
     border: 1px solid @BORDER_PANEL;
     border-top: none;
     border-bottom: none;
-}
-
-QScrollArea#chessboardScrollArea{
-    background: none;
 }
 
 QLabel#propertyBadgeChess{
@@ -818,19 +886,13 @@ QWidget#badgeContainer QLabel{
 }
 
 QFrame#stampChannelIdx{
+    qproperty-palette: palette(window-text);
+    color: @BG_APP;
     border: 1px solid @BORDER_PANEL;
     border-radius: 2px;
-    background: @BG_BTN;
+    background: @TEXT_LIGHT;
     font-size: 12px;
     font-weight: bold;
-}
-
-QFrame#stampChannelIdx[status="default"] {
-    color: @TEXT_LIGHT;
-}
-
-QFrame#stampChannelIdx[status="selected"] {
-    color: @SELECTION_BLUE;
 }
 
 QWidget#stampPlotCard[status="default"] {
@@ -850,8 +912,20 @@ QWidget#stampPlotCanvas {
 }
 
 QFrame#colorChannel{
+    background-color: rgb(255, 255, 255);
     border-radius: 4px;
     border: 0.5px solid @BORDER_PANEL;
+}
+
+QLabel#selectedChBox {
+    background: @ACCENT_LBLUE;
+    border: 1px solid rgb(0, 120, 212);
+    border-radius: 2px;
+}
+
+QLabel#selectedChLabel,
+QLabel#totalChannelsLabel {
+    color: @TEXT_SECONDARY;
 }
 
 
@@ -911,12 +985,9 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {
     background: @BG_BTN_HOVER;
 }
 
-
 /* ========================================================================= */
 /* --- DEVICE CONTROLS  ---                                                  */
 /* ========================================================================= */
-
-
 
 QWidget#deviceControlsCentralWidget{
     margin: 10px;
@@ -1062,4 +1133,18 @@ QLabel#collapsibleTitle:disabled {
 QLabel#collapsibleTitleValue:disabled {
     color: @TEXT_MUTED;
     font-weight: regular;
+}
+
+
+/* ========================================================================= */
+/* --- BOARD CONTROLS  ---                                                   */
+/* ========================================================================= */
+
+#boardControlsMainWg {
+    background-color: @BG_PANEL;
+}
+
+#boardControlsMainWg QScrollArea, 
+#boardControlsMainWg #scrollWg {
+    background: transparent;
 }
