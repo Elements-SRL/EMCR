@@ -79,7 +79,7 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     QLabel * deviceIco = new QLabel("");
     deviceIco->setObjectName("deviceIco");
     QLabel *devicesTitle = new QLabel("DEVICE");
-    devicesTitle->setObjectName("sectionHeader");
+    devicesTitle->setObjectName("deviceConnectedTitle");
     connectedTitleLayout->addWidget(deviceIco);
     connectedTitleLayout->addWidget(devicesTitle);
     connectedTitleLayout->addStretch();
@@ -131,6 +131,7 @@ MainWindow::MainWindow(QWidget * parent) :
     deviceDetectorDw->setObjectName("deviceDetectorDw");
     deviceDetectorDw->setFloating(false);
     deviceDetectorDw->setTitleBarWidget(new QWidget()); // Hide connection widget titlebar
+    deviceDetectorDw->setFeatures(QDockWidget::NoDockWidgetFeatures);
 
     this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::LeftDockWidgetArea);
     QFrame * deviceDetectorWid = new QFrame();
@@ -693,6 +694,10 @@ void MainWindow::showHideConnectedDevice(bool flag){
 
         // Making sure the mainframe is big enough
         this->setMaximumSize(this->screen()->availableSize());
+
+        deviceDetectorWid->style()->unpolish(deviceDetectorWid);
+        deviceDetectorWid->style()->polish(deviceDetectorWid);
+        deviceDetectorWid->update();
 
         if (logoLabel) logoLabel->setVisible(false);
         this->connectionDeviceStack->setCurrentIndex(1);
