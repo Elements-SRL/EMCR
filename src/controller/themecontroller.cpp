@@ -75,6 +75,7 @@ static QMap<QString, QString> darkAccentsPalette = {
 
     {"Selection Blue", "#3a6a9a"},
     {"Selection Green", "#68FF83"},
+    {"Table header", "#2B313C"},
 
     {"White 20", "rgba(255, 255, 255, 20%)"},
     {"White 16", "rgba(255, 255, 255, 16%)"},
@@ -182,6 +183,7 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
         {"@ACCENT_BLUE",      accents["Blue"]},
         {"@ACCENT_LBLUE",     accents["Blue Light"]},
         {"@SELECTION_BLUE",   accents["Selection Blue"]},
+        {"@TABLE_HEADER", accents["Table header"]},
 
         // --- Badges ---
         {"@BDG_E_FG", "#4ade80"}, {"@BDG_E_BG", "rgba(74, 222, 128, 15%)"},

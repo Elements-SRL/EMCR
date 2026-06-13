@@ -1,4 +1,5 @@
 #include "elementslogowidget.h"
+#include "themecontroller.h"
 
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -18,7 +19,7 @@ ElementsLogoWidget::ElementsLogoWidget(QWidget * parent) :
     mainLo->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding), 2, 1);
 
     pixmapLbl = new QLabel;
-    pixmap = QPixmap(":/imgs/logo_with_name.png");
+    pixmap = QPixmap(ThemeController::getInstance().imgsPath() + "/logo_with_name.png");
 
     mainLo->addWidget(pixmapLbl, 1, 1);
 }

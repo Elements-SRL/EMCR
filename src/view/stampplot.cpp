@@ -56,7 +56,7 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     badgeContainer->setObjectName("badgeContainer");
 
     // BOTTOM LEFT: Badges (E,X,P etc)
-    overlayLayout->addWidget(badgeContainer, 1, 0, Qt::AlignBottom | Qt::AlignLeft);
+    overlayLayout->addWidget(badgeContainer, 1, 0, 1, 2, Qt::AlignBottom | Qt::AlignLeft);
 
     QHBoxLayout *badgeLayout = new QHBoxLayout(badgeContainer);
     badgeLayout->setContentsMargins(0, 0, 0, 0);
