@@ -88,5 +88,9 @@
         <file>theme/dark/icons/check-solid.svg</file>
         <file>theme/dark/icons/arrow_right_disabled.svg</file>
         <file>theme/light/icons/arrow_right_disabled.svg</file>
+        <file>theme/dark/icons/export_csv.svg</file>
+        <file>theme/dark/icons/copy.svg</file>
+        <file>theme/light/icons/copy.svg</file>
+        <file>theme/light/icons/export_csv.svg</file>
     </qresource>
 </RCC>
