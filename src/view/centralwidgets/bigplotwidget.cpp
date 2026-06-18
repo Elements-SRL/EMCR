@@ -1,15 +1,30 @@
 #include "bigplotwidget.h"
-#include "plotmessage.h"
 #include "bigplot.h"
+#include "qlineedit.h"
 
 BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QTabWidget(parent) {
     mainVl = new QVBoxLayout();
     mainVl->setContentsMargins(6, 0, 0, 6);
-    mainVl->setSpacing(1);
     this->setLayout(mainVl);
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->setObjectName("BigPlotCanvas");
+    this->setObjectName("bigPlotTabWidget");
+
+    /* Corner widget - extends the tab menu */
+    /* Could contain EXPERIMENT - NAME      */
+    QWidget* tabCornerWidget = new QWidget(this);
+
+    QLineEdit* projectNameLbl = new QLineEdit(tabCornerWidget);
+    projectNameLbl->setObjectName("experimentNameLbl");
+    projectNameLbl->setText("SAMPLE PROJECT - EXPERIMENT...");
+
+    QHBoxLayout* pHLayout = new QHBoxLayout(tabCornerWidget);
+    pHLayout->addWidget(projectNameLbl);
+
+    // When feature is available enable it
+    tabCornerWidget->hide();
+    this->setCornerWidget(tabCornerWidget, Qt::TopRightCorner);
+
 }
 
 void BigPlotWidget::setGapFreePlot(QWidget* wid) {
@@ -70,6 +85,7 @@ void BigPlotWidget::addGapFreeTab() {
     auto gapFreeLayout = new QVBoxLayout();
     gapFreeTab = new QWidget();
     gapFreeTab->setLayout(gapFreeLayout);
+    gapFreeLayout->setContentsMargins(10,10,10,10);
     gapFreeTab->setProperty("TabID", BigPlot::BigPlotStatus::GapFree);
     addTab(gapFreeTab, "GapFree");
 }

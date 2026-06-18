@@ -13,6 +13,7 @@
 #include "globaldefines.h"
 #include "qactiongroup.h"
 #include "qmovie.h"
+#include "qtoolbar.h"
 #include "qwindow.h"
 #include "resethwhelpdialog.h"
 #include "aboutdialog.h"
@@ -266,6 +267,37 @@ MainWindow::MainWindow(QWidget * parent) :
 
     connect(actionRecordingSettings, &QAction::triggered, recordSettingsDialog, &RecordSettingsDialog::exec);
 
+    /***********************\
+     * central dock widgets *
+    \***********************/
+
+    QWidget* centralWrapper = new QWidget(this);
+
+    // 10 px bottom-margin for any central graph
+    QVBoxLayout* wrapperLayout = new QVBoxLayout(centralWrapper);
+    wrapperLayout->setContentsMargins(0, 0, 0, 10);
+    wrapperLayout->setSpacing(0);
+    centralWrapper->setLayout(wrapperLayout);
+    this->setCentralWidget(centralWrapper);
+
+    /* Margin management for TABBED widgets - occurs when there
+     * is a switch from a TAB to another.
+     */
+    connect(this, &QMainWindow::tabifiedDockWidgetActivated, this, [this](QDockWidget*) {
+        QTimer::singleShot(0, this, [this]() {
+            for (auto* dw : this->findChildren<QDockWidget*>()) {
+                if (!dw || !dw->widget() || !dw->widget()->layout()) continue;
+
+                if (dw->isFloating()) {
+                    dw->widget()->layout()->setContentsMargins(0, 0, 0, 0);
+                } else if (this->tabifiedDockWidgets(dw).isEmpty()) {
+                    dw->widget()->layout()->setContentsMargins(10, 0, 10, 10); // Single Widget
+                } else {
+                    dw->widget()->layout()->setContentsMargins(10, 0, 10, 0);  // Widget in a stacked TAB
+                }
+            }
+        });
+    });
 }
 
 MainWindow::~MainWindow() {
@@ -359,11 +391,17 @@ void MainWindow::setConnectionLabel(QString text) {
 \********************/
 
 void MainWindow::setBigPlotWidget(BigPlotWidget * widget) {
-    bigPlotW = widget;
-    if (widget != nullptr) {
-        delete this->takeCentralWidget();
-        this->setCentralWidget(bigPlotW);
-        this->centralWidget()->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    if (widget == nullptr) return;
+
+    auto layout = this->centralWidget()->layout();
+
+    if (layout) {
+        if (bigPlotW) {
+            layout->removeWidget(bigPlotW);
+            bigPlotW->deleteLater();
+        }
+        bigPlotW = widget;
+        layout->addWidget(bigPlotW);
     }
 }
 
@@ -387,30 +425,27 @@ void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool fl
                 innerWidget->setContentsMargins(10, 0, 10, 10);
             }
 
-            // Real-time floating management for margins.
-            // Margins changes or restores based on floating status.
-            connect(widget, &QDockWidget::topLevelChanged, this, [innerWidget, widget](bool isFloating) {
-                if (isFloating) {
+            // Centralized MARGIN manager for all widgets
+            auto updateAllMargins = [this]() {
+                QTimer::singleShot(0, this, [this]() {
+                    for (auto* dw : this->findChildren<QDockWidget*>()) {
+                        if (!dw || !dw->widget() || !dw->widget()->layout()) continue;
 
-                    if (innerWidget->layout()) {
-                        innerWidget->layout()->setContentsMargins(0, 0, 0, 0);
-                    } else {
-                        innerWidget->setContentsMargins(0, 0, 0, 0);
+                        if (dw->isFloating()) {
+                            dw->widget()->layout()->setContentsMargins(0, 0, 0, 0); // Single Widget - floating
+                        } else if (this->tabifiedDockWidgets(dw).isEmpty()) {
+                            dw->widget()->layout()->setContentsMargins(10, 0, 10, 10); // Single Widget - no TAB
+                        } else {
+                            dw->widget()->layout()->setContentsMargins(10, 0, 10, 0);  // Widget is stacked in a TAB
+                        }
+                        dw->setStyleSheet(""); // Trigger QSS reload
                     }
+                });
+            };
 
-                } else {
-
-                    // Widget is docked again
-                    if (innerWidget->layout()) {
-                        innerWidget->layout()->setContentsMargins(10, 0, 10, 10);
-                    } else {
-                        innerWidget->setContentsMargins(10, 0, 10, 10);
-                    }
-
-                    // Trigger for qss reload
-                    widget->setStyleSheet("");
-                }
-            });
+            connect(widget, &QDockWidget::topLevelChanged, this, updateAllMargins);
+            connect(widget, &QDockWidget::dockLocationChanged, this, updateAllMargins);
+            connect(widget, &QDockWidget::visibilityChanged, this, updateAllMargins);
         }
     }
 }

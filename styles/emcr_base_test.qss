@@ -406,43 +406,91 @@ QAbstractScrollArea {
     background-color: transparent;
 }
  
-/* --- TAB BAR/NAVIGATION --- */
-QTabWidget::tab-bar {
-    margin-top: 10px;
-    background-color: @BG_APP;
-}
 
-QTabWidget::pane {
-    background-color: @BG_APP;
+/* ========================================================================= */
+/* --- TAB BAR - STACKED WIDGETS ---                                         */
+/* ========================================================================= */
+
+/* Top 10px margin for all widgets */
+QMenuBar {
     background: @BG_APP;
+    border-bottom: 10px solid transparent; 
 }
 
-QTabBar::tab {
-    background-color: @BG_HEADER;
+QMainWindow QTabBar {
+    background: transparent;
+    qproperty-drawBase: 0;
+}
+
+/* TAB not selected */
+QMainWindow QTabBar::tab {
+    background: transparent;
     color: @TEXT_MUTED;
-    border: none;
-    border-right: 1px solid @BORDER_STD;
-    padding: 8px 16px;
-    min-width: 100px;
-    max-width: 200px;
     font-weight: 500;
+    padding: 4px 12px;
+    border: 1px solid @BORDER_PANEL;
+    border-top: none;
+    margin-bottom: 10px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    min-width: 80px;
 }
 
-QTabBar::tab:selected {
-    background-color: @BG_PANEL;
+QMainWindow QTabBar::tab:hover {
+    background: @BG_BTN_HOVER;
     color: @TEXT_LIGHT;
-    border-bottom: 2px solid @ACCENT_BLUE;
 }
 
-QTabBar::tab:hover:!selected {
-    background-color: @BG_BTN_HOVER;
+QMainWindow QTabBar::tab:selected {
+    background: @SELECTION_BLUE;
     color: @TEXT_LIGHT;
+    border-top: none;
+    border-left: 1px solid @BORDER_PANEL;
+    border-right: 1px solid @BORDER_PANEL;
+    border-bottom: 1px solid @BORDER_PANEL;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
 
-QTabBar::tab:!enabled {
-    background-color: @BG_APP;
-    color: @TEXT_MUTED;
+QMainWindow QTabBar::tab:first {
+    margin-left: 10px;
 }
+
+QMainWindow QTabBar::tab:last {
+    margin-right: 10px;
+}
+
+QMainWindow QTabBar QToolButton {
+    border: 1px solid @BORDER_INPUT;
+    background-color: @BG_BTN;
+    width: 10px;
+    height: 6px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+}
+
+QMainWindow QTabBar QMenu::left-arrow {
+    width: 5px;
+    height: 5px;
+}
+
+QMainWindow QTabBar QMenu::right-arrow {
+    width: 5px;
+    height: 5px;
+}
+QMainWindow QTabBar QMenu {
+    margin-right: 10px;
+}
+
+QMainWindow QTabBar::scroller {
+    width: 24px;
+}
+
+QTabBar::tear {
+    width: 0px; 
+    border: none;
+}
+
 
 /* ========================================================================= */
 /* --- MULTIPLE CHANNEL CONTROLS ---                                         */
@@ -775,12 +823,65 @@ QComboBox QAbstractItemView {
 /* --- CENTRAL PLOTS SCREEN ---              */
 /* ========================================= */
 
-#BigPlotCanvas {
+#BigPlotChartCanvas QFrame{
+    background: @BG_APP;
+}
+
+/* ====================================== */
+/* --- CENTRAL PLOTS SCREEN - TAB MENU    */
+/* ====================================== */
+
+QTabWidget#bigPlotTabWidget {
     background: @BG_PANEL;
 }
 
-#BigPlotChartCanvas QFrame{
+/* TAB pane within the whole tab frame */
+QTabWidget#bigPlotTabWidget::pane {
+    background: @BG_PANEL;
+    border: 1px solid @BORDER_PANEL;
+    margin-top: -38px;
+    padding-top: 35px;
+    border-radius: 6px;
+}
+
+
+/* Following two rules builds an "hand-made" segmented button */
+/* This is the TAB menu container of the segmented button */
+QTabWidget#bigPlotTabWidget QTabBar {
     background: @BG_APP;
+    border-radius: 6px;
+    margin-top: 10px;
+    margin-left: 8px;
+    border: 1px solid @BG_APP;
+    padding: 3px;
+}
+
+/* TAB buttons - deselected */
+QTabWidget#bigPlotTabWidget QTabBar::tab {
+    background: transparent;
+    color: @TEXT_MUTED;
+    padding: 6px 14px;
+    margin-top: 12px;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+
+/* First TAB must be aligned with QTabBar container */
+/* In this way other tabs are not separated within each other */
+QTabWidget#bigPlotTabWidget QTabBar::tab:first {
+    margin-left: 10px;
+}
+
+QTabWidget#bigPlotTabWidget QTabBar::tab:selected {
+    background-color: @SELECTION_BLUE;
+    color: @TEXT_LIGHT;
+}
+
+QTabWidget#bigPlotTabWidget QTabBar::tab:hover:!selected {
+    background: rgba(255, 255, 255, 0.05);
+    color: @TEXT_MAIN;
 }
 
 
@@ -841,7 +942,6 @@ QLabel#connectionSpeed {
 QLabel#deviceIco { qproperty-pixmap: url("@ICON_PREFIX/device_ico.svg"); }
 
 QTabBar {
-    background-color: @BG_APP;
     background: @BG_APP;
 }
 
@@ -946,7 +1046,7 @@ QDockWidget{
     color: @TEXT_SECONDARY;
     font-weight: bold;
     text-transform: uppercase;
-    margin: 0px;
+    margin-bottom: 10px;
     border: none;
     titlebar-normal-icon: url(@ICON_PREFIX/window-restore-regular.svg);
     titlebar-close-icon: url(@ICON_PREFIX/x-solid.svg);
@@ -991,6 +1091,8 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {
     background: @BG_BTN_HOVER;
 }
 
+
+
 /* ========================================================================= */
 /* --- DEVICE CONTROLS  ---                                                  */
 /* ========================================================================= */
@@ -1007,21 +1109,21 @@ QFrame#deviceControlsScrollContainer {
     border-bottom: none;
 }
 
-QToolButton {
+QWidget#deviceControlsCentralWidget QToolButton {
     border: none;
     width: 10px;
     height: 10px;
 }
 
-QToolButton {
+QWidget#deviceControlsCentralWidget QToolButton {
     image: url(@ICON_PREFIX/arrow_right.svg);
 }
 
-QToolButton:disabled {
+QWidget#deviceControlsCentralWidget QToolButton:disabled {
     image: url(@ICON_PREFIX/arrow_right_disabled.svg);
 }
 
-QToolButton:open {
+QWidget#deviceControlsCentralWidget QToolButton:open {
     image: url(@ICON_PREFIX/arrow_down.svg);
 }
 
@@ -1244,3 +1346,5 @@ QPushButton#exportCsvButton{
 QPushButton#copyButton{
     qproperty-icon: url(@ICON_PREFIX/copy.svg);
 }
+
+
