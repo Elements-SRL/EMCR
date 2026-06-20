@@ -30,26 +30,20 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     // Window border management when floating
     connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
         if (isFloating) {
-            centralWidget->setStyleSheet("#measurementsCentralWidget { border: none; }"
-                                          "#customTitleBar { border-left: none; border-right: none; }");
+            centralWidget->setStyleSheet("#measurementsScrollContainer { border: none; }"
+                                         "#customTitleBar { border-left: none; border-right: none; }");
         } else {
             centralWidget->setStyleSheet("");
         }
     });
 
-    // Create a scroll area
-    QScrollArea* scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true); // Allow the widget inside the scroll area to resize with the scroll area
-
-    // Create a widget for the scroll area
-    QFrame* scrollWidget = new QFrame();
-    scrollWidget->setObjectName("scrollWidget");
-    scrollWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
-    QVBoxLayout* scrollLayout = new QVBoxLayout(scrollWidget);
-    scrollLayout->setContentsMargins(0, 0, 0, 0);
-    scrollLayout->setSpacing(0);
-    scrollLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
-    scrollArea->setWidget(scrollWidget);
+    // Create a scroll widget
+    // Scroll area is embedded in CopyableTable
+    QFrame * scrollWidget = new QFrame();
+    scrollWidget->setObjectName("measurementsScrollContainer");
+    auto scrollLayout = new QGridLayout(scrollWidget);
+    scrollWidget->setContentsMargins(0, 0, 0, 0);
+    scrollLayout->setSizeConstraint(QLayout::SetNoConstraint);
 
     // TOP BAR
     QWidget* customTitleBar = new QWidget();
@@ -102,7 +96,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     emptyStateLabel->setObjectName("emptyStateLabel");
     emptyStateLabel->setText("Empty channel selection");
     emptyStateLabel->hide();
-    externalLayout->addWidget(emptyStateLabel);
+    topBarLayout->addWidget(emptyStateLabel);
 
     QHeaderView * vHeader = dataTable->verticalHeader();
     vHeader->setObjectName("tableVHeader");
@@ -118,7 +112,7 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
                                           "Membrane resistance [MOhm]",
                                           "Offset recalibration [pA]",
                                           "Liquid junction [mV]"});
-    externalLayout->addWidget(scrollArea);
+    externalLayout->addWidget(scrollWidget);
 }
 
 void MeasurementsOverviewDockWidget::onUpdate(){

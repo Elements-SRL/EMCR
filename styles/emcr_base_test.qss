@@ -65,6 +65,7 @@ QWidget[technical="true"] {
 }
 
 /* --- CONTAINERS --- */
+
 QGroupBox {
     border: 1px solid @BORDER_STD;
     border-radius: 4px;
@@ -82,8 +83,8 @@ QGroupBox::title {
     padding: 0 3px;
 }
 
-/* --- INPUTS & WIDGETS --- */
 
+/* --- INPUTS & WIDGETS --- */
 
 QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox {
     padding-top: 2px;
@@ -123,6 +124,38 @@ QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover,
 QSpinBox::up-button:hover, QSpinBox::down-button:hover {
     background-color: @BG_BTN_HOVER;
     border-radius: 2px;
+}
+
+QListView::item {
+    padding: 3px 8px;
+    color: @TEXT_MAIN;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+
+QListView::item:disabled {
+    color: @TEXT_MUTED;
+}
+
+QListView::item:alternate {
+    background-color: @BG_APP; 
+}
+
+QListView::item:hover {
+    background-color: @BG_BTN_HOVER;
+    color: @TEXT_MAIN;
+}
+
+QListView::item:selected:active {
+    background-color: @SELECTION_BLUE;
+    color: @TEXT_LIGHT;
+    border: 1px solid @ACCENT_BLUE;
+}
+
+QListView::item:selected:!active {
+    background-color: @BG_BTN_HOVER; 
+    color: @TEXT_MAIN;
+    border: 1px solid @BORDER_PANEL;
 }
 
 /* --- BUTTONS --- */
@@ -1271,9 +1304,16 @@ QLabel#collapsibleTitleValue:disabled {
     border-bottom: none;
 }
 
-#measurementsOverviewDW QScrollArea, 
-#measurementsOverviewDW #scrollWg {
+#measurementsOverviewDW QScrollArea {
     background: transparent;
+}
+
+QFrame#measurementsScrollContainer{
+    background: @BG_PANEL;
+    border: 1px solid @BORDER_PANEL;
+    border-top: none;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
 }
 
 QLabel#emptyStateLabel {
@@ -1282,16 +1322,6 @@ QLabel#emptyStateLabel {
     font-style: italic; 
     color: @TEXT_SECONDARY;
     margin-left: 10px;
-}
-
-QWidget#measurementsCentralWidget{
-    background: @BG_PANEL;
-    border: 1px solid @BORDER_PANEL;
-    border-bottom-right-radius: 4px;
-    border-bottom-left-radius: 4px;
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-bottom: 8px;
 }
 
 QTableWidget {
@@ -1339,6 +1369,7 @@ QWidget#scrollWidget{
     border-radius: 4px;
 }
 
+
 QPushButton#exportCsvButton{
     qproperty-icon: url(@ICON_PREFIX/export_csv.svg);
 }
@@ -1348,3 +1379,62 @@ QPushButton#copyButton{
 }
 
 
+/* ========================================================================= */
+/* --- SINGLE CHANNEL CONTROLS ---                                           */
+/* ========================================================================= */
+
+QDockWidget#singleChannelControlsDw{
+    background: @BG_PANEL;
+}
+
+QFrame#singleChannelControlsScrollContainer{
+    background: @BG_APP;
+    border-left: 1px solid @BORDER_PANEL;
+    border-right: 1px solid @BORDER_PANEL;
+}
+
+QFrame#operationContainer{
+    background-color: @BG_PANEL;
+    height: 14px;
+    padding: 5px 0px;
+    border-right: 1px solid @BORDER_PANEL;
+    border-left: 1px solid @BORDER_PANEL;
+    border-bottom: 1px solid @BORDER_PANEL;
+}
+
+QComboBox#operationCbx{
+    max-width: 200px;
+    min-width: 100px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 10px;
+    border: 1px solid @BORDER_INPUT;
+    border-radius: 4px;
+    color: @ACCENT_ORANGE;
+    background-color: @BG_INPUT;
+}
+
+QComboBox#operationCbx QAbstractItemView {
+    background-color: @BG_PANEL;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 8);
+    selection-color: @TEXT_LIGHT;
+    selection-background-color: @BG_BTN_HOVER;
+    padding: 8px 8px;
+    font-size: 11px;
+}
+
+QWidget#operationButtonWidget {
+    background-color: @BG_PANEL;
+    border: 1px solid @BORDER_PANEL;
+    border-bottom: 2px solid @BG_PANEL;
+    padding-top: 4px;
+}
+
+QListView {
+    background-color: @BG_PANEL;
+    border: 1px solid @BORDER_PANEL;
+    border-radius: 4px;
+    padding: 4px;
+}
