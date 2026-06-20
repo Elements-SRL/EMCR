@@ -124,6 +124,7 @@ private:
     QLabel * deviceConnectedLbl = nullptr;
     QLabel * SRLbl = nullptr;
 
+    QWidget * centralWrapper = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;

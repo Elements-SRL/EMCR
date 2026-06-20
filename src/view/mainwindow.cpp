@@ -137,7 +137,14 @@ MainWindow::MainWindow(QWidget * parent) :
     this->setDockWidget(DWDeviceDetector, deviceDetectorDw, false, Qt::LeftDockWidgetArea);
     QFrame * deviceDetectorWid = new QFrame();
     deviceDetectorWid->setObjectName("deviceDetectorWid");
-    deviceDetectorWid->setMinimumSize(1000, 385);
+    deviceDetectorWid->setMinimumSize(1000, 380);
+
+    // Device is not connected at this stage
+    // Fixed viewport not resizable - centered
+    QSize size = QSize(1000, 380);
+    this->setMinimumSize(size);
+    this->setMaximumSize(size);
+    this->setWindowFlag(Qt::WindowMaximizeButtonHint, false);
 
     // QSS property for the Connecting Page
     deviceDetectorWid->setProperty("page", "connecting");
@@ -180,7 +187,7 @@ MainWindow::MainWindow(QWidget * parent) :
     actionBoardMapping->setEnabled(false);
     connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
 
-    // Theme menu within Preferencies
+    /*! Theme menu within Preferencies */
     menuTheme = new QMenu("Theme", this);
     menuPreferences->addMenu(menuTheme);
 
@@ -271,7 +278,7 @@ MainWindow::MainWindow(QWidget * parent) :
      * central dock widgets *
     \***********************/
 
-    QWidget* centralWrapper = new QWidget(this);
+    centralWrapper = new QWidget(this);
 
     // 10 px bottom-margin for any central graph
     QVBoxLayout* wrapperLayout = new QVBoxLayout(centralWrapper);
@@ -427,9 +434,16 @@ void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool fl
 
             // Centralized MARGIN manager for all widgets
             auto updateAllMargins = [this]() {
+
+                if (this->connectionDeviceStack && this->connectionDeviceStack->currentIndex() == 0) {
+                    return;
+                }
+
                 QTimer::singleShot(0, this, [this]() {
                     for (auto* dw : this->findChildren<QDockWidget*>()) {
                         if (!dw || !dw->widget() || !dw->widget()->layout()) continue;
+
+                        if (dw->objectName() == "deviceDetectorDw") continue;
 
                         if (dw->isFloating()) {
                             dw->widget()->layout()->setContentsMargins(0, 0, 0, 0); // Single Widget - floating
@@ -529,7 +543,13 @@ void MainWindow::destroyGuiControls() {
         dockWidgets[DWDebug] = nullptr;
     }
 
-    this->takeCentralWidget();
+    if (bigPlotW) {
+        if (centralWrapper && centralWrapper->layout()) {
+            centralWrapper->layout()->removeWidget(bigPlotW);
+        }
+        bigPlotW->deleteLater();
+        bigPlotW = nullptr;
+    }
 
     SRLbl->setText("");
 
@@ -727,9 +747,6 @@ void MainWindow::showHideConnectedDevice(bool flag){
         deviceDetectorWid->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
         deviceDetectorWid->setProperty("page", "connected");
 
-        // Making sure the mainframe is big enough
-        this->setMaximumSize(this->screen()->availableSize());
-
         deviceDetectorWid->style()->unpolish(deviceDetectorWid);
         deviceDetectorWid->style()->polish(deviceDetectorWid);
         deviceDetectorWid->update();
@@ -741,6 +758,14 @@ void MainWindow::showHideConnectedDevice(bool flag){
         QString connected = QString("%1 <span style='color:#4CAF50;'>●</span>").arg(getSelectedSerialNumber());
         this->deviceConnectedLbl->setText(connected);
 
+        QTimer::singleShot(50, this, [this]() {
+            // Making sure the mainframe is now resizable
+            this->setMinimumSize(0, 0);
+            this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+            setWindowFlag(Qt::WindowMaximizeButtonHint, true);
+            this->show();
+        });
+
     } else {
         // --- STATUS: DEVICE NOT CONNECTED ---
 
@@ -751,9 +776,21 @@ void MainWindow::showHideConnectedDevice(bool flag){
         this->connectionDeviceStack->setCurrentIndex(0);
         deviceDetectorWid->setProperty("page", "connecting");
 
-        QSize size = QSize(1000, 380);
-        deviceDetectorWid->setMinimumSize(size);
-        this->setMaximumSize(size);
+        // Resizing the window later
+        QTimer::singleShot(50, this, [this, deviceDetectorWid]() {
+            QSize size = QSize(1000, 380);
+
+            this->setMinimumSize(0, 0);
+            this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+
+            if (deviceDetectorWid) {
+                deviceDetectorWid->setMinimumSize(size);
+                deviceDetectorWid->setMaximumSize(size);
+            }
+            this->setMinimumSize(size);
+            this->setMaximumSize(size);
+            this->resize(size);
+        });
 
         // QSS re-apply
         deviceDetectorWid->style()->unpolish(deviceDetectorWid);
