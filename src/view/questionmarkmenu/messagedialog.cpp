@@ -3,6 +3,8 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 #include <QScrollArea>
+#include "qtextbrowser.h"
+#include "themecontroller.h"
 
 MessageDialog::MessageDialog(QString title, bool includeLogo, QWidget* parent) :
     QDialog(parent) {
@@ -16,32 +18,33 @@ MessageDialog::MessageDialog(QString title, bool includeLogo, QWidget* parent) :
     this->setWindowTitle(title);
 
     mainVl = new QVBoxLayout;
-    mainVl->setContentsMargins(6, 6, 6, 6);
-    mainVl->setSpacing(6);
+    mainVl->setContentsMargins(10, 10, 10, 10);
+    mainVl->setSpacing(8);
+
+    mainVl->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
     this->setLayout(mainVl);
 
     if (includeLogo) {
         QLabel* logoLbl = new QLabel;
-        QPixmap logoPxm(":/imgs/logo_with_name.png");
+        QPixmap logoPxm(ThemeController::imgsPath() + "/logo_with_name.png");
         logoLbl->setPixmap(logoPxm.scaledToWidth(381, Qt::SmoothTransformation));
         mainVl->addWidget(logoLbl);
 
         mainVl->addItem(new QSpacerItem(0, 30, QSizePolicy::Fixed, QSizePolicy::Fixed));
+
     }
 }
 
 void MessageDialog::addMainText(QString text) {
-    QLabel* mainTextLbl = new QLabel(text);
-    QScrollArea * area = new QScrollArea;
-    area->setFrameShape(QFrame::NoFrame);
-    area->setWidgetResizable(true);
-    area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    area->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-    mainVl->addWidget(area);
-    area->setWidget(mainTextLbl);
+    QTextBrowser* browser = new QTextBrowser();
+    browser->setObjectName("msgDialogText");
+    browser->setHtml(text);
+    browser->setFrameShape(QFrame::NoFrame);
+    browser->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    mainVl->addWidget(browser);
 }
+
 
 void MessageDialog::addDefaultButtonBox() {
     mainVl->addItem(new QSpacerItem(0, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));

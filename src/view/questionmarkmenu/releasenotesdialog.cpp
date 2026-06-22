@@ -116,36 +116,30 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
 
 void ReleaseNotesDialog::appendVersion(Version_t version) {
     QTextStream stream(&mainText);
-    if (!mainText.isEmpty()) {
-        stream << "\n\n";
-    }
-    stream << "Version " << version.major << "." << version.minor << "." << version.patch;
+
+    stream << "<div class='version-section'>";
+    stream << "<h2 class='version-title'>📦 Version "
+           << version.major << "." << version.minor << "." << version.patch << "</h2>";
 
     for (int sectionIdx = 0; sectionIdx < SectionsNum; sectionIdx++) {
         auto section = version.sections[sectionIdx];
         if (!section.isEmpty()) {
-            stream << "\n\n";
+
+            stream << "<h3 class='category-title'>";
             switch (sectionIdx) {
-            case NewFeatures:
-                stream << "New features";
-                break;
-
-            case Gui:
-                stream << "GUI";
-                break;
-
-            case Qol:
-                stream << "QoL";
-                break;
-
-            case BugFixes:
-                stream << "Bug fixes";
-                break;
+            case NewFeatures: stream << "✨ New features"; break;
+            case Gui:         stream << "🎨 GUI"; break;
+            case Qol:         stream << "⚡ QoL"; break;
+            case BugFixes:    stream << "🐛 Bug fixes"; break;
             }
+            stream << "</h3>";
 
-            for (auto &item : section) {
-                stream << "\n- " << item;
+            stream << "<ul>";
+            for (const QString& item : section) {
+                stream << "<li>" << item << "</li>";
             }
+            stream << "</ul>";
         }
     }
+    stream << "</div>";
 }
