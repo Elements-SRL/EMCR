@@ -34,7 +34,7 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
     this->setProperty("status", "default");
 
     QGridLayout *overlayLayout = new QGridLayout(canvas);
-    overlayLayout->setContentsMargins(5, 5, 5, 5);
+    overlayLayout->setContentsMargins(2, 2, 2, 2);
     overlayLayout->setSpacing(0);
     canvas->setLayout(overlayLayout);
 
