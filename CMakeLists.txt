@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(EMCR
-    VERSION 0.28.3
+    VERSION 0.28.4
     LANGUAGES CXX
 )
 
@@ -13,7 +13,7 @@ set(CMAKE_AUTORCC ON)
 
 # Executable
 
-add_executable(EMCR
+add_executable(EMCR WIN32
     src/main.cpp
     src/controller/device/consumer/analysisconsumer.cpp
     src/controller/device/consumer/ccresistanceestimationconsumer.cpp
@@ -305,6 +305,7 @@ set_target_properties(EMCR PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
+    WIN32_EXECUTABLE true
 )
 
 # incldue directories
