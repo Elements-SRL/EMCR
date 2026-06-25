@@ -43,7 +43,6 @@ public:
         return QString(":/theme/").append(getThemeStr(getInstance().currentTheme)).append("/imgs");
     }
 
-
 private:
     ThemeController();
     ~ThemeController();
@@ -53,6 +52,9 @@ private:
 
     static QString loadAndProcessQss(const QString &path, Theme theme);
     static QMap<QString, QString> getPalette(Theme theme);
+
+signals:
+    void sigThemeUpdated();
 };
 
 #endif // THEMECONTROLLER_H

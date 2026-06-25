@@ -18,6 +18,11 @@ void ThemeController::applyTheme(Theme theme) {
     QString qssPath = ":/styles/emcr_base_test.qss";
     QString processedQss = loadAndProcessQss(qssPath, theme);
     qApp->setStyleSheet(processedQss);
+
+    /* Emit signal for those widgets that should
+     * handle manually the theme update
+     */
+    emit sigThemeUpdated();
 }
 
 QString ThemeController::loadAndProcessQss(const QString &path, Theme theme) {

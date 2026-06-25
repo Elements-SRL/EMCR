@@ -21,7 +21,7 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QHBoxLayout* pHLayout = new QHBoxLayout(tabCornerWidget);
     pHLayout->addWidget(projectNameLbl);
 
-    // When feature is available enable it
+    // IF feature is desiderable, enable it
     tabCornerWidget->hide();
     this->setCornerWidget(tabCornerWidget, Qt::TopRightCorner);
 

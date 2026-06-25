@@ -15,7 +15,6 @@ BasePlot::BasePlot(std::string title, std::string xUnit, std::string yUnit, QWid
     QwtPlotCanvas* canvas = new QwtPlotCanvas();
     canvas->setFrameStyle(QFrame::NoFrame);
     this->setCanvas(canvas);
-    this->setCanvasBackground(Qt::white);
 
     QwtPlotGrid* grid = new QwtPlotGrid();
     grid->setPen(Qt::lightGray, 0.5);

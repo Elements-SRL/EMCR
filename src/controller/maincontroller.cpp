@@ -3,6 +3,9 @@
 #include "mainwindow.h"
 #include "application_status.h"
 #include "confirmdialog/confirmationdialog.h"
+#include "themecontroller.h"
+#include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
 
 MainController::MainController() {
     /*! Set up device detector */
@@ -296,6 +299,10 @@ void MainController::onMainWindowCreated() {
     plotPreferencesController->connectBigPlotController(bigPlotController);
     plotPreferencesController->connectPlotDetailController(plotDetailController);
     plotPreferencesController->connectChessboardController(chessboardController);
+
+    // Connecting Theme controller to plots
+    connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, &MainController::onThemeUpdated);
+
 
     if (msgDisp->hasProtocols() == Success) {
         auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
@@ -634,5 +641,34 @@ void MainController::checkReadyToSwitchFromSplash() {
         // Screen center
         auto screenGeometry = mainWindow->screen()->geometry();
         mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
+    }
+}
+
+/* Refesh theme of widgets with QWT plots.
+ * Those plots need to be "re-rendered" on theme change.
+ * Used for already opened plots that are not affected
+ * by QSS reloading.
+ */
+void MainController::onThemeUpdated() {
+    auto bigPlot = mainWindow->getBigPlotWidget();
+    auto voltageProtocol = mainWindow->getDockWidget(MainWindow::DWProtocol);
+
+    if (!bigPlot && !voltageProtocol) return;
+
+    QList<QwtPlot*> bigPlots = bigPlot->findChildren<QwtPlot*>();
+    QList<QwtPlot*> protocolPlots = voltageProtocol->findChildren<QwtPlot*>();
+
+    for (QwtPlot* plot : (bigPlots + protocolPlots)) {
+        // Unpolish/Polish for plot itself
+        plot->style()->unpolish(plot);
+        plot->style()->polish(plot);
+
+        // Unpolish/Polish canvas
+        if (auto canvas = plot->canvas()) {
+            canvas->style()->unpolish(canvas);
+            canvas->style()->polish(canvas);
+        }
+
+        plot->replot();
     }
 }

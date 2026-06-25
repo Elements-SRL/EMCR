@@ -25,14 +25,18 @@ QLabel#dlgExitMsg{
 
 QPushButton#dlgDisconnectBtn{
     background-color: @ACCENT_RED;
-    color: @TEXT_MAIN;
+    color: @TEXT_SECONDARY;
     border: none;
     border-radius: 4px;
     padding: 6px 16px;
     font-size: 12px;
     font-weight: bold;
 }
-QPushButton#dlgDisconnectBtn:hover { background-color: @ACCENT_LRED; }
+QPushButton#dlgDisconnectBtn:hover { 
+    background-color: @ACCENT_LRED;
+    border-color: @ACCENT_RED;
+    color: @TEXT_MAIN;
+}
 
 QPushButton#dlgCancelBtn{
     color: @TEXT_MAIN;
@@ -42,7 +46,7 @@ QPushButton#dlgCancelBtn{
     font-size: 12px;
 }
 
-QPushButton#dlgCancelBtn:hover { background-color: #454C56; }
+QPushButton#dlgCancelBtn:hover { background-color: @BG_BTN_HOVER; }
 
 /* --- TEXT DENSITY & FONTS --- */
 
@@ -372,13 +376,13 @@ QScrollBar::sub-page {
 
 
 QScrollBar:vertical {
-    background: transparent;
+    background: @BG_PANEL;
     width: 6px;
     margin: 0px;
 }
 
 QScrollBar::handle:vertical {
-    background-color: @BORDER_INPUT;
+    background-color: @BG_BTN_HOVER;
     min-height: 20px;
     border-radius: 3px;
 }
@@ -405,13 +409,13 @@ QScrollBar::add-line:vertical {
 
 
 QScrollBar:horizontal {
-    background: transparent;
+    background: @BG_PANEL;
     height: 6px;
     margin: 0px;
 }
 
 QScrollBar::handle:horizontal {
-    background-color: @BORDER_INPUT;
+    background-color: @BG_BTN_HOVER;
     min-width: 20px;
     border-radius: 3px;
 }
@@ -745,6 +749,16 @@ QFrame#modeContainer QPushButton:pressed {
 
 QLabel#infoBox { qproperty-pixmap: url(@ICON_PREFIX/circle-info-solid.svg); }
 
+
+/* ========================================================================= */
+/* --- PLOT DETAIL ---                                                       */
+/* ========================================================================= */
+
+QWidget#PlotDetail{
+    background-color: @BG_PANEL;
+}
+
+
 /* ========================================= */
 /* --- SPLASH SCREEN ---                     */
 /* ========================================= */
@@ -851,14 +865,24 @@ QComboBox QAbstractItemView {
     font-size: 11px;
 }
 
+/* ====================================== */
+/* --- PLOTS - QWT                        */
+/* ====================================== */
 
-/* ========================================= */
-/* --- CENTRAL PLOTS SCREEN ---              */
-/* ========================================= */
-
-#BigPlotChartCanvas QFrame{
+QwtPlotCanvas {
     background: @BG_APP;
 }
+
+QwtPlotGrid {
+    color: @BORDER_FOCUS;
+}
+
+QwtTextLabel {
+    color: @TEXT_MAIN;
+    font-size: 11px;
+    padding: 2px;
+}
+
 
 /* ====================================== */
 /* --- CENTRAL PLOTS SCREEN - TAB MENU    */
@@ -960,10 +984,11 @@ QPushButton#disconnectBtn {
     border: 1px solid @BORDER_INPUT;
     qproperty-icon: url(@ICON_PREFIX/disconnect_plug.svg); 
 }
+
 QPushButton#disconnectBtn:hover {
-    background-color: @ACCENT_RED;
-    border-color: @BORDER_FOCUS;
-    color: @TEXT_LIGHT;
+    background-color: @ACCENT_LRED;
+    border-color: @ACCENT_RED;
+    color: @TEXT_MAIN;
 }
 
 QLabel#connectionSpeed {
@@ -1042,7 +1067,7 @@ QWidget#stampPlotCard[status="default"] {
 
 QWidget#stampPlotCard[status="selected"] {
     background-color: @BG_BTN_HOVER;
-    border: 2px solid @ACCENT_LBLUE;
+    border: 2px solid @SELECTION_BLUE;
     border-radius: 6px;
 }
 
