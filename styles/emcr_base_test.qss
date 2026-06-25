@@ -1489,3 +1489,50 @@ QLabel#msgDialogText img, QTextBrowser#msgDialogText img {
     vertical-align: middle;
     margin-right: 4px;
 }
+
+
+/* ========================================================================= */
+/* --- AUTODECLOGGER ---                                                     */
+/* ========================================================================= */
+
+QLabel#activateBtnLbl{
+    color: @TEXT_SECONDARY; 
+    font-size: 10px;
+    font-weight: bold; 
+    letter-spacing: 0.5px; 
+}
+
+QLabel#activateBtnLbl[active="true"] { color: @ACCENT_LBLUE; }
+
+QFrame#poreHeaderContainer {
+    color: @TEXT_SECONDARY;
+    border: 1px solid @BORDER_PANEL;
+    background-color: @BG_PANEL;
+    height: 14px;
+    padding: 8px 8px;
+    spacing: 10;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+QFrame#autodecloggerScrollContainer {
+    border: 1px solid @BORDER_PANEL;
+    background: @BG_PANEL;
+    border-top: none;
+    border-bottom: none;
+}
+
+QLabel#poreOutputLbl {
+    color: @TEXT_SECONDARY;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+QLabel#poreStatusLbl {
+    color: @ACCENT_LBLUE;
+    font-weight: bold;
+}

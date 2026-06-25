@@ -18,8 +18,8 @@ private:
     QDoubleSpinBox* voltageField;
     QDoubleSpinBox* timeField;
     QDoubleSpinBox* timeBelowThreshold;
-    QLabel* freePore;
-    QLabel* cloggedPore;
+    QLabel* poreStatusLbl;
+    QLabel* activateBtnLbl;
     //add a red led
 
 public:
