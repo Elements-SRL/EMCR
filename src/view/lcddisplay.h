@@ -5,25 +5,23 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QTime>
-
-/*! \todo FCON bisogna verificare se questi numeri vanno bene in assoluto (altri monitor, altri OS) */
-
-#define LCD_DISPLAY_DIGIT_HEIGHT 25
-#define LCD_DISPLAY_DIGIT_WIDTH 16
+#include <QWidget>
+#include <QLabel>
+#include <QHBoxLayout>
 
 #define TDP_INTERVAL_MS 1000
 
 class LcdDisplay : public QLCDNumber {
+    Q_OBJECT
 public:
     LcdDisplay(QWidget * parent);
     virtual ~LcdDisplay();
 };
 
-class TimerDisplay : public LcdDisplay {
+class TimerDisplay : public QWidget {
     Q_OBJECT
-
 public:
-    TimerDisplay(QWidget * parent = nullptr, QString timeFormat = "mm.ss");
+    TimerDisplay(QWidget * parent = nullptr, QString timeFormat = "hh:mm:ss");
     ~TimerDisplay();
 
     void displayTime(QTime time);
@@ -42,6 +40,10 @@ private:
     QTime currentTime;
     int remainingTime = TDP_INTERVAL_MS;
     bool paused = false;
+
+    QFrame *iconLabelIdle = nullptr;
+    QLabel *iconLabel = nullptr;
+    LcdDisplay *lcdDisplay = nullptr;
 
 private slots:
     void onUpdateTimer();

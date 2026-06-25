@@ -5,6 +5,7 @@
 #include <QDesktopServices>
 #include <QLabel>
 #include <QSettings>
+#include <QButtonGroup>
 
 ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModality_t clampingModality, QWidget * parent) :
     QDockWidget(),
@@ -16,14 +17,29 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     this->setWindowTitle("Voltage Protocols");
 
     QVBoxLayout * mainVl = new QVBoxLayout;
-    mainVl->setSpacing(1);
-    mainVl->setContentsMargins(1, 1, 1, 1);
+    mainVl->setSpacing(0);
+    mainVl->setContentsMargins(0, 0, 0, 0);
     mainW->setLayout(mainVl);
 
-    QGridLayout * btnLo = new QGridLayout;
-    mainVl->addLayout(btnLo);
-    btnLo->setSpacing(0);
-    btnLo->setContentsMargins(1, 1, 1, 1);
+    // TOP BAR - CRUD Buttons
+    QWidget* crudButtonsBar = new QWidget();
+    crudButtonsBar->setObjectName("crudButtonsBar");
+
+    QHBoxLayout * crudToolbarLayout = new QHBoxLayout(crudButtonsBar);
+    crudToolbarLayout->setSpacing(6);
+    crudToolbarLayout->setContentsMargins(4, 4, 4, 4);
+    mainVl->addWidget(crudButtonsBar);
+
+    // MIDDLE - Action bar
+    QWidget* actionBar = new QWidget();
+    actionBar->setObjectName("actionBar");
+
+    QVBoxLayout * actionBarLayout = new QVBoxLayout(actionBar);
+    actionBarLayout->setSpacing(6);
+    actionBarLayout->setContentsMargins(4, 8, 4, 8);
+    actionBarLayout->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+    mainVl->addWidget(actionBar);
 
     this->installEventFilter(this);
 
@@ -45,15 +61,6 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     currentProtocolList = new CurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
     analysisCurrentProtocolList = new AnalysisCurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
 
-    QHBoxLayout * sweepInfoHl = new QHBoxLayout;
-    sweepInfoHl->setSpacing(1);
-    sweepInfoHl->setContentsMargins(1, 1, 1, 1);
-
-    protocolTimer = new TimerDisplay(this, "hh.mm.ss");
-    sweepInfoHl->addWidget(protocolTimer);
-
-    mainVl->addLayout(sweepInfoHl);
-
     QSplitter * mainSpl = new QSplitter(Qt::Vertical, this);
     mainVl->addWidget(mainSpl);
 
@@ -68,14 +75,9 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     mainSpl->setStretchFactor(1, 1);
     mainSpl->setStretchFactor(2, 3);
 
-    int btnRow = 0;
-    int btnCol = 0;
 
     addProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/add protocol.png");
-        QIcon btnIcon(btnPix);
-        addProtocolBtn->setIcon(btnIcon);
-        addProtocolBtn->setIconSize(QSize(30, 30));
+        addProtocolBtn->setObjectName("addProtocolBtn");
         addProtocolBtn->setFixedSize(32, 32);
         addProtocolBtn->setToolTip("Create a new protocol");
     }
@@ -88,13 +90,10 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             currentProtocolList->onAddProtocol();
         }
     });
-    btnLo->addWidget(addProtocolBtn, btnRow, btnCol++);
+    crudToolbarLayout->addWidget(addProtocolBtn);
 
     removeProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/remove protocol.png");
-        QIcon btnIcon(btnPix);
-        removeProtocolBtn->setIcon(btnIcon);
-        removeProtocolBtn->setIconSize(QSize(30, 30));
+        removeProtocolBtn->setObjectName("removeProtocolBtn");
         removeProtocolBtn->setFixedSize(32, 32);
         removeProtocolBtn->setToolTip("Delete the selected protocol");
     }
@@ -107,13 +106,10 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             currentProtocolList->onRemoveProtocol();
         }
     });
-    btnLo->addWidget(removeProtocolBtn, btnRow, btnCol++);
+    crudToolbarLayout->addWidget(removeProtocolBtn);
 
     editProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/edit protocol.png");
-        QIcon btnIcon(btnPix);
-        editProtocolBtn->setIcon(btnIcon);
-        editProtocolBtn->setIconSize(QSize(30, 30));
+        editProtocolBtn->setObjectName("editProtocolBtn");
         editProtocolBtn->setFixedSize(32, 32);
         editProtocolBtn->setToolTip("Edit the selected protocol");
     }
@@ -126,13 +122,10 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             currentProtocolList->onEditProtocol();
         }
     });
-    btnLo->addWidget(editProtocolBtn, btnRow, btnCol++);
+    crudToolbarLayout->addWidget(editProtocolBtn);
 
     copyProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/copy protocol.png");
-        QIcon btnIcon(btnPix);
-        copyProtocolBtn->setIcon(btnIcon);
-        copyProtocolBtn->setIconSize(QSize(30, 30));
+        copyProtocolBtn->setObjectName("copyProtocolBtn");
         copyProtocolBtn->setFixedSize(32, 32);
         copyProtocolBtn->setToolTip("Make a copy of the selected protocol");
     }
@@ -145,13 +138,10 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             currentProtocolList->onCopyProtocol();
         }
     });
-    btnLo->addWidget(copyProtocolBtn, btnRow, btnCol++);
+    crudToolbarLayout->addWidget(copyProtocolBtn);
 
     setProtocolsShortCutsBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/protocols shortcuts.png");
-        QIcon btnIcon(btnPix);
-        setProtocolsShortCutsBtn->setIcon(btnIcon);
-        setProtocolsShortCutsBtn->setIconSize(QSize(30, 30));
+        setProtocolsShortCutsBtn->setObjectName("setProtocolsShortCutsBtn");
         setProtocolsShortCutsBtn->setFixedSize(32, 32);
         setProtocolsShortCutsBtn->setToolTip("Set protocols shortcuts");
     }
@@ -174,13 +164,10 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             }
         }
     });
-    btnLo->addWidget(setProtocolsShortCutsBtn, btnRow, btnCol++);
+    crudToolbarLayout->addWidget(setProtocolsShortCutsBtn);
 
     importProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/import protocol.png");
-        QIcon btnIcon(btnPix);
-        importProtocolBtn->setIcon(btnIcon);
-        importProtocolBtn->setIconSize(QSize(30, 30));
+        importProtocolBtn->setObjectName("importProtocolBtn");
         importProtocolBtn->setFixedSize(32, 32);
         importProtocolBtn->setToolTip("Import protocols");
     }
@@ -193,13 +180,10 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             currentProtocolList->onImportProtocols();
         }
     });
-    btnLo->addWidget(importProtocolBtn, btnRow, btnCol++);
+    crudToolbarLayout->addWidget(importProtocolBtn);
 
     exportProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/export protocol.png");
-        QIcon btnIcon(btnPix);
-        exportProtocolBtn->setIcon(btnIcon);
-        exportProtocolBtn->setIconSize(QSize(30, 30));
+        exportProtocolBtn->setObjectName("exportProtocolBtn");
         exportProtocolBtn->setFixedSize(32, 32);
         exportProtocolBtn->setToolTip("Export protocols");
     }
@@ -212,81 +196,106 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
             currentProtocolList->onExportProtocols();
         }
     });
-    btnLo->addWidget(exportProtocolBtn, btnRow, btnCol++);
+    crudToolbarLayout->addWidget(exportProtocolBtn);
 
-    QWidget * spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    btnLo->addWidget(spacer, btnRow, btnCol++);
 
-    /*! New row */
-    btnRow++;
-    btnCol = 0;
+    /* ACTION BAR */
 
-    QPushButton * startProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/start protocol.png");
-        QIcon btnIcon(btnPix);
-        startProtocolBtn->setIcon(btnIcon);
-        startProtocolBtn->setIconSize(QSize(30, 30));
-        startProtocolBtn->setFixedSize(32, 32);
-        startProtocolBtn->setToolTip("Start the selected protocol");
+    // Row 1 - start/stop and timer
+    QHBoxLayout * sweepInfoHl = new QHBoxLayout;
+    sweepInfoHl->setSpacing(4);
+    sweepInfoHl->setContentsMargins(0, 0, 0, 0);
+    sweepInfoHl->setAlignment(Qt::AlignVCenter);
+    actionBarLayout->addLayout(sweepInfoHl);
+
+    QPushButton * startStopBtn = new QPushButton; {
+        startStopBtn->setObjectName("startStopBtn");
+        startStopBtn->setFixedWidth(60);
+        startStopBtn->setToolTip("Start the selected protocol");
     }
-    startProtocolBtn->setCheckable(false);
-    connect(startProtocolBtn, &QPushButton::clicked, this, [=] () {
-        this->onStartProtocol(true);
+    startStopBtn->setCheckable(true);
+    connect(startStopBtn, &QPushButton::clicked, this, [=](bool checked) {
+        if (checked) {
+            startStopBtn->setProperty("running", true);
+            this->onStartProtocol(true);
+        } else {
+            startStopBtn->setProperty("running", false);
+            this->onStartProtocol(false);
+        }
+
+        startStopBtn->style()->unpolish(startStopBtn);
+        startStopBtn->style()->polish(startStopBtn);
+    });
+    protocolTimer = new TimerDisplay(this, "hh.mm.ss");
+
+    sweepInfoHl->addStretch();
+    sweepInfoHl->addWidget(startStopBtn);
+    sweepInfoHl->addWidget(protocolTimer);
+    sweepInfoHl->addStretch();
+
+    // Decomment when needed
+    // QPushButton * restartProtocolBtn = new QPushButton; {
+    //     restartProtocolBtn->setVisible(false);
+    //     QPixmap btnPix(":/imgs/start protocol.png");
+    //     QIcon btnIcon(btnPix);
+    //     restartProtocolBtn->setIcon(btnIcon);
+    //     restartProtocolBtn->setIconSize(QSize(30, 30));
+    //     restartProtocolBtn->setFixedSize(32, 32);
+    //     restartProtocolBtn->setToolTip("Restart the selected protocol");
+    // }
+    // restartProtocolBtn->setCheckable(false);
+    // connect(restartProtocolBtn, &QPushButton::clicked, this, [=] () {
+    //     this->onRestartProtocol(true);
+    // });
+
+    // Row 2 - Segmented button
+    QHBoxLayout * segmentedLayout = new QHBoxLayout;
+    segmentedLayout->setSpacing(0);
+    segmentedLayout->setContentsMargins(4, 4, 4, 4);
+
+    actionBarLayout->addLayout(segmentedLayout);
+
+    QPushButton * btnAcquisition = new QPushButton("ACQUISITION", this);
+    btnAcquisition->setFixedSize(85, 18);
+    btnAcquisition->setCheckable(true);
+    btnAcquisition->setChecked(true);
+    btnAcquisition->setObjectName("btnAcquisition");
+
+    QPushButton * btnAnalysis = new QPushButton("ESTIMATE", this);
+    btnAnalysis->setFixedSize(85, 18);
+    btnAnalysis->setCheckable(true);
+    btnAnalysis->setObjectName("btnAnalysis");
+
+    // Exclusive buttons
+    QButtonGroup * segmentGroup = new QButtonGroup(this);
+    segmentGroup->addButton(btnAcquisition);
+    segmentGroup->addButton(btnAnalysis);
+    segmentGroup->setExclusive(true);
+
+    segmentedLayout->addStretch();
+    segmentedLayout->addWidget(btnAcquisition);
+    segmentedLayout->addWidget(btnAnalysis);
+    segmentedLayout->addStretch();
+
+    connect(btnAcquisition, &QPushButton::clicked, this, [=]() {
+        this->onSetAnalysisProtocols(false);
+    });
+    connect(btnAnalysis, &QPushButton::clicked, this, [=]() {
+        this->onSetAnalysisProtocols(true);
     });
 
-    sweepInfoHl->insertWidget(btnCol++, startProtocolBtn);
+    // Row 3 - Separation header
 
-    QPushButton * restartProtocolBtn = new QPushButton; {
-        restartProtocolBtn->setVisible(false);
-        QPixmap btnPix(":/imgs/start protocol.png");
-        QIcon btnIcon(btnPix);
-        restartProtocolBtn->setIcon(btnIcon);
-        restartProtocolBtn->setIconSize(QSize(30, 30));
-        restartProtocolBtn->setFixedSize(32, 32);
-        restartProtocolBtn->setToolTip("Retart the selected protocol");
-    }
-    restartProtocolBtn->setCheckable(false);
-    connect(restartProtocolBtn, &QPushButton::clicked, this, [=] () {
-        this->onRestartProtocol(true);
-    });
+    QFrame * protocolsHeader = new QFrame();
+    protocolsHeader->setObjectName("sectionHeaderContainer");
+    QHBoxLayout* protocolsHeaderLayout = new QHBoxLayout(protocolsHeader);
+    protocolsHeaderLayout->setContentsMargins(0, 0, 0, 0);
 
-    sweepInfoHl->insertWidget(btnCol++, restartProtocolBtn);
+    QLabel * protocolsSectionLbl = new QLabel("PROTOCOLS");
+    protocolsSectionLbl->setObjectName("sectionHeader");
+    protocolsHeaderLayout->addWidget(protocolsSectionLbl);
 
-    QPushButton * stopProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/stop protocol.png");
-        QIcon btnIcon(btnPix);
-        stopProtocolBtn->setIcon(btnIcon);
-        stopProtocolBtn->setIconSize(QSize(30, 30));
-        stopProtocolBtn->setFixedSize(32, 32);
-        stopProtocolBtn->setToolTip("Stop the protocol currently running");
-    }
-    stopProtocolBtn->setCheckable(false);
-    connect(stopProtocolBtn, &QPushButton::clicked, this, [=] () {
-        this->onStartProtocol(false);
-    });
-
-    sweepInfoHl->insertWidget(btnCol++, stopProtocolBtn);
-
-    QPushButton * analysisProtocolBtn = new QPushButton; {
-        QPixmap btnPix(":/imgs/data monitor.png");
-        QIcon btnIcon(btnPix);
-        analysisProtocolBtn->setIcon(btnIcon);
-        analysisProtocolBtn->setIconSize(QSize(30, 30));
-        analysisProtocolBtn->setFixedSize(32, 32);
-        analysisProtocolBtn->setToolTip("Show/Hide protocols that perform analyses");
-    }
-    analysisProtocolBtn->setCheckable(true);
-    analysisProtocolBtn->setChecked(false);
-    connect(analysisProtocolBtn, &QPushButton::clicked, this, &ProtocolDockWidget::onSetAnalysisProtocols);
-
-    sweepInfoHl->insertWidget(btnCol++, analysisProtocolBtn);
-
-    {
-        QWidget * spacer = new QWidget;
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sweepInfoHl->insertWidget(btnCol++, spacer);
-    }
+    actionBarLayout->addWidget(protocolsHeader);
 
     QShortcut * sh;
     QKeyCombination startKeyOffset = Qt::ControlModifier | Qt::Key_0;
@@ -308,6 +317,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
 //        });
 //        shortcuts.append(sh);
     }
+
 }
 
 ProtocolDockWidget::~ProtocolDockWidget() {
