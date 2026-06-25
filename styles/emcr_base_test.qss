@@ -1383,6 +1383,20 @@ QPushButton#copyButton{
 /* --- SINGLE CHANNEL CONTROLS ---                                           */
 /* ========================================================================= */
 
+QFrame#operationHeader{
+    background: @BG_APP;
+    border-left: 1px solid @BORDER_PANEL;
+    border-right: 1px solid @BORDER_PANEL;
+    border-bottom: 0.5px solid @TABLE_HEADER;
+}
+
+QFrame#operationHeader QLabel {
+    color: @TEXT_SECONDARY; 
+    font-size: 10px; 
+    font-weight: bold; 
+    letter-spacing: 0.5px; 
+}
+
 QDockWidget#singleChannelControlsDw{
     background: @BG_PANEL;
 }

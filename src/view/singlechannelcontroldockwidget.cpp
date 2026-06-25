@@ -23,7 +23,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
         if (isFloating) {
-            centralWidget->setStyleSheet("#singleChannelCentralWidget { border: none; }"
+            centralWidget->setStyleSheet("#operationHeader { border-left: none; border-right: none; }"
                                          "#operationContainer { border-left: none; border-right: none; }"
                                          "#operationButtonWidget { border-left: none; border-right: none; }"
                                          "#customFooter {border-left: none; border-right: none; border-bottom: none;}"
@@ -47,15 +47,28 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     operationTitles[OperationFinalStimulusRamp] = "Ramp final stimulus";
     operationTitles[OperationDurationRamp] = "Ramp duration";
 
-    QFrame* operationHeader = new QFrame();
-    operationHeader->setObjectName("operationContainer");
-    QHBoxLayout* operationHeaderLayout = new QHBoxLayout(operationHeader);
-    operationHeaderLayout->setContentsMargins(8, 4, 8, 4);
+    QFrame* operationContainer = new QFrame();
+    operationContainer->setObjectName("operationContainer");
+    QHBoxLayout* operationContainerLayout = new QHBoxLayout(operationContainer);
+    operationContainerLayout->setContentsMargins(8, 4, 8, 4);
 
     operationCbx = new QComboBox;
     operationCbx->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     operationCbx->setObjectName("operationCbx");
-    operationHeaderLayout->addWidget(operationCbx);
+    operationContainerLayout->addWidget(operationCbx);
+    externalLayout->addWidget(operationContainer);
+
+    QFrame * operationHeader = new QFrame();
+    operationHeader->setObjectName("operationHeader");
+    QHBoxLayout* operationHeaderLayout = new QHBoxLayout(operationHeader);
+    operationHeaderLayout->setContentsMargins(10, 10, 48, 10);
+
+    auto channelHeader = new QLabel("Channel");
+    auto operationHeaderL = new QLabel("Value");
+
+    operationHeaderLayout->addWidget(channelHeader);
+    operationHeaderLayout->addStretch();
+    operationHeaderLayout->addWidget(operationHeaderL);
     externalLayout->addWidget(operationHeader);
 
     setAllChannelsSbxs.resize(OperationsNum);
