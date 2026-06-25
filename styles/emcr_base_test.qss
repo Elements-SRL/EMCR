@@ -1196,6 +1196,12 @@ QLabel#finalSamplingRateLbl {
     font-weight: bold;
 }
 
+/* Used when Digital Filter is forced off */
+QWidget#filterSectionContainer QComboBox:disabled,
+QWidget#filterSectionContainer QDoubleSpinBox:disabled {
+    background: @TEXT_MUTED;
+}
+
 
 /* ---  COLLAPSIBLE SECTION --- */
 

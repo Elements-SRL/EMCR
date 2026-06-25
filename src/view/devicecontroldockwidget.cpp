@@ -334,6 +334,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     /* DIGITAL FILTER */
     QFrame* filterSectionContainer = new QFrame();
+    filterSectionContainer->setObjectName("filterSectionContainer");
 
     QVBoxLayout * filterSectionLayout = new QVBoxLayout(filterSectionContainer);
     filterSectionLayout->setContentsMargins(0, 0, 0, 0);
@@ -397,7 +398,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     filterHeaderOutputLayout->addStretch();
     filterHeaderOutputLayout->addWidget(finalBandwidthLbl);
 
-    //filterSectionLayout->addWidget(filterHeaderOutput);
     scrollLayout->addWidget(filterSectionContainer);
 
     // Stiky bottom footer
@@ -801,7 +801,7 @@ QGroupBox * DeviceControlDockWidget::setupGroupBox(std::string title, QVBoxLayou
     return gb;
 }
 
-/* Manages downsapling widget visibility */
+/* Manages downsampling widget visibility */
 void DeviceControlDockWidget::setDownsamplingVisualState(bool checked, int value, bool spinboxEnabled) {
     downsamplingToggle->setChecked(checked);
     downsamplingRatioSbx->setValue(value);
