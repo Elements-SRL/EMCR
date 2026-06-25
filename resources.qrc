@@ -92,5 +92,22 @@
         <file>theme/dark/icons/copy.svg</file>
         <file>theme/light/icons/copy.svg</file>
         <file>theme/light/icons/export_csv.svg</file>
+        <file>theme/dark/icons/edit.svg</file>
+        <file>theme/dark/icons/export.svg</file>
+        <file>theme/dark/icons/import.svg</file>
+        <file>theme/dark/icons/minus.svg</file>
+        <file>theme/dark/icons/plus.svg</file>
+        <file>theme/dark/icons/start.svg</file>
+        <file>theme/dark/icons/stop.svg</file>
+        <file>theme/dark/icons/shortcut.svg</file>
+        <file>theme/light/icons/export.svg</file>
+        <file>theme/light/icons/minus.svg</file>
+        <file>theme/light/icons/plus.svg</file>
+        <file>theme/light/icons/shortcut.svg</file>
+        <file>theme/light/icons/start.svg</file>
+        <file>theme/light/icons/stop.svg</file>
+        <file>theme/light/icons/edit.svg</file>
+        <file>theme/light/icons/import.svg</file>
+        <file>theme/dark/icons/recording.svg</file>
     </qresource>
 </RCC>
