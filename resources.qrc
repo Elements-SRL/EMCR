@@ -109,5 +109,13 @@
         <file>theme/light/icons/edit.svg</file>
         <file>theme/light/icons/import.svg</file>
         <file>theme/dark/icons/recording.svg</file>
+        <file>theme/dark/icons/horizontal_splitter.svg</file>
+        <file>theme/dark/icons/vertical_splitter.svg</file>
+        <file>theme/light/icons/horizontal_splitter.svg</file>
+        <file>theme/light/icons/vertical_splitter.svg</file>
+        <file>theme/dark/icons/record.svg</file>
+        <file>theme/light/icons/record.svg</file>
+        <file>theme/dark/imgs/gap free icon.png</file>
+        <file>theme/light/imgs/gap free icon.png</file>
     </qresource>
 </RCC>
