@@ -388,7 +388,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
             basicContentFrame->setVisible(!checked);
             expertContentFrame->setVisible(checked);
             offsetCorrectionMode->setText(checked ? "Basic mode ▲" : "Expert mode ▼");
-            this->setMinimumWidth(mainWrapper->sizeHint().width() + 8);
+            this->setMinimumWidth(mainWrapper->sizeHint().width() + 20);
         });
     }
 

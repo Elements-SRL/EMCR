@@ -60,8 +60,7 @@ QLabel:disabled {
     color: @TEXT_MUTED;
 }
 
-
-/* Valori Numerici e Dati */
+/* Orange color - use for technical-like data */
 QWidget[technical="true"] {
     font-family: "Inria Sans";
     font-size: 13px;
@@ -87,6 +86,32 @@ QGroupBox::title {
     padding: 0 3px;
 }
 
+QSplitter::handle {
+    background-color: @ITEM_SELECTED;
+    border: 1px solid @BORDER_PANEL;
+}
+
+QSplitter::handle:vertical {
+    border-left: none;
+    border-bottom: none;
+    height: 4px;
+    image: url(@ICON_PREFIX/horizontal_splitter.svg);
+}
+
+QSplitter::handle:horizontal {
+    border-top: none;
+    border-bottom: none;
+    width: 4px;
+    image: url(@ICON_PREFIX/vertical_splitter.svg);
+}
+
+QSplitter::handle:hover {
+    background-color: @ACCENT_LBLUE;
+}
+
+QSplitter::handle:pressed {
+    background-color: @ACCENT_LBLUE;
+}
 
 /* --- INPUTS & WIDGETS --- */
 
@@ -318,58 +343,6 @@ QSlider::handle:horizontal {
     border-radius: 6px;
 }
 
-
-/* --- SCROLLBAR --- */
-
-/* QScrollBar {
-  border-radius: 0;
-  font-size: 13pt;
-}
-
-QScrollBar:vertical {
-  border-left: 1px solid #1c1c1c;
-  width: 10px;
-}
-
-QScrollBar:horizontal {
-  border-top: 1px solid #1c1c1c;
-  height: 10px;
-}
-
-QScrollBar::handle {
-  margin: -1px;
-  background: #666666;
-  border: 1px solid #1c1c1c;
-  border-radius: 4px;
-}
-
-QScrollBar::handle:vertical {
-  min-height: 40px;
-}
-
-QScrollBar::handle:horizontal {
-  min-width: 40px;
-}
-
-QScrollBar::handle:hover {
-  background: #888;
-}
-
-QScrollBar::left-arrow,
-QScrollBar::right-arrow,
-QScrollBar::up-arrow,
-QScrollBar::down-arrow,
-QScrollBar::sub-line,
-QScrollBar::add-line,
-QScrollBar::add-page,
-QScrollBar::sub-page {
-  background: #2e2e2e;
-  height: 0;
-  width: 0;
-  border-radius: 0;
-  border: 0;
-} */
-
 /* ========================================================================= */
 /* --- SCROLLBAR ---                                                         */
 /* ========================================================================= */
@@ -573,7 +546,7 @@ QPushButton#windowClose:hover, QPushButton#windowExpand:hover {
     color: @TEXT_LIGHT;
 }
 
-/* Header di sezione */
+/* Header */
 QLabel#sectionHeader {
     color: @TEXT_SECONDARY;
     font-weight: 300;
@@ -589,7 +562,7 @@ QFrame#sectionHeaderContainer {
     spacing: 10
 }
 
-/* Badge delle proprietà (E, X, P, etc.) */
+/* Properties (E, X, P, etc.) */
 QLabel#propertyBadge{
     background-color: @ACCENT_BLUE;
     color: @BG_PANEL;
@@ -639,7 +612,7 @@ QLabel#featureOffCounter{
     padding-right: 4px;
 }
 
-/* Switches ed elementi Toggle */
+/* Switches & Toggle - custom switch */
 QLabel#activationSwitch { qproperty-alignment: 'AlignCenter'; }
 QLabel#activationSwitch[checked="false"] { qproperty-pixmap: url("@ICON_PREFIX/toggle_off.svg"); }
 QLabel#activationSwitch[checked="true"] { qproperty-pixmap: url("@ICON_PREFIX/toggle_on.svg"); }
@@ -702,7 +675,6 @@ QLabel#summaryCellName {
     font-weight: bold;
 }
 
-/* Valore cella del Summary */
 QLabel#summaryCellValue {
     font-size: 10px;
     font-weight: bold;
@@ -711,7 +683,8 @@ QLabel#summaryCellValue[status="on"] { color: @BDG_E_FG; }
 QLabel#summaryCellValue[status="auto"] { color: @ACCENT_LBLUE; }
 QLabel#summaryCellValue[status="offline"] { background: transparent; }
 
-/* Pulsante di Toggle Modalità */
+
+/* EXPERT - BASIC mode switch */
 #modeToggleBtn {
     background: transparent;
     color: @TEXT_SECONDARY;
@@ -719,9 +692,13 @@ QLabel#summaryCellValue[status="offline"] { background: transparent; }
     font-size: 10px;
     padding: 0px 5px;
 }
-#modeToggleBtn:hover { color: @ACCENT_LBLUE; }
+#modeToggleBtn:hover { 
+    border-left: 1px solid transparent;
+    border-radius: 4px;
+    background: @BG_BTN_HOVER;
+    color: @ACCENT_LBLUE; 
+}
 
-/* Label delle righe Expert */
 #offsetRowLabel {
     color: @TEXT_MAIN;
     font-size: 10px;
@@ -733,7 +710,7 @@ QFrame#modeContainer {
     border: none;
 }
 
-/* Pulsanti START/STOP nella modalità Basic */
+/* Start/stop buttons in mode container (Basic/expert switch) */
 QFrame#modeContainer QPushButton {
     background-color: @BG_BTN;
     border: 1px solid @BORDER_INPUT;
@@ -741,6 +718,7 @@ QFrame#modeContainer QPushButton {
     color: @TEXT_MAIN;
     font-size: 10px;
 }
+
 QFrame#modeContainer QPushButton:hover { background-color: @BG_BTN_HOVER; }
 QFrame#modeContainer QPushButton:pressed {
     background-color: @BG_BTN_PRESS;
@@ -818,7 +796,7 @@ QLabel#appNameLbl{
 
 QLabel#appVersionLbl{
     background: none;
-    color: #717D96; 
+    color: @TEXT_TERTIARY; 
     font-weight: light; 
     font-size: 12px; 
     font-family: "Inter", sans-serif;
@@ -826,15 +804,15 @@ QLabel#appVersionLbl{
 
 QLabel#statusLbl{
     background: none;
-    color: #CBD2E0; 
+    color: @TEXT_SECONDARY; 
     font-size: 12px; 
-    font-weight: semi-bold;
+    font-weight: 600;
     font-family: "Inter", sans-serif;
 }
 
 QLabel#copyrightLbl{
     background: none;
-    color: #717D96; 
+    color: @TEXT_TERTIARY; 
     font-weight: light; 
     font-size: 11px; 
     line-height: 15px; 
@@ -940,6 +918,15 @@ QTabWidget#bigPlotTabWidget QTabBar::tab:hover:!selected {
     color: @TEXT_MAIN;
 }
 
+QPushButton#startButton {
+    qproperty-icon: url(@ICON_PREFIX/start.svg);
+    qproperty-iconSize: 14px;
+}
+
+QPushButton#stopButton {
+    qproperty-icon: url(@ICON_PREFIX/stop.svg);
+    qproperty-iconSize: 14px;
+}
 
 /* ========================================= */
 /* --- CONNECTION DEVICE  ---                */
@@ -1066,7 +1053,7 @@ QWidget#stampPlotCard[status="default"] {
 
 QWidget#stampPlotCard[status="selected"] {
     background-color: @BG_BTN_HOVER;
-    border: 2px solid @SELECTION_BLUE;
+    border: 2px solid @ACCENT_BLUE;
     border-radius: 6px;
 }
 
@@ -1402,10 +1389,21 @@ QWidget#scrollWidget{
 
 QPushButton#exportCsvButton{
     qproperty-icon: url(@ICON_PREFIX/export_csv.svg);
+    qproperty-iconSize: 14px;
 }
 
 QPushButton#copyButton{
     qproperty-icon: url(@ICON_PREFIX/copy.svg);
+}
+
+QPushButton#startRecordingButton{
+     qproperty-icon: url(@ICON_PREFIX/record.svg);
+     qproperty-iconSize: 14px;
+}
+
+QPushButton#startRecordingButton[running="true"] {
+    qproperty-icon: url(@ICON_PREFIX/recording.svg);
+    qproperty-iconSize: 14px;
 }
 
 
@@ -1724,4 +1722,15 @@ ColorSelectionButton {
     color: @TEXT_MAIN;
     font-weight: bold;
     padding: 4px;
+}
+
+
+/* ========================================================================= */
+/* --- COMPENSATION CONTROLS                                                 */
+/* ========================================================================= */
+
+QFrame#compensationControlsScrollContainer{
+    background: @BG_APP;
+    border-left: 1px solid @BORDER_PANEL;
+    border-right: 1px solid @BORDER_PANEL;
 }

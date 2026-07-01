@@ -754,7 +754,6 @@ void MainWindow::showHideConnectedDevice(bool flag){
         if (logoLabel) logoLabel->setVisible(false);
         this->connectionDeviceStack->setCurrentIndex(1);
 
-        // TODO update via QSS
         QString connected = QString("%1 <span style='color:#4CAF50;'>●</span>").arg(getSelectedSerialNumber());
         this->deviceConnectedLbl->setText(connected);
 

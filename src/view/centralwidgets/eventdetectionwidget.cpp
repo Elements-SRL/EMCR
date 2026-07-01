@@ -59,9 +59,9 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     QLabel* minDurationLabel = new QLabel("Minimum event duration");
     QLabel* maxDurationLabel = new QLabel("Maximum event duration");
     minDurationInus = new QDoubleSpinBox();
-    minDurationInus->setSuffix("us");
+    minDurationInus->setSuffix(" us");
     maxDurationInus = new QDoubleSpinBox();
-    maxDurationInus->setSuffix("us");
+    maxDurationInus->setSuffix(" us");
     QLabel* amplitudeBinsLabel = new QLabel("Number of amplitude bins");
     amplitudeBins = new QSpinBox();
     QLabel* durationBinsLabel = new QLabel("Number of duration bins");
@@ -75,19 +75,19 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     analysisGroupBox->setLayout(analysisHBoxLayout);
 
     startButton = new QPushButton(this);
-    startButton->setIcon(QIcon(QPixmap(":/imgs/start protocol.png")));
+    startButton->setObjectName("startButton");
     startButton->setToolTip("Start the event detection");
     analysisHBoxLayout->addWidget(startButton);
 
     stopButton = new QPushButton(this);
-    stopButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
+    stopButton->setObjectName("stopButton");
     stopButton->setToolTip("Stop the event detection");
     analysisHBoxLayout->addWidget(stopButton);
 
     maxAmplitude->setValue(defaultMaxAmplitude);
     QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency");
     cutoffFrequencySpinbox = new QDoubleSpinBox();
-    cutoffFrequencySpinbox->setSuffix("Hz");
+    cutoffFrequencySpinbox->setSuffix(" Hz");
     cutoffFrequencySpinbox->setMinimum(LOW_CUTOFF_FREQUENCY);
     cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
     cutoffFrequencySpinbox->setValue(defaultSamplingRate);
@@ -176,12 +176,12 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     recordingVBoxLayout->addLayout(qhBoxLayout);
 
     startRecordingButton = new QPushButton(this);
-    startRecordingButton->setIcon(QIcon(QPixmap(":/imgs/record protocol.png")));
+    startRecordingButton->setObjectName("startRecordingButton");
     startRecordingButton->setToolTip("Start the recording");
     qhBoxLayout->addWidget(startRecordingButton);
 
     stopRecordingButton = new QPushButton(this);
-    stopRecordingButton->setIcon(QIcon(QPixmap(":/imgs/stop protocol.png")));
+    stopRecordingButton->setObjectName("stopButton");
     stopRecordingButton->setToolTip("Stop the recording");
     qhBoxLayout->addWidget(stopRecordingButton);
 
@@ -398,7 +398,7 @@ void EventDetectionWidget::setMaxAmplitude(double value) {
 
 void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
     amplitudeUom = cr.getFullUnit();
-    maxAmplitude->setSuffix(QString::fromStdString(amplitudeUom));
+    maxAmplitude->setSuffix(" " + QString::fromStdString(amplitudeUom));
     maxAmplitude->setMaximum(cr.max);
     bottomLeftPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
     bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
@@ -424,19 +424,17 @@ void EventDetectionWidget::setCutoffFrequency(double sr) {
 
 void EventDetectionWidget::setRecordingStatus(bool status) {
     if (status) {
-        QPixmap pixmapRecors("://imgs/recording protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        startRecordingButton->setIcon(recordIcon);
+        startRecordingButton->setProperty("running", true);
         startRecordingButton->setEnabled(false);
         fileNameLineEdit->setEnabled(false);
         browseBtn->setEnabled(false);
     }
     else {
-        QPixmap pixmapRecors("://imgs/record protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        startRecordingButton->setIcon(recordIcon);
+        startRecordingButton->setProperty("running", false);
         startRecordingButton->setEnabled(true);
         fileNameLineEdit->setEnabled(true);
         browseBtn->setEnabled(true);
     }
+    startRecordingButton->style()->unpolish(startRecordingButton);
+    startRecordingButton->style()->polish(startRecordingButton);
 }

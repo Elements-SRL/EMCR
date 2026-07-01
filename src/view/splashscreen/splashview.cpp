@@ -9,7 +9,7 @@
 
 SplashView::SplashView(QWidget *parent) : QWidget(parent, Qt::Window)
 {
-    setFixedSize(1000, 450);
+    setFixedSize(1000, 380);
     setupUi();
     move(QGuiApplication::primaryScreen()->geometry().center() - rect().center());
 }
@@ -49,7 +49,7 @@ void SplashView::setupUi()
 
     // --- BOTTOM AREA: Copyright
     splashLayout->addStretch();
-    QLabel *copyrightLbl = new QLabel("Copyright 2025-2026 by Elements s.r.l\nSupport at info@elements-ic.com");
+    QLabel *copyrightLbl = new QLabel("Copyright 2025-2026 by Elements s.r.l\nSupport at info@elements-ic.com\nPowered by Qt");
     copyrightLbl->setObjectName("copyrightLbl");
     splashLayout->addWidget(copyrightLbl);
 
