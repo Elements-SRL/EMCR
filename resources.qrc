@@ -55,7 +55,6 @@
         <file>fonts/Inter.ttc</file>
         <file>imgs/EMCR splash background.png</file>
         <file>styles/emcr_base.qss</file>
-        <file>styles/emcr_base_test.qss</file>
         <file>imgs/splash01.png</file>
         <file>imgs/logo_with_name_white.png</file>
         <file>theme/dark/icons/3_dots_bounce.svg</file>

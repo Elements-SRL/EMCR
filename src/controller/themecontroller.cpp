@@ -14,7 +14,7 @@ ThemeController& ThemeController::getInstance() {
 
 void ThemeController::applyTheme(Theme theme) {
     this->currentTheme = theme;
-    QString qssPath = ":/styles/emcr_base_test.qss";
+    QString qssPath = ":/styles/emcr_base.qss";
     QString processedQss = loadAndProcessQss(qssPath, theme);
     qApp->setStyleSheet(processedQss);
 
