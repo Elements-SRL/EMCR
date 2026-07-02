@@ -471,7 +471,6 @@ void MultipleChannelControlDockWidget::updateFeatureDetail(const ChannelProperty
     }
 }
 
-//TODO QSS
 void MultipleChannelControlDockWidget::setSelectionCount(int count, int totalChannels) {
     m_selectionCounterLabel->setText(QString(
         "<span style='color:#0078d4;'>●</span> %1 Selected "
