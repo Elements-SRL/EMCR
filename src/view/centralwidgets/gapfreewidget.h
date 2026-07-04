@@ -14,6 +14,7 @@ class GapFreeWidget : public QWidget {
 private:
     QLineEdit* fileNameLineEdit;
     QLineEdit* recordPathLineEdit;
+    QPushButton* browseBtn;
     QPushButton* recordingStopBtn;
     QPushButton* recordingStartBtn;
     void emitFileName();

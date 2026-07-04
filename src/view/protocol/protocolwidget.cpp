@@ -4,6 +4,7 @@
 #include <QMessageBox>
 
 #include "protocolutils.h"
+#include "themecontroller.h"
 
 ProtocolWidget::ProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
     QListWidgetItem(),
@@ -823,7 +824,7 @@ void ProtocolWidget::onPropertyChanged() {
 
 GapfreeProtocolWidget::GapfreeProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
 ProtocolWidget(msgDisp, name, dialog, type,clampingModality) {
-    QString iconString = ":imgs/gap free icon.png";
+    QString iconString = ThemeController::getInstance().imgsPath() + "/gap free icon.png";
     QIcon icon;
     icon.addPixmap(iconString);
     this->setIcon(icon);

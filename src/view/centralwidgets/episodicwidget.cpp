@@ -17,7 +17,6 @@ EpisodicWidget::EpisodicWidget(BigPlot* plot, QWidget* parent):
     auto outerLayout = new QVBoxLayout(this);
     QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
     outerLayout->addWidget(splitter);
-    splitter->setHandleWidth(20);
     splitter->addWidget(plot);
 
     auto sideWidget = new QWidget(splitter);

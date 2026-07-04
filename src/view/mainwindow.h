@@ -11,6 +11,7 @@
 #include "messagedispatcher.h"
 #include "chessboarddockwidget.h"
 #include "devicecontroldockwidget.h"
+#include "qstackedwidget.h"
 #include "singlechannelcontroldockwidget.h"
 #include "multiplechannelcontroldockwidget.h"
 #include "boardcontroldockwidget.h"
@@ -51,6 +52,7 @@ public:
 
     void setMessageDispatcher(MessageDispatcher * msgDisp);
     QPushButton * getConnectButton();
+    QPushButton * getDisconnectButton();
     QString getSelectedSerialNumber();
     BigPlotWidget * getBigPlotWidget();
     QDockWidget * getDockWidget(DockWidgets_t type);
@@ -60,6 +62,7 @@ public:
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
     void setConnectionLabel(QString text, bool errorFlag = false);
+    void showHideConnectedDevice(bool flag);
 
     void setBigPlotWidget(BigPlotWidget * widget);
     void setDockWidget(DockWidgets_t type, QDockWidget * widget, bool floatingFlag = true, Qt::DockWidgetArea area = Qt::RightDockWidgetArea);
@@ -68,6 +71,7 @@ public:
     void removeViewActions();
     void restoreUISettings();
     void saveUISettings();
+    void disconnectDevice();
 
 public slots:
     void onNeedToChangeModelCellMsg(QString msg);
@@ -81,16 +85,19 @@ private:
         AboutDlg,
         DeviceInfoDlg,
         SupportDlg,
-        ReleaseNotesDlg
+        ReleaseNotesDlg,
+        ConfirmExitDlg
     } Dialogs_t;
 
     void createGuiControls();
     void destroyGuiControls();
+    void setupDeviceConnectionGui(QFrame * container);
 
     MessageDispatcher * msgDisp = nullptr;
     QMenu * menuView = nullptr;
     QMenu * menuRecordings = nullptr;
     QMenu * menuPreferences = nullptr;
+    QMenu * menuTheme = nullptr;
     QMenu * menuAdvanced = nullptr;
     QMenu * menuHwReset = nullptr;
     QMenu * menuQuestionMark = nullptr;
@@ -102,6 +109,9 @@ private:
 
     QAction * actionPlotPreferences = nullptr;
     QAction * actionBoardMapping = nullptr;
+    QAction * actionDarkTheme = nullptr;
+    QAction * actionLightTheme = nullptr;
+    QActionGroup * themeActionGroup = nullptr;
 
     QAction * actionUpgradeFw = nullptr;
     QAction * actionHwReset = nullptr;
@@ -112,16 +122,23 @@ private:
     QAction * actionSupport = nullptr;
     QAction * actionReleaseNotes = nullptr;
 
+    QLabel * deviceConnectedLbl = nullptr;
     QLabel * SRLbl = nullptr;
     QLabel * onTimeLbl = nullptr;
 
+    QWidget * centralWrapper = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
     RecordSettingsDialog * recordSettingsDialog = nullptr;
     PlotPreferencesDialog * plotPreferencesDlg = nullptr;
     SpectrumWidget * spectrumWidget = nullptr;
 
+    QStackedWidget * connectionDeviceStack = nullptr;
+    QFrame * deviceViewer = nullptr;
     QComboBox * devicesComboBox = nullptr;
     QPushButton * connectBtn = nullptr;
+    QPushButton * disconnectBtn = nullptr;
+
+    // TODO REMOVE
     QLabel * connectionInfoLbl;
 
     int voltageChannelsNum = 1;
@@ -133,11 +150,13 @@ private:
 private slots:
     void onOpenDialog(Dialogs_t type);
     void onRearrangeView();
+    void onThemeSelected();
 
 signals:
     void sigModelCellChanged(bool modelCellChanged);
     void sigBoardMappingFileChoosen(QString filename);
     void sigUpgradeFw();
     void sigResetHw();
+    void confirmDisconnectDevice();
 };
 #endif // MAINWINDOW_H

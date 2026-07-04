@@ -7,8 +7,54 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QMap>
+#include <QString>
 
 #include "messagedispatcher.h"
+#include "autotoggle.h"
+
+
+enum ChannelProperty {
+    EXPAND,
+    PLOT_DETAIL,
+    CH_INPUT,
+    STIMULUS,
+    RECALIBRATION,
+    LIQUID_JUNCTION,
+    CALIB_RESISTORS
+
+};
+
+static QMap<ChannelProperty, QString> channelPropertyId = {
+    {EXPAND, "EXP"},
+    {PLOT_DETAIL, "PLT"},
+    {CH_INPUT, "CHI"},
+    {STIMULUS, "STI"},
+    {RECALIBRATION, "REC"},
+    {LIQUID_JUNCTION, "LQJ"},
+    {CALIB_RESISTORS, "CLR"}
+};
+
+static QMap<ChannelProperty, QString> channelPropertyBadge = {
+    {EXPAND, "E"},
+    {PLOT_DETAIL, "P"},
+    {CH_INPUT, "O"},
+    {STIMULUS, "X"},
+    {RECALIBRATION, "C"},
+    {LIQUID_JUNCTION, "J"},
+    {CALIB_RESISTORS, "R"}
+};
+
+static QMap<ChannelProperty, QString> channelPropertyName = {
+    {EXPAND, "Expand Trace"},
+    {PLOT_DETAIL, "Plot Detail"},
+    {CH_INPUT, "Channel Input"},
+    {STIMULUS, "Stimulus"},
+    {RECALIBRATION, "Recalibration"},
+    {LIQUID_JUNCTION, "Liquid Junction"},
+    {CALIB_RESISTORS, "Calibration Resistors"}
+
+};
 
 class MultipleChannelControlDockWidget : public QDockWidget {
     Q_OBJECT
@@ -22,6 +68,10 @@ public:
     void setPlotDetailAuto(bool flag);
     bool getExpertMode();
     void enableExpertMode(bool flag);
+    void setSelectionCount(int count, int totalChannels);
+    void updateSummary(const ChannelProperty &propertyType, const QString &text, const QString &status);
+    void updateFeatureDetail(const ChannelProperty &propertyType, int onCount, int offCount, bool isAuto, bool isEmpty);
+    void enableDisableControls(ChannelProperty propertyType, bool flag);
 
 public slots:
     void onSetClampingModality(ClampingModality_t clampingModality);
@@ -31,16 +81,16 @@ private:
 
     QPushButton * switchChannelsOnBtn = nullptr;
     QPushButton * switchChannelsOffBtn = nullptr;
-    QPushButton * switchChannelsAutoBtn = nullptr;
+    AutoToggle * switchChannelsAutoBtn = nullptr;
     QPushButton * calibrationResistorsOnBtn = nullptr;
     QPushButton * calibrationResistorsOffBtn = nullptr;
     QPushButton * turnStimulusOnBtn = nullptr;
     QPushButton * turnStimulusOffBtn = nullptr;
-    QPushButton * turnStimulusAutoBtn = nullptr;
+    AutoToggle * turnStimulusAutoBtn = nullptr;
     QPushButton * zapBtn = nullptr;
     QPushButton * offsetCorrectionStartBtn = nullptr;
     QPushButton * offsetCorrectionStopBtn = nullptr;
-    QCheckBox * offsetCorrectionExpertChb = nullptr;
+    QPushButton * offsetCorrectionMode = nullptr;
     QPushButton * offsetRecalibrationOnBtn = nullptr;
     QPushButton * offsetRecalibrationOffBtn = nullptr;
     QPushButton * offsetRecalibrationResetBtn = nullptr;
@@ -49,9 +99,15 @@ private:
     QPushButton * liquidJunctionCompensationResetBtn = nullptr;
     QPushButton * expandTraceBtn = nullptr;
     QPushButton * reduceTraceBtn = nullptr;
-    QPushButton * expandTraceAutoBtn = nullptr;
-    QPushButton * plotDetailAutoBtn = nullptr;
+    AutoToggle * expandTraceAutoBtn = nullptr;
+    AutoToggle * plotDetailAutoBtn = nullptr;
+    QPushButton * expandChannelDetailBtn = nullptr;
+    QPushButton * reduceChannelDetailBtn = nullptr;
     QGroupBox * zapGb = nullptr;
+    QLabel * m_selectionCounterLabel = nullptr;
+    std::map<QString, QLabel*> m_summaryLabels;
+    std::map<QString, QLabel*> m_featureOnLabels;
+    std::map<QString, QLabel*> m_featureOffLabels;
 
 signals:
     void sigTurnChannelOn();

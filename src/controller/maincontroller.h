@@ -28,6 +28,7 @@
 #include "temperaturecontroller.h"
 #include "debugcontroller.h"
 #include "plotdetailcontroller.h"
+#include "splashscreen/splashview.h"
 
 class MainController : public QObject {
     Q_OBJECT
@@ -37,10 +38,12 @@ public:
     ~MainController();
 
     void setMainWindow(MainWindow * mainWindow);
+    void setSplash(SplashView *s);
 
 public slots:
     void onDevicesListChanged(std::vector <std::string> devicesList);
     void onConnect(bool flag);
+    void onDisconnect();
     void onUpgradeFw();
     void onResetHw();
     void onDeviceConnected(ErrorCodes_t ret);
@@ -54,15 +57,20 @@ public slots:
     void onSamplingRateSelected(int idx);
     void onDownsamplingRatioSelected(int idx);
     void onClampingModalitySelected(ClampingModality_t mode);
+    void onThemeUpdated();
 
 private:
     void startProducer();
     void stopAndDestroyProducerConsumers();
     void destroyControllers();
+    void checkReadyToSwitchFromSplash();
 
     MessageDispatcher * msgDisp = nullptr;
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow = nullptr;
+    SplashView *splash = nullptr;
+    bool introMinDurationPassed = false;
+    bool firstDeviceScanDone = false;
 
     DeviceDetector * deviceDetector = nullptr;
     QThread deviceDetectorThread;

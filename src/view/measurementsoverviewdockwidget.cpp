@@ -4,6 +4,8 @@
 #include <QScrollArea>
 #include <QHeaderView>
 #include <QFileDialog>
+#include <QCoreApplication>
+#include <QKeyEvent>
 
 MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint16_t> activeChannels, int voltageChannels, int currentChannels, QWidget * parent) :
     QDockWidget(parent),
@@ -17,24 +19,44 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     setObjectName("measurementsOverviewDW");
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    // Create a scroll area
-    QScrollArea* scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true); // Allow the widget inside the scroll area to resize with the scroll area
-    setWidget(scrollArea);
+    QWidget * centralWidget = new QWidget();
+    centralWidget->setObjectName("measurementsCentralWidget");
+    QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
+    externalLayout->setContentsMargins(0, 0, 0, 0);
+    externalLayout->setSpacing(0);
 
-    // Create a widget for the scroll area
-    QWidget* scrollWidget = new QWidget();
-    scrollArea->setWidget(scrollWidget);
+    setWidget(centralWidget);
 
-    mainVl = new QVBoxLayout(scrollWidget);
-    mainVl->setContentsMargins(0, 0, 0, 0);
-    mainVl->setSpacing(1);
+    // Window border management when floating
+    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
+        if (isFloating) {
+            centralWidget->setStyleSheet("#measurementsScrollContainer { border: none; }"
+                                         "#customTitleBar { border-left: none; border-right: none; }");
+        } else {
+            centralWidget->setStyleSheet("");
+        }
+    });
+
+    // Create a scroll widget
+    // Scroll area is embedded in CopyableTable
+    QFrame * scrollWidget = new QFrame();
+    scrollWidget->setObjectName("measurementsScrollContainer");
+    auto scrollLayout = new QGridLayout(scrollWidget);
+    scrollWidget->setContentsMargins(0, 0, 0, 0);
+    scrollLayout->setSizeConstraint(QLayout::SetNoConstraint);
+
+    // TOP BAR
+    QWidget* customTitleBar = new QWidget();
+    customTitleBar->setObjectName("customTitleBar");
+    QHBoxLayout* topBarLayout = new QHBoxLayout(customTitleBar);
+    topBarLayout->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
 
     auto exportButton = new QPushButton(this);
-    exportButton->setIcon(QIcon(QPixmap(":/imgs/export protocol.png")));
+    exportButton->setObjectName("exportCsvButton");
+    exportButton->setText(" Export");
     exportButton->setToolTip("Export to csv");
-    exportButton->setIconSize(QSize(30, 30));
-    exportButton->setFixedSize(32, 32);
+    exportButton->setIconSize(QSize(12, 12));
+    exportButton->setFixedSize(80, 25);
     connect(exportButton, &QPushButton::clicked, this, [=]() {
         QString filePath = QFileDialog::getSaveFileName(
             nullptr,
@@ -46,34 +68,69 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
             emit extract(filePath);
         }
     });
-    mainVl->addWidget(exportButton);
+
+    auto copyButton = new QPushButton(this);
+    copyButton->setObjectName("copyButton");
+    copyButton->setText(" Copy");
+    copyButton->setToolTip("Copy selected rows to clipboard");
+    copyButton->setIconSize(QSize(12, 12));
+    copyButton->setFixedSize(64, 25);
+
+    topBarLayout->addWidget(exportButton);
+    topBarLayout->addWidget(copyButton);
 
     dataTable = new CopyableTable(scrollWidget);
     dataTable->setColumnCount(ColumnsNum);
     dataTable->setRowCount(currentChannels + 1);
-    dataTable->horizontalHeader()->hide();
-    dataTable->verticalHeader()->hide();
-    mainVl->addWidget(dataTable);
     this->installEventFilter(dataTable);
 
+    externalLayout->addWidget(customTitleBar);
+    scrollLayout->addWidget(dataTable);
+
+    connect(copyButton, &QPushButton::clicked, this, [=]() {
+        QKeyEvent * ctrl_c = new QKeyEvent(QEvent::Type::KeyPress, Qt::Key_C, Qt::ControlModifier);
+        QCoreApplication::sendEvent(dataTable, ctrl_c);
+    });
+
+    emptyStateLabel = new QLabel(centralWidget);
+    emptyStateLabel->setObjectName("emptyStateLabel");
+    emptyStateLabel->setText("Empty channel selection");
+    emptyStateLabel->hide();
+    topBarLayout->addWidget(emptyStateLabel);
+
+    QHeaderView * vHeader = dataTable->verticalHeader();
+    vHeader->setObjectName("tableVHeader");
     dataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    dataTable->setItem(0, ColChannelIndex, new QTableWidgetItem("Channel index"));
-    dataTable->setItem(0, ColMeanVoltage, new QTableWidgetItem("Mean Voltage [mV]"));
-    dataTable->setItem(0, ColVoltageRms, new QTableWidgetItem("Voltage RMS [mV]"));
-    dataTable->setItem(0, ColMeanCurrent, new QTableWidgetItem("Mean Current [pA]"));
-    dataTable->setItem(0, ColCurrentRms, new QTableWidgetItem("Current RMS [pA]"));
-    dataTable->setItem(0, ColResistance, new QTableWidgetItem("Resistance [MOHm]"));
-    dataTable->setItem(0, ColPipetteCapacitance, new QTableWidgetItem("Pipette capacitance [pF]"));
-    dataTable->setItem(0, ColMembraneCapacitance, new QTableWidgetItem("Membrane capacitance [pF]"));
-    dataTable->setItem(0, ColAccessResistance, new QTableWidgetItem("Access resistance [MOhm]"));
-    dataTable->setItem(0, ColMembraneResistance, new QTableWidgetItem("Membrane resistance [MOhm]"));
-    dataTable->setItem(0, ColOffsetRecalibration, new QTableWidgetItem("Offset recalibration [pA]"));
-    dataTable->setItem(0, ColLiquidJunction, new QTableWidgetItem("Liquid junction [mV]"));
-    mainVl->addWidget(dataTable);
+    dataTable->setHorizontalHeaderLabels({"Mean Voltage [mV]",
+                                          "Voltage RMS [mV]",
+                                          "Mean Current [pA]",
+                                          "Current RMS [pA]",
+                                          "Resistance [MOHm]",
+                                          "Pipette capacitance [pF]",
+                                          "Membrane capacitance [pF]",
+                                          "Access resistance [MOhm]",
+                                          "Membrane resistance [MOhm]",
+                                          "Offset recalibration [pA]",
+                                          "Liquid junction [mV]"});
+    externalLayout->addWidget(scrollWidget);
 }
 
 void MeasurementsOverviewDockWidget::onUpdate(){
-    dataTable->setRowCount(activeChannels.size() + 1);
+    if (activeChannels.empty()) {
+        dataTable->setRowCount(currentChannels);
+
+        // Reset vertical header
+        for (int i = 0; i < currentChannels; ++i) {
+            dataTable->setVerticalHeaderItem(i, new QTableWidgetItem(QString::number(i + 1)));
+        }
+
+        dataTable->clearContents();
+        emptyStateLabel->show();
+
+    } else {
+        emptyStateLabel->hide();
+        dataTable->setRowCount(activeChannels.size());
+    }
 }
 
 void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<uint16_t> newActiveChannels){
@@ -83,8 +140,7 @@ void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<uint16_t> 
 }
 
 void MeasurementsOverviewDockWidget::setOffsetRecalibrationResult(std::vector<e384cl::Measurement_t> results) {
-    this->setCellText(0, ColOffsetRecalibration, QString::fromStdString("Offset recalibration [" + results[0].getFullUnit())+ "]");
-    int row = 1;
+    int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
         this->setCellText(row, ColOffsetRecalibration, QString("%1").arg(result.value));
@@ -93,8 +149,7 @@ void MeasurementsOverviewDockWidget::setOffsetRecalibrationResult(std::vector<e3
 }
 
 void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector <e384cl::Measurement_t> results) {
-    this->setCellText(0, ColLiquidJunction, QString::fromStdString("Liquid junction [" + results[0].getFullUnit())+ "]");
-    int row = 1;
+    int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
         this->setCellText(row, ColLiquidJunction, QString("%1").arg(result.value));
@@ -103,11 +158,7 @@ void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector <e384cl
 }
 
 void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResultWrapper_t results) {
-    this->setCellText(0, ColMeanVoltage, QString::fromStdString("Mean Voltage [" + results[0].meanVoltage.getFullUnit())+ "]");
-    this->setCellText(0, ColVoltageRms, QString::fromStdString("Voltage RMS [" + results[0].stdVoltage.getFullUnit())+ "]");
-    this->setCellText(0, ColMeanCurrent, QString::fromStdString("Mean Current [" + results[0].meanCurrent.getFullUnit())+ "]");
-    this->setCellText(0, ColCurrentRms, QString::fromStdString("Current RMS [" + results[0].stdCurrent.getFullUnit())+ "]");
-    int row = 1;
+    int row = 0;
     for (auto ch : activeChannels) {
         auto &statisticResult = results[ch];
         setStatisticsResultsInRowaRow(row, statisticResult);
@@ -116,8 +167,7 @@ void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResultWrap
 }
 
 void MeasurementsOverviewDockWidget::onResistanceEstimationResult(SingleMeasResultWrapper_t results) {
-    this->setCellText(0, ColResistance, QString::fromStdString("Resistance [" + results[0].meas.getFullUnit()) + "]");
-    int row = 1;
+    int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
         this->setCellText(row, ColResistance, QString("%1").arg(result.meas.value));
@@ -126,8 +176,7 @@ void MeasurementsOverviewDockWidget::onResistanceEstimationResult(SingleMeasResu
 }
 
 void MeasurementsOverviewDockWidget::onPipetteCapacitanceEstimationResult(SingleMeasResultWrapper_t results) {
-    this->setCellText(0, ColPipetteCapacitance, QString::fromStdString("Pipette capacitance [" + results[0].meas.getFullUnit()) + "]");
-    int row = 1;
+    int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
         this->setCellText(row, ColPipetteCapacitance, QString("%1").arg(result.meas.value));
@@ -136,10 +185,7 @@ void MeasurementsOverviewDockWidget::onPipetteCapacitanceEstimationResult(Single
 }
 
 void MeasurementsOverviewDockWidget::onMembraneEstimationResult(MembraneResultWrapper_t results) {
-    this->setCellText(0, ColMembraneCapacitance, QString::fromStdString("Membrane capacitance [" + results[0].membraneCapacitance.getFullUnit()) + "]");
-    this->setCellText(0, ColAccessResistance, QString::fromStdString("Access resistance [" + results[0].accessResistance.getFullUnit()) + "]");
-    this->setCellText(0, ColMembraneResistance, QString::fromStdString("Membrane resistance [" + results[0].membraneResistance.getFullUnit()) + "]");
-    int row = 1;
+    int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
         this->setCellText(row, ColMembraneCapacitance, QString("%1").arg(result.membraneCapacitance.value));
@@ -150,7 +196,7 @@ void MeasurementsOverviewDockWidget::onMembraneEstimationResult(MembraneResultWr
 }
 
 void MeasurementsOverviewDockWidget::setStatisticsResultsInRowaRow(int row, StatisticsResult &r) {
-    this->setCellText(row, ColChannelIndex, QString("%1").arg((r.chIdx + 1)));
+    dataTable->setVerticalHeaderItem(row, new QTableWidgetItem(QString::number(r.chIdx + 1)));
     this->setCellText(row, ColMeanVoltage, QString("%1").arg((r.meanVoltage.value)));
     this->setCellText(row, ColVoltageRms, QString("%1").arg((r.stdVoltage.value)));
     this->setCellText(row, ColMeanCurrent, QString("%1").arg((r.meanCurrent.value)));

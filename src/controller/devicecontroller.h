@@ -30,6 +30,7 @@ public slots:
     void onCustomFlagSelected(uint32_t customFlagIdx, bool flag);
     void onCustomOptionSelected(uint32_t customOptionIdx, int idx);
     void onCustomDoubleChanged(uint32_t customDoubleIdx, double value);
+    void onDownsamplingToggleClicked(bool checked);
 
 private:
     std::vector<ClampingModality_t> clampingModalities;

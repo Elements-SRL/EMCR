@@ -34,6 +34,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnChannelAuto, this, [=](bool flag) {
         appStatus->setChannelsAuto(flag);
         this->onChannelsSelected();
+        multipleChannelControlsDw->enableDisableControls(CH_INPUT, flag);
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnCalibrationResistorsOn, this, [=]() {
@@ -52,6 +53,7 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigTurnStimulusAuto, this, [=](bool flag) {
         appStatus->setStimulusAuto(flag);
         this->onChannelsSelected();
+        multipleChannelControlsDw->enableDisableControls(STIMULUS, flag);
     });
 
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigZap, this, [=](Measurement_t duration) {
@@ -133,11 +135,14 @@ MultipleChannelController::MultipleChannelController(ApplicationStatus * appStat
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddToBigPlotAuto,     this, [=] (bool flag) {
         appStatus->setExpandAuto(flag);
+        multipleChannelControlsDw->enableDisableControls(EXPAND, flag);
         this->onChannelsSelected();
     });
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddRemovePlotDetail,   this, &MultipleChannelController::addRemovePlotDetail);
     connect(multipleChannelControlsDw, &MultipleChannelControlDockWidget::sigAddPlotDetailAuto,     this, [=] (bool flag) {
         appStatus->setPlotDetailAuto(flag);
+        multipleChannelControlsDw->enableDisableControls(PLOT_DETAIL, flag);
+        refreshSummary();
     });
 
     mainWindow->setDockWidget(MainWindow::DWMultipleChannelControl, multipleChannelControlsDw, false, Qt::RightDockWidgetArea);
@@ -162,6 +167,7 @@ void MultipleChannelController::addRemoveFromBigPlot(bool flag) {
     }
     appStatus->setExpandedTraces(flags);
     emit sigAddRemoveFromBigPlot(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::addRemovePlotDetail(bool flag) {
@@ -172,6 +178,7 @@ void MultipleChannelController::addRemovePlotDetail(bool flag) {
     }
     appStatus->setDetailedPlots(flags);
     emit sigAddRemovePlotDetail(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
@@ -183,6 +190,7 @@ void MultipleChannelController::addRemoveFromBigPlotEx(bool flag) {
     }
     appStatus->setExpandedTraces(expandedChannels);
     emit sigAddRemoveFromBigPlotEx(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::onChannelsSelected() {
@@ -195,6 +203,10 @@ void MultipleChannelController::onChannelsSelected() {
     if (appStatus->isExpandAuto()) {
         addRemoveFromBigPlotEx(true);
     }
+    int numSelected = appStatus->getSelectedChannelsIndexes().size();
+    int totalChannels = appStatus->getChannels().size();
+    multipleChannelControlsDw->setSelectionCount(numSelected, totalChannels);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
@@ -202,6 +214,7 @@ void MultipleChannelController::turnSelectedChannelsOnOff(bool flag) {
     std::vector <bool> values(selectedChannels.size(), flag);
     msgDisp->turnChannelsOn(selectedChannels, values, true);
     emit sigChannelsTurnedOnOff(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedChannelsOnOffEx(bool flag) {
@@ -211,6 +224,7 @@ void MultipleChannelController::turnSelectedChannelsOnOffEx(bool flag) {
     }
     msgDisp->turnChannelsOn(allChannels, selectedChannels, true);
     emit sigChannelsTurnedOnOffEx(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag) {
@@ -219,6 +233,7 @@ void MultipleChannelController::turnSelectedCalibrationResistorsOnOff(bool flag)
     msgDisp->turnCalSwOn(selectedChannels, values, true);
 
     emit sigCalibrationResistorsTurnedOnOff(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
@@ -227,6 +242,7 @@ void MultipleChannelController::turnSelectedStimuliOnOff(bool flag) {
     msgDisp->enableStimulus(selectedChannels, values, true);
 
     emit sigStimuliTurnedOnOff(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
@@ -237,6 +253,7 @@ void MultipleChannelController::turnSelectedStimuliOnOffEx(bool flag) {
     msgDisp->enableStimulus(allChannels, selectedChannels, true);
 
     emit sigStimuliTurnedOnOffEx(flag);
+    this->refreshSummary();
 }
 
 void MultipleChannelController::zap(Measurement_t duration) {
@@ -271,6 +288,9 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
         if (ret == QMessageBox::Ok) {
             this->turnSelectedOffsetRecalibrationOnOff(true);
         }
+        if (ret == QMessageBox::Cancel){
+            multipleChannelControlsDw->enableExpertMode(true);
+        }
         break;
     }
 
@@ -300,9 +320,11 @@ void MultipleChannelController::offsetCorrection(OffsetCorrectionController::Off
 void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) {
     if (flag) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
+        multipleChannelControlsDw->enableDisableControls(RECALIBRATION, true);
         offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingOffsetRecalibration);
     }
     else {
+        multipleChannelControlsDw->enableDisableControls(RECALIBRATION, false);
         QApplication::restoreOverrideCursor();
     }
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
@@ -319,6 +341,7 @@ void MultipleChannelController::turnSelectedOffsetRecalibrationOnOff(bool flag) 
 void MultipleChannelController::resetOffsetRecalibration() {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     msgDisp->resetOffsetRecalibration(selectedChannels, true);
+    multipleChannelControlsDw->enableDisableControls(RECALIBRATION, false);
 
     emit sigOffsetRecalibrationResetted();
 }
@@ -326,9 +349,11 @@ void MultipleChannelController::resetOffsetRecalibration() {
 void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
     if (flag) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
+        multipleChannelControlsDw->enableDisableControls(LIQUID_JUNCTION, true);
         offsetCorrectionController->onStartChecking(OffsetCorrectionController::CheckingLiquidJunctionCorrection);
 
     } else {
+        multipleChannelControlsDw->enableDisableControls(LIQUID_JUNCTION, false);
         QApplication::restoreOverrideCursor();
     }
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
@@ -345,8 +370,78 @@ void MultipleChannelController::turnSelectedLjcOnOff(bool flag) {
 void MultipleChannelController::resetLj() {
     std::vector <uint16_t> selectedChannels = appStatus->getSelectedChannelsIndexes();
     msgDisp->resetLiquidJunctionVoltage(selectedChannels, true);
+    multipleChannelControlsDw->enableDisableControls(LIQUID_JUNCTION, false);
 
     emit sigLjResetted();
+}
+
+/*
+ * Function used to update the Summary status widget and individual feature badges
+ */
+void MultipleChannelController::refreshSummary() {
+    auto selectedIdx = appStatus->getSelectedChannelsIndexes();
+    int totalChannels = allChannels.size();
+
+    auto updatePropertyStatus = [&](ChannelProperty property, const std::map<uint16_t, bool>& stateMap, bool isAuto) {
+        int onInSelection = 0;
+        int offInSelection = 0;
+
+        // Status calculation only for selected channels
+        if (!selectedIdx.empty()) {
+            for (uint16_t idx : selectedIdx) {
+                if (stateMap.count(idx) && stateMap.at(idx)) {
+                    onInSelection++;
+                } else {
+                    offInSelection++;
+                }
+            }
+        }
+
+        // Caclucation of the total on for all channels
+        int totalOn = 0;
+        for (auto const& [id, isOn] : stateMap) {
+            if (isOn) totalOn++;
+        }
+
+        // Updating single feature badges in dock widget
+        multipleChannelControlsDw->updateFeatureDetail(property, onInSelection, offInSelection, isAuto, selectedIdx.empty());
+
+        QString summaryText;
+        QString summaryStatus;
+
+        if (isAuto) {
+            summaryText = "AUTO";
+            summaryStatus = "auto";
+        } else if (selectedIdx.empty()) {
+            summaryText = QString("0/%1").arg(totalChannels);
+            summaryStatus = "off";
+        } else {
+            // Active channels over the total ones
+            summaryText = QString("%1/%2").arg(totalOn).arg(totalChannels);
+
+            if (totalOn == 0) {
+                summaryStatus = "off";
+            } else if (totalOn == totalChannels) {
+                summaryStatus = "on";
+            } else {
+                summaryStatus = "mixed";
+            }
+        }
+
+        multipleChannelControlsDw->updateSummary(property, summaryText, summaryStatus);
+    };
+
+    updatePropertyStatus(EXPAND, appStatus->getExpandedTraces(), appStatus->isExpandAuto());
+
+    if (msgDisp->hasStimulusSwitches() == Success){
+        updatePropertyStatus(STIMULUS, appStatus->getStimActiveChannelsMap(), appStatus->isStimulusAuto());
+    }
+
+    updatePropertyStatus(PLOT_DETAIL, appStatus->getDetailedPlotMap(), appStatus->isPlotDetailAuto());
+
+    if (msgDisp->hasChannelSwitches() == Success){
+        updatePropertyStatus(CH_INPUT, appStatus->getActiveChannelsMap(), appStatus->isChannelsAuto());
+    }
 }
 
 void MultipleChannelController::connectBigPlotController(BigPlotController* bpc) {

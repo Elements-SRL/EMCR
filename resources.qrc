@@ -52,5 +52,62 @@
         <file>imgs/activation button off.png</file>
         <file>imgs/activation button on.png</file>
         <file>imgs/data monitor.png</file>
+        <file>fonts/Inter.ttc</file>
+        <file>imgs/EMCR splash background.png</file>
+        <file>styles/emcr_base.qss</file>
+        <file>imgs/splash01.png</file>
+        <file>imgs/logo_with_name_white.png</file>
+        <file>theme/dark/icons/arrow_down.svg</file>
+        <file>theme/dark/icons/arrow_up.svg</file>
+        <file>theme/dark/icons/circle-info-solid.svg</file>
+        <file>theme/dark/icons/window-restore-regular.svg</file>
+        <file>theme/dark/icons/x-solid.svg</file>
+        <file>theme/light/icons/3_dots_bounce.svg</file>
+        <file>theme/light/icons/arrow_down.svg</file>
+        <file>theme/light/icons/arrow_up.svg</file>
+        <file>theme/light/icons/circle-info-solid.svg</file>
+        <file>theme/light/icons/window-restore-regular.svg</file>
+        <file>theme/light/icons/x-solid.svg</file>
+        <file>theme/dark/imgs/logo_with_name.png</file>
+        <file>theme/light/imgs/logo_with_name.png</file>
+        <file>theme/dark/icons/device_ico.svg</file>
+        <file>theme/light/icons/device_ico.svg</file>
+        <file>theme/dark/imgs/splash/splash01.png</file>
+        <file>theme/light/imgs/splash/splash01.png</file>
+        <file>theme/dark/icons/arrow_right.svg</file>
+        <file>theme/light/icons/arrow_right.svg</file>
+        <file>theme/light/icons/check-solid.svg</file>
+        <file>theme/dark/icons/check-solid.svg</file>
+        <file>theme/dark/icons/arrow_right_disabled.svg</file>
+        <file>theme/light/icons/arrow_right_disabled.svg</file>
+        <file>theme/dark/icons/export_csv.svg</file>
+        <file>theme/dark/icons/copy.svg</file>
+        <file>theme/light/icons/copy.svg</file>
+        <file>theme/light/icons/export_csv.svg</file>
+        <file>theme/dark/icons/edit.svg</file>
+        <file>theme/dark/icons/export.svg</file>
+        <file>theme/dark/icons/import.svg</file>
+        <file>theme/dark/icons/minus.svg</file>
+        <file>theme/dark/icons/plus.svg</file>
+        <file>theme/dark/icons/start.svg</file>
+        <file>theme/dark/icons/stop.svg</file>
+        <file>theme/dark/icons/shortcut.svg</file>
+        <file>theme/light/icons/export.svg</file>
+        <file>theme/light/icons/minus.svg</file>
+        <file>theme/light/icons/plus.svg</file>
+        <file>theme/light/icons/shortcut.svg</file>
+        <file>theme/light/icons/start.svg</file>
+        <file>theme/light/icons/stop.svg</file>
+        <file>theme/light/icons/edit.svg</file>
+        <file>theme/light/icons/import.svg</file>
+        <file>theme/dark/icons/recording.svg</file>
+        <file>theme/dark/icons/horizontal_splitter.svg</file>
+        <file>theme/dark/icons/vertical_splitter.svg</file>
+        <file>theme/light/icons/horizontal_splitter.svg</file>
+        <file>theme/light/icons/vertical_splitter.svg</file>
+        <file>theme/dark/icons/record.svg</file>
+        <file>theme/light/icons/record.svg</file>
+        <file>theme/dark/imgs/gap free icon.png</file>
+        <file>theme/light/imgs/gap free icon.png</file>
     </qresource>
 </RCC>

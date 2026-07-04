@@ -48,6 +48,7 @@ signals:
 
 private:
     QLabel * titleEdit;
+    QLabel * valueLabel;
     QString title;
     Qt::Orientation orientation;
     QToolButton * hideShowBtn;

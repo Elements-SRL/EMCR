@@ -9,16 +9,31 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     this->setVisible(false);
 
-    QWidget * mainWg = new QWidget(parent);
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWindowTitle("Single channel controls");
     setObjectName("singleChannelControlsDw");
-    setWidget(mainWg);
 
-    QVBoxLayout * mainVl = new QVBoxLayout();
-    mainVl->setContentsMargins(0, 0, 0, 0);
-    mainVl->setSpacing(1);
-    mainWg->setLayout(mainVl);
+    QWidget * centralWidget = new QWidget();
+    centralWidget->setObjectName("singleChannelCentralWidget");
+    QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
+    externalLayout->setContentsMargins(0, 0, 0, 0);
+    externalLayout->setSpacing(0);
+
+    this->setWidget(centralWidget);
+
+    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
+        if (isFloating) {
+            centralWidget->setStyleSheet("#operationHeader { border-left: none; border-right: none; }"
+                                         "#operationContainer { border-left: none; border-right: none; }"
+                                         "#operationButtonWidget { border-left: none; border-right: none; }"
+                                         "#customFooter {border-left: none; border-right: none; border-bottom: none;}"
+                                         "#singleChannelControlsScrollContainer {border-left: none; border-right: none;}");
+        } else {
+            centralWidget->setStyleSheet("");
+        }
+    });
+
+
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
     currentChannelsNum = appStatus->getCurrentChannelsNum();
 
@@ -32,8 +47,29 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     operationTitles[OperationFinalStimulusRamp] = "Ramp final stimulus";
     operationTitles[OperationDurationRamp] = "Ramp duration";
 
+    QFrame* operationContainer = new QFrame();
+    operationContainer->setObjectName("operationContainer");
+    QHBoxLayout* operationContainerLayout = new QHBoxLayout(operationContainer);
+    operationContainerLayout->setContentsMargins(8, 4, 8, 4);
+
     operationCbx = new QComboBox;
-    mainVl->addWidget(operationCbx);
+    operationCbx->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    operationCbx->setObjectName("operationCbx");
+    operationContainerLayout->addWidget(operationCbx);
+    externalLayout->addWidget(operationContainer);
+
+    QFrame * operationHeader = new QFrame();
+    operationHeader->setObjectName("operationHeader");
+    QHBoxLayout* operationHeaderLayout = new QHBoxLayout(operationHeader);
+    operationHeaderLayout->setContentsMargins(10, 10, 48, 10);
+
+    auto channelHeader = new QLabel("Channel");
+    auto operationHeaderL = new QLabel("Value");
+
+    operationHeaderLayout->addWidget(channelHeader);
+    operationHeaderLayout->addStretch();
+    operationHeaderLayout->addWidget(operationHeaderL);
+    externalLayout->addWidget(operationHeader);
 
     setAllChannelsSbxs.resize(OperationsNum);
     setAllWidgets.resize(OperationsNum);
@@ -50,7 +86,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     std::vector <RangedMeasurement_t> ranges;
     if (msgDisp->getVoltageHoldTunerFeatures(ranges) == Success || msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) == Success) {
-        buildOperation(mainVl, OperationHoldingStimulus, true);
+        buildOperation(externalLayout, OperationHoldingStimulus, true);
     }
     else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
@@ -58,10 +94,10 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
 
-    buildOperation(mainVl, OperationOffsetRecalibration);
+    buildOperation(externalLayout, OperationOffsetRecalibration);
 
     if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
-        buildOperation(mainVl, OperationLiquidJunction);
+        buildOperation(externalLayout, OperationLiquidJunction);
     }
     else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
@@ -70,7 +106,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     }
 
     if (msgDisp->hasStimulusHalf() == Success) {
-        buildOperation(mainVl, OperationStimulusHalf);
+        buildOperation(externalLayout, OperationStimulusHalf);
     }
     else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
@@ -78,12 +114,12 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
 
-    buildOperation(mainVl, OperationOffsetTracking);
+    buildOperation(externalLayout, OperationOffsetTracking);
 
     if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) == Success) {
-        buildOperation(mainVl, OperationInitialStimulusRamp);
-        buildOperation(mainVl, OperationFinalStimulusRamp);
-        buildOperation(mainVl, OperationDurationRamp);
+        buildOperation(externalLayout, OperationInitialStimulusRamp);
+        buildOperation(externalLayout, OperationFinalStimulusRamp);
+        buildOperation(externalLayout, OperationDurationRamp);
     }
     else {
         QStandardItemModel * model = qobject_cast <QStandardItemModel *> (operationCbx->model());
@@ -98,9 +134,13 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
     applyBtn = new QPushButton("Apply");
     connect(applyBtn, &QPushButton::clicked, this, QOverload <> ::of(&SingleChannelControlDockWidget::onApplyButtonClicked));
 
-    QGridLayout * applyBtnGridLayout = new QGridLayout;
-    applyBtnGridLayout->addWidget(applyBtn, 0, 0, 1, 2);
-    mainVl->addLayout(applyBtnGridLayout);
+    QFrame* footerFrame = new QFrame();
+    footerFrame->setObjectName("customFooter");
+    QHBoxLayout* applyBtnLayout = new QHBoxLayout(footerFrame);
+    applyBtnLayout->setContentsMargins(8, 8, 8, 8);
+
+    applyBtnLayout->addWidget(applyBtn);
+    externalLayout->addWidget(footerFrame);
 
     connect(operationCbx, QOverload <int> ::of(&QComboBox::currentIndexChanged), this, &SingleChannelControlDockWidget::onOperationSelected);
 
@@ -497,6 +537,7 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 
 QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx] = new QWidget;
+    operationButtonWidgets[idx]->setObjectName("operationButtonWidget");
     std::vector <RangedMeasurement_t> ranges;
     uint16_t _;
     auto msgDisp = appStatus->getMessageDispatcher();
@@ -548,8 +589,8 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     }
 
     QGridLayout * operationButtonGridLayout = new QGridLayout;
-    operationButtonGridLayout->setContentsMargins(0, 0, 0, 2);
-    operationButtonGridLayout->setSpacing(0);
+    operationButtonGridLayout->setContentsMargins(8, 8, 8, 8);
+    operationButtonGridLayout->setSpacing(2);
     operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
     QString unit = QString().fromStdString(ranges[0].getFullUnit());
     setAllChannelsSbxs[idx] = new NoWheelSpinBox;
@@ -575,16 +616,18 @@ QVBoxLayout * SingleChannelControlDockWidget::getLayoutWithScrollBar(QWidget * w
     QScrollArea * scrollArea = new QScrollArea;
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     vl->addWidget(scrollArea);
 
-    QWidget * scrollWg = new QWidget;
+    QFrame * scrollWg = new QFrame;
     scrollArea->setWidget(scrollWg);
+    scrollWg->setObjectName("singleChannelControlsScrollContainer");
 
     QVBoxLayout * scrollVl = new QVBoxLayout;
-    scrollVl->setContentsMargins(0, 0, 0, 0);
-    scrollVl->setSpacing(1);
+    scrollVl->setContentsMargins(2, 8, 2, 0);
+    scrollVl->setSpacing(8);
     scrollWg->setLayout(scrollVl);
 
     return scrollVl;
@@ -641,8 +684,8 @@ SpinBoxWithChannel::SpinBoxWithChannel(std::string title, NoWheelSpinBox * sbx) 
     valueSbx(sbx) {
 
     QHBoxLayout * hl = new QHBoxLayout;
-    hl->setContentsMargins(0, 0, 0, 0);
-    hl->setSpacing(1);
+    hl->setContentsMargins(8, 0, 8, 0);
+    hl->setSpacing(2);
     this->setLayout(hl);
 
     channelLbl = new QLabel(QString::fromStdString(title));

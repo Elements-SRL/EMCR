@@ -1069,6 +1069,7 @@ VoltageProtocolList::VoltageProtocolList(MessageDispatcher * msgDisp, ProtocolPr
 
     clampingModality = ClampingModality_t::VOLTAGE_CLAMP;
     protocolsGroupName = "voltageprotocols";
+    setObjectName("VoltageProtocolList");
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);
@@ -1099,6 +1100,7 @@ AnalysisVoltageProtocolList::AnalysisVoltageProtocolList(MessageDispatcher * msg
 
     clampingModality = ClampingModality_t::VOLTAGE_CLAMP;
     protocolsGroupName = "analysisvoltageprotocols";
+    setObjectName("AnalysisVoltageProtocolList");
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);

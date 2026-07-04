@@ -460,8 +460,9 @@ QGridLayout * CompensationControlDockWidget::getLayoutWithScrollBar(QWidget * wi
     scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     vl->addWidget(scrollArea);
 
-    QWidget * scrollWg = new QWidget;
+    QFrame * scrollWg = new QFrame;
     scrollArea->setWidget(scrollWg);
+    scrollWg->setObjectName("compensationControlsScrollContainer");
 
     QGridLayout * scrollHl = new QGridLayout;
     scrollHl->setContentsMargins(0, 0, 20, 0);

@@ -27,6 +27,7 @@ public:
     int getIdealPlotHeight();
     void updateBoardMappings(std::set <int> visibleBoards);
     void setFaultyBoard(int boardIdx, bool faultyFlag);
+    void updateSelectedCounter(int selected, int total);
 
 private:
     QGridLayout * mainGl = nullptr;
@@ -34,13 +35,13 @@ private:
     LeftRightMousePushButton * allChannelsSelector = nullptr;
     QVector <LeftRightMousePushButton *> boardSelectors;
     QVector <LeftRightMousePushButton *> rowSelectors;
+    QLabel *selectedChannelsTxt = nullptr;
+    QLabel *totalChannelsTxt = nullptr;
 
     int voltageChannelsNum;
     int currentChannelsNum;
     int boardsNum;
     int channelsPerBoard;
-//    int idealPlotHeight;
-//    int idealPlotWidth;
 
 signals:
     void sigAllChannelsClicked(bool newChannelState);
@@ -48,6 +49,7 @@ signals:
     void sigOneRowClicked(uint16_t changedRowIndex, bool newChannelState);
     void sigSingleChannelClicked(uint16_t changedChannelIndex, QMouseEvent * event);
     void sigUpdateConsumer(bool consume);
+    void sigInvertSelectionClicked();
 };
 
 #endif // CHESSBOARDDOCKWIDGET_H

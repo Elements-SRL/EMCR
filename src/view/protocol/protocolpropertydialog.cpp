@@ -8,7 +8,8 @@
 
 ProtocolPropertyDialog::ProtocolPropertyDialog(MessageDispatcher * msgDisp, RangedMeasurement_t timeRange, RangedMeasurement_t stimulusRange) {
     QVBoxLayout * mainVl = new QVBoxLayout;
-    mainVl->setContentsMargins(0, 0, 0, 0);
+    mainVl->setContentsMargins(4, 4, 4, 4);
+    this->setObjectName("ProtocolPropertyDialog");
     this->setLayout(mainVl);
 
     QSplitter * mainSpl = new QSplitter(Qt::Vertical, this);

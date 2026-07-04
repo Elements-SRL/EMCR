@@ -104,6 +104,26 @@ std::vector <uint16_t> ApplicationStatus::getExpandedChannelsIndexes() {
     return keys;
 };
 
+
+std::map <uint16_t, bool> ApplicationStatus::getStimActiveChannelsMap() {
+    std::map<uint16_t, bool> stimActiveChannelsMap;
+    for (const auto& ch : getChannels()) {
+        if (ch->isStimActive()) {
+            stimActiveChannelsMap[ch->getId()] = ch->isStimActive();
+        }
+    }
+    return stimActiveChannelsMap;
+}
+
+
+std::map <uint16_t, bool> ApplicationStatus::getActiveChannelsMap() {
+    std::map<uint16_t, bool> channelOnMap;
+    for (const auto& ch : getChannels()) {
+         channelOnMap[ch->getId()] = ch->isOn();
+    }
+    return channelOnMap;
+}
+
 std::vector <uint16_t> ApplicationStatus::getStimActiveChannelsIndexes() {
     std::vector <uint16_t> stimActiveChannels;
     for (const auto& ch : getChannels()) {
@@ -303,6 +323,14 @@ void ApplicationStatus::setExpandedTraces(std::map <uint16_t, bool> other){
     }
 }
 
+std::map <uint16_t, bool> ApplicationStatus::getDetailedPlotMap() {
+    std::map<uint16_t, bool> detailedPlot;
+    for (auto chs: channelStates) {
+        detailedPlot[chs->getIndex()] = chs->isDetailed();
+    }
+    return detailedPlot;
+}
+
 std::vector<uint16_t> ApplicationStatus::getDetailedPlotIndexes() {
     std::vector<uint16_t> detailed;
     for (auto &p: this->channelStates) {
@@ -352,6 +380,7 @@ std::string ApplicationStatus::getClampingModalityString() {
     }
     return cms;
 }
+
 
 bool ApplicationStatus::isEpisodic() {
     return (msgDisp->isEpisodic() == Success);

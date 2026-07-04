@@ -14,11 +14,9 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     this->setObjectName("gapFree");
     this->setWindowTitle("GapFree");
 
-
     auto outerLayout = new QVBoxLayout(this);
     QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
     outerLayout->addWidget(splitter);
-    splitter->setHandleWidth(20);
     splitter->addWidget(plot);
 
     auto sideWidget = new QWidget(splitter);
@@ -73,7 +71,7 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
         if (directory.mkpath(".")) {
         }
     }
-    auto browseBtn = new QPushButton("Change recordings directory");
+    browseBtn = new QPushButton("Change recordings directory");
     connect(browseBtn, &QPushButton::clicked, [=]() {
         // Open a directory selection dialog
         QString directoryPath = QFileDialog::getExistingDirectory(this,
@@ -156,11 +154,19 @@ void GapFreeWidget::setRecording(bool flag) {
         QPixmap pixmapRecors("://imgs/recording protocol.png");
         QIcon recordIcon(pixmapRecors);
         recordingStartBtn->setIcon(recordIcon);
+        recordingStartBtn->setEnabled(false);
+        fileNameLineEdit->setEnabled(false);
+        browseBtn->setEnabled(false);
+
 
     }
     else {
         QPixmap pixmapRecors("://imgs/record protocol.png");
         QIcon recordIcon(pixmapRecors);
         recordingStartBtn->setIcon(recordIcon);
+        recordingStartBtn->setEnabled(true);
+        fileNameLineEdit->setEnabled(true);
+        browseBtn->setEnabled(true);
+
     }
 }

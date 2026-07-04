@@ -27,6 +27,7 @@ add_executable(EMCR WIN32
     src/controller/device/consumer/eventdetectionconsumer.cpp
     src/controller/device/consumer/spectrumconsumer.cpp
     src/controller/device/deviceconnector.cpp
+    src/controller/themecontroller.cpp
     src/controller/controllerwithconsumer.cpp
     src/controller/bigplotviewcontroller.cpp
     src/controller/debugcontroller.cpp
@@ -127,6 +128,9 @@ add_executable(EMCR WIN32
     src/view/protocol/protocolsection.cpp
     src/view/protocol/protocolwidget.cpp
     src/view/autodeclogger/autodecloggerwidget.cpp
+    src/view/splashscreen/splashview.cpp
+    src/view/confirmdialog/confirmationdialog.cpp
+    src/view/autotoggle.cpp
     src/view/recordsettingsdialog.cpp
     src/view/rect4.cpp
     src/view/singlechannelcontroldockwidget.cpp
@@ -160,6 +164,7 @@ add_executable(EMCR WIN32
     src/controller/device/consumer/eventdetectionconsumer.h
     src/controller/device/consumer/spectrumconsumer.h
     src/controller/device/deviceconnector.h
+    src/controller/themecontroller.h
     src/controller/controllerwithconsumer.h
     src/controller/bigplotviewcontroller.h
     src/controller/debugcontroller.h
@@ -270,6 +275,9 @@ add_executable(EMCR WIN32
     src/view/protocol/protocolsection.h
     src/view/protocol/protocolwidget.h
     src/view/autodeclogger/autodecloggerwidget.h
+    src/view/splashscreen/splashview.h
+    src/view/confirmdialog/confirmationdialog.h
+    src/view/autotoggle.h
     src/view/recordsettingsdialog.h
     src/view/rect4.h
     src/view/singlechannelcontroldockwidget.h
@@ -345,7 +353,7 @@ target_compile_definitions(EMCR
 
 # Libraries
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets SvgWidgets)
 
 cmake_path(SET QWT_PATH_CMAKE "$ENV{QWT_PATH}")
 include(${QWT_PATH_CMAKE}cmake/Findqwt.cmake)
@@ -372,6 +380,7 @@ target_link_libraries(EMCR
     PRIVATE
     Qt6::Core
     Qt6::Widgets
+    Qt6::SvgWidgets
     pocketfft::pocketfft
     qwt::qwt
     prot-ser::prot-ser

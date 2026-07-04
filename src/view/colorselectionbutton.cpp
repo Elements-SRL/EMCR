@@ -2,12 +2,8 @@
 
 ColorSelectionButton::ColorSelectionButton(QWidget * parent) :
     QPushButton(parent) {
-
-    this->setColor(QColor(Qt::white));
-    this->setAutoFillBackground(true);
-    this->setFixedWidth(30);
-    this->setFixedHeight(30);
-    this->setFlat(true);
+    this->setFixedWidth(32);
+    this->setFixedHeight(32);
 }
 
 void ColorSelectionButton::setColor(QColor color) {

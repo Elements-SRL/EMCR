@@ -48,15 +48,15 @@ PlotPreferencesDialog::PlotPreferencesDialog(int channelsNum, int channelsPerBoa
     /*! Adds sub layouts in main layout */
     mainVl->addWidget(new QLabel("Current channels colors:"));
     mainVl->addLayout(currentButtonsLo);
-    mainVl->addLayout(otherButtonsHl);
 }
 
 void PlotPreferencesDialog::setColor(SettingType_t type, int channelIdx, QColor color) {
     switch (type) {
-    case CurrentColor:
+    case CurrentColor: {
         currentBtns[channelIdx]->setColor(color);
+        currentBtns[channelIdx]->setStyleSheet(QString("background: %1;").arg(color.name()));
         break;
-
+    }
     case VoltageColor:
     case DarkMode:
         break;

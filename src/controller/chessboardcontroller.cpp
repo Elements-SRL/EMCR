@@ -66,10 +66,27 @@ ChessboardController::ChessboardController(ApplicationStatus * appStatus, Device
         emit sigSingleChannelClicked(changedChannelIndex, event);
     });
 
-    connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,   this,       &ChessboardController::onSelectedPlotsUpdated);
-    connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,      this,       &ChessboardController::onSelectedPlotsUpdated);
-    connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);
-    connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked, this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigInvertSelectionClicked, this, [=]() {
+        std::map<int, bool> newStatus;
+
+        for (int i = 0; i < plots.size(); ++i) {
+            StampPlot* plot = plots[i];
+            if (plot) {
+                // Status inversion
+                bool nextState = !plot->isSelected();
+                plot->setSelected(nextState);
+                newStatus[i] = nextState;
+            }
+        }
+        appStatus->setSelectedChannels(newStatus);
+        emit sigInvertSelectionClicked();
+    });
+
+    connect(chessboard, &ChessboardDockWidget::sigAllChannelsClicked,     this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigOneBoardClicked,        this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigOneRowClicked,          this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigSingleChannelClicked,   this,       &ChessboardController::onSelectedPlotsUpdated);
+    connect(chessboard, &ChessboardDockWidget::sigInvertSelectionClicked, this,       &ChessboardController::onSelectedPlotsUpdated);
 
     connect(stampPlotConsumer, &PlotConsumer::setPlotData,              this,       &ChessboardController::onSetPlotData);
     connect(stampPlotConsumer, &PlotConsumer::plotDataUpdated,          this,       &ChessboardController::onReplot);
@@ -330,6 +347,7 @@ void ChessboardController::onSelectedPlotsUpdated() {
     for (int i = 0; i < currentChannelsNum; i++) {
         plots[i]->setSelected(selectedChannels[i]);
     }
+    chessboard->updateSelectedCounter(appStatus->getSelectedChannelsIndexes().size(), appStatus->getChannels().size());
 }
 
 PlotConsumer * ChessboardController::getPlotConsumer(){
@@ -442,6 +460,7 @@ void ChessboardController::connectSingleChannelController(SingleChannelControlle
     connect(this, &ChessboardController::sigOneBoardClicked, scc, &SingleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigOneRowClicked, scc, &SingleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigSingleChannelClicked, scc, &SingleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigInvertSelectionClicked, scc, &SingleChannelController::onChannelsSelected);
 }
 
 void ChessboardController::connectMultipleChannelController(MultipleChannelController* mcc) {
@@ -449,6 +468,7 @@ void ChessboardController::connectMultipleChannelController(MultipleChannelContr
     connect(this, &ChessboardController::sigOneBoardClicked, mcc, &MultipleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigOneRowClicked, mcc, &MultipleChannelController::onChannelsSelected);
     connect(this, &ChessboardController::sigSingleChannelClicked, mcc, &MultipleChannelController::onChannelsSelected);
+    connect(this, &ChessboardController::sigInvertSelectionClicked, mcc, &MultipleChannelController::onChannelsSelected);
 }
 
 void ChessboardController::connectMeasurementOverviewController(MeasurementOverviewController* moc) {
@@ -456,4 +476,5 @@ void ChessboardController::connectMeasurementOverviewController(MeasurementOverv
     connect(this, &ChessboardController::sigOneBoardClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
     connect(this, &ChessboardController::sigOneRowClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
     connect(this, &ChessboardController::sigSingleChannelClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
+    connect(this, &ChessboardController::sigInvertSelectionClicked, moc, &MeasurementOverviewController::onChannelsUpdated);
 }

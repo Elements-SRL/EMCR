@@ -5,7 +5,6 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_plot_canvas.h"
-
 #include "protocolwidget.h"
 
 ProtocolPlot::ProtocolPlot(MessageDispatcher * msgDisp, QString titleString, QString xUnitString, QString yUnitString, QWidget * parent) :
@@ -25,7 +24,6 @@ ProtocolPlot::ProtocolPlot(MessageDispatcher * msgDisp, QString titleString, QSt
     QwtPlotCanvas * canvas = new QwtPlotCanvas();
     canvas->setFrameStyle(QFrame::NoFrame);
     this->setCanvas(canvas);
-    this->setCanvasBackground(Qt::white);
 
     QwtPlotGrid * grid = new QwtPlotGrid();
     grid->setPen(Qt::lightGray, 0.5);

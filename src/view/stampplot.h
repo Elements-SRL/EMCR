@@ -3,6 +3,7 @@
 
 #include <QMouseEvent>
 
+#include "qlabel.h"
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_widget.h"
@@ -37,6 +38,7 @@ public:
     QSize minimumSizeHint() const override;
 
     void setSelected(bool flag);
+    bool isSelected();
     void setState(States_t newState);
     void addState(States_t newState);
     void removeState(States_t newState);
@@ -54,12 +56,13 @@ protected:
 
 private:
     void handleLabelsPosition();
-
     int channelIdx = 0;
     int idealPlotWidth;
     int idealPlotHeight;
 
+    QWidget * badgeContainer;
     States_t state = StateNoEffects;
+    std::map<QString, QLabel*> m_badgeMap;
 
     QwtTextLabel * channelIdxLbl;
     QwtTextLabel * stateLbl;

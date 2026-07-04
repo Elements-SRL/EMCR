@@ -1,12 +1,23 @@
 #include <QApplication>
 #include <QStyleFactory>
+#include <QFontDatabase>
 
 #include "maincontroller.h"
 #include "globaldefines.h"
+#include "qsettings.h"
+#include "splashscreen/splashview.h"
 #include "statisticsresult.h"
 #include "plotmessage.h"
 #include "resultwrapper.h"
 #include "eventsdirection.h"
+#include "themecontroller.h"
+
+// Custom fonts loader
+void loadFonts() {
+    QFontDatabase::addApplicationFont(":/fonts/Inter.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/InriaSans-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/InriaSans-Bold.ttf");
+}
 
 int main(int argc, char *argv[]) {
     QApplication::setDesktopSettingsAware(false);
@@ -34,8 +45,27 @@ int main(int argc, char *argv[]) {
     QDir().mkpath(PSD_DEFAULT_RECORD_PATH);
     QDir().mkpath(YAML_DEFAULT_FOLDER);
 
-    a.setStyle(QStyleFactory::create("Fusion"));
+    loadFonts();
+
+    QFont defaultFont("Inter");
+    defaultFont.setPixelSize(12);
+    a.setFont(defaultFont);
+
+    ThemeController &t = ThemeController::getInstance();
+    QSettings settings;
+    int savedTheme = settings.value("Preferences/UI/theme").toInt();
+
+    if (savedTheme == Light) {
+        t.applyTheme(Light);
+    } else {
+        t.applyTheme(Dark);
+    }
 
     MainController c;
+
+    // Splashscreen
+    SplashView *splash = new SplashView();
+    c.setSplash(splash);
+
     return a.exec();
 }

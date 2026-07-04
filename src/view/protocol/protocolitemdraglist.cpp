@@ -10,7 +10,7 @@ ProtocolItemDragList::ProtocolItemDragList() {
 QToolButton * ProtocolItemDragList::setSeparator(QString title, QColor color) {
     QToolButton * hideShowBtn = new QToolButton();
     hideShowBtn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    hideShowBtn->setStyleSheet(QString("QToolButton {border: none;background:rgb(%1,%2,%3);}").arg(color.red()).arg(color.green()).arg(color.blue()));
+    hideShowBtn->setStyleSheet(QString("QToolButton {border: none;background:rgb(%1,%2,%3); color: #585858}").arg(color.red()).arg(color.green()).arg(color.blue()));
     hideShowBtn->setArrowType(Qt::ArrowType::DownArrow);
     hideShowBtn->setText(title);
     hideShowBtn->setCheckable(true);

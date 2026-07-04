@@ -68,8 +68,13 @@ private:
     std::vector <QRadioButton *> ccCurrentFiltersRadioButtons;
     CollapsibleSection * samplingRatesSection = nullptr;
     std::vector <QRadioButton *> samplingRatesRadioButtons;
+
     QGroupBox * downsamplingRatiosGroupBox = nullptr;
     QGroupBox * digitalFilterGroupBox = nullptr;
+
+    ActivationButton * samplingRateToggle = nullptr;
+    ActivationButton * downsamplingToggle = nullptr;
+
     CollapsibleSection * clampingModalitiesSection = nullptr;
     std::vector <QRadioButton *> clampingModalitiesRadioButtons;
     std::vector <ActivationButton *> customFlagsButtons;
@@ -78,16 +83,17 @@ private:
     std::vector <QGroupBox *> customDoublesGroupBoxes;
     std::vector <QDoubleSpinBox *> customDoublesSpinBoxes;
 
-    CollapsibleSection * setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
-    CollapsibleSection * setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QVBoxLayout * parentLayout, std::vector <std::vector <QRadioButton *>> &radioButtons, int defaultIdx);
-    CollapsibleSection * setupSection(std::string title, std::vector <Measurement> measurements, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
-    CollapsibleSection * setupSection(std::string title, std::vector <std::string> strings, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
-    CollapsibleSection * setupSection(std::string title, std::vector <QString> texts, QVBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
-    ActivationButton * setupActButton(std::string title, QVBoxLayout * parentLayout, bool defaultFlag);
+    CollapsibleSection * setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <RangedMeasurement> rangedMeasurements, QBoxLayout * parentLayout, std::vector <std::vector <QRadioButton *>> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <Measurement> measurements, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <std::string> strings, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    CollapsibleSection * setupSection(std::string title, std::vector <QString> texts, QBoxLayout * parentLayout, std::vector <QRadioButton *> &radioButtons, int defaultIdx);
+    ActivationButton * setupActButton(std::string title, QBoxLayout * parentLayout, bool defaultFlag);
     QGroupBox * setupGroupBox(std::string title, QVBoxLayout * parentLayout, RangedMeasurement_t range, double valueDefault, QDoubleSpinBox * &spinbox);
 
     void setWidgetEnabled(QWidget * widget, bool status);
     void setWidgetVisible(QWidget * widget, bool status);
+    void setDownsamplingVisualState(bool checked, int value, bool spinboxEnabled);
 
 signals:
     void sigVcCurrentRangeSelected(int chIdx, int idx);
@@ -101,6 +107,7 @@ signals:
     void sigCustomOptionSelected(unsigned int customOptionIdx, int idx);
     void sigCustomDoubleChanged(unsigned int customDoubleIdx, double value);
     void sigClampingModalitySelected(ClampingModality_t mode);
+    void sigDownsamplingToggleClicked(bool checked);
 };
 
 #endif // DEVICECONTROLDOCKWIDGET_H

@@ -41,6 +41,9 @@ DeviceController::DeviceController(ApplicationStatus * appStatus, MainWindow * m
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigSamplingRateSelected,       this, [=](int selectedSamplingRateIndex) {
         onSamplingRateSelected(selectedSamplingRateIndex);
     });
+
+    connect(deviceControlDockWidget, &DeviceControlDockWidget::sigDownsamplingToggleClicked, this, &::DeviceController::onDownsamplingToggleClicked);
+
     connect(model, &DeviceModel::sigDownsamplingRatioSelected,  this, &DeviceController::onDownsamplingRatioSelected);
     connect(model, &DeviceModel::sigDigitalFilterChanged,  this, &DeviceController::onDigitalFilterSettingsChanged);
     connect(deviceControlDockWidget, &DeviceControlDockWidget::sigClampingModalitySelected,   this, [=](ClampingModality_t selectedClampingModality) {
@@ -181,6 +184,20 @@ void DeviceController::onSamplingRateSelected(uint16_t selectedSamplingRateIndex
 }
 
 // Downsampling ratio
+void DeviceController::onDownsamplingToggleClicked(bool checked) {
+    if (!checked) {
+        onDownsamplingRatioSelected(1);
+    } else {
+        int currentSbxValue = deviceControlDockWidget->downsamplingRatioSbx->value();
+        if (currentSbxValue <= 1) {
+            onDownsamplingRatioSelected(2);
+        } else {
+            onDownsamplingRatioSelected(currentSbxValue);
+        }
+    }
+    deviceControlDockWidget->downsamplingRatioSbx->editingFinished();
+}
+
 void DeviceController::onDownsamplingRatioSelected(uint16_t selectedDownsamplingRatioIndex) {
     appStatus->getMessageDispatcher()->setDownsamplingRatio(selectedDownsamplingRatioIndex);
     deviceControlDockWidget->updateParameters();

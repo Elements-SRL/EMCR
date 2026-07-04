@@ -37,8 +37,6 @@ public:
     void setSelectedChannels(std::map<int, bool>);
     std::vector <uint16_t> getSelectedChannelsIndexes();
     std::vector <uint16_t> getExpandedChannelsIndexes();
-    std::vector <uint16_t> getStimActiveChannelsIndexes();
-    std::vector <uint16_t> getExpandedAndStimActiveChannelsIndexes();
     std::vector <uint16_t> getOffsetRecalibratingChannelsIndexes();
     std::vector <uint16_t> getLiquidJunctionCompensatingChannelsIndexes();
 
@@ -58,7 +56,16 @@ public:
     std::vector <RangedMeasurement_t> getVcCurrentRange();
     std::vector <RangedMeasurement_t> getCcVoltageRange();
 
+    // Channel Input
+    std::map <uint16_t, bool> getActiveChannelsMap();
+
+    // Stimulus
+    std::map <uint16_t, bool> getStimActiveChannelsMap();
+    std::vector <uint16_t> getStimActiveChannelsIndexes();
+    std::vector <uint16_t> getExpandedAndStimActiveChannelsIndexes();
+
     // Plot detail
+    std::map <uint16_t, bool> getDetailedPlotMap();
     std::vector<uint16_t> getDetailedPlotIndexes();
     void setDetailedPlots(std::map <uint16_t, bool>);
     void clearPlotDetails();

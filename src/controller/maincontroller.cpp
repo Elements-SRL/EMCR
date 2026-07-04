@@ -2,6 +2,10 @@
 #include "statearraycontroller.h"
 #include "mainwindow.h"
 #include "application_status.h"
+#include "confirmdialog/confirmationdialog.h"
+#include "themecontroller.h"
+#include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
 
 MainController::MainController() {
     /*! Set up device detector */
@@ -54,15 +58,37 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
 
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
+    connect(mainWindow, &MainWindow::confirmDisconnectDevice, this, &MainController::onDisconnect);
     connect(mainWindow, &MainWindow::sigUpgradeFw, this, &MainController::onUpgradeFw);
     connect(mainWindow, &MainWindow::sigResetHw, this, &MainController::onResetHw);
 
-    mainWindow->show();
+    if (this->splash != nullptr) {
+        this->splash->show();
+    }
+
+    introMinDurationPassed = false;
+
+    QTimer::singleShot(2000, this, [this]() {
+        introMinDurationPassed = true;
+        checkReadyToSwitchFromSplash();
+    });
+
     emit startDetecting();
+}
+
+void MainController::setSplash(SplashView *s){
+    this->splash = s;
+    splash->show();
 }
 
 void MainController::onDevicesListChanged(std::vector <std::string> devicesList) {
     this->mainWindow->setDevicesList(devicesList);
+
+    // At least one scan done
+    firstDeviceScanDone = true;
+
+    checkReadyToSwitchFromSplash();
+
     if (devicesList.size() > 0) {
         if (msgDisp != nullptr) {
             std::string sn;
@@ -90,10 +116,11 @@ void MainController::onDevicesListChanged(std::vector <std::string> devicesList)
 
 void MainController::onConnect(bool flag) {
     emit stopDetecting();
+    QPushButton * connectBtn = mainWindow->getConnectButton();
     QString serial = mainWindow->getSelectedSerialNumber();
 
     if (flag) {
-        mainWindow->setConnectionLabel("Connecting, please wait...");
+        connectBtn->setText("CONNECTING");
         deviceConnector->setDeviceId(serial);
         deviceConnector->start();
     }
@@ -101,7 +128,6 @@ void MainController::onConnect(bool flag) {
         previousVoltageRange.reset();
         previousCurrentRange.reset();
 
-        mainWindow->setConnectionLabel("");
         mainWindow->connectDevice(false, Success);
         this->stopAndDestroyProducerConsumers();
 
@@ -121,6 +147,35 @@ void MainController::onConnect(bool flag) {
     }
 }
 
+void MainController::onDisconnect() {
+    previousVoltageRange.reset();
+    previousCurrentRange.reset();
+
+    mainWindow->connectDevice(false, Success);
+    this->stopAndDestroyProducerConsumers();
+
+    if (appStatus != nullptr) {
+        delete appStatus;
+        appStatus = nullptr;
+    }
+
+    if (msgDisp != nullptr) {
+        msgDisp->disconnectDevice();
+        deviceConnector->destroyMessageDispatcher();
+        msgDisp = nullptr;
+        mainWindow->setMessageDispatcher(msgDisp);
+    }
+
+    emit startDetecting();
+
+    // Centering the main window
+    QCoreApplication::processEvents();
+    mainWindow->adjustSize();
+    auto screenGeometry = mainWindow->screen()->geometry();
+    mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
+}
+
+
 void MainController::onUpgradeFw() {
     upgradeFwController->openView(mainWindow->getSelectedSerialNumber());
 }
@@ -134,7 +189,7 @@ void MainController::onResetHw() {
 void MainController::onDeviceConnected(ErrorCodes_t ret) {
     bool connectionSuccessful = ret == Success;
     if (connectionSuccessful) {
-        mainWindow->setConnectionLabel("");
+        mainWindow->showHideConnectedDevice(true);
         msgDisp = deviceConnector->getMessageDispatcher();
         if (msgDisp->getCalibrationStatus() != Success) {
             mainWindow->setConnectionLabel("Default calibration\nloaded", true);
@@ -148,9 +203,16 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     if (connectionSuccessful) {
         this->onMainWindowCreated();
         mainWindow->restoreUISettings();
-    }
-    else {
-        mainWindow->setConnectionLabel("Connection failed", true);
+
+        // Centering the main window
+        QCoreApplication::processEvents();
+        mainWindow->adjustSize();
+        auto screenGeometry = mainWindow->screen()->geometry();
+        mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
+
+    } else {
+        mainWindow->showHideConnectedDevice(false);
+        mainWindow->setConnectionLabel("Connection failed");
         emit startDetecting();
     }
 }
@@ -240,6 +302,10 @@ void MainController::onMainWindowCreated() {
     plotPreferencesController->connectBigPlotController(bigPlotController);
     plotPreferencesController->connectPlotDetailController(plotDetailController);
     plotPreferencesController->connectChessboardController(chessboardController);
+
+    // Connecting Theme controller to plots
+    connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, &MainController::onThemeUpdated);
+
 
     if (msgDisp->hasProtocols() == Success) {
         auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
@@ -552,4 +618,63 @@ void MainController::stopAndDestroyProducerConsumers() {
         deviceDataProducer = nullptr;
     }
     controllersWithConsumer.clear();
+}
+
+
+/*
+ * Checks if its time to swith from SplashScreen to
+ * Device selection screen
+ */
+void MainController::checkReadyToSwitchFromSplash() {
+
+    if (mainWindow->isVisible()) {
+        return;
+    }
+
+    if (introMinDurationPassed && firstDeviceScanDone) {
+
+        if (this->splash != nullptr) {
+            this->splash->setMessage("DONE.");
+            this->splash->hide();
+        }
+
+        mainWindow->show();
+
+        // Window adjustment
+        QCoreApplication::processEvents();
+        mainWindow->adjustSize();
+
+        // Screen center
+        auto screenGeometry = mainWindow->screen()->geometry();
+        mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
+    }
+}
+
+/* Refesh theme of widgets with QWT plots.
+ * Those plots need to be "re-rendered" on theme change.
+ * Used for already opened plots that are not affected
+ * by QSS reloading.
+ */
+void MainController::onThemeUpdated() {
+    auto bigPlot = mainWindow->getBigPlotWidget();
+    auto voltageProtocol = mainWindow->getDockWidget(MainWindow::DWProtocol);
+
+    if (!bigPlot && !voltageProtocol) return;
+
+    QList<QwtPlot*> bigPlots = bigPlot->findChildren<QwtPlot*>();
+    QList<QwtPlot*> protocolPlots = voltageProtocol->findChildren<QwtPlot*>();
+
+    for (QwtPlot* plot : (bigPlots + protocolPlots)) {
+        // Unpolish/Polish for plot itself
+        plot->style()->unpolish(plot);
+        plot->style()->polish(plot);
+
+        // Unpolish/Polish canvas
+        if (auto canvas = plot->canvas()) {
+            canvas->style()->unpolish(canvas);
+            canvas->style()->polish(canvas);
+        }
+
+        plot->replot();
+    }
 }

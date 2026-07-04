@@ -16,7 +16,6 @@ class MeasurementsOverviewDockWidget : public QDockWidget {
 
 private:
     typedef enum Columns {
-        ColChannelIndex,
         ColMeanVoltage,
         ColVoltageRms,
         ColMeanCurrent,
@@ -35,6 +34,7 @@ private:
     QWidget * mainWg = nullptr;
     CopyableTable* dataTable = nullptr;
     std::vector<QPushButton*> buttons;
+    QLabel * emptyStateLabel = nullptr;
 
     void setStatisticsResultsInRowaRow(int row, StatisticsResult &r);
     void setCellText(int row, int col, const QString text);

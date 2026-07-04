@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QTextStream>
 #include <QHeaderView>
+#include <QDebug>
 
 CopyableTable::CopyableTable(QWidget *parent) : QTableWidget(parent) {
 
@@ -37,13 +38,33 @@ bool CopyableTable::eventFilter(QObject * obj, QEvent * event) {
                 QString clipboardText;
                 QTextStream stream(&clipboardText);
                 stream.setLocale(QLocale::system());
-                int colIdx;
+
+                stream << "Channel Index\t";
+                for (int colIdx = range.leftColumn(); colIdx <= range.rightColumn(); colIdx++) {
+                    QTableWidgetItem* hItem = this->horizontalHeaderItem(colIdx);
+                    if (hItem) {
+                        stream << hItem->text();
+                    }
+
+                    // Built all the columns headers, stream goes newline
+                    stream << (colIdx == range.rightColumn() ? "\n" : "\t");
+                }
 
                 for (int rowIdx = range.topRow(); rowIdx <= range.bottomRow(); rowIdx++) {
-                    for (colIdx = range.leftColumn(); colIdx < range.rightColumn(); colIdx++) {
-                        this->addCell(this->item(rowIdx, colIdx), stream);
+
+                    // Reading channel IDX (vertical header)
+                    QTableWidgetItem* vItem = this->verticalHeaderItem(rowIdx);
+                    if (vItem) {
+                        stream << vItem->text();
                     }
-                    this->addCell(this->item(rowIdx, colIdx), stream, "\n");
+                    stream << "\t";
+
+                    for (int colIdx = range.leftColumn(); colIdx <= range.rightColumn(); colIdx++) {
+                        QTableWidgetItem* cellItem = this->item(rowIdx, colIdx);
+                        bool isLastColumn = (colIdx == range.rightColumn());
+
+                        this->addCell(cellItem, stream, isLastColumn ? "\n" : "\t");
+                    }
                 }
                 clipboard->setText(clipboardText);
             }

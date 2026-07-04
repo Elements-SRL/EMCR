@@ -10,6 +10,7 @@ PlotDetail::PlotDetail(PlotDetailModel * pdm, QWidget * parent):
     mainVl->addWidget(plot);
     pdm->getCurve()->attach(plot);
     setWindowFlags(Qt::Window);
+    setObjectName("PlotDetail");
 }
 
 uint16_t PlotDetail::getChannel(){

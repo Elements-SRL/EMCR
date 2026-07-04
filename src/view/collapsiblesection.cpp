@@ -1,4 +1,5 @@
 #include "collapsiblesection.h"
+#include <qstyle.h>
 
 CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientation) :
     QWidget(),
@@ -6,22 +7,22 @@ CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientatio
     orientation(orientation) {
 
     this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    this->setObjectName("CollapsibleWg");
 
     QVBoxLayout * mainLo = new QVBoxLayout();
     this->setLayout(mainLo);
-    mainLo->setContentsMargins(0, 0, 0, 0);
-    mainLo->setSpacing(0);
+    mainLo->setContentsMargins(8, 0, 8, 0);
+    mainLo->setSpacing(2);
 
     QHBoxLayout * titleLo = new QHBoxLayout();
     mainLo->addLayout(titleLo);
 
     hideShowBtn = new QToolButton();
-    hideShowBtn->setStyleSheet("QToolButton {border: none;}");
-    hideShowBtn->setArrowType(Qt::ArrowType::RightArrow);
     hideShowBtn->setCheckable(true);
     hideShowBtn->setChecked(false);
 
     titleEdit = new QLabel(title);
+    titleEdit->setObjectName("collapsibleTitle");
     titleEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     QWidget * spacer = new QWidget();
@@ -31,7 +32,14 @@ CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientatio
     titleLo->addWidget(titleEdit);
     titleLo->addWidget(spacer);
 
+    valueLabel = new QLabel();
+    valueLabel->setObjectName("collapsibleTitleValue");
+    valueLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    valueLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+    titleLo->addWidget(valueLabel);
+
     groupBox = new QGroupBox();
+    groupBox->setObjectName("collapsibleGb");
     mainLo->addWidget(groupBox);
     groupBox->setVisible(false);
 
@@ -52,8 +60,22 @@ CollapsibleSection::CollapsibleSection(QString title, Qt::Orientation orientatio
 }
 
 void CollapsibleSection::setSingleOption(QString name) {
+    QString leftText = name;
+    QString rightText = "";
+
+    int spaceIndex = name.lastIndexOf(" ");
+    if (spaceIndex != -1) {
+        leftText = name.left(spaceIndex).trimmed();
+        rightText = name.mid(spaceIndex + 1).trimmed();
+    }
+
     this->addRadioButton(name, true);
-    titleEdit->setText(title + ": " + name);
+
+    titleEdit->setText(title);
+    if (valueLabel) {
+        valueLabel->setText(name);
+    }
+
     hideShowBtn->setEnabled(false);
     singleOption = true;
     emit buttonToggled(0, true);
@@ -82,12 +104,58 @@ void CollapsibleSection::addPushButton(QPushButton * btn, bool checked) {
     buttons.push_back(btn);
 }
 
-void CollapsibleSection::addRadioButton(QString name, bool checked) {
-    QRadioButton * btn = new QRadioButton(name);
-    buttonGroup->addButton(btn, btnCount++);
-    gbLo->addWidget(btn);
-    btn->setChecked(checked);
-    buttons.push_back(btn);
+void CollapsibleSection::addRadioButton(QString text, bool checked) {
+    QString leftText = text;
+    QString rightText = "";
+
+    int spaceIndex = text.lastIndexOf(" ");
+    if (spaceIndex != -1) {
+        leftText = text.left(spaceIndex).trimmed(); // Ex: "100"
+        rightText = text.mid(spaceIndex + 1).trimmed(); // Ex: "nA"
+    }
+
+    QRadioButton *rowButton = new QRadioButton();
+    rowButton->setObjectName("collapsibleRowButton");
+    rowButton->setProperty("fullText", text);
+
+    QHBoxLayout *rowLayout = new QHBoxLayout(rowButton);
+    rowLayout->setContentsMargins(8, 6, 8, 6);
+    rowLayout->setSpacing(10);
+
+    // Left label. Value only ex. "100"
+    QLabel *lblLeft = new QLabel(leftText);
+    lblLeft->setObjectName("rowLabelText");
+    lblLeft->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    // Right label. unit measure e.g "nA" etc
+    QLabel *lblRight = new QLabel(rightText);
+    lblRight->setObjectName("rowLabelValue");
+    lblRight->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+    rowLayout->addWidget(lblLeft, 1);
+    rowLayout->addWidget(lblRight, 0);
+
+    // Preventing labels to block the click on radio buttons below
+    lblLeft->setAttribute(Qt::WA_TransparentForMouseEvents);
+    lblRight->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+    if (gbLo) {
+        gbLo->addWidget(rowButton);
+    }
+
+    buttonGroup->addButton(rowButton, btnCount++);
+
+    this->buttons.push_back(rowButton);
+
+    if (checked == rowButton->isChecked()) {
+        this->onButtonToggled(rowButton, checked);
+    }
+    rowButton->setChecked(checked);
+
+    connect(rowButton, &QRadioButton::toggled, this, [rowButton](bool) {
+        rowButton->style()->unpolish(rowButton);
+        rowButton->style()->polish(rowButton);
+    });
 }
 
 void CollapsibleSection::setParametricTitle(bool flag) {
@@ -164,12 +232,6 @@ std::vector <QAbstractButton *> CollapsibleSection::getButtons() {
 
 void CollapsibleSection::onHideShowBtnClick(bool show) {
     groupBox->setVisible(show);
-    if (show) {
-        hideShowBtn->setArrowType(Qt::ArrowType::DownArrow);
-
-    } else {
-        hideShowBtn->setArrowType(Qt::ArrowType::RightArrow);
-    }
 }
 
 void CollapsibleSection::onButtonToggled(QAbstractButton * btn, bool checked) {
@@ -178,7 +240,18 @@ void CollapsibleSection::onButtonToggled(QAbstractButton * btn, bool checked) {
         currentSelectedButton = idx;
     }
     emit buttonToggled(idx, checked);
+
     if (checked && parametricTitleFlag) {
-        titleEdit->setText(title + ": " + btn->text());
+        // (es: "100 nA")
+        QString displayText = btn->property("fullText").toString();
+        if (displayText.isEmpty()) {
+            displayText = btn->text();
+        }
+
+        // Value only
+        titleEdit->setText(title);
+        if (valueLabel) {
+            valueLabel->setText(displayText);
+        }
     }
 }
