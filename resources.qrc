@@ -109,5 +109,12 @@
         <file>theme/light/icons/record.svg</file>
         <file>theme/dark/imgs/gap free icon.png</file>
         <file>theme/light/imgs/gap free icon.png</file>
+        <file>theme/dark/icons/3_dots_bounce.svg</file>
+        <file>theme/dark/icons/disconnect_plug.svg</file>
+        <file>theme/dark/icons/toggle_off.svg</file>
+        <file>theme/dark/icons/toggle_on.svg</file>
+        <file>theme/light/icons/disconnect_plug.svg</file>
+        <file>theme/light/icons/toggle_off.svg</file>
+        <file>theme/light/icons/toggle_on.svg</file>
     </qresource>
 </RCC>
