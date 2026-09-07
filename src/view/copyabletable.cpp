@@ -6,10 +6,9 @@
 #include <QTextStream>
 #include <QHeaderView>
 #include <QDebug>
+#include <QSettings>
 
-CopyableTable::CopyableTable(QWidget *parent) : QTableWidget(parent) {
-
-}
+CopyableTable::CopyableTable(QWidget *parent) : QTableWidget(parent) {}
 
 QSize CopyableTable::sizeHint() const {
     QSize size = QTableWidget::sizeHint();
@@ -31,6 +30,10 @@ bool CopyableTable::eventFilter(QObject * obj, QEvent * event) {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent * keyEvent = static_cast <QKeyEvent *> (event);
         if ((keyEvent->key() == Qt::Key_C) && (keyEvent->modifiers() == Qt::CTRL)) {
+
+            QSettings settings;
+            exportHeader = settings.value("Preferences/UI/exportCopyableTableHeader").toBool();
+
             QClipboard * clipboard = QGuiApplication::clipboard();
             QList <QTableWidgetSelectionRange> ranges = this->selectedRanges();
             if (ranges.size() > 0) {
@@ -39,15 +42,17 @@ bool CopyableTable::eventFilter(QObject * obj, QEvent * event) {
                 QTextStream stream(&clipboardText);
                 stream.setLocale(QLocale::system());
 
-                stream << "Channel Index\t";
-                for (int colIdx = range.leftColumn(); colIdx <= range.rightColumn(); colIdx++) {
-                    QTableWidgetItem* hItem = this->horizontalHeaderItem(colIdx);
-                    if (hItem) {
-                        stream << hItem->text();
-                    }
+                if (this->exportHeader) {
+                    stream << "Channel Index\t";
+                    for (int colIdx = range.leftColumn(); colIdx <= range.rightColumn(); colIdx++) {
+                        QTableWidgetItem* hItem = this->horizontalHeaderItem(colIdx);
+                        if (hItem) {
+                            stream << hItem->text();
+                        }
 
-                    // Built all the columns headers, stream goes newline
-                    stream << (colIdx == range.rightColumn() ? "\n" : "\t");
+                        // Built all the columns headers, stream goes newline
+                        stream << (colIdx == range.rightColumn() ? "\n" : "\t");
+                    }
                 }
 
                 for (int rowIdx = range.topRow(); rowIdx <= range.bottomRow(); rowIdx++) {

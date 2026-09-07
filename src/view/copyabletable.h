@@ -14,6 +14,7 @@ protected:
     bool eventFilter(QObject * obj, QEvent * event) override;
 
 private:
+    bool exportHeader;
     void addCell(QTableWidgetItem * item, QTextStream &stream, QString terminator = "\t");
 
 signals:

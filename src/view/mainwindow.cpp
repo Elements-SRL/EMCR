@@ -191,6 +191,20 @@ MainWindow::MainWindow(QWidget * parent) :
     actionBoardMapping->setEnabled(false);
     connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
 
+    actionExportCopyableTableHeader = new QAction("Copy table header", this);
+    actionExportCopyableTableHeader->setToolTip("Includes header when tables are copied to clipboard.");
+    menuPreferences->addAction(actionExportCopyableTableHeader);
+    actionExportCopyableTableHeader->setCheckable(true);
+
+    connect(actionExportCopyableTableHeader, &QAction::changed, this, [=]() {
+        QSettings settings;
+        QString settingsRoot = "Preferences/UI/";
+        bool exportCopyableTableHeader = this->actionExportCopyableTableHeader->isChecked();
+        settings.setValue(settingsRoot + "exportCopyableTableHeader", exportCopyableTableHeader);
+    });
+
+    menuBar->addSeparator();
+
     /*! Theme menu within Preferencies */
     menuTheme = new QMenu("Theme", this);
     menuPreferences->addMenu(menuTheme);
