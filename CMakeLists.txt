@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(EMCR
-    VERSION 0.29.1
+    VERSION 0.29.2
     LANGUAGES CXX
 )
 
