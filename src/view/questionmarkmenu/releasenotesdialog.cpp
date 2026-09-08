@@ -8,7 +8,16 @@ ReleaseNotesDialog::ReleaseNotesDialog(QWidget* parent) :
         version.major = VERSION_MAJOR;
         version.minor = VERSION_MINOR;
         version.patch = VERSION_PATCH;
-        version.sections[NewFeatures] << "Linear fit lines drawn on top of I/V graphs";
+        version.sections[Gui] << "Revamped GUI style that handles dark mode";
+        version.sections[Gui] << "Warning message if calibration data is not found";
+        this->appendVersion(version);
+    }
+    {
+        Version_t version;
+        version.major = 0;
+        version.minor = 25;
+        version.patch = 1;
+        version.sections[Qol] << "CTRL + SHIFT + number to start protocol and recording";
         this->appendVersion(version);
     }
     {
