@@ -27,7 +27,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
 
     auto stopButton = new QPushButton(this);
     stopButton->setObjectName("stopButton");
-    stopButton->setToolTip("Stop the iv graph analysis if it was previously strted");
+    stopButton->setToolTip("Stop the iv graph analysis if it was previously started");
     stopButton->setIconSize(QSize(30, 30));
     stopButton->setFixedSize(32, 32);
     buttonsHl->addWidget(stopButton);
@@ -59,21 +59,21 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
 
     mainVl->addLayout(buttonsHl);
     dataTable = new CopyableTable(this);
-    dataTable->setColumnCount(9);
-    dataTable->setRowCount(channelsNum + 1);
-    dataTable->horizontalHeader()->hide();
-    dataTable->verticalHeader()->hide();
+    dataTable->setColumnCount(4);
+    dataTable->setRowCount(channelsNum);
+
     mainVl->addWidget(dataTable);
     this->installEventFilter(dataTable);
-    dataTable->setItem(0, 0, new QTableWidgetItem("Channel index"));
-    dataTable->setItem(0, 1, new QTableWidgetItem("Conductance"));
-    dataTable->setItem(0, 2, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, 3, new QTableWidgetItem("Resistance"));
-    dataTable->setItem(0, 4, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, 5, new QTableWidgetItem("Inversion potential"));
-    dataTable->setItem(0, 6, new QTableWidgetItem("Unit"));
-    dataTable->setItem(0, 7, new QTableWidgetItem("Current offset"));
-    dataTable->setItem(0, 8, new QTableWidgetItem("Unit"));
+
+    QHeaderView * vHeader = dataTable->verticalHeader();
+    vHeader->setObjectName("tableVHeader");
+    dataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    dataTable->setHorizontalHeaderItem(0, new QTableWidgetItem("Conductance"));
+    dataTable->setHorizontalHeaderItem(1, new QTableWidgetItem("Resistance"));
+    dataTable->setHorizontalHeaderItem(2, new QTableWidgetItem("Inversion potential"));
+    dataTable->setHorizontalHeaderItem(3, new QTableWidgetItem("Current offset"));
+
 
     auto zoomButtonsHl = new QHBoxLayout();
 
@@ -94,17 +94,54 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
 }
 
 void IvGraphWidget::setParams(std::map<uint32_t, std::vector<Measurement>> params) {
+
+    // Reset vertical header
+    for (int i = 0; i < dataTable->rowCount(); ++i) {
+        dataTable->setVerticalHeaderItem(i, new QTableWidgetItem(QString::number(i + 1)));
+    }
+
+    if (params.empty()) {
+        // Empty table
+        dataTable->setRowCount(1);
+        dataTable->clearContents();
+        return;
+    }
+
+    dataTable->clearContents();
+    dataTable->clear();
+    dataTable->setRowCount(params.size());
+
+
+    // Creating horizontalHeader with unit measures taken from first data element
+    const auto& firstRowMeasurements = params.begin()->second;
+    std::vector<std::string> baseNames = { "Conductance", "Resistance", "Inversion potential", "Current offset" };
+
+    for (auto col = 0; col < firstRowMeasurements.size() && col < 4; ++col) {
+        auto temp = firstRowMeasurements[col];
+        auto headerText = baseNames[col] + " [" + temp.getFullUnit() + "]";
+        dataTable->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::fromStdString(headerText)));
+    }
+
+    // Table shows data for active channels only.
+    // The shown order follows channels selection.
+
+    auto row = 0;
     for (auto &entry: params) {
-        const auto key = entry.first;
+        const auto chIdx = entry.first;
         const auto values = entry.second;
-        const auto tabRow = key + 1;
-        dataTable->setItem(tabRow, 0, new QTableWidgetItem(QString::fromStdString(std::to_string(tabRow))));
+
+        // vHeader is set with chIdx
+        dataTable->setVerticalHeaderItem(row, new QTableWidgetItem(QString::fromStdString(std::to_string(chIdx + 1))));
+
         for (uint32_t i=0; i<values.size(); i++) {
-//            for each data we have both a value and a prefix and the offset is due to the chIdx column
-            auto idx = i * 2 + 1;
             auto m = values[i];
-            dataTable->setItem(tabRow, idx, new QTableWidgetItem(QString::fromStdString(std::to_string(m.value))));
-            dataTable->setItem(tabRow, idx + 1, new QTableWidgetItem(QString::fromStdString(m.getFullUnit())));
+
+            // Converting row data to the same unit measure chosen for the column
+            UnitPfx_t targetPrefix = firstRowMeasurements[i].prefix;
+            m.convertValue(targetPrefix);
+
+            dataTable->setItem(row, i, new QTableWidgetItem(QString::fromStdString(std::to_string(m.value))));
         }
+        row++;
     }
 }

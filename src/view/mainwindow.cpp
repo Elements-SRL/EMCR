@@ -191,9 +191,10 @@ MainWindow::MainWindow(QWidget * parent) :
     actionBoardMapping->setEnabled(false);
     connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
 
-    actionExportCopyableTableHeader = new QAction("Copy table header", this);
-    actionExportCopyableTableHeader->setToolTip("Includes header when tables are copied to clipboard.");
+    actionExportCopyableTableHeader = new QAction("Export table header", this);
+    actionExportCopyableTableHeader->setToolTip("Include header when tables are copied to clipboard.");
     menuPreferences->addAction(actionExportCopyableTableHeader);
+    menuPreferences->setToolTipsVisible(true);
     actionExportCopyableTableHeader->setCheckable(true);
 
     connect(actionExportCopyableTableHeader, &QAction::changed, this, [=]() {
