@@ -1,5 +1,6 @@
 #include "ivgraphwidget.h"
 #include <QSplitter>
+#include <qlabel.h>
 
 IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * parent) :
     QWidget(parent) {
@@ -52,6 +53,12 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     connect(calcLineButton, &QPushButton::clicked, this, [=](){
         emit sigCalcMeanSquared();
     });
+
+    auto infoBox = new QLabel();
+    infoBox->setObjectName("infoBox");
+    infoBox->setToolTip(QString("The table shows only the expanded channels"));
+    infoBox->setFixedSize(14, 14);
+    buttonsHl->addWidget(infoBox);
 
     QWidget* spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
