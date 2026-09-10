@@ -101,17 +101,19 @@ MeasurementsOverviewDockWidget::MeasurementsOverviewDockWidget(std::vector<uint1
     QHeaderView * vHeader = dataTable->verticalHeader();
     vHeader->setObjectName("tableVHeader");
     dataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    dataTable->setHorizontalHeaderLabels({"Mean Voltage [mV]",
-                                          "Voltage RMS [mV]",
-                                          "Mean Current [pA]",
-                                          "Current RMS [pA]",
-                                          "Resistance [MOHm]",
-                                          "Pipette capacitance [pF]",
-                                          "Membrane capacitance [pF]",
-                                          "Access resistance [MOhm]",
-                                          "Membrane resistance [MOhm]",
-                                          "Offset recalibration [pA]",
-                                          "Liquid junction [mV]"});
+
+    // Unit measures are added as postfix when data is read
+    dataTable->setHorizontalHeaderLabels({"Mean Voltage",
+                                          "Voltage RMS",
+                                          "Mean Current",
+                                          "Current RMS",
+                                          "Resistance",
+                                          "Pipette capacitance",
+                                          "Membrane capacitance",
+                                          "Access resistance",
+                                          "Membrane resistance",
+                                          "Offset recalibration",
+                                          "Liquid junction"});
     externalLayout->addWidget(scrollWidget);
 }
 
@@ -134,60 +136,115 @@ void MeasurementsOverviewDockWidget::onUpdate(){
 }
 
 void MeasurementsOverviewDockWidget::updateActiveChannels(std::vector<uint16_t> newActiveChannels){
-    dataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    dataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     activeChannels = newActiveChannels;
     onUpdate();
 }
 
 void MeasurementsOverviewDockWidget::setOffsetRecalibrationResult(std::vector<e384cl::Measurement_t> results) {
+    if (results.empty()) return;
+
+    auto firstMeas = results.begin();
+    updateHeader(dataTable, ColOffsetRecalibration, "Offset recalibration", results.begin()->getFullUnit());
+
     int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
+        result.convertValue(firstMeas->prefix);
         this->setCellText(row, ColOffsetRecalibration, QString("%1").arg(result.value));
         row++;
     }
 }
 
 void MeasurementsOverviewDockWidget::setLiquidJunctionResult(std::vector <e384cl::Measurement_t> results) {
+    if (results.empty()) return;
+
+    auto firstMeas = results.begin();
+    updateHeader(dataTable, ColLiquidJunction, "Liquid junction", firstMeas->getFullUnit());
+
     int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
+        result.convertValue(firstMeas->prefix);
         this->setCellText(row, ColLiquidJunction, QString("%1").arg(result.value));
         row++;
     }
 }
 
 void MeasurementsOverviewDockWidget::onLiveStatisticsResult(StatisticsResultWrapper_t results) {
+    if (results.empty()) return;
+
+    // Reference item for unit measures used by header
+    auto firstCh = activeChannels.front();
+    auto &firstResult = results[firstCh];
+
+    updateHeader(dataTable, ColMeanVoltage, "Mean Voltage", firstResult.meanVoltage.getFullUnit());
+    updateHeader(dataTable, ColVoltageRms, "Voltage RMS", firstResult.stdVoltage.getFullUnit());
+    updateHeader(dataTable, ColMeanCurrent, "Mean Current", firstResult.meanCurrent.getFullUnit());
+    updateHeader(dataTable, ColCurrentRms, "Current RMS", firstResult.stdCurrent.getFullUnit());
+
     int row = 0;
     for (auto ch : activeChannels) {
         auto &statisticResult = results[ch];
+
+        // Convert data to same prefix as first row items used as reference
+        statisticResult.meanVoltage.convertValue(firstResult.meanVoltage.prefix);
+        statisticResult.stdVoltage.convertValue(firstResult.stdVoltage.prefix);
+        statisticResult.meanCurrent.convertValue(firstResult.meanCurrent.prefix);
+        statisticResult.stdCurrent.convertValue(firstResult.stdCurrent.prefix);
+
         setStatisticsResultsInRowaRow(row, statisticResult);
         row++;
     }
 }
 
 void MeasurementsOverviewDockWidget::onResistanceEstimationResult(SingleMeasResultWrapper_t results) {
+    if (results.empty()) return;
+
+    auto firstMeas = results.begin()->meas;
+    updateHeader(dataTable, ColResistance, "Resistance", firstMeas.getFullUnit());
+
     int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
+        result.meas.convertValue(firstMeas.prefix);
         this->setCellText(row, ColResistance, QString("%1").arg(result.meas.value));
         row++;
     }
 }
 
 void MeasurementsOverviewDockWidget::onPipetteCapacitanceEstimationResult(SingleMeasResultWrapper_t results) {
+    if (results.empty()) return;
+
+    auto firstMeas = results.begin()->meas;
+    updateHeader(dataTable, ColPipetteCapacitance, "Pipette capacitance", firstMeas.getFullUnit());
+
     int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
+        result.meas.convertValue(firstMeas.prefix);
         this->setCellText(row, ColPipetteCapacitance, QString("%1").arg(result.meas.value));
         row++;
     }
 }
 
 void MeasurementsOverviewDockWidget::onMembraneEstimationResult(MembraneResultWrapper_t results) {
+    if (results.empty()) return;
+
+    auto firstItem = results.begin();
+    updateHeader(dataTable, ColMembraneCapacitance, "Membrane capacitance", firstItem->membraneCapacitance.getFullUnit());
+    updateHeader(dataTable, ColAccessResistance, "Access resistance", firstItem->accessResistance.getFullUnit());
+    updateHeader(dataTable, ColMembraneResistance, "Membrane resistance", firstItem->membraneResistance.getFullUnit());
+
     int row = 0;
     for (auto ch : activeChannels) {
         auto &result = results[ch];
+
+        // Convert data to same prefix as first item used as reference
+        result.membraneCapacitance.convertValue(firstItem->membraneCapacitance.prefix);
+        result.accessResistance.convertValue(firstItem->accessResistance.prefix);
+        result.membraneResistance.convertValue(firstItem->membraneResistance.prefix);
+
         this->setCellText(row, ColMembraneCapacitance, QString("%1").arg(result.membraneCapacitance.value));
         this->setCellText(row, ColAccessResistance, QString("%1").arg(result.accessResistance.value));
         this->setCellText(row, ColMembraneResistance, QString("%1").arg(result.membraneResistance.value));
@@ -210,5 +267,20 @@ void MeasurementsOverviewDockWidget::setCellText(int row, int col, const QString
     }
     else {
         dataTable->setItem(row, col, new QTableWidgetItem(text));
+    }
+}
+
+// Updates header labels with unit measure
+void MeasurementsOverviewDockWidget::updateHeader(QTableWidget* table, int col, const QString& baseName, const std::string& unit) {
+    auto headerItem = table->horizontalHeaderItem(col);
+    if (!headerItem) {
+        headerItem = new QTableWidgetItem();
+        table->setHorizontalHeaderItem(col, headerItem);
+    }
+
+    QString newHeaderText = QString("%1 [%2]").arg(baseName, QString::fromStdString(unit));
+    if (headerItem->text() != newHeaderText) {
+        headerItem->setText(newHeaderText);
+        dataTable->resizeColumnToContents(col);
     }
 }

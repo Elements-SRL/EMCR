@@ -52,6 +52,7 @@ public:
     void onResistanceEstimationResult(SingleMeasResultWrapper_t result);
     void onPipetteCapacitanceEstimationResult(SingleMeasResultWrapper_t result);
     void onMembraneEstimationResult(MembraneResultWrapper_t result);
+    void updateHeader(QTableWidget* table, int col, const QString& baseName, const std::string& unit);
 
 public slots:
     void onUpdate();
