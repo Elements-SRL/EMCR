@@ -21,7 +21,6 @@
 #include "deviceinfodialog.h"
 #include "releasenotesdialog.h"
 #include "themecontroller.h"
-#include <QDebug>
 
 void MainWindow::setupDeviceConnectionGui(QFrame * container){
 

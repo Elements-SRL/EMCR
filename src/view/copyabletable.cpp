@@ -5,7 +5,6 @@
 #include <QKeyEvent>
 #include <QTextStream>
 #include <QHeaderView>
-#include <QDebug>
 #include <QSettings>
 
 CopyableTable::CopyableTable(QWidget *parent) : QTableWidget(parent) {}
@@ -58,11 +57,13 @@ bool CopyableTable::eventFilter(QObject * obj, QEvent * event) {
                 for (int rowIdx = range.topRow(); rowIdx <= range.bottomRow(); rowIdx++) {
 
                     // Reading channel IDX (vertical header)
-                    QTableWidgetItem* vItem = this->verticalHeaderItem(rowIdx);
-                    if (vItem) {
-                        stream << vItem->text();
+                    if (this->exportHeader) {
+                        QTableWidgetItem* vItem = this->verticalHeaderItem(rowIdx);
+                        if (vItem) {
+                            stream << vItem->text();
+                        }
+                        stream << "\t";
                     }
-                    stream << "\t";
 
                     for (int colIdx = range.leftColumn(); colIdx <= range.rightColumn(); colIdx++) {
                         QTableWidgetItem* cellItem = this->item(rowIdx, colIdx);
