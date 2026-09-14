@@ -189,7 +189,12 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@BDG_O_FG_CH", "#FFFFFF"}, {"@BDG_O_BG_CH", "#4b5563"},
             {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", "#dc2626"},
             {"@BDG_R_FG_CH", "#1e293b"}, {"@BDG_R_BG_CH", "#eab308"},
-            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", "#2563eb"}
+            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", "#2563eb"},
+
+            // --- Badges for temperature sensor ---
+            {"@BDG_NOR_FG", "#4ade80"}, {"@BDG_DEF_BG", "rgba(74, 222, 128, 15%)"},
+            {"@BDG_WAR_FG", "#fbbf24"}, {"@BDG_WAR_BG", "rgba(251, 191, 36, 15%)"},
+            {"@BDG_DNG_FG", "#f87171"}, {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)"}
         };
 
     } else if (theme == Light) {
@@ -248,7 +253,12 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@BDG_O_FG_CH", "#FFFFFF"}, {"@BDG_O_BG_CH", lightPalette["200"]},
             {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", lightAccentsPalette["Red"]},
             {"@BDG_R_FG_CH", "#FFFFFF"}, {"@BDG_R_BG_CH", lightAccentsPalette["Orange"]},
-            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", lightAccentsPalette["Blue"]}
+            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", lightAccentsPalette["Blue"]},
+
+             // --- Badges for temperature sensor ---
+            {"@BDG_NOR_FG", lightAccentsPalette["Green"]}, {"@BDG_NOR_BG", "rgba(22, 163, 74, 15%)"},
+            {"@BDG_WAR_FG", lightAccentsPalette["Orange"]}, {"@BDG_WAR_BG", "rgba(217, 119, 6, 15%)"},
+            {"@BDG_DNG_FG", lightAccentsPalette["Red"]}, {"@BDG_DNG_BG", "rgba(220, 38, 38, 15%)"}
         };
     }
 
