@@ -1734,3 +1734,55 @@ QFrame#compensationControlsScrollContainer{
     border-left: 1px solid @BORDER_PANEL;
     border-right: 1px solid @BORDER_PANEL;
 }
+
+/* ========================================================================= */
+/* --- TEMPERATURE WIDGET ---                                                */
+/* ========================================================================= */
+QDockWidget#temperatureSensorDw{
+    background: @BG_PANEL;
+}
+
+QWidget#tSensorCentralWidget{
+    margin: 10px;
+    background: @BG_PANEL;
+}
+
+QFrame#tempTableHeader{
+    background: @BG_APP;
+    border-left: 1px solid @BORDER_PANEL;
+    border-right: 1px solid @BORDER_PANEL;
+    border-bottom: 0.5px solid @BORDER_PANEL;
+}
+
+QFrame#tempTableHeader QLabel {
+    color: @TEXT_SECONDARY; 
+    font-size: 10px; 
+    font-weight: bold; 
+    letter-spacing: 0.5px; 
+}
+
+QFrame#tempRowFrame {
+    background-color: @BG_APP;
+    border-left: 1px solid @BORDER_PANEL;
+    border-right: 1px solid @BORDER_PANEL;
+    border-bottom: 0.5px solid @BORDER_PANEL;
+}
+
+QLabel#tempValueLbl[status="DEF"],
+QLabel#tempValueLbl[status="NOR"] {
+    background-color: @BDG_NOR_BG;
+    color: @BDG_NOR_FG;
+    border: 1px solid @BDG_NOR_FG;
+}
+
+QLabel#tempValueLbl[status="WAR"] {
+    background-color: @BDG_WAR_BG;
+    color: @BDG_WAR_FG;
+    border: 1px solid @BDG_WAR_FG;
+}
+
+QLabel#tempValueLbl[status="DNG"] {
+    background-color: @BDG_DNG_BG;
+    color: @BDG_DNG_FG;
+    border: 1px solid @BDG_DNG_FG;
+}
