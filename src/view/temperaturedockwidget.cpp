@@ -2,6 +2,7 @@
 #include "activationbutton.h"
 #include "globaldefines.h"
 #include <QStyle>
+#include <QDebug>
 
 TemperatureDockWidget::TemperatureDockWidget(QWidget * parent) :
     QDockWidget(parent) {
@@ -11,10 +12,9 @@ TemperatureDockWidget::TemperatureDockWidget(QWidget * parent) :
     this->setWindowTitle("T Sensors");
 
     QWidget * centralWidget = new QWidget();
-    centralWidget->setObjectName("tSensorCentralWidget");
     externalLayout = new QVBoxLayout(centralWidget);
+    externalLayout->setContentsMargins(0, 0, 0, 0);
     externalLayout->setSpacing(0);
-    externalLayout->setContentsMargins(10, 0, 10, 10);
 
     this->setWidget(centralWidget);
 
@@ -44,8 +44,7 @@ TemperatureDockWidget::TemperatureDockWidget(QWidget * parent) :
 
 void TemperatureDockWidget::setChannels(int channelsNum) {
 
-    // TODO REMOVE FLAG 2
-    for (uint16_t idx = 0; idx < 2; idx++) {
+    for (uint16_t idx = 0; idx < channelsNum; idx++) {
 
         QFrame* tempRowFrame = new QFrame();
         tempRowFrame->setObjectName("tempRowFrame");
@@ -68,83 +67,153 @@ void TemperatureDockWidget::setChannels(int channelsNum) {
 }
 
 void TemperatureDockWidget::enableFansControls(e384cl::RangedMeasurement_t range) {
-    QHBoxLayout * fanHl = new QHBoxLayout;
-    externalLayout->addLayout(fanHl);
 
+    // Controls container
+    QFrame* controlsSectionContainer = new QFrame();
+    controlsSectionContainer->setObjectName("controlsSectionContainer");
+    QVBoxLayout* controlsSectionLayout = new QVBoxLayout(controlsSectionContainer);
+    controlsSectionLayout->setContentsMargins(0, 0, 0, 0);
+    controlsSectionLayout->setSpacing(6);
+
+    // Layout Label | SpinBox | Unit/Padding
+    QGridLayout * formGl = new QGridLayout;
+    formGl->setContentsMargins(8, 8, 8, 8);
+    formGl->setHorizontalSpacing(8);
+    formGl->setVerticalSpacing(6);
+    formGl->setColumnStretch(0, 1);
+
+    // Fan speed
+    QLabel * fanSpeedLbl = new QLabel("Fan speed");
     QDoubleSpinBox * fanSbx = new QDoubleSpinBox;
     fanSbx->setRange(range.min, range.max);
     fanSbx->setValue(range.max);
-    fanHl->addWidget(fanSbx);
-    fanHl->addWidget(new QLabel(QString::fromStdString(range.getFullUnit())));
+    fanSbx->setMinimumWidth(90);
 
-    // TODO REMOVE FLAG
-    if (debugControlsEnabled() || 1){
+    QLabel* fanUnitLbl = new QLabel(QString::fromStdString(range.getFullUnit()));
+    fanUnitLbl->setFixedWidth(30);
 
-        QHBoxLayout * setTHl = new QHBoxLayout;
-        externalLayout->addLayout(setTHl);
+    formGl->addWidget(fanSpeedLbl, 0, 0);
+    formGl->addWidget(fanSbx, 0, 1);
+    formGl->addWidget(fanUnitLbl, 0, 2);
 
+    if (debugControlsEnabled()) {
+
+        // Temp 0
+        ActivationButton * setTEnBtn = new ActivationButton;
+        QLabel * setTHlbl = new QLabel("Temp 0");
         setTSbx = new QDoubleSpinBox;
         setTSbx->setRange(30.0, 60.0);
-        setTHl->addWidget(setTSbx);
-        setTHl->addWidget(new QLabel("°C"));
+        setTSbx->setMinimumWidth(90);
 
-        ActivationButton * setTEnBtn = new ActivationButton;
-        setTHl->addWidget(setTEnBtn);
+        QHBoxLayout * temp0LblLayout = new QHBoxLayout;
+        temp0LblLayout->setContentsMargins(0,0,0,0);
+        temp0LblLayout->setSpacing(6);
+        temp0LblLayout->addWidget(setTEnBtn);
+        temp0LblLayout->addWidget(setTHlbl);
+        temp0LblLayout->addStretch();
 
-        connect(fanSbx, &QDoubleSpinBox::editingFinished, this, [=]() {
-            emit sigSetFanSpeed({fanSbx->value(), range.prefix, range.unit});
-        });
+        QLabel * u0Lbl = new QLabel("°C");
+        u0Lbl->setFixedWidth(30);
 
-        connect(setTEnBtn, &ActivationButton::clicked, this, &TemperatureDockWidget::sigEnableKTControl);
+        formGl->addLayout(temp0LblLayout, 1, 0);
+        formGl->addWidget(setTSbx, 1, 1);
+        formGl->addWidget(u0Lbl, 1, 2);
 
-        QHBoxLayout * setT1Hl = new QHBoxLayout;
-        externalLayout->addLayout(setT1Hl);
-
+        // Temp 1
+        ActivationButton * setTEn1Btn = new ActivationButton;
+        QLabel * setTEn1lbl = new QLabel("Temp 1");
         setT1Sbx = new QDoubleSpinBox;
         setT1Sbx->setRange(30.0, 60.0);
-        setT1Hl->addWidget(setT1Sbx);
-        setT1Hl->addWidget(new QLabel("°C"));
+        setT1Sbx->setMinimumWidth(90);
 
-        ActivationButton * setTEn1Btn = new ActivationButton;
-        setT1Hl->addWidget(setTEn1Btn);
+        QHBoxLayout * temp1LblLayout = new QHBoxLayout;
+        temp1LblLayout->setContentsMargins(0,0,0,0);
+        temp1LblLayout->setSpacing(6);
+        temp1LblLayout->addWidget(setTEn1Btn);
+        temp1LblLayout->addWidget(setTEn1lbl);
+        temp1LblLayout->addStretch();
 
-        connect(setTEn1Btn, &ActivationButton::clicked, this, [=](bool enable) {
-            emit sigEnableTControl({setT1Sbx->value(), e384CommLib::UnitPfxNone, "°C"}, enable);
-        });
+        QLabel * u1Lbl = new QLabel("°C");
+        u1Lbl->setFixedWidth(30);
 
-        QGridLayout * gl = new QGridLayout;
-        externalLayout->addLayout(gl);
+        formGl->addLayout(temp1LblLayout, 2, 0);
+        formGl->addWidget(setT1Sbx, 2, 1);
+        formGl->addWidget(u1Lbl, 2, 2);
+
+        // Prop Gain (Kp)
+        QLabel * pgLbl = new QLabel("Prop Gain");
+        pgLbl->setToolTip("Proportional Gain");
+
         auto pg = new QDoubleSpinBox;
         pg->setRange(0.0001, 100.0);
         pg->setDecimals(4);
         pg->setValue(0.04);
-        gl->addWidget(pg, 0, 0);
-        gl->addWidget(new QLabel("pg"), 0, 1);
+        pg->setMinimumWidth(90);
+
+        QLabel * pgSpacerLbl = new QLabel("Kp");
+        pgSpacerLbl->setFixedWidth(30);
+
+        formGl->addWidget(pgLbl, 3, 0);
+        formGl->addWidget(pg, 3, 1);
+        formGl->addWidget(pgSpacerLbl, 3, 2);
+
+        // Int Gain (Ki)
+        QLabel * igLbl = new QLabel("Int Gain");
+        igLbl->setToolTip("Integral Gain");
 
         auto ig = new QDoubleSpinBox;
         ig->setRange(0.0001, 100.0);
         ig->setDecimals(4);
         ig->setValue(0.006);
-        gl->addWidget(ig, 1, 0);
-        gl->addWidget(new QLabel("ig"), 1, 1);
+        ig->setMinimumWidth(90);
+
+        QLabel * igSpacerLbl = new QLabel("Ki");
+        igSpacerLbl->setFixedWidth(30);
+
+        formGl->addWidget(igLbl, 4, 0);
+        formGl->addWidget(ig, 4, 1);
+        formGl->addWidget(igSpacerLbl, 4, 2);
+
+        // Max Int Error
+        QLabel * ieMaxLbl = new QLabel("Max Int Error");
+        ieMaxLbl->setToolTip("Anti-windup limit for integral error");
 
         auto ieMax = new QDoubleSpinBox;
         ieMax->setRange(1.0, 10000.0);
         ieMax->setDecimals(0);
         ieMax->setValue(200.0);
-        gl->addWidget(ieMax, 2, 0);
-        gl->addWidget(new QLabel("ieMax"), 2, 1);
+        ieMax->setMinimumWidth(90);
 
-        connect(pg, &QDoubleSpinBox::editingFinished, this, [=]() {
-            emit sigPidParams(pg->value(), ig->value(), ieMax->value());
+        QLabel * ieMaxSpacerLbl = new QLabel("");
+        ieMaxSpacerLbl->setFixedWidth(30);
+
+        formGl->addWidget(ieMaxLbl, 5, 0);
+        formGl->addWidget(ieMax, 5, 1);
+        formGl->addWidget(ieMaxSpacerLbl, 5, 2);
+
+        // --- Connections
+        connect(setTEnBtn, &ActivationButton::clicked, this, &TemperatureDockWidget::sigEnableKTControl);
+
+        connect(setTEn1Btn, &ActivationButton::clicked, this, [=](bool enable) {
+            emit sigEnableTControl({setT1Sbx->value(), e384CommLib::UnitPfxNone, "°C"}, enable);
         });
-        connect(ig, &QDoubleSpinBox::editingFinished, this, [=]() {
+
+        auto emitPidParams = [=]() {
             emit sigPidParams(pg->value(), ig->value(), ieMax->value());
-        });
-        connect(ieMax, &QDoubleSpinBox::editingFinished, this, [=]() {
-            emit sigPidParams(pg->value(), ig->value(), ieMax->value());
-        });
+        };
+
+        connect(pg, &QDoubleSpinBox::editingFinished, this, emitPidParams);
+        connect(ig, &QDoubleSpinBox::editingFinished, this, emitPidParams);
+        connect(ieMax, &QDoubleSpinBox::editingFinished, this, emitPidParams);
     }
+
+    connect(fanSbx, &QDoubleSpinBox::editingFinished, this, [=]() {
+        emit sigSetFanSpeed({fanSbx->value(), range.prefix, range.unit});
+    });
+
+    controlsSectionLayout->addLayout(formGl);
+    controlsSectionLayout->addStretch();
+    externalLayout->addWidget(controlsSectionContainer);
 }
 
 e384cl::Measurement_t TemperatureDockWidget::getTSet() {
@@ -159,9 +228,23 @@ void TemperatureDockWidget::onTemperatureRead(std::vector <e384cl::Measurement_t
 }
 
 void TemperatureDockWidget::updateTemperatureUi(unsigned int chIdx, double tempVal){
+    if (tempVal < 0){
+        qWarning() << "WARNING - Temperature sensor reporting [" + QString::number(tempVal) + "]";
+    }
+
+    auto tempStatus = DeviceTemperatureStatus::DEFAULT;
+
     // TODO - when will be defined, update logic for switching status
     // based on the temp value of specific device
-    temperatureLbls[chIdx]->setProperty("status", DeviceTemperatureStatus::DEFAULT);
+    // if (tempStatus > 90){
+    //     tempStatus = DeviceTemperatureStatus::DANGER;
+    // }else if (tempStatus >= 65){
+    //     tempStatus = DeviceTemperatureStatus::WARNING;
+    // } else {
+    //     tempStatus = DeviceTemperatureStatus::NORMAL;
+    // }
+
+    temperatureLbls[chIdx]->setProperty("status", tempStatus);
     temperatureLbls[chIdx]->style()->unpolish(temperatureLbls[chIdx]);
     temperatureLbls[chIdx]->style()->polish(temperatureLbls[chIdx]);
 }
