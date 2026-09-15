@@ -102,7 +102,7 @@ void writeEvent(H5::Group &parentGroup, const Event& event, const std::string ev
         H5::DataSpace attSpace(H5S_SCALAR);
         H5::StrType strdatatype(0, H5T_VARIABLE);
         // Create an integer attribute for the dataset
-        const unsigned int offset = event.eventIdx;
+        const uint64_t offset = event.eventIdx;
         dataset.createAttribute("Sample offset", H5::PredType::NATIVE_UINT64, attSpace).write(H5::PredType::NATIVE_UINT64, &offset);
         const double stim = event.stimulus;
         dataset.createAttribute("Stimulus", H5::PredType::IEEE_F64LE, attSpace).write(H5::PredType::IEEE_F64LE, &stim);

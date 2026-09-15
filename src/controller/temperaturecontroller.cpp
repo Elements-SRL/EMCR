@@ -89,7 +89,7 @@ void TemperatureController::onTemperatureRead(std::vector <e384cl::Measurement_t
         e384cl::Measurement_t speed = {maxFanSpeed+(minFanSpeed-maxFanSpeed)*(RT-minRT)/(maxRT-minRT), UnitPfxNone, "rpm"};
         appStatus->getMessageDispatcher()->setCoolingFansSpeed(speed, true);
         w = speed.value;
-        qDebug() << Tm0 << Ts.value << e << ie << RT << speed.value;
+        // qDebug() << Tm0 << Ts.value << e << ie << RT << speed.value;
     }
     else {
         x1 = Tm0;

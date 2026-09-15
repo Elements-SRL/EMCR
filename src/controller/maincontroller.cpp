@@ -623,7 +623,7 @@ void MainController::stopAndDestroyProducerConsumers() {
 
 /*
  * Checks if its time to swith from SplashScreen to
- * Device selection screen
+ * Device selection screen.
  */
 void MainController::checkReadyToSwitchFromSplash() {
 
@@ -634,10 +634,10 @@ void MainController::checkReadyToSwitchFromSplash() {
     if (introMinDurationPassed && firstDeviceScanDone) {
 
         if (this->splash != nullptr) {
-            this->splash->setMessage("DONE.");
             this->splash->hide();
         }
 
+        // Open the device selection screen
         mainWindow->show();
 
         // Window adjustment
@@ -647,6 +647,9 @@ void MainController::checkReadyToSwitchFromSplash() {
         // Screen center
         auto screenGeometry = mainWindow->screen()->geometry();
         mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
+
+    } else if (introMinDurationPassed && !firstDeviceScanDone) {
+        this->splash->setMessage("No device found.\nConnect any device to continue.");
     }
 }
 

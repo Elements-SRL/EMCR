@@ -109,6 +109,8 @@ private:
 
     QAction * actionPlotPreferences = nullptr;
     QAction * actionBoardMapping = nullptr;
+    QAction * actionExportCopyableTableHeader = nullptr;
+
     QAction * actionDarkTheme = nullptr;
     QAction * actionLightTheme = nullptr;
     QActionGroup * themeActionGroup = nullptr;

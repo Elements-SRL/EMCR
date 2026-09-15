@@ -21,7 +21,6 @@
 #include "deviceinfodialog.h"
 #include "releasenotesdialog.h"
 #include "themecontroller.h"
-#include <QDebug>
 
 void MainWindow::setupDeviceConnectionGui(QFrame * container){
 
@@ -190,6 +189,21 @@ MainWindow::MainWindow(QWidget * parent) :
     menuPreferences->addAction(actionBoardMapping);
     actionBoardMapping->setEnabled(false);
     connect(actionBoardMapping, &QAction::triggered, this, &MainWindow::onBoardMappingPressed);
+
+    actionExportCopyableTableHeader = new QAction("Export table header", this);
+    actionExportCopyableTableHeader->setToolTip("Include header when tables are copied to clipboard.");
+    menuPreferences->addAction(actionExportCopyableTableHeader);
+    menuPreferences->setToolTipsVisible(true);
+    actionExportCopyableTableHeader->setCheckable(true);
+
+    connect(actionExportCopyableTableHeader, &QAction::changed, this, [=]() {
+        QSettings settings;
+        QString settingsRoot = "Preferences/UI/";
+        bool exportCopyableTableHeader = this->actionExportCopyableTableHeader->isChecked();
+        settings.setValue(settingsRoot + "exportCopyableTableHeader", exportCopyableTableHeader);
+    });
+
+    menuBar->addSeparator();
 
     /*! Theme menu within Preferencies */
     menuTheme = new QMenu("Theme", this);
