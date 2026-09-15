@@ -30,6 +30,7 @@ public:
     void setMaxAmplitude(double maxAmplitude);
     void setEventsDirection(EventsDirection ed);
     void reinitFilters(double highCutoffFreq);
+    void onStartConsuming() override;
 
 public slots:
     void onVoltageRangeChanged() override;
@@ -61,7 +62,6 @@ private:
 
     //Event stuff
     std::vector<EventDetector *> eventDetectionChannels;
-    uint64_t timeCounter = 0;
 
 protected:
     void clearData();

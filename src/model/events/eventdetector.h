@@ -27,6 +27,7 @@ public:
     EventPacket consumeEventsAndBaseline();
 
     void setChunk(std::vector<int16_t> intBuffer, std::vector<double> doubleBuffer, std::vector<double> voltages, uint32_t chunkSize, RangedMeasurement currentRange, RangedMeasurement voltageRange, Measurement samplingRate);
+    void reset();
     void clear();
 
     void setMinEventDurationInSamples(uint32_t);

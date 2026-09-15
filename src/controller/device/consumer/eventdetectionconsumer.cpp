@@ -133,6 +133,13 @@ void EventDetectionConsumer::emitPlotData() {
     emit setPlotData(message);
 }
 
+void EventDetectionConsumer::onStartConsuming() {
+    PlotConsumer::onStartConsuming();
+    for (auto ev : eventDetectionChannels) {
+        ev->reset();
+    }
+}
+
 void EventDetectionConsumer::clearData() {
     currentValues.clear();
     eventDetectionChannels.clear();

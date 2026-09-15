@@ -147,7 +147,7 @@ std::optional<PartialEvent> EventDetector::analyze(double currentValue, double v
     }
 
     if (eventLen > minEventLen) {
-        const auto e0 = eventBeginIdx - (EVENT_PADDING * eventLen);
+        const auto e0 = eventBeginIdx > (EVENT_PADDING * eventLen) ? eventBeginIdx - (EVENT_PADDING * eventLen) : 0;
         const auto e1 = eventBeginIdx + eventLen + (EVENT_PADDING * eventLen);
         const PartialEvent res = { (e0 < 0) ? 0 : e0, (e1 >= clipValue) ? clipValue - 1 : e1, eventLen, currentBaseline };
         return res;
@@ -231,6 +231,18 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
         std::copy(doubleBuffer.begin() + earlyStop, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
         std::copy(voltages.begin() + earlyStop, voltages.begin() + chunkSize, remainingVoltages.begin());
     }
+}
+
+void EventDetector::reset() {
+    this->clear();
+    timeCount = 0;
+    eventLen = 0;
+    eventBeginIdx = 0;
+    baselineSamplingRateCounter = 0;
+    chunkSize = 0;
+    estimatedInterEventTime = 0.0;
+    prevEventStartIdx = 0;
+    remainingChunkSize = 0;
 }
 
 void EventDetector::processEvent(const PartialEvent partialEvent, std::vector<int16_t>& intBuffer, double voltage, uint32_t chunkSize) {
