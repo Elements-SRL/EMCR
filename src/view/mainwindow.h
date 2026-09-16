@@ -7,6 +7,7 @@
 #include <QMenuBar>
 #include <QComboBox>
 #include <QPushButton>
+#include <qscrollarea.h>
 
 #include "messagedispatcher.h"
 #include "chessboarddockwidget.h"
@@ -25,6 +26,20 @@
 #include "plotpreferencesdialog.h"
 #include "ivgraphwidget.h"
 #include "spectrumwidget.h"
+
+enum Notification {
+    NONE,
+    INFO,
+    WARNING,
+    ERROR
+};
+
+static QMap<Notification, QString> NotificationType = {
+    {NONE, "NONE"},
+    {INFO, "INFO"},
+    {WARNING, "WARNING"},
+    {ERROR, "ERROR"}
+};
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -61,7 +76,6 @@ public:
     void setDevicesList(std::vector <std::string> devicesList);
     void setConnectedDeviceIdx(int idx);
     void connectDevice(bool flag, ErrorCodes_t err);
-    void setConnectionLabel(QString text, bool errorFlag = false);
     void showHideConnectedDevice(bool flag);
 
     void setBigPlotWidget(BigPlotWidget * widget);
@@ -72,6 +86,8 @@ public:
     void restoreUISettings();
     void saveUISettings();
     void disconnectDevice();
+    void addNotification(const QString &text, Notification noty);
+    void clearNotifications();
 
 public slots:
     void onNeedToChangeModelCellMsg(QString msg);
@@ -140,8 +156,10 @@ private:
     QPushButton * connectBtn = nullptr;
     QPushButton * disconnectBtn = nullptr;
 
-    // TODO REMOVE
-    QLabel * connectionInfoLbl;
+    QScrollArea *notificationScrollArea = nullptr;
+    QWidget *notificationContainer = nullptr;
+    QVBoxLayout *notificationLayout = nullptr;
+    QLabel *connectionInfoLbl = nullptr;
 
     int voltageChannelsNum = 1;
     int currentChannelsNum = 1;

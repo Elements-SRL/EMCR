@@ -940,7 +940,7 @@ QLabel#deviceConnectedLbl {
     background-color: @BG_PANEL;
     padding: 6px 7px;
     border-radius: 4px;
-    max-height: 16px;
+    height: 16px;
     font-family: "Inter", sans-serif;
     font-size: 10px;
     color: @TEXT_SECONDARY;
@@ -1000,6 +1000,59 @@ QMainWindow::separator:hover {
     background-color: @BG_BTN_HOVER; 
 }
 
+
+/* ========================================= */
+/* --- NOTIFICATIONS ---                     */
+/* ========================================= */
+
+QScrollArea#notificationScrollArea {
+    background: transparent;
+    border: none;
+}
+
+QWidget#notificationContainer {
+    background: transparent;
+}
+
+QFrame#notificationBanner {
+    background-color: @BG_PANEL;
+    border: 1px solid @ACCENT_ORANGE;
+    border-radius: 4px;
+}
+
+QLabel#notificationText {
+    color: @TEXT_MAIN;
+    font-size: 10px;
+    font-weight: 500;
+}
+
+/* INFO */
+#notificationText[level="INFO"] {color: @ACCENT_LBLUE;}
+#notificationBanner[level="INFO"] {border: 1px solid @ACCENT_LBLUE;}
+
+/* WARNING */
+#notificationText[level="WARNING"] {color: @ACCENT_ORANGE;}
+#notificationBanner[level="WARNING"] {border: 1px solid @ACCENT_ORANGE;}
+
+/* ERROR */
+#notificationText[level="ERROR"] {color: @ACCENT_LRED;}
+#notificationBanner[level="ERROR"] {border: 1px solid @ACCENT_LRED;}
+
+QPushButton#closeNotificationBtn {
+    background: transparent;
+    border: none;
+    color: @TEXT_MUTED;
+    font-weight: bold;
+    font-size: 11px;
+    min-height: 14px;
+    padding: 0px 4px;
+}
+
+QPushButton#closeNotificationBtn:hover {
+    color: @TEXT_LIGHT;
+    background-color: @BG_BTN_HOVER;
+    border-radius: 2px;
+}
 
 /* ========================================= */
 /* --- CHESSBOARD / CHANNELS OVERVIEW ---    */

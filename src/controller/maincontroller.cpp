@@ -187,20 +187,21 @@ void MainController::onResetHw() {
 }
 
 void MainController::onDeviceConnected(ErrorCodes_t ret) {
-    bool connectionSuccessful = ret == Success;
+    bool connectionSuccessful = (ret == Success);
+
     if (connectionSuccessful) {
         mainWindow->showHideConnectedDevice(true);
         msgDisp = deviceConnector->getMessageDispatcher();
+
         if (msgDisp->getCalibrationStatus() != Success) {
-            mainWindow->setConnectionLabel("Default calibration\nloaded", true);
+            mainWindow->addNotification("Calibration data not found. Loading default values.", Notification::WARNING);
         }
+
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
         msgDisp->getBoardsNumberFeatures(boardsNumber);
         mainWindow->setMessageDispatcher(msgDisp);
-    }
 
-    mainWindow->connectDevice(true, ret);
-    if (connectionSuccessful) {
+        mainWindow->connectDevice(true, ret);
         this->onMainWindowCreated();
         mainWindow->restoreUISettings();
 
@@ -211,8 +212,10 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
         mainWindow->move(screenGeometry.center() - mainWindow->rect().center());
 
     } else {
+        mainWindow->connectDevice(false, ret);
         mainWindow->showHideConnectedDevice(false);
-        mainWindow->setConnectionLabel("Connection failed");
+        mainWindow->addNotification("Connection failed. Check device connection.", Notification::ERROR);
+
         emit startDetecting();
     }
 }
