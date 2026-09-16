@@ -12,7 +12,7 @@ class DeviceInfoDialog : public MessageDialog {
     Q_OBJECT
 
 public:
-    DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWidget * parent = nullptr);
+    DeviceInfoDialog(MessageDispatcher * md, QString deviceId, Measurement_t * deviceTime, QWidget * parent = nullptr);
 
 private slots:
     void onCopyToClipboard();
@@ -22,6 +22,7 @@ private:
     QLabel* deviceVerLbl;
     QLabel* deviceSubverLbl;
     QLabel* fwVerLbl;
+    QLabel* deviceOnTimeElapsed;
     QPushButton* copyToClipboardBtn;
 };
 
