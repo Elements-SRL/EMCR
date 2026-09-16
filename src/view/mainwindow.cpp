@@ -62,6 +62,10 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     connectBtn->setCheckable(true);
     connectBtn->setCursor(Qt::PointingHandCursor);
     connectionLayout->addWidget(connectBtn, 0, Qt::AlignLeft);
+
+    connectionInfoLbl = new QLabel("");
+    connectionInfoLbl->setVisible(false);
+    connectionLayout->addWidget(connectionInfoLbl, 0, Qt::AlignLeft);
     connectionLayout->addStretch();
 
     // PAGE 1: CONNECTED PAGE (Minimized widget)
@@ -70,8 +74,6 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     QVBoxLayout *connectedPageLayout = new QVBoxLayout(connectedPage);
     QHBoxLayout *connectedRowLayout = new QHBoxLayout();
     QHBoxLayout *connectedTitleLayout = new QHBoxLayout();
-    connectedRowLayout->setContentsMargins(0, 0, 0, 0);
-    connectedPageLayout->setContentsMargins(0, 0, 0, 0);
     connectedPageLayout->addLayout(connectedTitleLayout);
     connectedPageLayout->addLayout(connectedRowLayout);
     connectedPageLayout->setSpacing(12);
@@ -86,11 +88,9 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
 
     deviceConnectedLbl = new QLabel("");
     deviceConnectedLbl->setObjectName("deviceConnectedLbl");
+    deviceConnectedLbl->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     SRLbl = new QLabel("");
     SRLbl->setObjectName("connectionSpeed");
-    // onTimeLbl = new QLabel("");
-    // onTimeLbl->setObjectName("powerOnTime");
-    // onTimeLbl->setVisible(false);
 
     disconnectBtn = new QPushButton("   DISCONNECT");
     disconnectBtn->setObjectName("disconnectBtn");
@@ -105,16 +105,35 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     connectedRowLayout->addWidget(deviceConnectedLbl);
     connectedRowLayout->addWidget(SRLbl);
     // connectedRowLayout->addWidget(onTimeLbl);
+
+    notificationScrollArea = new QScrollArea();
+    notificationScrollArea->setObjectName("notificationScrollArea");
+    notificationScrollArea->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+    notificationScrollArea->setWidgetResizable(true);
+    notificationScrollArea->setFrameShape(QFrame::NoFrame);
+    notificationScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    notificationScrollArea->setVisible(false);
+
+    notificationContainer = new QWidget();
+    notificationContainer->setObjectName("notificationContainer");
+
+    notificationLayout = new QVBoxLayout(notificationContainer);
+    notificationLayout->setContentsMargins(0, 0, 0, 0);
+    notificationLayout->setSpacing(6);
+    notificationLayout->addStretch();
+
+    notificationScrollArea->setWidget(notificationContainer);
+
     connectedRowLayout->addStretch();
     connectedPageLayout->addWidget(disconnectBtn);
     connectedPageLayout->addStretch();
+    connectedPageLayout->addWidget(notificationScrollArea, 1);
 
     connectionDeviceStack->addWidget(connectionPage);
     connectionDeviceStack->addWidget(connectedPage);
     connectionDeviceStack->setCurrentIndex(0);
     connectionDeviceStack->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     mainLayout->addWidget(connectionDeviceStack);
-    mainLayout->addStretch();
 }
 
 MainWindow::MainWindow(QWidget * parent) :
@@ -407,16 +426,6 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
     }
 }
 
-void MainWindow::setConnectionLabel(QString text, bool errorFlag) {
-    //connectionInfoLbl->setText(text);
-    //if (errorFlag) {
-    //    connectionInfoLbl->setStyleSheet("color: red; background-color: yellow; font-weight: bold");
-    //}
-    //else {
-    //    connectionInfoLbl->setStyleSheet("");
-    //}
-}
-
 /********************\
  * set dock widgets *
 \********************/
@@ -576,8 +585,7 @@ void MainWindow::destroyGuiControls() {
     }
 
     SRLbl->setText("");
-    // onTimeLbl->setText("");
-    // onTimeLbl->setVisible(false);
+    if(deviceOnTimeElapsed) deviceOnTimeElapsed = nullptr;
 
 //    for (int shortcutIdx = 0; shortcutIdx < shortcuts.size(); shortcutIdx++) {
 //        if (shortcuts[shortcutIdx] != nullptr) {
@@ -677,8 +685,7 @@ void MainWindow::onBitRateComputed(double value) {
 }
 
 void MainWindow::onOnTimeRead(Measurement_t onTime) {
-    // onTimeLbl->setVisible(true);
-    // onTimeLbl->setText(QString::fromStdString(onTime.label(15)));
+    deviceOnTimeElapsed = &onTime;
 }
 
 void MainWindow::onOpenDialog(Dialogs_t type) {
@@ -694,7 +701,7 @@ void MainWindow::onOpenDialog(Dialogs_t type) {
         break;
     }
     case DeviceInfoDlg: {
-        DeviceInfoDialog a(msgDisp, devicesComboBox->currentText(), this);
+        DeviceInfoDialog a(msgDisp, devicesComboBox->currentText(), deviceOnTimeElapsed, this);
         a.exec();
         break;
     }
@@ -772,10 +779,11 @@ void MainWindow::showHideConnectedDevice(bool flag){
         // --- STATUS: DEVICE CONNECTED ---
 
         // Minimizing the widget
-        if (mainGrid) mainGrid->setContentsMargins(15, 15, 15, 15);
-        deviceDetectorWid->setMinimumWidth(250);
-        deviceDetectorWid->setMinimumHeight(120);
-        deviceDetectorWid->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+        if (mainGrid) mainGrid->setContentsMargins(0, 0, 0, 0);
+        deviceDetectorWid->setMinimumSize(0, 0);
+        deviceDetectorWid->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        this->setMinimumSize(0, 0);
+        this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
         deviceDetectorWid->setProperty("page", "connected");
 
         deviceDetectorWid->style()->unpolish(deviceDetectorWid);
@@ -787,6 +795,8 @@ void MainWindow::showHideConnectedDevice(bool flag){
 
         QString connected = QString("%1 <span style='color:#4CAF50;'>●</span>").arg(getSelectedSerialNumber());
         this->deviceConnectedLbl->setText(connected);
+
+        clearNotifications();
 
         QTimer::singleShot(50, this, [this]() {
             // Making sure the mainframe is now resizable
@@ -805,6 +815,9 @@ void MainWindow::showHideConnectedDevice(bool flag){
         // Show the CONNECTING page - device selection
         this->connectionDeviceStack->setCurrentIndex(0);
         deviceDetectorWid->setProperty("page", "connecting");
+
+        // Hide errors/warnings from connected phase
+        clearNotifications();
 
         // Resizing the window later
         QTimer::singleShot(50, this, [this, deviceDetectorWid]() {
@@ -828,4 +841,109 @@ void MainWindow::showHideConnectedDevice(bool flag){
         deviceDetectorWid->update();
 
     }
+}
+
+/*
+ * Clears the notifications both in splashscreen or in mainwindow.
+ */
+void MainWindow::clearNotifications() {
+
+    // Reset label in splash
+    if (connectionInfoLbl) {
+        connectionInfoLbl->setText("");
+        connectionInfoLbl->setVisible(false);
+    }
+
+    // Deletes notifications of mainwindow
+    if (notificationLayout) {
+        QLayoutItem *item;
+        while ((item = notificationLayout->takeAt(0)) != nullptr) {
+            if (item->widget()) {
+                item->widget()->deleteLater();
+            }
+            delete item;
+        }
+        notificationLayout->addStretch();
+    }
+
+    if (notificationScrollArea) {
+        notificationScrollArea->setVisible(false);
+    }
+
+    // Resize dock
+    if (auto dw = getDockWidget(DWDeviceDetector)) {
+        dw->widget()->adjustSize();
+        dw->adjustSize();
+    }
+}
+
+/*
+ * Creates and shows a notification.
+ * Works both in CONNECTING and CONNECTED state.
+ * Multiple notifications can be shown at same time.
+ * Each notification can be individually closed.
+ *
+ * Param: text | The message to be shown.
+ * Param: noty | Notification type - error, info etc.
+ */
+void MainWindow::addNotification(const QString &text, Notification noty) {
+    if (noty == NONE || text.isEmpty()) {
+        clearNotifications();
+        return;
+    }
+
+    // CONNECTING (Splashscreen) - use a label
+    if (this->connectionDeviceStack->currentIndex() == 0) {
+        this->connectionInfoLbl->setText(text);
+        this->connectionInfoLbl->setProperty("level", NotificationType[noty]);
+        this->connectionInfoLbl->setVisible(true);
+
+        this->connectionInfoLbl->style()->unpolish(this->connectionInfoLbl);
+        this->connectionInfoLbl->style()->polish(this->connectionInfoLbl);
+        return;
+    }
+
+    // CONNECTED -> Notifications banner based
+    QFrame *banner = new QFrame();
+    banner->setObjectName("notificationBanner");
+    banner->setProperty("level", NotificationType[noty]);
+
+    QHBoxLayout *bLayout = new QHBoxLayout(banner);
+    bLayout->setContentsMargins(8, 6, 8, 6);
+    bLayout->setSpacing(6);
+
+    QLabel *msgLbl = new QLabel();
+    msgLbl->setText(QString(NotificationType[noty]) + " - " + text);
+    msgLbl->setObjectName("notificationText");
+    msgLbl->setProperty("level", NotificationType[noty]);
+    msgLbl->setWordWrap(true);
+
+    QPushButton *closeBtn = new QPushButton("✕");
+    closeBtn->setObjectName("closeNotificationBtn");
+    closeBtn->setCursor(Qt::PointingHandCursor);
+    closeBtn->setFixedWidth(20);
+    closeBtn->setToolTip("Dismiss");
+
+    bLayout->addWidget(msgLbl, 1);
+    bLayout->addWidget(closeBtn, 0, Qt::AlignTop);
+
+    // closes single noty
+    connect(closeBtn, &QPushButton::clicked, banner, [this, banner]() {
+        banner->deleteLater();
+
+        QTimer::singleShot(50, this, [this]() {
+            if (notificationLayout->count() <= 1) {
+                notificationScrollArea->setVisible(false);
+            }
+        });
+    });
+
+    // Add noty on top
+    notificationLayout->insertWidget(notificationLayout->count() - 1, banner);
+
+    // Dynamic QSS refresh
+    banner->style()->unpolish(banner);
+    banner->style()->polish(banner);
+
+    notificationScrollArea->setVisible(true);
 }
