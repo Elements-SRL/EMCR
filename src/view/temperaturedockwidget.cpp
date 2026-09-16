@@ -51,7 +51,7 @@ void TemperatureDockWidget::setChannels(int channelsNum) {
         QHBoxLayout* rowLayout = new QHBoxLayout(tempRowFrame);
         rowLayout->setContentsMargins(8, 6, 8, 6);
 
-        QLabel * chLbl = new QLabel(QString::number(idx));
+        QLabel * chLbl = new QLabel(QString::number(idx + 1));
         chLbl->setObjectName("tempChannelLbl");
         QLabel * tempLbl = new QLabel("---");
         tempLbl->setObjectName("tempValueLbl");
