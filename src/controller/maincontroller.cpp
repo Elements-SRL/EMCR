@@ -194,7 +194,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
         msgDisp = deviceConnector->getMessageDispatcher();
 
         if (msgDisp->getCalibrationStatus() != Success) {
-            mainWindow->addNotification("Default calibration loaded", Notification::WARNING);
+            mainWindow->addNotification("Calibration data not found. Loading default values.", Notification::WARNING);
         }
 
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
