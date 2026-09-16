@@ -4,6 +4,20 @@
 #include <QStyle>
 #include <QDebug>
 
+enum DeviceTemperatureStatus {
+    DEFAULT,
+    NORMAL,
+    WARNING,
+    DANGER
+};
+
+static QMap<DeviceTemperatureStatus, QString> deviceTempStatusId = {
+    {DEFAULT, "DEF"},
+    {NORMAL, "NOR"},
+    {WARNING, "WAR"},
+    {DANGER, "DNG"}
+};
+
 TemperatureDockWidget::TemperatureDockWidget(QWidget * parent) :
     QDockWidget(parent) {
 
@@ -20,7 +34,9 @@ TemperatureDockWidget::TemperatureDockWidget(QWidget * parent) :
 
     connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
         if (isFloating) {
-            centralWidget->setStyleSheet("");
+            centralWidget->setStyleSheet("#controlsSectionContainer { border: none; }"
+                                         "#tempRowFrame {border-left: none; border-right: none}"
+                                         "#tempTableHeader {border-left: none; border-right: none}");
         } else {
             centralWidget->setStyleSheet("");
         }

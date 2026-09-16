@@ -887,7 +887,7 @@ void MainWindow::clearNotifications() {
  * Param: noty | Notification type - error, info etc.
  */
 void MainWindow::addNotification(const QString &text, Notification noty) {
-    if (noty == NONE || text.isEmpty()) {
+    if (noty == NOTIFY_NONE || text.isEmpty()) {
         clearNotifications();
         return;
     }
