@@ -81,6 +81,9 @@ void MeasurementOverviewModel::exportToCsv(std::string filepath){
         stream << "Std Current [" << getValueAndUnit(r.stdCurrent).second << "],";
         stream << "Resistance [" << getValueAndUnit(res.meas).second << "],";
         stream << "Pipette capacitance [" << getValueAndUnit(pip.meas).second << "],";
+        stream << "Membrane capacitance [" << getValueAndUnit(memC).second << "],";
+        stream << "Access resistance [" << getValueAndUnit(accR).second << "],";
+        stream << "Membrane resistance [" << getValueAndUnit(memR).second << "],";
         stream << "Offset Recalibration [" << getValueAndUnit(orr).second << "],";
         stream << "Liquid Junction [" << getValueAndUnit(lj).second << "]\n";
         for (int i = 0; i < statisticsResults.size(); i++) {
