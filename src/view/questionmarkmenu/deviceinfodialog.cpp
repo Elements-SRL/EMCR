@@ -8,7 +8,7 @@
 
 #include "globaldefines.h"
 
-DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWidget* parent) :
+DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, Measurement_t * deviceTime, QWidget* parent) :
     MessageDialog("Device Info", true, parent) {
 
     deviceIdLbl = new QLabel;
@@ -26,6 +26,15 @@ DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWi
     fwVerLbl = new QLabel;
     fwVerLbl->setAlignment(Qt::AlignCenter);
     mainVl->addWidget(fwVerLbl);
+
+    deviceOnTimeElapsed = new QLabel("Power ON time: ---");
+    deviceOnTimeElapsed->setAlignment(Qt::AlignCenter);
+    mainVl->addWidget(deviceOnTimeElapsed);
+    deviceOnTimeElapsed->setVisible(debugControlsEnabled());
+
+    if(deviceTime != nullptr){
+        deviceOnTimeElapsed->setText("Power ON time: " + QString::fromStdString(deviceTime->getFullUnit()));
+    }
 
     mainVl->addItem(new QSpacerItem(0, 10, QSizePolicy::Fixed, QSizePolicy::Fixed));
 
@@ -76,6 +85,7 @@ DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWi
         deviceVerLbl->setVisible(true);
         deviceVerLbl->setVisible(false);
         deviceVerLbl->setVisible(false);
+        deviceOnTimeElapsed->setVisible(false);
         copyToClipboardBtn->setVisible(true);
         break;
     }
@@ -86,8 +96,13 @@ DeviceInfoDialog::DeviceInfoDialog(MessageDispatcher * md, QString deviceId, QWi
 
 void DeviceInfoDialog::onCopyToClipboard() {
     QClipboard* clipboard = QApplication::clipboard();
-    clipboard->setText(deviceIdLbl->text() + "\n" +
-        deviceVerLbl->text() + "\n" +
-        deviceSubverLbl->text() + "\n" +
-        fwVerLbl->text());
+    auto outTxt = deviceIdLbl->text() + "\n" +
+                  deviceVerLbl->text() + "\n" +
+                  deviceSubverLbl->text() + "\n" +
+                  fwVerLbl->text();
+
+    if (deviceOnTimeElapsed->isVisible()){
+        outTxt.append("\n" + deviceOnTimeElapsed->text());
+    }
+    clipboard->setText(outTxt);
 }

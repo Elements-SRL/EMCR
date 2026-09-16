@@ -91,9 +91,6 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     deviceConnectedLbl->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     SRLbl = new QLabel("");
     SRLbl->setObjectName("connectionSpeed");
-    // onTimeLbl = new QLabel("");
-    // onTimeLbl->setObjectName("powerOnTime");
-    // onTimeLbl->setVisible(false);
 
     disconnectBtn = new QPushButton("   DISCONNECT");
     disconnectBtn->setObjectName("disconnectBtn");
@@ -588,8 +585,7 @@ void MainWindow::destroyGuiControls() {
     }
 
     SRLbl->setText("");
-    // onTimeLbl->setText("");
-    // onTimeLbl->setVisible(false);
+    if(deviceOnTimeElapsed) deviceOnTimeElapsed = nullptr;
 
 //    for (int shortcutIdx = 0; shortcutIdx < shortcuts.size(); shortcutIdx++) {
 //        if (shortcuts[shortcutIdx] != nullptr) {
@@ -689,8 +685,7 @@ void MainWindow::onBitRateComputed(double value) {
 }
 
 void MainWindow::onOnTimeRead(Measurement_t onTime) {
-    // onTimeLbl->setVisible(true);
-    // onTimeLbl->setText(QString::fromStdString(onTime.label(15)));
+    deviceOnTimeElapsed = &onTime;
 }
 
 void MainWindow::onOpenDialog(Dialogs_t type) {
@@ -706,7 +701,7 @@ void MainWindow::onOpenDialog(Dialogs_t type) {
         break;
     }
     case DeviceInfoDlg: {
-        DeviceInfoDialog a(msgDisp, devicesComboBox->currentText(), this);
+        DeviceInfoDialog a(msgDisp, devicesComboBox->currentText(), deviceOnTimeElapsed, this);
         a.exec();
         break;
     }

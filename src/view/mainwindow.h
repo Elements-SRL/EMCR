@@ -142,7 +142,7 @@ private:
 
     QLabel * deviceConnectedLbl = nullptr;
     QLabel * SRLbl = nullptr;
-    QLabel * onTimeLbl = nullptr;
+    Measurement_t * deviceOnTimeElapsed = nullptr;
 
     QWidget * centralWrapper = nullptr;
     BigPlotWidget * bigPlotW = nullptr;
