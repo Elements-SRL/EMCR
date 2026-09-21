@@ -6,17 +6,22 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include "bigplot.h"
+#include "autotoggle.h"
+#include "lcddisplay.h"
 
 
 class GapFreeWidget : public QWidget {
     Q_OBJECT
 
 private:
+    AutoToggle* autoZoom = nullptr;
+    QPushButton* btnZoomIn = nullptr;
+    QPushButton* btnZoomOut = nullptr;
     QLineEdit* fileNameLineEdit;
     QLineEdit* recordPathLineEdit;
     QPushButton* browseBtn;
-    QPushButton* recordingStopBtn;
-    QPushButton* recordingStartBtn;
+    QPushButton* startStopBtn;
+    TimerDisplay* protocolTimer;
     void emitFileName();
     void emitFilePath();
 

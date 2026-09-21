@@ -7,7 +7,10 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDir>
+#include <QFrame>
+#include <QStyle>
 #include "globaldefines.h"
+#include "bigplot.h"
 
 GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     QWidget(parent) {
@@ -21,94 +24,159 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
 
     auto sideWidget = new QWidget(splitter);
     auto mainLayout = new QVBoxLayout(sideWidget);
+    mainLayout->setContentsMargins(10, 10, 10, 10);
+    mainLayout->setSpacing(12);
 
-    auto recordingGb = new QGroupBox(QString::fromStdString("Recording"));
-    auto recordingVBoxLayout = new QVBoxLayout();
-    auto qhBoxLayout = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(qhBoxLayout);
+    // Section 1. CONTROLS
+    auto controlsTitle = new QLabel("CONTROLS", sideWidget);
+    controlsTitle->setObjectName("controlsTitle");
+    mainLayout->addWidget(controlsTitle);
 
-    fileNameLineEdit = new QLineEdit();
-    recordPathLineEdit = new QLineEdit();
+    auto controlsRow = new QHBoxLayout();
+    controlsRow->setSpacing(8);
+
+    autoZoom = new AutoToggle();
+    autoZoom->setText("Auto zoom");
+    controlsRow->addWidget(autoZoom);
+
+    btnZoomIn = new QPushButton(sideWidget);
+    btnZoomIn->setObjectName("zoomInBtn");
+    btnZoomIn->setFixedSize(32, 32);
+    btnZoomIn->setToolTip("Zoom In");
+    controlsRow->addWidget(btnZoomIn);
+
+    btnZoomOut = new QPushButton(sideWidget);
+    btnZoomOut->setObjectName("zoomOutBtn");
+    btnZoomOut->setFixedSize(32, 32);
+    btnZoomOut->setToolTip("Zoom Out");
+    controlsRow->addWidget(btnZoomOut);
+
+    controlsRow->addStretch();
+    mainLayout->addLayout(controlsRow);
+
+    // Zoom signals  - TODO THINK ABOUT SINGLE BTN
+    connect(autoZoom, &AutoToggle::toggled, this, &GapFreeWidget::sigAutoZoom);
+
+    if (plot != nullptr) {
+        connect(autoZoom, &AutoToggle::toggled, plot, [plot](bool checked) {
+            if (checked) {
+                plot->onAutoZoom({QwtPlot::xBottom, QwtPlot::yLeft});
+            }
+        });
+
+        connect(btnZoomIn, &QPushButton::clicked, plot, [plot]() {
+            plot->zoomInFactor(0.8);
+        });
+
+        connect(btnZoomOut, &QPushButton::clicked, plot, [plot]() {
+            plot->zoomOutFactor(1.25);
+        });
+    }
+
+    // Separator
+    QFrame* line = new QFrame(sideWidget);
+    line->setObjectName("lineSeparator");
+    line->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(line);
+
+    // Section 2. RECORDING
+    auto recordingTitle = new QLabel("RECORDING", sideWidget);
+    recordingTitle->setObjectName("recordingTitle");
+    mainLayout->addWidget(recordingTitle);
+
+    // Row 1 - start/stop - timer - settings
+    auto recRow1 = new QHBoxLayout();
+    recRow1->setSpacing(6);
+
+    startStopBtn = new QPushButton(sideWidget);
+    startStopBtn->setObjectName("startStopBtn");
+    startStopBtn->setFixedWidth(60);
+    startStopBtn->setFixedHeight(28);
+    startStopBtn->setCheckable(true);
+    startStopBtn->setToolTip("Start or stop recording");
+
+    // TimerDisplay
+    protocolTimer = new TimerDisplay(this, "hh.mm.ss");
+
+    auto btnSettings = new QPushButton(sideWidget);
+    btnSettings->setObjectName("btnSettings");
+    btnSettings->setFixedSize(28, 28);
+
+    recRow1->addWidget(startStopBtn);
+    recRow1->addWidget(protocolTimer);
+    recRow1->addWidget(btnSettings);
+    recRow1->addStretch();
+    mainLayout->addLayout(recRow1);
+
+
+    connect(startStopBtn, &QPushButton::clicked, this, [=](bool checked) {
+        if (checked) {
+            startStopBtn->setProperty("running", true);
+            protocolTimer->onStartTimer();
+            emitFileName();
+            emitFilePath();
+            emit sigStartRecording();
+        } else {
+            startStopBtn->setProperty("running", false);
+            protocolTimer->onStopTimer();
+            emit sigStopRecording();
+        }
+
+        startStopBtn->style()->unpolish(startStopBtn);
+        startStopBtn->style()->polish(startStopBtn);
+    });
+
+    // Row 2 - set location and recordigns buttons
+    auto recRow2 = new QHBoxLayout();
+    recRow2->setSpacing(6);
+
+    browseBtn = new QPushButton(" LOCATION", sideWidget);
+    browseBtn->setObjectName("locationBtn");
+
+    auto goToDirBtn = new QPushButton(" RECORDINGS", sideWidget);
+    goToDirBtn->setObjectName("recordingsBtn");
+
+    recRow2->addWidget(browseBtn);
+    recRow2->addWidget(goToDirBtn);
+    recRow2->addStretch();
+    mainLayout->addLayout(recRow2);
+
+    fileNameLineEdit = new QLineEdit(this);
+    recordPathLineEdit = new QLineEdit(this);
+    fileNameLineEdit->setVisible(false);
+    recordPathLineEdit->setVisible(false);
+
     QSettings settings;
     recordPathLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString());
     fileNameLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, PSD_DEFAULT_RECORD_NAME).toString());
 
-    recordingGb->setLayout(recordingVBoxLayout);
-    mainLayout->addWidget(recordingGb);
-
-    auto zoomButtonsHl = new QHBoxLayout();
-    mainLayout->addLayout(zoomButtonsHl);
-
-    auto spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
-    mainLayout->addWidget(spacer);
-
-    recordingStartBtn = new QPushButton("START");
-    connect(recordingStartBtn, &QPushButton::clicked, this, [=]() {
-        emitFileName();
-        emitFilePath();
-        emit sigStartRecording();
-    });
-    qhBoxLayout->addWidget(recordingStartBtn);
-    recordingStopBtn = new QPushButton("STOP");
-
-    auto hboxRecordingPath = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxRecordingPath);
-
-    auto hboxBrowseFile = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxBrowseFile);
-
-    auto hboxFileName = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxFileName);
-
-    hboxRecordingPath->addWidget(new QLabel("Recording path:"));
-    recordPathLineEdit->setReadOnly(true);
-    hboxRecordingPath->addWidget(recordPathLineEdit);
-
     QDir directory(recordPathLineEdit->text());
     if (!directory.exists()) {
-        // Create the directory
-        if (directory.mkpath(".")) {
-        }
+        directory.mkpath(".");
     }
-    browseBtn = new QPushButton("Change recordings directory");
+
     connect(browseBtn, &QPushButton::clicked, [=]() {
-        // Open a directory selection dialog
-        QString directoryPath = QFileDialog::getExistingDirectory(this,
-                                                                  "Select Directory",
-                                                                  directory.absolutePath(),
-                                                                  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        // Check if the user selected a directory
+        QString directoryPath = QFileDialog::getExistingDirectory(
+            this, "Select Directory", directory.absolutePath(),
+            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
         if (!directoryPath.isEmpty()) {
             auto recordingsDirectoryPath = directoryPath + "/";
             recordPathLineEdit->setText(recordingsDirectoryPath);
             emitFilePath();
         }
     });
-    auto goToDirBtn = new QPushButton("Go to folder");
+
     connect(goToDirBtn, &QPushButton::clicked, [=]() {
-        // Open a directory selection dialog
         QUrl folderUrl = QUrl::fromLocalFile(recordPathLineEdit->text());
         QDir folderDir(recordPathLineEdit->text());
         if (folderDir.exists()) {
             QDesktopServices::openUrl(folderUrl);
-        }
-        else {
+        } else {
             QMessageBox::information(nullptr, "Warning", "This Path seems to be incorrect.");
         }
     });
-    hboxBrowseFile->addWidget(browseBtn);
-    hboxBrowseFile->addWidget(goToDirBtn);
 
-    hboxFileName->addWidget(new QLabel("File name:"));
-    hboxFileName->addWidget(fileNameLineEdit);
-
-    QPixmap pixmapStop("://imgs/stop protocol.png");
-    QIcon stopRecordIcon(pixmapStop);
-    recordingStopBtn->setIcon(stopRecordIcon);
-    connect(recordingStopBtn, &QPushButton::clicked, this, &GapFreeWidget::sigStopRecording);
-    qhBoxLayout->addWidget(recordingStopBtn);
-    this->setRecording(false);
     connect(fileNameLineEdit, &QLineEdit::editingFinished, [=]() {
         QSettings settings;
         auto filename = fileNameLineEdit->text();
@@ -116,19 +184,9 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
         emit sigFileNameChanged(filename);
     });
 
-    auto autoZoomButton = new QPushButton(this);
-    autoZoomButton->setIcon(QIcon(QPixmap(":/imgs/zoom full.png")));
-    autoZoomButton->setToolTip("Auto zoom");
-    autoZoomButton->setIconSize(QSize(30, 30));
-    autoZoomButton->setFixedSize(32, 32);
-    zoomButtonsHl->addWidget(autoZoomButton);
-    connect(autoZoomButton, &QPushButton::clicked, this, &GapFreeWidget::sigAutoZoom);
-
-    {
-        auto spacer = new QWidget;
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        zoomButtonsHl->addWidget(spacer);
-    }
+    auto spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+    mainLayout->addWidget(spacer);
 
     splitter->addWidget(sideWidget);
     splitter->setStretchFactor(0, 1);
@@ -150,23 +208,16 @@ void GapFreeWidget::emitFileName() {
 }
 
 void GapFreeWidget::setRecording(bool flag) {
+    startStopBtn->setChecked(flag);
+    startStopBtn->setProperty("running", flag);
+    startStopBtn->style()->unpolish(startStopBtn);
+    startStopBtn->style()->polish(startStopBtn);
+
     if (flag) {
-        QPixmap pixmapRecors("://imgs/recording protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        recordingStartBtn->setIcon(recordIcon);
-        recordingStartBtn->setEnabled(false);
-        fileNameLineEdit->setEnabled(false);
+        protocolTimer->onStartTimer();
         browseBtn->setEnabled(false);
-
-
-    }
-    else {
-        QPixmap pixmapRecors("://imgs/record protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        recordingStartBtn->setIcon(recordIcon);
-        recordingStartBtn->setEnabled(true);
-        fileNameLineEdit->setEnabled(true);
+    } else {
+        protocolTimer->onStopTimer();
         browseBtn->setEnabled(true);
-
     }
 }

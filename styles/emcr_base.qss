@@ -967,6 +967,56 @@ QPushButton#stopButton {
 }
 
 /* ========================================= */
+/* --- GAPFREE ---                           */
+/* ========================================= */
+
+QLabel#controlsTitle, QLabel#recordingTitle {
+    font-family: "Inter", sans-serif;
+    font-size: 11px; 
+    color: @TEXT_TERTIARY;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+QPushButton#zoomInBtn {
+    background-color: transparent;
+    border: none;
+    qproperty-icon: url(@ICON_PREFIX/zoom_in.svg);
+}
+
+QPushButton#zoomOutBtn {
+    background-color: transparent;
+    border: none;
+    qproperty-icon: url(@ICON_PREFIX/zoom_out.svg);
+}
+
+QPushButton#zoomInBtn:hover,
+QPushButton#zoomOutBtn:hover {
+    background-color: @BG_BTN_HOVER;
+}
+
+QPushButton#btnSettings {
+    qproperty-icon: url(@ICON_PREFIX/settings.svg);
+    qproperty-iconSize: 14px;
+}
+
+QPushButton#locationBtn {
+    qproperty-icon: url(@ICON_PREFIX/directory_settings.svg);
+    qproperty-iconSize: 16px;
+}
+
+QPushButton#recordingsBtn {
+    qproperty-icon: url(@ICON_PREFIX/directory_open.svg);
+    qproperty-iconSize: 16px;
+}
+
+QFrame#lineSeparator {
+    height: 0.5px;
+    color: @BORDER_INPUT;
+}
+
+
+/* ========================================= */
 /* --- CONNECTION DEVICE  ---                */
 /* ========================================= */
 

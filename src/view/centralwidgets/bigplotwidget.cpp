@@ -11,7 +11,6 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     this->setObjectName("bigPlotTabWidget");
 
     /* Corner widget - extends the tab menu */
-    /* Could contain EXPERIMENT - NAME      */
     QWidget* tabCornerWidget = new QWidget(this);
 
     QLineEdit* projectNameLbl = new QLineEdit(tabCornerWidget);
@@ -20,9 +19,6 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
 
     QHBoxLayout* pHLayout = new QHBoxLayout(tabCornerWidget);
     pHLayout->addWidget(projectNameLbl);
-
-    // IF feature is desiderable, enable it
-    tabCornerWidget->hide();
     this->setCornerWidget(tabCornerWidget, Qt::TopRightCorner);
 
 }

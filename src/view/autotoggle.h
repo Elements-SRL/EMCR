@@ -10,6 +10,7 @@ class AutoToggle : public QWidget {
 public:
     explicit AutoToggle(QWidget *parent = nullptr);
     void setChecked(bool checked);
+    void setText(const QString &text);
     bool isChecked() const;
 
 signals:
