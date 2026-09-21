@@ -104,7 +104,6 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
 
     connectedRowLayout->addWidget(deviceConnectedLbl);
     connectedRowLayout->addWidget(SRLbl);
-    // connectedRowLayout->addWidget(onTimeLbl);
 
     notificationScrollArea = new QScrollArea();
     notificationScrollArea->setObjectName("notificationScrollArea");
@@ -215,6 +214,11 @@ MainWindow::MainWindow(QWidget * parent) :
     menuPreferences->setToolTipsVisible(true);
     actionExportCopyableTableHeader->setCheckable(true);
 
+    // Restore Export header setting
+    bool exportFlag = settings.value("Preferences/UI/exportCopyableTableHeader").toBool();
+    actionExportCopyableTableHeader->setChecked(exportFlag);
+
+    // Auto save setting
     connect(actionExportCopyableTableHeader, &QAction::changed, this, [=]() {
         QSettings settings;
         QString settingsRoot = "Preferences/UI/";
