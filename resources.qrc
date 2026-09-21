@@ -118,5 +118,15 @@
         <file>theme/light/icons/toggle_on.svg</file>
         <file>theme/dark/icons/check-solid_disabled.svg</file>
         <file>theme/light/icons/check-solid_disabled.svg</file>
+        <file>theme/dark/icons/zoom_in.svg</file>
+        <file>theme/dark/icons/zoom_out.svg</file>
+        <file>theme/light/icons/zoom_in.svg</file>
+        <file>theme/light/icons/zoom_out.svg</file>
+        <file>theme/dark/icons/settings.svg</file>
+        <file>theme/light/icons/settings.svg</file>
+        <file>theme/dark/icons/directory_open.svg</file>
+        <file>theme/dark/icons/directory_settings.svg</file>
+        <file>theme/light/icons/directory_open.svg</file>
+        <file>theme/light/icons/directory_settings.svg</file>
     </qresource>
 </RCC>
