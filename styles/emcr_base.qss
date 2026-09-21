@@ -212,7 +212,7 @@ QPushButton:checked {
 }
 
 QPushButton:disabled {
-    background-color: @BG_APP;
+    background-color: @ITEM_DISABLED;
     color: @TEXT_MUTED;
     border-color: @BORDER_STD;
 }
@@ -272,6 +272,35 @@ QMenu::icon {
     left: 4px; 
 }
 
+QMenu::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid @BORDER_INPUT;
+    border-radius: 2px;
+    background-color: @BG_INPUT;
+    left: 4px;
+}
+
+QMenu::indicator:checked {
+    background-color: @BG_APP;
+    image: url(@ICON_PREFIX/check-solid.svg);
+}
+
+QMenu::indicator:disabled {
+    background-color: @ITEM_DISABLED;
+    image: url(@ICON_PREFIX/check-solid_disabled.svg);
+}
+
+QMenu::indicator:unchecked {
+    background-color: @BG_APP;
+    border: 1px solid @BORDER_INPUT;
+    image: none;
+}
+
+QMenu::indicator:hover {
+    border-color: @BORDER_FOCUS;
+}
+
 QMenu::separator {
     height: 1px;
     color: @BORDER_PANEL
@@ -310,23 +339,32 @@ QMenu::item:disabled {
 }
 
 /* --- CHECKBOX & RADIO --- */
-QCheckBox::indicator, QRadioButton::indicator {
+QCheckBox::indicator {
     width: 14px;
     height: 14px;
     border: 1px solid @BORDER_INPUT;
-    border-radius: 2px;
     background-color: @BG_INPUT;
+    border-radius: 2px;
+}
+
+QRadioButton::indicator {
+    background-color: @BG_INPUT;
+    border: 1px solid @BORDER_INPUT;
+    border-radius: 8px;
 }
 
 QCheckBox::indicator:hover, QRadioButton::indicator:hover {
     border-color: @BORDER_FOCUS;
 }
 
-QCheckBox::indicator:checked, QRadioButton::indicator:checked {
-    background-color: @ACCENT_BLUE;
-    border-color: @ACCENT_LBLUE;
+QRadioButton::indicator:checked{
+    background-color: @ACCENT_LBLUE;
+}
+
+QCheckBox::indicator:checked {
     image: url(@ICON_PREFIX/check-solid.svg);
 }
+
 
 /* --- SLIDERS --- */
 QSlider::groove:horizontal {
@@ -1263,7 +1301,7 @@ QLabel#finalSamplingRateLbl {
 /* Used when Digital Filter is forced off */
 QWidget#filterSectionContainer QComboBox:disabled,
 QWidget#filterSectionContainer QDoubleSpinBox:disabled {
-    background: @TEXT_MUTED;
+    background: @ITEM_DISABLED;
 }
 
 

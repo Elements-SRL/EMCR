@@ -116,5 +116,7 @@
         <file>theme/light/icons/disconnect_plug.svg</file>
         <file>theme/light/icons/toggle_off.svg</file>
         <file>theme/light/icons/toggle_on.svg</file>
+        <file>theme/dark/icons/check-solid_disabled.svg</file>
+        <file>theme/light/icons/check-solid_disabled.svg</file>
     </qresource>
 </RCC>
