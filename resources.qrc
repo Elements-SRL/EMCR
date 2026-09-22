@@ -128,5 +128,9 @@
         <file>theme/dark/icons/directory_settings.svg</file>
         <file>theme/light/icons/directory_open.svg</file>
         <file>theme/light/icons/directory_settings.svg</file>
+        <file>theme/dark/icons/filename.svg</file>
+        <file>theme/dark/icons/folder.svg</file>
+        <file>theme/light/icons/filename.svg</file>
+        <file>theme/light/icons/folder.svg</file>
     </qresource>
 </RCC>
