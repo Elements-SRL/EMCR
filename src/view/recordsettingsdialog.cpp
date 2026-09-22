@@ -17,12 +17,6 @@ RecordSettingsDialog::RecordSettingsDialog() :
     QVBoxLayout * mainVl = new QVBoxLayout();
     this->setLayout(mainVl);
 
-    QGridLayout * pathGl = new QGridLayout();
-    mainVl->addLayout(pathGl);
-
-    addDateChx = new QCheckBox("Append date to file name");
-    pathGl->addWidget(addDateChx, 3, 0, 1, -1);
-
 //    QRegularExpression re("^[a-zA-Z0-9_ ]*$");
 //    QRegularExpressionValidator * validator = new QRegularExpressionValidator(re, this);
 //    recordNameEdit->setValidator(validator);
@@ -32,7 +26,6 @@ RecordSettingsDialog::RecordSettingsDialog() :
     recordFormatGb->setTitle("File format");
     QVBoxLayout * recordFormatVl = new QVBoxLayout();
     recordFormatGb->setLayout(recordFormatVl);
-    mainVl->addWidget(recordFormatGb);
 
     recordFormatBg = new QButtonGroup();
     recordFormatBg->setExclusive(true);
@@ -54,7 +47,6 @@ RecordSettingsDialog::RecordSettingsDialog() :
     voltageGb->setTitle("Data options");
     QVBoxLayout * voltageVl = new QVBoxLayout();
     voltageGb->setLayout(voltageVl);
-    mainVl->addWidget(voltageGb);
 
     voltageBg = new QButtonGroup();
     voltageBg->setExclusive(true);
@@ -88,7 +80,6 @@ RecordSettingsDialog::RecordSettingsDialog() :
     recordSizeGb->setTitle("Data size");
     QVBoxLayout * recordSizeVl = new QVBoxLayout();
     recordSizeGb->setLayout(recordSizeVl);
-    mainVl->addWidget(recordSizeGb);
 
     QHBoxLayout * recordSizeHl = new QHBoxLayout();
     recordSizeVl->addLayout(recordSizeHl);
@@ -117,6 +108,23 @@ RecordSettingsDialog::RecordSettingsDialog() :
     chunkSelectionHl->addWidget(chunkDurationEdit);
     QLabel * chunkDurationUnitLbl = new QLabel("s");
     chunkSelectionHl->addWidget(chunkDurationUnitLbl);
+
+    /*! Filename extra settings */
+    QGroupBox * recordFileGb = new QGroupBox();
+    recordFileGb->setTitle("File name");
+
+    QVBoxLayout * pathGl = new QVBoxLayout();
+    addDateChx = new QCheckBox("Append date to file name");
+    addProjChx = new QCheckBox("Include Project to file name");
+
+    recordFileGb->setLayout(pathGl);
+    pathGl->addWidget(addDateChx);
+    pathGl->addWidget(addProjChx);
+
+    mainVl->addWidget(recordFormatGb);
+    mainVl->addWidget(voltageGb);
+    mainVl->addWidget(recordSizeGb);
+    mainVl->addWidget(recordFileGb);
 
     recordSizeLbl = new QLabel("Recording size on disk: 0 MB (0 MB per chunk)");
     /*! \todo FCON al momento non la facciamo vedere */
@@ -190,6 +198,7 @@ void RecordSettingsDialog::onLoadSettings() {
     QSettings settings;
 
    addDateChx->setChecked(settings.value(GLB_PROTOCOL_ADD_DATE_TAG, PSD_DEFAULT_ADD_DATE).toBool());
+   addProjChx->setChecked(settings.value(GLB_PROTOCOL_ADD_PRJ_TAG, PSD_DEFAULT_ADD_PROJECT).toBool());
 
     format = (RecordFileFormat_t)(settings.value(GLB_PROTOCOL_RECORD_FORMAT_TAG, PSD_DEFAULT_RECORD_FORMAT).toInt());
     switch (format) {
@@ -256,6 +265,7 @@ void RecordSettingsDialog::onSaveSettings() {
 //    settings.setValue(GLB_PROTOCOL_RECORD_PATH_TAG, recordPathEdit->text());
 //    settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, recordNameEdit->text());
     settings.setValue(GLB_PROTOCOL_ADD_DATE_TAG, addDateChx->isChecked());
+    settings.setValue(GLB_PROTOCOL_ADD_PRJ_TAG, addProjChx->isChecked());
     settings.setValue(GLB_PROTOCOL_RECORD_FORMAT_TAG, (int)(this->getRecordFileFormat()));
     settings.setValue(GLB_PROTOCOL_VOLTAGE_FORMAT_TAG, (int)(this->getVoltageRecordFormat()));
     settings.setValue(GLB_PROTOCOL_VOLTAGE_DECIMATOR_FACTOR_TAG, voltageDecimatorSbx->value());
@@ -268,6 +278,7 @@ void RecordSettingsDialog::onAccept() {
 
     RecordSettings_t settings;
     settings.appendDate = addDateChx->isChecked();
+    settings.appendProject = addProjChx->isChecked();
     settings.fileFormat = this->getRecordFileFormat();
     settings.voltageFormat = this->getVoltageRecordFormat();
     settings.voltageDecimationFactor = voltageDecimatorSbx->value();

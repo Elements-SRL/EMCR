@@ -11,6 +11,7 @@
 /*! Recordings settings*/
 #define PSD_DEFAULT_RECORD_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "/Recordings/")
 #define PSD_DEFAULT_RECORD_NAME QString("file")
+#define PSD_DEFAULT_PROJECT_NAME QString("UNTITLED")
 
 #define EVENT_DETECTION_DEFAULT_RECORD_PATH QString(QDir::homePath() + "/" + GLB_SOFTWARE_NAME + "/Events/")
 #define EVENT_DETECTION_DEFAULT_RECORD_NAME QString("file")
@@ -27,6 +28,7 @@
 #define GLB_EVENT_DETECTION_RECORD_PATH_TAG "Events/Settings/recordPath"
 #define GLB_EVENT_DETECTION_RECORD_NAME_TAG "Events/Settings/recordName"
 #define GLB_PROTOCOL_ADD_DATE_TAG "Protocol/Settings/addDate"
+#define GLB_PROTOCOL_ADD_PRJ_TAG "Protocol/Settings/addProject"
 #define GLB_PROTOCOL_RECORD_FORMAT_TAG "Protocol/Settings/recordFormat"
 #define GLB_PROTOCOL_VOLTAGE_FORMAT_TAG "Protocol/Settings/voltageFormat"
 #define GLB_PROTOCOL_VOLTAGE_DECIMATOR_FACTOR_TAG "Protocol/Settings/voltageDecimationFactor"
