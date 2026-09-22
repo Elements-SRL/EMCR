@@ -129,6 +129,12 @@ QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox {
     background-color: @BG_INPUT;
 }
 
+QLineEdit:disabled, QDoubleSpinBox:disabled, QSpinBox:disabled, QComboBox:disabled {
+    background-color: @ITEM_DISABLED;
+    color: @TEXT_MUTED;
+    border-color: @BORDER_STD;
+}
+
 
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border-color: @BORDER_FOCUS;
@@ -351,6 +357,12 @@ QRadioButton::indicator {
     background-color: @BG_INPUT;
     border: 1px solid @BORDER_INPUT;
     border-radius: 8px;
+}
+
+QCheckBox::indicator:disabled, QRadioButton:indicator:disabled {
+    background-color: @ITEM_DISABLED;
+    color: @TEXT_MUTED;
+    border-color: @BORDER_STD;
 }
 
 QCheckBox::indicator:hover, QRadioButton::indicator:hover {
@@ -966,6 +978,33 @@ QPushButton#stopButton {
     qproperty-iconSize: 14px;
 }
 
+/* CORNER TAB - Project name. */
+QLineEdit#projectNameLbl {
+    background-color: @BG_HEADER;
+    color: @TEXT_MAIN;
+    border-radius: 4px;
+    padding: 3px 0px;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+    min-width: 130px;
+}
+
+QLineEdit#projectNameLbl:hover {
+    background-color: @ITEM_SELECTED
+}
+
+QLineEdit#projectNameLbl:focus {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+QLabel#projectNamePrefixLbl {
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+    background: transparent;
+}
+
 /* ========================================= */
 /* --- GAPFREE ---                           */
 /* ========================================= */
@@ -1010,10 +1049,29 @@ QPushButton#recordingsBtn {
     qproperty-iconSize: 16px;
 }
 
+QPushButton#autoZoom {
+    color: @TEXT_SECONDARY; 
+    font-size: 10px; 
+    letter-spacing: 0.5px; 
+    qproperty-icon: url(:/imgs/zoom full.png);
+    qproperty-iconSize: 18px;
+}
+
 QFrame#lineSeparator {
     height: 0.5px;
     color: @BORDER_INPUT;
 }
+
+/* Icons for record settings */
+QLabel#fileIco {
+    qproperty-pixmap: url("@ICON_PREFIX/filename.svg");
+}
+
+QLabel#recordIco {
+    qproperty-pixmap: url("@ICON_PREFIX/folder.svg");
+}
+
+QWidget#settingsContainer {}
 
 
 /* ========================================= */
