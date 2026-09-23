@@ -87,8 +87,7 @@ QGroupBox::title {
 }
 
 QSplitter::handle {
-    background-color: @ITEM_SELECTED;
-    border: 1px solid @BORDER_PANEL;
+    background-color: @BORDER_LIGHT;
 }
 
 QSplitter::handle:vertical {
@@ -101,7 +100,7 @@ QSplitter::handle:vertical {
 QSplitter::handle:horizontal {
     border-top: none;
     border-bottom: none;
-    width: 4px;
+    width: 2px;
     image: url(@ICON_PREFIX/vertical_splitter.svg);
 }
 
@@ -1039,6 +1038,15 @@ QPushButton#btnSettings {
     qproperty-iconSize: 14px;
 }
 
+QPushButton#locationBtn,
+QPushButton#recordingsBtn,
+QPushButton#autoZoom {
+    color: @TEXT_SECONDARY;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
+}
+
 QPushButton#locationBtn {
     qproperty-icon: url(@ICON_PREFIX/directory_settings.svg);
     qproperty-iconSize: 16px;
@@ -1050,9 +1058,7 @@ QPushButton#recordingsBtn {
 }
 
 QPushButton#autoZoom {
-    color: @TEXT_SECONDARY; 
-    font-size: 10px; 
-    letter-spacing: 0.5px; 
+
     qproperty-icon: url(:/imgs/zoom full.png);
     qproperty-iconSize: 18px;
 }
@@ -1596,13 +1602,17 @@ QPushButton#copyButton{
 }
 
 QPushButton#startRecordingButton{
-     qproperty-icon: url(@ICON_PREFIX/record.svg);
-     qproperty-iconSize: 14px;
+    qproperty-icon: url(@ICON_PREFIX/record.svg);
+    qproperty-iconSize: 10px;
+    color: @TEXT_SECONDARY;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
 }
 
 QPushButton#startRecordingButton[running="true"] {
-    qproperty-icon: url(@ICON_PREFIX/recording.svg);
-    qproperty-iconSize: 14px;
+    qproperty-icon: url(@ICON_PREFIX/stop.svg);
+    qproperty-iconSize: 10px;
 }
 
 
