@@ -28,17 +28,17 @@
 #include "spectrumwidget.h"
 
 enum Notification {
-    NONE,
-    INFO,
-    WARNING,
-    ERROR
+    NOTIFY_NONE,
+    NOTIFY_INFO,
+    NOTIFY_WARNING,
+    NOTIFY_ERROR
 };
 
 static QMap<Notification, QString> NotificationType = {
-    {NONE, "NONE"},
-    {INFO, "INFO"},
-    {WARNING, "WARNING"},
-    {ERROR, "ERROR"}
+    {NOTIFY_NONE, "NONE"},
+    {NOTIFY_INFO, "INFO"},
+    {NOTIFY_WARNING, "WARNING"},
+    {NOTIFY_ERROR, "ERROR"}
 };
 
 class MainWindow : public QMainWindow {

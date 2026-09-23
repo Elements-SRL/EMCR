@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 
 #include <QTabWidget>
+#include <qlineedit.h>
 
 class BigPlotWidget : public QTabWidget {
     Q_OBJECT
@@ -22,6 +23,7 @@ public:
     void addSpectrumTab();
     void addGapFreeTab();
     void addEventDetectionTab();
+    void emitProjectName();
 
 private:
     QVBoxLayout * mainVl;
@@ -30,6 +32,7 @@ private:
     QWidget * ivTab;
     QWidget * spectrumTab;
     QWidget * eventDetectionTab;
+    QLineEdit * projectNameLbl;
 };
 
 #endif // BIGPLOTWIDGET_H

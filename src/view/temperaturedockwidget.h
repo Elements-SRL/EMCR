@@ -10,20 +10,6 @@
 
 namespace e384cl = e384CommLib;
 
-enum DeviceTemperatureStatus {
-    DEFAULT,
-    NORMAL,
-    WARNING,
-    DANGER
-};
-
-static QMap<DeviceTemperatureStatus, QString> deviceTempStatusId = {
-    {DEFAULT, "DEF"},
-    {NORMAL, "NOR"},
-    {WARNING, "WAR"},
-    {DANGER, "DNG"}
-};
-
 
 class TemperatureDockWidget : public QDockWidget {
     Q_OBJECT

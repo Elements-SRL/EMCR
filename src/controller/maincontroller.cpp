@@ -194,7 +194,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
         msgDisp = deviceConnector->getMessageDispatcher();
 
         if (msgDisp->getCalibrationStatus() != Success) {
-            mainWindow->addNotification("Calibration data not found. Loading default values.", Notification::WARNING);
+            mainWindow->addNotification("Calibration data not found. Loading default values.", Notification::NOTIFY_WARNING);
         }
 
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
@@ -214,7 +214,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     } else {
         mainWindow->connectDevice(false, ret);
         mainWindow->showHideConnectedDevice(false);
-        mainWindow->addNotification("Connection failed. Check device connection.", Notification::ERROR);
+        mainWindow->addNotification("Connection failed. Check device connection.", Notification::NOTIFY_ERROR);
 
         emit startDetecting();
     }

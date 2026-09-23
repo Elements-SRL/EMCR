@@ -26,3 +26,7 @@ void AutoToggle::setChecked(bool checked) {
     m_label->style()->unpolish(m_label);
     m_label->style()->polish(m_label);
 }
+
+void AutoToggle::setText(const QString &text) {
+    m_label->setText(text);
+}

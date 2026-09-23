@@ -16,6 +16,7 @@
 #include "globaldefines.h"
 
 #define PSD_DEFAULT_ADD_DATE false
+#define PSD_DEFAULT_ADD_PROJECT false
 #define PSD_DEFAULT_RECORD_FORMAT 0
 #define PSD_DEFAULT_VOLTAGE_FORMAT 0
 #define PSD_DEFAULT_VOLTAGE_DECIMATION_FACTOR 1000
@@ -43,6 +44,7 @@ public:
 
     typedef struct RecordSettings {
         bool appendDate = false;
+        bool appendProject = false;
         RecordFileFormat_t fileFormat;
         VoltageFormat_t voltageFormat;
         int voltageDecimationFactor = 1000;
@@ -62,6 +64,7 @@ private:
     VoltageFormat_t getVoltageRecordFormat();
 
     QCheckBox * addDateChx;
+    QCheckBox * addProjChx;
 //    QRadioButton * recordFormatDatRb;
 //    QRadioButton * recordFormatEdrfRb;
     QRadioButton * recordFormatAbfRb;

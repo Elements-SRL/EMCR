@@ -1,5 +1,4 @@
 #include "datawriterconsumer.h"
-
 #include "globaldefines.h"
 
 DataWriterConsumer::DataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
@@ -292,6 +291,14 @@ void DataWriterConsumer::findValidPathName() {
         if (!dir.exists()) {
             QDir().mkpath(validFilePath);
         }
+
+        /*! Add project name if set */
+        QString prjName = "";
+        if(settings.appendProject){
+            prjName = "_" + PSD_DEFAULT_PROJECT_NAME;
+        }
+        baseFileName += prjName;
+
         /*! Add date and time if required */
         QString dateTime = "";
         if (settings.appendDate) {

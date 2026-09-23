@@ -129,6 +129,12 @@ QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox {
     background-color: @BG_INPUT;
 }
 
+QLineEdit:disabled, QDoubleSpinBox:disabled, QSpinBox:disabled, QComboBox:disabled {
+    background-color: @ITEM_DISABLED;
+    color: @TEXT_MUTED;
+    border-color: @BORDER_STD;
+}
+
 
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border-color: @BORDER_FOCUS;
@@ -212,7 +218,7 @@ QPushButton:checked {
 }
 
 QPushButton:disabled {
-    background-color: @BG_APP;
+    background-color: @ITEM_DISABLED;
     color: @TEXT_MUTED;
     border-color: @BORDER_STD;
 }
@@ -272,6 +278,35 @@ QMenu::icon {
     left: 4px; 
 }
 
+QMenu::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid @BORDER_INPUT;
+    border-radius: 2px;
+    background-color: @BG_INPUT;
+    left: 4px;
+}
+
+QMenu::indicator:checked {
+    background-color: @BG_APP;
+    image: url(@ICON_PREFIX/check-solid.svg);
+}
+
+QMenu::indicator:disabled {
+    background-color: @ITEM_DISABLED;
+    image: url(@ICON_PREFIX/check-solid_disabled.svg);
+}
+
+QMenu::indicator:unchecked {
+    background-color: @BG_APP;
+    border: 1px solid @BORDER_INPUT;
+    image: none;
+}
+
+QMenu::indicator:hover {
+    border-color: @BORDER_FOCUS;
+}
+
 QMenu::separator {
     height: 1px;
     color: @BORDER_PANEL
@@ -310,23 +345,38 @@ QMenu::item:disabled {
 }
 
 /* --- CHECKBOX & RADIO --- */
-QCheckBox::indicator, QRadioButton::indicator {
+QCheckBox::indicator {
     width: 14px;
     height: 14px;
     border: 1px solid @BORDER_INPUT;
-    border-radius: 2px;
     background-color: @BG_INPUT;
+    border-radius: 2px;
+}
+
+QRadioButton::indicator {
+    background-color: @BG_INPUT;
+    border: 1px solid @BORDER_INPUT;
+    border-radius: 8px;
+}
+
+QCheckBox::indicator:disabled, QRadioButton:indicator:disabled {
+    background-color: @ITEM_DISABLED;
+    color: @TEXT_MUTED;
+    border-color: @BORDER_STD;
 }
 
 QCheckBox::indicator:hover, QRadioButton::indicator:hover {
     border-color: @BORDER_FOCUS;
 }
 
-QCheckBox::indicator:checked, QRadioButton::indicator:checked {
-    background-color: @ACCENT_BLUE;
-    border-color: @ACCENT_LBLUE;
+QRadioButton::indicator:checked{
+    background-color: @ACCENT_LBLUE;
+}
+
+QCheckBox::indicator:checked {
     image: url(@ICON_PREFIX/check-solid.svg);
 }
+
 
 /* --- SLIDERS --- */
 QSlider::groove:horizontal {
@@ -928,6 +978,102 @@ QPushButton#stopButton {
     qproperty-iconSize: 14px;
 }
 
+/* CORNER TAB - Project name. */
+QLineEdit#projectNameLbl {
+    background-color: @BG_HEADER;
+    color: @TEXT_MAIN;
+    border-radius: 4px;
+    padding: 3px 0px;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+    min-width: 130px;
+}
+
+QLineEdit#projectNameLbl:hover {
+    background-color: @ITEM_SELECTED
+}
+
+QLineEdit#projectNameLbl:focus {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+QLabel#projectNamePrefixLbl {
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+    background: transparent;
+}
+
+/* ========================================= */
+/* --- GAPFREE ---                           */
+/* ========================================= */
+
+QLabel#controlsTitle, QLabel#recordingTitle {
+    font-family: "Inter", sans-serif;
+    font-size: 11px; 
+    color: @TEXT_TERTIARY;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+QPushButton#zoomInBtn {
+    background-color: transparent;
+    border: none;
+    qproperty-icon: url(@ICON_PREFIX/zoom_in.svg);
+}
+
+QPushButton#zoomOutBtn {
+    background-color: transparent;
+    border: none;
+    qproperty-icon: url(@ICON_PREFIX/zoom_out.svg);
+}
+
+QPushButton#zoomInBtn:hover,
+QPushButton#zoomOutBtn:hover {
+    background-color: @BG_BTN_HOVER;
+}
+
+QPushButton#btnSettings {
+    qproperty-icon: url(@ICON_PREFIX/settings.svg);
+    qproperty-iconSize: 14px;
+}
+
+QPushButton#locationBtn {
+    qproperty-icon: url(@ICON_PREFIX/directory_settings.svg);
+    qproperty-iconSize: 16px;
+}
+
+QPushButton#recordingsBtn {
+    qproperty-icon: url(@ICON_PREFIX/directory_open.svg);
+    qproperty-iconSize: 16px;
+}
+
+QPushButton#autoZoom {
+    color: @TEXT_SECONDARY; 
+    font-size: 10px; 
+    letter-spacing: 0.5px; 
+    qproperty-icon: url(:/imgs/zoom full.png);
+    qproperty-iconSize: 18px;
+}
+
+QFrame#lineSeparator {
+    height: 0.5px;
+    color: @BORDER_INPUT;
+}
+
+/* Icons for record settings */
+QLabel#fileIco {
+    qproperty-pixmap: url("@ICON_PREFIX/filename.svg");
+}
+
+QLabel#recordIco {
+    qproperty-pixmap: url("@ICON_PREFIX/folder.svg");
+}
+
+QWidget#settingsContainer {}
+
+
 /* ========================================= */
 /* --- CONNECTION DEVICE  ---                */
 /* ========================================= */
@@ -1263,7 +1409,7 @@ QLabel#finalSamplingRateLbl {
 /* Used when Digital Filter is forced off */
 QWidget#filterSectionContainer QComboBox:disabled,
 QWidget#filterSectionContainer QDoubleSpinBox:disabled {
-    background: @TEXT_MUTED;
+    background: @ITEM_DISABLED;
 }
 
 
