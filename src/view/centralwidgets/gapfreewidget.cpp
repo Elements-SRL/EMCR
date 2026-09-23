@@ -90,8 +90,9 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     recRow1->setSpacing(6);
 
     startStopBtn = new QPushButton(sideWidget);
-    startStopBtn->setObjectName("startStopBtn");
-    startStopBtn->setFixedWidth(60);
+    startStopBtn->setText(" REC");
+    startStopBtn->setObjectName("startRecordingButton");
+    startStopBtn->setFixedWidth(65);
     startStopBtn->setFixedHeight(28);
     startStopBtn->setCheckable(true);
     startStopBtn->setToolTip("Start or stop recording");
@@ -110,24 +111,6 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     recRow1->addWidget(btnSettings);
     recRow1->addStretch();
     mainLayout->addLayout(recRow1);
-
-    // Start/stop recording
-    connect(startStopBtn, &QPushButton::clicked, this, [=](bool checked) {
-        if (checked) {
-            startStopBtn->setProperty("running", true);
-            protocolTimer->onStartTimer();
-            emitFileName();
-            emitFilePath();
-            emit sigStartRecording();
-        } else {
-            startStopBtn->setProperty("running", false);
-            protocolTimer->onStopTimer();
-            emit sigStopRecording();
-        }
-
-        startStopBtn->style()->unpolish(startStopBtn);
-        startStopBtn->style()->polish(startStopBtn);
-    });
 
     // Row 2 - set location and recordigns buttons
     auto recRow2 = new QHBoxLayout();
@@ -204,12 +187,14 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     connect(startStopBtn, &QPushButton::clicked, this, [=](bool checked) {
         if (checked) {
             startStopBtn->setProperty("running", true);
+            startStopBtn->setText(" STOP");
             protocolTimer->onStartTimer();
             emitFileName();
             emitFilePath();
             emit sigStartRecording();
         } else {
             startStopBtn->setProperty("running", false);
+            startStopBtn->setText(" REC");
             protocolTimer->onStopTimer();
             emit sigStopRecording();
         }

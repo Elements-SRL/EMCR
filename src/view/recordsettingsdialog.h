@@ -44,7 +44,7 @@ public:
 
     typedef struct RecordSettings {
         bool appendDate = false;
-        bool appendProject = false;
+        bool saveProjectFolder = false;
         RecordFileFormat_t fileFormat;
         VoltageFormat_t voltageFormat;
         int voltageDecimationFactor = 1000;

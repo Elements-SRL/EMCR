@@ -286,18 +286,19 @@ void DataWriterConsumer::findValidPathName() {
     } else {
         baseFileName = filename;
         validFilePath = recordPath;
-        //    if recordings folder does not exist, create it
+
+        /*! Create prj folder if required */
+        if(settings.saveProjectFolder){
+            if (!validFilePath.contains("/" + PSD_DEFAULT_PROJECT_NAME + "/")){
+                validFilePath.append("/" + PSD_DEFAULT_PROJECT_NAME + "/");
+            }
+        }
+
+        // if recordings folder does not exist, create it
         QDir dir(validFilePath);
         if (!dir.exists()) {
             QDir().mkpath(validFilePath);
         }
-
-        /*! Add project name if set */
-        QString prjName = "";
-        if(settings.appendProject){
-            prjName = "_" + PSD_DEFAULT_PROJECT_NAME;
-        }
-        baseFileName += prjName;
 
         /*! Add date and time if required */
         QString dateTime = "";

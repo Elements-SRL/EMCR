@@ -115,7 +115,7 @@ RecordSettingsDialog::RecordSettingsDialog() :
 
     QVBoxLayout * pathGl = new QVBoxLayout();
     addDateChx = new QCheckBox("Append date to file name");
-    addProjChx = new QCheckBox("Include Project to file name");
+    addProjChx = new QCheckBox("Save file in Project folder");
 
     recordFileGb->setLayout(pathGl);
     pathGl->addWidget(addDateChx);
@@ -278,7 +278,7 @@ void RecordSettingsDialog::onAccept() {
 
     RecordSettings_t settings;
     settings.appendDate = addDateChx->isChecked();
-    settings.appendProject = addProjChx->isChecked();
+    settings.saveProjectFolder = addProjChx->isChecked();
     settings.fileFormat = this->getRecordFileFormat();
     settings.voltageFormat = this->getVoltageRecordFormat();
     settings.voltageDecimationFactor = voltageDecimatorSbx->value();
