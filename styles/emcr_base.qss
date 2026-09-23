@@ -774,7 +774,10 @@ QFrame#modeContainer QPushButton:pressed {
     border-color: @ACCENT_LBLUE;
 }
 
-QLabel#infoBox { qproperty-pixmap: url(@ICON_PREFIX/circle-info-solid.svg); }
+QLabel#infoBox { 
+    qproperty-pixmap: url(@ICON_PREFIX/circle-info-solid.svg);
+    qproperty-scaledContents: true;
+}
 
 
 /* ========================================================================= */
@@ -1040,7 +1043,8 @@ QPushButton#btnSettings {
 
 QPushButton#locationBtn,
 QPushButton#recordingsBtn,
-QPushButton#autoZoom {
+QPushButton#autoZoom,
+QPushButton#btnSelectAxes{
     color: @TEXT_SECONDARY;
     text-transform: uppercase;
     font-size: 9px;
@@ -1077,8 +1081,18 @@ QLabel#recordIco {
     qproperty-pixmap: url("@ICON_PREFIX/folder.svg");
 }
 
-QWidget#settingsContainer {}
+/* Manual zoom controls */
+QFrame#manualZoomContainer{
+    border: 1px solid @BORDER_PANEL;
+    border-radius: 4px;
+}
 
+QPushButton#btnSelectAxes::menu-indicator{
+    subcontrol-position: right center;
+    margin-right: 2px;
+    width: 8px;
+    height: 8px;
+}
 
 /* ========================================= */
 /* --- CONNECTION DEVICE  ---                */
