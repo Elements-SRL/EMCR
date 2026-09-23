@@ -1,5 +1,6 @@
 #include "datawriterconsumer.h"
 #include "globaldefines.h"
+#include <qsettings.h>
 
 DataWriterConsumer::DataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
@@ -279,6 +280,8 @@ void DataWriterConsumer::findValidPathName() {
     int pathIndex;
     QString newFullFileName;
     QString suffix;
+    QSettings glbSettings;
+
     if (recordingInitialized) {
         suffix = channelIdxSuffix + QString("_%1").arg(chunkIdx++, 3, 10, QLatin1Char('0'));
         newFullFileName = validFilePath + baseFileName + suffix;
@@ -288,9 +291,10 @@ void DataWriterConsumer::findValidPathName() {
         validFilePath = recordPath;
 
         /*! Create prj folder if required */
+        auto prjFolder = glbSettings.value(PSD_DEFAULT_PROJECT_NAME).toString();
         if(settings.saveProjectFolder){
-            if (!validFilePath.contains("/" + PSD_DEFAULT_PROJECT_NAME + "/")){
-                validFilePath.append("/" + PSD_DEFAULT_PROJECT_NAME + "/");
+            if (!validFilePath.contains("/" + prjFolder + "/")){
+                validFilePath.append("/" + prjFolder + "/");
             }
         }
 
