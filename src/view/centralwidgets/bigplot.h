@@ -43,6 +43,8 @@ public:
 
 public slots:
     void onAutoZoom(std::vector <QwtPlot::Axis> axes);
+    void zoomInFactor(double factor = 0.8);
+    void zoomOutFactor(double factor = 1.25);
 
 protected:
     typedef enum {

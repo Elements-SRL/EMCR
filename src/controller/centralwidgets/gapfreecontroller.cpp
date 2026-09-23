@@ -197,6 +197,7 @@ void GapFreeController::onRecordingRequest(bool flag) {
             QString err = "Recording to file not possible";
             QString info = "No channel checked for recording";
             ErrorManager e(err, info);
+            gapFreeWidget->setRecording(false);
         }
 
     }

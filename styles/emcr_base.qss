@@ -87,8 +87,7 @@ QGroupBox::title {
 }
 
 QSplitter::handle {
-    background-color: @ITEM_SELECTED;
-    border: 1px solid @BORDER_PANEL;
+    background-color: @BORDER_LIGHT;
 }
 
 QSplitter::handle:vertical {
@@ -101,7 +100,7 @@ QSplitter::handle:vertical {
 QSplitter::handle:horizontal {
     border-top: none;
     border-bottom: none;
-    width: 4px;
+    width: 2px;
     image: url(@ICON_PREFIX/vertical_splitter.svg);
 }
 
@@ -127,6 +126,12 @@ QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox {
     border-radius: 4px;
     color: @ACCENT_ORANGE;
     background-color: @BG_INPUT;
+}
+
+QLineEdit:disabled, QDoubleSpinBox:disabled, QSpinBox:disabled, QComboBox:disabled {
+    background-color: @ITEM_DISABLED;
+    color: @TEXT_MUTED;
+    border-color: @BORDER_STD;
 }
 
 
@@ -351,6 +356,12 @@ QRadioButton::indicator {
     background-color: @BG_INPUT;
     border: 1px solid @BORDER_INPUT;
     border-radius: 8px;
+}
+
+QCheckBox::indicator:disabled, QRadioButton:indicator:disabled {
+    background-color: @ITEM_DISABLED;
+    color: @TEXT_MUTED;
+    border-color: @BORDER_STD;
 }
 
 QCheckBox::indicator:hover, QRadioButton::indicator:hover {
@@ -763,7 +774,10 @@ QFrame#modeContainer QPushButton:pressed {
     border-color: @ACCENT_LBLUE;
 }
 
-QLabel#infoBox { qproperty-pixmap: url(@ICON_PREFIX/circle-info-solid.svg); }
+QLabel#infoBox { 
+    qproperty-pixmap: url(@ICON_PREFIX/circle-info-solid.svg);
+    qproperty-scaledContents: true;
+}
 
 
 /* ========================================================================= */
@@ -964,6 +978,120 @@ QPushButton#startButton {
 QPushButton#stopButton {
     qproperty-icon: url(@ICON_PREFIX/stop.svg);
     qproperty-iconSize: 14px;
+}
+
+/* CORNER TAB - Project name. */
+QLineEdit#projectNameLbl {
+    background-color: @BG_HEADER;
+    color: @TEXT_MAIN;
+    border-radius: 4px;
+    padding: 3px 0px;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+    min-width: 130px;
+}
+
+QLineEdit#projectNameLbl:hover {
+    background-color: @ITEM_SELECTED
+}
+
+QLineEdit#projectNameLbl:focus {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+QLabel#projectNamePrefixLbl {
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+    background: transparent;
+}
+
+/* ========================================= */
+/* --- GAPFREE ---                           */
+/* ========================================= */
+
+QLabel#controlsTitle, QLabel#recordingTitle {
+    font-family: "Inter", sans-serif;
+    font-size: 11px; 
+    color: @TEXT_TERTIARY;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+QPushButton#zoomInBtn {
+    background-color: transparent;
+    border: none;
+    qproperty-icon: url(@ICON_PREFIX/zoom_in.svg);
+}
+
+QPushButton#zoomOutBtn {
+    background-color: transparent;
+    border: none;
+    qproperty-icon: url(@ICON_PREFIX/zoom_out.svg);
+}
+
+QPushButton#zoomInBtn:hover,
+QPushButton#zoomOutBtn:hover {
+    background-color: @BG_BTN_HOVER;
+}
+
+QPushButton#btnSettings {
+    qproperty-icon: url(@ICON_PREFIX/settings.svg);
+    qproperty-iconSize: 14px;
+}
+
+QPushButton#locationBtn,
+QPushButton#recordingsBtn,
+QPushButton#autoZoom,
+QPushButton#btnSelectAxes{
+    color: @TEXT_SECONDARY;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+QPushButton#locationBtn {
+    qproperty-icon: url(@ICON_PREFIX/directory_settings.svg);
+    qproperty-iconSize: 16px;
+}
+
+QPushButton#recordingsBtn {
+    qproperty-icon: url(@ICON_PREFIX/directory_open.svg);
+    qproperty-iconSize: 16px;
+}
+
+QPushButton#autoZoom {
+
+    qproperty-icon: url(:/imgs/zoom full.png);
+    qproperty-iconSize: 18px;
+}
+
+QFrame#lineSeparator {
+    height: 0.5px;
+    color: @BORDER_INPUT;
+}
+
+/* Icons for record settings */
+QLabel#fileIco {
+    qproperty-pixmap: url("@ICON_PREFIX/filename.svg");
+}
+
+QLabel#recordIco {
+    qproperty-pixmap: url("@ICON_PREFIX/folder.svg");
+}
+
+/* Manual zoom controls */
+QFrame#manualZoomContainer{
+    border: 1px solid @BORDER_PANEL;
+    border-radius: 4px;
+}
+
+QPushButton#btnSelectAxes::menu-indicator{
+    subcontrol-position: right center;
+    margin-right: 2px;
+    width: 8px;
+    height: 8px;
 }
 
 /* ========================================= */
@@ -1488,13 +1616,17 @@ QPushButton#copyButton{
 }
 
 QPushButton#startRecordingButton{
-     qproperty-icon: url(@ICON_PREFIX/record.svg);
-     qproperty-iconSize: 14px;
+    qproperty-icon: url(@ICON_PREFIX/record.svg);
+    qproperty-iconSize: 10px;
+    color: @TEXT_SECONDARY;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
 }
 
 QPushButton#startRecordingButton[running="true"] {
-    qproperty-icon: url(@ICON_PREFIX/recording.svg);
-    qproperty-iconSize: 14px;
+    qproperty-icon: url(@ICON_PREFIX/stop.svg);
+    qproperty-iconSize: 10px;
 }
 
 

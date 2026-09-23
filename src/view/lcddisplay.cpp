@@ -27,6 +27,7 @@ TimerDisplay::TimerDisplay(QWidget * parent, QString timeFormat) :
     // RECORDING icons
     iconLabel = new QLabel(this);
     iconLabel->setObjectName("recordingIcon");
+    iconLabel->setFixedSize(10, 10);
 
     // RECODING icon - idle
     iconLabelIdle = new QFrame(this);
