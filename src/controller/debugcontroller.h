@@ -15,6 +15,9 @@ public:
 private:
     ApplicationStatus * appStatus = nullptr;
     MainWindow * mainWindow;
+
+signals:
+    void sigWriteDebugData(std::vector <int16_t> debugData);
 };
 
 #endif // DEBUGCONTROLLER_H

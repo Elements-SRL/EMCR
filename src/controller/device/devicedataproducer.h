@@ -156,6 +156,7 @@ signals:
     void sigTemperatureRead(std::vector <Measurement_t> temperatureValues);
     void sigOnTimeRead(Measurement_t onTimeValue);
     void sigSyncFaults(std::vector <bool> syncFaults);
+    void sigDebugData(std::vector <int16_t> debugData);
 };
 
 #endif // DEVICEDATAPRODUCER_H
