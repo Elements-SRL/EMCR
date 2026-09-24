@@ -98,7 +98,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
             QLabel * infoBox = new QLabel();
             infoBox->setObjectName("infoBox");
             infoBox->setToolTip(QString("Status badge is showed when feature is OFF."));
-            infoBox->setFixedSize(14, 14);
+            infoBox->setFixedSize(12, 12);
             r1->addWidget(infoBox);
         }
 
@@ -425,7 +425,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
             QLabel *infoBox = new QLabel(value);
             infoBox->setObjectName("infoBox");
             infoBox->setToolTip(QString("Not available for connected device."));
-            infoBox->setFixedSize(14, 14);
+            infoBox->setFixedSize(12, 12);
             l->addWidget(infoBox);
             valLbl->setText("N/A");
         }

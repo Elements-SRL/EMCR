@@ -13,6 +13,9 @@
 #include <qformlayout.h>
 #include "globaldefines.h"
 #include "bigplot.h"
+#include <QWheelEvent>
+#include <QCoreApplication>
+#include <qmenu.h>
 
 GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     QWidget(parent) {
@@ -38,10 +41,14 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     controlsRow->setAlignment(Qt::AlignLeft);
     controlsRow->setSpacing(8);
 
-    autoZoom = new QPushButton("   ZOOM");
+    autoZoom = new QPushButton("   AUTO");
     autoZoom->setObjectName("autoZoom");
+    autoZoom->setToolTip("Auto zoom");
     autoZoom->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     autoZoom->setCursor(Qt::PointingHandCursor);
+    connect(autoZoom, &QPushButton::clicked, this, &GapFreeWidget::sigAutoZoom);
+
+    controlsRow->addWidget(autoZoom);
 
     btnZoomIn = new QPushButton(sideWidget);
     btnZoomIn->setObjectName("zoomInBtn");
@@ -53,23 +60,106 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     btnZoomOut->setFixedSize(32, 32);
     btnZoomOut->setToolTip("Zoom Out");
 
-    controlsRow->addWidget(autoZoom);
-    controlsRow->addWidget(btnZoomIn);
-    controlsRow->addWidget(btnZoomOut);
-    controlsRow->addStretch();
+    // --- Manual zoom controls
+    auto manualZoom = new QFrame();
+    manualZoom->setObjectName("manualZoomContainer");
+    auto mZLayout = new QHBoxLayout(manualZoom);
+    mZLayout->setContentsMargins(0,0,0,0);
+
+    mZLayout->addWidget(btnZoomIn);
+    mZLayout->addWidget(btnZoomOut);
 
     mainLayout->addLayout(controlsRow);
 
-    // Zoom signals
-    connect(autoZoom, &QPushButton::clicked, this, &GapFreeWidget::sigAutoZoom);
+    // Dropdown multi selection for chosing axis
+    auto btnSelectAxes = new QPushButton(sideWidget);
+    btnSelectAxes->setObjectName("btnSelectAxes");
+    auto axesMenu = new QMenu(btnSelectAxes);
 
+    // Checkable axis options
+    auto actX  = axesMenu->addAction("X - Time");
+    auto actY1 = axesMenu->addAction("Y1 - Current");
+    auto actY2 = axesMenu->addAction("Y2 - Voltage");
+
+    for (auto act : {actX, actY1, actY2}) {
+        act->setCheckable(true);
+        act->setChecked(true);
+    }
+
+    // Updates selected axis text in dropdown
+    auto updateButtonText = [=]() {
+        QStringList selected;
+        if (actX->isChecked())  selected << "X";
+        if (actY1->isChecked())  selected << "Y1";
+        if (actY2->isChecked())  selected << "Y2";
+
+        if (selected.isEmpty()) {
+            btnSelectAxes->setText("None");
+        } else {
+            btnSelectAxes->setText(selected.join(", "));
+        }
+    };
+
+    updateButtonText();
+
+    connect(actX,  &QAction::toggled, updateButtonText);
+    connect(actY1, &QAction::toggled, updateButtonText);
+    connect(actY2, &QAction::toggled, updateButtonText);
+
+    btnSelectAxes->setMenu(axesMenu);
+    mZLayout->addWidget(btnSelectAxes);
+
+    controlsRow->addWidget(manualZoom);
+    controlsRow->addStretch();
+
+    // --- Manual zoom buttons logic (+/-)
+    // --- Can zoom on single or multiple axis
     if (plot != nullptr) {
-        connect(btnZoomIn, &QPushButton::clicked, plot, [plot]() {
-            plot->zoomInFactor(0.8);
+        auto sendWheelEvent = [plot](Qt::KeyboardModifier modifier, QPoint localPos, int deltaY) {
+            QPointF globalPos = plot->mapToGlobal(localPos);
+
+            QWheelEvent wheelEvent(
+                localPos,
+                globalPos,
+                QPoint(0, 0),
+                QPoint(0, deltaY),
+                Qt::NoButton,
+                modifier,
+                Qt::NoScrollPhase,
+                false
+                );
+
+            QCoreApplication::sendEvent(plot, &wheelEvent);
+        };
+
+        auto triggerSelectedZoom = [=](int deltaY) {
+            int w = plot->width();
+            int h = plot->height();
+
+            // Mock mouse position
+            QPoint centerPos(w * 0.5, h * 0.5);     // xBottom - Time
+            QPoint leftHalfPos(w * 0.25, h * 0.5);  // yLeft   - Current
+            QPoint rightHalfPos(w * 0.75, h * 0.5); // yRight  - Tension
+
+            if (actX->isChecked()) {
+                sendWheelEvent(Qt::ShiftModifier, centerPos, deltaY);
+            }
+
+            if (actY1->isChecked()) {
+                sendWheelEvent(Qt::ControlModifier, leftHalfPos, deltaY);
+            }
+
+            if (actY2->isChecked()) {
+                sendWheelEvent(Qt::ControlModifier, rightHalfPos, deltaY);
+            }
+        };
+
+        connect(btnZoomIn, &QPushButton::clicked, plot, [triggerSelectedZoom]() {
+            triggerSelectedZoom(120);
         });
 
-        connect(btnZoomOut, &QPushButton::clicked, plot, [plot]() {
-            plot->zoomOutFactor(1.25);
+        connect(btnZoomOut, &QPushButton::clicked, plot, [triggerSelectedZoom]() {
+            triggerSelectedZoom(-120);
         });
     }
 
