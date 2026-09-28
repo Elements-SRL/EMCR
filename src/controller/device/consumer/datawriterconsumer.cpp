@@ -1,6 +1,6 @@
 #include "datawriterconsumer.h"
-
 #include "globaldefines.h"
+#include <qsettings.h>
 
 DataWriterConsumer::DataWriterConsumer(ApplicationStatus * appStatus, DeviceDataProducer * producer) :
     DeviceDataConsumer(appStatus, producer) {
@@ -280,6 +280,8 @@ void DataWriterConsumer::findValidPathName() {
     int pathIndex;
     QString newFullFileName;
     QString suffix;
+    QSettings glbSettings;
+
     if (recordingInitialized) {
         suffix = channelIdxSuffix + QString("_%1").arg(chunkIdx++, 3, 10, QLatin1Char('0'));
         newFullFileName = validFilePath + baseFileName + suffix;
@@ -287,11 +289,21 @@ void DataWriterConsumer::findValidPathName() {
     } else {
         baseFileName = filename;
         validFilePath = recordPath;
-        //    if recordings folder does not exist, create it
+
+        /*! Create prj folder if required */
+        auto prjFolder = glbSettings.value(PSD_DEFAULT_PROJECT_NAME).toString();
+        if(settings.saveProjectFolder){
+            if (!validFilePath.contains("/" + prjFolder + "/")){
+                validFilePath.append("/" + prjFolder + "/");
+            }
+        }
+
+        // if recordings folder does not exist, create it
         QDir dir(validFilePath);
         if (!dir.exists()) {
             QDir().mkpath(validFilePath);
         }
+
         /*! Add date and time if required */
         QString dateTime = "";
         if (settings.appendDate) {

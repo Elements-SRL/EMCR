@@ -352,6 +352,20 @@ void BigPlot::onZoomResetPickerSelected(const QPointF &) {
     emit zoomResetRequest();
 }
 
+void BigPlot::zoomInFactor(double factor) {
+    for (int axis : {xBottom, yLeft}) {
+        QwtInterval interval = this->axisInterval(axis);
+        double center = interval.minValue() + interval.width() / 2.0;
+        double newHalfWidth = (interval.width() * factor) / 2.0;
+        this->setAxisScale(axis, center - newHalfWidth, center + newHalfWidth);
+    }
+    this->replot();
+}
+
+void BigPlot::zoomOutFactor(double factor) {
+    zoomInFactor(factor);
+}
+
 void BigPlot::handleLabelsPosition() {
     auto cx = this->canvas()->x();
     auto cy = this->canvas()->y();

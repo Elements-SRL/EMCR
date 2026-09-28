@@ -1,6 +1,11 @@
 #include "bigplotwidget.h"
 #include "bigplot.h"
 #include "qlineedit.h"
+#include "globaldefines.h"
+#include <qlabel.h>
+#include <qregularexpression.h>
+#include <qsettings.h>
+#include <qvalidator.h>
 
 BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     QTabWidget(parent) {
@@ -10,21 +15,57 @@ BigPlotWidget::BigPlotWidget(uint16_t channelsNumber, QWidget * parent) :
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setObjectName("bigPlotTabWidget");
 
-    /* Corner widget - extends the tab menu */
-    /* Could contain EXPERIMENT - NAME      */
+    // Corner widget - extends the tab menu
     QWidget* tabCornerWidget = new QWidget(this);
 
-    QLineEdit* projectNameLbl = new QLineEdit(tabCornerWidget);
-    projectNameLbl->setObjectName("experimentNameLbl");
-    projectNameLbl->setText("SAMPLE PROJECT - EXPERIMENT...");
+    projectNameLbl = new QLineEdit(tabCornerWidget);
+    projectNameLbl->setObjectName("projectNameLbl");
+    projectNameLbl->setText(PSD_DEFAULT_PROJECT_NAME);
+
+    QLabel* prefixLabel = new QLabel("PROJECT:", projectNameLbl);
+    prefixLabel->setObjectName("projectNamePrefixLbl");
+
+    // Sanitizer - Prevents special chars  \ / : * ? " < > |
+    QRegularExpression rx("^[^\\\\/:*?\"<>|]{1,100}$");
+    QRegularExpressionValidator *validator = new QRegularExpressionValidator(rx, projectNameLbl);
+    projectNameLbl->setValidator(validator);
+
+    // Perfix inside prjLabel
+    int prefixWidth = prefixLabel->fontMetrics().horizontalAdvance("PROJECT:") + 6;
+    projectNameLbl->setTextMargins(prefixWidth, 0, 0, 0);
+
+    QHBoxLayout* prefixLayout = new QHBoxLayout(projectNameLbl);
+    prefixLayout->setContentsMargins(6, 0, 0, 0);
+    prefixLayout->addWidget(prefixLabel);
+    prefixLayout->addStretch();
+    projectNameLbl->setLayout(prefixLayout);
+
+    connect(projectNameLbl, &QLineEdit::editingFinished, [=]() {
+        emitProjectName();
+        projectNameLbl->clearFocus();
+    });
 
     QHBoxLayout* pHLayout = new QHBoxLayout(tabCornerWidget);
+    tabCornerWidget->setContentsMargins(0, 2, 0, 0);
     pHLayout->addWidget(projectNameLbl);
-
-    // IF feature is desiderable, enable it
-    tabCornerWidget->hide();
     this->setCornerWidget(tabCornerWidget, Qt::TopRightCorner);
 
+}
+
+void BigPlotWidget::emitProjectName(){
+    QSettings settings;
+    QString filename = projectNameLbl->text().trimmed();
+
+    while (filename.endsWith('.')) {
+        filename.chop(1);
+    }
+
+    if (filename.isEmpty()) {
+        filename = PSD_DEFAULT_PROJECT_NAME;
+    }
+
+    projectNameLbl->setText(filename);
+    settings.setValue(PSD_DEFAULT_PROJECT_NAME, filename);
 }
 
 void BigPlotWidget::setGapFreePlot(QWidget* wid) {
