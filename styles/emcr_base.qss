@@ -2012,3 +2012,35 @@ QFrame#controlsSectionContainer {
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
 }
+
+/* ========================================================================= */
+/* --- STATE ARRAY ---                                                       */
+/* ========================================================================= */
+
+QFrame#smallHeaderContainer {
+    background-color: @BG_PANEL;
+    height: 12px;
+    padding: 0px 4px;
+    spacing: 6
+}
+
+QLabel#numberOfStates,
+QSpinBox#stateSpinbox {
+    background-color: @BG_HEADER;
+    padding: 6px 7px;
+    border-radius: 4px;
+    height: 12px;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+}
+
+QSpinBox#stateSpinbox {
+    width: 130px;
+}
+
+QPushButton#deleteStateButton,
+QPushButton#insertStateButton {
+    width: 80px;
+}
+

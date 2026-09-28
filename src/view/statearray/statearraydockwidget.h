@@ -7,6 +7,7 @@
 #include <QSpinBox>
 #include <QWidget>
 #include <model/state.h>
+#include <qlabel.h>
 #include "e384commlib_global_addendum.h"
 
 class StateArrayDockWidget : public QDockWidget
@@ -30,7 +31,7 @@ private:
     QSpinBox * deleteStateSpinBox;
     QSpinBox *stateSpinbox;
     QDoubleSpinBox *voltageSpinbox;
-    QSpinBox * numberOfStatesSpinbox;
+    QLabel * numberOfStatesVal;
     QSpinBox * initialStateSpinbox;
     QDoubleSpinBox * reactionTimeSpinbox;
     QCheckBox * activeTimeoutCheckbox;

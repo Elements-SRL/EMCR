@@ -15,37 +15,67 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     : QDockWidget(parent)
 {
     QWidget * mainWg = new QWidget();
-    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    mainWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setWindowTitle("State Array");
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setWidget(mainWg);
     setObjectName("stateArrayDockWidget");
     currentStateIdx = 0;
-    // Constructor implementation
+
+    // Window border management when floating
+    connect(this, &QDockWidget::topLevelChanged, this, [mainWg](bool isFloating) {
+        if (isFloating) {
+            mainWg->setStyleSheet("#customFooter {border: none; }");
+        } else {
+            mainWg->setStyleSheet("");
+        }
+    });
+
+    // Main layout
     QVBoxLayout * mainLayout = new QVBoxLayout();
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
 
-    // STATE ARRAY CONFIGURATION
-    QHBoxLayout * stateArrayConfigurationLayout = new QHBoxLayout();
+    // --- SECTION 1 - Array State machine configuration
+    // Contains controls to create a new state
+    QVBoxLayout * sectionOneLayout = new QVBoxLayout();
+    sectionOneLayout->setContentsMargins(8, 0, 8, 8);
+    sectionOneLayout->setSpacing(4);
 
-    QVBoxLayout * numberOfStatesLayout = new QVBoxLayout();
-    QLabel * numberOfStatesLabel = new QLabel("Number of States");
-    numberOfStatesSpinbox = new QSpinBox(this);
-    numberOfStatesLayout ->addWidget(numberOfStatesLabel);
-    numberOfStatesLayout ->addWidget(numberOfStatesSpinbox);
-    stateArrayConfigurationLayout->addLayout(numberOfStatesLayout);
+    // TOTAL STATES - section title
+    QFrame* sectionOneHeader = new QFrame();
+    sectionOneHeader->setObjectName("smallHeaderContainer");
 
-    QVBoxLayout * initialStateLayout = new QVBoxLayout();
+    QHBoxLayout* sectionOneHeaderLayout = new QHBoxLayout(sectionOneHeader);
+    QLabel * sectionOneTitle = new QLabel("Manage states");
+    sectionOneTitle->setObjectName("sectionHeader");
+
+    // Readonly number - just a label
+    numberOfStatesVal = new QLabel(this);
+    numberOfStatesVal->setObjectName("numberOfStates");
+
+    sectionOneHeaderLayout->addWidget(sectionOneTitle);
+    sectionOneHeaderLayout->addStretch();
+    sectionOneHeaderLayout->addWidget(numberOfStatesVal);
+
+    // Header of section goes directly in mainlayout
+    mainLayout->addWidget(sectionOneHeader);
+
+    // ROW 1 - Inital state & reaction time settings
+    QGroupBox * stateArrayConfigGroupBox = new QGroupBox(this);
+    QVBoxLayout * stateConfigLayout = new QVBoxLayout(stateArrayConfigGroupBox);
+
+    QHBoxLayout * initialStateLayout = new QHBoxLayout();
     QLabel * initialStateLabel = new QLabel("Initial State");
     initialStateSpinbox = new QSpinBox(this);
 //    TODO LROSSI min &max bound to numberOfstates
     initialStateLayout ->addWidget(initialStateLabel);
     initialStateLayout ->addWidget(initialStateSpinbox);
-    stateArrayConfigurationLayout->addLayout(initialStateLayout);
+
     connect(initialStateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
         emit this->sigInitialStateChanged(value);
     });
 
-    QVBoxLayout * reactionTimeLayout = new QVBoxLayout();
+    QHBoxLayout * reactionTimeLayout = new QHBoxLayout();
     QLabel * reactionTimeLabel = new QLabel("Reaction time [us]");
     reactionTimeSpinbox = new QDoubleSpinBox(this);
     reactionTimeSpinbox->setRange(0.0, 100.0);
@@ -53,46 +83,52 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     reactionTimeSpinbox->setDecimals(1);
     reactionTimeLayout->addWidget(reactionTimeLabel);
     reactionTimeLayout->addWidget(reactionTimeSpinbox);
-    stateArrayConfigurationLayout->addLayout(reactionTimeLayout);
+
     connect(reactionTimeSpinbox, QOverload <double> ::of(&QDoubleSpinBox::valueChanged), this, [=](double value){
         emit this->sigReactionTimeChanged(value);
     });
 
-    ///////////////// CRUD BUTTONS /////////////////
+    stateConfigLayout->addLayout(initialStateLayout);
+    stateConfigLayout->addLayout(reactionTimeLayout);
+
+    // ROW 2 - ADD/DELETE state buttons
     QGroupBox *insertDeleteGroupBox = new QGroupBox(this);
-    // Create the QHBoxLayout for the checkbox and its label
     QVBoxLayout *insertDeleteLayout = new QVBoxLayout(insertDeleteGroupBox);
 
     QHBoxLayout * deleteStateLayout = new QHBoxLayout();
     QPushButton * deleteStateButton = new QPushButton("Delete state");
+    deleteStateButton->setObjectName("deleteStateButton");
+
     //    TODO LROSSI min &max bound to numberOfstates
     deleteStateSpinBox = new QSpinBox(this);
     deleteStateLayout->addWidget(deleteStateButton);
+    deleteStateLayout->addStretch();
     deleteStateLayout->addWidget(deleteStateSpinBox);
     insertDeleteLayout->addLayout(deleteStateLayout);
     connect(deleteStateButton, &QPushButton::clicked, this, [=](){
         emit this->sigDeleteButtonPressed(deleteStateSpinBox->value());
     });
-    stateArrayConfigurationLayout->addWidget(insertDeleteGroupBox);
 
     QHBoxLayout * insertStateLayout = new QHBoxLayout();
     QPushButton * insertStateButton = new QPushButton("Insert state after");
+    insertStateButton->setObjectName("insertStateButton");
     //    TODO LROSSI min &max bound to numberOfstates
     insertStateSpinBox = new QSpinBox(this);
     insertStateLayout->addWidget(insertStateButton);
+    insertStateLayout->addStretch();
     insertStateLayout->addWidget(insertStateSpinBox);
     insertDeleteLayout->addLayout(insertStateLayout);
     connect(insertStateButton, &QPushButton::clicked, this, [=](){
         emit this->sigInsertStateAfter(insertStateSpinBox->value());
     });
-    stateArrayConfigurationLayout->addWidget(insertDeleteGroupBox);
 
     QGroupBox * enableStateArrayGroupBox = new QGroupBox(this);
     enableStateArrayGroupBox->setTitle("Active channels");
+    enableStateArrayGroupBox->setObjectName("enableStateArrayGroupBox");
     QVBoxLayout * enableStateArrayLayout = new QVBoxLayout(enableStateArrayGroupBox);
     std::vector<QCheckBox *> checkboxes;
     for(int i=0; i < 4; i++){
-        QCheckBox * ch = new QCheckBox(QString("ch %1").arg(i+1));
+        QCheckBox * ch = new QCheckBox(QString("Channel %1").arg(i+1));
         checkboxes.push_back(ch);
         enableStateArrayLayout->addWidget(ch);
         connect(ch, &QCheckBox::clicked, this, [=](bool enabledFlag){
@@ -100,49 +136,56 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
         });
     }
 
-    stateArrayConfigurationLayout->addWidget(enableStateArrayGroupBox);
-    mainLayout->addLayout(stateArrayConfigurationLayout);
+    // Composing section with settings
+    sectionOneLayout->addWidget(stateArrayConfigGroupBox);
+    sectionOneLayout->addWidget(insertDeleteGroupBox);
+    sectionOneLayout->addWidget(enableStateArrayGroupBox);
+    mainLayout->addLayout(sectionOneLayout);
 
-    // Create the QHBoxLayout and QDoubleSpinBox objects
-    QVBoxLayout *stateAndVoltageLayout = new QVBoxLayout();
+    // --- SECTION 2 - controls to set-up a state
+    QVBoxLayout * sectionTwoLayout = new QVBoxLayout();
+    sectionTwoLayout->setContentsMargins(8, 8, 8, 8);
+
+    // State selector for edit its own settings
     stateSpinbox = new QSpinBox(this);
+    stateSpinbox->setObjectName("stateSpinbox");
+    stateSpinbox->setPrefix("CURRENT STATE: ");
     connect(stateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
         emit sigStateChanged(value);
     });
-    // Set the range and properties of the QDoubleSpinBox
 
-    // Add the QDoubleSpinBox to the QHBoxLayout
-    QHBoxLayout * stateLayout = new QHBoxLayout();
-    stateLayout->addWidget(new QLabel("Current state"));
-    stateLayout->addWidget(stateSpinbox);
+    // Section 2 header - contains the state selector
+    QFrame* sectionTwoHeader = new QFrame();
+    sectionTwoHeader->setObjectName("smallHeaderContainer");
+    QHBoxLayout* sectionTwoHeaderLayout = new QHBoxLayout(sectionTwoHeader);
 
-    stateAndVoltageLayout->addLayout(stateLayout);
-    /////////// LINE THAT SEPARATES THE FIRST PART FROM THE SECOND ///////////
-    QFrame *firstLine = new QFrame(this);
-    firstLine->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(firstLine);
+    QLabel * sectionTwoTitle = new QLabel("State configuration");
+    sectionTwoTitle->setObjectName("sectionHeader");
 
+    sectionTwoHeaderLayout->addWidget(sectionTwoTitle);
+    sectionTwoHeaderLayout->addStretch();
+    sectionTwoHeaderLayout->addWidget(stateSpinbox);
 
-    ///////////////// STUFF BETWEEN LINES ///////////
-    QHBoxLayout * betweenLinesLayout = new QHBoxLayout();
-    ////////////////// Voltage //////////////////
-    QHBoxLayout *voltageLayout = new QHBoxLayout();
+    // Section 2 header goes in main layout
+    mainLayout->addWidget(sectionTwoHeader);
+
+    // VOLTAGE - mandatory setting
+    QFrame * voltageContainer = new QFrame(this);
+    QHBoxLayout *voltageLayout = new QHBoxLayout(voltageContainer);
 
     QLabel *voltageLabel = new QLabel("Voltage (V)");
+    voltageLabel->setObjectName("voltageLabel");
     voltageSpinbox = new QDoubleSpinBox();
     voltageSpinbox->setDecimals(4);
+
     voltageLayout->addWidget(voltageLabel);
     voltageLayout->addWidget(voltageSpinbox);
 
-    stateAndVoltageLayout->addLayout(voltageLayout);
-
-    ////////////////// Timeout Layout //////////////////
+    // TIMEOUT - optional setting
     QGroupBox *timeoutGroupBox = new QGroupBox(this);
-    // Create the QHBoxLayout for the checkbox and its label
     QHBoxLayout *activeTimeoutLayout = new QHBoxLayout(timeoutGroupBox);
-    activeTimeoutCheckbox = new QCheckBox("Active", this);
 
-    // Add the checkbox and its label to the checkboxLayout
+    activeTimeoutCheckbox = new QCheckBox("Active", this);
     activeTimeoutLayout->addWidget(activeTimeoutCheckbox);
 
     // Create the first QLineEdit for the timeout (sec)
@@ -167,8 +210,7 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     activeTimeoutLayout->addLayout(timeoutLayout);
     activeTimeoutLayout->addLayout(timeoutStateLayout);
 
-    //////////////////  Trigger Layout  //////////////////
-    ///// Create a container widget (QGroupBox)
+    // TRIGGERS - how to switch from states
     QGroupBox *triggersGroupBox = new QGroupBox(this);
     QHBoxLayout * triggerLayout = new QHBoxLayout(triggersGroupBox);
 
@@ -215,20 +257,17 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     controlLayout->addWidget(timeoutGroupBox);
     controlLayout->addWidget(triggersGroupBox);
 
-    betweenLinesLayout->addLayout(stateAndVoltageLayout);
-    betweenLinesLayout->addLayout(controlLayout);
-    mainLayout->addLayout(betweenLinesLayout);
+    sectionTwoLayout->addWidget(voltageContainer);
+    sectionTwoLayout->addLayout(controlLayout);
+    mainLayout->addLayout(sectionTwoLayout);
 
+    // FOOTER - Control buttons
+    QFrame* footerFrame = new QFrame();
+    footerFrame->setObjectName("customFooter");
+    QHBoxLayout * buttonsLayout = new QHBoxLayout(footerFrame);
+    buttonsLayout->setContentsMargins(8, 8, 8, 8);
 
-    // Set the QHBoxLayout as the main layout of the widget
-
-    /////////// LINE THAT SEPARATES THE FIRST PART FROM THE SECOND ///////////
-    QFrame *secondLine = new QFrame(this);
-    secondLine->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(secondLine);
-
-    ///////// BUTTONS TO OPEN, SAVE, START AND CANCEL ////////////
-    QHBoxLayout * buttonsLayout = new QHBoxLayout();
+    // Control Buttons
     QPushButton * openButton = new QPushButton("Open");
     QPushButton * saveAsButton = new QPushButton("Save As");
     QPushButton * startButton = new QPushButton("Start");
@@ -284,22 +323,26 @@ StateArrayDockWidget::StateArrayDockWidget(QWidget *parent)
     connect(triggerStateSpinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value){
         emit sigTriggerStateCheckBoxClicked(value, currentStateIdx);
     });
+
+    // Composing footer frame with buttons
     buttonsLayout->addWidget(openButton);
     buttonsLayout->addWidget(saveAsButton);
     buttonsLayout->addWidget(spacer);
     buttonsLayout->addWidget(startButton);
     buttonsLayout->addWidget(stopButton);
 
-    mainLayout->addLayout(buttonsLayout);
+    // Add footer to main layout
+    mainLayout->addWidget(footerFrame);
+    mainLayout->addStretch();
 
-    // Set the QVBoxLayout as the main layout of the widget
+    // Set the main layout of the widget
     mainWg->setLayout(mainLayout);
 }
 
 void StateArrayDockWidget::setState(YAML::State s, int index){
-    numberOfStatesSpinbox->blockSignals(true);
-    numberOfStatesSpinbox->setEnabled(false);
-    numberOfStatesSpinbox->blockSignals(false);
+    numberOfStatesVal->blockSignals(true);
+    numberOfStatesVal->setEnabled(false);
+    numberOfStatesVal->blockSignals(false);
     voltageSpinbox->blockSignals(true);
     voltageSpinbox->setValue(s.voltage);
     voltageSpinbox->blockSignals(false);
@@ -335,7 +378,7 @@ void StateArrayDockWidget::setState(YAML::State s, int index){
 }
 
 void StateArrayDockWidget::setStateCount(int count){
-    numberOfStatesSpinbox->setValue(count);
+    numberOfStatesVal->setText("TOTAL STATES: " + QString::number(count));
 }
 
 void StateArrayDockWidget::setReactiontimeUs(double t){
