@@ -175,7 +175,7 @@ void SingleChannelControlDockWidget::onUpdate() {
                 for (uint32_t offset = 0; offset < stimulusBlockSize; offset++) {
                     visible |= selectedChannels[channelIdx+offset];
                 }
-                operationEdits[operationCbx->currentIndex()][channelIdx/stimulusBlockSize]->setVisible(visible);
+                operationEdits[operationCbx->currentIndex()][channelIdx]->setVisible(visible);
             }
         }
         else {
@@ -226,12 +226,25 @@ void SingleChannelControlDockWidget::onApplyButtonClicked(int operationIdx, bool
         break;
     }
     if (operationIdx < OperationInitialStimulusRamp) {
-        for (int i = 0; i < selectedChannels.size(); i++) {
-            if (selectedChannels.at(i)) {
-                sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
-                Measurement_t m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
-                values.push_back(m);
-                indexes.push_back(i);
+        if (operationIdx == OperationHoldingStimulus && stimulusBlockSize > 1) {
+            for (int i = 0; i < selectedChannels.size(); i++) {
+                if (selectedChannels.at(i)) {
+                    int realIdx = (i/stimulusBlockSize)*stimulusBlockSize;
+                    sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][realIdx]);
+                    Measurement_t m = {sbx->getSpinBox()->value(), range[realIdx].prefix, range[realIdx].unit};
+                    values.push_back(m);
+                    indexes.push_back(i);
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < selectedChannels.size(); i++) {
+                if (selectedChannels.at(i)) {
+                    sbx = static_cast <SpinBoxWithChannel *> (operationEdits[operationIdx][i]);
+                    Measurement_t m = {sbx->getSpinBox()->value(), range[i].prefix, range[i].unit};
+                    values.push_back(m);
+                    indexes.push_back(i);
+                }
             }
         }
     }
@@ -289,9 +302,17 @@ void SingleChannelControlDockWidget::onSetAllButtonClicked() {
     std::vector<uint16_t> indexes;
     std::vector <bool> selectedChannels = appStatus->getSelectedChannels();
     for (int i = 0; i < selectedChannels.size(); i++) {
-        spinBox = static_cast <SpinBoxWithChannel *> (operationEdits[operationCbx->currentIndex()][i]);
-        if (selectedChannels.at(i)) {
-            spinBox->getSpinBox()->setValue(setAllWidgets[operationCbx->currentIndex()]->getSpinBox()->value());
+        if (operationCbx->currentIndex() == OperationHoldingStimulus && stimulusBlockSize > 1) {
+            spinBox = static_cast <SpinBoxWithChannel *> (operationEdits[operationCbx->currentIndex()][i]);
+            if (selectedChannels.at(i) && ((i % stimulusBlockSize) == 0) && spinBox != nullptr) {
+                spinBox->getSpinBox()->setValue(setAllWidgets[operationCbx->currentIndex()]->getSpinBox()->value());
+            }
+        }
+        else {
+            spinBox = static_cast <SpinBoxWithChannel *> (operationEdits[operationCbx->currentIndex()][i]);
+            if (selectedChannels.at(i) && spinBox != nullptr) {
+                spinBox->getSpinBox()->setValue(setAllWidgets[operationCbx->currentIndex()]->getSpinBox()->value());
+            }
         }
     }
     this->onApplyButtonClicked();
@@ -310,7 +331,7 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected() {
         setAllChannelsSbxs[OperationHoldingStimulus]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx += stimulusBlockSize) {
-            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx/stimulusBlockSize])->getSpinBox();
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
@@ -407,7 +428,7 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected() {
         setAllChannelsSbxs[OperationHoldingStimulus]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx += stimulusBlockSize) {
-            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx/stimulusBlockSize])->getSpinBox();
+            NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
             sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
@@ -534,7 +555,7 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
             sbx->setRange(ranges[0].min, ranges[0].max);
             sbx->setValue(0.0);
             sbx->setDecimals(ranges[0].decimals());
-            SpinBoxWithChannel * widget = new SpinBoxWithChannel(names[channelIdx] + " - " + names[channelIdx+stimulusBlockSize], sbx);
+            SpinBoxWithChannel * widget = new SpinBoxWithChannel(names[channelIdx] + " - " + names[channelIdx+stimulusBlockSize-1], sbx);
             widget->setVisible(selectedChannels[channelIdx]);
 
             scrollVl->addWidget(widget);
