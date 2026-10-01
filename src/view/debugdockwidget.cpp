@@ -201,7 +201,27 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
     //     debugEepromValueSbx->setValue(value[0]);
     // });
 
+    debugDataLne = new QTextEdit();
+    debugDataLne->setReadOnly(true);
+    debugVl->addWidget(debugDataLne);
+
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     debugVl->addWidget(spacer);
+}
+
+void DebugDockWidget::onWriteDebugData(std::vector <int16_t> debugData) {
+    QString hexText;
+    hexText.reserve(debugData.size() * 5);
+
+    for (int16_t val : debugData) {
+        uint16_t uval = static_cast <uint16_t> (val);
+
+        // %1 = valore, 4 = larghezza minima, 16 = base esadecimale, '0' = carattere di riempimento
+        hexText.append(QString("%1 ").arg(uval, 4, 16, QChar('0')).toUpper());
+    }
+
+    hexText.chop(1);
+    debugDataLne->setTextInteractionFlags(Qt::NoTextInteraction);
+    debugDataLne->insertPlainText(hexText + "\n");
 }

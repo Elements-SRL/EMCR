@@ -22,4 +22,5 @@ DebugController::DebugController(ApplicationStatus * appStatus, MainWindow * mai
         msgDisp->writeCalibrationEeprom(value, address, size);
         msgDisp->setCalibrationMode(false);
     });
+    connect(this, &DebugController::sigWriteDebugData, view, &DebugDockWidget::onWriteDebugData);
 }

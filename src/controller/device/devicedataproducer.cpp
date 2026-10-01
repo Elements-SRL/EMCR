@@ -198,7 +198,7 @@ void DeviceDataProducer::run() {
                 dataLock.unlock();
                 break;
 
-            case MsgDirectionDeviceToPc+MsgTypeIdTemperature:
+            case MsgDirectionDeviceToPc+MsgTypeIdTemperature: {
                 for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx += totalChannelsNum) {
                     msgDisp->convertTemperatureValues(datain+wordsIdx, temperatureValuesDbl);
                     for (chIdx = 0; chIdx < temperatureChannelsNum; chIdx++) {
@@ -208,6 +208,7 @@ void DeviceDataProducer::run() {
 
                 emit sigTemperatureRead(temperatureValues);
                 break;
+            }
 
             case MsgDirectionDeviceToPc+MsgTypeIdOnTime:
                 msgDisp->convertOnTimeValue(datain, onTimeValueDbl);
@@ -235,6 +236,15 @@ void DeviceDataProducer::run() {
                 }
 
                 emit sigSyncFaults(syncFaults);
+                break;
+            }
+
+            case MsgDirectionDeviceToPc+MsgTypeIdDebugData: {
+                std::vector <int16_t> debugData(dataHeader.dataLen);
+                for (unsigned long wordsIdx = 0; wordsIdx < dataHeader.dataLen; wordsIdx++) {
+                    debugData[wordsIdx] = datain[wordsIdx];
+                }
+                emit sigDebugData(debugData);
                 break;
             }
             }

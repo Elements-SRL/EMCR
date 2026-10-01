@@ -57,6 +57,7 @@ private:
 
     int voltageChannelsNum;
     int currentChannelsNum;
+    uint32_t stimulusBlockSize;
     QComboBox * operationCbx = nullptr;
     QVector <SpinBoxWithChannel *> setAllWidgets;
 
@@ -66,7 +67,7 @@ private:
 
     QVector <QWidget *> operationWidgets;
 
-    QVector <QVector <QWidget *>> operationEdits;
+    std::vector <std::vector <QWidget *>> operationEdits;
 
     bool widgetInitialized = false;
 

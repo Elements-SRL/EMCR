@@ -2,12 +2,19 @@
 #define DEBUGDOCKWIDGET_H
 
 #include <QDockWidget>
+#include <QTextEdit>
 
 class DebugDockWidget : public QDockWidget {
     Q_OBJECT
 
 public:
     DebugDockWidget(QWidget * parent = nullptr);
+
+public slots:
+    void onWriteDebugData(std::vector <int16_t> debugData);
+
+private:
+    QTextEdit * debugDataLne;
 
 signals:
     void setDebugBit(int word, int bit, bool flag);

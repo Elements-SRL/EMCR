@@ -282,6 +282,11 @@ void MainController::onMainWindowCreated() {
     /***********\
      * Connect *
     \***********/
+
+    if (debugController != nullptr) {
+        connect(deviceDataProducer, &DeviceDataProducer::sigDebugData, debugController, &DebugController::sigWriteDebugData);
+    }
+
     chessboardController->connectSingleChannelController(singleChannelController);
     chessboardController->connectMultipleChannelController(multipleChannelController);
     chessboardController->connectMeasurementOverviewController(measurementOverviewController);
@@ -308,7 +313,6 @@ void MainController::onMainWindowCreated() {
 
     // Connecting Theme controller to plots
     connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, &MainController::onThemeUpdated);
-
 
     if (msgDisp->hasProtocols() == Success) {
         auto protocolDw = static_cast <ProtocolDockWidget *> (mainWindow->getDockWidget(MainWindow::DWProtocol));
