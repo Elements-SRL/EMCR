@@ -117,18 +117,20 @@ void SingleChannelController::onOffsetRecalibrationResult() {
     msgDisp->getCalibParams(params);
     uint32_t samplingRateIdx;
     msgDisp->getSamplingRateIdx(samplingRateIdx);
+    uint32_t clockDividerIdx = 1;
+    msgDisp->getClockDividerIdx(clockDividerIdx);
     uint32_t rangeIdx;
 
     switch (mode) {
     case ClampingModality_t::VOLTAGE_CLAMP:
         msgDisp->getVCCurrentRangeIdx(rangeIdx);
-        singleChannelControlsDw->setOffsetRecalibrationValues(params.getValues(CalTypesVcOffsetAdc, samplingRateIdx, rangeIdx));
+        singleChannelControlsDw->setOffsetRecalibrationValues(params.getValues(CalTypesVcOffsetAdc, clockDividerIdx, samplingRateIdx, rangeIdx));
         break;
 
     case ClampingModality_t::ZERO_CURRENT_CLAMP:
     case ClampingModality_t::CURRENT_CLAMP:
         msgDisp->getCCVoltageRangeIdx(rangeIdx);
-        singleChannelControlsDw->setOffsetRecalibrationValues(params.getValues(CalTypesCcOffsetAdc, samplingRateIdx, rangeIdx));
+        singleChannelControlsDw->setOffsetRecalibrationValues(params.getValues(CalTypesCcOffsetAdc, clockDividerIdx, samplingRateIdx, rangeIdx));
         break;
     }
 }
