@@ -27,16 +27,29 @@ void EventDetectionConsumer::forceAxisUpdate() {
     emitPlotData();
 }
 
+void EventDetectionConsumer::onStartConsuming() {
+    allocateData();
+    for (auto ev : eventDetectionChannels) {
+        ev->reset();
+    }
+    PlotConsumer::onStartConsuming();
+}
+
+void EventDetectionConsumer::onStopConsuming() {
+    PlotConsumer::onStopConsuming();
+    this->clearData();
+}
+
 void EventDetectionConsumer::onVoltageRangeChanged() {
     PlotConsumer::onVoltageRangeChanged();
-    allocateData();
-    emitPlotData();
+    this->allocateData();
+    this->emitPlotData();
 }
 
 void EventDetectionConsumer::run() {
     consumptionStopped = false;
     exitedDataConsumingLoop = false;
-    emitPlotData();
+    this->emitPlotData();
     uint32_t bufferIdx;
     int bufferLen = 0;
     int channelIdx;
@@ -47,7 +60,7 @@ void EventDetectionConsumer::run() {
     int currentTimeMs;
 
     //event detection stuff
-    std::vector<std::pair<int, int>> events;
+    std::vector <std::pair<int, int>> events;
     auto const size = buffer.size();
     std::vector<double> high_pass(size);
 
@@ -101,8 +114,9 @@ void EventDetectionConsumer::run() {
 
 void EventDetectionConsumer::allocateData() {
     bool wasThisRunning = isRunning();
-    onStopConsuming();
-    clearData();
+    if (wasThisRunning) {
+        this->onStopConsuming();
+    }
 
     dataSize.resize(currentChannelsNum);
     for (int idx = 0; idx < this->currentChannelsNum; idx++) {
@@ -115,7 +129,7 @@ void EventDetectionConsumer::allocateData() {
         voltageValues.push_back(std::vector<double>(maxSamples));
     }
     if (wasThisRunning) {
-        onStartConsuming();
+        this->onStartConsuming();
     }
 }
 
@@ -131,13 +145,6 @@ void EventDetectionConsumer::emitPlotData() {
     }
     EventDetectionMessage message = { eventPackets };
     emit setPlotData(message);
-}
-
-void EventDetectionConsumer::onStartConsuming() {
-    PlotConsumer::onStartConsuming();
-    for (auto ev : eventDetectionChannels) {
-        ev->reset();
-    }
 }
 
 void EventDetectionConsumer::clearData() {

@@ -63,6 +63,7 @@ private:
     std::optional<H5::DataSet> vBaselineDataset;
     std::optional <H5::Group> eventsGroup;
     std::optional<H5::H5File> file;
+    bool hdf5Initialized = false;
     void initHDF5();
     void closeHDF5();
     void resetStats();

@@ -1,6 +1,5 @@
 #include "eventdetector.h"
 #include <cmath>
-#include <iostream>
 #include <cstdint>
 
 EventDetector::EventDetector(Measurement samplingRate, double highCutoffFrequency, uint32_t minEventLen, uint32_t maxEventLen, double stdMultiplier_, double maxAmplitude, EventsDirection eventsDirection) {
@@ -199,9 +198,9 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
         }
     }
     //Try to stop early
+    uint32_t idx = earlyStop;
     if (eventAlreadyBegun) {
         //if an event is being process continue unitl it has been processed
-        uint32_t idx = earlyStop;
         while (idx < chunkSize) {
             const auto currentValue = doubleBuffer[idx];
             const auto voltage = voltages[idx];
@@ -213,24 +212,15 @@ void EventDetector::setChunk(std::vector<int16_t> intBuffer, std::vector<double>
             }
             idx++;
         }
-        timeCount += idx;
-        remainingChunkSize = chunkSize - idx;
-        remainingIntBuffer.resize(remainingChunkSize);
-        remainingDoubleBuffer.resize(remainingChunkSize);
-        remainingVoltages.resize(remainingChunkSize);
-        std::copy(intBuffer.begin() + idx, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
-        std::copy(doubleBuffer.begin() + idx, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
-        std::copy(voltages.begin() + idx, voltages.begin() + chunkSize, remainingVoltages.begin());
-    } else {
-        timeCount += earlyStop;
-        remainingChunkSize = finalPadding;
-        remainingIntBuffer.resize(remainingChunkSize);
-        remainingDoubleBuffer.resize(remainingChunkSize);
-        remainingVoltages.resize(remainingChunkSize);
-        std::copy(intBuffer.begin() + earlyStop, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
-        std::copy(doubleBuffer.begin() + earlyStop, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
-        std::copy(voltages.begin() + earlyStop, voltages.begin() + chunkSize, remainingVoltages.begin());
     }
+    timeCount += idx;
+    remainingChunkSize = chunkSize - idx;
+    remainingIntBuffer.resize(remainingChunkSize);
+    remainingDoubleBuffer.resize(remainingChunkSize);
+    remainingVoltages.resize(remainingChunkSize);
+    std::copy(intBuffer.begin() + idx, intBuffer.begin() + chunkSize, remainingIntBuffer.begin());
+    std::copy(doubleBuffer.begin() + idx, doubleBuffer.begin() + chunkSize, remainingDoubleBuffer.begin());
+    std::copy(voltages.begin() + idx, voltages.begin() + chunkSize, remainingVoltages.begin());
 }
 
 void EventDetector::reset() {

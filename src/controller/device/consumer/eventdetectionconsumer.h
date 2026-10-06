@@ -16,6 +16,7 @@ constexpr double MINIMUM_DATA_FOR_ANALYSIS = 0.1; //0.1s
 
 class EventDetectionConsumer : public PlotConsumer {
     Q_OBJECT
+
 public:
     EventDetectionConsumer(ApplicationStatus* appStatus, DeviceDataProducer* producer, uint32_t minEventDuration_, uint32_t maxEventDuration_, double highCutoffFrequency, double maxAmplitude, double defaultStdMultiplier, EventsDirection eventsDirection);
     ~EventDetectionConsumer();
@@ -30,9 +31,10 @@ public:
     void setMaxAmplitude(double maxAmplitude);
     void setEventsDirection(EventsDirection ed);
     void reinitFilters(double highCutoffFreq);
-    void onStartConsuming() override;
 
 public slots:
+    void onStartConsuming() override;
+    void onStopConsuming() override;
     void onVoltageRangeChanged() override;
     void onSamplingRateChanged(Measurement_t samplingRate) override;
     void onDownsamplingRatioChanged(unsigned int downsamplingRatio) override;

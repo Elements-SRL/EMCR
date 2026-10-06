@@ -7,23 +7,23 @@
 
 void append_data(H5::DataSet& dataset, const std::vector<int16_t>& data) {
     try {
-    // Get the dataspace of the dataset
-    H5::DataSpace dataspace = dataset.getSpace();
-    // Get the number of dimensions in the dataspace
-    int ndims = dataspace.getSimpleExtentNdims();
-    // Get the size of each dimension
-    std::vector<hsize_t> dims(ndims);
-    dataspace.getSimpleExtentDims(dims.data(), NULL);
-    auto writtenData = dims[0];
-    hsize_t len = data.size();
-    hsize_t dimsToWrite[RANK] = { len };
-    hsize_t size[RANK] = { writtenData + len };
-    hsize_t offset[RANK] = { writtenData };
-    dataset.extend(size);
-    H5::DataSpace fspace = dataset.getSpace();
-    fspace.selectHyperslab(H5S_SELECT_SET, dimsToWrite, offset);
-    H5::DataSpace mspace(RANK, dimsToWrite);
-    dataset.write(data.data(), H5::PredType::STD_I16LE, mspace, fspace);
+        // Get the dataspace of the dataset
+        H5::DataSpace dataspace = dataset.getSpace();
+        // Get the number of dimensions in the dataspace
+        int ndims = dataspace.getSimpleExtentNdims();
+        // Get the size of each dimension
+        std::vector<hsize_t> dims(ndims);
+        dataspace.getSimpleExtentDims(dims.data(), NULL);
+        auto writtenData = dims[0];
+        hsize_t len = data.size();
+        hsize_t dimsToWrite[RANK] = { len };
+        hsize_t size[RANK] = { writtenData + len };
+        hsize_t offset[RANK] = { writtenData };
+        dataset.extend(size);
+        H5::DataSpace fspace = dataset.getSpace();
+        fspace.selectHyperslab(H5S_SELECT_SET, dimsToWrite, offset);
+        H5::DataSpace mspace(RANK, dimsToWrite);
+        dataset.write(data.data(), H5::PredType::STD_I16LE, mspace, fspace);
     }  // end of try block
     catch (H5::GroupIException& error) {
         error.printErrorStack();
@@ -257,11 +257,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
 
     connect(widget, &EventDetectionWidget::startPressed, this, [=]() {
         consumer->onStartConsuming();
-        });
+    });
     //ADD FILE CLOSING OPERATION
     connect(widget, &EventDetectionWidget::stopPressed, this, [=]() {
         consumer->onStopConsuming();
-        });
+    });
     connect(widget, &EventDetectionWidget::minDurationChanged, this, [=](Measurement duration) {
         if (minDuration == duration) {
             return;
@@ -281,7 +281,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::maxDurationChanged, this, [=](Measurement duration) {
         if (maxDuration == duration) {
             return;
@@ -301,7 +301,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::durationBinsChanged, this, [=](int value) {
         if (durationBins == value) {
             return;
@@ -316,7 +316,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::amplitudeBinsChanged, this, [=](int value) {
         if (amplitudeBins == value) {
             return;
@@ -331,7 +331,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::maxAmplitudeChanged, this, [=](double value) {
         if (maxAmplitude == value) {
             return;
@@ -348,7 +348,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::cutoffFrequencyChanged, this, [=](double value) {
         if (consumer->getHighCutoffFrequency() == value) {
             return;
@@ -362,7 +362,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::stdMultiplierChanged, this, [=](double value) {
         if (consumer->getStdMultiplier() == value) {
             return;
@@ -376,7 +376,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::recordingStarted, this, [=]() {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
@@ -388,7 +388,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::recordingStopped, this, [=]() {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
@@ -400,7 +400,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
     connect(widget, &EventDetectionWidget::sigEventDirectionChanged, this, [=](EventsDirection direction) {
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
@@ -410,7 +410,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStartConsuming();
         }
-        });
+    });
 }
 
 EventDetectionController::~EventDetectionController() {
@@ -512,10 +512,10 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
         const auto& eventsInfo = eventPacket.eventsinfo;
         const auto& ib = eventPacket.iBaseline;
         const auto& iv = eventPacket.vBaseline;
-        if (iBaselineDataset.has_value()) {
+        if (iBaselineDataset.has_value() && hdf5Initialized) {
             append_data(iBaselineDataset.value(), ib.baseline);
         }
-        if (vBaselineDataset.has_value()) {
+        if (vBaselineDataset.has_value() && hdf5Initialized) {
             append_data(vBaselineDataset.value(), iv.baseline);
         }
         len = eventsInfo.size();
@@ -529,7 +529,7 @@ void EventDetectionController::onSetPlotData(PlotMessage plotmessage) {
             amplitudeAccumulator += ei.amplitude;
             const std::vector<int16_t>& data = event.rawData;
             const auto resolution = appStatus->getCurrentRanges()[chIdx].step;
-            if (eventsGroup.has_value()) {
+            if (eventsGroup.has_value() && hdf5Initialized) {
                 writeEvent(eventsGroup.value(), event, "e_" + std::to_string(eventCounter++));
             }
             if (eventIdx == 0) {
@@ -593,7 +593,6 @@ std::vector <DeviceDataConsumer*> EventDetectionController::getConsumers() {
 }
 
 void EventDetectionController::initHDF5() {
-    auto wasConsumerRunning = consumer->isRunning();
     //file reinitialization
     if (iBaselineDataset.has_value()) {
         iBaselineDataset.value().close();
@@ -604,7 +603,10 @@ void EventDetectionController::initHDF5() {
     if (eventsGroup.has_value()) {
         eventsGroup.value().close();
     }
-    consumer->onStopConsuming();
+    auto wasConsumerRunning = consumer->isRunning();
+    if (wasConsumerRunning) {
+        consumer->onStopConsuming();
+    }
     const auto filepath = widget->getFilePath();
     std::string filepathEndingInBackslash = (filepath.back() == '\\') ? filepath : filepath + '\\';
     std::string filename = filepathEndingInBackslash + widget->getFileName();
@@ -614,6 +616,7 @@ void EventDetectionController::initHDF5() {
     vBaselineDataset = std::get<1>(baselineAndEvents);
     eventsGroup = std::get<2>(baselineAndEvents);
     file = std::get<3>(baselineAndEvents);
+    hdf5Initialized = true;
     if (wasConsumerRunning) {
         consumer->onStartConsuming();
     }
@@ -626,6 +629,8 @@ void EventDetectionController::closeHDF5() {
         eventsGroup.value().close();
         file.value().close();
     }
+    eventCounter = 0;
+    hdf5Initialized = false;
 }
 
 void EventDetectionController::resetStats() {
