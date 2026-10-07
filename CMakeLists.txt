@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.27) # e384commlib -> ftdi_utils >= 1.6 exports $<COMPILE_ONLY:...>
 
 project(EMCR
     VERSION 0.30.0
@@ -389,3 +389,32 @@ target_link_libraries(EMCR
     hdf5::hdf5_cpp
     e384commlib::e384commlib
 )
+
+# FTDI DLLs (development builds)
+# EMCR loads FTD2XX.dll and MPSSE(d).dll at runtime (LoadLibrary, see ftdi_utils Ftd2xxWrapper):
+# they are not linked, so neither the linker nor Qt Creator knows about them anymore.
+# Copy them next to EMCR.exe, where the wrapper looks for them (as the installer will do).
+# Nothing is copied by the install step: the installer distributes them separately.
+
+if(WIN32)
+    if(TARGET MPSSE::MPSSE)
+        add_custom_command(TARGET EMCR POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:MPSSE::MPSSE> $<TARGET_FILE_DIR:EMCR>
+            COMMENT "Copying the MPSSE DLL next to EMCR.exe"
+        )
+    else()
+        message(WARNING "MPSSE::MPSSE not found: copy MPSSE(d).dll next to EMCR.exe manually")
+    endif()
+
+    if(TARGET ftd2xx::ftd2xx)
+        # The FTDI package ships FTD2XX64.dll: the wrapper looks for FTD2XX.dll
+        add_custom_command(TARGET EMCR POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:ftd2xx::ftd2xx> $<TARGET_FILE_DIR:EMCR>/FTD2XX.dll
+            COMMENT "Copying the FTD2XX DLL next to EMCR.exe"
+        )
+    else()
+        message(WARNING "ftd2xx::ftd2xx not found: copy FTD2XX.dll next to EMCR.exe manually")
+    endif()
+endif()

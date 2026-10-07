@@ -35,6 +35,18 @@ void DeviceDetector::detectDevices() {
     if (detectFlag) {
         ErrorCodes_t ret = MessageDispatcher::detectDevices(detectedList);
 
+        /*! An FTDI device is plugged in but its library cannot be loaded: the device cannot be listed.
+         *  Tell the user once, until the library is found or the device is unplugged */
+        std::string ftdiDetails;
+        if (MessageDispatcher::getFtdiDriverStatus(ftdiDetails) == ErrorFtdiDriverNotFound) {
+            if (!ftdiDriverErrorReported) {
+                ftdiDriverErrorReported = true;
+                emit ftdiDriverError(QString::fromStdString(ftdiDetails));
+            }
+        } else {
+            ftdiDriverErrorReported = false;
+        }
+
         if ((ret == Success) || (ret == ErrorNoDeviceFound)) {
             bool anyChanges = false;
             for (auto oldDevice : devicesList) {
