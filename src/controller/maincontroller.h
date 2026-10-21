@@ -48,6 +48,7 @@ public slots:
     void onResetHw();
     void onDeviceConnected(ErrorCodes_t ret);
     void onFtdiDriverError(QString details);
+    void onCyUsbDriverError(QString details);
     void onMainWindowCreated();
     void onVcCurrentRangeSelected();
     void onVcVoltageRangeSelected();

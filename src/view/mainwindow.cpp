@@ -422,6 +422,10 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
                 std::string details;
                 MessageDispatcher::getFtdiDriverStatus(details);
                 ErrorManager e(err, commLibCode2info(err) + "\n\nDetails: " + QString::fromStdString(details));
+            } else if (err == ErrorCyUsbDriverNotFound) {
+                std::string details;
+                MessageDispatcher::getCyUsbDriverStatus(details);
+                ErrorManager e(err, commLibCode2info(err) + "\n\nDetails: " + QString::fromStdString(details));
             } else {
                 ErrorManager e(err);
             }
