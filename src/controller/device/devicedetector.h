@@ -21,6 +21,7 @@ public slots:
 
 private:
     bool detectFlag = false;
+    bool ftdiDriverErrorReported = false; /*!< report the missing FTDI library once, until the situation changes */
 
     std::vector <std::string> devicesList;
     std::vector <std::string> detectedList;
@@ -31,6 +32,7 @@ private slots:
 
 signals:
     void devicesListChanged(std::vector <std::string>);
+    void ftdiDriverError(QString details);
 };
 
 #endif // DEVICEDETECTOR_H
