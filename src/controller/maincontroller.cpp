@@ -2,6 +2,8 @@
 #include "statearraycontroller.h"
 #include "mainwindow.h"
 #include "application_status.h"
+#include "errormanager.h"
+#include "globaldefines.h"
 #include "confirmdialog/confirmationdialog.h"
 #include "themecontroller.h"
 #include <qwt_plot.h>
@@ -57,6 +59,8 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
     this->mainWindow = mainWindow;
 
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
+    connect(deviceDetector, &DeviceDetector::ftdiDriverError, this, &MainController::onFtdiDriverError);
+    connect(deviceDetector, &DeviceDetector::cyUsbDriverError, this, &MainController::onCyUsbDriverError);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
     connect(mainWindow, &MainWindow::confirmDisconnectDevice, this, &MainController::onDisconnect);
     connect(mainWindow, &MainWindow::sigUpgradeFw, this, &MainController::onUpgradeFw);
@@ -214,7 +218,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     } else {
         mainWindow->connectDevice(false, ret);
         mainWindow->showHideConnectedDevice(false);
-        mainWindow->addNotification("Connection failed. Check device connection.", Notification::NOTIFY_ERROR);
+        mainWindow->addNotification("⚠ Connection failed. Check device connection.", Notification::NOTIFY_ERROR);
 
         emit startDetecting();
     }
@@ -687,4 +691,18 @@ void MainController::onThemeUpdated() {
 
         plot->replot();
     }
+}
+
+void MainController::onFtdiDriverError(QString details) {
+    ErrorManager em(ErrorFtdiDriverNotFound,
+                    "An FTDI USB device is connected, but the FTDI driver library is not available.\n"
+                    "If it is an Elements device, install the FTDI D2XX driver or reinstall " + GLB_SOFTWARE_NAME + ".\n\n"
+                    "Details: " + details);
+}
+
+void MainController::onCyUsbDriverError(QString details) {
+    ErrorManager em(ErrorCyUsbDriverNotFound,
+                    "An Elements UDB device is connected, but the USB library (e384_cyusb.dll) is not available.\n"
+                    "Reinstall " + GLB_SOFTWARE_NAME + " or contact Elements support.\n\n"
+                    "Details: " + details);
 }
