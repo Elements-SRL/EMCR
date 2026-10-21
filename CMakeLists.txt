@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.27) # e384commlib -> ftdi_utils >= 1.6 exports $<COMPILE_ONLY:...>
 
 project(EMCR
     VERSION 0.31.0
@@ -389,3 +389,54 @@ target_link_libraries(EMCR
     hdf5::hdf5_cpp
     e384commlib::e384commlib
 )
+
+# FTDI DLLs (development builds)
+# EMCR loads FTD2XX.dll and MPSSE(d).dll at runtime, they are not linked.
+# Neither the linker nor Qt Creator knows about them.
+# Copy them next to EMCR.exe, where the wrapper looks for them (as the installer will do).
+
+if(WIN32)
+    if(TARGET MPSSE::MPSSE)
+        add_custom_command(TARGET EMCR POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:MPSSE::MPSSE> $<TARGET_FILE_DIR:EMCR>
+            COMMENT "Copying the MPSSE DLL next to EMCR.exe"
+        )
+    else()
+        message(WARNING "MPSSE::MPSSE not found: copy MPSSE(d).dll next to EMCR.exe manually")
+    endif()
+
+    if(TARGET ftd2xx::ftd2xx)
+        # The FTDI package ships FTD2XX64.dll: the wrapper looks for FTD2XX.dll
+        add_custom_command(TARGET EMCR POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:ftd2xx::ftd2xx> $<TARGET_FILE_DIR:EMCR>/FTD2XX.dll
+            COMMENT "Copying the FTD2XX DLL next to EMCR.exe"
+        )
+    else()
+        message(WARNING "ftd2xx::ftd2xx not found: copy FTD2XX.dll next to EMCR.exe manually")
+    endif()
+endif()
+
+# e384_cyusb.dll (UDB devices, development builds)
+# e384commlib loads e384_cyusb.dll at runtime (LoadLibrary, see CyUsbWrapper): it is the only
+# binary containing the Cypress CyAPI library and comes from the private repository e384_cyusb.
+# It is NEVER linked: the package is used only to copy the DLL next to EMCR.exe.
+
+if(WIN32)
+    if(DEFINED ENV{E384_CYUSB_PATH})
+        cmake_path(SET E384_CYUSB_PATH_CMAKE "$ENV{E384_CYUSB_PATH}")
+        list(APPEND CMAKE_PREFIX_PATH "${E384_CYUSB_PATH_CMAKE}")
+    endif()
+    find_package(e384_cyusb CONFIG QUIET)
+
+    if(TARGET e384_cyusb::e384_cyusb)
+        add_custom_command(TARGET EMCR POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:e384_cyusb::e384_cyusb> $<TARGET_FILE_DIR:EMCR>
+            COMMENT "Copying e384_cyusb.dll next to EMCR.exe"
+        )
+    else()
+        message(WARNING "e384_cyusb package not found (E384_CYUSB_PATH): UDB devices need e384_cyusb.dll next to EMCR.exe")
+    endif()
+endif()
