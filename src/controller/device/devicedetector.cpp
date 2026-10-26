@@ -58,6 +58,17 @@ void DeviceDetector::detectDevices() {
             cyUsbDriverErrorReported = false;
         }
 
+        /*! Same for the Opal Kelly devices: an Opal Kelly device is plugged in but okFrontPanel.dll cannot be loaded */
+        std::string okDetails;
+        if (MessageDispatcher::getOkDriverStatus(okDetails) == ErrorOkDriverNotFound) {
+            if (!okDriverErrorReported) {
+                okDriverErrorReported = true;
+                emit okDriverError(QString::fromStdString(okDetails));
+            }
+        } else {
+            okDriverErrorReported = false;
+        }
+
         if ((ret == Success) || (ret == ErrorNoDeviceFound)) {
             bool anyChanges = false;
             for (auto oldDevice : devicesList) {

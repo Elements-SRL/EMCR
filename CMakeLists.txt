@@ -440,3 +440,21 @@ if(WIN32)
         message(WARNING "e384_cyusb package not found (E384_CYUSB_PATH): UDB devices need e384_cyusb.dll next to EMCR.exe")
     endif()
 endif()
+
+# okFrontPanel.dll (Opal Kelly devices, development builds)
+# e384commlib links okFrontPanel.dll with /DELAYLOAD and loads it only when an Opal Kelly device is
+# used (see OkFrontPanelWrapper), from the folder of EMCR.exe or from System32, never from the PATH.
+# Copy it next to EMCR.exe (as the installer will do). FrontPanel::FrontPanel comes with e384commlib.
+# okimpl_fpoip.dll (FrontPanel over IP) is not used and is not copied.
+
+if(WIN32)
+    if(TARGET FrontPanel::FrontPanel)
+        add_custom_command(TARGET EMCR POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:FrontPanel::FrontPanel> $<TARGET_FILE_DIR:EMCR>
+            COMMENT "Copying okFrontPanel.dll next to EMCR.exe"
+        )
+    else()
+        message(WARNING "FrontPanel::FrontPanel not found: Opal Kelly devices need okFrontPanel.dll next to EMCR.exe")
+    endif()
+endif()

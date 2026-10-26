@@ -61,6 +61,7 @@ void MainController::setMainWindow(MainWindow * mainWindow) {
     connect(deviceDetector, &DeviceDetector::devicesListChanged, this, &MainController::onDevicesListChanged);
     connect(deviceDetector, &DeviceDetector::ftdiDriverError, this, &MainController::onFtdiDriverError);
     connect(deviceDetector, &DeviceDetector::cyUsbDriverError, this, &MainController::onCyUsbDriverError);
+    connect(deviceDetector, &DeviceDetector::okDriverError, this, &MainController::onOkDriverError);
     connect(mainWindow->getConnectButton(), &QPushButton::clicked, this, &MainController::onConnect);
     connect(mainWindow, &MainWindow::confirmDisconnectDevice, this, &MainController::onDisconnect);
     connect(mainWindow, &MainWindow::sigUpgradeFw, this, &MainController::onUpgradeFw);
@@ -704,5 +705,12 @@ void MainController::onCyUsbDriverError(QString details) {
     ErrorManager em(ErrorCyUsbDriverNotFound,
                     "An Elements UDB device is connected, but the USB library (e384_cyusb.dll) is not available.\n"
                     "Reinstall " + GLB_SOFTWARE_NAME + " or contact Elements support.\n\n"
+                    "Details: " + details);
+}
+
+void MainController::onOkDriverError(QString details) {
+    ErrorManager em(ErrorOkDriverNotFound,
+                    "An Opal Kelly USB device is connected, but the Opal Kelly FrontPanel library (okFrontPanel.dll) is not available.\n"
+                    "If it is an Elements device, reinstall " + GLB_SOFTWARE_NAME + " or contact Elements support.\n\n"
                     "Details: " + details);
 }
