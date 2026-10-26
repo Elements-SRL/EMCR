@@ -21,6 +21,9 @@ public slots:
 
 private:
     bool detectFlag = false;
+    bool ftdiDriverErrorReported = false;
+    bool cyUsbDriverErrorReported = false;
+    bool okDriverErrorReported = false;
 
     std::vector <std::string> devicesList;
     std::vector <std::string> detectedList;
@@ -31,6 +34,9 @@ private slots:
 
 signals:
     void devicesListChanged(std::vector <std::string>);
+    void ftdiDriverError(QString details);
+    void cyUsbDriverError(QString details);
+    void okDriverError(QString details);
 };
 
 #endif // DEVICEDETECTOR_H
