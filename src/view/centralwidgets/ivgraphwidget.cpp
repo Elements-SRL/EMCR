@@ -69,7 +69,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     line->setFrameShape(QFrame::HLine);
     mainLayout->addWidget(line);
 
-    auto tableTitle = new QLabel("LSRL TABLE", sideWidget);
+    auto tableTitle = new QLabel("Linear Fit Table", sideWidget);
     tableTitle->setObjectName("controlsTitle");
     mainLayout->addWidget(tableTitle);
 
