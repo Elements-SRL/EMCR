@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 286" width="24" height="24"
+     role="img" aria-label="Full zoom">
+  <path d="M18 113 L43 73 L61 153 L91 27 L119 145 L139 103 L161 179 L187 69 L209 217 L233 159"
+        fill="none" stroke="rgb(102, 102, 102)" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="miter"/>
+  <line x1="265" y1="58" x2="265" y2="230"
+        stroke="rgb(102, 102, 102)" stroke-width="24" stroke-linecap="butt"/>
+  <polygon points="265,10 236,70 294,70" fill="rgb(102, 102, 102)"/>
+  <polygon points="265,278 236,218 294,218" fill="rgb(102, 102, 102)"/>
+</svg>
