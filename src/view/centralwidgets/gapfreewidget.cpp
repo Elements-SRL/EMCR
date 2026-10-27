@@ -41,7 +41,7 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     controlsRow->setAlignment(Qt::AlignLeft);
     controlsRow->setSpacing(8);
 
-    autoZoom = new QPushButton("   AUTO");
+    autoZoom = new QPushButton("   ZOOM");
     autoZoom->setObjectName("autoZoom");
     autoZoom->setToolTip("Auto zoom");
     autoZoom->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
