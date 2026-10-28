@@ -382,7 +382,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
-        widget->setRecordingStatus(true);
         bigPlotWidget->setTabsStatus(false, BigPlot::BigPlotStatus::Event);
         initHDF5();
         if (wasThisRunning) {
@@ -394,7 +393,6 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
-        widget->setRecordingStatus(false);
         bigPlotWidget->setTabsStatus(true, BigPlot::BigPlotStatus::Event);
         closeHDF5();
         if (wasThisRunning) {

@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QComboBox>
 #include "eventsdirection.h"
+#include "recordingwidget.h"
 
 namespace e384cl = e384CommLib;
 
@@ -39,7 +40,6 @@ public:
     std::string getFileName();
     std::string getFilePath();
     void setCutoffFrequency(double sr);
-    void setRecordingStatus(bool);
 
 private:
     QLineEdit* recordPathLineEdit;
@@ -60,17 +60,18 @@ private:
     QDoubleSpinBox* maxAmplitude;
     QPushButton* startButton;
     QPushButton* stopButton;
-    QPushButton* startRecordingButton;
-    QPushButton* stopRecordingButton;
-    QPushButton* browseBtn;
+    RecordingWidget * recordingWg = nullptr;
     QLabel* numberOfEventsLabel; 
     QLabel* totalNumberOfEventsLabel; 
     QLabel* avgLenLabel;
     QLabel* avgAmplitudeLabel;
+    QLabel* numberOfEventsValue;
+    QLabel* avgLenValue;
+    QLabel* avgAmplitudeValue;
+    QLabel* totalNumberOfEventsValue;
     QDoubleSpinBox* cutoffFrequencySpinbox;
     QDoubleSpinBox* stdMultiplierSpinbox;
     std::string amplitudeUom;
-    QDir* directory;
     QLabel* eventsDirectionLabel;
     QComboBox* comboBox;
 
@@ -79,8 +80,6 @@ private:
 
     void setLabel(std::string text, QwtTextLabel* label, QwtPlot::Axis axis);
     void setAndFormatText(std::string text, QwtTextLabel* label, Qt::AlignmentFlag = Qt::AlignLeft);
-    void changeFilePath();
-    void changeFileName();
     void setMaxAmplitude(double value);
     void setDuration(e384cl::Measurement d);
 

@@ -12,24 +12,52 @@
 #include "globaldefines.h"
 #include "eventdetector.h"
 
-EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measurement minDuration, Measurement maxDuration, double defaultDurationBins, double defaultAmplitudeBins, double defaultSamplingRate, RangedMeasurement currentRange, double defaultMaxAmplitude, double defaultStdMultiplier, EventsDirection ed, QWidget* parent)
-    : QWidget(parent)
+EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
+                                           Measurement minDuration,
+                                           Measurement maxDuration,
+                                           double defaultDurationBins,
+                                           double defaultAmplitudeBins,
+                                           double defaultSamplingRate,
+                                           RangedMeasurement currentRange,
+                                           double defaultMaxAmplitude,
+                                           double defaultStdMultiplier,
+                                           EventsDirection ed,
+                                           QWidget* parent): QWidget(parent)
 {
+
+    this->setObjectName("eventDetection");
+    this->setWindowTitle("EventDetection");
     eventsDirection = ed;
-    // Initialize QLabel widgets for displaying information
-    numberOfEventsLabel = new QLabel("Number of Events: ");
-    avgLenLabel = new QLabel("Average Duration: ");
-    avgAmplitudeLabel = new QLabel("Average Amplitude: ");
-    totalNumberOfEventsLabel = new QLabel("Total Number of Events: ");
+
+    numberOfEventsLabel = new QLabel("Events/s ");
+    numberOfEventsLabel->setObjectName("statsLbl");
+
+    avgLenLabel = new QLabel("Average Duration ");
+    avgLenLabel->setObjectName("statsLbl");
+
+    avgAmplitudeLabel = new QLabel("Average Amplitude ");
+    avgAmplitudeLabel->setObjectName("statsLbl");
+
+    totalNumberOfEventsLabel = new QLabel("Total events ");
+    totalNumberOfEventsLabel->setObjectName("statsLbl");
+
+    numberOfEventsValue = new QLabel("-");
+    numberOfEventsValue->setObjectName("statsVal");
+    avgLenValue = new QLabel("-");
+    avgLenValue->setObjectName("statsVal");
+    avgAmplitudeValue = new QLabel("-");
+    avgAmplitudeValue->setObjectName("statsVal");
+    totalNumberOfEventsValue = new QLabel("-");
+    totalNumberOfEventsValue->setObjectName("statsVal");
 
     QGridLayout* gridLayout = new QGridLayout(this);
 
-    // Upper Left Histogram
+    // --- Upper Left Histogram
     upperLeftHistogram = new QwtPlotBarChart("Events Duration Histogram");
     upperLetPlot = new BasePlot("Events Duration Histogram", "us", "count", this);
     upperLeftHistogram->attach(upperLetPlot);
      
-    // Bottom Right Histogram
+    // --- Bottom Right Histogram
     bottomRightHistogram = new QwtPlotBarChart("Events Amplitude Histogram");
     bottomRightPlot = new BasePlot("Events Amplitude Histogram", "count", "A", this);
     switch (eventsDirection) {
@@ -69,20 +97,87 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     QLabel* maxBinAmplitudeLabel = new QLabel("Max amplitude");
     maxAmplitude = new QDoubleSpinBox();
 
-    // GroupBox for starting and stopping analysis
-    auto analysisGroupBox = new QGroupBox(QString::fromStdString("Analysis controls"));
-    auto analysisHBoxLayout = new QHBoxLayout();
-    analysisGroupBox->setLayout(analysisHBoxLayout);
+
+    // Top right side panel.
+    // Panel is made by two sub-panels.
+    QWidget* upperRightWidget = new QWidget(this);
+    QHBoxLayout * upperRightLayout = new QHBoxLayout(upperRightWidget);
+
+    auto controlsSxWg = new QWidget(this);
+    auto controlsSxLy = new QVBoxLayout(controlsSxWg);
+
+    auto controlsDxWg = new QWidget(this);
+    auto controlsDxLy= new QVBoxLayout(controlsDxWg);
+
+
+    // Two vertical panels side by side
+    upperRightLayout->addWidget(controlsSxWg);
+    upperRightLayout->addWidget(controlsDxWg);
+
+    // --- LEFT Subpanel ---
+
+    // 1. START/STOP analysis + event direction
+    // auto controlsTitle = new QLabel("CONTROLS", controlsSxWg);
+    // controlsTitle->setObjectName("controlsTitle");
+
+    auto controlsButtons = new QWidget(this);
+    controlsButtons->setObjectName("controlsButtons");
+    auto controlsBtnRow = new QHBoxLayout(controlsButtons);
+    controlsBtnRow->setAlignment(Qt::AlignLeft);
 
     startButton = new QPushButton(this);
     startButton->setObjectName("startButton");
+    startButton->setText(" START");
     startButton->setToolTip("Start the event detection");
-    analysisHBoxLayout->addWidget(startButton);
+    controlsBtnRow->addWidget(startButton);
 
     stopButton = new QPushButton(this);
     stopButton->setObjectName("stopButton");
+    stopButton->setText(" STOP");
     stopButton->setToolTip("Stop the event detection");
-    analysisHBoxLayout->addWidget(stopButton);
+    controlsBtnRow->addWidget(stopButton);
+
+    // Vertical Separator
+    QFrame* vline = new QFrame(this);
+    vline->setObjectName("lineSeparator");
+    vline->setFrameShape(QFrame::VLine);
+    controlsBtnRow->addWidget(vline);
+
+    comboBox = new QComboBox(this);
+    comboBox->addItem("Events go down");
+    comboBox->addItem("Events go up");
+    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &EventDetectionWidget::onComboBoxIndexChanged);
+    controlsBtnRow->addWidget(comboBox);
+
+    // 2. STATISTICS
+    auto statsWg = new QWidget(this);
+    statsWg->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+    auto statsCol = new QVBoxLayout(statsWg);
+    statsCol->setAlignment(Qt::AlignLeft);
+    statsCol->setSpacing(6);
+
+    auto statsTitle = new QLabel("MONITORING", controlsSxWg);
+    statsTitle->setObjectName("controlsTitle");
+    statsCol->addWidget(statsTitle);
+
+    QFrame* statsContainer = new QFrame();
+    statsContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+    statsContainer->setObjectName("statsContainer");
+    QVBoxLayout * statsContainerLy = new QVBoxLayout(statsContainer);
+    statsCol->addWidget(statsContainer);
+
+    auto addStatsRow = [&](QVBoxLayout * outLayout, QLabel * statName, QLabel * statValue){
+        auto hbl = new QHBoxLayout();
+        hbl->addWidget(statName);
+        hbl->addStretch();
+        hbl->addWidget(statValue);
+        outLayout->addLayout(hbl);
+    };
+
+    addStatsRow(statsContainerLy, numberOfEventsLabel, numberOfEventsValue);
+    addStatsRow(statsContainerLy, totalNumberOfEventsLabel, totalNumberOfEventsValue);
+    addStatsRow(statsContainerLy, avgLenLabel, avgLenValue);
+    addStatsRow(statsContainerLy, avgAmplitudeLabel, avgAmplitudeValue);
 
     maxAmplitude->setValue(defaultMaxAmplitude);
     QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency");
@@ -101,160 +196,73 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
     stdMultiplierSpinbox->setValue(defaultStdMultiplier);
     stdMultiplierSpinbox->setToolTip(stdMultiplierTooltip);
 
-    // Upper part
-    gridLayout->addWidget(upperLeftHistogram->plot(), 0, 0);
+    // 3. RECORDING
+    recordingWg = new RecordingWidget(this,
+                                      GLB_EVENT_DETECTION_RECORD_NAME_TAG,
+                                      GLB_EVENT_DETECTION_RECORD_PATH_TAG,
+                                      EVENT_DETECTION_DEFAULT_RECORD_NAME,
+                                      EVENT_DETECTION_DEFAULT_RECORD_PATH);
 
-    QWidget* upperRightWidget = new QWidget(this);
-    QHBoxLayout * upperRightLayout = new QHBoxLayout(upperRightWidget);
-    //INPUTS
+    //controlsSxLy->addWidget(controlsTitle);
+    controlsSxLy->addWidget(controlsButtons);
+    controlsSxLy->addWidget(statsWg);
+    controlsSxLy->addWidget(recordingWg);
+
+    // --- RIGHT Subpanel
+
+    // INPUTS/SETTINGS
     QWidget* inputsWidget = new QWidget(this);
-    QVBoxLayout* inputLayout = new QVBoxLayout(inputsWidget);
-    inputLayout->addWidget(minDurationLabel);
-    inputLayout->addWidget(minDurationInus);
+    QVBoxLayout* inputCol= new QVBoxLayout(inputsWidget);
+
+    // auto settingsTitle = new QLabel("SETTINGS", inputsWidget);
+    // settingsTitle->setObjectName("controlsTitle");
+
+    inputCol->addWidget(minDurationLabel);
+    inputCol->addWidget(minDurationInus);
     minDurationInus->setMinimum(ZERO);
     minDurationInus->setMaximum(100000.0);
     minDuration.convertValue(UnitPfxMicro);
     minDurationInus->setValue(minDuration.value);
-    inputLayout->addWidget(maxDurationLabel);
-    inputLayout->addWidget(maxDurationInus);
+    inputCol->addWidget(maxDurationLabel);
+    inputCol->addWidget(maxDurationInus);
     maxDurationInus->setMinimum(ZERO);
     maxDurationInus->setMaximum(100000.0);
     maxDuration.convertValue(UnitPfxMicro);
     maxDurationInus->setValue(maxDuration.value);
-    inputLayout->addWidget(amplitudeBinsLabel);
-    inputLayout->addWidget(amplitudeBins);
+    inputCol->addWidget(amplitudeBinsLabel);
+    inputCol->addWidget(amplitudeBins);
     amplitudeBins->setMinimum(2);
     amplitudeBins->setMaximum(5000);
     amplitudeBins->setValue(defaultAmplitudeBins);
-    inputLayout->addWidget(durationBinsLabel);
-    inputLayout->addWidget(durationBins);
+    inputCol->addWidget(durationBinsLabel);
+    inputCol->addWidget(durationBins);
     durationBins->setMinimum(2);
     durationBins->setMaximum(5000);
     durationBins->setValue(defaultDurationBins);
-    inputLayout->addWidget(maxBinAmplitudeLabel);
-    inputLayout->addWidget(maxAmplitude);
+    inputCol->addWidget(maxBinAmplitudeLabel);
+    inputCol->addWidget(maxAmplitude);
     maxAmplitude->setMinimum(ZERO);
-    inputLayout->addWidget(cutoffFrequencyLabel);
-    inputLayout->addWidget(cutoffFrequencySpinbox);
-    inputLayout->addWidget(stdMultiplierLabel);
-    inputLayout->addWidget(stdMultiplierSpinbox);
+    inputCol->addWidget(cutoffFrequencyLabel);
+    inputCol->addWidget(cutoffFrequencySpinbox);
+    inputCol->addWidget(stdMultiplierLabel);
+    inputCol->addWidget(stdMultiplierSpinbox);
     //ADD MULTIPLIER OF THE STD FOR TH AND EXPLENATION
 
-    //STATS
-    QWidget* statsWidget = new QWidget(this);
-    QVBoxLayout* statsLayout = new QVBoxLayout(statsWidget);
-    statsLayout->addWidget(numberOfEventsLabel);
-    statsLayout->addWidget(totalNumberOfEventsLabel);
-    statsLayout->addWidget(avgLenLabel);
-    statsLayout->addWidget(avgAmplitudeLabel);
+    // controlsDxLy->addWidget(settingsTitle);
+    controlsDxLy->addWidget(inputsWidget);
 
-    //Events direction combobox
-    eventsDirectionLabel = new QLabel("Events direction:");
-    statsLayout->addWidget(eventsDirectionLabel);
-    comboBox = new QComboBox(this);
-    // Add items to the combo box
-    comboBox->addItem("Events go down");
-    comboBox->addItem("Events go up");
-    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &EventDetectionWidget::onComboBoxIndexChanged);
-    statsLayout->addWidget(comboBox);
-
-    statsLayout->addWidget(analysisGroupBox);
-
-    upperRightLayout->addWidget(statsWidget);
-    upperRightLayout->addWidget(inputsWidget);
-
-    auto spacer = new QWidget;
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-    upperRightLayout->addWidget(spacer);
-
+    // --- GRID Layout compostition
+    gridLayout->addWidget(upperLeftHistogram->plot(), 0, 0);
     gridLayout->addWidget(upperRightWidget, 0, 1);
-
-    //Maybe manage the change of path and name sanding signals and creating new events files
-    auto recordingGb = new QGroupBox(QString::fromStdString("Events Recording"));
-    auto recordingVBoxLayout = new QVBoxLayout();
-    auto qhBoxLayout = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(qhBoxLayout);
-
-    startRecordingButton = new QPushButton(this);
-    startRecordingButton->setObjectName("startRecordingButton");
-    startRecordingButton->setToolTip("Start the recording");
-    qhBoxLayout->addWidget(startRecordingButton);
-
-    stopRecordingButton = new QPushButton(this);
-    stopRecordingButton->setObjectName("stopButton");
-    stopRecordingButton->setToolTip("Stop the recording");
-    qhBoxLayout->addWidget(stopRecordingButton);
-
-    fileNameLineEdit = new QLineEdit();
-    recordPathLineEdit = new QLineEdit();
-    QSettings settings;
-    recordPathLineEdit->setText(settings.value(GLB_EVENT_DETECTION_RECORD_PATH_TAG, EVENT_DETECTION_DEFAULT_RECORD_PATH).toString());
-    fileNameLineEdit->setText(settings.value(GLB_EVENT_DETECTION_RECORD_NAME_TAG, EVENT_DETECTION_DEFAULT_RECORD_NAME).toString());
-
-    recordingGb->setLayout(recordingVBoxLayout);
-
-    auto hboxRecordingPath = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxRecordingPath);
-
-    auto hboxBrowseFile = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxBrowseFile);
-
-    auto hboxFileName = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxFileName);
-
-    hboxRecordingPath->addWidget(new QLabel("Recording path:"));
-    recordPathLineEdit->setReadOnly(true);
-    hboxRecordingPath->addWidget(recordPathLineEdit);
-
-    directory = new QDir(recordPathLineEdit->text());
-    if (!directory->exists()) {
-        // Create the directory
-        if (directory->mkpath(".")) {
-        }
-    }
-    browseBtn = new QPushButton("Change recordings directory");
-    connect(browseBtn, &QPushButton::clicked, [=]() {
-        // Open a directory selection dialog
-        QString directoryPath = QFileDialog::getExistingDirectory(this,
-        "Select Directory",
-        directory->absolutePath(),
-        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    // Check if the user selected a directory
-    if (!directoryPath.isEmpty()) {
-        auto recordingsDirectoryPath = directoryPath + "/";
-        recordPathLineEdit->setText(recordingsDirectoryPath);
-        directory = new QDir(recordingsDirectoryPath);
-        changeFilePath();
-    }
-        });
-    auto goToDirBtn = new QPushButton("Go to folder");
-    connect(goToDirBtn, &QPushButton::clicked, [=]() {
-        // Open a directory selection dialog
-        QUrl folderUrl = QUrl::fromLocalFile(recordPathLineEdit->text());
-        QDir folderDir(recordPathLineEdit->text());
-        if (folderDir.exists()) {
-            QDesktopServices::openUrl(folderUrl);
-        }
-        else {
-            QMessageBox::information(nullptr, "Warning", "This Path seems to be incorrect.");
-        }
-        });
-    hboxBrowseFile->addWidget(browseBtn);
-    hboxBrowseFile->addWidget(goToDirBtn);
-
-    hboxFileName->addWidget(new QLabel("File name:"));
-    hboxFileName->addWidget(fileNameLineEdit);
-
-    statsLayout->addWidget(recordingGb);
-    // Bottom part
     gridLayout->addWidget(bottomLeftPlot, 1, 0);
-    setMaxAmplitude(defaultMaxAmplitude);
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
 
+    setMaxAmplitude(defaultMaxAmplitude);
     setCurrentRange(currentRange);
     setDuration(maxDuration);
 
-    //layout->addLayout(bottomLayout);
+
+    // --- CONNECTIONS
     connect(minDurationInus, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = minDurationInus->value();
         Measurement durationMeasurement = { value, UnitPfx::UnitPfxMicro, "s" };
@@ -269,8 +277,8 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
         });
     connect(startButton, &QPushButton::clicked, this, &EventDetectionWidget::startPressed);
     connect(stopButton, &QPushButton::clicked, this, &EventDetectionWidget::stopPressed);
-    connect(startRecordingButton, &QPushButton::clicked, this, &EventDetectionWidget::recordingStarted);
-    connect(stopRecordingButton, &QPushButton::clicked, this, &EventDetectionWidget::recordingStopped);
+    connect(recordingWg, &RecordingWidget::sigRecordingStarted, this, &EventDetectionWidget::recordingStarted);
+    connect(recordingWg, &RecordingWidget::sigRecordingStopped, this, &EventDetectionWidget::recordingStopped);
     connect(amplitudeBins, &QSpinBox::editingFinished, this, [=]() {
         const auto value = amplitudeBins->value();
         emit amplitudeBinsChanged(value);
@@ -292,9 +300,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency, Measuremen
         const auto value = stdMultiplierSpinbox->value();
         emit stdMultiplierChanged(value);
         });
-    connect(fileNameLineEdit, &QLineEdit::editingFinished, this, [=]() {
-        changeFileName();
-        });
 }
 
 EventDetectionWidget::~EventDetectionWidget(){
@@ -311,24 +316,24 @@ BasePlot* EventDetectionWidget::getPlot() {
 }
 
 void EventDetectionWidget::setEventsPerSecond(double eventsPerSecond) {
-    numberOfEventsLabel->setText("Events per second: " + QString::number(eventsPerSecond) + " Event/s");
+    numberOfEventsValue->setText(QString::number(eventsPerSecond) + "   ev/s");
 }
 
 void EventDetectionWidget::setAvgLen(double avgLength) {
-    std::string unit = " s";
+    std::string unit = "    s";
     if (avgLength < 0.001) {
-        unit = " ms";
+        unit = "    ms";
         avgLength *= 1000;
     }
-    avgLenLabel->setText("Average Length: " + QString::number(avgLength) + QString::fromStdString(unit));
+    avgLenValue->setText(QString::number(avgLength) + QString::fromStdString(unit));
 }
 
 void EventDetectionWidget::setTotalNumberOfEvents(uint32_t numEvents) {
-    totalNumberOfEventsLabel->setText("Total Number of Events: " + QString::number(numEvents));
+    totalNumberOfEventsValue->setText( QString::number(numEvents) + "        ");
 }
 
 void EventDetectionWidget::setAvgAmplitude(double avgAmplitude) {
-    avgAmplitudeLabel->setText("Average Amplitude: " + QString::number(avgAmplitude) + " " + QString::fromStdString(amplitudeUom));
+    avgAmplitudeValue->setText(QString::number(avgAmplitude) + "    " + QString::fromStdString(amplitudeUom));
 }
 
 // Method to set data for the upper left histogram
@@ -345,23 +350,14 @@ void EventDetectionWidget::setAmplitudeData(const QVector<QPointF>& points) {
 }
 
 std::string EventDetectionWidget::getFileName() {
-    return fileNameLineEdit->text().toStdString();
+    QSettings settings;
+    auto filename = settings.value(GLB_EVENT_DETECTION_RECORD_NAME_TAG).toString().toStdString();
+    return filename;
 }
 
 std::string EventDetectionWidget::getFilePath() {
-    return QDir::toNativeSeparators(recordPathLineEdit->text()).toStdString();
-}
-
-void EventDetectionWidget::changeFilePath() {
     QSettings settings;
-    auto filePath = recordPathLineEdit->text();
-    settings.setValue(GLB_EVENT_DETECTION_RECORD_PATH_TAG, filePath);
-}
-
-void EventDetectionWidget::changeFileName() {
-    QSettings settings;
-    auto filename = fileNameLineEdit->text();
-    settings.setValue(GLB_EVENT_DETECTION_RECORD_NAME_TAG, filename);
+    return QDir::toNativeSeparators(settings.value(GLB_EVENT_DETECTION_RECORD_PATH_TAG).toString()).toStdString();
 }
 
 void EventDetectionWidget::onComboBoxIndexChanged(int index){
@@ -422,19 +418,3 @@ void EventDetectionWidget::setCutoffFrequency(double sr) {
     cutoffFrequencySpinbox->setValue(sr);
 }
 
-void EventDetectionWidget::setRecordingStatus(bool status) {
-    if (status) {
-        startRecordingButton->setProperty("running", true);
-        startRecordingButton->setEnabled(false);
-        fileNameLineEdit->setEnabled(false);
-        browseBtn->setEnabled(false);
-    }
-    else {
-        startRecordingButton->setProperty("running", false);
-        startRecordingButton->setEnabled(true);
-        fileNameLineEdit->setEnabled(true);
-        browseBtn->setEnabled(true);
-    }
-    startRecordingButton->style()->unpolish(startRecordingButton);
-    startRecordingButton->style()->polish(startRecordingButton);
-}

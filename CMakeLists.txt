@@ -111,6 +111,7 @@ add_executable(EMCR WIN32
     src/view/centralwidgets/spectrumwidget.cpp
     src/view/centralwidgets/ivgraphwidget.cpp
     src/view/centralwidgets/eventdetectionwidget.cpp
+    src/view/centralwidgets/recordingwidget.cpp
     src/view/protocol/impexpprotocoldialog.cpp
     src/view/protocol/protocolcursor.cpp
     src/view/protocol/protocoldockwidget.cpp
@@ -258,6 +259,7 @@ add_executable(EMCR WIN32
     src/view/centralwidgets/ivgraphwidget.h
     src/view/centralwidgets/eventdetectionwidget.h
     src/view/centralwidgets/spectrumwidget.h
+    src/view/centralwidgets/recordingwidget.h
     src/view/protocol/impexpprotocoldialog.h
     src/view/protocol/protocolcursor.h
     src/view/protocol/protocoldockwidget.h
