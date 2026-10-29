@@ -1013,7 +1013,7 @@ QLabel#projectNamePrefixLbl {
 
 QLabel#controlsTitle, QLabel#recordingTitle {
     font-family: "Inter", sans-serif;
-    font-size: 11px; 
+    font-size: 10px;
     color: @TEXT_TERTIARY;
     font-weight: bold;
     text-transform: uppercase;
@@ -1047,8 +1047,7 @@ QPushButton#autoZoom,
 QPushButton#btnSelectAxes{
     color: @TEXT_SECONDARY;
     text-transform: uppercase;
-    font-size: 9px;
-    font-weight: bold;
+    font-size: 10px;
 }
 
 QPushButton#locationBtn {
@@ -1062,9 +1061,9 @@ QPushButton#recordingsBtn {
 }
 
 QPushButton#autoZoom {
-
-    qproperty-icon: url(:/imgs/zoom full.png);
-    qproperty-iconSize: 18px;
+    qproperty-icon: url(@ICON_PREFIX/zoom_full.svg);
+    text-transform: uppercase;
+    
 }
 
 QFrame#lineSeparator {
@@ -1609,10 +1608,12 @@ QWidget#scrollWidget{
 QPushButton#exportCsvButton{
     qproperty-icon: url(@ICON_PREFIX/export_csv.svg);
     qproperty-iconSize: 14px;
+    text-transform: uppercase;
 }
 
 QPushButton#copyButton{
     qproperty-icon: url(@ICON_PREFIX/copy.svg);
+    text-transform: uppercase;
 }
 
 QPushButton#startRecordingButton{
@@ -1620,8 +1621,7 @@ QPushButton#startRecordingButton{
     qproperty-iconSize: 10px;
     color: @TEXT_SECONDARY;
     text-transform: uppercase;
-    font-size: 9px;
-    font-weight: bold;
+    font-size: 10px;
 }
 
 QPushButton#startRecordingButton[running="true"] {
