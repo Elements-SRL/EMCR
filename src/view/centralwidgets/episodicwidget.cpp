@@ -22,144 +22,62 @@ EpisodicWidget::EpisodicWidget(BigPlot* plot, QWidget* parent):
     auto sideWidget = new QWidget(splitter);
     auto mainLayout = new QVBoxLayout(sideWidget);
 
-    auto recordingGb = new QGroupBox(QString::fromStdString("Recording"));
-    auto recordingVBoxLayout = new QVBoxLayout();
-    auto qhBoxLayout = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(qhBoxLayout);
+    // TOP section - CONTROLS
+    auto controlsTitle = new QLabel("CONTROLS", sideWidget);
+    controlsTitle->setObjectName("controlsTitle");
+    mainLayout->addWidget(controlsTitle);
 
-    fileNameLineEdit = new QLineEdit();
-    recordPathLineEdit = new QLineEdit();
-    QSettings settings;
-    recordPathLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_PATH_TAG, PSD_DEFAULT_RECORD_PATH).toString());
-    fileNameLineEdit->setText(settings.value(GLB_PROTOCOL_RECORD_NAME_TAG, PSD_DEFAULT_RECORD_NAME).toString());
+    auto controlsRow = new QHBoxLayout();
+    controlsRow->setAlignment(Qt::AlignLeft);
+    controlsRow->setSpacing(8);
 
-    recordingGb->setLayout(recordingVBoxLayout);
-    mainLayout->addWidget(recordingGb);
+    autoZoom = new QPushButton("   ZOOM");
+    autoZoom->setObjectName("autoZoom");
+    autoZoom->setToolTip("Auto zoom");
+    autoZoom->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    autoZoom->setCursor(Qt::PointingHandCursor);
+    controlsRow->addWidget(autoZoom);
+    mainLayout->addLayout(controlsRow);
+    connect(autoZoom, &QPushButton::clicked, this, &EpisodicWidget::sigAutoZoom);
 
-    auto zoomButtonsHl = new QHBoxLayout();
-    mainLayout->addLayout(zoomButtonsHl);
+    // Separator
+    QFrame* line = new QFrame(sideWidget);
+    line->setObjectName("lineSeparator");
+    line->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(line);
 
+    recordingWg = new RecordingWidget(this,
+                                      GLB_PROTOCOL_RECORD_NAME_TAG,
+                                      GLB_PROTOCOL_RECORD_PATH_TAG,
+                                      PSD_DEFAULT_RECORD_NAME,
+                                      PSD_DEFAULT_RECORD_PATH);
+
+
+    // CONNECTIONS
+    connect(recordingWg, &RecordingWidget::sigRecordingStarted, this, &EpisodicWidget::sigStartRecording);
+    connect(recordingWg, &RecordingWidget::sigRecordingStopped, this, &EpisodicWidget::sigStopRecording);
+
+    // Propagate event to ABF writer
+    connect(recordingWg, &RecordingWidget::sigFileNameChanged, this, [=](QString value) {
+        emit sigFileNameChanged(value);
+    });
+    connect(recordingWg, &RecordingWidget::sigRecordPathChanged,this, [=](QString value) {
+        emit sigRecordPathChanged(value);
+    });
+
+    mainLayout->addWidget(recordingWg);
+
+    // Vertical sapcer
     auto spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
     mainLayout->addWidget(spacer);
-
-    recordingStartBtn = new QPushButton("START");
-    connect(recordingStartBtn, &QPushButton::clicked, this, [=]() {
-        emitFileName();
-        emitFilePath();
-        emit sigStartRecording();
-        //     &MultipleChannelControlDockWidget::sigStartRecording
-    });
-    qhBoxLayout->addWidget(recordingStartBtn);
-    recordingStopBtn = new QPushButton("STOP");
-
-    auto hboxRecordingPath = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxRecordingPath);
-
-    auto hboxBrowseFile = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxBrowseFile);
-
-    auto hboxFileName = new QHBoxLayout();
-    recordingVBoxLayout->addLayout(hboxFileName);
-
-    hboxRecordingPath->addWidget(new QLabel("Recording path:"));
-    recordPathLineEdit->setReadOnly(true);
-    hboxRecordingPath->addWidget(recordPathLineEdit);
-
-    QDir directory(recordPathLineEdit->text());
-    if (!directory.exists()) {
-        // Create the directory
-        if (directory.mkpath(".")) {
-        }
-    }
-    auto browseBtn = new QPushButton("Change recordings directory");
-    connect(browseBtn, &QPushButton::clicked, [=]() {
-        // Open a directory selection dialog
-        QString directoryPath = QFileDialog::getExistingDirectory(this,
-                                                                  "Select Directory",
-                                                                  directory.absolutePath(),
-                                                                  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        // Check if the user selected a directory
-        if (!directoryPath.isEmpty()) {
-            auto recordingsDirectoryPath = directoryPath + "/";
-            recordPathLineEdit->setText(recordingsDirectoryPath);
-            emitFilePath();
-        }
-    });
-    auto goToDirBtn = new QPushButton("Go to folder");
-    connect(goToDirBtn, &QPushButton::clicked, [=]() {
-        // Open a directory selection dialog
-        QUrl folderUrl = QUrl::fromLocalFile(recordPathLineEdit->text());
-        QDir folderDir(recordPathLineEdit->text());
-        if (folderDir.exists()) {
-            QDesktopServices::openUrl(folderUrl);
-        }
-        else {
-            QMessageBox::information(nullptr, "Warning", "This Path seems to be incorrect.");
-        }
-    });
-    hboxBrowseFile->addWidget(browseBtn);
-    hboxBrowseFile->addWidget(goToDirBtn);
-
-    hboxFileName->addWidget(new QLabel("File name:"));
-    hboxFileName->addWidget(fileNameLineEdit);
-
-    QPixmap pixmapStop("://imgs/stop protocol.png");
-    QIcon stopRecordIcon(pixmapStop);
-    recordingStopBtn->setIcon(stopRecordIcon);
-    connect(recordingStopBtn, &QPushButton::clicked, this, &EpisodicWidget::sigStopRecording);
-    qhBoxLayout->addWidget(recordingStopBtn);
-    this->setRecording(false);
-    connect(fileNameLineEdit, &QLineEdit::editingFinished, [=]() {
-        QSettings settings;
-        auto filename = fileNameLineEdit->text();
-        settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, filename);
-        emit sigFileNameChanged(filename);
-    });
-
-    auto autoZoomButton = new QPushButton(this);
-    autoZoomButton->setIcon(QIcon(QPixmap(":/imgs/zoom full.png")));
-    autoZoomButton->setToolTip("Auto zoom");
-    autoZoomButton->setIconSize(QSize(30, 30));
-    autoZoomButton->setFixedSize(32, 32);
-    zoomButtonsHl->addWidget(autoZoomButton);
-    connect(autoZoomButton, &QPushButton::clicked, this, &EpisodicWidget::sigAutoZoom);
-
-    {
-        auto spacer = new QWidget;
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        zoomButtonsHl->addWidget(spacer);
-    }
 
     splitter->addWidget(sideWidget);
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 0);
 }
 
-void EpisodicWidget::emitFilePath() {
-    QSettings settings;
-    auto filePath = recordPathLineEdit->text();
-    settings.setValue(GLB_PROTOCOL_RECORD_PATH_TAG, filePath);
-    emit sigRecordPathChanged(filePath);
-}
-
-void EpisodicWidget::emitFileName() {
-    QSettings settings;
-    auto filename = fileNameLineEdit->text();
-    settings.setValue(GLB_PROTOCOL_RECORD_NAME_TAG, filename);
-    emit sigFileNameChanged(filename);
-}
 
 void EpisodicWidget::setRecording(bool flag) {
-    if (flag) {
-        QPixmap pixmapRecors("://imgs/recording protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        recordingStartBtn->setIcon(recordIcon);
-
-    }
-    else {
-        QPixmap pixmapRecors("://imgs/record protocol.png");
-        QIcon recordIcon(pixmapRecors);
-        recordingStartBtn->setIcon(recordIcon);
-    }
+    recordingWg->setRecording(flag);
 }

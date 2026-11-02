@@ -40,6 +40,7 @@ public:
     std::string getFileName();
     std::string getFilePath();
     void setCutoffFrequency(double sr);
+    void setRecording(bool flag);
 
 private:
     QLineEdit* recordPathLineEdit;

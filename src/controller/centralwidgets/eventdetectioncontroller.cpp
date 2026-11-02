@@ -378,6 +378,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
     });
     connect(widget, &EventDetectionWidget::recordingStarted, this, [=]() {
+        widget->setRecording(true);
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
@@ -389,6 +390,7 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
     });
     connect(widget, &EventDetectionWidget::recordingStopped, this, [=]() {
+        widget->setRecording(false);
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();

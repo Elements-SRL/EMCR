@@ -132,24 +132,17 @@ RecordingWidget::RecordingWidget(QWidget* parent,
     connect(startStopBtn, &QPushButton::clicked, this, [=](bool checked) {
         if (checked) {
 
+            // In case file path is invalid
+            // Notify user and do not start recording
             if(!checkFilePath()){
-                startStopBtn->setChecked(false);
                 return;
             }
-
-            setRecording(checked);
             emitFileName();
             emitFilePath();
             emit sigRecordingStarted();
         } else {
-            setRecording(checked);
             emit sigRecordingStopped();
         }
-
-        lockUnlockSettings(checked);
-
-        startStopBtn->style()->unpolish(startStopBtn);
-        startStopBtn->style()->polish(startStopBtn);
     });
 
     connect(browseBtn, &QPushButton::clicked, [=]() {
@@ -195,11 +188,13 @@ bool RecordingWidget::checkFilePath(){
 
     if(!filePath.endsWith("/")){
         filePath += "/";
+        recordPathLineEdit->setText(filePath);
     }
 
     if (!QDir(filePath).exists()) {
         if (!QDir().mkdir(filePath)){
             QMessageBox::warning(nullptr, "Warning", filePath + " seems to be incorrect.");
+            startStopBtn->setChecked(false);
             return false;
         }
     }
@@ -209,7 +204,6 @@ bool RecordingWidget::checkFilePath(){
 void RecordingWidget::emitFilePath() {
     QSettings settings;
     auto filePath = recordPathLineEdit->text();
-    recordPathLineEdit->setText(filePath);
     settings.setValue(QAnyStringView(defaultFilePathTag), filePath);
     emit sigRecordPathChanged(filePath);
 }
@@ -220,13 +214,6 @@ void RecordingWidget::emitFileName() {
     settings.setValue(QAnyStringView(defaultFileNameTag), filename);
     emit sigFileNameChanged(filename);
 }
-
-
-void RecordingWidget::lockUnlockSettings(bool isRecording) {
-    browseBtn->setEnabled(!isRecording);
-    fileNameLineEdit->setEnabled(!isRecording);
-    recordPathLineEdit->setEnabled(!isRecording);
-};
 
 void RecordingWidget::setRecording(bool flag) {
     startStopBtn->setChecked(flag);
@@ -242,5 +229,8 @@ void RecordingWidget::setRecording(bool flag) {
         protocolTimer->onStopTimer();
     }
 
-    lockUnlockSettings(flag);
+    // Enable/disable UI componets based on recording stataus
+    browseBtn->setEnabled(!flag);
+    fileNameLineEdit->setEnabled(!flag);
+    recordPathLineEdit->setEnabled(!flag);
 }

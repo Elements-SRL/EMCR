@@ -414,6 +414,11 @@ void EventDetectionWidget::setMaxSamplingRate(double srHalf) {
     cutoffFrequencySpinbox->setMaximum(srHalf);
 }
 
+void EventDetectionWidget::setRecording(bool flag){
+    this->recordingWg->setRecording(flag);
+}
+
+
 void EventDetectionWidget::setCutoffFrequency(double sr) {
     cutoffFrequencySpinbox->setValue(sr);
 }

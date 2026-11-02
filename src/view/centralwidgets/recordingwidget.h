@@ -16,8 +16,7 @@ public:
                     const char * defaultFilePathTag = nullptr,
                     QString defaultFileName = nullptr,
                     QString defaultFilePath = nullptr);
-    void lockUnlockSettings(bool isRecording);      // Enable/disable UI componets based on recording stataus
-    void setRecording(bool flag);                   // Manages the timer and start button
+    void setRecording(bool flag);                   // Manages UI appearance based on recording status
 
 private:
     QVBoxLayout * mainLayout = nullptr;

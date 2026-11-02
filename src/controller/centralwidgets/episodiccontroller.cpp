@@ -365,7 +365,7 @@ void EpisodicController::onRecordingRequest(bool flag) {
         }
         ProtocolWidget * protocol = static_cast <ProtocolWidget *> (pl->currentItem());
 
-        if (protocol->getType() != ProtocolTypeEpisodic) {
+        if ((protocol == nullptr) || (protocol != nullptr && protocol->getType() != ProtocolTypeEpisodic)) {
             emit sigStopRecording();
             QString err = "No episodic protocol selected";
             QString info = "Select an episodic protocol to start the recording";
@@ -382,6 +382,7 @@ void EpisodicController::onRecordingRequest(bool flag) {
             QString err = "Recording to file not possible";
             QString info = "No channel checked for recording";
             ErrorManager e(err, info);
+            return;
         }
 
         pl->onStartProtocol(true);
@@ -422,6 +423,7 @@ void EpisodicController::onProtocolStarted(unsigned int protocolId, ProtocolWidg
 
 //TODO this could be moved at the controller level and be managed by single controllers
 void EpisodicController::onStartRecording() {
+    episodicWidget->setRecording(true);
     const auto selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), true);
     episodicDataWriterConsumer->onRecordSelectedChannels(selectedChannels, values);

@@ -21,13 +21,9 @@ private:
     QPushButton* btnZoomOut = nullptr;
     RecordingWidget* recordingWg = nullptr;
 
-    void emitFileName();
-    void emitFilePath();
-
 public:
     GapFreeWidget(BigPlot* plot, QWidget* parent = nullptr);
     void setRecording(bool flag);
-    void lockUnlockSettings(bool isRecording);
 
 signals:
     void sigFileNameChanged(QString);
