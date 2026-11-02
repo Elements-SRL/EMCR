@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <qvalidator.h>
+#include <qregularexpression.h>
 
 RecordingWidget::RecordingWidget(QWidget* parent,
                                  const char * defaultFileNameTag,
@@ -94,7 +96,12 @@ RecordingWidget::RecordingWidget(QWidget* parent,
     auto recordPathLbl = new QLabel("Save path");
     recordPathLbl->setObjectName("recordPathLbl");
     recordPathLineEdit = new QLineEdit(settingsContainer);
-    recordPathLineEdit->setObjectName("recordPathLineEdit");
+    fileNameLineEdit->setObjectName("recordPathLineEdit");
+
+    // Sanitizer - Prevents special chars  \ / : * ? " < > |
+    QRegularExpression rx("^[^\\\\/:*?\"<>|]{1,100}$");
+    QRegularExpressionValidator *validator = new QRegularExpressionValidator(rx, fileNameLineEdit);
+    fileNameLineEdit->setValidator(validator);
 
     recordPathLayout->addWidget(recordIco);
     recordPathLayout->addWidget(recordPathLbl);
@@ -124,16 +131,18 @@ RecordingWidget::RecordingWidget(QWidget* parent,
 
     connect(startStopBtn, &QPushButton::clicked, this, [=](bool checked) {
         if (checked) {
-            startStopBtn->setProperty("running", true);
-            startStopBtn->setText(" STOP");
-            protocolTimer->onStartTimer();
+
+            if(!checkFilePath()){
+                startStopBtn->setChecked(false);
+                return;
+            }
+
+            setRecording(checked);
             emitFileName();
             emitFilePath();
             emit sigRecordingStarted();
         } else {
-            startStopBtn->setProperty("running", false);
-            startStopBtn->setText(" REC");
-            protocolTimer->onStopTimer();
+            setRecording(checked);
             emit sigRecordingStopped();
         }
 
@@ -177,10 +186,30 @@ RecordingWidget::RecordingWidget(QWidget* parent,
 
 }
 
+/*!
+ *  Sanitize file path.
+ *  Creates folder if not extis.
+ */
+bool RecordingWidget::checkFilePath(){
+    auto filePath = this->recordPathLineEdit->text();
+
+    if(!filePath.endsWith("/")){
+        filePath += "/";
+    }
+
+    if (!QDir(filePath).exists()) {
+        if (!QDir().mkdir(filePath)){
+            QMessageBox::warning(nullptr, "Warning", filePath + " seems to be incorrect.");
+            return false;
+        }
+    }
+    return true;
+}
+
 void RecordingWidget::emitFilePath() {
     QSettings settings;
     auto filePath = recordPathLineEdit->text();
-
+    recordPathLineEdit->setText(filePath);
     settings.setValue(QAnyStringView(defaultFilePathTag), filePath);
     emit sigRecordPathChanged(filePath);
 }
@@ -206,11 +235,12 @@ void RecordingWidget::setRecording(bool flag) {
     startStopBtn->style()->polish(startStopBtn);
 
     if (flag) {
+        startStopBtn->setText(" STOP");
         protocolTimer->onStartTimer();
     } else {
+        startStopBtn->setText(" REC");
         protocolTimer->onStopTimer();
     }
 
     lockUnlockSettings(flag);
 }
-

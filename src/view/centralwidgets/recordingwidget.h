@@ -39,6 +39,7 @@ private:
 
     void emitFilePath();
     void emitFileName();
+    bool checkFilePath();
 
 signals:
     void sigRecordingStarted();
