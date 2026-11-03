@@ -83,21 +83,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     // Bottom Left Plot
     bottomLeftPlot = new BasePlot("Events", "us", "A", this);
 
-    // Input fields for upper right corner
-    QLabel* minDurationLabel = new QLabel("Minimum event duration");
-    QLabel* maxDurationLabel = new QLabel("Maximum event duration");
-    minDurationInus = new QDoubleSpinBox();
-    minDurationInus->setSuffix(" us");
-    maxDurationInus = new QDoubleSpinBox();
-    maxDurationInus->setSuffix(" us");
-    QLabel* amplitudeBinsLabel = new QLabel("Number of amplitude bins");
-    amplitudeBins = new QSpinBox();
-    QLabel* durationBinsLabel = new QLabel("Number of duration bins");
-    durationBins = new QSpinBox();
-    QLabel* maxBinAmplitudeLabel = new QLabel("Max amplitude");
-    maxAmplitude = new QDoubleSpinBox();
-
-
     // Top right side panel.
     // Panel is made by two sub-panels.
     QWidget* upperRightWidget = new QWidget(this);
@@ -182,23 +167,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     addStatsRow(statsContainerLy, avgLenLabel, avgLenValue);
     addStatsRow(statsContainerLy, avgAmplitudeLabel, avgAmplitudeValue);
 
-    maxAmplitude->setValue(defaultMaxAmplitude);
-    QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency");
-    cutoffFrequencySpinbox = new QDoubleSpinBox();
-    cutoffFrequencySpinbox->setSuffix(" Hz");
-    cutoffFrequencySpinbox->setMinimum(LOW_CUTOFF_FREQUENCY);
-    cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
-    cutoffFrequencySpinbox->setValue(defaultSamplingRate);
-
-    QLabel* stdMultiplierLabel = new QLabel("Std multiplier");
-    auto stdMultiplierTooltip = "The noise level is calculated using the standard deviation of the input signal.\nThis multiplier (N) helps differentiate between noise and events.\nTypically, a value of 3 is sufficient to filter out noise.\nSetting N too high may result in missing true events,\nwhile setting it too low may lead to noise being misclassified as events.";
-    stdMultiplierLabel->setToolTip(stdMultiplierTooltip);
-    stdMultiplierSpinbox = new QDoubleSpinBox();
-    stdMultiplierSpinbox->setMinimum(1.0);
-    stdMultiplierSpinbox->setMaximum(maxCutoffFrequency);
-    stdMultiplierSpinbox->setValue(defaultStdMultiplier);
-    stdMultiplierSpinbox->setToolTip(stdMultiplierTooltip);
-
     // 3. RECORDING
     recordingWg = new RecordingWidget(this,
                                       GLB_EVENT_DETECTION_RECORD_NAME_TAG,
@@ -212,47 +180,83 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     controlsSxLy->addWidget(statsWg);
     controlsSxLy->addWidget(recordingWg);
 
-    // --- RIGHT Subpanel
+    // --- RIGHT Subpanel ---
 
     // INPUTS/SETTINGS
     QWidget* inputsWidget = new QWidget(this);
     QVBoxLayout* inputCol= new QVBoxLayout(inputsWidget);
 
-    // auto settingsTitle = new QLabel("SETTINGS", inputsWidget);
-    // settingsTitle->setObjectName("controlsTitle");
-
+    // Input fields
+    QLabel* minDurationLabel = new QLabel();
+    minDurationInus = new QDoubleSpinBox();
     inputCol->addWidget(minDurationLabel);
     inputCol->addWidget(minDurationInus);
     minDurationInus->setMinimum(ZERO);
     minDurationInus->setMaximum(100000.0);
     minDuration.convertValue(UnitPfxMicro);
     minDurationInus->setValue(minDuration.value);
+    minDurationLabel->setText("Min event duration [" + QString::fromStdString(minDuration.getFullUnit()) + "]");
+
+    QLabel* maxDurationLabel = new QLabel();
+    maxDurationInus = new QDoubleSpinBox();
     inputCol->addWidget(maxDurationLabel);
     inputCol->addWidget(maxDurationInus);
     maxDurationInus->setMinimum(ZERO);
     maxDurationInus->setMaximum(100000.0);
     maxDuration.convertValue(UnitPfxMicro);
     maxDurationInus->setValue(maxDuration.value);
+    maxDurationLabel->setText("Max event duration [" + QString::fromStdString(maxDuration.getFullUnit()) + "]");
+
+    QLabel* amplitudeBinsLabel = new QLabel("Number of amplitude bins");
+    amplitudeBins = new QSpinBox();
     inputCol->addWidget(amplitudeBinsLabel);
     inputCol->addWidget(amplitudeBins);
     amplitudeBins->setMinimum(2);
     amplitudeBins->setMaximum(5000);
     amplitudeBins->setValue(defaultAmplitudeBins);
+
+    QLabel* durationBinsLabel = new QLabel("Number of duration bins");
+    durationBins = new QSpinBox();
     inputCol->addWidget(durationBinsLabel);
     inputCol->addWidget(durationBins);
     durationBins->setMinimum(2);
     durationBins->setMaximum(5000);
     durationBins->setValue(defaultDurationBins);
+
+    QLabel* maxBinAmplitudeLabel = new QLabel();
+    maxAmplitude = new QDoubleSpinBox();
     inputCol->addWidget(maxBinAmplitudeLabel);
     inputCol->addWidget(maxAmplitude);
     maxAmplitude->setMinimum(ZERO);
+    maxAmplitude->setValue(defaultMaxAmplitude);
+    setMaxAmplitude(defaultMaxAmplitude);
+    setCurrentRange(currentRange);
+    setDuration(maxDuration);
+    maxBinAmplitudeLabel->setText("Max amplitude [" + QString::fromStdString(amplitudeUom) + "]");
+
+    QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency [Hz]");
+    cutoffFrequencySpinbox = new QDoubleSpinBox();
     inputCol->addWidget(cutoffFrequencyLabel);
     inputCol->addWidget(cutoffFrequencySpinbox);
+    cutoffFrequencySpinbox->setMinimum(LOW_CUTOFF_FREQUENCY);
+    cutoffFrequencySpinbox->setMaximum(maxCutoffFrequency);
+    cutoffFrequencySpinbox->setValue(defaultSamplingRate);
+
+    QLabel* stdMultiplierLabel = new QLabel("Std multiplier");
+    auto stdMultiplierTooltip = "The noise level is calculated using the standard deviation of the input signal. \n"
+                                "This multiplier (N) helps differentiate between noise and events. \n"
+                                "Typically, a value of 3 is sufficient to filter out noise. \n"
+                                "Setting N too high may result in missing true events, \n"
+                                "while setting it too low may lead to noise being misclassified as events.";
+    stdMultiplierLabel->setToolTip(stdMultiplierTooltip);
+    stdMultiplierSpinbox = new QDoubleSpinBox();
     inputCol->addWidget(stdMultiplierLabel);
     inputCol->addWidget(stdMultiplierSpinbox);
-    //ADD MULTIPLIER OF THE STD FOR TH AND EXPLENATION
+    stdMultiplierSpinbox->setMinimum(1.0);
+    stdMultiplierSpinbox->setMaximum(maxCutoffFrequency);
+    stdMultiplierSpinbox->setValue(defaultStdMultiplier);
+    stdMultiplierSpinbox->setToolTip(stdMultiplierTooltip);
 
-    // controlsDxLy->addWidget(settingsTitle);
     controlsDxLy->addWidget(inputsWidget);
 
     // --- GRID Layout compostition
@@ -260,10 +264,6 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     gridLayout->addWidget(upperRightWidget, 0, 1);
     gridLayout->addWidget(bottomLeftPlot, 1, 0);
     gridLayout->addWidget(bottomRightHistogram->plot(), 1, 1);
-
-    setMaxAmplitude(defaultMaxAmplitude);
-    setCurrentRange(currentRange);
-    setDuration(maxDuration);
 
 
     // --- CONNECTIONS
@@ -398,7 +398,6 @@ void EventDetectionWidget::setMaxAmplitude(double value) {
 
 void EventDetectionWidget::setCurrentRange(RangedMeasurement cr) {
     amplitudeUom = cr.getFullUnit();
-    maxAmplitude->setSuffix(" " + QString::fromStdString(amplitudeUom));
     maxAmplitude->setMaximum(cr.max);
     bottomLeftPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
     bottomRightPlot->setLabel(amplitudeUom, QwtPlot::Axis::yLeft);
