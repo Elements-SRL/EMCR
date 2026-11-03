@@ -13,6 +13,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     outerLayout->addWidget(splitter);
     auto sideWidget = new QWidget(splitter);
     auto mainLayout = new QVBoxLayout(sideWidget);
+    mainLayout->setContentsMargins(18, 10, 10, 10);
     mainLayout->setSpacing(12);
 
     splitter->addWidget(plot);
@@ -32,17 +33,15 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
 
     auto startButton = new QPushButton(this);
     startButton->setObjectName("startButton");
+    startButton->setText(" START");
     startButton->setToolTip("Start the iv graph analysis if it was previously stopped");
-    startButton->setIconSize(QSize(30, 30));
-    startButton->setFixedSize(32, 32);
     controlsRow->addWidget(startButton);
     connect(startButton, &QPushButton::clicked, this, &IvGraphWidget::sigStartIvGraph);
 
     auto stopButton = new QPushButton(this);
     stopButton->setObjectName("stopButton");
+    stopButton->setText(" STOP");
     stopButton->setToolTip("Stop the iv graph analysis if it was previously started");
-    stopButton->setIconSize(QSize(30, 30));
-    stopButton->setFixedSize(32, 32);
     controlsRow->addWidget(stopButton);
     connect(stopButton, &QPushButton::clicked, this, &IvGraphWidget::sigStopIvGraph);
 

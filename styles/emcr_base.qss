@@ -1094,6 +1094,31 @@ QPushButton#btnSelectAxes::menu-indicator{
 }
 
 /* ========================================= */
+/* --- EVENT DETECTION ---                   */
+/* ========================================= */
+
+QWidget#statsContainer {
+    background: @BG_APP;
+    border: 1px solid @BORDER_PANEL;
+    border-radius: 4px;
+    max-width: 300px;
+}
+
+QLabel#statsLbl{
+    font-family: "Inria Sans", sans-serif;
+    font-size: 10px;
+    color: @TEXT_SECONDARY;
+    font-weight: 400;
+}
+
+QLabel#statsVal{
+    font-family: "Inria Sans", sans-serif;
+    font-size: 10px;
+    font-weight: 350;
+}
+
+
+/* ========================================= */
 /* --- CONNECTION DEVICE  ---                */
 /* ========================================= */
 

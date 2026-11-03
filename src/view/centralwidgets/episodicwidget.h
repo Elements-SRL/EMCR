@@ -10,18 +10,15 @@
 #include "e384commlib_global_addendum.h"
 #include "bigplot.h"
 #include "globaldefines.h"
+#include "recordingwidget.h"
 
 
 class EpisodicWidget : public QWidget {
     Q_OBJECT
 
 private:
-    QLineEdit* fileNameLineEdit;
-    QLineEdit* recordPathLineEdit;
-    QPushButton* recordingStopBtn;
-    QPushButton* recordingStartBtn;
-    void emitFileName();
-    void emitFilePath();
+    RecordingWidget * recordingWg = nullptr;
+    QPushButton * autoZoom = nullptr;
 
 public:
     EpisodicWidget(BigPlot* plot, QWidget* parent = nullptr);

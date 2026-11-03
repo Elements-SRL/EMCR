@@ -378,11 +378,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
     });
     connect(widget, &EventDetectionWidget::recordingStarted, this, [=]() {
+        widget->setRecording(true);
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
-        widget->setRecordingStatus(true);
         bigPlotWidget->setTabsStatus(false, BigPlot::BigPlotStatus::Event);
         initHDF5();
         if (wasThisRunning) {
@@ -390,11 +390,11 @@ EventDetectionController::EventDetectionController(ApplicationStatus* appStatus,
         }
     });
     connect(widget, &EventDetectionWidget::recordingStopped, this, [=]() {
+        widget->setRecording(false);
         const auto wasThisRunning = consumer->isRunning();
         if (wasThisRunning) {
             consumer->onStopConsuming();
         }
-        widget->setRecordingStatus(false);
         bigPlotWidget->setTabsStatus(true, BigPlot::BigPlotStatus::Event);
         closeHDF5();
         if (wasThisRunning) {
@@ -608,8 +608,7 @@ void EventDetectionController::initHDF5() {
         consumer->onStopConsuming();
     }
     const auto filepath = widget->getFilePath();
-    std::string filepathEndingInBackslash = (filepath.back() == '\\') ? filepath : filepath + '\\';
-    std::string filename = filepathEndingInBackslash + widget->getFileName();
+    auto filename = filepath + widget->getFileName();
     const auto baselineAndEvents = createFile(appStatus, filename);
     closeHDF5();
     iBaselineDataset = std::get<0>(baselineAndEvents);

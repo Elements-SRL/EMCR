@@ -197,7 +197,7 @@ void GapFreeController::onRecordingRequest(bool flag) {
             QString err = "Recording to file not possible";
             QString info = "No channel checked for recording";
             ErrorManager e(err, info);
-            gapFreeWidget->setRecording(false);
+            return;
         }
 
     }
@@ -222,11 +222,13 @@ void GapFreeController::onProtocolStarted(unsigned int, ProtocolWidget * protoco
 
 //TODO this could be moved at the controller level and b managed by single controllers
 void GapFreeController::onStartRecording() {
+    gapFreeWidget->setRecording(true);
     const auto selectedChannels = appStatus->getSelectedChannelsIndexes();
     std::vector <bool> values(selectedChannels.size(), true);
     abfDataWriterConsumer->onRecordSelectedChannels(selectedChannels, values);
 }
 
 void GapFreeController::onStopRecording() {
+    gapFreeWidget->setRecording(false);
     abfDataWriterConsumer->onStopConsuming();
 }

@@ -9,6 +9,7 @@
 #include "bigplot.h"
 #include "autotoggle.h"
 #include "lcddisplay.h"
+#include "recordingwidget.h"
 
 
 class GapFreeWidget : public QWidget {
@@ -18,18 +19,11 @@ private:
     QPushButton* autoZoom = nullptr;
     QPushButton* btnZoomIn = nullptr;
     QPushButton* btnZoomOut = nullptr;
-    QLineEdit* fileNameLineEdit;
-    QLineEdit* recordPathLineEdit;
-    QPushButton* browseBtn;
-    QPushButton* startStopBtn;
-    TimerDisplay* protocolTimer;
-    void emitFileName();
-    void emitFilePath();
+    RecordingWidget* recordingWg = nullptr;
 
 public:
     GapFreeWidget(BigPlot* plot, QWidget* parent = nullptr);
     void setRecording(bool flag);
-    void lockUnlockSettings(bool isRecording);
 
 signals:
     void sigFileNameChanged(QString);
