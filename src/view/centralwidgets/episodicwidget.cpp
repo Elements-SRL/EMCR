@@ -47,8 +47,8 @@ EpisodicWidget::EpisodicWidget(BigPlot* plot, QWidget* parent):
     mainLayout->addWidget(line);
 
     recordingWg = new RecordingWidget(this,
-                                      GLB_PROTOCOL_RECORD_NAME_TAG,
-                                      GLB_PROTOCOL_RECORD_PATH_TAG,
+                                      GLB_EPISODIC_RECORD_NAME_TAG,
+                                      GLB_EPISODIC_RECORD_PATH_TAG,
                                       PSD_DEFAULT_RECORD_NAME,
                                       PSD_DEFAULT_RECORD_PATH);
 

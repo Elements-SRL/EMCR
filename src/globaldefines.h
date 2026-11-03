@@ -25,6 +25,8 @@
 /*! Settings tags */
 #define GLB_PROTOCOL_RECORD_PATH_TAG "Protocol/Settings/recordPath"
 #define GLB_PROTOCOL_RECORD_NAME_TAG "Protocol/Settings/recordName"
+#define GLB_EPISODIC_RECORD_PATH_TAG "Episodic/Settings/recordPath"
+#define GLB_EPISODIC_RECORD_NAME_TAG "Episodic/Settings/recordName"
 #define GLB_EVENT_DETECTION_RECORD_PATH_TAG "Events/Settings/recordPath"
 #define GLB_EVENT_DETECTION_RECORD_NAME_TAG "Events/Settings/recordName"
 #define GLB_PROTOCOL_ADD_DATE_TAG "Protocol/Settings/addDate"
