@@ -13,19 +13,23 @@ EpisodicWidget::EpisodicWidget(BigPlot* plot, QWidget* parent):
     this->setObjectName("episodic");
     this->setWindowTitle("Episodic");
 
-
     auto outerLayout = new QVBoxLayout(this);
     QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
     outerLayout->addWidget(splitter);
-    splitter->addWidget(plot);
 
-    auto sideWidget = new QWidget(splitter);
-    auto mainLayout = new QVBoxLayout(sideWidget);
+    auto sideWidget = new QWidget();
+    splitter->addWidget(sideWidget);
+    auto sideLayout = new QVBoxLayout(sideWidget);
+    sideLayout->setContentsMargins(18, 10, 10, 10);
+    sideLayout->setSpacing(12);
+
+    splitter->addWidget(plot);
+    splitter->addWidget(sideWidget);
 
     // TOP section - CONTROLS
     auto controlsTitle = new QLabel("CONTROLS", sideWidget);
     controlsTitle->setObjectName("controlsTitle");
-    mainLayout->addWidget(controlsTitle);
+    sideLayout->addWidget(controlsTitle);
 
     auto controlsRow = new QHBoxLayout();
     controlsRow->setAlignment(Qt::AlignLeft);
@@ -37,16 +41,16 @@ EpisodicWidget::EpisodicWidget(BigPlot* plot, QWidget* parent):
     autoZoom->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     autoZoom->setCursor(Qt::PointingHandCursor);
     controlsRow->addWidget(autoZoom);
-    mainLayout->addLayout(controlsRow);
+    sideLayout->addLayout(controlsRow);
     connect(autoZoom, &QPushButton::clicked, this, &EpisodicWidget::sigAutoZoom);
 
     // Separator
     QFrame* line = new QFrame(sideWidget);
     line->setObjectName("lineSeparator");
     line->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(line);
+    sideLayout->addWidget(line);
 
-    recordingWg = new RecordingWidget(this,
+    recordingWg = new RecordingWidget(sideWidget,
                                       GLB_EPISODIC_RECORD_NAME_TAG,
                                       GLB_EPISODIC_RECORD_PATH_TAG,
                                       PSD_DEFAULT_RECORD_NAME,
@@ -65,12 +69,12 @@ EpisodicWidget::EpisodicWidget(BigPlot* plot, QWidget* parent):
         emit sigRecordPathChanged(value);
     });
 
-    mainLayout->addWidget(recordingWg);
+    sideLayout->addWidget(recordingWg);
 
     // Vertical sapcer
     auto spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
-    mainLayout->addWidget(spacer);
+    sideLayout->addWidget(spacer);
 
     splitter->addWidget(sideWidget);
     splitter->setStretchFactor(0, 1);

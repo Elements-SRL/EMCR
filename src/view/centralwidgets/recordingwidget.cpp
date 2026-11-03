@@ -15,6 +15,7 @@ RecordingWidget::RecordingWidget(QWidget* parent,
                                  QString defaultFilePath){
 
     mainLayout = new QVBoxLayout();
+    mainLayout->setContentsMargins(0,0,0,0);
     this->setLayout(mainLayout);
 
     this->defaultFileNameTag = defaultFileNameTag;

@@ -29,7 +29,7 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
 
     auto sideWidget = new QWidget(splitter);
     auto mainLayout = new QVBoxLayout(sideWidget);
-    mainLayout->setContentsMargins(10, 10, 10, 10);
+    mainLayout->setContentsMargins(18, 10, 10, 10);
     mainLayout->setSpacing(12);
 
     // --- Section 1. CONTROLS

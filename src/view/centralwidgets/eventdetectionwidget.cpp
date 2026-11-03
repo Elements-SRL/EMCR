@@ -102,12 +102,15 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     // Panel is made by two sub-panels.
     QWidget* upperRightWidget = new QWidget(this);
     QHBoxLayout * upperRightLayout = new QHBoxLayout(upperRightWidget);
+    upperRightLayout->setContentsMargins(10, 10, 10, 10);
 
     auto controlsSxWg = new QWidget(this);
     auto controlsSxLy = new QVBoxLayout(controlsSxWg);
+    controlsSxLy->setContentsMargins(0,0,0,0);
 
     auto controlsDxWg = new QWidget(this);
     auto controlsDxLy= new QVBoxLayout(controlsDxWg);
+    controlsDxLy->setContentsMargins(0,0,0,0);
 
 
     // Two vertical panels side by side
@@ -203,7 +206,8 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
                                       EVENT_DETECTION_DEFAULT_RECORD_NAME,
                                       EVENT_DETECTION_DEFAULT_RECORD_PATH);
 
-    //controlsSxLy->addWidget(controlsTitle);
+    recordingWg->setContentsMargins(10, 10, 10, 10);
+
     controlsSxLy->addWidget(controlsButtons);
     controlsSxLy->addWidget(statsWg);
     controlsSxLy->addWidget(recordingWg);

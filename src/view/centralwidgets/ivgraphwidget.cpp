@@ -13,6 +13,7 @@ IvGraphWidget::IvGraphWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pare
     outerLayout->addWidget(splitter);
     auto sideWidget = new QWidget(splitter);
     auto mainLayout = new QVBoxLayout(sideWidget);
+    mainLayout->setContentsMargins(18, 10, 10, 10);
     mainLayout->setSpacing(12);
 
     splitter->addWidget(plot);
