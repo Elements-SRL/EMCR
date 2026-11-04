@@ -8,6 +8,7 @@
 #include <QApplication>
 #include "globaldefines.h"
 #include "themecontroller.h"
+#include "curve.h"
 #include <QFontMetricsF>
 #include <QPainter>
 #include <QPixmapCache>
@@ -139,9 +140,10 @@ StampPlot::StampPlot(int channelIdx, std::string channelname, int idealPlotWidth
 
     selected = false;
 
-    // Theme aware overlay changes
+    // Theme aware overlay changes (and curve color)
     connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, [this]() {
         invalidateOverlayCache();
+        applyThemeToCurves();
         requestReplot();
     });
 }
@@ -251,6 +253,7 @@ void StampPlot::setName(std::string name){
 }
 
 void StampPlot::drawCanvas(QPainter * p) {
+    drawGrid(p);
     QwtPlot::drawCanvas(p);
     drawOverlays(p);
 }
@@ -309,6 +312,21 @@ void StampPlot::invalidateOverlayCache() {
     nameCache = QPixmap();
 }
 
+// Mini-plot curve color from the theme (StampOverlayStyle::curveColor)
+void StampPlot::applyThemeToCurves() {
+    const QColor color = paletteColor(Style::curveColor);
+    if (!color.isValid()) {
+        return;
+    }
+    const QwtPlotItemList curves = this->itemList(QwtPlotItem::Rtti_PlotCurve);
+    for (QwtPlotItem *item : curves) {
+        Curve *curve = dynamic_cast<Curve *>(item);
+        if (curve != nullptr && curve->getCurveType() == CurveTypeStampPlotSolid) {
+            curve->setColor(color);
+        }
+    }
+}
+
 // Coalesces the changes (e.g. ALL on 384 channels, or state + color) into one
 // queued replot per card
 void StampPlot::requestReplot() {
@@ -337,6 +355,39 @@ const QPixmap &StampPlot::namePixmap(qreal dpr) {
                                   Style::nameBorderWidth, dpr);
     }
     return nameCache;
+}
+
+// Simple background grid for mini-plots - theme aware
+void StampPlot::drawGrid(QPainter *p) {
+    const QColor color = paletteColor(Style::gridColor);
+    if (!color.isValid()) {
+        return;
+    }
+    const QRect area = this->canvas()->contentsRect().adjusted(Style::margin, Style::margin, -Style::margin, -Style::margin);
+    if (area.width() <= 2 * Style::gridInset || area.height() <= 2 * Style::gridInset) {
+        return;
+    }
+
+    p->save();
+    QPen pen(color, 1.0);
+    pen.setCosmetic(true);
+    p->setPen(pen);
+    p->setRenderHint(QPainter::Antialiasing, false);
+
+    // Integer coordinates: sharp 1 px lines, no antialiasing
+    const int left = area.left() + Style::gridInset;
+    const int right = area.right() - Style::gridInset;
+    const int top = area.top() + Style::gridInset;
+    const int bottom = area.bottom() - Style::gridInset;
+    for (int i = 1; i < Style::gridColumns; i++) {
+        const int x = area.left() + qRound(area.width() * i / double(Style::gridColumns));
+        p->drawLine(x, top, x, bottom);
+    }
+    for (int i = 1; i < Style::gridRows; i++) {
+        const int y = area.top() + qRound(area.height() * i / double(Style::gridRows));
+        p->drawLine(left, y, right, y);
+    }
+    p->restore();
 }
 
 void StampPlot::drawOverlays(QPainter *p) {

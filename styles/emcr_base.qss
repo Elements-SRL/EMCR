@@ -1256,8 +1256,10 @@ QWidget#gridContainer{
 }
 
 /* Docks floating: the window already has its own border, so some inner
-   borders are removed. QDockWidget's own "floating" property is used: when a
-   dock is floated or docked Qt re-polishes its content */
+   borders are removed. QDockWidget's own "floating" property is used, but Qt
+   does not re-evaluate these rules when a dock is floated or docked: the
+   widgets involved are marked "floatingAware" and re-polished by
+   MainWindow::setDockWidget */
 QDockWidget#chessboard[floating="true"] #gridContainer {
     border: none;
 }
@@ -1318,24 +1320,24 @@ QDockWidget#protocolDw[floating="true"] #ProtocolPropertyDialog {
 }
 
 QWidget#stampPlotCard[status="default"] {
-    background-color: @BG_APP; 
+    background-color: @BG_STAMP;
     border-radius: 6px;
-    border: 1px solid @BORDER_PANEL;
+    border: 1px solid @BORDER_STAMP;
 }
 
 QWidget#stampPlotCard[status="selected"] {
-    background-color: @BG_BTN_HOVER;
+    background-color: @BG_STAMP_SEL;
     border: 2px solid @ACCENT_BLUE;
     border-radius: 6px;
 }
 
 /* Canvas with the same solid color as the card */
 QWidget#stampPlotCanvas {
-    background-color: @BG_APP;
+    background-color: @BG_STAMP;
 }
 
 QWidget#stampPlotCard[status="selected"] QWidget#stampPlotCanvas {
-    background-color: @BG_BTN_HOVER;
+    background-color: @BG_STAMP_SEL;
 }
 
 QLabel#selectedChBox {

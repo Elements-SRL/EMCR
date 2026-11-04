@@ -368,12 +368,6 @@ void ChessboardController::onCurrentColorChanged(int channelIdx, QColor color) {
     plots[channelIdx]->setLegendColor(color);
 }
 
-//void ChessboardController::onBackgroundColorChanged(QColor color) {
-//    for (auto plot: plots) {
-//        plot->setCanvasBackground(color);
-//    }
-//}
-
 void ChessboardController::onSyncFaults(std::vector <bool> syncFaultFlags) {
     int boardIdx = 0;
     for (auto f : syncFaultFlags) {

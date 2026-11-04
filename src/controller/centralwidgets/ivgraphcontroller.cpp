@@ -245,13 +245,6 @@ void IvGraphController::onCurrentColorChanged(int channelIdx, QColor color) {
     fitCurves[channelIdx]->setColor(color);
 }
 
-void IvGraphController::onBackgroundColorChanged(QColor color) {
-    auto plot = bpvc->getPlot();
-    if (plot != nullptr) {
-        plot->setCanvasBackground(color);
-    }
-}
-
 void IvGraphController::onReplot() {
     auto plot = bpvc->getPlot();
     if (plot != nullptr) {

@@ -70,6 +70,15 @@ struct StampOverlayStyle {
         {StampPlot::StateTraceExpanded,              'E', "E"},
         {StampPlot::StatePlotDetailOn,               'P', "P"},
     };
+
+    /*! Background "Oscilloscope" like grid below the curve */
+    static constexpr int gridColumns = 4;
+    static constexpr int gridRows = 3;
+    static constexpr int gridInset = 2; /*!< the lines do not touch the edges */
+    static constexpr const char * gridColor = "@STAMP_GRID";
+
+    /*! Mini-plot curve */
+    static constexpr const char * curveColor = "@STAMP_CURVE";
 };
 
 #endif // STAMPOVERLAYSTYLE_H

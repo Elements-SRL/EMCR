@@ -192,6 +192,15 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@BDG_R_FG_CH", "#1e293b"}, {"@BDG_R_BG_CH", "#eab308"},
             {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", "#2563eb"},
 
+            // --- Plots ---
+            // Chessboard mini-plots
+            {"@BG_STAMP",      "#11161F"},
+            {"@BG_STAMP_SEL",  "#3A4A66"},
+            {"@BORDER_STAMP",  darkPalette["700"]},
+            {"@STAMP_GRID",    "#2A3344"},
+            {"@STAMP_CURVE",   "#CBD2E0"},
+            {"@PLOT_GRID",     "#3A4458"},
+
             // --- Badges for temperature sensor ---
             {"@BDG_NOR_FG", "#4ade80"}, {"@BDG_DEF_BG", "rgba(74, 222, 128, 15%)"},
             {"@BDG_WAR_FG", "#fbbf24"}, {"@BDG_WAR_BG", "rgba(251, 191, 36, 15%)"},
@@ -255,6 +264,15 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", lightAccentsPalette["Red"]},
             {"@BDG_R_FG_CH", "#FFFFFF"}, {"@BDG_R_BG_CH", lightAccentsPalette["Orange"]},
             {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", lightAccentsPalette["Blue"]},
+
+            // --- Plots ---
+            // Chessboard mini-plots as small screens
+            {"@BG_STAMP",      "#E3E8EE"},
+            {"@BG_STAMP_SEL",  "#CFE0F3"},
+            {"@BORDER_STAMP",  lightPalette["500"]},
+            {"@STAMP_GRID",    "#CBD3DC"},
+            {"@STAMP_CURVE",   lightPalette["100"]},
+            {"@PLOT_GRID",     "#C0C0C0"},
 
              // --- Badges for temperature sensor ---
             {"@BDG_NOR_FG", lightAccentsPalette["Green"]}, {"@BDG_NOR_BG", "rgba(22, 163, 74, 15%)"},

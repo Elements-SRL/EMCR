@@ -68,8 +68,10 @@ private:
      *  Draw is made by custom QPainter actions rather than stylized
      *  child widgets. */
     void drawOverlays(QPainter *p);
+    void drawGrid(QPainter *p);
     const QPixmap &namePixmap(qreal dpr);
     void invalidateOverlayCache();
+    void applyThemeToCurves();
     void requestReplot();
 
     int channelIdx = 0;

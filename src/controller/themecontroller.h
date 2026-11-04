@@ -49,6 +49,11 @@ public:
     // Returns an invalid QColor if the variable does not exist or is not a color.
     static QColor color(const QString &var);
 
+    // Current theme (for code that picks different values per theme, e.g. curve palette)
+    static Theme theme() {
+        return getInstance().currentTheme;
+    }
+
 private:
     ThemeController();
     ~ThemeController();

@@ -24,7 +24,6 @@ public:
 public slots:
     void onCurrentColorsChanged(QVector <QColor> colors);
     void onCurrentColorChanged(int channelIdx, QColor color);
-    void onBackgroundColorChanged(QColor color);
     void onExpandTrace(bool);
     void onRangeUpdated(RangedMeasurement_t newRange);
     void onProtocolStarted(unsigned int protId, ProtocolWidget * protocol);

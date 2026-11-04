@@ -1,6 +1,7 @@
 #include "curve.h"
 
 #include "qwt_symbol.h"
+#include "themecontroller.h"
 
 #include <QPen>
 
@@ -13,6 +14,12 @@ QPen curvePen(const QColor &color, double width, Qt::PenStyle style = Qt::SolidL
     QPen pen(color, width, style);
     pen.setCosmetic(true);
     return pen;
+}
+
+// Color of the chessboard mini-plot curve
+QColor stampCurveColor() {
+    const QColor c = ThemeController::color(QStringLiteral("@STAMP_CURVE"));
+    return c.isValid() ? c : QColor(Qt::white);
 }
 }
 
@@ -51,7 +58,7 @@ Curve::Curve(CurveType_t curveType, double size) :
         break;
 
     case CurveTypeStampPlotSolid:
-        color = QColor(Qt::white);
+        color = stampCurveColor();
         this->setPen(curvePen(color, size));
 
         symbol = new QwtSymbol(QwtSymbol::NoSymbol);
@@ -139,6 +146,10 @@ void Curve::setColor(QColor color) {
     case CurveTypePlotFaintDashed:
         color = QColor(Qt::darkGray);
         this->setPen(curvePen(color, size, Qt::DashLine));
+        break;
+
+    case CurveTypeStampPlotSolid:
+        this->setPen(curvePen(color, size));
         break;
 
     case CurveTypeAnalysisDashed:

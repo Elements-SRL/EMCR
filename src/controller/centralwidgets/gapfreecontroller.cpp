@@ -116,13 +116,6 @@ void GapFreeController::onCurrentColorChanged(int channelIdx, QColor color) {
     voltageCurves[channelIdx]->setColor(color);
 }
 
-void GapFreeController::onBackgroundColorChanged(QColor color) {    
-    auto plot = dbbovc->getPlot();
-    if (plot != nullptr) {
-        plot->setCanvasBackground(color);
-    }
-}
-
 void GapFreeController::onReplot() {
     auto plot = dbbovc->getPlot();
     if (plot != nullptr) {
