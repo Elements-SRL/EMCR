@@ -19,17 +19,6 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     centralWidget->setObjectName("deviceControlsCentralWidget");
     this->setWidget(centralWidget);
 
-    // Window border management when floating
-    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
-        if (isFloating) {
-            centralWidget->setStyleSheet("#deviceControlsScrollContainer { border: none; } "
-                                         "#filterHeaderOutput { border-bottom: none; border-left: none; border-right: none; }"
-                                         "#samplingHeaderOutput { border-left: none; border-right: none; }");
-        } else {
-            centralWidget->setStyleSheet("");
-        }
-    });
-
     QVBoxLayout* externalLayout = new QVBoxLayout(centralWidget);
     externalLayout->setContentsMargins(10, 0, 10, 10);
     externalLayout->setSpacing(0);
@@ -44,6 +33,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     QFrame * scrollContainer = new QFrame();
     scrollContainer->setObjectName("deviceControlsScrollContainer");
+    scrollContainer->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
 
     QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContainer);
     scrollLayout->setContentsMargins(0, 8, 0, 0);
@@ -312,6 +302,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     QFrame* samplingHeaderOutput = new QFrame();
     samplingHeaderOutput->setObjectName("samplingHeaderOutput");
+    samplingHeaderOutput->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QHBoxLayout* samplingHeaderOutputLayout = new QHBoxLayout(samplingHeaderOutput);
     samplingHeaderOutputLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -386,6 +377,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     QFrame* filterHeaderOutput = new QFrame();
     filterHeaderOutput->setObjectName("filterHeaderOutput");
+    filterHeaderOutput->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QHBoxLayout* filterHeaderOutputLayout = new QHBoxLayout(filterHeaderOutput);
     filterHeaderOutputLayout->setContentsMargins(0, 0, 0, 0);
 

@@ -1255,37 +1255,66 @@ QWidget#gridContainer{
     border-bottom: none;
 }
 
-QLabel#propertyBadgeChess{
-    color: @BG_PANEL;
-    border-radius: 2px;
-    font-weight: bold;
-    font-size: 10px;
+/* Docks floating: the window already has its own border, so some inner
+   borders are removed. QDockWidget's own "floating" property is used: when a
+   dock is floated or docked Qt re-polishes its content */
+QDockWidget#chessboard[floating="true"] #gridContainer {
+    border: none;
 }
 
-QLabel#propertyBadgeChess[propertyValue="E"] { background-color: @BDG_E_BG_CH; color: @BDG_E_FG_CH; }
-QLabel#propertyBadgeChess[propertyValue="P"] { background-color: @BDG_P_BG_CH; color: @BDG_P_FG_CH; }
-QLabel#propertyBadgeChess[propertyValue="O"] { background-color: @BDG_O_BG_CH; color: @BDG_O_FG_CH; }
-QLabel#propertyBadgeChess[propertyValue="X"] { background-color: @BDG_X_BG_CH; color: @BDG_X_FG_CH; }
-QLabel#propertyBadgeChess[propertyValue="C"] { background-color: @BDG_C_BG_CH; color: @BDG_C_FG_CH; }
-QLabel#propertyBadgeChess[propertyValue="J"] { background-color: @BDG_C_BG_CH; color: @BDG_C_FG_CH; }
-QLabel#propertyBadgeChess[propertyValue="R"] { background-color: @BDG_R_BG_CH; color: @BDG_R_FG_CH; }
-
-QWidget#badgeContainer{
-    background: transparent;
+QDockWidget#chessboard[floating="true"] #customTitleBar {
+    border-left: none;
+    border-right: none;
 }
 
-QWidget#badgeContainer QLabel{
-    background: @BG_BTN;
+QDockWidget#chessboard[floating="true"] #customFooter {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
 }
 
-QFrame#stampChannelIdx{
-    qproperty-palette: palette(window-text);
-    color: @BG_APP;
-    border: 1px solid @BORDER_PANEL;
-    border-radius: 2px;
-    background: @TEXT_LIGHT;
-    font-size: 12px;
-    font-weight: bold;
+QDockWidget#deviceControlsDw[floating="true"] #deviceControlsScrollContainer {
+    border: none;
+}
+
+QDockWidget#deviceControlsDw[floating="true"] #filterHeaderOutput {
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+
+QDockWidget#deviceControlsDw[floating="true"] #samplingHeaderOutput {
+    border-left: none;
+    border-right: none;
+}
+
+QDockWidget#multipleChannelControlsDw[floating="true"] #mainWrapper,
+QDockWidget#multipleChannelControlsDw[floating="true"] #customFooter,
+QDockWidget#multipleChannelControlsDw[floating="true"] #summaryContainer,
+QDockWidget#multipleChannelControlsDw[floating="true"] #selectionCounter {
+    border: none;
+}
+
+QDockWidget#singleChannelControlsDw[floating="true"] #operationHeader,
+QDockWidget#singleChannelControlsDw[floating="true"] #operationContainer,
+QDockWidget#singleChannelControlsDw[floating="true"] #operationButtonWidget,
+QDockWidget#singleChannelControlsDw[floating="true"] #singleChannelControlsScrollContainer {
+    border-left: none;
+    border-right: none;
+}
+
+QDockWidget#singleChannelControlsDw[floating="true"] #customFooter {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+QDockWidget#protocolDw[floating="true"] #crudButtonsBar,
+QDockWidget#protocolDw[floating="true"] #actionBar,
+QDockWidget#protocolDw[floating="true"] ProtocolList,
+QDockWidget#protocolDw[floating="true"] #ProtocolPropertyDialog {
+    border-left: none;
+    border-right: none;
 }
 
 QWidget#stampPlotCard[status="default"] {
@@ -1300,14 +1329,13 @@ QWidget#stampPlotCard[status="selected"] {
     border-radius: 6px;
 }
 
+/* Canvas with the same solid color as the card */
 QWidget#stampPlotCanvas {
-    background-color: transparent;
+    background-color: @BG_APP;
 }
 
-QFrame#colorChannel{
-    background-color: rgb(255, 255, 255);
-    border-radius: 4px;
-    border: 0.5px solid @BORDER_PANEL;
+QWidget#stampPlotCard[status="selected"] QWidget#stampPlotCanvas {
+    background-color: @BG_BTN_HOVER;
 }
 
 QLabel#selectedChBox {

@@ -14,6 +14,7 @@ ThemeController& ThemeController::getInstance() {
 
 void ThemeController::applyTheme(Theme theme) {
     this->currentTheme = theme;
+    this->colorCache.clear();
     QString qssPath = ":/styles/emcr_base.qss";
     QString processedQss = loadAndProcessQss(qssPath, theme);
     qApp->setStyleSheet(processedQss);
@@ -269,3 +270,59 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
     return variables;
 }
 
+// Converts colors into QColor. Used by QPainter which needs theme colors via code.
+// Manages ("#RRGGBB", SVG names) also "rgb(r, g, b)" and "rgba(r, g, b, a)" as QSS does,
+// with alpha channel support like ("70%"), in 0..1 ("0.7") or based in 0..255.
+static QColor parseQssColor(const QString &value) {
+    const QString s = value.trimmed();
+    if (s.startsWith(QLatin1String("rgb"), Qt::CaseInsensitive)) {
+        const int open = s.indexOf('(');
+        const int close = s.lastIndexOf(')');
+        if (open < 0 || close <= open) {
+            return QColor();
+        }
+        const QStringList parts = s.mid(open + 1, close - open - 1).split(',');
+        if (parts.size() < 3) {
+            return QColor();
+        }
+        auto component = [](QString part, bool isAlpha) -> int {
+            part = part.trimmed();
+            bool ok = false;
+            if (part.endsWith('%')) {
+                const double pct = part.chopped(1).trimmed().toDouble(&ok);
+                return ok ? qBound(0, qRound(pct * 255.0 / 100.0), 255) : -1;
+            }
+            const double v = part.toDouble(&ok);
+            if (!ok) {
+                return -1;
+            }
+            if (isAlpha && part.contains('.') && v <= 1.0) {
+                return qBound(0, qRound(v * 255.0), 255);
+            }
+            return qBound(0, qRound(v), 255);
+        };
+        const int r = component(parts[0], false);
+        const int g = component(parts[1], false);
+        const int b = component(parts[2], false);
+        const int a = parts.size() >= 4 ? component(parts[3], true) : 255;
+        if (r < 0 || g < 0 || b < 0 || a < 0) {
+            return QColor();
+        }
+        return QColor(r, g, b, a);
+    }
+    return QColor::fromString(s);
+}
+
+QColor ThemeController::color(const QString &var) {
+    ThemeController &self = getInstance();
+    if (self.colorCache.isEmpty()) {
+        const QMap<QString, QString> palette = getPalette(self.currentTheme);
+        for (auto it = palette.cbegin(); it != palette.cend(); ++it) {
+            const QColor c = parseQssColor(it.value());
+            if (c.isValid()) {
+                self.colorCache.insert(it.key(), c);
+            }
+        }
+    }
+    return self.colorCache.value(var);
+}

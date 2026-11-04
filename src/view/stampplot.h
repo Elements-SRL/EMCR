@@ -2,6 +2,9 @@
 #define STAMPPLOT_H
 
 #include <QMouseEvent>
+#include <QColor>
+#include <QPixmap>
+#include <QString>
 
 #include "qlabel.h"
 #include "qwt_plot.h"
@@ -46,26 +49,40 @@ public:
     void setName(std::string name);
     void drawCanvas(QPainter * p) override;
 
+    /*! Replot for new data. Plots that are not on screen (hidden, scrolled out,
+     *  minimized window) are only marked dirty and redrawn when they are painted. */
+    void replotData();
+    bool takeDataDirty();
+
 public slots:
     void onRangeUpdated(e384cl::RangedMeasurement_t newRange);
     void onDurationUpdated(e384cl::Measurement_t duration);
 
 protected:
-    virtual void resizeEvent(QResizeEvent * e) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
 private:
-    void handleLabelsPosition();
+    
+    /*! Custom overlay drawing - status badges, channel name etc.
+     *  Draw is made by custom QPainter actions rather than stylized
+     *  child widgets. */
+    void drawOverlays(QPainter *p);
+    const QPixmap &namePixmap(qreal dpr);
+    void invalidateOverlayCache();
+    void requestReplot();
+
     int channelIdx = 0;
     int idealPlotWidth;
     int idealPlotHeight;
 
-    QWidget * badgeContainer;
     States_t state = StateNoEffects;
-    std::map<QString, QLabel*> m_badgeMap;
+    QString channelName;
+    QColor legendColor = Qt::white;
 
-    QwtTextLabel * channelIdxLbl;
-    QwtTextLabel * stateLbl;
+    QPixmap nameCache;          // name box already rendered (for the current DPR)
+    bool replotPending = false;
+    bool dataDirty = false;
 
     QPointF pickerFirstCornerPos;
 
@@ -77,7 +94,6 @@ private:
 
     int xAxisMaxMajor;
     int yAxisMaxMajor;
-    QFrame * colorLabel = nullptr;
 
 signals:
     void clicked(QMouseEvent *event);

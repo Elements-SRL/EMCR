@@ -338,7 +338,7 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
 
 void ChessboardController::onReplot() {
     for (auto plot : plots) {
-        plot->replot();
+        plot->replotData();
     }
 }
 

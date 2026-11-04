@@ -24,6 +24,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     // TOP BAR - CRUD Buttons
     QWidget* crudButtonsBar = new QWidget();
     crudButtonsBar->setObjectName("crudButtonsBar");
+    crudButtonsBar->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
 
     QHBoxLayout * crudToolbarLayout = new QHBoxLayout(crudButtonsBar);
     crudToolbarLayout->setSpacing(6);
@@ -33,6 +34,7 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     // MIDDLE - Action bar
     QWidget* actionBar = new QWidget();
     actionBar->setObjectName("actionBar");
+    actionBar->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
 
     QVBoxLayout * actionBarLayout = new QVBoxLayout(actionBar);
     actionBarLayout->setSpacing(6);
@@ -60,6 +62,13 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
     analysisVoltageProtocolList = new AnalysisVoltageProtocolList(msgDisp, protocolPropertyDialog, parent);
     currentProtocolList = new CurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
     analysisCurrentProtocolList = new AnalysisCurrentProtocolList(msgDisp, protocolPropertyDialog, parent);
+
+    // Borders depend on the dock floating state, see MainWindow::setDockWidget
+    for (QWidget * w : std::initializer_list<QWidget *>{voltageProtocolList, analysisVoltageProtocolList,
+                                                        currentProtocolList, analysisCurrentProtocolList,
+                                                        protocolPropertyDialog}) {
+        w->setProperty("floatingAware", true);
+    }
 
     QSplitter * mainSpl = new QSplitter(Qt::Vertical, this);
     mainVl->addWidget(mainSpl);

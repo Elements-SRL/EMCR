@@ -284,6 +284,7 @@ add_executable(EMCR WIN32
     src/view/rect4.h
     src/view/singlechannelcontroldockwidget.h
     src/view/stampplot.h
+    src/view/stampoverlaystyle.h
     src/view/boardcontroldockwidget.h
     src/view/devicecontroldockwidget.h
     src/view/statearray/statearraydockwidget.h

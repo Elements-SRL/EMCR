@@ -21,19 +21,6 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     this->setWidget(centralWidget);
 
-    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
-        if (isFloating) {
-            centralWidget->setStyleSheet("#operationHeader { border-left: none; border-right: none; }"
-                                         "#operationContainer { border-left: none; border-right: none; }"
-                                         "#operationButtonWidget { border-left: none; border-right: none; }"
-                                         "#customFooter {border-left: none; border-right: none; border-bottom: none;}"
-                                         "#singleChannelControlsScrollContainer {border-left: none; border-right: none;}");
-        } else {
-            centralWidget->setStyleSheet("");
-        }
-    });
-
-
     voltageChannelsNum = appStatus->getVoltageChannelsNum();
     currentChannelsNum = appStatus->getCurrentChannelsNum();
 
@@ -52,6 +39,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     QFrame* operationContainer = new QFrame();
     operationContainer->setObjectName("operationContainer");
+    operationContainer->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QHBoxLayout* operationContainerLayout = new QHBoxLayout(operationContainer);
     operationContainerLayout->setContentsMargins(8, 4, 8, 4);
 
@@ -63,6 +51,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     QFrame * operationHeader = new QFrame();
     operationHeader->setObjectName("operationHeader");
+    operationHeader->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QHBoxLayout* operationHeaderLayout = new QHBoxLayout(operationHeader);
     operationHeaderLayout->setContentsMargins(10, 10, 48, 10);
 
@@ -137,6 +126,7 @@ SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus
 
     QFrame* footerFrame = new QFrame();
     footerFrame->setObjectName("customFooter");
+    footerFrame->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QHBoxLayout* applyBtnLayout = new QHBoxLayout(footerFrame);
     applyBtnLayout->setContentsMargins(8, 8, 8, 8);
 
@@ -587,6 +577,7 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
 QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx] = new QWidget;
     operationButtonWidgets[idx]->setObjectName("operationButtonWidget");
+    operationButtonWidgets[idx]->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     std::vector <RangedMeasurement_t> ranges;
     uint16_t _;
     auto msgDisp = appStatus->getMessageDispatcher();
@@ -673,6 +664,7 @@ QVBoxLayout * SingleChannelControlDockWidget::getLayoutWithScrollBar(QWidget * w
     QFrame * scrollWg = new QFrame;
     scrollArea->setWidget(scrollWg);
     scrollWg->setObjectName("singleChannelControlsScrollContainer");
+    scrollWg->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
 
     QVBoxLayout * scrollVl = new QVBoxLayout;
     scrollVl->setContentsMargins(2, 8, 2, 0);
