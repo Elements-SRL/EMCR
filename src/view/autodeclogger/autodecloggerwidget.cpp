@@ -81,15 +81,18 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     timeField           = new QDoubleSpinBox(); timeField->setMaximum(20000); timeField->setDecimals(0);    /* Declogging time */
     timeBelowThreshold  = new QDoubleSpinBox(); timeBelowThreshold->setMaximum(20000); timeBelowThreshold->setDecimals(0);  /* Time below threshold */
 
-    /* Initial values */
-    voltageField->setValue(-100.0);
-    timeField->setValue(500.0);
-    timeBelowThreshold->setValue(500.0);
-
     addRow(0, QStringLiteral("Current threshold (%1)").arg(QString::fromStdString(cr.getFullUnit())), thField);
     addRow(1, QStringLiteral("Declogging stimulus (%1)").arg(QString::fromStdString(vr.getFullUnit())), voltageField);
     addRow(2, QStringLiteral("Declogging time (ms)"), timeField);
     addRow(3, QStringLiteral("Time below threshold (ms)"), timeBelowThreshold);
+
+    /* Force 0 based range for current */
+    thField->setMinimum(0.0);
+
+    /* Initial values */
+    voltageField->setValue(-100.0);
+    timeField->setValue(500.0);
+    timeBelowThreshold->setValue(500.0);
 
     grid->setColumnStretch(0, 0);
     grid->setColumnStretch(1, 1);
