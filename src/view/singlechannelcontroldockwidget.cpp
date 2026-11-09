@@ -311,30 +311,24 @@ void SingleChannelControlDockWidget::onSetAllButtonClicked() {
 void SingleChannelControlDockWidget::onVcVoltageRangeSelected() {
     std::vector <RangedMeasurement_t> ranges;
     auto msgDisp = appStatus->getMessageDispatcher();
-    QString unit = "";
     auto maxRange = this->getAppStatus()->getMaxVoltageRange();
     /*! \todo FCON possibili inconsistenza di unità tra range del tasto set all e tasti per i singoli canali */
     if (msgDisp->getVoltageHoldTunerFeatures(ranges) == Success) {
         holdingTunerRange = this->getAppStatus()->getVoltageRanges();
-        unit = QString().fromStdString(maxRange.getFullUnit());
-        setAllChannelsSbxs[OperationHoldingStimulus]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationHoldingStimulus]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx += stimulusBlockSize) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
         }
     }
 
     if (setAllChannelsSbxs[OperationStimulusHalf] != nullptr) {
-        setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationStimulusHalf]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
         }
@@ -343,13 +337,10 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected() {
     if (msgDisp->getLiquidJunctionRangesFeatures(ranges) == Success) {
         /*! \todo FCON stiamo dando per scontato che il range per la liquid junction sia uguale al  range del DAC */
         liquidJunctionRange = maxRange;
-        unit = QString().fromStdString(liquidJunctionRange.getFullUnit());
-        setAllChannelsSbxs[OperationLiquidJunction]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationLiquidJunction]->setRange(liquidJunctionRange.min, liquidJunctionRange.max);
         setAllChannelsSbxs[OperationLiquidJunction]->setDecimals(liquidJunctionRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationLiquidJunction][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(liquidJunctionRange.min, liquidJunctionRange.max);
             sbx->setDecimals(liquidJunctionRange.decimals());
         }
@@ -357,22 +348,17 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected() {
 
     if (msgDisp->getVoltageRampTunerFeatures(ranges, stimulusDurationRange) == Success) {
         holdingTunerRange = this->getAppStatus()->getVoltageRanges();
-        unit = QString().fromStdString(maxRange.getFullUnit());
-        setAllChannelsSbxs[OperationInitialStimulusRamp]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationInitialStimulusRamp]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationInitialStimulusRamp]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationInitialStimulusRamp][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
         }
-        setAllChannelsSbxs[OperationFinalStimulusRamp]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationFinalStimulusRamp]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationFinalStimulusRamp]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationFinalStimulusRamp][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
         }
@@ -382,24 +368,19 @@ void SingleChannelControlDockWidget::onVcVoltageRangeSelected() {
 void SingleChannelControlDockWidget::onVcCurrentRangeSelected() {
     std::vector <RangedMeasurement_t> ranges;
     auto msgDisp = appStatus->getMessageDispatcher();
-    QString unit = "";
     uint16_t _;
     auto maxRange = this->getAppStatus()->getMaxCurrentRange();
     if (msgDisp->getVCCurrentRanges(ranges, _) == Success) {
         offsetRecalibrationRange = this->getAppStatus()->getCurrentRanges();
-        unit = QString().fromStdString(maxRange.getFullUnit());
-        setAllChannelsSbxs[OperationOffsetRecalibration]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationOffsetRecalibration]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationOffsetRecalibration]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationOffsetRecalibration][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(offsetRecalibrationRange[channelIdx].min, offsetRecalibrationRange[channelIdx].max);
             sbx->setDecimals(offsetRecalibrationRange[channelIdx].decimals());
         }
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationOffsetTracking][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(offsetRecalibrationRange[channelIdx].min, offsetRecalibrationRange[channelIdx].max);
             sbx->setDecimals(offsetRecalibrationRange[channelIdx].decimals());
         }
@@ -409,29 +390,23 @@ void SingleChannelControlDockWidget::onVcCurrentRangeSelected() {
 void SingleChannelControlDockWidget::onCcCurrentRangeSelected() {
     std::vector <RangedMeasurement_t> ranges;
     auto msgDisp = appStatus->getMessageDispatcher();
-    QString unit = "";
     auto maxRange = this->getAppStatus()->getMaxCurrentRange();
     if (msgDisp->getCurrentHoldTunerFeatures(ranges) == Success) {
         holdingTunerRange = this->getAppStatus()->getCurrentRanges();
-        unit = QString().fromStdString(maxRange.getFullUnit());
-        setAllChannelsSbxs[OperationHoldingStimulus]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationHoldingStimulus]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationHoldingStimulus]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx += stimulusBlockSize) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationHoldingStimulus][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
         }
     }
 
     if (setAllChannelsSbxs[OperationStimulusHalf] != nullptr) {
-        setAllChannelsSbxs[OperationStimulusHalf]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationStimulusHalf]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationStimulusHalf]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationStimulusHalf][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(holdingTunerRange[channelIdx].min, holdingTunerRange[channelIdx].max);
             sbx->setDecimals(holdingTunerRange[channelIdx].decimals());
         }
@@ -441,24 +416,19 @@ void SingleChannelControlDockWidget::onCcCurrentRangeSelected() {
 void SingleChannelControlDockWidget::onCcVoltageRangeSelected() {
     std::vector <RangedMeasurement_t> ranges;
     auto msgDisp = appStatus->getMessageDispatcher();
-    QString unit = "";
     uint16_t _;
     auto maxRange = this->getAppStatus()->getMaxVoltageRange();
     if (msgDisp->getCCVoltageRanges(ranges, _) == Success) {
         offsetRecalibrationRange = this->getAppStatus()->getVoltageRanges();
-        unit = QString().fromStdString(maxRange.getFullUnit());
-        setAllChannelsSbxs[OperationOffsetRecalibration]->setSuffix(QString(" ") + unit);
         setAllChannelsSbxs[OperationOffsetRecalibration]->setRange(maxRange.min, maxRange.max);
         setAllChannelsSbxs[OperationOffsetRecalibration]->setDecimals(maxRange.decimals());
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationOffsetRecalibration][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(offsetRecalibrationRange[channelIdx].min, offsetRecalibrationRange[channelIdx].max);
             sbx->setDecimals(offsetRecalibrationRange[channelIdx].decimals());
         }
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = static_cast <SpinBoxWithChannel *> (operationEdits[OperationOffsetTracking][channelIdx])->getSpinBox();
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(offsetRecalibrationRange[channelIdx].min, offsetRecalibrationRange[channelIdx].max);
             sbx->setDecimals(offsetRecalibrationRange[channelIdx].decimals());
         }
@@ -541,11 +511,10 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     if (idx == OperationHoldingStimulus && stimulusBlockSize > 1) {
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx += stimulusBlockSize) {
             NoWheelSpinBox * sbx = new NoWheelSpinBox;
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(ranges[0].min, ranges[0].max);
             sbx->setValue(0.0);
             sbx->setDecimals(ranges[0].decimals());
-            SpinBoxWithChannel * widget = new SpinBoxWithChannel(names[channelIdx] + " - " + names[channelIdx+stimulusBlockSize-1], sbx);
+            SpinBoxWithChannel * widget = new SpinBoxWithChannel(names[channelIdx] + " - " + names[channelIdx+stimulusBlockSize-1], sbx, &unit);
             widget->setVisible(selectedChannels[channelIdx]);
 
             scrollVl->addWidget(widget);
@@ -555,11 +524,10 @@ QWidget * SingleChannelControlDockWidget::createOperationWidget(int idx) {
     else {
         for (int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             NoWheelSpinBox * sbx = new NoWheelSpinBox;
-            sbx->setSuffix(QString(" ") + unit);
             sbx->setRange(ranges[0].min, ranges[0].max);
             sbx->setValue(0.0);
             sbx->setDecimals(ranges[0].decimals());
-            SpinBoxWithChannel * widget = new SpinBoxWithChannel(names[channelIdx], sbx);
+            SpinBoxWithChannel * widget = new SpinBoxWithChannel(names[channelIdx], sbx, &unit);
             widget->setVisible(selectedChannels[channelIdx]);
 
             scrollVl->addWidget(widget);
@@ -634,11 +602,10 @@ QWidget * SingleChannelControlDockWidget::createOperationButtonWidget(int idx) {
     operationButtonWidgets[idx]->setLayout(operationButtonGridLayout);
     QString unit = QString().fromStdString(ranges[0].getFullUnit());
     setAllChannelsSbxs[idx] = new NoWheelSpinBox;
-    setAllChannelsSbxs[idx]->setSuffix(QString(" ") + unit);
     setAllChannelsSbxs[idx]->setRange(ranges[0].min, ranges[0].max);
     setAllChannelsSbxs[idx]->setValue(0.0);
     setAllChannelsSbxs[idx]->setDecimals(ranges[0].decimals());
-    setAllWidgets[idx] = new SpinBoxWithChannel("", setAllChannelsSbxs[idx]);
+    setAllWidgets[idx] = new SpinBoxWithChannel("", setAllChannelsSbxs[idx], &unit);
     QPushButton * setAllBtn = new QPushButton("Set all channels");
     connect(setAllBtn, &QPushButton::clicked, this, &SingleChannelControlDockWidget::onSetAllButtonClicked);
     operationButtonGridLayout->addWidget(setAllWidgets[idx], 0, 1);
@@ -721,18 +688,30 @@ void SingleChannelControlDockWidget::onBoardMappingsLoaded() {
     }
 }
 
-SpinBoxWithChannel::SpinBoxWithChannel(std::string title, NoWheelSpinBox * sbx) :
+SpinBoxWithChannel::SpinBoxWithChannel(std::string title, NoWheelSpinBox * sbx, const QString * sbxUnit) :
     valueSbx(sbx) {
 
-    QHBoxLayout * hl = new QHBoxLayout;
-    hl->setContentsMargins(8, 0, 8, 0);
-    hl->setSpacing(2);
-    this->setLayout(hl);
+    QGridLayout* grid = new QGridLayout();
+    grid->setContentsMargins(8, 4, 8, 4);
+    grid->setHorizontalSpacing(8);
+    grid->setVerticalSpacing(3);
+    this->setLayout(grid);
 
     channelLbl = new QLabel(QString::fromStdString(title));
-    hl->addWidget(channelLbl);
+    unitMeasure = new QLabel(*sbxUnit);
 
-    hl->addWidget(sbx);
+    grid->addWidget(channelLbl, 0, 0);
+    grid->addWidget(sbx, 0, 1);
+    grid->addWidget(unitMeasure, 0, 2);
+
+    grid->setColumnStretch(0, 1);
+    grid->setColumnStretch(1, 0);
+    grid->setColumnStretch(2, 0);
+
+    unitMeasure->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    sbx->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    sbx->setMinimumWidth(sbx->sizeHint().width());
+
 }
 
 NoWheelSpinBox * SpinBoxWithChannel::getSpinBox() {

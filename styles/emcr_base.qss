@@ -1255,70 +1255,6 @@ QWidget#gridContainer{
     border-bottom: none;
 }
 
-/* Docks floating: the window already has its own border, so some inner
-   borders are removed. QDockWidget's own "floating" property is used, but Qt
-   does not re-evaluate these rules when a dock is floated or docked: the
-   widgets involved are marked "floatingAware" and re-polished by
-   MainWindow::setDockWidget */
-QDockWidget#chessboard[floating="true"] #gridContainer {
-    border: none;
-}
-
-QDockWidget#chessboard[floating="true"] #customTitleBar {
-    border-left: none;
-    border-right: none;
-}
-
-QDockWidget#chessboard[floating="true"] #customFooter {
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
-}
-
-QDockWidget#deviceControlsDw[floating="true"] #deviceControlsScrollContainer {
-    border: none;
-}
-
-QDockWidget#deviceControlsDw[floating="true"] #filterHeaderOutput {
-    border-bottom: none;
-    border-left: none;
-    border-right: none;
-}
-
-QDockWidget#deviceControlsDw[floating="true"] #samplingHeaderOutput {
-    border-left: none;
-    border-right: none;
-}
-
-QDockWidget#multipleChannelControlsDw[floating="true"] #mainWrapper,
-QDockWidget#multipleChannelControlsDw[floating="true"] #customFooter,
-QDockWidget#multipleChannelControlsDw[floating="true"] #summaryContainer,
-QDockWidget#multipleChannelControlsDw[floating="true"] #selectionCounter {
-    border: none;
-}
-
-QDockWidget#singleChannelControlsDw[floating="true"] #operationHeader,
-QDockWidget#singleChannelControlsDw[floating="true"] #operationContainer,
-QDockWidget#singleChannelControlsDw[floating="true"] #operationButtonWidget,
-QDockWidget#singleChannelControlsDw[floating="true"] #singleChannelControlsScrollContainer {
-    border-left: none;
-    border-right: none;
-}
-
-QDockWidget#singleChannelControlsDw[floating="true"] #customFooter {
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
-}
-
-QDockWidget#protocolDw[floating="true"] #crudButtonsBar,
-QDockWidget#protocolDw[floating="true"] #actionBar,
-QDockWidget#protocolDw[floating="true"] ProtocolList,
-QDockWidget#protocolDw[floating="true"] #ProtocolPropertyDialog {
-    border-left: none;
-    border-right: none;
-}
-
 QWidget#stampPlotCard[status="default"] {
     background-color: @BG_STAMP;
     border-radius: 6px;
@@ -1349,6 +1285,92 @@ QLabel#selectedChBox {
 QLabel#selectedChLabel,
 QLabel#totalChannelsLabel {
     color: @TEXT_SECONDARY;
+}
+
+/* ========================================= */
+/* --- FLOATING WIDGET BORDER MANAGEMENT --- */
+/* ========================================= */
+
+/* Docks floating: the window already has its own border, so some inner
+   borders are removed. QDockWidget's own "floating" property is used, but Qt
+   does not re-evaluate these rules when a dock is floated or docked: the
+   widgets involved are marked "floatingAware" and re-polished by
+   MainWindow::setDockWidget */
+
+/* CHANNELS OVERVIEW */
+QDockWidget#chessboard[floating="true"] #gridContainer {
+    border: none;
+}
+
+QDockWidget#chessboard[floating="true"] #customTitleBar {
+    border-left: none;
+    border-right: none;
+}
+
+QDockWidget#chessboard[floating="true"] #customFooter {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+/* DEVICE CONTROLS */
+QDockWidget#deviceControlsDw[floating="true"] #deviceControlsScrollContainer {
+    border: none;
+}
+
+QDockWidget#deviceControlsDw[floating="true"] #filterHeaderOutput {
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+
+QDockWidget#deviceControlsDw[floating="true"] #samplingHeaderOutput {
+    border-left: none;
+    border-right: none;
+}
+
+/*  MULTIPLECHANNEL */
+QDockWidget#multipleChannelControlsDw[floating="true"] #mainWrapper,
+QDockWidget#multipleChannelControlsDw[floating="true"] #customFooter,
+QDockWidget#multipleChannelControlsDw[floating="true"] #summaryContainer,
+QDockWidget#multipleChannelControlsDw[floating="true"] #selectionCounter {
+    border: none;
+}
+
+/*  SINGLECHANNEL */
+QDockWidget#singleChannelControlsDw[floating="true"] #operationHeader,
+QDockWidget#singleChannelControlsDw[floating="true"] #operationContainer,
+QDockWidget#singleChannelControlsDw[floating="true"] #operationButtonWidget,
+QDockWidget#singleChannelControlsDw[floating="true"] #singleChannelControlsScrollContainer {
+    border-left: none;
+    border-right: none;
+}
+
+QDockWidget#singleChannelControlsDw[floating="true"] #customFooter {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+
+/* VOLTAGEPROTOCOLS */
+QDockWidget#protocolDw[floating="true"] #crudButtonsBar,
+QDockWidget#protocolDw[floating="true"] #actionBar,
+QDockWidget#protocolDw[floating="true"] ProtocolList,
+QDockWidget#protocolDw[floating="true"] #ProtocolPropertyDialog {
+    border-left: none;
+    border-right: none;
+}
+
+/* AUTODECLOGGER */
+QDockWidget#autoDeclogger[floating="true"] #autodecloggerScrollContainer {
+    border: none;
+}
+
+QDockWidget#autoDeclogger[floating="true"] #poreHeaderContainer {
+    border-bottom: none; 
+    border-left: none; 
+    border-right: none;
 }
 
 

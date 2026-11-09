@@ -366,14 +366,12 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
     cutoffLayout->setSpacing(4);
     filterSectionLayout->addLayout(cutoffLayout);
 
-
-    QLabel * cutoffLbl = new QLabel("Cut-Off Freq.");
+    cutoffLbl = new QLabel("Cut-Off Freq.");
     cutoffLayout->addWidget(cutoffLbl);
     cutoffLayout->addStretch();
 
     digFiltCutoffFreqSbx = new QDoubleSpinBox;
     cutoffLayout->addWidget(digFiltCutoffFreqSbx);
-
 
     QFrame* filterHeaderOutput = new QFrame();
     filterHeaderOutput->setObjectName("filterHeaderOutput");

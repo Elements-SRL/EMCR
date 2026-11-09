@@ -195,7 +195,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     minDurationInus->setMaximum(100000.0);
     minDuration.convertValue(UnitPfxMicro);
     minDurationInus->setValue(minDuration.value);
-    minDurationLabel->setText("Min event duration [" + QString::fromStdString(minDuration.getFullUnit()) + "]");
+    minDurationLabel->setText("Min event duration (" + QString::fromStdString(minDuration.getFullUnit()) + ")");
 
     QLabel* maxDurationLabel = new QLabel();
     maxDurationInus = new QDoubleSpinBox();
@@ -205,7 +205,7 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     maxDurationInus->setMaximum(100000.0);
     maxDuration.convertValue(UnitPfxMicro);
     maxDurationInus->setValue(maxDuration.value);
-    maxDurationLabel->setText("Max event duration [" + QString::fromStdString(maxDuration.getFullUnit()) + "]");
+    maxDurationLabel->setText("Max event duration (" + QString::fromStdString(maxDuration.getFullUnit()) + ")");
 
     QLabel* amplitudeBinsLabel = new QLabel("Number of amplitude bins");
     amplitudeBins = new QSpinBox();
@@ -232,9 +232,9 @@ EventDetectionWidget::EventDetectionWidget(double maxCutoffFrequency,
     setMaxAmplitude(defaultMaxAmplitude);
     setCurrentRange(currentRange);
     setDuration(maxDuration);
-    maxBinAmplitudeLabel->setText("Max amplitude [" + QString::fromStdString(amplitudeUom) + "]");
+    maxBinAmplitudeLabel->setText("Max amplitude (" + QString::fromStdString(amplitudeUom) + ")");
 
-    QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency [Hz]");
+    QLabel* cutoffFrequencyLabel = new QLabel("Cutoff frequency (Hz)");
     cutoffFrequencySpinbox = new QDoubleSpinBox();
     inputCol->addWidget(cutoffFrequencyLabel);
     inputCol->addWidget(cutoffFrequencySpinbox);
