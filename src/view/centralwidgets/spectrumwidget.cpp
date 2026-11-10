@@ -15,80 +15,91 @@ SpectrumWidget::SpectrumWidget(uint32_t channelsNum, BigPlot* plot, QWidget * pa
     outerLayout->addWidget(splitter);
     splitter->addWidget(plot);
 
-    auto containerWidget = new QWidget(this);
-    auto mainVl = new QVBoxLayout(containerWidget);
-    splitter->addWidget(containerWidget);
-
+    auto sideWidget = new QWidget(this);
+    auto mainLayout = new QVBoxLayout(sideWidget);
+    mainLayout->setContentsMargins(18, 10, 10, 10);
+    mainLayout->setSpacing(12);
+    splitter->addWidget(sideWidget);
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 0);
 
-    auto buttonsHl = new QHBoxLayout();
+    // --- Section 1. CONTROLS
+    auto controlsTitle = new QLabel("ANALYSIS CONTROLS", sideWidget);
+    controlsTitle->setObjectName("controlsTitle");
+    mainLayout->addWidget(controlsTitle);
+
+    auto controlsRow = new QHBoxLayout();
+    controlsRow->setAlignment(Qt::AlignLeft);
+    controlsRow->setSpacing(8);
+    mainLayout->addLayout(controlsRow);
 
     auto startButton = new QPushButton(this);
     startButton->setObjectName("startButton");
+    startButton->setText(" START");
     startButton->setToolTip("Start the spectrum analysis if it was previously stopped");
-    startButton->setIconSize(QSize(30, 30));
-    startButton->setFixedSize(32, 32);
-    buttonsHl->addWidget(startButton);
+    controlsRow->addWidget(startButton);
     connect(startButton, &QPushButton::clicked, this, &SpectrumWidget::sigStartPressed);
 
     auto stopButton = new QPushButton(this);
     stopButton->setObjectName("stopButton");
-    stopButton->setToolTip("Stop the spectrum analysis if it was previously strted");
-    stopButton->setIconSize(QSize(30, 30));
-    stopButton->setFixedSize(32, 32);
-    buttonsHl->addWidget(stopButton);
+    stopButton->setText(" STOP");
+    stopButton->setToolTip("Stop the spectrum analysis if it was previously started");
+    controlsRow->addWidget(stopButton);
     connect(stopButton, &QPushButton::clicked, this, &SpectrumWidget::sigStopPressed);
 
-    auto exportButton = new QPushButton(this);
-    exportButton->setObjectName("exportCsvButton");
-    exportButton->setToolTip("Export to csv");
-    exportButton->setIconSize(QSize(30, 30));
-    exportButton->setFixedSize(32, 32);
-    buttonsHl->addWidget(exportButton);
-    connect(exportButton, &QPushButton::clicked, this, &SpectrumWidget::sigExportSpectrum);
+    // Vertical Separator
+    QFrame* vline = new QFrame(sideWidget);
+    vline->setObjectName("lineSeparator");
+    vline->setFrameShape(QFrame::VLine);
+    controlsRow->addWidget(vline);
 
-    {
-        auto spacer = new QWidget;
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        buttonsHl->addWidget(spacer);
-    }
+    auto btnAutoZoom = new QPushButton("   Zoom");
+    btnAutoZoom->setObjectName("autoZoom");
+    btnAutoZoom->setToolTip("Auto zoom");
+    btnAutoZoom->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    btnAutoZoom->setCursor(Qt::PointingHandCursor);
+    connect(btnAutoZoom, &QPushButton::clicked, this, &SpectrumWidget::sigAutoZoom);
+    controlsRow->addWidget(btnAutoZoom);
+    mainLayout->addLayout(controlsRow);
 
-    mainVl->addLayout(buttonsHl);
+    // Separator
+    QFrame* line = new QFrame(sideWidget);
+    line->setObjectName("lineSeparator");
+    line->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(line);
 
-    mainVl->addWidget(new QLabel("Integration window [s]"));
+    // --- Section 2. INTEGRATION WINDOW
+    auto intWindowTitle = new QLabel("Integration window", sideWidget);
+    intWindowTitle->setObjectName("controlsTitle");
+    mainLayout->addWidget(intWindowTitle);
+
+    auto integrationRow = new QHBoxLayout();
+    integrationRow->setAlignment(Qt::AlignLeft | Qt::AlignHCenter);
+    integrationRow->setSpacing(6);
+    mainLayout->addLayout(integrationRow);
 
     integrationWindowS = new QDoubleSpinBox;
     integrationWindowS->setRange(0.5, 10.0);
     integrationWindowS->setValue(0.5);
 
-    mainVl->addWidget(integrationWindowS);
+    integrationRow->addWidget(new QLabel("Int. window (s)"));
+    integrationRow->addWidget(integrationWindowS);
+
+    auto exportButton = new QPushButton(this);
+    exportButton->setObjectName("exportCsvButton");
+    exportButton->setText(" EXPORT");
+    exportButton->setToolTip("Export to csv");
+    exportButton->setFixedSize(80, 32);
+    connect(exportButton, &QPushButton::clicked, this, &SpectrumWidget::sigExportSpectrum);
+    integrationRow->addWidget(exportButton);
 
     connect(integrationWindowS, &QDoubleSpinBox::editingFinished, this, [=]() {
         const auto value = integrationWindowS->value();
         emit sigIntegrationWindowChanged(value);
     });
 
-    auto zoomButtonsHl = new QHBoxLayout();
-
-    auto autoZoomButton = new QPushButton(this);
-    autoZoomButton->setIcon(QIcon(QPixmap(":/imgs/zoom full.png")));
-    autoZoomButton->setToolTip("Auto zoom");
-    autoZoomButton->setIconSize(QSize(30, 30));
-    autoZoomButton->setFixedSize(32, 32);
-    zoomButtonsHl->addWidget(autoZoomButton);
-    connect(autoZoomButton, &QPushButton::clicked, this, &SpectrumWidget::sigAutoZoom);
-
-    {
-        auto spacer = new QWidget;
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        zoomButtonsHl->addWidget(spacer);
-    }
-
-    mainVl->addLayout(zoomButtonsHl);
-
     auto spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
-    mainVl->addWidget(spacer);
+    mainLayout->addWidget(spacer);
 
 }
