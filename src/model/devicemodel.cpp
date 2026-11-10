@@ -14,7 +14,8 @@ DeviceModel::DeviceModel(ApplicationStatus * appStatus, DeviceControlDockWidget 
     cutoffFrequency = maxCutoffFrequency;
 
     view->digFiltCutoffFreqSbx->setDecimals(3);
-    view->digFiltCutoffFreqSbx->setSuffix(QString::fromStdString(" " + finalSamplingRate.getFullUnit()));
+    auto finalSamplingRateUnit = QString::fromStdString(finalSamplingRate.getFullUnit());
+    view->cutoffLbl->setText(view->cutoffLbl->text() + " (" + finalSamplingRateUnit + ")");
     view->digFiltCutoffFreqSbx->setRange(1.0/finalSamplingRateMultiplier, maxCutoffFrequency.value);
     view->digFiltCutoffFreqSbx->setValue(cutoffFrequency.value);
 

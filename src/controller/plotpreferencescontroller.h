@@ -37,7 +37,6 @@ private:
 signals:
     void sigCurrentColorChanged(int channelIdx, QColor color);
     void sigCurrentColorsChanged(QVector <QColor> colors);
-    void sigBackgroundChanged(QColor color);
 };
 
 #endif // PLOTPREFERENCESCONTROLLER_H

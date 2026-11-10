@@ -2,8 +2,7 @@
 #include "qscrollarea.h"
 
 void configureDoubleSpinbox(QDoubleSpinBox * spinbox, RangedMeasurement rm) {
-    spinbox->setSuffix(" " + QString::fromStdString(rm.getFullUnit()));
-    spinbox->setMinimum(0.0);
+    spinbox->setMinimum(rm.min);
     spinbox->setMaximum(rm.max);
     spinbox->setDecimals(4);
 }
@@ -22,18 +21,6 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
 
     centralWidget->setLayout(outerLayout);
     setWidget(centralWidget);
-
-
-    // Window border management when floating
-    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
-        if (isFloating) {
-            centralWidget->setStyleSheet("#autodecloggerScrollContainer { border: none; }"
-                                         "#customTitleBar { border-left: none; border-right: none; }"
-                                         "#poreHeaderContainer { border-bottom: none; border-left: none; border-right: none;}");
-        } else {
-            centralWidget->setStyleSheet("");
-        }
-    });
 
     // TOP BAR
     QFrame* activationHeader = new QFrame();
@@ -64,6 +51,7 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
 
     QFrame * scrollContainer = new QFrame();
     scrollContainer->setObjectName("autodecloggerScrollContainer");
+    scrollContainer->setProperty("floatingAware", true);    // border depends on the dock floating state
 
     QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContainer);
     scrollLayout->setContentsMargins(0, 8, 0, 0);
@@ -72,76 +60,47 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     scrollArea->setWidget(scrollContainer);
     outerLayout->addWidget(scrollArea);
 
-    /* Current threshold */
-    QFrame* currentContainer = new QFrame();
-    QHBoxLayout * currentLayout = new QHBoxLayout();
-    currentLayout->setContentsMargins(8, 0, 8, 2);
-    currentLayout->setSpacing(4);
-    currentContainer->setLayout(currentLayout);
+    QFrame* fieldsContainer = new QFrame();
+    fieldsContainer->setObjectName("autodecloggerFields");
+    QGridLayout* grid = new QGridLayout(fieldsContainer);
+    grid->setContentsMargins(8, 4, 8, 4);
+    grid->setHorizontalSpacing(8);
+    grid->setVerticalSpacing(6);
 
-    thField = new QDoubleSpinBox();
-    configureDoubleSpinbox(thField, cr);
+    auto addRow = [&](int row, const QString& text, QDoubleSpinBox* sbx) {
+        auto* lbl = new QLabel(text);
+        lbl->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        sbx->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sbx->setMinimumWidth(sbx->sizeHint().width());   // Avoids truncation
+        grid->addWidget(lbl, row, 0);
+        grid->addWidget(sbx, row, 1);
+    };
 
-    currentLayout->addWidget(new QLabel("Current threshold"));
-    currentLayout->addStretch();
-    currentLayout->addWidget(thField);
+    thField             = new QDoubleSpinBox(); configureDoubleSpinbox(thField, cr);    /* Current threshold */
+    voltageField        = new QDoubleSpinBox(); configureDoubleSpinbox(voltageField, vr);   /* Voltage - Declogging stimulus */
+    timeField           = new QDoubleSpinBox(); timeField->setMaximum(20000); timeField->setDecimals(0);    /* Declogging time */
+    timeBelowThreshold  = new QDoubleSpinBox(); timeBelowThreshold->setMaximum(20000); timeBelowThreshold->setDecimals(0);  /* Time below threshold */
 
+    addRow(0, QStringLiteral("Current threshold (%1)").arg(QString::fromStdString(cr.getFullUnit())), thField);
+    addRow(1, QStringLiteral("Declogging stimulus (%1)").arg(QString::fromStdString(vr.getFullUnit())), voltageField);
+    addRow(2, QStringLiteral("Declogging time (ms)"), timeField);
+    addRow(3, QStringLiteral("Time below threshold (ms)"), timeBelowThreshold);
 
-    /* Voltage - Declogging stimulus */
-    QFrame* voltageContainer = new QFrame();
-    QHBoxLayout * voltageLayout = new QHBoxLayout();
-    voltageLayout->setContentsMargins(8, 4, 8, 2);
-    voltageLayout->setSpacing(4);
-    voltageContainer->setLayout(voltageLayout);
+    /* Force 0 based range for current */
+    thField->setMinimum(0.0);
 
-    voltageField = new QDoubleSpinBox();
-    configureDoubleSpinbox(voltageField, vr);
-    voltageField->setMinimum(vr.min);
+    /* Initial values */
     voltageField->setValue(-100.0);
-
-    voltageLayout->addWidget(new QLabel("Declogging stimulus"));
-    voltageLayout->addStretch();
-    voltageLayout->addWidget(voltageField);
-
-
-    /* Declogging time */
-    QFrame* decTimeContainer = new QFrame();
-    QHBoxLayout * decTimeLayout = new QHBoxLayout();
-    decTimeLayout->setContentsMargins(8, 4, 8, 2);
-    decTimeLayout->setSpacing(4);
-    decTimeContainer->setLayout(decTimeLayout);
-
-    timeField = new QDoubleSpinBox(this);
-    timeField->setSuffix(" ms");
-    timeField->setMaximum(20000);
     timeField->setValue(500.0);
-    timeField->setDecimals(0);
-
-    decTimeLayout->addWidget(new QLabel("Declogging time"));
-    decTimeLayout->addStretch();
-    decTimeLayout->addWidget(timeField);
-
-
-    /* Time below threshold */
-    QFrame* timeBelowContainer = new QFrame();
-    QHBoxLayout * timeBelowLayout = new QHBoxLayout();
-    timeBelowLayout->setContentsMargins(8, 4, 8, 2);
-    timeBelowLayout->setSpacing(4);
-    timeBelowContainer->setLayout(timeBelowLayout);
-
-    timeBelowThreshold = new QDoubleSpinBox(this);
-    timeBelowThreshold->setSuffix(" ms");
-    timeBelowThreshold->setMaximum(20000);
     timeBelowThreshold->setValue(500.0);
-    timeBelowThreshold->setDecimals(0);
 
-    timeBelowLayout->addWidget(new QLabel("Time below threshold"));
-    timeBelowLayout->addStretch();
-    timeBelowLayout->addWidget(timeBelowThreshold);
+    grid->setColumnStretch(0, 0);
+    grid->setColumnStretch(1, 1);
 
     // BOTTOM/FOOTER - pore status
     QFrame* poreHeaderContainer = new QFrame();
     poreHeaderContainer->setObjectName("poreHeaderContainer");
+    poreHeaderContainer->setProperty("floatingAware", true);    // border depends on the dock floating state
     QHBoxLayout* poreHeaderOutputLayout = new QHBoxLayout(poreHeaderContainer);
     poreHeaderOutputLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -155,11 +114,7 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     poreStatusLbl->setObjectName("poreStatusLbl");
     poreHeaderOutputLayout->addWidget(poreStatusLbl);
 
-
-    scrollLayout->addWidget(currentContainer);
-    scrollLayout->addWidget(voltageContainer);
-    scrollLayout->addWidget(decTimeContainer);
-    scrollLayout->addWidget(timeBelowContainer);
+    scrollLayout->addWidget(fieldsContainer);
     scrollLayout->addStretch();
 
     // Sticky footer

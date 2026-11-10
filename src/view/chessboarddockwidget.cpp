@@ -25,20 +25,10 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     topLevelLayout->setContentsMargins(0, 0, 0, 0);
     topLevelLayout->setSpacing(0);
 
-    // Window border management when floating
-    connect(this, &QDockWidget::topLevelChanged, this, [mainWg](bool isFloating) {
-        if (isFloating) {
-            mainWg->setStyleSheet("#gridContainer { border: none; }"
-                                  "#customTitleBar { border-left: none; border-right: none; }"
-                                  "#customFooter { border-left: none; border-right: none; border-bottom: none;}");
-        } else {
-            mainWg->setStyleSheet("");
-        }
-    });
-
     // TOP BAR
     QWidget* customTitleBar = new QWidget();
     customTitleBar->setObjectName("customTitleBar");
+    customTitleBar->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QHBoxLayout* topBarLayout = new QHBoxLayout(customTitleBar);
 
     // Button ALL
@@ -74,6 +64,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
 
     QWidget * containerWg = new QWidget();
     containerWg->setObjectName("gridContainer");
+    containerWg->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     containerWg->setContentsMargins(12, 12, 12, 12);
 
     mainGl = new QGridLayout(containerWg);
@@ -86,6 +77,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
     // --- Legenda footer ---
     QWidget* legenda = new QWidget();
     legenda->setObjectName("customFooter");
+    legenda->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QHBoxLayout * legendaLayout = new QHBoxLayout(legenda);
     legendaLayout->setContentsMargins(4, 4, 4, 4);
 
