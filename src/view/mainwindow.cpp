@@ -105,28 +105,9 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     connectedRowLayout->addWidget(deviceConnectedLbl);
     connectedRowLayout->addWidget(SRLbl);
 
-    notificationScrollArea = new QScrollArea();
-    notificationScrollArea->setObjectName("notificationScrollArea");
-    notificationScrollArea->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
-    notificationScrollArea->setWidgetResizable(true);
-    notificationScrollArea->setFrameShape(QFrame::NoFrame);
-    notificationScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    notificationScrollArea->setVisible(false);
-
-    notificationContainer = new QWidget();
-    notificationContainer->setObjectName("notificationContainer");
-
-    notificationLayout = new QVBoxLayout(notificationContainer);
-    notificationLayout->setContentsMargins(0, 0, 0, 0);
-    notificationLayout->setSpacing(6);
-    notificationLayout->addStretch();
-
-    notificationScrollArea->setWidget(notificationContainer);
-
     connectedRowLayout->addStretch();
     connectedPageLayout->addWidget(disconnectBtn);
     connectedPageLayout->addStretch();
-    connectedPageLayout->addWidget(notificationScrollArea, 1);
 
     connectionDeviceStack->addWidget(connectionPage);
     connectionDeviceStack->addWidget(connectedPage);
@@ -306,6 +287,18 @@ MainWindow::MainWindow(QWidget * parent) :
     menuQuestionMark->addAction(actionReleaseNotes);
 
     connect(actionUpgradeFw, &QAction::triggered, this, &MainWindow::sigUpgradeFw);
+
+    /*! Notifications status (top right corner of the menu bar) */
+    notificationStatusW = new NotificationStatusWidget();
+    notificationStatusW->setVisible(false);
+    menuBar->setCornerWidget(notificationStatusW, Qt::TopRightCorner);
+
+    // While connecting, notifications are shown in the splash label
+    connect(&NotificationCenter::getInstance(), &NotificationCenter::sigNotificationAdded, this, [this](QString text, Notification level) {
+        if (this->connectionDeviceStack->currentIndex() == 0) {
+            this->showConnectionInfo(text, level);
+        }
+    });
 
     /************\
      * settings *
@@ -800,7 +793,9 @@ void MainWindow::showHideConnectedDevice(bool flag){
         QString connected = QString("%1 <span style='color:#4CAF50;'>●</span>").arg(getSelectedSerialNumber());
         this->deviceConnectedLbl->setText(connected);
 
-        clearNotifications();
+        clearConnectionInfo();
+        NotificationCenter::getInstance().clearNotifications();
+        notificationStatusW->setVisible(true);
 
         QTimer::singleShot(50, this, [this]() {
             // Making sure the mainframe is now resizable
@@ -821,7 +816,9 @@ void MainWindow::showHideConnectedDevice(bool flag){
         deviceDetectorWid->setProperty("page", "connecting");
 
         // Hide errors/warnings from connected phase
-        clearNotifications();
+        clearConnectionInfo();
+        NotificationCenter::getInstance().clearNotifications();
+        notificationStatusW->setVisible(false);
 
         // Resizing the window later
         QTimer::singleShot(50, this, [this, deviceDetectorWid]() {
@@ -848,30 +845,12 @@ void MainWindow::showHideConnectedDevice(bool flag){
 }
 
 /*
- * Clears the notifications both in splashscreen or in mainwindow.
+ * Clears the notification label of the splashscreen.
  */
-void MainWindow::clearNotifications() {
-
-    // Reset label in splash
+void MainWindow::clearConnectionInfo() {
     if (connectionInfoLbl) {
         connectionInfoLbl->setText("");
         connectionInfoLbl->setVisible(false);
-    }
-
-    // Deletes notifications of mainwindow
-    if (notificationLayout) {
-        QLayoutItem *item;
-        while ((item = notificationLayout->takeAt(0)) != nullptr) {
-            if (item->widget()) {
-                item->widget()->deleteLater();
-            }
-            delete item;
-        }
-        notificationLayout->addStretch();
-    }
-
-    if (notificationScrollArea) {
-        notificationScrollArea->setVisible(false);
     }
 
     // Resize dock
@@ -882,72 +861,18 @@ void MainWindow::clearNotifications() {
 }
 
 /*
- * Creates and shows a notification.
- * Works both in CONNECTING and CONNECTED state.
- * Multiple notifications can be shown at same time.
- * Each notification can be individually closed.
+ * Shows a notification in the splashscreen (CONNECTING state).
+ * Once connected, notifications are handled by the
+ * NotificationCenter and shown in the menu bar.
  *
- * Param: text | The message to be shown.
- * Param: noty | Notification type - error, info etc.
+ * Param: text  | The message to be shown.
+ * Param: level | Notification type - error, info etc.
  */
-void MainWindow::addNotification(const QString &text, Notification noty) {
-    if (noty == NOTIFY_NONE || text.isEmpty()) {
-        clearNotifications();
-        return;
-    }
+void MainWindow::showConnectionInfo(const QString &text, Notification level) {
+    this->connectionInfoLbl->setText(text);
+    this->connectionInfoLbl->setProperty("level", NotificationCenter::getLevelStr(level));
+    this->connectionInfoLbl->setVisible(true);
 
-    // CONNECTING (Splashscreen) - use a label
-    if (this->connectionDeviceStack->currentIndex() == 0) {
-        this->connectionInfoLbl->setText(text);
-        this->connectionInfoLbl->setProperty("level", NotificationType[noty]);
-        this->connectionInfoLbl->setVisible(true);
-
-        this->connectionInfoLbl->style()->unpolish(this->connectionInfoLbl);
-        this->connectionInfoLbl->style()->polish(this->connectionInfoLbl);
-        return;
-    }
-
-    // CONNECTED -> Notifications banner based
-    QFrame *banner = new QFrame();
-    banner->setObjectName("notificationBanner");
-    banner->setProperty("level", NotificationType[noty]);
-
-    QHBoxLayout *bLayout = new QHBoxLayout(banner);
-    bLayout->setContentsMargins(8, 6, 8, 6);
-    bLayout->setSpacing(6);
-
-    QLabel *msgLbl = new QLabel();
-    msgLbl->setText(QString(NotificationType[noty]) + " - " + text);
-    msgLbl->setObjectName("notificationText");
-    msgLbl->setProperty("level", NotificationType[noty]);
-    msgLbl->setWordWrap(true);
-
-    QPushButton *closeBtn = new QPushButton("✕");
-    closeBtn->setObjectName("closeNotificationBtn");
-    closeBtn->setCursor(Qt::PointingHandCursor);
-    closeBtn->setFixedWidth(20);
-    closeBtn->setToolTip("Dismiss");
-
-    bLayout->addWidget(msgLbl, 1);
-    bLayout->addWidget(closeBtn, 0, Qt::AlignTop);
-
-    // closes single noty
-    connect(closeBtn, &QPushButton::clicked, banner, [this, banner]() {
-        banner->deleteLater();
-
-        QTimer::singleShot(50, this, [this]() {
-            if (notificationLayout->count() <= 1) {
-                notificationScrollArea->setVisible(false);
-            }
-        });
-    });
-
-    // Add noty on top
-    notificationLayout->insertWidget(notificationLayout->count() - 1, banner);
-
-    // Dynamic QSS refresh
-    banner->style()->unpolish(banner);
-    banner->style()->polish(banner);
-
-    notificationScrollArea->setVisible(true);
+    this->connectionInfoLbl->style()->unpolish(this->connectionInfoLbl);
+    this->connectionInfoLbl->style()->polish(this->connectionInfoLbl);
 }

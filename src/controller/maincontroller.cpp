@@ -4,6 +4,7 @@
 #include "application_status.h"
 #include "confirmdialog/confirmationdialog.h"
 #include "themecontroller.h"
+#include "notificationcenter.h"
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 
@@ -194,7 +195,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
         msgDisp = deviceConnector->getMessageDispatcher();
 
         if (msgDisp->getCalibrationStatus() != Success) {
-            mainWindow->addNotification("Calibration data not found. Loading default values.", Notification::NOTIFY_WARNING);
+            NotificationCenter::getInstance().addNotification("Calibration data not found. Loading default values.", NOTIFY_WARNING);
         }
 
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
@@ -214,7 +215,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     } else {
         mainWindow->connectDevice(false, ret);
         mainWindow->showHideConnectedDevice(false);
-        mainWindow->addNotification("Connection failed. Check device connection.", Notification::NOTIFY_ERROR);
+        NotificationCenter::getInstance().addNotification("Connection failed. Check device connection.", NOTIFY_ERROR);
 
         emit startDetecting();
     }

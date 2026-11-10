@@ -1,4 +1,5 @@
 #include "devicemodel.h"
+#include "notificationcenter.h"
 
 DeviceModel::DeviceModel(ApplicationStatus * appStatus, DeviceControlDockWidget * view) :
     QObject(),
@@ -97,6 +98,7 @@ void DeviceModel::updateDownsamplingAndFilteringSettings() {
     }
 
     maxCutoffFrequency = finalSamplingRate/4.0;
+    auto finalBandwith = Measurement();
     if (digFiltEnabledFlag) {
         if (cutoffFrequency > maxCutoffFrequency) {
             maxCutoffFrequency.convertValue(cutoffFrequency.prefix);
@@ -107,13 +109,21 @@ void DeviceModel::updateDownsamplingAndFilteringSettings() {
 
         if (digFiltLowPassFlag) {
             view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + cutoffFrequency.niceLabel()));
+            finalBandwith = cutoffFrequency;
         }
         else {
             view->finalBandwidthLbl->setText(QString::fromStdString(cutoffFrequency.niceLabel() + " - " + maxCutoffFrequency.niceLabel()));
+            finalBandwith = maxCutoffFrequency;
         }
     }
     else {
         view->finalBandwidthLbl->setText(QString::fromStdString("0 - " + maxCutoffFrequency.niceLabel()));
+        finalBandwith = maxCutoffFrequency;
     }
     view->finalSamplingRateLbl->setText(QString::fromStdString(finalSamplingRate.niceLabel()));
+
+    // Check on final bandwidth & sampling rate ratio
+    if(finalBandwith <= (samplingRate/10)){
+        NotificationCenter::getInstance().addNotification("The sampling rate is significantly higher than the final bandwidth. For optimal performance, keep the sampling rate to 5× the bandwidth or less; higher rates degrade performance without improving signal quality.", NOTIFY_INFO);
+    }
 }
