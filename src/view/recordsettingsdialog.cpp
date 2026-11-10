@@ -63,9 +63,9 @@ RecordSettingsDialog::RecordSettingsDialog() :
     voltageVl->addWidget(voltageDontSaveRb);
     voltageBg->addButton(voltageDontSaveRb);
 
-    connect(voltageSaveAllRb, &QRadioButton::clicked, this, &RecordSettingsDialog::onVoltageFormatChanged);
-    connect(voltageSaveSeparatelyRb, &QRadioButton::clicked, this, &RecordSettingsDialog::onVoltageFormatChanged);
-    connect(voltageDontSaveRb, &QRadioButton::clicked, this, &RecordSettingsDialog::onVoltageFormatChanged);
+    connect(voltageSaveAllRb, &QRadioButton::toggled, this, &RecordSettingsDialog::onVoltageFormatChanged);
+    connect(voltageSaveSeparatelyRb, &QRadioButton::toggled, this, &RecordSettingsDialog::onVoltageFormatChanged);
+    connect(voltageDontSaveRb, &QRadioButton::toggled, this, &RecordSettingsDialog::onVoltageFormatChanged);
 
     QHBoxLayout * voltageDecimatorHl = new QHBoxLayout;
     voltageVl->addLayout(voltageDecimatorHl);
@@ -86,6 +86,7 @@ RecordSettingsDialog::RecordSettingsDialog() :
 
     QLabel * recordDurationLbl = new QLabel("Record for");
     recordSizeHl->addWidget(recordDurationLbl);
+    recordSizeHl->addStretch();
     recordDurationEdit = new QDoubleSpinBox;
     recordDurationEdit->setRange(0.0, 1.0e6);
     recordDurationEdit->setSingleStep(0.1);
@@ -99,8 +100,9 @@ RecordSettingsDialog::RecordSettingsDialog() :
     QHBoxLayout * chunkSelectionHl = new QHBoxLayout();
     recordSizeVl->addLayout(chunkSelectionHl);
 
-    QLabel * chunkDurationLbl = new QLabel("Split file in chunks");
+    QLabel * chunkDurationLbl = new QLabel("Split file every");
     chunkSelectionHl->addWidget(chunkDurationLbl);
+    chunkSelectionHl->addStretch();
     chunkDurationEdit = new QSpinBox;
     chunkDurationEdit->setRange(0, 1000000);
     chunkDurationEdit->setValue(PSD_DEFAULT_CHUNK_DURATION);

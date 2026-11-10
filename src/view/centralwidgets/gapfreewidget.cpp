@@ -13,6 +13,7 @@
 #include <qformlayout.h>
 #include "globaldefines.h"
 #include "bigplot.h"
+#include "recordsettingsdialog.h"
 #include <QWheelEvent>
 #include <QCoreApplication>
 #include <qmenu.h>
@@ -189,6 +190,20 @@ GapFreeWidget::GapFreeWidget(BigPlot* plot, QWidget* parent):
     });
 
     mainLayout->addWidget(recordingWg);
+
+    // Button for opening Gapfree recording settings
+    auto advancedSettingsBtn = new QPushButton(this);
+    advancedSettingsBtn->setObjectName("advRecordingSettings");
+    advancedSettingsBtn->setMaximumWidth(212);
+    advancedSettingsBtn->setText("  advanced settings");
+    advancedSettingsBtn->setToolTip("Open Gapfree advanced recording settings");
+    advancedSettingsBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    advancedSettingsBtn->setCursor(Qt::PointingHandCursor);
+    recordingWg->layout()->addWidget(advancedSettingsBtn);
+    connect(advancedSettingsBtn, &QPushButton::clicked, this, [this](){
+        emit sigOpenAdvSettings();
+    });
+
     auto spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
     mainLayout->addWidget(spacer);

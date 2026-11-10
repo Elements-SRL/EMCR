@@ -30,6 +30,7 @@ signals:
     void sigRecordPathChanged(QString);
     void sigStartRecording();
     void sigStopRecording();
+    void sigOpenAdvSettings();
     void sigAutoZoom();
 };
 
