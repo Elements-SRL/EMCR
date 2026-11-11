@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include <QTextEdit>
+#include <QSpinBox>
 
 class DebugDockWidget : public QDockWidget {
     Q_OBJECT
@@ -10,17 +11,21 @@ class DebugDockWidget : public QDockWidget {
 public:
     DebugDockWidget(QWidget * parent = nullptr);
 
+    void updateEepromValue(std::vector <uint32_t> value);
+
 public slots:
     void onWriteDebugData(std::vector <int16_t> debugData);
 
 private:
     QTextEdit * debugDataLne;
+    QSpinBox * debugEepromValueSbx;
 
 signals:
     void setDebugBit(int word, int bit, bool flag);
     void setDebugWord(int word, int value);
     void setDebugTrigger(int bit);
     void sigWriteCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size);
+    void sigReadCalibrationEeprom(std::vector <uint32_t> address, std::vector <uint32_t> size);
 };
 
 #endif // DEBUGDOCKWIDGET_H
