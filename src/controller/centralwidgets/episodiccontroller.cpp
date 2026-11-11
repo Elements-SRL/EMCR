@@ -237,13 +237,6 @@ void EpisodicController::onCurrentColorChanged(int channelIdx, QColor color) {
     }
 }
 
-void EpisodicController::onBackgroundColorChanged(QColor color) {
-    auto plot = bpvc->getPlot();
-    if (plot != nullptr) {
-        plot->setCanvasBackground(color);
-    }
-}
-
 void EpisodicController::onReplot() {
     auto plot = bpvc->getPlot();
     if (plot != nullptr) {

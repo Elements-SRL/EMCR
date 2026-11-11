@@ -4,6 +4,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <atomic>
+
 #include <qwt_series_data.h>
 
 #include "devicedataconsumer.h"
@@ -12,6 +14,7 @@
 #define PCS_MIN_UPDATE_PLOT_TIME_MS (100) /*!< 100ms */
 #define PCS_MIN_DATA_BATCH_DURATION_S (0.01) /*!< 0.01s */
 #define PCS_MAX_SAMPLES_PER_EPISODIC_PLOT (8192)
+#define PCS_MIN_DISPLAY_SAMPLES (512) /*!< Min points to render per curve in case their number follows viewport size */
 
 enum InterestedChannels{
     Expanded,
@@ -107,6 +110,10 @@ public:
 
     virtual void forceAxisUpdate() override;
     void setMaxSamplesPerPlot(int samples);
+    /*! Limits the plotted points to 2 per pixel column of the plot (min and max, see DataHook::getDataChunk),
+     *  so that the drawn curve is the same but cheaper to render. 0 disables the limit (maxSamples is used).
+     *  Thread safe: no reallocation, the time axis is recomputed by the consumer thread. */
+    void setDisplayWidth(int devicePixels);
 
 protected:
     void run() override;
@@ -117,6 +124,8 @@ protected:
 private:
     void updateTimeAxis();
     void computeTimeAxis();
+
+    std::atomic <int> displaySamples {0}; /*!< 0 = no limit from the display width */
 
     /*! Having gapFreeTimeIdx as a property of the class ensures that when a new protocol starts the plot does not reset the x axis */
     int gapFreeTimeIdx = 0;

@@ -30,24 +30,20 @@ PlotPreferencesDialog::PlotPreferencesDialog(int channelsNum, int channelsPerBoa
         }
     }
 
-    QHBoxLayout * otherButtonsHl = new QHBoxLayout;
+    QHBoxLayout * restoreBtnHl = new QHBoxLayout;
+    restoreBtnHl->setAlignment(Qt::AlignHCenter);
 
-    darkModeBtn = new QPushButton("Dark mode");
-    darkModeBtn->setCheckable(true);
-    otherButtonsHl->addWidget(darkModeBtn);
-
-    connect(darkModeBtn, &QPushButton::clicked, this, &PlotPreferencesDialog::darkModeButtonClicked);
-
-    /*! Reset to defaults button */
+    /*! Reset to defaults button: the channels go back to the theme palette */
     QPushButton * restoreDefaultBtn = new QPushButton("Restore defaults");
     restoreDefaultBtn->setCheckable(false);
-    otherButtonsHl->addWidget(restoreDefaultBtn);
+    restoreBtnHl->addWidget(restoreDefaultBtn);
 
     connect(restoreDefaultBtn, &QPushButton::clicked, this, &PlotPreferencesDialog::restoreDefaultButtonClicked);
 
     /*! Adds sub layouts in main layout */
     mainVl->addWidget(new QLabel("Current channels colors:"));
     mainVl->addLayout(currentButtonsLo);
+    mainVl->addLayout(restoreBtnHl);
 }
 
 void PlotPreferencesDialog::setColor(SettingType_t type, int channelIdx, QColor color) {
@@ -58,11 +54,6 @@ void PlotPreferencesDialog::setColor(SettingType_t type, int channelIdx, QColor 
         break;
     }
     case VoltageColor:
-    case DarkMode:
         break;
     }
-}
-
-void PlotPreferencesDialog::setDarkMode(bool flag) {
-    darkModeBtn->setChecked(flag);
 }

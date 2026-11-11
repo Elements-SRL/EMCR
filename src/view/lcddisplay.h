@@ -8,6 +8,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QAbstractAnimation>
 
 #define TDP_INTERVAL_MS 1000
 
@@ -44,6 +45,9 @@ private:
     QFrame *iconLabelIdle = nullptr;
     QLabel *iconLabel = nullptr;
     LcdDisplay *lcdDisplay = nullptr;
+    QAbstractAnimation *pulse = nullptr; /*!< runs only while the recording icon is visible */
+
+    void setRecordingIconVisible(bool visible);
 
 private slots:
     void onUpdateTimer();

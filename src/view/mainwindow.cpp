@@ -457,6 +457,24 @@ void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool fl
     dockWidgets[type] = widget;
     if (widget != nullptr) {
         addDockWidget(area, dockWidgets[type]);
+
+        // Some QSS borders depend on the dock state (QDockWidget#...[floating="true"] rules),
+        // but Qt does not re-evaluate the style sheet when a dock is floated or docked.
+        // The widgets with such rules are marked with the "floatingAware" property:
+        // repolish only them (connected before setFloating so the initial state is covered too).
+        connect(widget, &QDockWidget::topLevelChanged, this, [widget]() {
+            QTimer::singleShot(0, widget, [widget]() {
+                const QList<QWidget *> children = widget->findChildren<QWidget *>();
+                for (QWidget * w : children) {
+                    if (w->property("floatingAware").toBool()) {
+                        w->style()->unpolish(w);
+                        w->style()->polish(w);
+                        w->update();
+                    }
+                }
+            });
+        });
+
         dockWidgets[type]->setFloating(floatingFlag);
 
         QWidget *innerWidget = widget->widget();
@@ -489,7 +507,6 @@ void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool fl
                         } else {
                             dw->widget()->layout()->setContentsMargins(10, 0, 10, 0);  // Widget is stacked in a TAB
                         }
-                        dw->setStyleSheet(""); // Trigger QSS reload
                     }
                 });
             };

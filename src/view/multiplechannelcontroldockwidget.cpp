@@ -17,22 +17,10 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     msgDisp(msgDisp) {
 
     setAttribute(Qt::WA_TranslucentBackground);
-    this->setObjectName("MultipleChannelControlDockWidget");
     this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
 
     QWidget* centralWidget = new QWidget();
     this->setWidget(centralWidget);
-
-    // Window border management when floating
-    connect(this, &QDockWidget::topLevelChanged, this, [centralWidget](bool isFloating) {
-        if (isFloating) {
-            centralWidget->setStyleSheet("#mainWrapper { border: none; } #customFooter {border: none; }"
-                                         "#summaryContainer { border: none; }"
-                                         "#selectionCounter { border: none; }");
-        } else {
-            centralWidget->setStyleSheet("");
-        }
-    });
 
     // External Panel Layout (2 sections)
     // TOP - CENTRAL - Scroll area section
@@ -46,6 +34,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     m_selectionCounterLabel = new QLabel();
     m_selectionCounterLabel->setObjectName("selectionCounter");
+    m_selectionCounterLabel->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     m_selectionCounterLabel->setAlignment(Qt::AlignCenter);
     externalLayout->addWidget(m_selectionCounterLabel);
 
@@ -60,6 +49,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     // Scroll area main frame
     QFrame* mainWrapper = new QFrame();
     mainWrapper->setObjectName("mainWrapper");
+    mainWrapper->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     mainWrapper->setFrameStyle(QFrame::Panel | QFrame::Raised);
     QVBoxLayout* mainLayout = new QVBoxLayout(mainWrapper);
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -397,6 +387,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     // BOTTOM - Status summary
     QWidget *summaryWg = new QWidget();
     summaryWg->setObjectName("summaryContainer");
+    summaryWg->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
     QGridLayout *summaryLayout = new QGridLayout(summaryWg);
     summaryLayout->setSpacing(0);
     summaryLayout->setContentsMargins(0, 0, 0, 0);

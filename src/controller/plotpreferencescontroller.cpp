@@ -4,6 +4,7 @@
 #include "bigplotcontroller.h"
 #include "chessboardcontroller.h"
 #include "plotdetailcontroller.h"
+#include "themecontroller.h"
 
 PlotPreferencesController::PlotPreferencesController(MessageDispatcher * msgDisp, MainWindow * mainWindow) :
     msgDisp(msgDisp),
@@ -31,14 +32,17 @@ PlotPreferencesController::PlotPreferencesController(MessageDispatcher * msgDisp
         }
     });
 
-    connect(dialog, &PlotPreferencesDialog::darkModeButtonClicked, this, [=] (bool flag) {
-        model->setDarkMode(flag);
+    // On theme change the channels with a default color switch to the new
+    // theme palette; the ones customized by the user are left unchanged
+    connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, [=] () {
+        if (!model->refreshDefaultColors()) {
+            return;
+        }
         QVector <QColor> colors = model->getColors();
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             dialog->setColor(PlotPreferencesDialog::CurrentColor, idx, colors[idx]);
         }
         emit sigCurrentColorsChanged(colors);
-        emit sigBackgroundChanged(model->getBackGroundColor());
     });
 
     connect(dialog, &PlotPreferencesDialog::restoreDefaultButtonClicked, this, [=] () {
@@ -47,10 +51,7 @@ PlotPreferencesController::PlotPreferencesController(MessageDispatcher * msgDisp
         for (int idx = 0; idx < currentChannelsNum; idx++) {
             dialog->setColor(PlotPreferencesDialog::CurrentColor, idx, colors[idx]);
         }
-        dialog->setDarkMode(model->isDarkModeActive());
-
         emit sigCurrentColorsChanged(colors);
-        emit sigBackgroundChanged(model->getBackGroundColor());
     });
 }
 
@@ -73,27 +74,20 @@ void PlotPreferencesController::initializePlotColors() {
     }
 
     emit sigCurrentColorsChanged(colors);
-
-    dialog->setDarkMode(model->isDarkModeActive());
-
-    emit sigBackgroundChanged(model->getBackGroundColor());
 }
 
 
 void PlotPreferencesController::connectPlotDetailController(PlotDetailController* pdc) {
     connect(this, &PlotPreferencesController::sigCurrentColorsChanged, pdc, &PlotDetailController::onCurrentColorsChanged);
     connect(this, &PlotPreferencesController::sigCurrentColorChanged, pdc, &PlotDetailController::onCurrentColorChanged);
-    connect(this, &PlotPreferencesController::sigBackgroundChanged, pdc, &PlotDetailController::onBackgroundColorChanged);
 }
 
 void PlotPreferencesController::connectChessboardController(ChessboardController* cc) {
     connect(this, &PlotPreferencesController::sigCurrentColorsChanged, cc, &ChessboardController::onCurrentColorsChanged);
     connect(this, &PlotPreferencesController::sigCurrentColorChanged, cc, &ChessboardController::onCurrentColorChanged);
-    //    connect(plotPreferencesController, &PlotPreferencesController::sigBackgroundChanged,    chessboardController, &ChessboardController::onBackgroundColorChanged);
 }
 
 void PlotPreferencesController::connectBigPlotController(BigPlotController* bpc) {
     connect(this, &PlotPreferencesController::sigCurrentColorsChanged, bpc, &BigPlotController::onCurrentColorsChanged);
     connect(this, &PlotPreferencesController::sigCurrentColorChanged, bpc, &BigPlotController::onCurrentColorChanged);
-    connect(this, &PlotPreferencesController::sigBackgroundChanged, bpc, &BigPlotController::onBackgroundColorChanged);
 }
