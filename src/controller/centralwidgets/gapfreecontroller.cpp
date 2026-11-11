@@ -40,6 +40,8 @@ GapFreeController::GapFreeController(ApplicationStatus* appStatus, DeviceDataPro
     connect(this, &GapFreeController::sigStartRecording, this, &GapFreeController::onStartRecording);
     connect(this, &GapFreeController::sigStopRecording, this, &GapFreeController::onStopRecording);
     connect(recordingSettingsDialog, &RecordSettingsDialog::sigSettingsSet, abfDataWriterConsumer, &DataWriterConsumer::onRecordingSettingsSet);
+    connect(gapFreeWidget, &GapFreeWidget::sigOpenAdvSettings, recordingSettingsDialog, &RecordSettingsDialog::exec);
+
     connect(gapFreeWidget, &GapFreeWidget::sigFileNameChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilenameSet);
     connect(gapFreeWidget, &GapFreeWidget::sigRecordPathChanged, abfDataWriterConsumer, &DataWriterConsumer::onFilePathSet);
     connect(dbbovc.get(), &DurationBasedBigPlotViewController::durationChanged, consumer, &PlotConsumer::onDurationChanged);

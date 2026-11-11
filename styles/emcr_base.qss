@@ -1036,6 +1036,28 @@ QPushButton#zoomOutBtn:hover {
     background-color: @BG_BTN_HOVER;
 }
 
+QFrame#lineSeparator {
+    height: 0.5px;
+    color: @BORDER_INPUT;
+}
+
+/* Manual zoom controls */
+QFrame#manualZoomContainer{
+    border: 1px solid @BORDER_PANEL;
+    border-radius: 4px;
+}
+
+QPushButton#btnSelectAxes::menu-indicator{
+    subcontrol-position: right center;
+    margin-right: 2px;
+    width: 8px;
+    height: 8px;
+}
+
+/* ========================================= */
+/* --- RECORDING WIDGET ---                  */
+/* ========================================= */
+
 QPushButton#btnSettings {
     qproperty-icon: url(@ICON_PREFIX/settings.svg);
     qproperty-iconSize: 14px;
@@ -1044,7 +1066,8 @@ QPushButton#btnSettings {
 QPushButton#locationBtn,
 QPushButton#recordingsBtn,
 QPushButton#autoZoom,
-QPushButton#btnSelectAxes{
+QPushButton#btnSelectAxes,
+QPushButton#advRecordingSettings{
     color: @TEXT_SECONDARY;
     text-transform: uppercase;
     font-size: 10px;
@@ -1063,12 +1086,11 @@ QPushButton#recordingsBtn {
 QPushButton#autoZoom {
     qproperty-icon: url(@ICON_PREFIX/zoom_full.svg);
     text-transform: uppercase;
-    
 }
 
-QFrame#lineSeparator {
-    height: 0.5px;
-    color: @BORDER_INPUT;
+QPushButton#advRecordingSettings {
+    qproperty-icon: url(@ICON_PREFIX/extra_settings.svg);
+    text-transform: uppercase;
 }
 
 /* Icons for record settings */
@@ -1078,19 +1100,6 @@ QLabel#fileIco {
 
 QLabel#recordIco {
     qproperty-pixmap: url("@ICON_PREFIX/folder.svg");
-}
-
-/* Manual zoom controls */
-QFrame#manualZoomContainer{
-    border: 1px solid @BORDER_PANEL;
-    border-radius: 4px;
-}
-
-QPushButton#btnSelectAxes::menu-indicator{
-    subcontrol-position: right center;
-    margin-right: 2px;
-    width: 8px;
-    height: 8px;
 }
 
 /* ========================================= */

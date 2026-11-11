@@ -134,5 +134,7 @@
         <file>theme/light/icons/folder.svg</file>
         <file>theme/dark/icons/zoom_full.svg</file>
         <file>theme/light/icons/zoom_full.svg</file>
+        <file>theme/dark/icons/extra_settings.svg</file>
+        <file>theme/light/icons/extra_settings.svg</file>
     </qresource>
 </RCC>
