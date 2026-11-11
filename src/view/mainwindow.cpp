@@ -64,6 +64,7 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     connectionLayout->addWidget(connectBtn, 0, Qt::AlignLeft);
 
     connectionInfoLbl = new QLabel("");
+    connectionInfoLbl->setObjectName("notificationText");
     connectionInfoLbl->setVisible(false);
     connectionLayout->addWidget(connectionInfoLbl, 0, Qt::AlignLeft);
     connectionLayout->addStretch();
@@ -417,7 +418,13 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
             connectBtn->setChecked(true);
 
         } else {
-            ErrorManager e(err);
+            if (err == ErrorFtdiDriverNotFound) {
+                std::string details;
+                MessageDispatcher::getFtdiDriverStatus(details);
+                ErrorManager e(err, commLibCode2info(err) + "\n\nDetails: " + QString::fromStdString(details));
+            } else {
+                ErrorManager e(err);
+            }
             connectBtn->setChecked(false);
             connectBtn->setText("CONNECT");
         }
