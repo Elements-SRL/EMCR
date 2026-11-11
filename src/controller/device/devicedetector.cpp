@@ -47,6 +47,17 @@ void DeviceDetector::detectDevices() {
             ftdiDriverErrorReported = false;
         }
 
+        /*! Same for the UDB devices (Cypress FX3): a UDB device is plugged in but e384_cyusb.dll cannot be loaded */
+        std::string cyUsbDetails;
+        if (MessageDispatcher::getCyUsbDriverStatus(cyUsbDetails) == ErrorCyUsbDriverNotFound) {
+            if (!cyUsbDriverErrorReported) {
+                cyUsbDriverErrorReported = true;
+                emit cyUsbDriverError(QString::fromStdString(cyUsbDetails));
+            }
+        } else {
+            cyUsbDriverErrorReported = false;
+        }
+
         if ((ret == Success) || (ret == ErrorNoDeviceFound)) {
             bool anyChanges = false;
             for (auto oldDevice : devicesList) {

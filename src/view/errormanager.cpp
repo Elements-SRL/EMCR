@@ -26,6 +26,10 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "The FTDI driver library needed by the device is not available";
         break;
 
+    case ErrorCyUsbDriverNotFound:
+        error = "The USB library needed by the device is not available";
+        break;
+
     case ErrorEepromAlreadyConnected:
         error = "Connection to device EEPROM failed";
         break;
@@ -247,6 +251,10 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorFtdiDriverNotFound:
         info = "If an Elements device is connected, install the FTDI D2XX driver or reinstall " + GLB_SOFTWARE_NAME + ".";
+        break;
+
+    case ErrorCyUsbDriverNotFound:
+        info = "An Elements UDB device needs the USB library (e384_cyusb.dll): reinstall " + GLB_SOFTWARE_NAME + " or contact Elements support.";
         break;
 
     case ErrorEepromAlreadyConnected:
