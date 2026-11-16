@@ -149,6 +149,9 @@ double AutoDecloggerWidget::getVoltage() {
 
 void AutoDecloggerWidget::currentRangeChanged(RangedMeasurement cr) {
     configureDoubleSpinbox(thField, cr);
+
+    /* Force 0 based range for current */
+    thField->setMinimum(0.0);
 }
 
 void AutoDecloggerWidget::voltageRangeChanged(RangedMeasurement vr) {
