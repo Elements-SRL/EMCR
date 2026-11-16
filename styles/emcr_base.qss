@@ -1650,10 +1650,14 @@ QTableView::item:hover {
     background-color: @ITEM_SELECTED;
 }
 
-QHeaderView {
+QHeaderView::section {
     background-color: @TABLE_HEADER;
     color: @TEXT_LIGHT;
     font-weight: 400;
+}
+
+QHeaderView::section:checked {
+    background-color: @ITEM_SELECTED;
 }
 
 QHeaderView#tableVHeader {
