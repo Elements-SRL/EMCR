@@ -58,6 +58,7 @@ public slots:
     void onDownsamplingRatioSelected(int idx);
     void onClampingModalitySelected(ClampingModality_t mode);
     void onThemeUpdated();
+    void notifyCalibrationStatus();
 
 private:
     void startProducer();
