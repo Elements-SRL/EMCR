@@ -22,5 +22,12 @@ DebugController::DebugController(ApplicationStatus * appStatus, MainWindow * mai
         msgDisp->writeCalibrationEeprom(value, address, size);
         msgDisp->setCalibrationMode(false);
     });
+    connect(view, &DebugDockWidget::sigReadCalibrationEeprom, this, [=] (std::vector <uint32_t> address, std::vector <uint32_t> size) {
+        msgDisp->setCalibrationMode(true);
+        std::vector <uint32_t> value;
+        msgDisp->readCalibrationEeprom(value, address, size);
+        msgDisp->setCalibrationMode(false);
+        view->updateEepromValue(value);
+    });
     connect(this, &DebugController::sigWriteDebugData, view, &DebugDockWidget::onWriteDebugData);
 }

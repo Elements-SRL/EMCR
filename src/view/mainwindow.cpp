@@ -64,6 +64,7 @@ void MainWindow::setupDeviceConnectionGui(QFrame * container){
     connectionLayout->addWidget(connectBtn, 0, Qt::AlignLeft);
 
     connectionInfoLbl = new QLabel("");
+    connectionInfoLbl->setObjectName("notificationText");
     connectionInfoLbl->setVisible(false);
     connectionLayout->addWidget(connectionInfoLbl, 0, Qt::AlignLeft);
     connectionLayout->addStretch();
@@ -410,7 +411,21 @@ void MainWindow::connectDevice(bool flag, ErrorCodes_t err) {
             connectBtn->setChecked(true);
 
         } else {
-            ErrorManager e(err);
+            if (err == ErrorFtdiDriverNotFound) {
+                std::string details;
+                MessageDispatcher::getFtdiDriverStatus(details);
+                ErrorManager e(err, commLibCode2info(err) + "\n\nDetails: " + QString::fromStdString(details));
+            } else if (err == ErrorCyUsbDriverNotFound) {
+                std::string details;
+                MessageDispatcher::getCyUsbDriverStatus(details);
+                ErrorManager e(err, commLibCode2info(err) + "\n\nDetails: " + QString::fromStdString(details));
+            } else if (err == ErrorOkDriverNotFound) {
+                std::string details;
+                MessageDispatcher::getOkDriverStatus(details);
+                ErrorManager e(err, commLibCode2info(err) + "\n\nDetails: " + QString::fromStdString(details));
+            } else {
+                ErrorManager e(err);
+            }
             connectBtn->setChecked(false);
             connectBtn->setText("CONNECT");
         }
@@ -450,6 +465,24 @@ void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool fl
     dockWidgets[type] = widget;
     if (widget != nullptr) {
         addDockWidget(area, dockWidgets[type]);
+
+        // Some QSS borders depend on the dock state (QDockWidget#...[floating="true"] rules),
+        // but Qt does not re-evaluate the style sheet when a dock is floated or docked.
+        // The widgets with such rules are marked with the "floatingAware" property:
+        // repolish only them (connected before setFloating so the initial state is covered too).
+        connect(widget, &QDockWidget::topLevelChanged, this, [widget]() {
+            QTimer::singleShot(0, widget, [widget]() {
+                const QList<QWidget *> children = widget->findChildren<QWidget *>();
+                for (QWidget * w : children) {
+                    if (w->property("floatingAware").toBool()) {
+                        w->style()->unpolish(w);
+                        w->style()->polish(w);
+                        w->update();
+                    }
+                }
+            });
+        });
+
         dockWidgets[type]->setFloating(floatingFlag);
 
         QWidget *innerWidget = widget->widget();
@@ -482,7 +515,6 @@ void MainWindow::setDockWidget(DockWidgets_t type, QDockWidget * widget, bool fl
                         } else {
                             dw->widget()->layout()->setContentsMargins(10, 0, 10, 0);  // Widget is stacked in a TAB
                         }
-                        dw->setStyleSheet(""); // Trigger QSS reload
                     }
                 });
             };

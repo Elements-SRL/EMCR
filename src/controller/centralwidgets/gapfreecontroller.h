@@ -8,6 +8,7 @@
 #include "devicecontroller.h"
 #include "durationbasedbigplotviewcontroller.h"
 #include <memory>
+#include <QElapsedTimer>
 
 class GapFreeController : public CentralWidgetController {
     Q_OBJECT
@@ -30,11 +31,16 @@ private:
     void detachCurves(const std::vector <uint16_t> &channelIndexes) override;
     void attachCurves(const std::vector <uint16_t>& channelIndexes) override;
 
+    /*! Plotted points follow the plot width (see GapFreePlotConsumer::setDisplayWidth) */
+    void updateDisplayWidth();
+    int appliedDisplayWidth = 0;
+    int pendingDisplayWidth = 0;
+    QElapsedTimer pendingDisplayWidthTimer;
+
 public slots:
     void onRangeUpdated(commlib::RangedMeasurement_t newRange) override;
     void onCurrentColorsChanged(QVector <QColor> colors) override;
     void onCurrentColorChanged(int channelIdx, QColor color) override;
-    void onBackgroundColorChanged(QColor color) override;
     void onReplot() override;
     void onExpandTrace(bool flag) override;
     void onSetPlotData(PlotMessage plotMessage) override;

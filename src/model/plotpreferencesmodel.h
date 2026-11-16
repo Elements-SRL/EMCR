@@ -10,20 +10,19 @@ public:
     void setColor(PlotPreferencesDialog::SettingType_t type, int channelIdx, QColor color);
     QColor getColor(int idx);
     QVector <QColor> getColors();
-    QColor getBackGroundColor();
-    void setDarkMode(bool flag);
     void restoreDefaultColors();
-    bool isDarkModeActive();
+    // Recomputes the theme default colors for the channels that are not
+    // customized. Returns true if at least one color changed.
+    bool refreshDefaultColors();
 
 private:
     void loadSettings();
     QString tagName(PlotPreferencesDialog::SettingType_t type, int channelIdx);
+    static QColor themeDefaultColor(int channelIdx);
 
     int channelsNum;
     QVector <QColor> selectedCurrentColors;
-    QVector <QColor> defaultCurrentColors;
-    QColor backgroundColor;
-    bool darkModeFlag = false;
+    QVector <bool> customColors; // true = color chosen by the user (saved in QSettings)
 };
 
 #endif // PLOTPREFERENCESMODEL_H

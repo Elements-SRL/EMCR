@@ -47,6 +47,7 @@ public:
     ActivationButton * digFiltBtn = nullptr;
     QComboBox * digFiltTypeCbx = nullptr;
     QDoubleSpinBox * digFiltCutoffFreqSbx = nullptr;
+    QLabel * cutoffLbl  = nullptr;
     QLabel * finalSamplingRateLbl = nullptr;
 
 private:

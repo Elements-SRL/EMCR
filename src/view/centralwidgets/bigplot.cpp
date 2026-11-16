@@ -8,6 +8,7 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_map.h"
+#include "themecontroller.h"
 
 using namespace e384CommLib;
 
@@ -27,8 +28,22 @@ BigPlot::BigPlot(QString titleString, QString xUnitString, QString yUnitString, 
     this->setCanvas(canvas);
 
     QwtPlotGrid * grid = new QwtPlotGrid();
-    grid->setPen(Qt::lightGray, 0.5);
-    grid->setMinorPen(Qt::lightGray, 0.3);
+    // Grid color from the theme (@PLOT_GRID), updated when the theme changes.
+    // The replot is queued so it runs after the other slots of the same signal
+    // have updated the curve colors too.
+    auto applyGridColor = [grid]() {
+        QColor gridColor = ThemeController::color(QStringLiteral("@PLOT_GRID"));
+        if (!gridColor.isValid()) {
+            gridColor = QColor(Qt::lightGray);
+        }
+        grid->setPen(gridColor, 0.5);
+        grid->setMinorPen(gridColor, 0.3);
+    };
+    applyGridColor();
+    connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, [this, applyGridColor]() {
+        applyGridColor();
+        this->replot();
+    }, Qt::QueuedConnection);
     grid->enableXMin(true);
     grid->attach(this);
     grid->show();

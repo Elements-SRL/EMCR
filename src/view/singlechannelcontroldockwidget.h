@@ -98,13 +98,14 @@ class SpinBoxWithChannel : public QWidget {
     Q_OBJECT
 
 public:
-    SpinBoxWithChannel(std::string title, NoWheelSpinBox * sbx);
+    SpinBoxWithChannel(std::string title, NoWheelSpinBox * sbx, const QString * sbxUnit);
     void setName(std::string title);
     NoWheelSpinBox * getSpinBox();
 
 private:
     QLabel * channelLbl;
     NoWheelSpinBox * valueSbx;
+    QLabel * unitMeasure;
 };
 
 #endif // SINGLECHANNELCONTROLDOCKWIDGET_H

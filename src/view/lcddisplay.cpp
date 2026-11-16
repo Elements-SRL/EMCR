@@ -40,7 +40,7 @@ TimerDisplay::TimerDisplay(QWidget * parent, QString timeFormat) :
 
     iconLabel->setGraphicsEffect(effect);
 
-    auto *pulse = new QSequentialAnimationGroup(iconLabel);
+    auto *pulseGroup = new QSequentialAnimationGroup(iconLabel);
 
     auto *fadeOut = new QPropertyAnimation(effect, "opacity");
     fadeOut->setDuration(1500);
@@ -56,14 +56,15 @@ TimerDisplay::TimerDisplay(QWidget * parent, QString timeFormat) :
 
     auto *pause = new QPauseAnimation(800);
 
-    pulse->addAnimation(pause);
-    pulse->addAnimation(fadeOut);
-    pulse->addAnimation(fadeIn);
-    pulse->setLoopCount(-1);
-    pulse->start();
+    pulseGroup->addAnimation(pause);
+    pulseGroup->addAnimation(fadeOut);
+    pulseGroup->addAnimation(fadeIn);
+    pulseGroup->setLoopCount(-1);
+    /*! Not started here: an endless animation keeps waking the event loop (~60 Hz)
+     *  even while the icon is hidden. See setRecordingIconVisible() */
+    pulse = pulseGroup;
 
-    iconLabelIdle->setVisible(true);
-    iconLabel->setVisible(false);
+    this->setRecordingIconVisible(false);
 
     lcdDisplay = new LcdDisplay(this);
     int digitCount = timeFormat.size();
@@ -101,8 +102,7 @@ void TimerDisplay::onStartTimer(bool ascending, QTime startTime) {
     paused = false;
 
     this->displayTime(currentTime);
-    iconLabel->setVisible(true);
-    iconLabelIdle->setVisible(false);
+    this->setRecordingIconVisible(true);
 
     timer->setSingleShot(true);
     elapsedEvents = 0;
@@ -116,8 +116,7 @@ void TimerDisplay::onRestartTimer() {
         if (paused) {
             paused = false;
             elapsedEvents = 0;
-            iconLabel->setVisible(true);
-            iconLabelIdle->setVisible(false);
+            this->setRecordingIconVisible(true);
             elapsedTimer.start();
             timer->start(remainingTime);
         } else {
@@ -133,13 +132,27 @@ void TimerDisplay::onStopTimer(bool pauseFlag) {
         timer->stop();
 
         if (!paused) {
-            iconLabel->setVisible(false);
-            iconLabelIdle->setVisible(true);
+            this->setRecordingIconVisible(false);
         }
     } else {
         paused &= pauseFlag;
-        if (!paused) iconLabel->setVisible(false);
+        if (!paused) {
+            iconLabel->setVisible(false);
+            pulse->stop();
+        }
         if (paused) iconLabelIdle->setVisible(true);
+    }
+}
+
+void TimerDisplay::setRecordingIconVisible(bool visible) {
+    iconLabel->setVisible(visible);
+    iconLabelIdle->setVisible(!visible);
+    if (visible) {
+        if (pulse->state() != QAbstractAnimation::Running) {
+            pulse->start();
+        }
+    } else {
+        pulse->stop();
     }
 }
 

@@ -338,7 +338,7 @@ void ChessboardController::onSetPlotData(PlotMessage plotMessage) {
 
 void ChessboardController::onReplot() {
     for (auto plot : plots) {
-        plot->replot();
+        plot->replotData();
     }
 }
 
@@ -367,12 +367,6 @@ void ChessboardController::onCurrentColorsChanged(QVector <QColor> colors) {
 void ChessboardController::onCurrentColorChanged(int channelIdx, QColor color) {
     plots[channelIdx]->setLegendColor(color);
 }
-
-//void ChessboardController::onBackgroundColorChanged(QColor color) {
-//    for (auto plot: plots) {
-//        plot->setCanvasBackground(color);
-//    }
-//}
 
 void ChessboardController::onSyncFaults(std::vector <bool> syncFaultFlags) {
     int boardIdx = 0;

@@ -108,13 +108,6 @@ void SpectrumController::onCurrentColorChanged(int channelIdx, QColor color) {
     irmsCurves[channelIdx]->setColor(color);
 }
 
-void SpectrumController::onBackgroundColorChanged(QColor color) {
-    auto plot = bpvc->getPlot();
-    if (plot != nullptr) {
-        plot->setCanvasBackground(color);
-    }
-}
-
 void SpectrumController::onReplot() {
     auto plot = bpvc->getPlot();
     if (plot != nullptr) {

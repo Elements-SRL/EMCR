@@ -126,11 +126,11 @@ AboutDialog::AboutDialog(QWidget* parent) :
                                 MPSSE_VER_PATCH,
                                 "",
                                 "");
-    librariesText += addLibrary("EZ-USB FX3 SDK",
+    /*! \todo TEMPORARY: CyAPI is no longer linked by e384commlib (it is inside e384_cyusb.dll, loaded at runtime),
+     *  so CY_VER_* are not defined anymore. The About dialog will be rebuilt from a list provided by e384commlib */
+    librariesText += addLibrary("EZ-USB FX3 SDK (CyAPI, in e384_cyusb.dll)",
                                 "https://www.infineon.com/design-resources/development-tools/sdk/usb-controllers-sdk/ez-usb-fx3-software-development-kit",
-                                CY_VER_MAJOR,
-                                CY_VER_MINOR,
-                                CY_VER_PATCH,
+                                QString("1.3.4"),
                                 "",
                                 "");
     librariesText += "</table>";

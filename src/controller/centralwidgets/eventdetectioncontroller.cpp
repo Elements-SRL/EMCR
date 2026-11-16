@@ -464,13 +464,6 @@ void EventDetectionController::onCurrentColorChanged(int channelIdx, QColor colo
     eventCurves[channelIdx]->setColor(color);
 }
 
-void EventDetectionController::onBackgroundColorChanged(QColor color) {
-    const auto& plot = widget->getPlot();
-    if (plot != nullptr) {
-        plot->setCanvasBackground(color);
-    }
-}
-
 void EventDetectionController::onReplot() {
     //if (plot != nullptr) {
     //    plot->replot();

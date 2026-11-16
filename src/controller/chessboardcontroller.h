@@ -61,7 +61,6 @@ public slots:
 
     void onCurrentColorsChanged(QVector <QColor> colors);
     void onCurrentColorChanged(int channelIdx, QColor color);
-//    void onBackgroundColorChanged(QColor color);
 
     void onSyncFaults(std::vector <bool> syncFaultFlags);
 

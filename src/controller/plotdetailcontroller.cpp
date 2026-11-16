@@ -176,9 +176,3 @@ void PlotDetailController::onCurrentColorChanged(int channelIdx, QColor c) {
     assert(channelIdx < pdms.size());
     pdms[channelIdx]->setCurveColor(c);
 }
-
-void PlotDetailController::onBackgroundColorChanged(QColor color) {
-    for (auto &pd: pds) {
-        pd.second->setBackgroundColor(color);
-    }
-}

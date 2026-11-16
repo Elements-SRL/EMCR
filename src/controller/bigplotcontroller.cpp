@@ -98,12 +98,6 @@ void BigPlotController::onCurrentColorChanged(int channelIdx, QColor color) {
     }
 }
 
-void BigPlotController::onBackgroundColorChanged(QColor color) {
-    for (const auto& [k, v] : controllers) {
-        v->onBackgroundColorChanged(color);
-    }
-}
-
 void BigPlotController::onExpandTrace(bool flag) {
     for (const auto& [k, v] : controllers) {
         v->onExpandTrace(flag);

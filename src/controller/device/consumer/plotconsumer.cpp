@@ -176,6 +176,22 @@ void GapFreePlotConsumer::setMaxSamplesPerPlot(int samples) {
     }
 }
 
+void GapFreePlotConsumer::setDisplayWidth(int devicePixels) {
+    const int samples = devicePixels > 0 ? qMax(2*devicePixels, PCS_MIN_DISPLAY_SAMPLES) : 0;
+    if (samples == displaySamples.load()) {
+        return;
+    }
+    displaySamples.store(samples);
+
+    /*! Same path used when the duration changes: the consumer thread recomputes the time axis.
+     *  If a new duration is already pending it is kept, the recomputation will use the new limit anyway */
+    QMutexLocker locker(&timeAxisMtx);
+    if (!pushedDurationFlag) {
+        pushedDuration = xAxisDuration;
+        pushedDurationFlag = true;
+    }
+}
+
 void GapFreePlotConsumer::run() {
     int bufferIdx;
     int bufferLen = 0;
@@ -295,7 +311,10 @@ void GapFreePlotConsumer::computeTimeAxis() {
     dataSize = qRound(samplingRateHz*xAxisDuration);
     minDataBatchSize = qMin(qRound(samplingRateHz*PCS_MIN_DATA_BATCH_DURATION_S), (int)producer->getDataPacketsBufferLen()/16);
 
-    subSamplingRatio = (dataSize-1)/maxSamples+1;
+    /*! Buffers are allocated for maxSamples: the display limit can only reduce the points */
+    const int limit = displaySamples.load();
+    const int plotSamples = (limit > 0) ? qMin(limit, maxSamples) : maxSamples;
+    subSamplingRatio = (dataSize-1)/plotSamples+1;
     dataSize /= subSamplingRatio;
 
     subSamplingIdx = 0;

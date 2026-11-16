@@ -6,6 +6,8 @@
 #include "protocol/protocollist.h"
 #include "e384commlib_errorcodes.h"
 
+QString commLibCode2info(ErrorCodes_t errorCode); /*!< Suggestion shown with a commlib error code */
+
 class ErrorManager : QMessageBox {
     Q_OBJECT
 

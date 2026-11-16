@@ -29,7 +29,6 @@ public slots:
     virtual void onRangeUpdated(RangedMeasurement_t newRange) = 0;
     virtual void onCurrentColorsChanged(QVector <QColor> colors) = 0;
     virtual void onCurrentColorChanged(int channelIdx, QColor color) = 0;
-    virtual void onBackgroundColorChanged(QColor color) = 0;
     virtual void onReplot() = 0;
     virtual void onExpandTrace(bool flag) = 0;
     virtual void onSetPlotData(PlotMessage plotMessage) = 0;

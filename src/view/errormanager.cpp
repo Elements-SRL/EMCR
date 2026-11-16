@@ -22,6 +22,18 @@ QString commLibCode2error(ErrorCodes_t errorCode) {
         error = "The requested device is not found";
         break;
 
+    case ErrorFtdiDriverNotFound:
+        error = "The FTDI driver library needed by the device is not available";
+        break;
+
+    case ErrorCyUsbDriverNotFound:
+        error = "The USB library needed by the device is not available";
+        break;
+
+    case ErrorOkDriverNotFound:
+        error = "The Opal Kelly library needed by the device is not available";
+        break;
+
     case ErrorEepromAlreadyConnected:
         error = "Connection to device EEPROM failed";
         break;
@@ -239,6 +251,18 @@ QString commLibCode2info(ErrorCodes_t errorCode) {
 
     case ErrorDeviceNotFound:
         info = "Please, close " + GLB_SOFTWARE_NAME + ", unplug and replug the device and restart " + GLB_SOFTWARE_NAME + ".";
+        break;
+
+    case ErrorFtdiDriverNotFound:
+        info = "If an Elements device is connected, install the FTDI D2XX driver or reinstall " + GLB_SOFTWARE_NAME + ".";
+        break;
+
+    case ErrorCyUsbDriverNotFound:
+        info = "An Elements UDB device needs the USB library (e384_cyusb.dll): reinstall " + GLB_SOFTWARE_NAME + " or contact Elements support.";
+        break;
+
+    case ErrorOkDriverNotFound:
+        info = "An Elements device based on Opal Kelly needs the FrontPanel library (okFrontPanel.dll): reinstall " + GLB_SOFTWARE_NAME + " or contact Elements support.";
         break;
 
     case ErrorEepromAlreadyConnected:

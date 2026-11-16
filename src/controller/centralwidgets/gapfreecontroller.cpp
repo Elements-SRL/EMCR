@@ -118,17 +118,49 @@ void GapFreeController::onCurrentColorChanged(int channelIdx, QColor color) {
     voltageCurves[channelIdx]->setColor(color);
 }
 
-void GapFreeController::onBackgroundColorChanged(QColor color) {    
-    auto plot = dbbovc->getPlot();
-    if (plot != nullptr) {
-        plot->setCanvasBackground(color);
-    }
-}
-
 void GapFreeController::onReplot() {
     auto plot = dbbovc->getPlot();
     if (plot != nullptr) {
+        this->updateDisplayWidth();
         plot->replot();
+    }
+}
+
+void GapFreeController::updateDisplayWidth() {
+    auto plot = dbbovc->getPlot();
+    if (plot == nullptr || plot->canvas() == nullptr) {
+        return;
+    }
+    /*! Width in physical pixels: at 125% scaling 705 logical px are ~880 columns on screen */
+    const QWidget * canvas = plot->canvas();
+    const int width = qRound(canvas->width()*canvas->devicePixelRatioF());
+    if (width <= 0) {
+        return;
+    }
+
+    /*! First time: apply immediately */
+    if (appliedDisplayWidth == 0) {
+        appliedDisplayWidth = width;
+        consumer->setDisplayWidth(width);
+        return;
+    }
+
+    /*! Ignore small changes (< 10%), so the time axis is not recomputed for nothing */
+    if (qAbs(width-appliedDisplayWidth)*10 < appliedDisplayWidth) {
+        pendingDisplayWidth = 0;
+        return;
+    }
+
+    /*! Apply only when the width is stable for a while (e.g. at the end of a dock resize) */
+    if (width != pendingDisplayWidth) {
+        pendingDisplayWidth = width;
+        pendingDisplayWidthTimer.start();
+        return;
+    }
+    if (pendingDisplayWidthTimer.elapsed() >= 300) {
+        appliedDisplayWidth = width;
+        pendingDisplayWidth = 0;
+        consumer->setDisplayWidth(width);
     }
 }
 

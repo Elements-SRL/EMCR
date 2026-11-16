@@ -2,7 +2,6 @@
 
 #include <QLayout>
 #include <QLabel>
-#include <QSpinBox>
 #include <QCheckBox>
 #include <QPushButton>
 
@@ -173,7 +172,7 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
     debugVl->addWidget(debugEepromAddressSbx);
 
     debugVl->addWidget(new QLabel("Eeprom Value"));
-    QSpinBox * debugEepromValueSbx = new QSpinBox;
+    debugEepromValueSbx = new QSpinBox;
     debugEepromValueSbx->setRange(0, 65535);
     debugEepromValueSbx->setValue(0);
     debugVl->addWidget(debugEepromValueSbx);
@@ -182,24 +181,22 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
     debugEepromWriteBtn->setCheckable(false);
     debugVl->addWidget(debugEepromWriteBtn);
 
-    connect(debugEepromWriteBtn, &QPushButton::clicked, this, [=] () {
+    connect(debugEepromWriteBtn, &QPushButton::clicked, this, [=, this] () {
         std::vector <uint32_t> value(1, debugEepromValueSbx->value());
         std::vector <uint32_t> address(1, debugEepromAddressSbx->value());
         std::vector <uint32_t> size(1, 2);
         emit sigWriteCalibrationEeprom(value, address, size);
     });
 
-    // QPushButton * debugEepromReadBtn = new QPushButton("Eeprom read");
-    // debugEepromReadBtn->setCheckable(false);
-    // debugVl->addWidget(debugEepromReadBtn);
+    QPushButton * debugEepromReadBtn = new QPushButton("Eeprom read");
+    debugEepromReadBtn->setCheckable(false);
+    debugVl->addWidget(debugEepromReadBtn);
 
-    // connect(debugEepromReadBtn, &QPushButton::clicked, this, [=] () {
-    //     std::vector <uint32_t> value(1);
-    //     std::vector <uint32_t> address(1, debugEepromAddressSbx->value());
-    //     std::vector <uint32_t> size(1, 2);
-    //     er4cl::readCalibrationEeprom(value, address, size);
-    //     debugEepromValueSbx->setValue(value[0]);
-    // });
+    connect(debugEepromReadBtn, &QPushButton::clicked, this, [=, this] () {
+        std::vector <uint32_t> address(1, debugEepromAddressSbx->value());
+        std::vector <uint32_t> size(1, 2);
+        emit sigReadCalibrationEeprom(address, size);
+    });
 
     debugDataLne = new QTextEdit();
     debugDataLne->setReadOnly(true);
@@ -208,6 +205,12 @@ DebugDockWidget::DebugDockWidget(QWidget * parent) :
     QWidget * spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     debugVl->addWidget(spacer);
+}
+
+void DebugDockWidget::updateEepromValue(std::vector <uint32_t> value) {
+    if (!(value.empty())) {
+        debugEepromValueSbx->setValue(value[0]);
+    }
 }
 
 void DebugDockWidget::onWriteDebugData(std::vector <int16_t> debugData) {
