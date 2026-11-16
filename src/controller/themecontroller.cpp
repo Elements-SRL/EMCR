@@ -65,10 +65,17 @@ QString ThemeController::loadAndProcessQss(const QString &path, Theme theme) {
     return qss;
 }
 
+// =============================================================================
+// Two levels of colors:
+// - primitives (below): the raw scales of each theme. Never used by the QSS.
+// - theme variables (themeVariables()): one role each, with its value in both
+//   themes. The QSS and ThemeController::color() only use these.
+// =============================================================================
+
 // DARK PALETTE
 // Palette is monochrome with different numeric shades (tonality):
 // 900 darker - 100 almost white
-static QMap<QString, QString> darkPalette = {
+static const QMap<QString, QString> darkPalette = {
     {"900", "#1A202C"},
     {"800", "#2D3648"},
     {"700", "#4A5468"},
@@ -81,7 +88,7 @@ static QMap<QString, QString> darkPalette = {
     {"White", "#FFFFFF"}
 };
 
-static QMap<QString, QString> darkAccentsPalette = {
+static const QMap<QString, QString> darkAccentsPalette = {
     {"Yellow", "#FFD43A"},
     {"Orange", "#FE9D35"},
     {"Green", "#2CD949"},
@@ -109,7 +116,7 @@ static QMap<QString, QString> darkAccentsPalette = {
 
 
 // LIGHT PALETTE
-static QMap<QString, QString> lightPalette = {
+static const QMap<QString, QString> lightPalette = {
     {"900", "#E2E5E6"},
     {"800", "#F3F3F5"},
     {"700", "#F8F8F8"},
@@ -122,7 +129,7 @@ static QMap<QString, QString> lightPalette = {
     {"White", "#0A0A0A"}
 };
 
-static QMap<QString, QString> lightAccentsPalette = {
+static const QMap<QString, QString> lightAccentsPalette = {
     {"Yellow", "#B45309"},
     {"Orange", "#D97706"},
     {"Green", "#16A34A"},
@@ -146,181 +153,185 @@ static QMap<QString, QString> lightAccentsPalette = {
     {"White 8", "rgba(0, 0, 0, 8%)"}
 };
 
+namespace {
+
+// Primitive lookups. A missing key is a typo in this file: caught in debug builds.
+QString pick(const QMap<QString, QString> &scale, const char *key) {
+    Q_ASSERT_X(scale.contains(QLatin1String(key)), "ThemeController", key);
+    return scale.value(QLatin1String(key));
+}
+QString dark(const char *key)        { return pick(darkPalette, key); }
+QString darkAccent(const char *key)  { return pick(darkAccentsPalette, key); }
+QString light(const char *key)       { return pick(lightPalette, key); }
+QString lightAccent(const char *key) { return pick(lightAccentsPalette, key); }
+
+// One value per theme, in the order of the Theme enum (Dark, Light, ...).
+// A new theme = a new enum entry + one more value on every row: a row left
+// without it does not compile.
+struct ThemeVariable {
+    template <typename... Values>
+    ThemeVariable(const char *variableName, const Values &... themeValues) :
+        name(variableName), values{QString(themeValues)...} {
+        static_assert(sizeof...(Values) == ThemeCount, "one value per theme (see enum Theme)");
+    }
+
+    const char *name;
+    QString values[ThemeCount];
+};
+
+// Names describe the role, never the color: the same name means the same
+// thing in every theme.
+const QList<ThemeVariable> &themeVariables() {
+    static const QList<ThemeVariable> variables = {
+            // --- Surfaces: window, panels, section headers, inset areas (tables, segmented tracks), popups ---
+            {"@SURFACE_APP",       dark("900"),                light("800")},
+            {"@SURFACE_PANEL",     dark("800"),                light("700")},
+            {"@SURFACE_HEADER",    dark("700"),                light("900")},
+            {"@SURFACE_INSET",     dark("900"),                light("800")},
+            {"@SURFACE_POPUP",     dark("800"),                light("700")},
+            {"@TOOLTIP_BG",        dark("700"),                light("900")},
+            {"@TOOLTIP_TEXT",      dark("100"),                light("300")},
+            {"@TABLE_HEADER_BG",   darkAccent("Table header"), light("600")},
+            {"@TABLE_HEADER_TEXT", dark("100"),                light("300")},
+
+            // --- Text, from strongest to weakest, plus text with a role ---
+            {"@TEXT_STRONG",    dark("100"),              light("300")},
+            {"@TEXT_DEFAULT",   dark("200"),              light("White")},
+            {"@TEXT_SUBTLE",    dark("400"),              light("100")},
+            {"@TEXT_CAPTION",   dark("600"),              light("300")},
+            {"@TEXT_INACTIVE",  dark("500"),              light("400")},
+            {"@TEXT_DISABLED",  dark("500"),              light("400")},
+            {"@TEXT_VALUE",     darkAccent("Orange"),     lightAccent("Orange")},
+            {"@TEXT_HIGHLIGHT", darkAccent("Blue Light"), lightAccent("Blue")},
+            {"@TEXT_LINK",      darkAccent("Blue"),       lightAccent("Blue")},
+            {"@TEXT_ON_ACCENT", dark("800"),              light("700")},
+            {"@TEXT_ON_DANGER", dark("400"),              light("100")},
+            {"@SPLASH_TITLE",   dark("White"),            light("White")},
+
+            // --- Buttons and other clickable controls ---
+            {"@CONTROL_BG",             dark("700"),              light("900")},
+            {"@CONTROL_BG_HOVER",       dark("600"),              light("600")},
+            {"@CONTROL_BG_PRESS",       dark("900"),              light("500")},
+            {"@CONTROL_BG_DISABLED",    darkAccent("White 20"),   lightAccent("White 10")},
+            {"@CONTROL_BORDER",         dark("700"),              light("500")},
+            {"@CONTROL_BORDER_HOVER",   dark("600"),              lightAccent("Blue")},
+            {"@CONTROL_BORDER_PRESS",   darkAccent("Orange"),     lightAccent("Orange")},
+            {"@CONTROL_BORDER_CHECKED", darkAccent("Blue Light"), lightAccent("Blue")},
+            {"@WINDOW_BUTTON_HOVER_BG", dark("700"),              light("600")},
+            {"@COUNTER_OFF_BG",         dark("700"),              light("900")},
+
+            // --- Editable fields (line edits, spin boxes, combo boxes) and check/radio indicators ---
+            {"@FIELD_BG",           dark("900"),              light("700")},
+            {"@FIELD_BG_FOCUS",     "rgba(0, 0, 0, 0.25)",    light("700")},
+            {"@FIELD_BORDER",       dark("700"),              light("500")},
+            {"@FIELD_BORDER_FOCUS", dark("600"),              lightAccent("Blue")},
+            {"@INDICATOR_CHECKED",  darkAccent("Blue Light"), lightAccent("Blue")},
+
+            // --- Hover / selection of rows and menu items ---
+            {"@ROW_HOVER_BG",       dark("600"),                 light("600")},
+            {"@ROW_SELECTED_BG",    dark("600"),                 light("600")},
+            {"@STATE_HOVER",        darkAccent("White 20"),      lightAccent("White 20")},
+            {"@STATE_SELECTED",     darkAccent("White 20"),      lightAccent("White 20")},
+            {"@STATE_PRESS",        darkAccent("White 10"),      lightAccent("White 16")},
+            {"@STATE_HOVER_SUBTLE", "rgba(255, 255, 255, 0.05)", "rgba(0, 0, 0, 0.05)"},
+
+            // --- Borders, separators, scroll bars, splitters, sliders ---
+            {"@BORDER_DEFAULT",      dark("700"),              light("600")},
+            {"@BORDER_SUBTLE",       dark("800"),              light("600")},
+            {"@BORDER_DISABLED",     dark("800"),              light("600")},
+            {"@SEPARATOR",           dark("700"),              light("500")},
+            {"@SEPARATOR_HOVER",     dark("600"),              light("600")},
+            {"@MENU_BORDER",         darkAccent("White 8"),    lightAccent("White 8")},
+            {"@POPUP_BORDER",        "rgba(255, 255, 255, 8)", light("500")},
+            {"@SPLITTER",            darkAccent("White 8"),    lightAccent("White 8")},
+            {"@SPLITTER_HOVER",      darkAccent("Blue Light"), lightAccent("Blue")},
+            {"@SCROLL_TRACK",        dark("800"),              light("700")},
+            {"@SCROLL_HANDLE",       dark("600"),              light("600")},
+            {"@SCROLL_HANDLE_HOVER", darkAccent("Blue Light"), lightAccent("Blue")},
+            {"@SLIDER_HANDLE",       darkAccent("Orange"),     lightAccent("Orange")},
+
+            // --- Accent (selection) and danger ---
+            {"@ACCENT",       darkAccent("Blue"),           lightAccent("Blue")},
+            {"@ACCENT_BG",    darkAccent("Selection Blue"), lightAccent("Selection Blue")},
+            {"@DANGER",       darkAccent("Red"),            lightAccent("Red")},
+            {"@DANGER_HOVER", darkAccent("Red Light"),      lightAccent("Red Light")},
+            {"@RECORD",       darkAccent("Red"),            lightAccent("Red")},
+
+            // --- Status: notifications, on/mixed labels ---
+            {"@STATUS_OK",      "#4ade80",                 lightAccent("Green")},
+            {"@STATUS_OK_BG",   "rgba(74, 222, 128, 15%)", "rgba(22, 163, 74, 15%)"},
+            {"@STATUS_INFO",    darkAccent("Blue Light"),  lightAccent("Blue")},
+            {"@STATUS_WARN",    darkAccent("Orange"),      lightAccent("Orange")},
+            {"@STATUS_WARN_BG", "rgba(226, 158, 46, 0.2)", "rgba(226, 158, 46, 0.2)"},
+            {"@STATUS_ERROR",   darkAccent("Red"),         lightAccent("Red")},
+            
+            // --- Channel property badges (E, P, O, X, R, C) ---
+            {"@BDG_E_FG", "#4ade80",                  lightAccent("Green")},
+            {"@BDG_E_BG", "rgba(74, 222, 128, 15%)",  "rgba(22, 163, 74, 15%)"},
+            {"@BDG_P_FG", "#a78bfa",                  lightAccent("Purple")},
+            {"@BDG_P_BG", "rgba(167, 139, 250, 15%)", "rgba(147, 51, 234, 15%)"},
+            {"@BDG_O_FG", "#a1a1aa",                  light("200")},
+            {"@BDG_O_BG", "rgba(161, 161, 170, 15%)", "rgba(88, 88, 88, 15%)"},
+            {"@BDG_X_FG", "#f87171",                  lightAccent("Red")},
+            {"@BDG_X_BG", "rgba(248, 113, 113, 15%)", "rgba(220, 38, 38, 15%)"},
+            {"@BDG_R_FG", "#fbbf24",                  lightAccent("Orange")},
+            {"@BDG_R_BG", "rgba(251, 191, 36, 15%)",  "rgba(217, 119, 6, 15%)"},
+            {"@BDG_C_FG", "#fafafa",                  lightAccent("Blue")},
+            {"@BDG_C_BG", "rgba(124, 58, 237, 20%)",  "rgba(0, 102, 204, 15%)"},
+
+            // --- Channel property badges, chessboard solid colors (painted from C++) ---
+            {"@BDG_E_FG_CH", "#FFFFFF", "#FFFFFF"}, {"@BDG_E_BG_CH", "#16a34a", lightAccent("Green")},
+            {"@BDG_P_FG_CH", "#FFFFFF", "#FFFFFF"}, {"@BDG_P_BG_CH", "#7c3aed", lightAccent("Purple")},
+            {"@BDG_O_FG_CH", "#FFFFFF", "#FFFFFF"}, {"@BDG_O_BG_CH", "#4b5563", light("200")},
+            {"@BDG_X_FG_CH", "#FFFFFF", "#FFFFFF"}, {"@BDG_X_BG_CH", "#dc2626", lightAccent("Red")},
+            {"@BDG_R_FG_CH", "#1e293b", "#FFFFFF"}, {"@BDG_R_BG_CH", "#eab308", lightAccent("Orange")},
+            {"@BDG_C_FG_CH", "#FFFFFF", "#FFFFFF"}, {"@BDG_C_BG_CH", "#2563eb", lightAccent("Blue")},
+
+            // --- Temperature sensor badges ---
+            {"@BDG_NOR_FG", "#4ade80",                  lightAccent("Green")},
+            {"@BDG_NOR_BG", "rgba(74, 222, 128, 15%)",  "rgba(22, 163, 74, 15%)"},
+            {"@BDG_WAR_FG", "#fbbf24",                  lightAccent("Orange")},
+            {"@BDG_WAR_BG", "rgba(251, 191, 36, 15%)",  "rgba(217, 119, 6, 15%)"},
+            {"@BDG_DNG_FG", "#f87171",                  lightAccent("Red")},
+            {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)", "rgba(220, 38, 38, 15%)"},
+
+            // --- Chessboard mini-plots (cards, overlay, curve) ---
+            {"@BG_STAMP",        "#11161F",   "#E3E8EE"},
+            {"@BG_STAMP_SEL",    "#3A4A66",   "#CFE0F3"},
+            {"@BORDER_STAMP",    dark("700"), light("500")},
+            {"@STAMP_GRID",      "#2A3344",   "#CBD3DC"},
+            {"@STAMP_CURVE",     "#CBD2E0",   light("100")},
+            {"@STAMP_NAME_BG",   dark("100"), light("300")},
+            {"@STAMP_NAME_TEXT", dark("900"), light("800")},
+
+            // --- Plots ---
+            {"@PLOT_BG",   dark("900"), light("800")},
+            {"@PLOT_GRID", "#3A4458",   "#C0C0C0"},
+
+            // --- Timer (LCD) ---
+            {"@LCD_BG",          "#CBD2E0", "#CBD2E0"},
+            {"@LCD_FG",          "#2C353F", "#2C353F"},
+            {"@LCD_FG_DISABLED", "#8A94A0", "#8A94A0"}
+    };
+    return variables;
+}
+
+} // namespace
+
 QMap<QString, QString> ThemeController::getPalette(Theme theme) {
-
     QMap<QString, QString> variables;
-    QString iconPrefix = ":/theme/";
-
-    if (theme == Dark) {
-        iconPrefix += "dark/icons";
-
-        variables = {
-            // --- Panel layers ---
-            {"@BG_APP",        darkPalette["900"]},
-            {"@BG_PANEL",      darkPalette["800"]},
-            {"@BG_HEADER",     darkPalette["700"]},
-            {"@BG_INPUT",      darkPalette["900"]},
-            {"@BG_BTN",        darkPalette["700"]},
-            {"@BG_BTN_HOVER",  darkPalette["600"]},
-            {"@BG_BTN_PRESS",  darkPalette["900"]},
-            {"@BG_SCROLL",     darkPalette["800"]},
-            {"@STATUS_MIXED_BG", "rgba(226, 158, 46, 0.2)"},
-            {"@TAB_HOVER",       "rgba(255, 255, 255, 0.05)"},
-            {"@BG_FIELD_FOCUS",  "rgba(0, 0, 0, 0.25)"},
-            {"@BORDER_POPUP",    "rgba(255, 255, 255, 8)"},
-            {"@SPLASH_TITLE",    darkPalette["White"]},
-
-            // --- Borders ---
-            {"@BORDER_STD",    darkPalette["800"]},
-            {"@BORDER_PANEL",  darkPalette["700"]},
-            {"@BORDER_INPUT",  darkPalette["700"]},
-            {"@BORDER_FOCUS",  darkPalette["600"]},
-            {"@BORDER_LIGHT",  darkAccentsPalette["White 8"]},
-
-            // --- Text ---
-            {"@TEXT_MAIN",       darkPalette["200"]},
-            {"@TEXT_SECONDARY",  darkPalette["400"]},
-            {"@TEXT_LIGHT",      darkPalette["100"]},
-            {"@TEXT_MUTED",      darkPalette["500"]},
-            {"@TEXT_TERTIARY",   darkPalette["600"]},
-
-            // --- Items ---
-            {"@ITEM_SELECTED",  darkAccentsPalette["White 20"]},
-            {"@ITEM_PRESS",     darkAccentsPalette["White 10"]},
-            {"@ITEM_DISABLED",  darkAccentsPalette["White 20"]},
-
-            // --- Accents ---
-            {"@ACCENT_RED",       darkAccentsPalette["Red"]},
-            {"@ACCENT_LRED",      darkAccentsPalette["Red Light"]},
-            {"@ACCENT_ORANGE",    darkAccentsPalette["Orange"]},
-            {"@ACCENT_BLUE",      darkAccentsPalette["Blue"]},
-            {"@ACCENT_LBLUE",     darkAccentsPalette["Blue Light"]},
-            {"@SELECTION_BLUE",   darkAccentsPalette["Selection Blue"]},
-            {"@TABLE_HEADER",     darkAccentsPalette["Table header"]},
-
-            // --- Badges ---
-            {"@BDG_E_FG", "#4ade80"}, {"@BDG_E_BG", "rgba(74, 222, 128, 15%)"},
-            {"@BDG_P_FG", "#a78bfa"}, {"@BDG_P_BG", "rgba(167, 139, 250, 15%)"},
-            {"@BDG_O_FG", "#a1a1aa"}, {"@BDG_O_BG", "rgba(161, 161, 170, 15%)"},
-            {"@BDG_X_FG", "#f87171"}, {"@BDG_X_BG", "rgba(248, 113, 113, 15%)"},
-            {"@BDG_R_FG", "#fbbf24"}, {"@BDG_R_BG", "rgba(251, 191, 36, 15%)"},
-            {"@BDG_C_FG", "#fafafa"}, {"@BDG_C_BG", "rgba(124, 58, 237, 20%)"},
-
-            // --- Badges - chessboard solid colors ---
-            {"@BDG_E_FG_CH", "#FFFFFF"}, {"@BDG_E_BG_CH", "#16a34a"},
-            {"@BDG_P_FG_CH", "#FFFFFF"}, {"@BDG_P_BG_CH", "#7c3aed"},
-            {"@BDG_O_FG_CH", "#FFFFFF"}, {"@BDG_O_BG_CH", "#4b5563"},
-            {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", "#dc2626"},
-            {"@BDG_R_FG_CH", "#1e293b"}, {"@BDG_R_BG_CH", "#eab308"},
-            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", "#2563eb"},
-
-            // --- Plots ---
-            // Chessboard mini-plots
-            {"@BG_STAMP",      "#11161F"},
-            {"@BG_STAMP_SEL",  "#3A4A66"},
-            {"@BORDER_STAMP",  darkPalette["700"]},
-            {"@STAMP_GRID",    "#2A3344"},
-            {"@STAMP_CURVE",   "#CBD2E0"},
-            {"@PLOT_GRID",     "#3A4458"},
-
-            // --- Badges for temperature sensor ---
-            {"@BDG_NOR_FG", "#4ade80"}, {"@BDG_NOR_BG", "rgba(74, 222, 128, 15%)"},
-            {"@BDG_WAR_FG", "#fbbf24"}, {"@BDG_WAR_BG", "rgba(251, 191, 36, 15%)"},
-            {"@BDG_DNG_FG", "#f87171"}, {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)"},
-
-            // --- Timer (LCD) ---
-            {"@LCD_BG",          "#CBD2E0"},
-            {"@LCD_FG",          "#2C353F"},
-            {"@LCD_FG_DISABLED", "#8A94A0"}
-        };
-
-    } else if (theme == Light) {
-        iconPrefix += "light/icons";
-
-        variables = {
-            // --- Panel layers ---
-            {"@BG_APP",        lightPalette["800"]},
-            {"@BG_PANEL",      lightPalette["700"]},
-            {"@BG_HEADER",     lightPalette["900"]},
-            {"@BG_INPUT",      lightPalette["700"]},
-            {"@BG_BTN",        lightPalette["900"]},
-            {"@BG_BTN_HOVER",  lightPalette["600"]},
-            {"@BG_BTN_PRESS",  lightPalette["500"]},
-            {"@BG_SCROLL",     lightPalette["800"]},
-            {"@STATUS_MIXED_BG", "rgba(226, 158, 46, 0.2)"},
-            {"@TAB_HOVER",       "rgba(0, 0, 0, 0.05)"},
-            {"@BG_FIELD_FOCUS",  lightPalette["700"]},
-            {"@BORDER_POPUP",    lightPalette["500"]},
-            {"@SPLASH_TITLE",    lightPalette["White"]},
-
-            // --- Borders ---
-            {"@BORDER_STD",    lightPalette["600"]},
-            {"@BORDER_PANEL",  lightPalette["600"]},
-            {"@BORDER_INPUT",  lightPalette["500"]},
-            {"@BORDER_FOCUS",  lightAccentsPalette["Blue"]},
-            {"@BORDER_LIGHT",  lightAccentsPalette["White 8"]},
-
-            // --- Text ---
-            {"@TEXT_MAIN",       lightPalette["White"]},
-            {"@TEXT_SECONDARY",  lightPalette["100"]},
-            {"@TEXT_LIGHT",      lightPalette["300"]},
-            {"@TEXT_MUTED",      lightPalette["400"]},
-            {"@TEXT_TERTIARY",   lightPalette["300"]},
-
-            // --- Items ---
-            {"@ITEM_SELECTED",  lightAccentsPalette["White 20"]},
-            {"@ITEM_PRESS",     lightAccentsPalette["White 16"]},
-            {"@ITEM_DISABLED",  lightAccentsPalette["White 10"]},
-
-            // --- Accents ---
-            {"@ACCENT_RED",       lightAccentsPalette["Red"]},
-            {"@ACCENT_LRED",      lightAccentsPalette["Red Light"]},
-            {"@ACCENT_ORANGE",    lightAccentsPalette["Orange"]},
-            {"@ACCENT_BLUE",      lightAccentsPalette["Blue"]},
-            {"@ACCENT_LBLUE",     lightAccentsPalette["Blue"]},
-            {"@SELECTION_BLUE",   lightAccentsPalette["Selection Blue"]},
-            {"@TABLE_HEADER",     lightPalette["600"]},
-
-            // --- Badges ---
-            {"@BDG_E_FG", lightAccentsPalette["Green"]},    {"@BDG_E_BG", "rgba(22, 163, 74, 15%)"},
-            {"@BDG_P_FG", lightAccentsPalette["Purple"]},   {"@BDG_P_BG", "rgba(147, 51, 234, 15%)"},
-            {"@BDG_O_FG", lightPalette["200"]},             {"@BDG_O_BG", "rgba(88, 88, 88, 15%)"},
-            {"@BDG_X_FG", lightAccentsPalette["Red"]},      {"@BDG_X_BG", "rgba(220, 38, 38, 15%)"},
-            {"@BDG_R_FG", lightAccentsPalette["Orange"]},   {"@BDG_R_BG", "rgba(217, 119, 6, 15%)"},
-            {"@BDG_C_FG", lightAccentsPalette["Blue"]},     {"@BDG_C_BG", "rgba(0, 102, 204, 15%)"},
-
-            // --- Badges - chessboard solid colors ---
-            {"@BDG_E_FG_CH", "#FFFFFF"}, {"@BDG_E_BG_CH", lightAccentsPalette["Green"]},
-            {"@BDG_P_FG_CH", "#FFFFFF"}, {"@BDG_P_BG_CH", lightAccentsPalette["Purple"]},
-            {"@BDG_O_FG_CH", "#FFFFFF"}, {"@BDG_O_BG_CH", lightPalette["200"]},
-            {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", lightAccentsPalette["Red"]},
-            {"@BDG_R_FG_CH", "#FFFFFF"}, {"@BDG_R_BG_CH", lightAccentsPalette["Orange"]},
-            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", lightAccentsPalette["Blue"]},
-
-            // --- Plots ---
-            // Chessboard mini-plots as small screens
-            {"@BG_STAMP",      "#E3E8EE"},
-            {"@BG_STAMP_SEL",  "#CFE0F3"},
-            {"@BORDER_STAMP",  lightPalette["500"]},
-            {"@STAMP_GRID",    "#CBD3DC"},
-            {"@STAMP_CURVE",   lightPalette["100"]},
-            {"@PLOT_GRID",     "#C0C0C0"},
-
-            // --- Badges for temperature sensor ---
-            {"@BDG_NOR_FG", lightAccentsPalette["Green"]}, {"@BDG_NOR_BG", "rgba(22, 163, 74, 15%)"},
-            {"@BDG_WAR_FG", lightAccentsPalette["Orange"]}, {"@BDG_WAR_BG", "rgba(217, 119, 6, 15%)"},
-            {"@BDG_DNG_FG", lightAccentsPalette["Red"]}, {"@BDG_DNG_BG", "rgba(220, 38, 38, 15%)"},
-
-            // --- Timer (LCD) ---
-            {"@LCD_BG",          "#CBD2E0"},
-            {"@LCD_FG",          "#2C353F"},
-            {"@LCD_FG_DISABLED", "#8A94A0"}
-        };
+    if (theme < 0 || theme >= ThemeCount) {
+        qWarning() << "ThemeController: unknown theme" << theme;
+        return variables;
+    }
+    for (const ThemeVariable &v : themeVariables()) {
+        variables.insert(QLatin1String(v.name), v.values[theme]);
     }
 
     // Common properties
-    variables.insert("@ICON_PREFIX", iconPrefix);
-    variables.insert("@IMGS_PREFIX", ThemeController::imgsPath());
+    const QString themeRoot = QStringLiteral(":/theme/") + getThemeStr(theme);
+    variables.insert("@ICON_PREFIX", themeRoot + "/icons");
+    variables.insert("@IMGS_PREFIX", themeRoot + "/imgs");
 
     return variables;
 }
@@ -379,5 +390,10 @@ QColor ThemeController::color(const QString &var) {
             }
         }
     }
-    return self.colorCache.value(var);
+    const auto it = self.colorCache.constFind(var);
+    if (it == self.colorCache.constEnd()) {
+        qWarning().noquote() << "ThemeController::color: unknown variable" << var;
+        return QColor();
+    }
+    return it.value();
 }

@@ -33,15 +33,15 @@ struct StampOverlayStyle {
     static constexpr int nameHPadding = 1;
     static constexpr qreal nameRadius = 2.0;
     static constexpr qreal nameBorderWidth = 1.0;
-    static constexpr const char * nameBackground = "@TEXT_LIGHT";
-    static constexpr const char * nameText = "@BG_APP";
-    static constexpr const char * nameBorder = "@BORDER_PANEL";
+    static constexpr const char * nameBackground = "@STAMP_NAME_BG";
+    static constexpr const char * nameText = "@STAMP_NAME_TEXT";
+    static constexpr const char * nameBorder = "@BORDER_DEFAULT";
 
     /*! Upper right - Channel color */
     static constexpr int colorSize = 10;
     static constexpr qreal colorRadius = 4.0;
     static constexpr qreal colorBorderWidth = 0.5;
-    static constexpr const char * colorBorder = "@BORDER_PANEL";
+    static constexpr const char * colorBorder = "@BORDER_DEFAULT";
 
     /*! Lower left: status badges*/
     static constexpr int badgeFontPx = 10;

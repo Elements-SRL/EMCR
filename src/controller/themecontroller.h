@@ -6,10 +6,12 @@
 #include <QColor>
 #include <QMap>
 
-// Available themes
+// Available themes. The value is saved in the settings: append new themes,
+// keep ThemeCount last.
 enum Theme {
     Dark = 0,
-    Light = 1
+    Light = 1,
+    ThemeCount
 };
 
 static QString getThemeStr(Theme th){
