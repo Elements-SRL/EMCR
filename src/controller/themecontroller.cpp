@@ -2,6 +2,9 @@
 #include <QFile>
 #include <QApplication>
 #include <QMap>
+#include <QSet>
+#include <QDebug>
+#include <QRegularExpression>
 
 ThemeController::ThemeController() {}
 ThemeController::~ThemeController() {}
@@ -43,6 +46,20 @@ QString ThemeController::loadAndProcessQss(const QString &path, Theme theme) {
     // Filling the base template with colors
     for (const QString &key : keys) {
         qss.replace(key, colors.value(key), Qt::CaseSensitive);
+    }
+
+    // Every @VARIABLE must have been replaced.
+    // Any leftover substitution muse be reported.
+    static const QRegularExpression leftoverVar(QStringLiteral("@[A-Z][A-Z0-9_]*"));
+    QSet<QString> leftovers;
+    for (auto it = leftoverVar.globalMatch(qss); it.hasNext();) {
+        leftovers.insert(it.next().captured());
+    }
+    if (!leftovers.isEmpty()) {
+        QStringList names(leftovers.begin(), leftovers.end());
+        names.sort();
+        qWarning().noquote() << "ThemeController: QSS variables not defined for the"
+                             << getThemeStr(theme) << "theme:" << names.join(", ");
     }
 
     return qss;
@@ -147,6 +164,11 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@BG_BTN_HOVER",  darkPalette["600"]},
             {"@BG_BTN_PRESS",  darkPalette["900"]},
             {"@BG_SCROLL",     darkPalette["800"]},
+            {"@STATUS_MIXED_BG", "rgba(226, 158, 46, 0.2)"},
+            {"@TAB_HOVER",       "rgba(255, 255, 255, 0.05)"},
+            {"@BG_FIELD_FOCUS",  "rgba(0, 0, 0, 0.25)"},
+            {"@BORDER_POPUP",    "rgba(255, 255, 255, 8)"},
+            {"@SPLASH_TITLE",    darkPalette["White"]},
 
             // --- Borders ---
             {"@BORDER_STD",    darkPalette["800"]},
@@ -202,9 +224,14 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@PLOT_GRID",     "#3A4458"},
 
             // --- Badges for temperature sensor ---
-            {"@BDG_NOR_FG", "#4ade80"}, {"@BDG_DEF_BG", "rgba(74, 222, 128, 15%)"},
+            {"@BDG_NOR_FG", "#4ade80"}, {"@BDG_NOR_BG", "rgba(74, 222, 128, 15%)"},
             {"@BDG_WAR_FG", "#fbbf24"}, {"@BDG_WAR_BG", "rgba(251, 191, 36, 15%)"},
-            {"@BDG_DNG_FG", "#f87171"}, {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)"}
+            {"@BDG_DNG_FG", "#f87171"}, {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)"},
+
+            // --- Timer (LCD) ---
+            {"@LCD_BG",          "#CBD2E0"},
+            {"@LCD_FG",          "#2C353F"},
+            {"@LCD_FG_DISABLED", "#8A94A0"}
         };
 
     } else if (theme == Light) {
@@ -220,6 +247,11 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@BG_BTN_HOVER",  lightPalette["600"]},
             {"@BG_BTN_PRESS",  lightPalette["500"]},
             {"@BG_SCROLL",     lightPalette["800"]},
+            {"@STATUS_MIXED_BG", "rgba(226, 158, 46, 0.2)"},
+            {"@TAB_HOVER",       "rgba(0, 0, 0, 0.05)"},
+            {"@BG_FIELD_FOCUS",  lightPalette["700"]},
+            {"@BORDER_POPUP",    lightPalette["500"]},
+            {"@SPLASH_TITLE",    lightPalette["White"]},
 
             // --- Borders ---
             {"@BORDER_STD",    lightPalette["600"]},
@@ -274,10 +306,15 @@ QMap<QString, QString> ThemeController::getPalette(Theme theme) {
             {"@STAMP_CURVE",   lightPalette["100"]},
             {"@PLOT_GRID",     "#C0C0C0"},
 
-             // --- Badges for temperature sensor ---
+            // --- Badges for temperature sensor ---
             {"@BDG_NOR_FG", lightAccentsPalette["Green"]}, {"@BDG_NOR_BG", "rgba(22, 163, 74, 15%)"},
             {"@BDG_WAR_FG", lightAccentsPalette["Orange"]}, {"@BDG_WAR_BG", "rgba(217, 119, 6, 15%)"},
-            {"@BDG_DNG_FG", lightAccentsPalette["Red"]}, {"@BDG_DNG_BG", "rgba(220, 38, 38, 15%)"}
+            {"@BDG_DNG_FG", lightAccentsPalette["Red"]}, {"@BDG_DNG_BG", "rgba(220, 38, 38, 15%)"},
+
+            // --- Timer (LCD) ---
+            {"@LCD_BG",          "#CBD2E0"},
+            {"@LCD_FG",          "#2C353F"},
+            {"@LCD_FG_DISABLED", "#8A94A0"}
         };
     }
 
