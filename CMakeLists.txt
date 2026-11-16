@@ -28,6 +28,7 @@ add_executable(EMCR WIN32
     src/controller/device/consumer/spectrumconsumer.cpp
     src/controller/device/deviceconnector.cpp
     src/controller/themecontroller.cpp
+    src/controller/notificationcenter.cpp
     src/controller/controllerwithconsumer.cpp
     src/controller/bigplotviewcontroller.cpp
     src/controller/debugcontroller.cpp
@@ -131,6 +132,8 @@ add_executable(EMCR WIN32
     src/view/autodeclogger/autodecloggerwidget.cpp
     src/view/splashscreen/splashview.cpp
     src/view/confirmdialog/confirmationdialog.cpp
+    src/view/notifications/notificationstatuswidget.cpp
+    src/view/notifications/notificationpopup.cpp
     src/view/autotoggle.cpp
     src/view/recordsettingsdialog.cpp
     src/view/rect4.cpp
@@ -166,6 +169,7 @@ add_executable(EMCR WIN32
     src/controller/device/consumer/spectrumconsumer.h
     src/controller/device/deviceconnector.h
     src/controller/themecontroller.h
+    src/controller/notificationcenter.h
     src/controller/controllerwithconsumer.h
     src/controller/bigplotviewcontroller.h
     src/controller/debugcontroller.h
@@ -279,6 +283,8 @@ add_executable(EMCR WIN32
     src/view/autodeclogger/autodecloggerwidget.h
     src/view/splashscreen/splashview.h
     src/view/confirmdialog/confirmationdialog.h
+    src/view/notifications/notificationstatuswidget.h
+    src/view/notifications/notificationpopup.h
     src/view/autotoggle.h
     src/view/recordsettingsdialog.h
     src/view/rect4.h

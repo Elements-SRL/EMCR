@@ -62,12 +62,14 @@
         <file>theme/dark/icons/circle-info-solid.svg</file>
         <file>theme/dark/icons/window-restore-regular.svg</file>
         <file>theme/dark/icons/x-solid.svg</file>
+        <file>theme/dark/icons/bell.svg</file>
         <file>theme/light/icons/3_dots_bounce.svg</file>
         <file>theme/light/icons/arrow_down.svg</file>
         <file>theme/light/icons/arrow_up.svg</file>
         <file>theme/light/icons/circle-info-solid.svg</file>
         <file>theme/light/icons/window-restore-regular.svg</file>
         <file>theme/light/icons/x-solid.svg</file>
+        <file>theme/light/icons/bell.svg</file>
         <file>theme/dark/imgs/logo_with_name.png</file>
         <file>theme/light/imgs/logo_with_name.png</file>
         <file>theme/dark/icons/device_ico.svg</file>

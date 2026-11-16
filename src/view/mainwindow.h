@@ -26,20 +26,8 @@
 #include "plotpreferencesdialog.h"
 #include "ivgraphwidget.h"
 #include "spectrumwidget.h"
-
-enum Notification {
-    NOTIFY_NONE,
-    NOTIFY_INFO,
-    NOTIFY_WARNING,
-    NOTIFY_ERROR
-};
-
-static QMap<Notification, QString> NotificationType = {
-    {NOTIFY_NONE, "NONE"},
-    {NOTIFY_INFO, "INFO"},
-    {NOTIFY_WARNING, "WARNING"},
-    {NOTIFY_ERROR, "ERROR"}
-};
+#include "notificationcenter.h"
+#include "notifications/notificationstatuswidget.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -86,8 +74,6 @@ public:
     void restoreUISettings();
     void saveUISettings();
     void disconnectDevice();
-    void addNotification(const QString &text, Notification noty);
-    void clearNotifications();
 
 public slots:
     void onNeedToChangeModelCellMsg(QString msg);
@@ -108,6 +94,8 @@ private:
     void createGuiControls();
     void destroyGuiControls();
     void setupDeviceConnectionGui(QFrame * container);
+    void showConnectionInfo(const QString &text, Notification level);
+    void clearConnectionInfo();
 
     MessageDispatcher * msgDisp = nullptr;
     QMenu * menuView = nullptr;
@@ -156,10 +144,8 @@ private:
     QPushButton * connectBtn = nullptr;
     QPushButton * disconnectBtn = nullptr;
 
-    QScrollArea *notificationScrollArea = nullptr;
-    QWidget *notificationContainer = nullptr;
-    QVBoxLayout *notificationLayout = nullptr;
     QLabel *connectionInfoLbl = nullptr;
+    NotificationStatusWidget *notificationStatusW = nullptr;
 
     int voltageChannelsNum = 1;
     int currentChannelsNum = 1;

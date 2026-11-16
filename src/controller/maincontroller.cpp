@@ -6,6 +6,7 @@
 #include "globaldefines.h"
 #include "confirmdialog/confirmationdialog.h"
 #include "themecontroller.h"
+#include "notificationcenter.h"
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 
@@ -197,10 +198,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     if (connectionSuccessful) {
         mainWindow->showHideConnectedDevice(true);
         msgDisp = deviceConnector->getMessageDispatcher();
-
-        if (msgDisp->getCalibrationStatus() != Success) {
-            mainWindow->addNotification("Calibration data not found. Loading default values.", Notification::NOTIFY_WARNING);
-        }
+        notifyCalibrationStatus();  /* Notifies calibration errors/status to user */
 
         msgDisp->getChannelNumberFeatures(voltageChannelsNumber, currentChannelsNumber);
         msgDisp->getBoardsNumberFeatures(boardsNumber);
@@ -219,7 +217,7 @@ void MainController::onDeviceConnected(ErrorCodes_t ret) {
     } else {
         mainWindow->connectDevice(false, ret);
         mainWindow->showHideConnectedDevice(false);
-        mainWindow->addNotification("⚠ Connection failed. Check device connection.", Notification::NOTIFY_ERROR);
+        NotificationCenter::getInstance().addNotification("Connection failed. Check device connection.", NOTIFY_ERROR);
 
         emit startDetecting();
     }
@@ -691,6 +689,52 @@ void MainController::onThemeUpdated() {
         }
 
         plot->replot();
+    }
+}
+
+/*
+ * Notifies user about calibration status - errors/success.
+ */
+void MainController::notifyCalibrationStatus(){
+    switch (msgDisp->getCalibrationStatus())
+    {
+    case e384CommLib::ErrorCodes::ErrorCalibrationDirMissing:
+        NotificationCenter::getInstance().addNotification("Calibration folder is missing. Loading default values.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::ErrorCalibrationMappingNotOpened:
+        NotificationCenter::getInstance().addNotification("Calibration mapping file cannot be opened. Loading default values.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::ErrorCalibrationMappingCorrupted:
+        NotificationCenter::getInstance().addNotification("Calibration mapping file is corrupted. Loading default values.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::ErrorCalibrationFileCorrupted:
+        NotificationCenter::getInstance().addNotification("Calibration file is corrupted. Loading default values.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::ErrorCalibrationFileMissing:
+        NotificationCenter::getInstance().addNotification("Calibration file is missing. Loading default values.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::ErrorCalibrationSoftwareBug:
+        NotificationCenter::getInstance().addNotification("Problem encountered in the calibration loading procedure.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::ErrorCalibrationNotLoadedYet:
+        NotificationCenter::getInstance().addNotification("Calibration is not loaded yet.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::ErrorCalibrationMappingWrongNumbering:
+        NotificationCenter::getInstance().addNotification("Boards numbering in mapping file is wrong.", NOTIFY_WARNING);
+        break;
+
+    case e384CommLib::ErrorCodes::Success:
+         NotificationCenter::getInstance().addNotification("Calibration successfully loaded.", NOTIFY_INFO);
+
+    default:
+        break;
     }
 }
 

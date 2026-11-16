@@ -1204,6 +1204,74 @@ QMainWindow::separator:hover {
 /* --- NOTIFICATIONS ---                     */
 /* ========================================= */
 
+/* Status in the menu bar corner (bell + text) */
+QFrame#notificationStatus {
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    margin-right: 6px;
+}
+
+QFrame#notificationStatus:hover {
+    background-color: @ITEM_SELECTED;
+}
+
+QLabel#notificationStatusText {
+    color: @TEXT_SECONDARY;
+    spacing: 10;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+/* The bell takes the same color of the text */
+#notificationStatusText[level="OK"]      {color: @TEXT_SECONDARY;}
+#notificationStatusText[level="INFO"]    {color: @ACCENT_LBLUE;}
+#notificationStatusText[level="WARNING"] {color: @ACCENT_ORANGE;}
+#notificationStatusText[level="ERROR"]   {color: @ACCENT_RED;}
+
+/* Popup */
+QFrame#notificationPopup {
+    background-color: @BG_PANEL;
+    border: 1px solid @BORDER_PANEL;
+    border-radius: 4px;
+}
+
+QPushButton#notificationTabBtn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0px;
+    color: @TEXT_MUTED;
+    font-size: 11px;
+    padding: 4px 6px;
+}
+
+QPushButton#notificationTabBtn:hover {
+    color: @TEXT_MAIN;
+}
+
+QPushButton#notificationTabBtn:checked {
+    color: @TEXT_MAIN;
+    border-bottom: 2px solid @ACCENT_BLUE;
+}
+
+QPushButton#notificationLinkBtn {
+    background: transparent;
+    border: none;
+    color: @ACCENT_BLUE;
+    font-size: 11px;
+    padding: 4px 2px;
+}
+
+QPushButton#notificationLinkBtn:hover {
+    text-decoration: underline;
+}
+
+QPushButton#notificationLinkBtn:disabled {
+    color: @TEXT_MUTED;
+}
+
 QScrollArea#notificationScrollArea {
     background: transparent;
     border: none;
@@ -1213,29 +1281,57 @@ QWidget#notificationContainer {
     background: transparent;
 }
 
-QFrame#notificationBanner {
-    background-color: @BG_PANEL;
-    border: 1px solid @ACCENT_ORANGE;
+QLabel#notificationEmptyLbl {
+    color: @TEXT_MUTED;
+    font-size: 11px;
+    padding: 16px;
+}
+
+/* Single notification */
+QFrame#notificationItem {
+    background-color: @BG_APP;
+    border: 1px solid @BORDER_PANEL;
     border-radius: 4px;
 }
 
-QLabel#notificationText {
-    color: @TEXT_MAIN;
-    font-size: 10px;
-    font-weight: 500;
+QFrame#notificationItem[read="false"] {
+    background-color: @BG_HEADER;
 }
 
-/* INFO */
-#notificationText[level="INFO"] {color: @ACCENT_LBLUE;}
-#notificationBanner[level="INFO"] {border: 1px solid @ACCENT_LBLUE;}
+QFrame#notificationItem:hover {
+    background-color: @BG_BTN_HOVER;
+}
 
-/* WARNING */
+QLabel#notificationText {
+    color: @TEXT_SECONDARY;
+    font-size: 11px;
+}
+
+QLabel#notificationText[read="false"] {
+    font-weight: 600;
+}
+
+/* Border and text colored by severity */
+#notificationItem[level="INFO"]    {border: 1px solid @ACCENT_LBLUE;}
+#notificationItem[level="WARNING"] {border: 1px solid @ACCENT_ORANGE;}
+#notificationItem[level="ERROR"]   {border: 1px solid @ACCENT_RED;}
+
+#notificationText[level="INFO"]    {color: @ACCENT_LBLUE;}
 #notificationText[level="WARNING"] {color: @ACCENT_ORANGE;}
-#notificationBanner[level="WARNING"] {border: 1px solid @ACCENT_ORANGE;}
+#notificationText[level="ERROR"]   {color: @ACCENT_RED;}
 
-/* ERROR */
-#notificationText[level="ERROR"] {color: @ACCENT_LRED;}
-#notificationBanner[level="ERROR"] {border: 1px solid @ACCENT_LRED;}
+QLabel#notificationTime {
+    color: @TEXT_MUTED;
+    font-size: 10px;
+}
+
+QLabel#notificationDot {
+    font-size: 10px;
+}
+
+#notificationDot[level="INFO"]    {color: @ACCENT_LBLUE;}
+#notificationDot[level="WARNING"] {color: @ACCENT_ORANGE;}
+#notificationDot[level="ERROR"]   {color: @ACCENT_RED;}
 
 QPushButton#closeNotificationBtn {
     background: transparent;
