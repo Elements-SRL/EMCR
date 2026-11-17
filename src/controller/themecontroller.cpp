@@ -99,9 +99,8 @@ static const QMap<QString, QString> basePalette = {
 // ACCENTS
 // Per theme: on light surfaces the same hue must be darker to stay readable.
 static const QMap<QString, QString> darkAccentsPalette = {
-    {"Blue",           "#00A2FF"},
-    {"Blue Light",     "#B0DCFF"},
-    {"Selection Blue", "#3A6A9A"},
+    {"Blue",           "#4DA3FF"},
+    {"Selection Blue", "#24507D"},
     {"Orange",         "#FE9D35"},
     {"Red",            "rgb(255, 82, 82)"},
     {"Red 70",         "rgba(255, 82, 82, 70%)"},
@@ -174,7 +173,7 @@ QMap<QString, QString> darkTheme() {
         {"@TEXT_INACTIVE",  base("400")},
         {"@TEXT_DISABLED",  base("500")},
         {"@TEXT_VALUE",     base("150")},
-        {"@TEXT_HIGHLIGHT", darkAccent("Blue Light")},
+        {"@TEXT_HIGHLIGHT", darkAccent("Blue")},
         {"@TEXT_LINK",      darkAccent("Blue")},
         {"@TEXT_ON_ACCENT", base("800")},
         {"@TEXT_ON_DANGER", base("200")},
@@ -188,7 +187,7 @@ QMap<QString, QString> darkTheme() {
         {"@CONTROL_BORDER",         base("700")},
         {"@CONTROL_BORDER_HOVER",   base("500")},
         {"@CONTROL_BORDER_PRESS",   darkAccent("Orange")},
-        {"@CONTROL_BORDER_CHECKED", darkAccent("Blue Light")},
+        {"@CONTROL_BORDER_CHECKED", darkAccent("Blue")},
         {"@WINDOW_BUTTON_HOVER_BG", base("700")},
         {"@COUNTER_OFF_BG",         base("700")},
 
@@ -197,11 +196,11 @@ QMap<QString, QString> darkTheme() {
         {"@FIELD_BG_FOCUS",     "rgba(0, 0, 0, 0.25)"},
         {"@FIELD_BORDER",       base("500")},
         {"@FIELD_BORDER_FOCUS", darkAccent("Orange")},
-        {"@INDICATOR_CHECKED",  darkAccent("Blue Light")},
+        {"@INDICATOR_CHECKED",  darkAccent("Blue")},
 
         // --- Hover / selection of rows and menu items ---
         {"@ROW_HOVER_BG",       base("500")},
-        {"@ROW_SELECTED_BG",    base("500")},
+        {"@ROW_SELECTED_BG",    "#3A404B"}, // neutral grey: the blue was too strong on dark tables
         {"@STATE_HOVER",        darkAccent("Overlay 20")},
         {"@STATE_PRESS",        darkAccent("Overlay 10")},
         {"@STATE_HOVER_SUBTLE", "rgba(255, 255, 255, 0.05)"},
@@ -215,10 +214,11 @@ QMap<QString, QString> darkTheme() {
         {"@MENU_BORDER",         darkAccent("Overlay 8")},
         {"@POPUP_BORDER",        "rgba(255, 255, 255, 8)"},
         {"@SPLITTER",            darkAccent("Overlay 8")},
-        {"@SPLITTER_HOVER",      darkAccent("Blue Light")},
+        {"@SPLITTER_HOVER",      darkAccent("Blue")},
         {"@SCROLL_TRACK",        base("800")},
         {"@SCROLL_HANDLE",       base("500")},
-        {"@SCROLL_HANDLE_HOVER", darkAccent("Blue Light")},
+        {"@SCROLL_HANDLE_HOVER", darkAccent("Blue")},
+        {"@SCROLL_SHADOW",       "rgba(0, 0, 0, 0.75)"},
         {"@SLIDER_HANDLE",       darkAccent("Orange")},
 
         // --- Accent (selection) and danger ---
@@ -231,7 +231,7 @@ QMap<QString, QString> darkTheme() {
         // --- Status: notifications, on/mixed labels ---
         {"@STATUS_OK",      "#4ade80"},
         {"@STATUS_OK_BG",   "rgba(74, 222, 128, 15%)"},
-        {"@STATUS_INFO",    darkAccent("Blue Light")},
+        {"@STATUS_INFO",    darkAccent("Blue")},
         {"@STATUS_WARN",    darkAccent("Orange")},
         {"@STATUS_WARN_BG", "rgba(226, 158, 46, 0.2)"},
         {"@STATUS_ERROR",   darkAccent("Red")},
@@ -273,10 +273,10 @@ QMap<QString, QString> darkTheme() {
         {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)"},
 
         // --- Chessboard mini-plots (cards, overlay, curve) ---
-        {"@BG_STAMP",        base("950")},
-        {"@BG_STAMP_SEL",    "#3A4A66"},
+        {"@BG_STAMP",        base("800")},
+        {"@BG_STAMP_SEL",    "#283E5B"},
         {"@BORDER_STAMP",    base("700")},
-        {"@STAMP_GRID",      "#2A3344"},
+        {"@STAMP_GRID",      base("750")},
         {"@STAMP_CURVE",     base("200")},
         {"@STAMP_NAME_BG",   base("50")},
         {"@STAMP_NAME_TEXT", base("900")},
@@ -286,10 +286,10 @@ QMap<QString, QString> darkTheme() {
         {"@PLOT_GRID", "#3A4458"},
 
         // --- Timer (LCD) ---
-        {"@LCD_BG",          base("200")},
-        {"@LCD_FG",          "#2C353F"},
-        {"@LCD_FG_DISABLED", "#8A94A0"},
-        {"@LCD_BORDER",      base("200")}
+        {"@LCD_BG",          base("900")},
+        {"@LCD_FG",          base("150")},
+        {"@LCD_FG_DISABLED", base("500")},
+        {"@LCD_BORDER",      base("750")}
 
     };
 }
@@ -343,14 +343,14 @@ QMap<QString, QString> lightTheme() {
 
         // --- Hover / selection of rows and menu items ---
         {"@ROW_HOVER_BG",       base("200")},
-        {"@ROW_SELECTED_BG",    base("300")},
+        {"@ROW_SELECTED_BG",    lightAccent("Selection Blue")},
         {"@STATE_HOVER",        lightAccent("Overlay 8")},
         {"@STATE_PRESS",        lightAccent("Overlay 12")},
         {"@STATE_HOVER_SUBTLE", lightAccent("Overlay 5")},
 
         // --- Borders, separators, scroll bars, splitters, sliders ---
         {"@BORDER_DEFAULT",      base("300")},
-        {"@BORDER_SUBTLE",       base("200")},
+        {"@BORDER_SUBTLE",       base("300")},
         {"@BORDER_DISABLED",     base("300")},
         {"@SEPARATOR",           base("300")},
         {"@SEPARATOR_HOVER",     base("300")},
@@ -361,6 +361,7 @@ QMap<QString, QString> lightTheme() {
         {"@SCROLL_TRACK",        base("150")},
         {"@SCROLL_HANDLE",       base("400")},
         {"@SCROLL_HANDLE_HOVER", lightAccent("Blue")},
+        {"@SCROLL_SHADOW",       "rgba(26, 32, 44, 0.35)"},
         {"@SLIDER_HANDLE",       lightAccent("Orange")},
 
         // --- Accent (selection) and danger ---
@@ -417,8 +418,8 @@ QMap<QString, QString> lightTheme() {
 
         // --- Chessboard mini-plots (cards, overlay, curve) ---
         {"@BG_STAMP",        base("150")},
-        {"@BG_STAMP_SEL",    "#C7DBF2"},
-        {"@BORDER_STAMP",    base("300")},
+        {"@BG_STAMP_SEL",    "#D6E4F5"},
+        {"@BORDER_STAMP",    base("400")},
         {"@STAMP_GRID",      base("200")},
         {"@STAMP_CURVE",     base("500")},
         {"@STAMP_NAME_BG",   base("50")},

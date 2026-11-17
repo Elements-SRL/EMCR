@@ -2,6 +2,7 @@
 
 #include <QScrollBar>
 #include <QScrollArea>
+#include "scrollshadow.h"
 
 SingleChannelControlDockWidget::SingleChannelControlDockWidget(ApplicationStatus * appStatus, QWidget * parent) :
     QDockWidget(parent),
@@ -627,6 +628,7 @@ QVBoxLayout * SingleChannelControlDockWidget::getLayoutWithScrollBar(QWidget * w
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     vl->addWidget(scrollArea);
+    ScrollShadow::install(scrollArea);
 
     QFrame * scrollWg = new QFrame;
     scrollArea->setWidget(scrollWg);

@@ -25,6 +25,8 @@ AutoDecloggerWidget::AutoDecloggerWidget(RangedMeasurement cr, RangedMeasurement
     // TOP BAR
     QFrame* activationHeader = new QFrame();
     activationHeader->setObjectName("sectionHeaderContainer");
+    activationHeader->setProperty("dockSides", true);      // side borders like the content below
+    activationHeader->setProperty("floatingAware", true);  // border depends on the dock floating state
     QHBoxLayout* topBarLayout = new QHBoxLayout(activationHeader);
     topBarLayout->setContentsMargins(0, 0, 0, 0);
     topBarLayout->setSpacing(0);

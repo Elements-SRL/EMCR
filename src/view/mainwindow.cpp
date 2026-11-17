@@ -330,6 +330,10 @@ MainWindow::MainWindow(QWidget * parent) :
             for (auto* dw : this->findChildren<QDockWidget*>()) {
                 if (!dw || !dw->widget() || !dw->widget()->layout()) continue;
 
+                // The Device dock has its own margins (QSS of #connectedPage):
+                // same exclusion as updateAllMargins in setDockWidget
+                if (dw->objectName() == "deviceDetectorDw") continue;
+
                 if (dw->isFloating()) {
                     dw->widget()->layout()->setContentsMargins(0, 0, 0, 0);
                 } else if (this->tabifiedDockWidgets(dw).isEmpty()) {

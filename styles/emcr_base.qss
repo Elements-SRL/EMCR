@@ -10,9 +10,13 @@ QWidget {
 }
 
 QMainWindow,
-QDockWidget, 
-QDialog {
+QDockWidget {
     background: @SURFACE_APP; 
+}
+
+/* Dialogs are a surface in front of the app, not the app background */
+QDialog {
+    background: @SURFACE_PANEL;
 }
 
 QLabel#dlgExitMsg{
@@ -59,8 +63,6 @@ QLabel:disabled {
 
 /* Orange color - use for technical-like data */
 QWidget[technical="true"] {
-    font-family: "Inria Sans";
-    font-size: 13px;
     color: @TEXT_VALUE; 
 }
 
@@ -128,9 +130,30 @@ QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox {
 /* Combo boxes: same box as the other inputs, different text */
 QComboBox {
     border-radius: 2px;
+    padding-right: 20px; /* room for the arrow */
     color: @TEXT_SUBTLE;
     font-size: 11px;
     font-style: italic; 
+}
+
+/* Arrow like the spin boxes ones, instead of the native button */
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    width: 16px;
+    border: none;
+    background: transparent;
+}
+
+QComboBox::down-arrow {
+    image: url(@ICON_PREFIX/arrow_down.svg);
+    width: 10px;
+    height: 10px;
+}
+
+QComboBox::drop-down:hover {
+    background-color: @CONTROL_BG_HOVER;
+    border-radius: 2px;
 }
 
 QLineEdit:disabled, QDoubleSpinBox:disabled, QSpinBox:disabled, QComboBox:disabled {
@@ -192,16 +215,16 @@ QListView::item:selected:active {
 }
 
 QListView::item:selected:!active {
-    background-color: @ROW_SELECTED_BG; 
-    color: @TEXT_DEFAULT;
-    border: 1px solid @BORDER_DEFAULT;
+    background-color: @ACCENT_BG; 
+    color: @TEXT_STRONG;
+    border: 1px solid transparent;
 }
 
 /* --- BUTTONS --- */
 QPushButton {
     background-color: @CONTROL_BG;
     border: 1px solid @CONTROL_BORDER;
-    border-radius: 3px;
+    border-radius: 4px;
     padding: 4px 12px;
     min-height: 18px;
 }
@@ -596,18 +619,18 @@ QPushButton#windowClose:hover, QPushButton#windowExpand:hover {
 }
 
 /* Header */
+/* Section caption: small uppercase text on a header band */
 QLabel#sectionHeader {
-    color: @TEXT_SUBTLE;
-    font-weight: 300;
-    text-transform: uppercase;
+    color: @TEXT_CAPTION;
+    font-weight: 600;
     font-size: 10px;
-    letter-spacing: 1px;
+    letter-spacing: 0.6px;
 }
 
 QFrame#sectionHeaderContainer {
     background-color: @SURFACE_HEADER;
     height: 14px;
-    padding: 5px 8px;
+    padding: 4px 8px 4px 8px;
     spacing: 10
 }
 
@@ -641,22 +664,23 @@ QLabel[status="on"] {
     border: 1px solid @STATUS_OK;
 }
 
+/* Per-property ON/OFF counters: small boxes, they are read at a glance */
 QLabel#featureOnCounter{
-    background-color: @STATUS_OK_BG; 
+    background-color: @STATUS_OK_BG;
     color: @STATUS_OK;
     border-radius: 2px;
-    font-weight: bold;
-    font-size: 9px;
+    font-weight: 600;
+    font-size: 10px;
     padding-left: 4px;
     padding-right: 4px;
 }
 
 QLabel#featureOffCounter{
-    background-color: @COUNTER_OFF_BG; 
+    background-color: @STATE_HOVER_SUBTLE;
     color: @TEXT_INACTIVE;
     border-radius: 2px;
-    font-weight: bold;
-    font-size: 9px;
+    font-weight: 600;
+    font-size: 10px;
     padding-left: 4px;
     padding-right: 4px;
 }
@@ -676,21 +700,36 @@ QLabel#autoLabel {
 QLabel#autoLabel[active="true"] { color: @TEXT_HIGHLIGHT; }
 
 /* Counters & Titles */
-QLabel#selectionCounter {
+/* Selection counter: caption on the left, count in a pill on the right
+   (the Channels overview legend is a different thing: square + text) */
+QFrame#selectionCounter {
     background-color: @SURFACE_PANEL; 
-    color: @TEXT_HIGHLIGHT;
-    padding: 5px;
-    font-size: 10px;
-    font-weight: bold;
     border: 1px solid @BORDER_DEFAULT;
     border-top: none;
-    
 }
-QLabel#selectionCounter[empty="true"] { color: @TEXT_DISABLED; }
+
+QLabel#selectionCounterCaption {
+    color: @TEXT_CAPTION;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.6px;
+}
+
+QLabel#selectionCounterText {
+    background-color: @ACCENT_BG;
+    color: @TEXT_STRONG;
+    border-radius: 9px;
+    padding: 1px 8px;
+    font-weight: 600;
+}
+
+QLabel#selectionCounterText[empty="true"] {
+    background-color: @STATE_HOVER_SUBTLE;
+    color: @TEXT_DISABLED;
+}
 
 QFrame#propertyContainer {
     border: none;
-    border-bottom: 1px solid @BORDER_DEFAULT;
     margin: 4px; 
     padding: 0 8px;
 }
@@ -700,7 +739,7 @@ QLabel#propertyName, QLabel#titleLabel {
     text-transform: uppercase;
 }
 QLabel#propertyName { font-size: 10px; }
-QLabel#titleLabel { font-size: 11px; font-weight: bold; letter-spacing: 1px; }
+QLabel#titleLabel { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: @TEXT_STRONG; }
 
 /* --- SUMMARY --- */
 QWidget#summaryContainer {
@@ -728,7 +767,8 @@ QLabel#summaryCellValue {
     font-size: 10px;
     font-weight: bold;
 }
-QLabel#summaryCellValue[status="on"] { color: @STATUS_OK; }
+QLabel#summaryCellValue[status="on"] { color: @STATUS_OK; background: transparent; border: none; }
+QLabel#summaryCellValue[status="mixed"] { color: @STATUS_WARN; background: transparent; border: none; }
 QLabel#summaryCellValue[status="auto"] { color: @TEXT_HIGHLIGHT; }
 QLabel#summaryCellValue[status="offline"] { background: transparent; }
 
@@ -763,7 +803,7 @@ QFrame#modeContainer {
 QFrame#modeContainer QPushButton {
     background-color: @CONTROL_BG;
     border: 1px solid @CONTROL_BORDER;
-    border-radius: 3px;
+    border-radius: 4px;
     color: @TEXT_DEFAULT;
     font-size: 10px;
 }
@@ -912,8 +952,9 @@ QTabWidget#bigPlotTabWidget {
 QTabWidget#bigPlotTabWidget::pane {
     background: @SURFACE_PANEL;
     border: 1px solid @BORDER_DEFAULT;
-    margin-top: -38px;
-    padding-top: 35px;
+    /* pane top on the dock area top (like the side panels): -(tab bar height) */
+    margin-top: -41px;
+    padding-top: 38px;
     border-radius: 6px;
 }
 
@@ -1100,16 +1141,14 @@ QWidget#statsContainer {
 }
 
 QLabel#statsLbl{
-    font-family: "Inria Sans", sans-serif;
     font-size: 10px;
     color: @TEXT_SUBTLE;
     font-weight: 400;
 }
 
 QLabel#statsVal{
-    font-family: "Inria Sans", sans-serif;
     font-size: 10px;
-    font-weight: 350;
+    font-weight: 600;
 }
 
 
@@ -1122,8 +1161,8 @@ QComboBox#deviceCombo{
 }
 
 QLabel#deviceConnectedLbl {
-    background-color: @SURFACE_PANEL;
-    padding: 6px 7px;
+    background-color: @CONTROL_BG;
+    padding: 5px 7px;
     border-radius: 4px;
     height: 16px;
     font-family: "Inter", sans-serif;
@@ -1150,8 +1189,17 @@ QFrame#deviceDetectorWid[page="connected"] {
     background: @SURFACE_APP;
 }
 
+/* Connected device: a panel like the docks below */
+QFrame#connectedPage {
+    /* like the docks: top on the dock area top, sides 10px, bottom 10px before the next dock */
+    margin: 0px 10px 10px 10px;
+    background: @SURFACE_PANEL;
+    border: 1px solid @BORDER_DEFAULT;
+    border-radius: 6px;
+}
+
 QPushButton#disconnectBtn {
-    background-color: @SURFACE_PANEL;
+    background-color: @CONTROL_BG;
     border: 1px solid @CONTROL_BORDER;
     qproperty-icon: url(@ICON_PREFIX/disconnect_plug.svg); 
 }
@@ -1163,7 +1211,6 @@ QPushButton#disconnectBtn:hover {
 }
 
 QLabel#connectionSpeed {
-    font-family: "Inria Sans";
     font-size: 11px;
     color: @TEXT_CAPTION; 
 }
@@ -1294,7 +1341,7 @@ QLabel#notificationText {
 }
 
 QLabel#notificationText[read="false"] {
-    font-weight: 600;
+    font-weight: 400;
 }
 
 /* Border and text colored by severity */
@@ -1340,7 +1387,7 @@ QPushButton#closeNotificationBtn:hover {
 /* ========================================= */
 
 QWidget#gridContainer{
-    background: @SURFACE_APP;
+    background: @SURFACE_PANEL;
     border: 1px solid @BORDER_DEFAULT;
     border-top: none;
     border-bottom: none;
@@ -1456,6 +1503,11 @@ QDockWidget#protocolDw[floating="true"] #ProtocolPropertyDialog {
 /* AUTODECLOGGER */
 QDockWidget#autoDeclogger[floating="true"] #autodecloggerScrollContainer {
     border: none;
+}
+
+QDockWidget#autoDeclogger[floating="true"] QFrame#sectionHeaderContainer[dockSides="true"] {
+    border-left: none;
+    border-right: none;
 }
 
 QDockWidget#autoDeclogger[floating="true"] #poreHeaderContainer {
@@ -1627,7 +1679,7 @@ QRadioButton#collapsibleRowButton:hover {
 
 QRadioButton#collapsibleRowButton:checked {
     background-color: @CONTROL_BG_PRESS;
-    border: 1px solid @CONTROL_BORDER_CHECKED;
+    border: 1px solid @ACCENT;
 }
 
 
@@ -1808,7 +1860,7 @@ QPushButton#startRecordingButton[running="true"] {
 /* ========================================================================= */
 
 QFrame#operationHeader{
-    background: @SURFACE_APP;
+    background: @SURFACE_PANEL;
     border-left: 1px solid @BORDER_DEFAULT;
     border-right: 1px solid @BORDER_DEFAULT;
     border-bottom: 0.5px solid @BORDER_SUBTLE;
@@ -1826,7 +1878,7 @@ QDockWidget#singleChannelControlsDw{
 }
 
 QFrame#singleChannelControlsScrollContainer{
-    background: @SURFACE_APP;
+    background: @SURFACE_PANEL;
     border-left: 1px solid @BORDER_DEFAULT;
     border-right: 1px solid @BORDER_DEFAULT;
 }
@@ -1846,7 +1898,7 @@ QComboBox#operationCbx{
     padding-top: 4px;
     padding-bottom: 4px;
     padding-left: 4px;
-    padding-right: 10px;
+    padding-right: 20px;
     border: 1px solid @FIELD_BORDER;
     border-radius: 4px;
     color: @TEXT_VALUE;
@@ -1875,6 +1927,21 @@ QListView {
     border: 1px solid @BORDER_DEFAULT;
     border-radius: 4px;
     padding: 4px;
+}
+
+/* Scrolling content: inset, like the other content areas */
+ProtocolList {
+    background-color: @SURFACE_PANEL;
+}
+
+/* Edge shadows of the scroll areas (ScrollShadow::install): shown only when
+   there is more content in that direction */
+QWidget#scrollShadowTop {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 @SCROLL_SHADOW, stop:1 transparent);
+}
+
+QWidget#scrollShadowBottom {
+    background: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop:0 @SCROLL_SHADOW, stop:1 transparent);
 }
 
 
@@ -1917,6 +1984,12 @@ QFrame#poreHeaderContainer {
     border-bottom-left-radius: 4px;
 }
 
+/* "Activate" header: section header with the dock side borders (docked only) */
+QFrame#sectionHeaderContainer[dockSides="true"] {
+    border-left: 1px solid @BORDER_DEFAULT;
+    border-right: 1px solid @BORDER_DEFAULT;
+}
+
 QFrame#autodecloggerScrollContainer {
     border: 1px solid @BORDER_DEFAULT;
     background: @SURFACE_PANEL;
@@ -1941,7 +2014,7 @@ QLabel#poreStatusLbl {
 /* ========================================================================= */
 
 QWidget#crudButtonsBar{
-    background-color: @SURFACE_HEADER;
+    background-color: @SURFACE_PANEL;
     border: 1px solid @BORDER_DEFAULT;
     border-top: none;
 }
@@ -2087,7 +2160,7 @@ ColorSelectionButton {
 /* ========================================================================= */
 
 QFrame#compensationControlsScrollContainer{
-    background: @SURFACE_APP;
+    background: @SURFACE_INSET;
     border-left: 1px solid @BORDER_DEFAULT;
     border-right: 1px solid @BORDER_DEFAULT;
 }
@@ -2100,7 +2173,7 @@ QDockWidget#temperatureSensorDw{
 }
 
 QFrame#tempTableHeader{
-    background: @SURFACE_APP;
+    background: @SURFACE_INSET;
     border-left: 1px solid @BORDER_DEFAULT;
     border-right: 1px solid @BORDER_DEFAULT;
     border-bottom: 0.5px solid @BORDER_DEFAULT;
@@ -2114,7 +2187,7 @@ QFrame#tempTableHeader QLabel {
 }
 
 QFrame#tempRowFrame {
-    background-color: @SURFACE_APP;
+    background-color: @SURFACE_INSET;
     border-left: 1px solid @BORDER_DEFAULT;
     border-right: 1px solid @BORDER_DEFAULT;
     border-bottom: 0.5px solid @BORDER_DEFAULT;
