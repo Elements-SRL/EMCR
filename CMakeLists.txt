@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27) # e384commlib -> ftdi_utils >= 1.6 exports $<COMPILE_ONLY:...>
 
 project(EMCR
-    VERSION 0.32.0
+    VERSION 0.33.0
     LANGUAGES CXX
 )
 
