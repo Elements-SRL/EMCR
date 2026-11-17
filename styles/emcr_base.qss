@@ -1759,8 +1759,10 @@ QHeaderView::section {
     font-weight: 400;
 }
 
+/* Sections of the selected rows/columns: solid, the header has no background
+   of its own below the section (a translucent overlay showed up almost black) */
 QHeaderView::section:checked {
-    background-color: @STATE_SELECTED;
+    background-color: @ROW_SELECTED_BG;
 }
 
 QHeaderView#tableVHeader {
@@ -2058,6 +2060,7 @@ QLCDNumber:disabled {
 /* Timer container - background */
 TimerDisplay {
     background-color: @LCD_BG; 
+    border: 1px solid @LCD_BORDER;
     border-radius: 2px;
 }
 
