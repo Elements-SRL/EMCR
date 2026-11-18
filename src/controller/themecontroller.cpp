@@ -2,6 +2,9 @@
 #include <QFile>
 #include <QApplication>
 #include <QMap>
+#include <QSet>
+#include <QDebug>
+#include <QRegularExpression>
 
 ThemeController::ThemeController() {}
 ThemeController::~ThemeController() {}
@@ -15,6 +18,9 @@ ThemeController& ThemeController::getInstance() {
 void ThemeController::applyTheme(Theme theme) {
     this->currentTheme = theme;
     this->colorCache.clear();
+
+    qApp->setPalette(buildPalette());
+
     QString qssPath = ":/styles/emcr_base.qss";
     QString processedQss = loadAndProcessQss(qssPath, theme);
     qApp->setStyleSheet(processedQss);
@@ -45,247 +51,461 @@ QString ThemeController::loadAndProcessQss(const QString &path, Theme theme) {
         qss.replace(key, colors.value(key), Qt::CaseSensitive);
     }
 
+    // Every @VARIABLE must have been replaced.
+    // Any leftover substitution muse be reported.
+    static const QRegularExpression leftoverVar(QStringLiteral("@[A-Z][A-Z0-9_]*"));
+    QSet<QString> leftovers;
+    for (auto it = leftoverVar.globalMatch(qss); it.hasNext();) {
+        leftovers.insert(it.next().captured());
+    }
+    if (!leftovers.isEmpty()) {
+        QStringList names(leftovers.begin(), leftovers.end());
+        names.sort();
+        qWarning().noquote() << "ThemeController: QSS variables not defined for the"
+                             << getThemeStr(theme) << "theme:" << names.join(", ");
+    }
+
     return qss;
 }
 
-// DARK PALETTE
-// Palette is monochrome with different numeric shades (tonality):
-// 900 darker - 100 almost white
-static QMap<QString, QString> darkPalette = {
-    {"900", "#1A202C"},
-    {"800", "#2D3648"},
+// =============================================================================
+// Two levels of colors:
+// - primitives (below): the raw colors. Never used by the QSS.
+// - theme variables (darkTheme(), lightTheme()): one role each. The QSS and
+//   ThemeController::color() only use these.
+// =============================================================================
+
+// NEUTRALS
+// One base scale shared by every theme: 50 is the lightest, 950 the darkest.
+// Dark themes take the surfaces from the dark end and the text from the light
+// end, light themes the opposite: the two themes are the same app inverted.
+static const QMap<QString, QString> basePalette = {
+    {"50",  "#F7F9FC"},
+    {"100", "#EDF0F4"},
+    {"150", "#DEE3EA"},
+    {"200", "#CDD4DF"},
+    {"250", "#C3CBD7"},
+    {"300", "#B4BDCB"},
+    {"400", "#8E99AE"},
+    {"500", "#717D96"},
+    {"600", "#5A657C"},
     {"700", "#4A5468"},
-    {"600", "#717D96"},
-    {"500", "rgba(160, 171, 192, 70%)"},
-    {"400", "#CBD2E0"},
-    {"300", "#E2E7F0"},
-    {"200", "#D9D9D9"},
-    {"100", "#F7F9FC"},
-    {"White", "#FFFFFF"}
+    {"750", "#3D475A"},
+    {"800", "#2D3648"},
+    {"900", "#1A202C"},
+    {"950", "#11161F"}
 };
 
-static QMap<QString, QString> darkAccentsPalette = {
-    {"Yellow", "#FFD43A"},
-    {"Orange", "#FE9D35"},
-    {"Green", "#2CD949"},
-    {"Blue", "#00A2FF"},
-    {"Purple", "#F134F7"},
-    {"Red", "rgb(255, 82, 82)"},
+// ACCENTS
+// Per theme: on light surfaces the same hue must be darker to stay readable.
+static const QMap<QString, QString> darkAccentsPalette = {
+    {"Blue",           "#4DA3FF"},
+    {"Selection Blue", "#24507D"},
+    {"Orange",         "#FE9D35"},
+    {"Red",            "rgb(255, 82, 82)"},
+    {"Red 70",         "rgba(255, 82, 82, 70%)"},
 
-    {"Yellow Light", "#FFEDAD"},
-    {"Orange Light", "#FED7AD"},
-    {"Blue Light", "#B0DCFF"},
-    {"Purple Light", "#F6D1FF"},
-    {"Red Light", "rgba(255, 82, 82, 70%)"},
-
-    {"Selection Blue", "#3a6a9a"},
-    {"Selection Green", "#68FF83"},
-    {"Table header", "#2B313C"},
-
-    {"White 20", "rgba(255, 255, 255, 20%)"},
-    {"White 16", "rgba(255, 255, 255, 16%)"},
-    {"White 13", "rgba(255, 255, 255, 13%)"},
-    {"White 10", "rgba(255, 255, 255, 10%)"},
-    {"White 8", "rgba(255, 255, 255, 8%)"}
-
+    // White overlays, for hover/press on any dark surface
+    {"Overlay 20", "rgba(255, 255, 255, 20%)"},
+    {"Overlay 10", "rgba(255, 255, 255, 10%)"},
+    {"Overlay 8",  "rgba(255, 255, 255, 8%)"}
 };
 
+static const QMap<QString, QString> lightAccentsPalette = {
+    {"Blue",           "#0B5CAD"},
+    {"Selection Blue", "#B5CFEC"},
+    {"Orange",         "#C2570C"},
+    {"Amber",          "#B45309"},
+    {"Amber Text",     "#92400E"},  // darker, for text on the light surfaces
+    {"Green",          "#15803D"},
+    {"Green Text",     "#166534"},  // darker, for text on the light surfaces
+    {"Purple",         "#7E22CE"},
+    {"Red",            "#B91C1C"},
+    {"Red 15",         "rgba(185, 28, 28, 15%)"},
 
-// LIGHT PALETTE
-static QMap<QString, QString> lightPalette = {
-    {"900", "#E2E5E6"},
-    {"800", "#F3F3F5"},
-    {"700", "#F8F8F8"},
-    {"600", "#DADEE3"},
-    {"500", "#C9CDD0"},
-    {"400", "#9EA0A2"},
-    {"300", "#797B7A"},
-    {"200", "#585858"},
-    {"100", "#3E3E3E"},
-    {"White", "#0A0A0A"}
+    // Slate 900 overlays, for hover/press on any light surface
+    {"Overlay 14", "rgba(26, 32, 44, 14%)"},
+    {"Overlay 12", "rgba(26, 32, 44, 12%)"},
+    {"Overlay 10", "rgba(26, 32, 44, 10%)"},
+    {"Overlay 8",  "rgba(26, 32, 44, 8%)"},
+    {"Overlay 5",  "rgba(26, 32, 44, 5%)"}
 };
 
-static QMap<QString, QString> lightAccentsPalette = {
-    {"Yellow", "#B45309"},
-    {"Orange", "#D97706"},
-    {"Green", "#16A34A"},
-    {"Blue", "#0066CC"},
-    {"Purple", "#9333EA"},
-    {"Red", "#DC2626"},
+namespace {
 
-    {"Yellow Light", "#FEF3C7"},
-    {"Orange Light", "#FFEDD5"},
-    {"Blue Light", "#DBEAFE"},
-    {"Purple Light", "#F3E8FF"},
-    {"Red Light", "#FEE2E2"},
+// Primitive lookups. A missing key is a typo in this file: caught in debug builds.
+QString pick(const QMap<QString, QString> &scale, const char *key) {
+    Q_ASSERT_X(scale.contains(QLatin1String(key)), "ThemeController", key);
+    return scale.value(QLatin1String(key));
+}
+QString base(const char *key)       { return pick(basePalette, key); }
+QString darkAccent(const char *key)  { return pick(darkAccentsPalette, key); }
+QString lightAccent(const char *key) { return pick(lightAccentsPalette, key); }
 
-    {"Selection Blue", "#B0DCFF"},
-    {"Selection Green", "#BBF7D0"},
+// =============================================================================
+// THEMES
+// One dictionary per theme, with the same variables in the same order (keep
+// them aligned: two themes can then be compared side by side in a diff).
+// Names describe the role, never the color: the same name means the same thing
+// in every theme. getPalette() warns if a theme misses a variable of the dark
+// one, or has one more.
+// =============================================================================
 
-    {"White 20", "rgba(0, 0, 0, 20%)"},
-    {"White 16", "rgba(0, 0, 0, 16%)"},
-    {"White 13", "rgba(0, 0, 0, 13%)"},
-    {"White 10", "rgba(0, 0, 0, 10%)"},
-    {"White 8", "rgba(0, 0, 0, 8%)"}
-};
+// DARK THEME
+QMap<QString, QString> darkTheme() {
+    return {
+        // --- Surfaces: window, panels, section headers, inset areas (fields, plots, tables), popups ---
+        {"@SURFACE_APP",       base("900")},
+        {"@SURFACE_PANEL",     base("800")},
+        {"@SURFACE_HEADER",    base("750")},
+        {"@SURFACE_INSET",     base("900")},
+        {"@SURFACE_POPUP",     base("800")},
+        {"@TOOLTIP_BG",        base("700")},
+        {"@TOOLTIP_TEXT",      base("50")},
+        {"@TABLE_HEADER_BG",   "#2B313C"},
+        {"@TABLE_HEADER_TEXT", base("50")},
+
+        // --- Text, from strongest to weakest, plus text with a role ---
+        {"@TEXT_STRONG",    base("50")},
+        {"@TEXT_DEFAULT",   base("150")},
+        {"@TEXT_SUBTLE",    base("200")},
+        {"@TEXT_CAPTION",   base("400")},
+        {"@TEXT_INACTIVE",  base("400")},
+        {"@TEXT_DISABLED",  base("500")},
+        {"@TEXT_VALUE",     base("150")},
+        {"@TEXT_HIGHLIGHT", darkAccent("Blue")},
+        {"@TEXT_LINK",      darkAccent("Blue")},
+        {"@TEXT_ON_ACCENT", base("800")},
+        {"@TEXT_ON_DANGER", base("200")},
+        {"@SPLASH_TITLE",   "#FFFFFF"},
+
+        // --- Buttons and other clickable controls ---
+        {"@CONTROL_BG",             base("700")},
+        {"@CONTROL_BG_HOVER",       base("500")},
+        {"@CONTROL_BG_PRESS",       base("900")},
+        {"@CONTROL_BG_DISABLED",    darkAccent("Overlay 20")},
+        {"@CONTROL_BORDER",         base("700")},
+        {"@CONTROL_BORDER_HOVER",   base("500")},
+        {"@CONTROL_BORDER_PRESS",   darkAccent("Orange")},
+        {"@CONTROL_BORDER_CHECKED", darkAccent("Blue")},
+        {"@WINDOW_BUTTON_HOVER_BG", base("700")},
+        {"@COUNTER_OFF_BG",         base("700")},
+
+        // --- Editable fields (line edits, spin boxes, combo boxes) and check/radio indicators ---
+        {"@FIELD_BG",           base("900")},
+        {"@FIELD_BG_FOCUS",     "rgba(0, 0, 0, 0.25)"},
+        {"@FIELD_BORDER",       base("500")},
+        {"@FIELD_BORDER_FOCUS", darkAccent("Orange")},
+        {"@INDICATOR_CHECKED",  darkAccent("Blue")},
+
+        // --- Hover / selection of rows and menu items ---
+        {"@ROW_HOVER_BG",       base("500")},
+        {"@ROW_SELECTED_BG",    "#3A404B"}, // neutral grey: the blue was too strong on dark tables
+        {"@STATE_HOVER",        darkAccent("Overlay 20")},
+        {"@STATE_PRESS",        darkAccent("Overlay 10")},
+        {"@STATE_HOVER_SUBTLE", "rgba(255, 255, 255, 0.05)"},
+
+        // --- Borders, separators, scroll bars, splitters, sliders ---
+        {"@BORDER_DEFAULT",      base("700")},
+        {"@BORDER_SUBTLE",       base("750")},
+        {"@BORDER_DISABLED",     base("700")},
+        {"@SEPARATOR",           base("700")},
+        {"@SEPARATOR_HOVER",     base("500")},
+        {"@MENU_BORDER",         darkAccent("Overlay 8")},
+        {"@POPUP_BORDER",        "rgba(255, 255, 255, 8)"},
+        {"@SPLITTER",            darkAccent("Overlay 8")},
+        {"@SPLITTER_HOVER",      darkAccent("Blue")},
+        {"@SCROLL_TRACK",        base("800")},
+        {"@SCROLL_HANDLE",       base("500")},
+        {"@SCROLL_HANDLE_HOVER", darkAccent("Blue")},
+        {"@SCROLL_SHADOW",       "rgba(0, 0, 0, 0.75)"},
+        {"@SLIDER_HANDLE",       darkAccent("Orange")},
+
+        // --- Accent (selection) and danger ---
+        {"@ACCENT",       darkAccent("Blue")},
+        {"@ACCENT_BG",    darkAccent("Selection Blue")},
+        {"@DANGER",       darkAccent("Red")},
+        {"@DANGER_HOVER", darkAccent("Red 70")},
+        {"@RECORD",       darkAccent("Red")},
+
+        // --- Status: notifications, on/mixed labels ---
+        {"@STATUS_OK",      "#4ade80"},
+        {"@STATUS_OK_BG",   "rgba(74, 222, 128, 15%)"},
+        {"@STATUS_INFO",    darkAccent("Blue")},
+        {"@STATUS_WARN",    darkAccent("Orange")},
+        {"@STATUS_WARN_BG", "rgba(226, 158, 46, 0.2)"},
+        {"@STATUS_ERROR",   darkAccent("Red")},
+
+        // --- Channel property badges (E, P, O, X, R, C) ---
+        {"@BDG_E_FG", "#4ade80"},
+        {"@BDG_E_BG", "rgba(74, 222, 128, 15%)"},
+        {"@BDG_P_FG", "#a78bfa"},
+        {"@BDG_P_BG", "rgba(167, 139, 250, 15%)"},
+        {"@BDG_O_FG", "#a1a1aa"},
+        {"@BDG_O_BG", "rgba(161, 161, 170, 15%)"},
+        {"@BDG_X_FG", "#f87171"},
+        {"@BDG_X_BG", "rgba(248, 113, 113, 15%)"},
+        {"@BDG_R_FG", "#fbbf24"},
+        {"@BDG_R_BG", "rgba(251, 191, 36, 15%)"},
+        {"@BDG_C_FG", "#fafafa"},
+        {"@BDG_C_BG", "rgba(124, 58, 237, 20%)"},
+
+        // --- Channel property badges, chessboard solid colors (painted from C++) ---
+        {"@BDG_E_FG_CH", "#FFFFFF"},
+        {"@BDG_E_BG_CH", "#16a34a"},
+        {"@BDG_P_FG_CH", "#FFFFFF"},
+        {"@BDG_P_BG_CH", "#7c3aed"},
+        {"@BDG_O_FG_CH", "#FFFFFF"},
+        {"@BDG_O_BG_CH", "#4b5563"},
+        {"@BDG_X_FG_CH", "#FFFFFF"},
+        {"@BDG_X_BG_CH", "#dc2626"},
+        {"@BDG_R_FG_CH", "#1e293b"},
+        {"@BDG_R_BG_CH", "#eab308"},
+        {"@BDG_C_FG_CH", "#FFFFFF"},
+        {"@BDG_C_BG_CH", "#2563eb"},
+
+        // --- Temperature sensor badges ---
+        {"@BDG_NOR_FG", "#4ade80"},
+        {"@BDG_NOR_BG", "rgba(74, 222, 128, 15%)"},
+        {"@BDG_WAR_FG", "#fbbf24"},
+        {"@BDG_WAR_BG", "rgba(251, 191, 36, 15%)"},
+        {"@BDG_DNG_FG", "#f87171"},
+        {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)"},
+
+        // --- Chessboard mini-plots (cards, overlay, curve) ---
+        {"@BG_STAMP",        base("800")},
+        {"@BG_STAMP_SEL",    "#283E5B"},
+        {"@BORDER_STAMP",    base("700")},
+        {"@STAMP_GRID",      base("750")},
+        {"@STAMP_CURVE",     base("200")},
+        {"@STAMP_NAME_BG",   base("50")},
+        {"@STAMP_NAME_TEXT", base("900")},
+
+        // --- Plots ---
+        {"@PLOT_BG",   base("900")},
+        {"@PLOT_GRID", "#3A4458"},
+
+        // --- Timer (LCD) ---
+        {"@LCD_BG",          base("900")},
+        {"@LCD_FG",          base("150")},
+        {"@LCD_FG_DISABLED", base("500")},
+        {"@LCD_BORDER",      base("750")}
+
+    };
+}
+
+// LIGHT THEME
+QMap<QString, QString> lightTheme() {
+    return {
+        // --- Surfaces: window, panels, section headers, inset areas (fields, plots, tables), popups ---
+        {"@SURFACE_APP",       base("250")},
+        {"@SURFACE_PANEL",     base("150")},
+        {"@SURFACE_HEADER",    base("200")},
+        {"@SURFACE_INSET",     base("100")},
+        {"@SURFACE_POPUP",     base("100")},
+        {"@TOOLTIP_BG",        base("800")},
+        {"@TOOLTIP_TEXT",      base("50")},
+        {"@TABLE_HEADER_BG",   base("200")},
+        {"@TABLE_HEADER_TEXT", base("900")},
+
+        // --- Text, from strongest to weakest, plus text with a role ---
+        {"@TEXT_STRONG",    base("900")},
+        {"@TEXT_DEFAULT",   base("800")},
+        {"@TEXT_SUBTLE",    base("700")},
+        {"@TEXT_CAPTION",   base("700")},
+        {"@TEXT_INACTIVE",  base("700")},
+        {"@TEXT_DISABLED",  base("400")},
+        {"@TEXT_VALUE",     base("800")},
+        {"@TEXT_HIGHLIGHT", lightAccent("Blue")},
+        {"@TEXT_LINK",      lightAccent("Blue")},
+        {"@TEXT_ON_ACCENT", base("50")},
+        {"@TEXT_ON_DANGER", base("50")},
+        {"@SPLASH_TITLE",   base("900")},
+
+        // --- Buttons and other clickable controls ---
+        {"@CONTROL_BG",             base("200")},
+        {"@CONTROL_BG_HOVER",       base("250")},
+        {"@CONTROL_BG_PRESS",       base("300")},
+        {"@CONTROL_BG_DISABLED",    base("150")},
+        {"@CONTROL_BORDER",         base("500")},
+        {"@CONTROL_BORDER_HOVER",   base("600")},
+        {"@CONTROL_BORDER_PRESS",   lightAccent("Orange")},
+        {"@CONTROL_BORDER_CHECKED", lightAccent("Blue")},
+        {"@WINDOW_BUTTON_HOVER_BG", base("300")},
+        {"@COUNTER_OFF_BG",         base("200")},
+
+        // --- Editable fields (line edits, spin boxes, combo boxes) and check/radio indicators ---
+        {"@FIELD_BG",           base("100")},
+        {"@FIELD_BG_FOCUS",     base("50")},
+        {"@FIELD_BORDER",       base("500")},
+        {"@FIELD_BORDER_FOCUS", lightAccent("Orange")},
+        {"@INDICATOR_CHECKED",  lightAccent("Blue")},
+
+        // --- Hover / selection of rows and menu items ---
+        {"@ROW_HOVER_BG",       base("200")},
+        {"@ROW_SELECTED_BG",    lightAccent("Selection Blue")},
+        {"@STATE_HOVER",        lightAccent("Overlay 8")},
+        {"@STATE_PRESS",        lightAccent("Overlay 12")},
+        {"@STATE_HOVER_SUBTLE", lightAccent("Overlay 5")},
+
+        // --- Borders, separators, scroll bars, splitters, sliders ---
+        {"@BORDER_DEFAULT",      base("300")},
+        {"@BORDER_SUBTLE",       base("300")},
+        {"@BORDER_DISABLED",     base("300")},
+        {"@SEPARATOR",           base("300")},
+        {"@SEPARATOR_HOVER",     base("300")},
+        {"@MENU_BORDER",         base("300")},
+        {"@POPUP_BORDER",        base("300")},
+        {"@SPLITTER",            lightAccent("Overlay 10")},
+        {"@SPLITTER_HOVER",      lightAccent("Blue")},
+        {"@SCROLL_TRACK",        base("150")},
+        {"@SCROLL_HANDLE",       base("400")},
+        {"@SCROLL_HANDLE_HOVER", lightAccent("Blue")},
+        {"@SCROLL_SHADOW",       "rgba(26, 32, 44, 0.35)"},
+        {"@SLIDER_HANDLE",       lightAccent("Orange")},
+
+        // --- Accent (selection) and danger ---
+        {"@ACCENT",       lightAccent("Blue")},
+        {"@ACCENT_BG",    lightAccent("Selection Blue")},
+        {"@DANGER",       lightAccent("Red")},
+        {"@DANGER_HOVER", lightAccent("Red 15")},
+        {"@RECORD",       lightAccent("Red")},
+
+        // --- Status: notifications, on/mixed labels ---
+        {"@STATUS_OK",      lightAccent("Green Text")},
+        {"@STATUS_OK_BG",   "rgba(22, 101, 52, 15%)"},
+        {"@STATUS_INFO",    lightAccent("Blue")},
+        {"@STATUS_WARN",    lightAccent("Amber Text")},
+        {"@STATUS_WARN_BG", "rgba(146, 64, 14, 0.15)"},
+        {"@STATUS_ERROR",   lightAccent("Red")},
+
+        // --- Channel property badges (E, P, O, X, R, C) ---
+        {"@BDG_E_FG", lightAccent("Green Text")},
+        {"@BDG_E_BG", "rgba(22, 101, 52, 15%)"},
+        {"@BDG_P_FG", lightAccent("Purple")},
+        {"@BDG_P_BG", "rgba(126, 34, 206, 15%)"},
+        {"@BDG_O_FG", base("700")},
+        {"@BDG_O_BG", "rgba(74, 84, 104, 15%)"},
+        {"@BDG_X_FG", lightAccent("Red")},
+        {"@BDG_X_BG", "rgba(185, 28, 28, 15%)"},
+        {"@BDG_R_FG", lightAccent("Amber Text")},
+        {"@BDG_R_BG", "rgba(146, 64, 14, 15%)"},
+        {"@BDG_C_FG", lightAccent("Blue")},
+        {"@BDG_C_BG", "rgba(11, 92, 173, 15%)"},
+
+        // --- Channel property badges, chessboard solid colors (painted from C++) ---
+        // Light: white text on every badge >= 4.5:1
+        {"@BDG_E_FG_CH", "#FFFFFF"},
+        {"@BDG_E_BG_CH", lightAccent("Green")},
+        {"@BDG_P_FG_CH", "#FFFFFF"},
+        {"@BDG_P_BG_CH", lightAccent("Purple")},
+        {"@BDG_O_FG_CH", "#FFFFFF"},
+        {"@BDG_O_BG_CH", base("700")},
+        {"@BDG_X_FG_CH", "#FFFFFF"},
+        {"@BDG_X_BG_CH", lightAccent("Red")},
+        {"@BDG_R_FG_CH", "#FFFFFF"},
+        {"@BDG_R_BG_CH", lightAccent("Amber")},
+        {"@BDG_C_FG_CH", "#FFFFFF"},
+        {"@BDG_C_BG_CH", lightAccent("Blue")},
+
+        // --- Temperature sensor badges ---
+        {"@BDG_NOR_FG", lightAccent("Green Text")},
+        {"@BDG_NOR_BG", "rgba(22, 101, 52, 15%)"},
+        {"@BDG_WAR_FG", lightAccent("Amber Text")},
+        {"@BDG_WAR_BG", "rgba(146, 64, 14, 15%)"},
+        {"@BDG_DNG_FG", lightAccent("Red")},
+        {"@BDG_DNG_BG", "rgba(185, 28, 28, 15%)"},
+
+        // --- Chessboard mini-plots (cards, overlay, curve) ---
+        {"@BG_STAMP",        base("150")},
+        {"@BG_STAMP_SEL",    "#D6E4F5"},
+        {"@BORDER_STAMP",    base("400")},
+        {"@STAMP_GRID",      base("200")},
+        {"@STAMP_CURVE",     base("500")},
+        {"@STAMP_NAME_BG",   base("50")},
+        {"@STAMP_NAME_TEXT", base("900")},
+
+        // --- Plots ---
+        {"@PLOT_BG",   base("100")},
+        {"@PLOT_GRID", base("200")},
+
+        // --- Timer (LCD) ---
+        {"@LCD_BG",          base("100")},
+        {"@LCD_FG",          base("800")},
+        {"@LCD_FG_DISABLED", base("400")},
+        {"@LCD_BORDER",      base("300")}
+
+    };
+}
+
+} // namespace
 
 QMap<QString, QString> ThemeController::getPalette(Theme theme) {
-
     QMap<QString, QString> variables;
-    QString iconPrefix = ":/theme/";
+    switch (theme) {
+    case Dark:
+        variables = darkTheme();
+        break;
+    case Light:
+        variables = lightTheme();
+        break;
+    default:
+        qWarning() << "ThemeController: unknown theme" << theme;
+        return variables;
+    }
 
-    if (theme == Dark) {
-        iconPrefix += "dark/icons";
-
-        variables = {
-            // --- Panel layers ---
-            {"@BG_APP",        darkPalette["900"]},
-            {"@BG_PANEL",      darkPalette["800"]},
-            {"@BG_HEADER",     darkPalette["700"]},
-            {"@BG_INPUT",      darkPalette["900"]},
-            {"@BG_BTN",        darkPalette["700"]},
-            {"@BG_BTN_HOVER",  darkPalette["600"]},
-            {"@BG_BTN_PRESS",  darkPalette["900"]},
-            {"@BG_SCROLL",     darkPalette["800"]},
-
-            // --- Borders ---
-            {"@BORDER_STD",    darkPalette["800"]},
-            {"@BORDER_PANEL",  darkPalette["700"]},
-            {"@BORDER_INPUT",  darkPalette["700"]},
-            {"@BORDER_FOCUS",  darkPalette["600"]},
-            {"@BORDER_LIGHT",  darkAccentsPalette["White 8"]},
-
-            // --- Text ---
-            {"@TEXT_MAIN",       darkPalette["200"]},
-            {"@TEXT_SECONDARY",  darkPalette["400"]},
-            {"@TEXT_LIGHT",      darkPalette["100"]},
-            {"@TEXT_MUTED",      darkPalette["500"]},
-            {"@TEXT_TERTIARY",   darkPalette["600"]},
-
-            // --- Items ---
-            {"@ITEM_SELECTED",  darkAccentsPalette["White 20"]},
-            {"@ITEM_PRESS",     darkAccentsPalette["White 10"]},
-            {"@ITEM_DISABLED",  darkAccentsPalette["White 20"]},
-
-            // --- Accents ---
-            {"@ACCENT_RED",       darkAccentsPalette["Red"]},
-            {"@ACCENT_LRED",      darkAccentsPalette["Red Light"]},
-            {"@ACCENT_ORANGE",    darkAccentsPalette["Orange"]},
-            {"@ACCENT_BLUE",      darkAccentsPalette["Blue"]},
-            {"@ACCENT_LBLUE",     darkAccentsPalette["Blue Light"]},
-            {"@SELECTION_BLUE",   darkAccentsPalette["Selection Blue"]},
-            {"@TABLE_HEADER",     darkAccentsPalette["Table header"]},
-
-            // --- Badges ---
-            {"@BDG_E_FG", "#4ade80"}, {"@BDG_E_BG", "rgba(74, 222, 128, 15%)"},
-            {"@BDG_P_FG", "#a78bfa"}, {"@BDG_P_BG", "rgba(167, 139, 250, 15%)"},
-            {"@BDG_O_FG", "#a1a1aa"}, {"@BDG_O_BG", "rgba(161, 161, 170, 15%)"},
-            {"@BDG_X_FG", "#f87171"}, {"@BDG_X_BG", "rgba(248, 113, 113, 15%)"},
-            {"@BDG_R_FG", "#fbbf24"}, {"@BDG_R_BG", "rgba(251, 191, 36, 15%)"},
-            {"@BDG_C_FG", "#fafafa"}, {"@BDG_C_BG", "rgba(124, 58, 237, 20%)"},
-
-            // --- Badges - chessboard solid colors ---
-            {"@BDG_E_FG_CH", "#FFFFFF"}, {"@BDG_E_BG_CH", "#16a34a"},
-            {"@BDG_P_FG_CH", "#FFFFFF"}, {"@BDG_P_BG_CH", "#7c3aed"},
-            {"@BDG_O_FG_CH", "#FFFFFF"}, {"@BDG_O_BG_CH", "#4b5563"},
-            {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", "#dc2626"},
-            {"@BDG_R_FG_CH", "#1e293b"}, {"@BDG_R_BG_CH", "#eab308"},
-            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", "#2563eb"},
-
-            // --- Plots ---
-            // Chessboard mini-plots
-            {"@BG_STAMP",      "#11161F"},
-            {"@BG_STAMP_SEL",  "#3A4A66"},
-            {"@BORDER_STAMP",  darkPalette["700"]},
-            {"@STAMP_GRID",    "#2A3344"},
-            {"@STAMP_CURVE",   "#CBD2E0"},
-            {"@PLOT_GRID",     "#3A4458"},
-
-            // --- Badges for temperature sensor ---
-            {"@BDG_NOR_FG", "#4ade80"}, {"@BDG_DEF_BG", "rgba(74, 222, 128, 15%)"},
-            {"@BDG_WAR_FG", "#fbbf24"}, {"@BDG_WAR_BG", "rgba(251, 191, 36, 15%)"},
-            {"@BDG_DNG_FG", "#f87171"}, {"@BDG_DNG_BG", "rgba(248, 113, 113, 15%)"}
-        };
-
-    } else if (theme == Light) {
-        iconPrefix += "light/icons";
-
-        variables = {
-            // --- Panel layers ---
-            {"@BG_APP",        lightPalette["800"]},
-            {"@BG_PANEL",      lightPalette["700"]},
-            {"@BG_HEADER",     lightPalette["900"]},
-            {"@BG_INPUT",      lightPalette["700"]},
-            {"@BG_BTN",        lightPalette["900"]},
-            {"@BG_BTN_HOVER",  lightPalette["600"]},
-            {"@BG_BTN_PRESS",  lightPalette["500"]},
-            {"@BG_SCROLL",     lightPalette["800"]},
-
-            // --- Borders ---
-            {"@BORDER_STD",    lightPalette["600"]},
-            {"@BORDER_PANEL",  lightPalette["600"]},
-            {"@BORDER_INPUT",  lightPalette["500"]},
-            {"@BORDER_FOCUS",  lightAccentsPalette["Blue"]},
-            {"@BORDER_LIGHT",  lightAccentsPalette["White 8"]},
-
-            // --- Text ---
-            {"@TEXT_MAIN",       lightPalette["White"]},
-            {"@TEXT_SECONDARY",  lightPalette["100"]},
-            {"@TEXT_LIGHT",      lightPalette["300"]},
-            {"@TEXT_MUTED",      lightPalette["400"]},
-            {"@TEXT_TERTIARY",   lightPalette["300"]},
-
-            // --- Items ---
-            {"@ITEM_SELECTED",  lightAccentsPalette["White 20"]},
-            {"@ITEM_PRESS",     lightAccentsPalette["White 16"]},
-            {"@ITEM_DISABLED",  lightAccentsPalette["White 10"]},
-
-            // --- Accents ---
-            {"@ACCENT_RED",       lightAccentsPalette["Red"]},
-            {"@ACCENT_LRED",      lightAccentsPalette["Red Light"]},
-            {"@ACCENT_ORANGE",    lightAccentsPalette["Orange"]},
-            {"@ACCENT_BLUE",      lightAccentsPalette["Blue"]},
-            {"@ACCENT_LBLUE",     lightAccentsPalette["Blue"]},
-            {"@SELECTION_BLUE",   lightAccentsPalette["Selection Blue"]},
-            {"@TABLE_HEADER",     lightPalette["600"]},
-
-            // --- Badges ---
-            {"@BDG_E_FG", lightAccentsPalette["Green"]},    {"@BDG_E_BG", "rgba(22, 163, 74, 15%)"},
-            {"@BDG_P_FG", lightAccentsPalette["Purple"]},   {"@BDG_P_BG", "rgba(147, 51, 234, 15%)"},
-            {"@BDG_O_FG", lightPalette["200"]},             {"@BDG_O_BG", "rgba(88, 88, 88, 15%)"},
-            {"@BDG_X_FG", lightAccentsPalette["Red"]},      {"@BDG_X_BG", "rgba(220, 38, 38, 15%)"},
-            {"@BDG_R_FG", lightAccentsPalette["Orange"]},   {"@BDG_R_BG", "rgba(217, 119, 6, 15%)"},
-            {"@BDG_C_FG", lightAccentsPalette["Blue"]},     {"@BDG_C_BG", "rgba(0, 102, 204, 15%)"},
-
-            // --- Badges - chessboard solid colors ---
-            {"@BDG_E_FG_CH", "#FFFFFF"}, {"@BDG_E_BG_CH", lightAccentsPalette["Green"]},
-            {"@BDG_P_FG_CH", "#FFFFFF"}, {"@BDG_P_BG_CH", lightAccentsPalette["Purple"]},
-            {"@BDG_O_FG_CH", "#FFFFFF"}, {"@BDG_O_BG_CH", lightPalette["200"]},
-            {"@BDG_X_FG_CH", "#FFFFFF"}, {"@BDG_X_BG_CH", lightAccentsPalette["Red"]},
-            {"@BDG_R_FG_CH", "#FFFFFF"}, {"@BDG_R_BG_CH", lightAccentsPalette["Orange"]},
-            {"@BDG_C_FG_CH", "#FFFFFF"}, {"@BDG_C_BG_CH", lightAccentsPalette["Blue"]},
-
-            // --- Plots ---
-            // Chessboard mini-plots as small screens
-            {"@BG_STAMP",      "#E3E8EE"},
-            {"@BG_STAMP_SEL",  "#CFE0F3"},
-            {"@BORDER_STAMP",  lightPalette["500"]},
-            {"@STAMP_GRID",    "#CBD3DC"},
-            {"@STAMP_CURVE",   lightPalette["100"]},
-            {"@PLOT_GRID",     "#C0C0C0"},
-
-             // --- Badges for temperature sensor ---
-            {"@BDG_NOR_FG", lightAccentsPalette["Green"]}, {"@BDG_NOR_BG", "rgba(22, 163, 74, 15%)"},
-            {"@BDG_WAR_FG", lightAccentsPalette["Orange"]}, {"@BDG_WAR_BG", "rgba(217, 119, 6, 15%)"},
-            {"@BDG_DNG_FG", lightAccentsPalette["Red"]}, {"@BDG_DNG_BG", "rgba(220, 38, 38, 15%)"}
-        };
+    // Every theme must define the same variables as the dark one
+    if (theme != Dark) {
+        const QMap<QString, QString> reference = darkTheme();
+        for (auto it = reference.cbegin(); it != reference.cend(); ++it) {
+            if (!variables.contains(it.key())) {
+                qWarning().noquote() << "ThemeController:" << it.key() << "is missing in the" << getThemeStr(theme) << "theme";
+            }
+        }
+        for (auto it = variables.cbegin(); it != variables.cend(); ++it) {
+            if (!reference.contains(it.key())) {
+                qWarning().noquote() << "ThemeController:" << it.key() << "is not defined in the dark theme";
+            }
+        }
     }
 
     // Common properties
-    variables.insert("@ICON_PREFIX", iconPrefix);
-    variables.insert("@IMGS_PREFIX", ThemeController::imgsPath());
+    const QString themeRoot = QStringLiteral(":/theme/") + getThemeStr(theme);
+    variables.insert("@ICON_PREFIX", themeRoot + "/icons");
+    variables.insert("@IMGS_PREFIX", themeRoot + "/imgs");
 
     return variables;
+}
+
+
+/*  Application palette from the same variables: it covers what the QSS
+ *  does not reach (placeholder text, links in rich text, standard dialogs)
+ */
+QPalette ThemeController::buildPalette() {
+    QPalette palette;
+    auto set = [&palette](QPalette::ColorRole role, const char *var,
+                          QPalette::ColorGroup group = QPalette::All) {
+        palette.setColor(group, role, color(QLatin1String(var)));
+    };
+    set(QPalette::Window,          "@SURFACE_APP");
+    set(QPalette::WindowText,      "@TEXT_DEFAULT");
+    set(QPalette::Base,            "@FIELD_BG");
+    set(QPalette::AlternateBase,   "@SURFACE_PANEL");
+    set(QPalette::Text,            "@TEXT_DEFAULT");
+    set(QPalette::Button,          "@CONTROL_BG");
+    set(QPalette::ButtonText,      "@TEXT_DEFAULT");
+    set(QPalette::BrightText,      "@TEXT_STRONG");
+    set(QPalette::Highlight,       "@ACCENT_BG");
+    set(QPalette::HighlightedText, "@TEXT_STRONG");
+    set(QPalette::ToolTipBase,     "@TOOLTIP_BG");
+    set(QPalette::ToolTipText,     "@TOOLTIP_TEXT");
+    set(QPalette::PlaceholderText, "@TEXT_DISABLED");
+    set(QPalette::Link,            "@TEXT_LINK");
+    set(QPalette::LinkVisited,     "@TEXT_LINK");
+    for (QPalette::ColorRole role : {QPalette::WindowText, QPalette::Text, QPalette::ButtonText}) {
+        set(role, "@TEXT_DISABLED", QPalette::Disabled);
+    }
+    return palette;
 }
 
 // Converts colors into QColor. Used by QPainter which needs theme colors via code.
@@ -342,5 +562,10 @@ QColor ThemeController::color(const QString &var) {
             }
         }
     }
-    return self.colorCache.value(var);
+    const auto it = self.colorCache.constFind(var);
+    if (it == self.colorCache.constEnd()) {
+        qWarning().noquote() << "ThemeController::color: unknown variable" << var;
+        return QColor();
+    }
+    return it.value();
 }

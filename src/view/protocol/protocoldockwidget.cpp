@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QSettings>
 #include <QButtonGroup>
+#include "scrollshadow.h"
 
 ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModality_t clampingModality, QWidget * parent) :
     QDockWidget(),
@@ -68,6 +69,11 @@ ProtocolDockWidget::ProtocolDockWidget(MessageDispatcher * msgDisp, ClampingModa
                                                         currentProtocolList, analysisCurrentProtocolList,
                                                         protocolPropertyDialog}) {
         w->setProperty("floatingAware", true);
+    }
+
+    for (ProtocolList * list : std::initializer_list<ProtocolList *>{voltageProtocolList, analysisVoltageProtocolList,
+                                                                     currentProtocolList, analysisCurrentProtocolList}) {
+        ScrollShadow::install(list);
     }
 
     QSplitter * mainSpl = new QSplitter(Qt::Vertical, this);

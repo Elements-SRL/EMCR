@@ -137,6 +137,7 @@ add_executable(EMCR WIN32
     src/view/autotoggle.cpp
     src/view/recordsettingsdialog.cpp
     src/view/rect4.cpp
+    src/view/scrollshadow.cpp
     src/view/singlechannelcontroldockwidget.cpp
     src/view/stampplot.cpp
     src/view/boardcontroldockwidget.cpp
@@ -288,6 +289,7 @@ add_executable(EMCR WIN32
     src/view/autotoggle.h
     src/view/recordsettingsdialog.h
     src/view/rect4.h
+    src/view/scrollshadow.h
     src/view/singlechannelcontroldockwidget.h
     src/view/stampplot.h
     src/view/stampoverlaystyle.h

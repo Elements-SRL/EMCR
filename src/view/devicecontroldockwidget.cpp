@@ -4,6 +4,7 @@
 
 #include "devicecontroldockwidget.h"
 #include <QScrollArea>
+#include "scrollshadow.h"
 
 #define TITLE "Device controls"
 
@@ -41,6 +42,7 @@ DeviceControlDockWidget::DeviceControlDockWidget(MessageDispatcher * msgDisp) :
 
     scrollArea->setWidget(scrollContainer);
     externalLayout->addWidget(scrollArea);
+    ScrollShadow::install(scrollArea);
 
     std::vector <ClampingModality_t> clampingModalities;
     msgDisp->getClampingModalitiesFeatures(clampingModalities);

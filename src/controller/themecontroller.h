@@ -5,8 +5,9 @@
 #include <QObject>
 #include <QColor>
 #include <QMap>
+#include <QPalette>
 
-// Available themes
+// Available themes. The value is saved in the settings: append new themes.
 enum Theme {
     Dark = 0,
     Light = 1
@@ -64,6 +65,7 @@ private:
 
     static QString loadAndProcessQss(const QString &path, Theme theme);
     static QMap<QString, QString> getPalette(Theme theme);
+    static QPalette buildPalette();
 
 signals:
     void sigThemeUpdated();

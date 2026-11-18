@@ -5,6 +5,7 @@
 #include <QApplication>
 #include "globaldefines.h"
 #include "qscrollarea.h"
+#include "scrollshadow.h"
 #include <QScreen>
 
 ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidget * parent) :
@@ -73,6 +74,7 @@ ChessboardDockWidget::ChessboardDockWidget(ApplicationStatus * appStatus, QWidge
 
     scrollArea->setWidget(containerWg);
     topLevelLayout->addWidget(scrollArea);
+    ScrollShadow::install(scrollArea);
 
     // --- Legenda footer ---
     QWidget* legenda = new QWidget();

@@ -824,10 +824,12 @@ void ProtocolWidget::onPropertyChanged() {
 
 GapfreeProtocolWidget::GapfreeProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
 ProtocolWidget(msgDisp, name, dialog, type,clampingModality) {
-    QString iconString = ThemeController::getInstance().imgsPath() + "/gap free icon.png";
-    QIcon icon;
-    icon.addPixmap(iconString);
-    this->setIcon(icon);
+    // Themed icon, updated at every theme change
+    auto updateIcon = [this]() {
+        this->setIcon(QIcon(ThemeController::iconPath() + "/gapfree_icon.svg"));
+    };
+    updateIcon();
+    connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, updateIcon);
 }
 
 Measurement_t GapfreeProtocolWidget::getTotalDuration() {
@@ -925,10 +927,12 @@ ProtocolSection * GapfreeProtocolWidget::getItemAtTime(double time, int itemIdx,
 
 EpisodicProtocolWidget::EpisodicProtocolWidget(MessageDispatcher * msgDisp, QString name, ProtocolPropertyDialog * dialog, ProtocolType_t type, ClampingModality_t clampingModality) :
     ProtocolWidget(msgDisp, name, dialog, type,clampingModality) {
-    QString iconString = ":imgs/episodic icon.png";
-    QIcon icon;
-    icon.addPixmap(iconString);
-    this->setIcon(icon);
+    // Themed icon, updated at every theme change
+    auto updateIcon = [this]() {
+        this->setIcon(QIcon(ThemeController::iconPath() + "/episodic_icon.svg"));
+    };
+    updateIcon();
+    connect(&ThemeController::getInstance(), &ThemeController::sigThemeUpdated, this, updateIcon);
 }
 
 Measurement_t EpisodicProtocolWidget::getTotalDuration() {

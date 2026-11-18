@@ -10,6 +10,7 @@
 #include <QEasingCurve>
 #include <QPropertyAnimation>
 #include <QScrollArea>
+#include "scrollshadow.h"
 #include "globaldefines.h"
 
 MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispatcher * msgDisp, QWidget * parent) :
@@ -32,11 +33,25 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
     setWindowTitle("Multiple channel controls");
     this->setObjectName("multipleChannelControlsDw");
 
+    // Selection counter: "CHANNELS" caption + count in a pill (what the controls below act on)
+    QFrame * selectionCounter = new QFrame();
+    selectionCounter->setObjectName("selectionCounter");
+    selectionCounter->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
+    QHBoxLayout * selectionCounterLayout = new QHBoxLayout(selectionCounter);
+    selectionCounterLayout->setContentsMargins(8, 6, 8, 6);
+    selectionCounterLayout->setSpacing(6);
+
+    QLabel * selectionCaption = new QLabel("CHANNELS");
+    selectionCaption->setObjectName("selectionCounterCaption");
+
     m_selectionCounterLabel = new QLabel();
-    m_selectionCounterLabel->setObjectName("selectionCounter");
-    m_selectionCounterLabel->setProperty("floatingAware", true); // border depends on the dock floating state, see MainWindow::setDockWidget
-    m_selectionCounterLabel->setAlignment(Qt::AlignCenter);
-    externalLayout->addWidget(m_selectionCounterLabel);
+    m_selectionCounterLabel->setObjectName("selectionCounterText");
+    m_selectionCounterLabel->setFixedHeight(18);
+
+    selectionCounterLayout->addWidget(selectionCaption);
+    selectionCounterLayout->addStretch();
+    selectionCounterLayout->addWidget(m_selectionCounterLabel);
+    externalLayout->addWidget(selectionCounter);
 
     // CENTRAL scroll area
     QScrollArea* scrollArea = new QScrollArea();
@@ -59,6 +74,7 @@ MultipleChannelControlDockWidget::MultipleChannelControlDockWidget(MessageDispat
 
     // External layout embeds scroll area
     externalLayout->addWidget(scrollArea);
+    ScrollShadow::install(scrollArea);
 
     // Helper lambda for panel sub-property creation in central area
     auto addPropertyRow = [&](ChannelProperty property, AutoToggle* &autoTgl, QLabel* &badge,
@@ -463,10 +479,7 @@ void MultipleChannelControlDockWidget::updateFeatureDetail(const ChannelProperty
 }
 
 void MultipleChannelControlDockWidget::setSelectionCount(int count, int totalChannels) {
-    m_selectionCounterLabel->setText(QString(
-        "<span style='color:#0078d4;'>●</span> %1 Selected "
-        "<span style='color:#666666;'> ●</span> %2 Total"
-        ).arg(count).arg(totalChannels));
+    m_selectionCounterLabel->setText(QString("%1 of %2 selected").arg(count).arg(totalChannels));
 
     m_selectionCounterLabel->setProperty("empty", count == 0);
     m_selectionCounterLabel->style()->unpolish(m_selectionCounterLabel);
