@@ -1157,7 +1157,7 @@ QLabel#statsVal{
 /* ========================================= */
 
 QComboBox#deviceCombo{
-    width: 205px;
+    width: 195px;
 }
 
 QLabel#deviceConnectedLbl {

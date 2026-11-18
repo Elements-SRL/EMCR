@@ -109,8 +109,6 @@
         <file>theme/light/icons/vertical_splitter.svg</file>
         <file>theme/dark/icons/record.svg</file>
         <file>theme/light/icons/record.svg</file>
-        <file>theme/dark/imgs/gap free icon.png</file>
-        <file>theme/light/imgs/gap free icon.png</file>
         <file>theme/dark/icons/3_dots_bounce.svg</file>
         <file>theme/dark/icons/disconnect_plug.svg</file>
         <file>theme/dark/icons/toggle_off.svg</file>
@@ -138,5 +136,9 @@
         <file>theme/light/icons/zoom_full.svg</file>
         <file>theme/dark/icons/extra_settings.svg</file>
         <file>theme/light/icons/extra_settings.svg</file>
+        <file>theme/dark/icons/gapfree_icon.svg</file>
+        <file>theme/light/icons/gapfree_icon.svg</file>
+        <file>theme/dark/icons/episodic_icon.svg</file>
+        <file>theme/light/icons/episodic_icon.svg</file>
     </qresource>
 </RCC>
